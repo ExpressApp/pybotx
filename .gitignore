@@ -1,5 +1,9 @@
-**/venv
-**/.idea
-**/how_should_it_work.py
-**/temp.py
+venv/
+.idea/
+how_should_it_work.py
+temp.py
 **/.DS_Store
+**.pyc
+**/__pycache__
+**/.ipynb_checkpoints/
+**-checkpoint.ipynb
