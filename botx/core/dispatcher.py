@@ -46,13 +46,25 @@ class Dispatcher:
                      or str(incoming_path_info).lower() == '/command/'):
             return self._create_message(incoming_data)
 
-    def _create_status(self):
+        return
+
+    def _create_status(self, incoming_data=None):
+        if not incoming_data:
+            return
+
+        incoming_data_bot_id = incoming_data.get('bot_id')
+        if not incoming_data_bot_id or incoming_data_bot_id != self._bot.token:
+            return
+
         # return Job(func_name=None, message=None, status=status), status
         # сгенерировать из self.handlers
-        pass
 
     def _create_message(self, incoming_data=None):
         if not incoming_data:
+            return
+
+        incoming_data_bot_id = incoming_data.get('bot_id')
+        if not incoming_data_bot_id or incoming_data_bot_id != self._bot.token:
             return
 
         incoming_data_sync_id = incoming_data.get('sync_id')
@@ -83,10 +95,8 @@ class Dispatcher:
         incoming_data_from_ad_login = incoming_data_from.get('ad_login')
         incoming_data_from_host = incoming_data_from.get('host')
 
-        incoming_data_bot_id = incoming_data.get('bot_id')
-
         if incoming_data_sync_id and incoming_data_from_ad_login \
-                and incoming_data_from_host and incoming_data_bot_id:
+                and incoming_data_from_host:
             message = Message(sync_id=incoming_data_sync_id,
                               text=incoming_data_command_body,
                               data=incoming_data_command_data,
@@ -109,6 +119,11 @@ class Dispatcher:
             return
 
     def add_handler(self, handler=None):
+        """
+        :param handler: A handler with assigned command and function
+         :type handler: CommandHandler
+        :return:
+        """
         if not handler or not isinstance(handler, CommandHandler):
             raise ValueError('`CommandHandler` object must be provided')
 
