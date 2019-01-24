@@ -12,6 +12,7 @@ from gevent.queue import Queue
 from gevent.pywsgi import WSGIServer
 
 from botx.types.job import Job
+from botx.types.other import ChatID
 from botx.types.message import Message
 from botx.core.dispatcher import Dispatcher
 
@@ -112,7 +113,11 @@ class Bot:
                 job.command.func(job.message)
             gevent.sleep(0)
 
-    def send_message(self, sync_id, chat_id, text):
-        # sync_id or chat_id, both are paths where to send a message
-        if not sync_id or not chat_id:
-            raise ValueError()
+    def send_message(self, chat_id, text):
+        if isinstance(chat_id, ChatID):
+            pass
+        elif isinstance(chat_id, str) or isinstance(chat_id, list):
+            pass
+        else:
+            raise ValueError('`chat_id` must be of type str or list of str, '
+                             'or ChatID object (Message.chat_id)')

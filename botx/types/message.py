@@ -1,8 +1,11 @@
+from botx.types.other import ChatID
+
+
 class Message:
 
     def __init__(self, sync_id, text, data, user_id, user_login, group_chat_id,
                  host, bot_id):
-        self.sync_id = sync_id
+        self.chat_id = ChatID(sync_id)
         self.text = text
         self.data = data
         self.user_id = user_id
