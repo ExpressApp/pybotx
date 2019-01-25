@@ -114,6 +114,9 @@ class Dispatcher:
             if isinstance(command, CommandHandler):
                 return Job(command=command, message=message)
             else:
+                any_command = self._handlers.get(CommandHandler.ANY)
+                if isinstance(any_command, CommandHandler):
+                    return Job(command=any_command, message=message)
                 return
         else:
             return

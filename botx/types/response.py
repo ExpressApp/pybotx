@@ -1,4 +1,5 @@
 class Response:
+    # @TODO: Add json serialization from classes
 
     def __init__(self, chat_id=None, group_chat_ids=None, recipients='all',
                  bot_id=None, body=None):
@@ -19,6 +20,10 @@ class Response:
             'bot_id': self.bot_id,
             'command_result': {
                 'status': 'ok',
-                'body': self.body
+                'body': self.body,
+                'commands': [],
+                'bubble': [],
+                'keyboard': [],
+                'files': []
             }
         }

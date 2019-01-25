@@ -14,6 +14,7 @@ from gevent.pywsgi import WSGIServer
 from botx.types.job import Job
 from botx.types.other import ChatID
 from botx.types.message import Message
+from botx.types.response import Response
 from botx.core.dispatcher import Dispatcher
 
 
@@ -115,7 +116,13 @@ class Bot:
 
     def send_message(self, chat_id, text):
         if isinstance(chat_id, ChatID):
-            pass
+            try:
+                requests.post(self.url_command.format(self.base_url),
+                              json=Response(chat_id=chat_id, bot_id=self.token,
+                                            body=text).to_json())
+            except requests.RequestException as exc:
+                print('error during send_message: {}'.format(exc))
+                pass
         elif isinstance(chat_id, str) or isinstance(chat_id, list):
             pass
         else:
