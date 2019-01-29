@@ -13,6 +13,7 @@ from gevent.pywsgi import WSGIServer
 
 from botx.types.job import Job
 from botx.types.other import ChatID
+from botx.types.status import Status
 from botx.types.message import Message
 from botx.types.response import Response
 from botx.core.dispatcher import Dispatcher
@@ -20,22 +21,27 @@ from botx.core.dispatcher import Dispatcher
 
 class Bot:
 
-    def __init__(self, token=None, base_url=None):
+    def __init__(self, bot_id=None, bot_host=None):
         """
-        :param token: bot_id (uuid) - an unique identifier in BotX system
-         :type token: str
-        :param base_url: url
-         :type base_url: str
+        :param bot_id: bot_id (uuid) - an unique identifier in BotX system
+         :type bot_id: str
+        :param bot_host: url (host) without type of connection
+                         (e.g. `server.com`)
+         :type bot_host: str
         """
 
-        if not token or not base_url:
-            raise ValueError('`token` and `base_url` must be provided')
+        if not isinstance(bot_id, str) or not isinstance(bot_host, str):
+            raise ValueError('`bot_id` and `bot_host` must be provided and '
+                             'must be of str type')
 
-        self.token = token
-        self.base_url = base_url
-        self.url_command = '{}/api/v2/botx/command/callback'
-        self.url_notification = '{}/api/v2/botx/notification/callback'
-        self.url_file = '{}/api/v1/botx/file/callback'
+        self.bot_id = bot_id
+        self.bot_host = bot_host
+        self.url_command = 'https://{}/api/v2/botx/command/callback'\
+                           .format(self.bot_host)
+        self.url_notification = 'https://{}/api/v2/botx/notification/callback'\
+                                .format(self.bot_host)
+        self.url_file = 'https://{}/api/v1/botx/file/callback'\
+                        .format(self.bot_host)
         self.dispatcher = Dispatcher(bot=self)
 
         self._server = None
@@ -70,7 +76,7 @@ class Bot:
         self._server.start()
 
     def stop_webhook(self):
-        # @TODO: kill all greenlets (self._kill_workers)
+        # @TODO: kill all green lets (self._kill_workers)
         self._server.stop()
         self._server = None
         sys.exit(signal.SIGINT)
@@ -85,9 +91,9 @@ class Bot:
             self._jobs_queue.put_nowait(job)
             start_response(response_accepted, headers)
             return [json.dumps({"status": "accepted"}).encode('utf-8')]
-        else:
-            # @TODO: send a status
-            pass
+        elif job and isinstance(job, Job) and isinstance(job.status, Status):
+            start_response(response_ok, headers)
+            return [json.dumps(job.status.status).encode('utf-8')]
 
         start_response(response_ok, headers)
         return [json.dumps({"status": "ok"}).encode('utf-8')]
@@ -117,12 +123,14 @@ class Bot:
     def send_message(self, chat_id, text):
         if isinstance(chat_id, ChatID):
             try:
-                requests.post(self.url_command.format(self.base_url),
-                              json=Response(chat_id=chat_id, bot_id=self.token,
-                                            body=text).to_json())
-            except requests.RequestException as exc:
-                print('error during send_message: {}'.format(exc))
-                pass
+                requests.post(
+                    self.url_command,
+                    json=Response(chat_id=chat_id, bot_id=self.bot_id,
+                                  body=text).to_json()
+                )
+            except requests.RequestException as err:
+                # @TODO: delete prints
+                print(err)
         elif isinstance(chat_id, str) or isinstance(chat_id, list):
             pass
         else:

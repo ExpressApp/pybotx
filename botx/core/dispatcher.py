@@ -2,9 +2,10 @@ import json
 
 from collections import OrderedDict
 
-from botx.core.commandhandler import CommandHandler
+from botx.types.command import Command
 
 from botx.types.job import Job
+from botx.types.status import Status, StatusResult
 from botx.types.message import Message
 
 
@@ -15,7 +16,7 @@ class Dispatcher:
         self._handlers = OrderedDict()
         # @IDEA: Пользователь в коде пишет register_next_step_handler(user_id)
         # и эта функция берет и добавляет в Dispatcher.handlers новый
-        # CommandHandler или другой какой-то объект (или вообще 2 тип handlers
+        # Command или другой какой-то объект (или вообще 2 тип handlers
         # сделать). Потом, когда parse_request будет вызывать handlers для
         # сверки с пришедшим сообщением, и если там оказывается нужное - тупо
         # запускать нужную функцию и похер что там пришло.
@@ -39,7 +40,7 @@ class Dispatcher:
                 and (str(incoming_path_info).lower() == '/status'
                      or str(incoming_path_info).lower() == '/status/'):
             # @TODO: Add status
-            return Job(status=True)
+            return self._create_status(incoming_data)
 
         if str(incoming_request_method).lower() == 'post' \
                 and (str(incoming_path_info).lower() == '/command'
@@ -53,81 +54,61 @@ class Dispatcher:
             return
 
         incoming_data_bot_id = incoming_data.get('bot_id')
-        if not incoming_data_bot_id or incoming_data_bot_id != self._bot.token:
+        if not incoming_data_bot_id \
+                or incoming_data_bot_id != self._bot.bot_id:
             return
 
-        # return Job(func_name=None, message=None, status=status), status
-        # сгенерировать из self.handlers
+        commands = []
+        for _handler_name in self._handlers:
+            command = self._handlers.get(_handler_name)
+            if isinstance(command, Command):
+                commands.append(command.to_dict())
+        status_result = StatusResult(commands=commands).__dict__
+        status = Status(result=status_result)
+
+        print(status)
+
+        return Job(command=None, message=None, status=Status(status=status))
 
     def _create_message(self, incoming_data=None):
         if not incoming_data:
             return
 
         incoming_data_bot_id = incoming_data.get('bot_id')
-        if not incoming_data_bot_id or incoming_data_bot_id != self._bot.token:
+        if not incoming_data_bot_id \
+                or incoming_data_bot_id != self._bot.bot_id:
             return
 
-        incoming_data_sync_id = incoming_data.get('sync_id')
-        incoming_data_command = incoming_data.get('command')
-
-        if not incoming_data_command:
+        message = Message.from_json(incoming_data)
+        if not isinstance(message, Message):
+            return
+        if not message.chat_id or (not message.text and not message.data):
             return
 
-        incoming_data_command_body = incoming_data_command.get('body')
-        incoming_data_command_data = incoming_data_command.get('data')
+        # @TODO: make support for data (currently only message.text)
+        # @TODO: make case insensitive, improve command detection
 
-        if not incoming_data_command_body and not incoming_data_command_data:
+        try:
+            command_text = message.text.strip().split(' ')[0]
+        except (ValueError, IndexError):
             return
 
-        incoming_data_from = incoming_data.get('from')
-
-        if not incoming_data_from:
-            return
-
-        incoming_data_from_user_id = incoming_data_from.get('user_huid')
-        incoming_data_from_group_chat_id = \
-            incoming_data_from.get('group_chat_id')
-
-        if not incoming_data_from_user_id \
-                or not incoming_data_from_group_chat_id:
-            return
-
-        incoming_data_from_ad_login = incoming_data_from.get('ad_login')
-        incoming_data_from_host = incoming_data_from.get('host')
-
-        if incoming_data_sync_id and incoming_data_from_ad_login \
-                and incoming_data_from_host:
-            message = Message(sync_id=incoming_data_sync_id,
-                              text=incoming_data_command_body,
-                              data=incoming_data_command_data,
-                              user_id=incoming_data_from_user_id,
-                              user_login=incoming_data_from_ad_login,
-                              group_chat_id=incoming_data_from_group_chat_id,
-                              host=incoming_data_from_host,
-                              bot_id=incoming_data_bot_id)
-            try:
-                command_text = incoming_data_command_body.strip().split(' ')[0]
-            except (ValueError, IndexError):
-                return
-            command = self._handlers.get(command_text)
-            # @TODO: make case insensitive, improve command detection
-            if isinstance(command, CommandHandler):
-                return Job(command=command, message=message)
-            else:
-                any_command = self._handlers.get(CommandHandler.ANY)
-                if isinstance(any_command, CommandHandler):
-                    return Job(command=any_command, message=message)
-                return
+        command = self._handlers.get(command_text)
+        if isinstance(command, Command):
+            return Job(command=command, message=message)
         else:
+            any_command = self._handlers.get(Command.ANY)
+            if isinstance(any_command, Command):
+                return Job(command=any_command, message=message)
             return
 
     def add_handler(self, handler=None):
         """
         :param handler: A handler with assigned command and function
-         :type handler: CommandHandler
+         :type handler: Command
         :return:
         """
-        if not handler or not isinstance(handler, CommandHandler):
-            raise ValueError('`CommandHandler` object must be provided')
+        if not handler or not isinstance(handler, Command):
+            raise ValueError('`Command` object must be provided')
 
         self._handlers.update([(handler.command, handler)])
