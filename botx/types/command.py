@@ -1,8 +1,8 @@
 class Command:
     ANY = True
 
-    def __init__(self, command, func, name, description, options=None,
-                 elements=None):
+    def __init__(self, command, func, name=None, description=None,
+                 options=None, elements=None):
         """
         :param command: A command (e.g. `/start`)
          :type command: str or bool
@@ -26,11 +26,10 @@ class Command:
 
     def to_dict(self):
         _dict = self.__dict__
-        if self.command == Command.ANY:
-            try:
-                _dict['command'] = 'any'
-            except KeyError as err:
-                raise err
+
+        if not _dict.get('name') or not _dict.get('description'):
+            return
+
         _dict.pop('func')
         return _dict
 

@@ -62,7 +62,8 @@ class Dispatcher:
         for _handler_name in self._handlers:
             command = self._handlers.get(_handler_name)
             if isinstance(command, Command):
-                commands.append(command.to_dict())
+                if command.to_dict():
+                    commands.append(command.to_dict())
         status_result = StatusResult(commands=commands).__dict__
         status = Status(result=status_result)
 
