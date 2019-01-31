@@ -12,10 +12,10 @@ from gevent.queue import Queue
 from gevent.pywsgi import WSGIServer
 
 from botx.types.job import Job
-from botx.types.other import ChatID
+from botx.types.other import SyncID
 from botx.types.status import Status
 from botx.types.message import Message
-from botx.types.response import Response
+from botx.types.response import ResponseCommand, ResponseCommandResult
 from botx.core.dispatcher import Dispatcher
 
 
@@ -121,13 +121,20 @@ class Bot:
             gevent.sleep(0)
 
     def send_message(self, chat_id, text):
-        if isinstance(chat_id, ChatID):
+        """
+
+        :param chat_id: Sync ID or Chat ID/Group Chat ID
+        :param text:
+        :return:
+        """
+        if isinstance(chat_id, SyncID):
+            response_result = ResponseCommandResult(body=text)
+            response = ResponseCommand(
+                sync_id=chat_id, bot_id=self.bot_id,
+                command_result=response_result).to_dict()
+            print(response)
             try:
-                requests.post(
-                    self.url_command,
-                    json=Response(chat_id=chat_id, bot_id=self.bot_id,
-                                  body=text).to_json()
-                )
+                requests.post(self.url_command, json=response)
             except requests.RequestException as err:
                 # @TODO: delete prints
                 print(err)
@@ -135,4 +142,4 @@ class Bot:
             pass
         else:
             raise ValueError('`chat_id` must be of type str or list of str, '
-                             'or ChatID object (Message.chat_id)')
+                             'or SyncID object (Message.chat_id)')

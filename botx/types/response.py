@@ -1,29 +1,22 @@
-class Response:
-    # @TODO: Add json serialization from classes
+from botx.base import BotXObject
 
-    def __init__(self, chat_id=None, group_chat_ids=None, recipients='all',
-                 bot_id=None, body=None):
-        # @TODO: Add other types, ^delete body and add it to another type
-        if chat_id and group_chat_ids:
-            raise ValueError('`chat_id` and `group_chat_ids` both can not be '
-                             'provided at the same time')
-        self.chat_id = chat_id
-        self.group_chat_ids = group_chat_ids
+
+class ResponseCommand(BotXObject):
+
+    def __init__(self, sync_id, bot_id, command_result, recipients='all'):
+        self.sync_id = sync_id
         self.recipients = recipients
         self.bot_id = bot_id
-        self.body = body
+        self.command_result = command_result
 
-    def to_json(self):
-        return {
-            'sync_id': self.chat_id,
-            'recipients': self.recipients,
-            'bot_id': self.bot_id,
-            'command_result': {
-                'status': 'ok',
-                'body': self.body,
-                'commands': [],
-                'bubble': [],
-                'keyboard': [],
-                'files': []
-            }
-        }
+
+class ResponseCommandResult(BotXObject):
+
+    def __init__(self, status='ok', body=None, commands=None, bubble=None,
+                 keyboard=None, files=None):
+        self.status = status
+        self.body = body if body else ''
+        self.commands = commands if commands else []
+        self.bubble = bubble if bubble else []
+        self.keyboard = keyboard if keyboard else []
+        self.files = files if files else []

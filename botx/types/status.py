@@ -1,14 +1,14 @@
-# @TODO: Add serialization
+from botx.base import BotXObject
 
 
-class Status:
+class Status(BotXObject):
 
     def __init__(self, status='ok', result=None):
         self.status = status
         self.result = result
 
 
-class StatusResult:
+class StatusResult(BotXObject):
 
     def __init__(self, enabled=True, status_message='Bot is working',
                  commands=None):

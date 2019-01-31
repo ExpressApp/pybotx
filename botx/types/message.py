@@ -1,29 +1,64 @@
-from botx.types.other import ChatID
+from botx.base import BotXObject
+from botx.types.other import SyncID
+from botx.types.command import MessageCommand
 
 
-class Message:
+class Message(BotXObject):
 
-    def __init__(self, chat_id, text, data, user_id, user_login, group_chat_id,
-                 host, bot_id):
-        self.chat_id = ChatID(chat_id)
-        self.text = text
-        self.data = data
-        self.user_id = user_id
-        self.user_login = user_login
-        self.group_chat_id = group_chat_id
-        self.host = host
+    def __init__(self, sync_id, command, from_, bot_id):
+        self.sync_id = SyncID(sync_id)
+        self.command = command
+        self.from_ = from_
         self.bot_id = bot_id
 
-    @staticmethod
-    def from_json(json_object):
-        try:
-            Message(chat_id=json_object['sync_id'],
-                    text=json_object['command']['body'],
-                    data=json_object['command']['data'],
-                    user_id=json_object['from']['user_huid'],
-                    user_login=json_object['from']['ad_login'],
-                    group_chat_id=json_object['from']['group_chat_id'],
-                    host=json_object['from']['host'],
-                    bot_id=json_object['from']['bot_id'])
-        except KeyError:
-            return None
+    @property
+    def body(self):
+        return self.command.body
+
+    @property
+    def data(self):
+        return self.command.data
+
+    @property
+    def user_huid(self):
+        return self.from_.user_huid
+
+    @property
+    def group_chat_id(self):
+        return self.from_.group_chat_id
+
+    @property
+    def ad_login(self):
+        return self.from_.ad_login
+
+    @property
+    def host(self):
+        return self.from_.host
+
+    @classmethod
+    def from_json(cls, data):
+        if not data:
+            return
+
+        data = super(Message, cls).from_json(data)
+
+        data['command'] = MessageCommand.from_json(data.get('command'))
+        data['from_'] = From.from_json(data.get('from'))
+
+        return cls(**data)
+
+
+class From(BotXObject):
+
+    def __init__(self, user_huid, group_chat_id, ad_login, host):
+        self.user_huid = user_huid
+        self.group_chat_id = group_chat_id
+        self.ad_login = ad_login
+        self.host = host
+
+    @classmethod
+    def from_json(cls, data):
+        if not data:
+            return
+        data = super(From, cls).from_json(data)
+        return cls(**data)

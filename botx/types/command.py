@@ -1,39 +1,31 @@
-class Command:
-    ANY = True
+from botx.base import BotXObject
 
-    def __init__(self, command, func, name=None, description=None,
-                 options=None, elements=None):
-        """
-        :param command: A command (e.g. `/start`)
-         :type command: str or bool
-        :param func: A name of the function to call for
-         :type func: function
-        :param name: A name of the command (e.g. `Start the Bot`)
-         :type name: str
-        :param description: A description of the command
-         :type description: str
-        :param options: Options
-         :type options: dict
-        :param elements: Elements
-         :type elements: list
-        """
-        self.command = command
-        self.func = func
+
+class MessageCommand(BotXObject):
+
+    def __init__(self, body=None, data=None):
+        self.body = body
+        self.data = data
+
+    @classmethod
+    def from_json(cls, data):
+        if not data:
+            return
+        data = super(MessageCommand, cls).from_json(data)
+        return cls(**data)
+
+
+# @TODO: Do something with that, because now it is not used
+class StatusCommand(BotXObject):
+
+    def __init__(self, body, name, description, options=None, elements=None):
+        self.body = body
         self.name = name
         self.description = description
         self.options = options if options else {}
         self.elements = elements if elements else []
 
-    def to_dict(self):
-        _dict = self.__dict__
-
-        if not _dict.get('name') or not _dict.get('description'):
-            return
-
-        _dict.pop('func')
-        return _dict
-
 
 # @TODO: Add elements for commands
-class CommandElements:
+class StatusCommandElements(BotXObject):
     pass
