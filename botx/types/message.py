@@ -51,10 +51,14 @@ class Message(BotXObject):
 
 class From(BotXObject):
 
-    def __init__(self, user_huid, group_chat_id, ad_login, host):
+    def __init__(self, user_huid, group_chat_id, ad_login, ad_domain, username,
+                 chat_type, host):
         self.user_huid = user_huid
         self.group_chat_id = group_chat_id
         self.ad_login = ad_login
+        self.ad_domain = ad_domain
+        self.username = username
+        self.chat_type = chat_type
         self.host = host
 
     @classmethod
@@ -63,3 +67,9 @@ class From(BotXObject):
             return
         data = super(From, cls).from_json(data)
         return cls(**data)
+
+# @TODO: Class initiating ???
+# class Test:
+#     def __init__(self, **kwargs):
+#         for key, value in kwargs.items():
+#             setattr(self, key, value)
