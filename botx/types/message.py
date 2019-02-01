@@ -44,6 +44,7 @@ class Message(BotXObject):
 
         data['command'] = MessageCommand.from_json(data.get('command'))
         data['from_'] = From.from_json(data.get('from'))
+        data.pop('from')  # Because `from_` on __init__ equals `from` in data
 
         return cls(**data)
 

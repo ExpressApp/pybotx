@@ -66,6 +66,7 @@ class Bot:
             self._add_workers()
             self._invoke_workers()
 
+    # @TODO: Add **kwargs for log='default' (or None) in WSGIServer object
     def _start_webhook(self, address, port, certfile, keyfile):
         if certfile and keyfile:
             server = WSGIServer((address, port), self._webhook_handle,
@@ -93,7 +94,7 @@ class Bot:
             return [json.dumps({"status": "accepted"}).encode('utf-8')]
         elif job and isinstance(job, Job) and isinstance(job.status, Status):
             start_response(response_ok, headers)
-            return [json.dumps(job.status.status).encode('utf-8')]
+            return [json.dumps(job.status.to_dict()).encode('utf-8')]
 
         start_response(response_ok, headers)
         return [json.dumps({"status": "ok"}).encode('utf-8')]

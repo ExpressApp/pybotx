@@ -2,4 +2,6 @@
 
 import pytest
 
-pass
+
+class TestBot:
+    pass

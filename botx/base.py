@@ -15,10 +15,10 @@ class BotXObject:
 
         for key in self.__dict__:
             value = self.__dict__[key]
-            if value:
-                if hasattr(value, 'to_dict'):
-                    data[key] = value.to_dict()
-                else:
-                    data[key] = value
+
+            if hasattr(value, 'to_dict'):
+                data[key] = value.to_dict()
+            else:
+                data[key] = value
 
         return data

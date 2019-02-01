@@ -1,5 +1,6 @@
 import json
 
+from urllib.parse import parse_qs
 from collections import OrderedDict
 
 from botx.core.commandhandler import CommandHandler
@@ -25,7 +26,7 @@ class Dispatcher:
         incoming_content_type = env.get('CONTENT_TYPE')
         incoming_request_method = env.get('REQUEST_METHOD')
         incoming_path_info = env.get('PATH_INFO')
-        # incoming_query_string = env.get('QUERY_STRING')
+        incoming_query_string = env.get('QUERY_STRING')
 
         incoming_data = None
         if str(incoming_content_type).lower() == 'application/json':
@@ -39,8 +40,7 @@ class Dispatcher:
         if str(incoming_request_method).lower() == 'get' \
                 and (str(incoming_path_info).lower() == '/status'
                      or str(incoming_path_info).lower() == '/status/'):
-            # @TODO: Add status
-            return self._create_status(incoming_data)
+            return self._create_status(incoming_query_string)
 
         if str(incoming_request_method).lower() == 'post' \
                 and (str(incoming_path_info).lower() == '/command'
@@ -53,7 +53,12 @@ class Dispatcher:
         if not incoming_data:
             return
 
-        incoming_data_bot_id = incoming_data.get('bot_id')
+        incoming_data = parse_qs(incoming_data)
+        try:
+            incoming_data_bot_id = incoming_data.get('bot_id')[0]
+        except IndexError:
+            incoming_data_bot_id = None
+
         if not incoming_data_bot_id \
                 or incoming_data_bot_id != self._bot.bot_id:
             return
@@ -62,12 +67,12 @@ class Dispatcher:
         for _handler_name in self._handlers:
             command = self._handlers.get(_handler_name)
             if isinstance(command, CommandHandler):
-                if command.to_dict():
-                    commands.append(command)
+                if command.is_status_command_compatible:
+                    status_command = command.to_status_command()
+                    if status_command:
+                        commands.append(status_command)
         status_result = StatusResult(commands=commands)
-        status = Status(result=status_result).to_dict()
-
-        print(status)
+        status = Status(result=status_result)
 
         return Job(command=None, message=None, status=status)
 

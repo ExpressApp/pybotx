@@ -15,7 +15,6 @@ class MessageCommand(BotXObject):
         return cls(**data)
 
 
-# @TODO: Do something with that, because now it is not used
 class StatusCommand(BotXObject):
 
     def __init__(self, body, name, description, options=None, elements=None):
@@ -24,6 +23,11 @@ class StatusCommand(BotXObject):
         self.description = description
         self.options = options if options else {}
         self.elements = elements if elements else []
+
+
+# @TODO: Add options for commands
+class StatusCommandOptions(BotXObject):
+    pass
 
 
 # @TODO: Add elements for commands

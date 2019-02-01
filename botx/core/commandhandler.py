@@ -1,3 +1,6 @@
+from botx.types.command import StatusCommand
+
+
 class CommandHandler:
     ANY = True
 
@@ -10,7 +13,23 @@ class CommandHandler:
         self.options = options if options else {}
         self.elements = elements if elements else []
 
-    # @TODO: Should CommandHandler be a BotXObject? No...
+    @property
+    def is_status_command_compatible(self):
+        if self.command and self.name and self.description:
+            return True
+        return False
+
+    def to_status_command(self):
+        if self.is_status_command_compatible:
+            command = (self.command
+                       if self.command != CommandHandler.ANY else 'any')
+            return StatusCommand(body=command,
+                                 name=self.name,
+                                 description=self.description,
+                                 options=self.options,
+                                 elements=self.elements)
+        return
+
     def to_dict(self):
         _dict = self.__dict__
 
