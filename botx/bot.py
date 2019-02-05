@@ -15,6 +15,7 @@ from botx.types.job import Job
 from botx.types.other import SyncID
 from botx.types.status import Status
 from botx.types.message import Message
+from botx.types.bubble import ReplyBubbleMarkup
 from botx.types.keyboard import ReplyKeyboardMarkup
 from botx.types.response import ResponseCommand, ResponseNotification, \
     ResponseCommandResult
@@ -118,7 +119,8 @@ class Bot:
             if job and isinstance(job, Job):
                 job.command.func(job.message)
 
-    def send_message(self, chat_id, text, recipients='all', keyboard=None):
+    def send_message(self, chat_id, text, recipients='all', bubble=None,
+                     keyboard=None):
         """
 
         :param chat_id: Sync ID or Chat ID/Group Chat ID
@@ -127,6 +129,12 @@ class Bot:
         :param keyboard:
         :return:
         """
+        if bubble and not isinstance(bubble, ReplyBubbleMarkup):
+            raise ValueError('A `bubble` attribute must be of '
+                             '`ReplyBubbleMarkup` type')
+        if bubble and isinstance(bubble, ReplyBubbleMarkup):
+            bubble = bubble.to_list()
+
         if keyboard and not isinstance(keyboard, ReplyKeyboardMarkup):
             raise ValueError('A `keyboard` attribute must be of '
                              '`ReplyKeyboardMarkup` type')
@@ -135,6 +143,7 @@ class Bot:
 
         if isinstance(chat_id, SyncID):
             response_result = ResponseCommandResult(body=text,
+                                                    bubble=bubble,
                                                     keyboard=keyboard)
             response = \
                 ResponseCommand(
@@ -156,6 +165,7 @@ class Bot:
             elif isinstance(chat_id, list):
                 group_chat_ids = chat_id
             response_result = ResponseCommandResult(body=text,
+                                                    bubble=bubble,
                                                     keyboard=keyboard)
             response = \
                 ResponseNotification(
