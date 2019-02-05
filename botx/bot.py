@@ -89,7 +89,7 @@ class Bot:
 
         job = self.dispatcher.parse_request(env)
         if job and isinstance(job, Job) and isinstance(job.message, Message):
-            self._jobs_queue.put_nowait(job)
+            self._jobs_queue.put(job)
             start_response(response_accepted, headers)
             return [json.dumps({"status": "accepted"}).encode('utf-8')]
         elif job and isinstance(job, Job) and isinstance(job.status, Status):
@@ -114,12 +114,12 @@ class Bot:
         while True:
             job = None
             try:
-                job = self._jobs_queue.get_nowait()
+                job = self._jobs_queue.get()
             except gevent.queue.Empty:
                 pass
             if job and isinstance(job, Job):
                 job.command.func(job.message)
-            gevent.sleep(0)
+            # gevent.sleep(0)
 
     def send_message(self, chat_id, text):
         """

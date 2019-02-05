@@ -2,6 +2,7 @@ venv/
 .idea/
 how_should_it_work.py
 temp.py
+temp2.py
 **/.DS_Store
 **.pyc
 **/__pycache__
