@@ -11,7 +11,7 @@ class MessageCommand(BotXObject):
     def from_json(cls, data):
         if not data:
             return
-        data = super(MessageCommand, cls).from_json(data)
+        data = super().from_json(data)
         return cls(**data)
 
 

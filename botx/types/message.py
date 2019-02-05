@@ -40,7 +40,7 @@ class Message(BotXObject):
         if not data:
             return
 
-        data = super(Message, cls).from_json(data)
+        data = super().from_json(data)
 
         data['command'] = MessageCommand.from_json(data.get('command'))
         data['from_'] = From.from_json(data.get('from'))
@@ -65,7 +65,7 @@ class From(BotXObject):
     def from_json(cls, data):
         if not data:
             return
-        data = super(From, cls).from_json(data)
+        data = super().from_json(data)
         return cls(**data)
 
 # @TODO: Class initiating ???

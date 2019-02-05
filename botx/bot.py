@@ -15,7 +15,9 @@ from botx.types.job import Job
 from botx.types.other import SyncID
 from botx.types.status import Status
 from botx.types.message import Message
-from botx.types.response import ResponseCommand, ResponseCommandResult
+from botx.types.keyboard import ReplyKeyboardMarkup
+from botx.types.response import ResponseCommand, ResponseNotification, \
+    ResponseCommandResult
 from botx.core.dispatcher import Dispatcher
 
 
@@ -67,7 +69,7 @@ class Bot:
             self._invoke_workers()
 
     # @TODO: Add **kwargs for log='default' (or None) in WSGIServer object
-    def _start_webhook(self, address, port, certfile, keyfile):
+    def _start_webhook(self, address, port, certfile=None, keyfile=None):
         if certfile and keyfile:
             server = WSGIServer((address, port), self._webhook_handle,
                                 certfile=certfile, keyfile=keyfile)
@@ -77,7 +79,6 @@ class Bot:
         self._server.start()
 
     def stop_webhook(self):
-        # @TODO: kill all green lets (self._kill_workers)
         self._server.stop()
         self._server = None
         sys.exit(signal.SIGINT)
@@ -107,9 +108,6 @@ class Bot:
     def _invoke_workers(self):
         gevent.joinall(self._workers)
 
-    def _kill_workers(self):
-        pass
-
     def _process_request_worker(self):
         while True:
             job = None
@@ -119,28 +117,59 @@ class Bot:
                 pass
             if job and isinstance(job, Job):
                 job.command.func(job.message)
-            # gevent.sleep(0)
 
-    def send_message(self, chat_id, text):
+    def send_message(self, chat_id, text, recipients='all', keyboard=None):
         """
 
         :param chat_id: Sync ID or Chat ID/Group Chat ID
         :param text:
+        :param recipients:
+        :param keyboard:
         :return:
         """
+        if keyboard and not isinstance(keyboard, ReplyKeyboardMarkup):
+            raise ValueError('A `keyboard` attribute must be of '
+                             '`ReplyKeyboardMarkup` type')
+        if keyboard and isinstance(keyboard, ReplyKeyboardMarkup):
+            keyboard = keyboard.to_list()
+
         if isinstance(chat_id, SyncID):
-            response_result = ResponseCommandResult(body=text)
-            response = ResponseCommand(
-                sync_id=chat_id, bot_id=self.bot_id,
-                command_result=response_result).to_dict()
+            response_result = ResponseCommandResult(body=text,
+                                                    keyboard=keyboard)
+            response = \
+                ResponseCommand(
+                    bot_id=self.bot_id,
+                    sync_id=chat_id,
+                    command_result=response_result,
+                    recipients=recipients
+                ).to_dict()
             print(response)
             try:
                 requests.post(self.url_command, json=response)
-            except requests.RequestException as err:
-                # @TODO: delete prints
-                print(err)
+            except requests.RequestException as error:
+                # @TODO: delete print
+                print(error)
         elif isinstance(chat_id, str) or isinstance(chat_id, list):
-            pass
+            group_chat_ids = []
+            if isinstance(chat_id, str):
+                group_chat_ids.append(chat_id)
+            elif isinstance(chat_id, list):
+                group_chat_ids = chat_id
+            response_result = ResponseCommandResult(body=text,
+                                                    keyboard=keyboard)
+            response = \
+                ResponseNotification(
+                    bot_id=self.bot_id,
+                    command_result=response_result,
+                    group_chat_ids=group_chat_ids,
+                    recipients=recipients
+                ).to_dict()
+            print(response)
+            try:
+                requests.post(self.url_notification, json=response)
+            except requests.RequestException as error:
+                # @TODO: delete print
+                print(error)
         else:
             raise ValueError('`chat_id` must be of type str or list of str, '
                              'or SyncID object (Message.chat_id)')

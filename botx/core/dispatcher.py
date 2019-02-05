@@ -92,14 +92,14 @@ class Dispatcher:
             return
 
         # @TODO: make support for data (currently only message.body)
-        # @TODO: make case insensitive, improve command detection
+        # @TODO: improve command detection
 
         try:
             command_text = message.body.strip().split(' ')[0]
         except (ValueError, IndexError):
             return
 
-        command = self._handlers.get(command_text)
+        command = self._handlers.get(command_text.lower())
         if isinstance(command, CommandHandler):
             return Job(command=command, message=message)
         else:
@@ -116,5 +116,7 @@ class Dispatcher:
         """
         if not handler or not isinstance(handler, CommandHandler):
             raise ValueError('`CommandHandler` object must be provided')
+        if not isinstance(handler.command, str):
+            raise ValueError('A `command` attribute must be of str type')
 
-        self._handlers.update([(handler.command, handler)])
+        self._handlers.update([(handler.command.lower(), handler)])

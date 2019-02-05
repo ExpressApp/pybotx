@@ -3,11 +3,11 @@ from botx.base import BotXObject
 
 class ResponseCommand(BotXObject):
 
-    def __init__(self, sync_id, bot_id, command_result, recipients='all'):
-        self.sync_id = sync_id
-        self.recipients = recipients
+    def __init__(self, bot_id, sync_id, command_result, recipients='all'):
         self.bot_id = bot_id
+        self.sync_id = sync_id
         self.command_result = command_result
+        self.recipients = recipients
 
 
 class ResponseCommandResult(BotXObject):
@@ -20,3 +20,13 @@ class ResponseCommandResult(BotXObject):
         self.bubble = bubble if bubble else []
         self.keyboard = keyboard if keyboard else []
         self.files = files if files else []
+
+
+class ResponseNotification(BotXObject):
+
+    def __init__(self, bot_id, command_result, group_chat_ids=None,
+                 recipients='all'):
+        self.bot_id = bot_id
+        self.command_result = command_result
+        self.group_chat_ids = group_chat_ids if group_chat_ids else []
+        self.recipients = recipients
