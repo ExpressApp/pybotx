@@ -30,3 +30,11 @@ class ResponseNotification(BotXObject):
         self.command_result = command_result
         self.group_chat_ids = group_chat_ids if group_chat_ids else []
         self.recipients = recipients
+
+
+class ResponseDocument(BotXObject):
+
+    def __init__(self, bot_id, sync_id):
+        self.bot_id = bot_id,
+        self.sync_id = sync_id,
+        # self.file = file

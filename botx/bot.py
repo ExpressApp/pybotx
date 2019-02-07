@@ -15,10 +15,11 @@ from botx.types.job import Job
 from botx.types.other import SyncID
 from botx.types.status import Status
 from botx.types.message import Message
+from botx.types.inputfile import InputFile
 from botx.types.bubble import ReplyBubbleMarkup
 from botx.types.keyboard import ReplyKeyboardMarkup
 from botx.types.response import ResponseCommand, ResponseNotification, \
-    ResponseCommandResult
+    ResponseCommandResult, ResponseDocument
 from botx.core.dispatcher import Dispatcher
 
 
@@ -183,3 +184,16 @@ class Bot:
         else:
             raise ValueError('`chat_id` must be of type str or list of str, '
                              'or SyncID object (Message.chat_id)')
+
+    def send_document(self, chat_id, document):
+        if not InputFile.is_file(document):
+            return
+
+        files = {'file': document}
+        response = ResponseDocument(bot_id=self.bot_id, sync_id=chat_id)
+
+        try:
+            requests.post(self.url_file, files=files, data=response.to_dict())
+        except requests.RequestException as error:
+            # @TODO: delete print
+            print(error)

@@ -10,13 +10,13 @@ class BubbleElement(BotXObject):
 
 class ReplyBubbleMarkup:
 
-    def __init__(self, keyboard):
-        self.keyboard = keyboard
+    def __init__(self, bubble):
+        self.bubble = bubble
 
     def to_list(self):
         data = []
 
-        for row in self.keyboard:
+        for row in self.bubble:
             r = []
             for button in row:
                 if not isinstance(button, BubbleElement):
