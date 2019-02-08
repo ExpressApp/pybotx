@@ -1,4 +1,4 @@
-from botx.types.command import StatusCommand
+from botx.types import StatusCommand
 
 
 class CommandHandler:

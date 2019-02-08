@@ -3,11 +3,8 @@ import json
 from urllib.parse import parse_qs
 from collections import OrderedDict
 
-from botx.core.commandhandler import CommandHandler
-
-from botx.types.job import Job
-from botx.types.status import Status, StatusResult
-from botx.types.message import Message
+from .commandhandler import CommandHandler
+from botx.types import Job, Status, StatusResult, Message
 
 
 class Dispatcher:
@@ -116,7 +113,7 @@ class Dispatcher:
         """
         if not handler or not isinstance(handler, CommandHandler):
             raise ValueError('`CommandHandler` object must be provided')
-        if not isinstance(handler.command, str):
-            raise ValueError('A `command` attribute must be of str type')
 
-        self._handlers.update([(handler.command.lower(), handler)])
+        self._handlers.update([(
+            (handler.command.lower() if isinstance(handler.command, str)
+             else handler.command), handler)])

@@ -1,4 +1,4 @@
-from botx.base import BotXObject
+from botx import BotXObject
 
 
 class KeyboardElement(BotXObject):

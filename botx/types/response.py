@@ -1,4 +1,4 @@
-from botx.base import BotXObject
+from botx import BotXObject
 
 
 class ResponseCommand(BotXObject):
@@ -35,6 +35,5 @@ class ResponseNotification(BotXObject):
 class ResponseDocument(BotXObject):
 
     def __init__(self, bot_id, sync_id):
-        self.bot_id = bot_id,
-        self.sync_id = sync_id,
-        # self.file = file
+        self.bot_id = bot_id
+        self.sync_id = sync_id

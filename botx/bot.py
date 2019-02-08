@@ -11,16 +11,10 @@ import gevent.signal
 from gevent.queue import Queue
 from gevent.pywsgi import WSGIServer
 
-from botx.types.job import Job
-from botx.types.other import SyncID
-from botx.types.status import Status
-from botx.types.message import Message
-from botx.types.inputfile import InputFile
-from botx.types.bubble import ReplyBubbleMarkup
-from botx.types.keyboard import ReplyKeyboardMarkup
-from botx.types.response import ResponseCommand, ResponseNotification, \
-    ResponseCommandResult, ResponseDocument
-from botx.core.dispatcher import Dispatcher
+from botx.core import Dispatcher
+from botx.types import Job, SyncID, Status, Message, InputFile, \
+    ReplyBubbleMarkup, ReplyKeyboardMarkup, ResponseCommand, \
+    ResponseNotification, ResponseCommandResult, ResponseDocument
 
 
 class Bot:
@@ -53,7 +47,7 @@ class Bot:
         self._workers = []
 
     def start_webhook(self, address='127.0.0.1', port=5000, certfile=None,
-                      keyfile=None):
+                      keyfile=None, workers_number=4, **kwargs):
         """
         :param address: A serving address
          :type address: str
@@ -63,20 +57,23 @@ class Bot:
          :type certfile: str
         :param keyfile: A path to key file
          :type keyfile: str
+        :param workers_number:
+         :type workers_number: int
         """
         if not self._server:
             gevent.signal(signal.SIGINT, self.stop_webhook)
-            self._start_webhook(address, port, certfile, keyfile)
-            self._add_workers()
+            self._start_webhook(address, port, certfile, keyfile, **kwargs)
+            self._add_workers(workers_number)
             self._invoke_workers()
 
-    # @TODO: Add **kwargs for log='default' (or None) in WSGIServer object
-    def _start_webhook(self, address, port, certfile=None, keyfile=None):
+    def _start_webhook(self, address, port, certfile=None, keyfile=None,
+                       **kwargs):
         if certfile and keyfile:
             server = WSGIServer((address, port), self._webhook_handle,
-                                certfile=certfile, keyfile=keyfile)
+                                certfile=certfile, keyfile=keyfile, **kwargs)
         else:
-            server = WSGIServer((address, port), self._webhook_handle)
+            server = WSGIServer((address, port),
+                                self._webhook_handle, **kwargs)
         self._server = server
         self._server.start()
 
@@ -102,7 +99,10 @@ class Bot:
         start_response(response_ok, headers)
         return [json.dumps({"status": "ok"}).encode('utf-8')]
 
-    def _add_workers(self, workers_number=4):
+    def _add_workers(self, workers_number):
+        if not isinstance(workers_number, int):
+            raise ValueError('A `workers_number` parameter must be of str '
+                             'type')
         self._workers = []
         for _ in range(workers_number):
             self._workers.append(gevent.spawn(self._process_request_worker))
@@ -127,6 +127,7 @@ class Bot:
         :param chat_id: Sync ID or Chat ID/Group Chat ID
         :param text:
         :param recipients:
+        :param bubble:
         :param keyboard:
         :return:
         """

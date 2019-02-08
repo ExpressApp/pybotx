@@ -1,6 +1,6 @@
-from botx.base import BotXObject
-from botx.types.other import SyncID
-from botx.types.command import MessageCommand
+from botx import BotXObject
+from .other import SyncID
+from .command import MessageCommand
 
 
 class Message(BotXObject):
