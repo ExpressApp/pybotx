@@ -107,6 +107,8 @@ class Dispatcher:
 
     def add_handler(self, handler=None):
         """
+        A method to add a command for bot
+
         :param handler: A handler with assigned command and function
          :type handler: CommandHandler
         :return:

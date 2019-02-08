@@ -21,6 +21,8 @@ class Bot:
 
     def __init__(self, bot_id=None, bot_host=None):
         """
+        Initiation of a Bot
+
         :param bot_id: bot_id (uuid) - an unique identifier in BotX system
          :type bot_id: str
         :param bot_host: url (host) without type of connection
@@ -49,6 +51,8 @@ class Bot:
     def start_webhook(self, address='127.0.0.1', port=5000, certfile=None,
                       keyfile=None, workers_number=4, **kwargs):
         """
+        A method to start webhook
+
         :param address: A serving address
          :type address: str
         :param port: A serving port
@@ -57,7 +61,7 @@ class Bot:
          :type certfile: str
         :param keyfile: A path to key file
          :type keyfile: str
-        :param workers_number:
+        :param workers_number: A number of workers
          :type workers_number: int
         """
         if not self._server:
@@ -123,13 +127,18 @@ class Bot:
     def send_message(self, chat_id, text, recipients='all', bubble=None,
                      keyboard=None):
         """
+        A method to send text messages
 
         :param chat_id: Sync ID or Chat ID/Group Chat ID
-        :param text:
-        :param recipients:
-        :param bubble:
-        :param keyboard:
-        :return:
+         :type chat_id: SyncID, str
+        :param text: A text message
+         :type text: str
+        :param recipients: Recipients
+         :type recipients: list, str
+        :param bubble: A bubble markup for message
+         :type bubble: ReplyBubbleMarkup
+        :param keyboard: A keyboard markup
+         :type keyboard: ReplyKeyboardMarkup
         """
         if bubble and not isinstance(bubble, ReplyBubbleMarkup):
             raise ValueError('A `bubble` attribute must be of '
@@ -187,6 +196,14 @@ class Bot:
                              'or SyncID object (Message.chat_id)')
 
     def send_document(self, chat_id, document):
+        """
+        A method to send documents (different file types)
+
+        :param chat_id: Sync ID or Chat ID/Group Chat ID
+         :type chat_id: SyncID, str
+        :param document: A binary document
+         :type document: bytearray
+        """
         if not InputFile.is_file(document):
             return
 
