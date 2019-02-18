@@ -1,7 +1,9 @@
 import json
 
-from urllib.parse import parse_qs
 from collections import OrderedDict
+
+import gevent
+from gevent.queue import Queue
 
 from .commandhandler import CommandHandler
 from botx.types import Job, Status, StatusResult, Message
@@ -12,6 +14,8 @@ class Dispatcher:
     def __init__(self, bot=None):
         self._bot = bot
         self._handlers = OrderedDict()
+        self._jobs_queue = Queue()
+        self._workers = []
         # @IDEA: Пользователь в коде пишет register_next_step_handler(user_id)
         # и эта функция берет и добавляет в Dispatcher.handlers новый
         # CommandHandler или другой какой-то объект (или вообще 2 тип handlers
@@ -19,45 +23,51 @@ class Dispatcher:
         # сверки с пришедшим сообщением, и если там оказывается нужное - тупо
         # запускать нужную функцию и похер что там пришло.
 
-    def parse_request(self, env):
-        incoming_content_type = env.get('CONTENT_TYPE')
-        incoming_request_method = env.get('REQUEST_METHOD')
-        incoming_path_info = env.get('PATH_INFO')
-        incoming_query_string = env.get('QUERY_STRING')
+    def add_workers(self, workers_number):
+        if not isinstance(workers_number, int):
+            raise ValueError('A `workers_number` parameter must be of str '
+                             'type')
+        if workers_number < 1:
+            raise ValueError('A `workers_number` parameter must be equal or '
+                             'more than 1')
+        self._workers = []
+        for _ in range(workers_number):
+            self._workers.append(gevent.spawn(self._process_request_worker))
 
-        incoming_data = None
-        if str(incoming_content_type).lower() == 'application/json':
-            incoming_data = env.get('wsgi.input').read().decode('utf-8') \
-                                                        .replace("'", '"')
+    def _process_request_worker(self):
+        while True:
+            try:
+                job = self._jobs_queue.get()
+            except gevent.queue.Empty:
+                continue
+            if job and isinstance(job, Job) \
+                    and isinstance(job.command, CommandHandler)\
+                    and isinstance(job.message, Message):
+                job.command.func(job.message)
+
+    def parse_request(self, data, type_=None):
+        if not isinstance(type_, str):
+            raise ValueError('A `type_` parameter is not provided or not of '
+                             'str type')
+
+        if data and type_ == 'status':
+            return self._create_status(data)
+        elif data and type_ == 'command':
+            incoming_data = data.decode('utf-8').replace("'", '"')
             if incoming_data:
                 incoming_data = json.loads(incoming_data)
             else:
                 incoming_data = None
-
-        if str(incoming_request_method).lower() == 'get' \
-                and (str(incoming_path_info).lower() == '/status'
-                     or str(incoming_path_info).lower() == '/status/'):
-            return self._create_status(incoming_query_string)
-
-        if str(incoming_request_method).lower() == 'post' \
-                and (str(incoming_path_info).lower() == '/command'
-                     or str(incoming_path_info).lower() == '/command/'):
             return self._create_message(incoming_data)
-
         return
 
     def _create_status(self, incoming_data=None):
-        if not incoming_data:
-            return
-
-        incoming_data = parse_qs(incoming_data)
-        try:
-            incoming_data_bot_id = incoming_data.get('bot_id')[0]
-        except IndexError:
-            incoming_data_bot_id = None
-
-        if not incoming_data_bot_id \
-                or incoming_data_bot_id != self._bot.bot_id:
+        """
+        :param incoming_data: A bot_id
+        :return:
+        """
+        print('create status')
+        if not incoming_data or incoming_data != self._bot.bot_id:
             return
 
         commands = []
@@ -71,7 +81,8 @@ class Dispatcher:
         status_result = StatusResult(commands=commands)
         status = Status(result=status_result)
 
-        return Job(command=None, message=None, status=status)
+        print(status.to_dict())
+        return status
 
     def _create_message(self, incoming_data=None):
         if not incoming_data:
@@ -98,12 +109,14 @@ class Dispatcher:
 
         command = self._handlers.get(command_text.lower())
         if isinstance(command, CommandHandler):
-            return Job(command=command, message=message)
+            self._jobs_queue.put(Job(command=command, message=message))
+            return True
         else:
             any_command = self._handlers.get(CommandHandler.ANY)
             if isinstance(any_command, CommandHandler):
-                return Job(command=any_command, message=message)
-            return
+                self._jobs_queue.put(Job(command=any_command, message=message))
+                return True
+        return
 
     def add_handler(self, handler=None):
         """

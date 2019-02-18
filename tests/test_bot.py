@@ -4,7 +4,6 @@ import pytest
 
 from gevent import Greenlet
 from gevent.queue import Queue
-from gevent.pywsgi import WSGIServer
 
 from botx import Bot, Dispatcher
 
@@ -35,23 +34,14 @@ class TestBot:
             'https://example.host.com/api/v1/botx/file/callback'
         assert isinstance(bot.dispatcher, Dispatcher)
         assert bot.dispatcher._bot == bot
-        assert bot._server == None
-        assert isinstance(bot._jobs_queue, Queue)
-        assert isinstance(bot._workers, list)
-        assert bot._workers == []
+        assert isinstance(bot.dispatcher._jobs_queue, Queue)
+        assert isinstance(bot.dispatcher._workers, list)
 
     def test_bot_start_webhook(self):
         bot = Bot('bot_token', 'example.host.com')
         with pytest.raises(ValueError):
-            bot.start_webhook(workers_number='4')
-        bot.start_webhook(workers_number=4)
-        assert isinstance(bot._server, WSGIServer)
-
-    def test_bot_start_webhook_with_existing(self):
-        bot = Bot('bot_token', 'example.host.com')
-        bot._server = 'not a server'
-        bot.start_webhook()
-        assert bot._server == 'not a server'
-
-
-
+            bot.start_bot(workers_number='4')
+        bot.start_bot(workers_number=4)
+        assert len(bot.dispatcher._workers) == 4
+        for worker in bot.dispatcher._workers:
+            assert isinstance(worker, Greenlet)

@@ -1,5 +1,4 @@
 import sys
-import json
 import signal
 
 import gevent.monkey
@@ -8,11 +7,8 @@ gevent.monkey.patch_all()
 import requests
 import gevent.signal
 
-from gevent.queue import Queue
-from gevent.pywsgi import WSGIServer
-
 from botx.core import Dispatcher
-from botx.types import Job, SyncID, Status, Message, InputFile, \
+from botx.types import SyncID, InputFile, \
     ReplyBubbleMarkup, ReplyKeyboardMarkup, ResponseCommand, \
     ResponseNotification, ResponseCommandResult, ResponseDocument
 
@@ -44,85 +40,39 @@ class Bot:
                         .format(self.bot_host)
         self.dispatcher = Dispatcher(bot=self)
 
-        self._server = None
-        self._jobs_queue = Queue()
-        self._workers = []
-
-    def start_webhook(self, address='127.0.0.1', port=5000, certfile=None,
-                      keyfile=None, workers_number=4, **kwargs):
+    def start_bot(self, workers_number=4):
         """
         A method to start webhook
 
-        :param address: A serving address
-         :type address: str
-        :param port: A serving port
-         :type port: int
-        :param certfile: A path to certificate file
-         :type certfile: str
-        :param keyfile: A path to key file
-         :type keyfile: str
         :param workers_number: A number of workers
          :type workers_number: int
         """
-        if not self._server:
-            gevent.signal(signal.SIGINT, self.stop_webhook)
-            self._start_webhook(address, port, certfile, keyfile, **kwargs)
-            self._add_workers(workers_number)
-            self._invoke_workers()
+        gevent.signal(signal.SIGINT, Bot.stop_bot)
+        self.dispatcher.add_workers(workers_number)
 
-    def _start_webhook(self, address, port, certfile=None, keyfile=None,
-                       **kwargs):
-        if certfile and keyfile:
-            server = WSGIServer((address, port), self._webhook_handle,
-                                certfile=certfile, keyfile=keyfile, **kwargs)
-        else:
-            server = WSGIServer((address, port),
-                                self._webhook_handle, **kwargs)
-        self._server = server
-        self._server.start()
-
-    def stop_webhook(self):
-        self._server.stop()
-        self._server = None
+    @staticmethod
+    def stop_bot():
         sys.exit(signal.SIGINT)
 
-    def _webhook_handle(self, env, start_response):
-        headers = [('Content-Type', 'application/json')]
-        response_ok = '200 OK'
-        response_accepted = '202 Accepted'
+    def parse_status(self, bot_id):
+        """
+        :param bot_id: A bot_id
+         :type bot_id: str
+        :return:
+        """
+        if not isinstance(bot_id, str):
+            raise ValueError('A `bot_id` parameter must be of str type')
+        return self.dispatcher.parse_request(bot_id, type_='status')
 
-        job = self.dispatcher.parse_request(env)
-        if job and isinstance(job, Job) and isinstance(job.message, Message):
-            self._jobs_queue.put(job)
-            start_response(response_accepted, headers)
-            return [json.dumps({"status": "accepted"}).encode('utf-8')]
-        elif job and isinstance(job, Job) and isinstance(job.status, Status):
-            start_response(response_ok, headers)
-            return [json.dumps(job.status.to_dict()).encode('utf-8')]
-
-        start_response(response_ok, headers)
-        return [json.dumps({"status": "ok"}).encode('utf-8')]
-
-    def _add_workers(self, workers_number):
-        if not isinstance(workers_number, int):
-            raise ValueError('A `workers_number` parameter must be of str '
-                             'type')
-        self._workers = []
-        for _ in range(workers_number):
-            self._workers.append(gevent.spawn(self._process_request_worker))
-
-    def _invoke_workers(self):
-        gevent.joinall(self._workers)
-
-    def _process_request_worker(self):
-        while True:
-            job = None
-            try:
-                job = self._jobs_queue.get()
-            except gevent.queue.Empty:
-                pass
-            if job and isinstance(job, Job):
-                job.command.func(job.message)
+    def parse_command(self, data):
+        """
+        :param data: data
+         :type data: bytes
+        :return:
+        """
+        if not isinstance(data, bytes):
+            raise ValueError('A `data` parameter must be of bytes type')
+        self.dispatcher.parse_request(data, type_='command')
 
     def send_message(self, chat_id, text, recipients='all', bubble=None,
                      keyboard=None):
