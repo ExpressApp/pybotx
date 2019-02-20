@@ -7,5 +7,5 @@ from .keyboard import KeyboardElement, ReplyKeyboardMarkup
 from .message import Message, From
 from .other import SyncID
 from .response import ResponseCommand, ResponseCommandResult, \
-    ResponseNotification, ResponseDocument
+    ResponseNotification, ResponseNotificationResult, ResponseDocument
 from .status import Status, StatusResult

@@ -10,7 +10,8 @@ import gevent.signal
 from botx.core import Dispatcher
 from botx.types import SyncID, InputFile, \
     ReplyBubbleMarkup, ReplyKeyboardMarkup, ResponseCommand, \
-    ResponseNotification, ResponseCommandResult, ResponseDocument
+    ResponseNotification, ResponseCommandResult, ResponseNotificationResult,\
+    ResponseDocument
 
 
 class Bot:
@@ -125,13 +126,13 @@ class Bot:
                 group_chat_ids.append(chat_id)
             elif isinstance(chat_id, list):
                 group_chat_ids = chat_id
-            response_result = ResponseCommandResult(body=text,
-                                                    bubble=bubble,
-                                                    keyboard=keyboard)
+            response_result = ResponseNotificationResult(body=text,
+                                                         bubble=bubble,
+                                                         keyboard=keyboard)
             response = \
                 ResponseNotification(
                     bot_id=self.bot_id,
-                    command_result=response_result,
+                    notification=response_result,
                     group_chat_ids=group_chat_ids,
                     recipients=recipients
                 ).to_dict()

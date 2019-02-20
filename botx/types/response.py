@@ -24,12 +24,16 @@ class ResponseCommandResult(BotXObject):
 
 class ResponseNotification(BotXObject):
 
-    def __init__(self, bot_id, command_result, group_chat_ids=None,
+    def __init__(self, bot_id, notification, group_chat_ids=None,
                  recipients='all'):
         self.bot_id = bot_id
-        self.command_result = command_result
+        self.notification = notification
         self.group_chat_ids = group_chat_ids if group_chat_ids else []
         self.recipients = recipients
+
+
+class ResponseNotificationResult(ResponseCommandResult):
+    pass
 
 
 class ResponseDocument(BotXObject):
