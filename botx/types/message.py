@@ -1,13 +1,15 @@
 from botx import BotXObject
+from .file import File
 from .other import SyncID
 from .command import MessageCommand
 
 
 class Message(BotXObject):
 
-    def __init__(self, sync_id, command, from_, bot_id):
+    def __init__(self, sync_id, command, file, from_, bot_id):
         self.sync_id = SyncID(sync_id)
         self.command = command
+        self.file = file
         self.from_ = from_
         self.bot_id = bot_id
 
@@ -44,6 +46,7 @@ class Message(BotXObject):
 
         data['command'] = MessageCommand.from_json(data.get('command'))
         data['from_'] = From.from_json(data.get('from'))
+        data['file'] = File.from_json(data.get('file'))
         data.pop('from')  # Because `from_` on __init__ equals `from` in data
 
         return cls(**data)
