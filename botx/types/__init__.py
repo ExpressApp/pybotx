@@ -1,6 +1,7 @@
 from .bubble import BubbleElement, ReplyBubbleMarkup
 from .command import StatusCommand, MessageCommand, StatusCommandElements, \
     StatusCommandOptions
+from .file import File
 from .inputfile import InputFile
 from .job import Job
 from .keyboard import KeyboardElement, ReplyKeyboardMarkup
