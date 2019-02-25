@@ -23,10 +23,10 @@ class CommandHandler:
         if self.is_status_command_compatible:
             command = (self.command
                        if self.command != CommandHandler.ANY else 'any')
-            if not isinstance(command, str):
-                raise ValueError('A `command` must be a type of str')
-            if command.strip().startswith('/'):
-                command = command[1:]
+            # if not isinstance(command, str):
+            #     raise ValueError('A `command` must be a type of str')
+            # if command.strip().startswith('/'):
+            #     command = command[1:]
 
             return StatusCommand(body=command,
                                  name=self.name,
