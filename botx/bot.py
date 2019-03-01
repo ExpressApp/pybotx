@@ -75,6 +75,14 @@ class Bot:
             raise ValueError('A `data` parameter must be of bytes type')
         self.dispatcher.parse_request(data, type_='command')
 
+    def add_handler(self, handler):
+        """
+        :param handler:
+         :type handler: CommandHandler
+        :return:
+        """
+        self.dispatcher.add_handler(handler)
+
     def send_message(self, chat_id, text, recipients='all', bubble=None,
                      keyboard=None):
         """

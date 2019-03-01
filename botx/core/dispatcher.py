@@ -118,7 +118,7 @@ class Dispatcher:
                 return True
         return
 
-    def add_handler(self, handler=None):
+    def add_handler(self, handler):
         """
         A method to add a command for bot
 
@@ -126,7 +126,7 @@ class Dispatcher:
          :type handler: CommandHandler
         :return:
         """
-        if not handler or not isinstance(handler, CommandHandler):
+        if not isinstance(handler, CommandHandler):
             raise ValueError('`CommandHandler` object must be provided')
 
         self._handlers.update([(
