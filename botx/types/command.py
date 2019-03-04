@@ -2,7 +2,6 @@ from botx import BotXObject
 
 
 class MessageCommand(BotXObject):
-
     def __init__(self, body=None, data=None):
         self.body = body
         self.data = data
@@ -16,7 +15,6 @@ class MessageCommand(BotXObject):
 
 
 class StatusCommand(BotXObject):
-
     def __init__(self, body, name, description, options=None, elements=None):
         self.body = body
         self.name = name
