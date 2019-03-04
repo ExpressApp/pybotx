@@ -2,14 +2,12 @@ from botx import BotXObject
 
 
 class BubbleElement(BotXObject):
-
     def __init__(self, command, label=None):
         self.command = command
         self.label = label if label else self.command
 
 
 class ReplyBubbleMarkup:
-
     def __init__(self, bubble):
         self.bubble = bubble
 
@@ -20,9 +18,11 @@ class ReplyBubbleMarkup:
             r = []
             for button in row:
                 if not isinstance(button, BubbleElement):
-                    raise ValueError('`ReplyBubbleMarkup` must contain only '
-                                     '`BubbleElement` objects')
-                if hasattr(button, 'to_dict'):
+                    raise ValueError(
+                        "`ReplyBubbleMarkup` must contain only "
+                        "`BubbleElement` objects"
+                    )
+                if hasattr(button, "to_dict"):
                     r.append(button.to_dict())
                 else:
                     r.append(button)

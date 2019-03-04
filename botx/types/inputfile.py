@@ -1,10 +1,11 @@
 # import os
 import imghdr
+
 # import mimetypes
 
 
 class InputFile:
-    DEFAULT_MIME_TYPE = 'application/octet-stream'
+    DEFAULT_MIME_TYPE = "application/octet-stream"
 
     @staticmethod
     def is_image(stream):
@@ -15,4 +16,4 @@ class InputFile:
 
     @staticmethod
     def is_file(obj):
-        return hasattr(obj, 'read')
+        return hasattr(obj, "read")

@@ -1,11 +1,11 @@
 from botx import BotXObject
+
+from .command import MessageCommand
 from .file import File
 from .other import SyncID
-from .command import MessageCommand
 
 
 class Message(BotXObject):
-
     def __init__(self, sync_id, command, file, from_, bot_id):
         self.sync_id = SyncID(sync_id)
         self.command = command
@@ -44,18 +44,18 @@ class Message(BotXObject):
 
         data = super().from_json(data)
 
-        data['command'] = MessageCommand.from_json(data.get('command'))
-        data['from_'] = From.from_json(data.get('from'))
-        data['file'] = File.from_json(data.get('file'))
-        data.pop('from')  # Because `from_` on __init__ equals `from` in data
+        data["command"] = MessageCommand.from_json(data.get("command"))
+        data["from_"] = From.from_json(data.get("from"))
+        data["file"] = File.from_json(data.get("file"))
+        data.pop("from")  # Because `from_` on __init__ equals `from` in data
 
         return cls(**data)
 
 
 class From(BotXObject):
-
-    def __init__(self, user_huid, group_chat_id, ad_login, ad_domain, username,
-                 chat_type, host):
+    def __init__(
+        self, user_huid, group_chat_id, ad_login, ad_domain, username, chat_type, host
+    ):
         self.user_huid = user_huid
         self.group_chat_id = group_chat_id
         self.ad_login = ad_login
@@ -70,6 +70,7 @@ class From(BotXObject):
             return
         data = super().from_json(data)
         return cls(**data)
+
 
 # @TODO: Class initiating ???
 # class Test:

@@ -2,14 +2,12 @@ from botx import BotXObject
 
 
 class KeyboardElement(BotXObject):
-
     def __init__(self, command, label=None):
         self.command = command
         self.label = label if label else self.command
 
 
 class ReplyKeyboardMarkup:
-
     def __init__(self, keyboard):
         self.keyboard = keyboard
 
@@ -20,9 +18,11 @@ class ReplyKeyboardMarkup:
             r = []
             for button in row:
                 if not isinstance(button, KeyboardElement):
-                    raise ValueError('`ReplyKeyboardMarkup` must contain only '
-                                     '`KeyboardElement` objects')
-                if hasattr(button, 'to_dict'):
+                    raise ValueError(
+                        "`ReplyKeyboardMarkup` must contain only "
+                        "`KeyboardElement` objects"
+                    )
+                if hasattr(button, "to_dict"):
                     r.append(button.to_dict())
                 else:
                     r.append(button)

@@ -2,7 +2,6 @@ from botx import BotXObject
 
 
 class File(BotXObject):
-
     def __init__(self, data, file_name):
         self.data = data
         self.file_name = file_name

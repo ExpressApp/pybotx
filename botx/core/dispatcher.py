@@ -1,16 +1,14 @@
 import json
-
 from collections import OrderedDict
 
 import gevent
+from botx.types import Job, Message, Status, StatusResult
 from gevent.queue import Queue
 
 from .commandhandler import CommandHandler
-from botx.types import Job, Status, StatusResult, Message
 
 
 class Dispatcher:
-
     def __init__(self, bot=None):
         self._bot = bot
         self._handlers = OrderedDict()
@@ -25,11 +23,11 @@ class Dispatcher:
 
     def add_workers(self, workers_number):
         if not isinstance(workers_number, int):
-            raise ValueError('A `workers_number` parameter must be of str '
-                             'type')
+            raise ValueError("A `workers_number` parameter must be of str " "type")
         if workers_number < 1:
-            raise ValueError('A `workers_number` parameter must be equal or '
-                             'more than 1')
+            raise ValueError(
+                "A `workers_number` parameter must be equal or " "more than 1"
+            )
         self._workers = []
         for _ in range(workers_number):
             self._workers.append(gevent.spawn(self._process_request_worker))
@@ -40,20 +38,24 @@ class Dispatcher:
                 job = self._jobs_queue.get()
             except gevent.queue.Empty:
                 continue
-            if job and isinstance(job, Job) \
-                    and isinstance(job.command, CommandHandler)\
-                    and isinstance(job.message, Message):
+            if (
+                job
+                and isinstance(job, Job)
+                and isinstance(job.command, CommandHandler)
+                and isinstance(job.message, Message)
+            ):
                 job.command.func(job.message)
 
     def parse_request(self, data, type_=None):
         if not isinstance(type_, str):
-            raise ValueError('A `type_` parameter is not provided or not of '
-                             'str type')
+            raise ValueError(
+                "A `type_` parameter is not provided or not of " "str type"
+            )
 
-        if data and type_ == 'status':
+        if data and type_ == "status":
             return self._create_status(data)
-        elif data and type_ == 'command':
-            incoming_data = data.decode('utf-8').replace("'", '"')
+        elif data and type_ == "command":
+            incoming_data = data.decode("utf-8").replace("'", '"')
             if incoming_data:
                 incoming_data = json.loads(incoming_data)
             else:
@@ -66,7 +68,7 @@ class Dispatcher:
         :param incoming_data: A bot_id
         :return:
         """
-        print('create status')
+        print("create status")
         if not incoming_data or incoming_data != self._bot.bot_id:
             return
 
@@ -88,9 +90,8 @@ class Dispatcher:
         if not incoming_data:
             return
 
-        incoming_data_bot_id = incoming_data.get('bot_id')
-        if not incoming_data_bot_id \
-                or incoming_data_bot_id != self._bot.bot_id:
+        incoming_data_bot_id = incoming_data.get("bot_id")
+        if not incoming_data_bot_id or incoming_data_bot_id != self._bot.bot_id:
             return
 
         message = Message.from_json(incoming_data)
@@ -103,7 +104,7 @@ class Dispatcher:
         # @TODO: improve command detection
 
         try:
-            command_text = message.body.strip().split(' ')[0]
+            command_text = message.body.strip().split(" ")[0]
         except (ValueError, IndexError):
             return
 
@@ -127,8 +128,17 @@ class Dispatcher:
         :return:
         """
         if not isinstance(handler, CommandHandler):
-            raise ValueError('`CommandHandler` object must be provided')
+            raise ValueError("`CommandHandler` object must be provided")
 
-        self._handlers.update([(
-            (handler.command.lower() if isinstance(handler.command, str)
-             else handler.command), handler)])
+        self._handlers.update(
+            [
+                (
+                    (
+                        handler.command.lower()
+                        if isinstance(handler.command, str)
+                        else handler.command
+                    ),
+                    handler,
+                )
+            ]
+        )
