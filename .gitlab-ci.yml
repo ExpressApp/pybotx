@@ -1,0 +1,17 @@
+image: docker:latest
+
+before_script:
+  - docker info
+  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+
+stages:
+  - build
+
+build:
+  stage: build
+  tags:
+    - docker
+  script:
+    - docker build --force-rm -t $CI_REGISTRY_IMAGE:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG} .
+    - docker push $CI_REGISTRY_IMAGE:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}
+    - docker rmi $CI_REGISTRY_IMAGE:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}
