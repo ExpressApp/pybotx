@@ -1,45 +1,47 @@
-from botx import BotXObject
+from enum import Enum
+from typing import List, Union
+from uuid import UUID
+
+from .base import BotXType
+from .bubble import BubbleElement
+from .core import MenuCommand, StatusEnum
+from .keyboard import KeyboardElement
 
 
-class ResponseCommand(BotXObject):
-    def __init__(self, bot_id, sync_id, command_result, recipients="all"):
-        self.bot_id = bot_id
-        self.sync_id = sync_id
-        self.command_result = command_result
-        self.recipients = recipients
+class ResponseRecipientsEnum(str, Enum):
+    all: str = "all"
 
 
-class ResponseCommandResult(BotXObject):
-    def __init__(
-        self,
-        status="ok",
-        body=None,
-        commands=None,
-        bubble=None,
-        keyboard=None,
-        files=None,
-    ):
-        self.status = status
-        self.body = body if body else ""
-        self.commands = commands if commands else []
-        self.bubble = bubble if bubble else []
-        self.keyboard = keyboard if keyboard else []
-        self.files = files if files else []
+class ResponseResult(BotXType):
+    status: StatusEnum = StatusEnum.ok
+    body: str
+    commands: List[MenuCommand] = []
+    keyboard: List[List[KeyboardElement]] = []
+    bubble: List[List[BubbleElement]] = []
 
 
-class ResponseNotification(BotXObject):
-    def __init__(self, bot_id, notification, group_chat_ids=None, recipients="all"):
-        self.bot_id = bot_id
-        self.notification = notification
-        self.group_chat_ids = group_chat_ids if group_chat_ids else []
-        self.recipients = recipients
-
-
-class ResponseNotificationResult(ResponseCommandResult):
+class ResponseCommandResult(ResponseResult):
     pass
 
 
-class ResponseDocument(BotXObject):
-    def __init__(self, bot_id, sync_id):
-        self.bot_id = bot_id
-        self.sync_id = sync_id
+class ResponseNotificationResult(ResponseResult):
+    pass
+
+
+class ResponseCommand(BotXType):
+    sync_id: UUID
+    bot_id: UUID
+    recipients: Union[List[UUID], ResponseRecipientsEnum] = ResponseRecipientsEnum.all
+    command_result: ResponseCommandResult
+
+
+class ResponseNotification(BotXType):
+    bot_id: UUID
+    recipients: Union[List[UUID], ResponseRecipientsEnum] = ResponseRecipientsEnum.all
+    group_chat_ids: List[UUID] = []
+    notification: ResponseNotificationResult
+
+
+class ResponseDocument(BotXType):
+    bot_id: UUID
+    sync_id: UUID

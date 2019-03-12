@@ -29,16 +29,16 @@ class TestBot:
             == "https://example.host.com/api/v2/botx/notification/callback"
         )
         assert bot.url_file == "https://example.host.com/api/v1/botx/file/callback"
-        assert isinstance(bot.dispatcher, Dispatcher)
-        assert bot.dispatcher._bot == bot
-        assert isinstance(bot.dispatcher._jobs_queue, Queue)
-        assert isinstance(bot.dispatcher._workers, list)
+        assert isinstance(bot._dispatcher, Dispatcher)
+        assert bot._dispatcher._bot == bot
+        assert isinstance(bot._dispatcher._jobs_queue, Queue)
+        assert isinstance(bot._dispatcher._workers, list)
 
     def test_bot_start_webhook(self):
         bot = Bot("bot_token", "example.host.com")
         with pytest.raises(ValueError):
             bot.start_bot(workers_number="4")
         bot.start_bot(workers_number=4)
-        assert len(bot.dispatcher._workers) == 4
-        for worker in bot.dispatcher._workers:
+        assert len(bot._dispatcher._workers) == 4
+        for worker in bot._dispatcher._workers:
             assert isinstance(worker, Greenlet)

@@ -1,31 +1,11 @@
-from botx import BotXObject
+from typing import Optional
+from .base import BotXType
 
 
-class KeyboardElement(BotXObject):
-    def __init__(self, command, label=None):
-        self.command = command
-        self.label = label if label else self.command
+class KeyboardElement(BotXType):
+    command: str
+    label: Optional[str] = None
 
-
-class ReplyKeyboardMarkup:
-    def __init__(self, keyboard):
-        self.keyboard = keyboard
-
-    def to_list(self):
-        data = []
-
-        for row in self.keyboard:
-            r = []
-            for button in row:
-                if not isinstance(button, KeyboardElement):
-                    raise ValueError(
-                        "`ReplyKeyboardMarkup` must contain only "
-                        "`KeyboardElement` objects"
-                    )
-                if hasattr(button, "to_dict"):
-                    r.append(button.to_dict())
-                else:
-                    r.append(button)
-            data.append(r)
-
-        return data
+    def __init__(self, **data):
+        super().__init__(**data)
+        self.label = self.label or self.command

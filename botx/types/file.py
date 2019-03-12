@@ -1,14 +1,12 @@
-from botx import BotXObject
+from io import BytesIO
+
+from .base import BotXType
 
 
-class File(BotXObject):
-    def __init__(self, data, file_name):
-        self.data = data
-        self.file_name = file_name
+class File(BotXType):
+    data: str
+    file_name: str
 
-    @classmethod
-    def from_json(cls, data):
-        if not data:
-            return
-        data = super().from_json(data)
-        return cls(**data)
+    @property
+    def file(self):
+        return BytesIO(self.data.encode("utf-8"))

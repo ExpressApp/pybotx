@@ -1,14 +1,16 @@
-from botx import BotXObject
+from typing import List, Optional
+
+from .base import BotXType
+
+from .core import MenuCommand, StatusEnum
 
 
-class Status(BotXObject):
-    def __init__(self, status="ok", result=None):
-        self.status = status
-        self.result = result
+class StatusResult(BotXType):
+    enabled: bool = True
+    status_message: Optional[str] = None
+    commands: List[MenuCommand] = []
 
 
-class StatusResult(BotXObject):
-    def __init__(self, enabled=True, status_message="Bot is working", commands=None):
-        self.enabled = enabled
-        self.status_message = status_message
-        self.commands = commands if commands else []
+class Status(BotXType):
+    status: StatusEnum = StatusEnum.ok
+    result: StatusResult = StatusResult()

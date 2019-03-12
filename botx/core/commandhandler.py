@@ -1,49 +1,25 @@
-from botx.types import StatusCommand
+from typing import Callable, Optional, Any, Dict, List
+
+from botx.base import BotXObject
+from botx.types import MenuCommand, CommandUIElement
 
 
-class CommandHandler:
-    ANY = True
+class CommandHandler(BotXObject):
+    name: str
+    command: str
+    description: str
+    func: Callable
+    exclude_from_status: bool = False
+    use_as_default_handler: bool = False
+    options: Dict[str, Any] = {}
+    elements: List[CommandUIElement] = []
 
-    def __init__(
-        self, command, func, name=None, description=None, options=None, elements=None
-    ):
-        self.command = command
-        self.func = func
-        self.name = name
-        self.description = description
-        self.options = options if options else {}
-        self.elements = elements if elements else []
-
-    @property
-    def is_status_command_compatible(self):
-        if self.command and self.name and self.description:
-            return True
-        return False
-
-    def to_status_command(self):
-        if self.is_status_command_compatible:
-            command = self.command if self.command != CommandHandler.ANY else "any"
-            # if not isinstance(command, str):
-            #     raise ValueError('A `command` must be a type of str')
-            # if command.strip().startswith('/'):
-            #     command = command[1:]
-
-            return StatusCommand(
-                body=command,
+    def to_status_command(self) -> Optional[MenuCommand]:
+        if not self.exclude_from_status and not self.use_as_default_handler:
+            return MenuCommand(
+                body=self.command,
                 name=self.name,
                 description=self.description,
                 options=self.options,
                 elements=self.elements,
             )
-        return
-
-    def to_dict(self):
-        _dict = self.__dict__
-
-        if not _dict.get("name") or not _dict.get("description"):
-            return
-
-        _dict["body"] = _dict.get("command")
-        _dict.pop("command")
-        _dict.pop("func")
-        return _dict

@@ -6,13 +6,18 @@ authors = []
 
 [tool.poetry.dependencies]
 python = "^3.6"
-gevent = "^1.4"
+pydantic = "^0.20.1"
 requests = "^2.21"
+aiohttp = "^3.5"
+aiojobs = "^0.2.2"
+asgiref = "^2.3"
 
 [tool.poetry.dev-dependencies]
-pytest = "^4.3"
+pylint = "^2.3"
+mypy = "^0.670.0"
 black = {version = "^18.3-alpha.0",allows-prereleases = true}
 isort = "^4.3"
+pytest = "^4.3"
 
 [build-system]
 requires = ["poetry>=0.12"]
