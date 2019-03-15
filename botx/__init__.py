@@ -1,7 +1,6 @@
-from .asyncbot import AsyncBot
-from .core import CommandHandler
-from .exception import BotXException
-from .syncbot import SyncBot as Bot
+from .bot import AsyncBot, CommandHandler
+from .bot import SyncBot as Bot
+from .core import BotXException
 from .types import (
     BubbleElement,
     ChatTypeEnum,
@@ -12,6 +11,7 @@ from .types import (
     Message,
     MessageCommand,
     MessageUser,
+    RequestTypeEnum,
     ResponseCommand,
     ResponseCommandResult,
     ResponseFile,

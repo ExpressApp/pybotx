@@ -1,2 +1,0 @@
-class BotXException(Exception):
-    pass

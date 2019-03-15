@@ -1,7 +1,8 @@
 import pytest
 
-from botx import CommandHandler, BotXException
-from botx.core.dispatcher import SyncDispatcher, AsyncDispatcher
+from botx import BotXException, CommandHandler
+from botx.bot.dispatcher.asyncdispatcher import AsyncDispatcher
+from botx.bot.dispatcher.syncdispatcher import SyncDispatcher
 
 
 def test_dispatcher_create_status():
@@ -98,6 +99,8 @@ async def test_async_dispatcher(test_command_data):
     assert await d.parse_request(test_command_data, request_type="command")
 
     with pytest.raises(BotXException):
-        d.add_handler(CommandHandler(name='', command='', description='', func=lambda m: m))
+        d.add_handler(
+            CommandHandler(name="", command="", description="", func=lambda m: m)
+        )
 
     await d.shutdown()

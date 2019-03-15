@@ -1,18 +1,12 @@
-from enum import Enum
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 from uuid import UUID
 
 from pydantic import Schema
 
 from .base import BotXType
 from .command import MessageCommand
-from .core import SyncID
+from .core import ChatTypeEnum, SyncID
 from .file import File
-
-
-class ChatTypeEnum(str, Enum):
-    chat: str = "chat"
-    group_chat: str = "group_chat"
 
 
 class MessageUser(BotXType):

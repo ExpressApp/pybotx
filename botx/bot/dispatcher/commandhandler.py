@@ -1,6 +1,6 @@
 from typing import Any, Callable, Dict, List, Optional
 
-from botx.base import BotXObject
+from botx.core import BotXObject
 from botx.types import CommandUIElement, MenuCommand
 
 
