@@ -1,14 +1,20 @@
-from botx import BotXObject
+import base64
+from io import BytesIO
+from typing import Union, TextIO, BinaryIO
+
+from .base import BotXType
 
 
-class File(BotXObject):
-    def __init__(self, data, file_name):
-        self.data = data
-        self.file_name = file_name
+class File(BotXType):
+    data: str
+    file_name: str
 
-    @classmethod
-    def from_json(cls, data):
-        if not data:
-            return
-        data = super().from_json(data)
-        return cls(**data)
+    @property
+    def file(self) -> Union[BinaryIO]:
+        d = BytesIO(self.raw_data)
+        d.name = self.file_name
+        return d
+
+    @property
+    def raw_data(self) -> bytes:
+        return base64.b64decode(self.data.split(',', 1)[1])

@@ -1,2 +1,2 @@
-from .dispatcher import Dispatcher
 from .commandhandler import CommandHandler
+from .dispatcher import SyncDispatcher, AsyncDispatcher

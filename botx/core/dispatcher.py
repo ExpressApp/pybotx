@@ -1,144 +1,146 @@
-import json
 from collections import OrderedDict
 
-import gevent
-from botx.types import Job, Message, Status, StatusResult
-from gevent.queue import Queue
+import abc
+import aiojobs
+import inspect
+from concurrent.futures.thread import ThreadPoolExecutor
+from enum import Enum
+from typing import Any, Awaitable, Dict, NoReturn, Optional, Union
 
+from botx.exception import BotXException
+from botx.types import Message, Status, StatusResult, SyncID
 from .commandhandler import CommandHandler
 
 
-class Dispatcher:
-    def __init__(self, bot=None):
-        self._bot = bot
+class RequestTypeEnum(str, Enum):
+    status: str = "status"
+    command: str = "command"
+
+
+class BaseDispatcher(abc.ABC):
+    _handlers: Dict[str, CommandHandler]
+    _default_handler: Optional[CommandHandler] = None
+
+    def __init__(self):
         self._handlers = OrderedDict()
-        self._jobs_queue = Queue()
-        self._workers = []
-        # @IDEA: Пользователь в коде пишет register_next_step_handler(user_id)
-        # и эта функция берет и добавляет в Dispatcher.handlers новый
-        # CommandHandler или другой какой-то объект (или вообще 2 тип handlers
-        # сделать). Потом, когда parse_request будет вызывать handlers для
-        # сверки с пришедшим сообщением, и если там оказывается нужное - тупо
-        # запускать нужную функцию и похер что там пришло.
 
-    def add_workers(self, workers_number):
-        if not isinstance(workers_number, int):
-            raise ValueError("A `workers_number` parameter must be of str " "type")
-        if workers_number < 1:
-            raise ValueError(
-                "A `workers_number` parameter must be equal or " "more than 1"
-            )
-        self._workers = []
-        for _ in range(workers_number):
-            self._workers.append(gevent.spawn(self._process_request_worker))
+    @abc.abstractmethod
+    def start(self) -> NoReturn:  # pragma: no cover
+        pass
 
-    def _process_request_worker(self):
-        while True:
-            try:
-                job = self._jobs_queue.get()
-            except gevent.queue.Empty:
-                continue
-            if (
-                job
-                and isinstance(job, Job)
-                and isinstance(job.command, CommandHandler)
-                and isinstance(job.message, Message)
-            ):
-                job.command.func(job.message)
+    @abc.abstractmethod
+    def shutdown(self) -> NoReturn:  # pragma: no cover
+        pass
 
-    def parse_request(self, data, type_=None):
-        if not isinstance(type_, str):
-            raise ValueError(
-                "A `type_` parameter is not provided or not of " "str type"
-            )
+    @abc.abstractmethod
+    def parse_request(
+        self, data: Dict[str, Any], request_type: Union[str, RequestTypeEnum]
+    ) -> Union[Status, bool]:  # pragma: no cover
+        pass
 
-        if data and type_ == "status":
-            return self._create_status(data)
-        elif data and type_ == "command":
-            incoming_data = data.decode("utf-8").replace("'", '"')
-            if incoming_data:
-                incoming_data = json.loads(incoming_data)
-            else:
-                incoming_data = None
-            return self._create_message(incoming_data)
-        return
+    @abc.abstractmethod
+    def _create_message(
+        self, data: Dict[str, Any]
+    ) -> Union[Awaitable, bool]:  # pragma: no cover
+        pass
 
-    def _create_status(self, incoming_data=None):
-        """
-        :param incoming_data: A bot_id
-        :return:
-        """
-        print("create status")
-        if not incoming_data or incoming_data != self._bot.bot_id:
-            return
-
+    def _create_status(self) -> Status:
         commands = []
-        for _handler_name in self._handlers:
-            command = self._handlers.get(_handler_name)
-            if isinstance(command, CommandHandler):
-                if command.is_status_command_compatible:
-                    status_command = command.to_status_command()
-                    if status_command:
-                        commands.append(status_command)
-        status_result = StatusResult(commands=commands)
-        status = Status(result=status_result)
+        for command_name, handler in self._handlers.items():
+            menu_command = handler.to_status_command()
+            if menu_command:
+                commands.append(menu_command)
 
-        print(status.to_dict())
-        return status
+        return Status(result=StatusResult(commands=commands))
 
-    def _create_message(self, incoming_data=None):
-        if not incoming_data:
-            return
+    def add_handler(self, handler: CommandHandler) -> NoReturn:
+        if handler.use_as_default_handler:
+            self._default_handler = handler
+        else:
+            self._handlers[handler.command] = handler
 
-        incoming_data_bot_id = incoming_data.get("bot_id")
-        if not incoming_data_bot_id or incoming_data_bot_id != self._bot.bot_id:
-            return
 
-        message = Message.from_json(incoming_data)
-        if not isinstance(message, Message):
-            return
-        if not message.sync_id or (not message.body and not message.data):
-            return
+class AsyncDispatcher(BaseDispatcher):
+    _scheduler = aiojobs.Scheduler
 
-        # @TODO: make support for data (currently only message.body)
-        # @TODO: improve command detection
+    def __init__(self):
+        super().__init__()
 
-        try:
-            command_text = message.body.strip().split(" ")[0]
-        except (ValueError, IndexError):
-            return
+    async def start(self) -> NoReturn:
+        self._scheduler = await aiojobs.create_scheduler()
 
-        command = self._handlers.get(command_text.lower())
-        if isinstance(command, CommandHandler):
-            self._jobs_queue.put(Job(command=command, message=message))
+    async def shutdown(self) -> NoReturn:
+        await self._scheduler.close()
+
+    async def parse_request(
+        self, data: Dict[str, Any], request_type: Union[str, RequestTypeEnum]
+    ) -> Union[Status, bool]:
+        if request_type == RequestTypeEnum.status:
+            return self._create_status()
+        elif request_type == RequestTypeEnum.command:
+            return await self._create_message(data)
+
+    async def _create_message(self, data: Dict[str, Any]) -> bool:
+        message = Message(**data)
+        cmd = message.command.cmd
+        command = self._handlers.get(cmd)
+        if command:
+            await self._scheduler.spawn(command.func(message))
             return True
         else:
-            any_command = self._handlers.get(CommandHandler.ANY)
-            if isinstance(any_command, CommandHandler):
-                self._jobs_queue.put(Job(command=any_command, message=message))
+            if self._default_handler:
+                print(self._default_handler)
+                await self._scheduler.spawn(self._default_handler.func(message))
                 return True
-        return
+        return False
 
-    def add_handler(self, handler):
-        """
-        A method to add a command for bot
+    def add_handler(self, handler: CommandHandler) -> NoReturn:
+        if not inspect.iscoroutinefunction(handler.func):
+            raise BotXException("can not add not async handler to async dispatcher")
 
-        :param handler: A handler with assigned command and function
-         :type handler: CommandHandler
-        :return:
-        """
-        if not isinstance(handler, CommandHandler):
-            raise ValueError("`CommandHandler` object must be provided")
+        super().add_handler(handler)
 
-        self._handlers.update(
-            [
-                (
-                    (
-                        handler.command.lower()
-                        if isinstance(handler.command, str)
-                        else handler.command
-                    ),
-                    handler,
-                )
-            ]
-        )
+
+class SyncDispatcher(BaseDispatcher):
+    _pool: ThreadPoolExecutor
+
+    def __init__(self, workers: int):
+        super().__init__()
+        self._pool = ThreadPoolExecutor(max_workers=workers)
+
+    def start(self) -> NoReturn:
+        pass
+
+    def shutdown(self) -> NoReturn:
+        self._pool.shutdown()
+
+    def parse_request(
+        self, data: Dict[str, Any], request_type: Union[str, RequestTypeEnum]
+    ) -> Union[Status, bool]:
+        if request_type == RequestTypeEnum.status:
+            return self._create_status()
+        elif request_type == RequestTypeEnum.command:
+            return self._create_message(data)
+        else:
+            raise BotXException(f"wrong request type {repr(request_type)}")
+
+    def _create_message(self, data: Dict[str, Any]) -> bool:
+        message = Message(**data)
+        message.sync_id = SyncID(str(message.sync_id))
+
+        cmd = message.command.cmd
+        command = self._handlers.get(cmd)
+        if command:
+            self._pool.submit(command.func, message)
+            return True
+        else:
+            if self._default_handler:
+                self._pool.submit(self._default_handler.func, message=message)
+                return True
+        return False
+
+    def add_handler(self, handler: CommandHandler) -> NoReturn:
+        if inspect.iscoroutinefunction(handler.func):
+            raise BotXException("can not add async handler to sync dispatcher")
+
+        super().add_handler(handler)
