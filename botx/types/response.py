@@ -1,16 +1,10 @@
-from enum import Enum
-from io import TextIOWrapper
-from typing import List, Union, Optional, Any
+from typing import Any, List, Optional, Union
 from uuid import UUID
 
 from .base import BotXType
 from .bubble import BubbleElement
-from .core import MenuCommand, StatusEnum, SyncID
+from .core import MenuCommand, ResponseRecipientsEnum, StatusEnum, SyncID
 from .keyboard import KeyboardElement
-
-
-class ResponseRecipientsEnum(str, Enum):
-    all: str = "all"
 
 
 class ResponseResult(BotXType):

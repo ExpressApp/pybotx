@@ -10,6 +10,20 @@ class StatusEnum(str, Enum):
     error: str = "error"
 
 
+class ResponseRecipientsEnum(str, Enum):
+    all: str = "all"
+
+
+class ChatTypeEnum(str, Enum):
+    chat: str = "chat"
+    group_chat: str = "group_chat"
+
+
+class RequestTypeEnum(str, Enum):
+    status: str = "status"
+    command: str = "command"
+
+
 class CommandUIElement(BotXType):
     type: str
     label: str

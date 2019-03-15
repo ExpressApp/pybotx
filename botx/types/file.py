@@ -1,6 +1,6 @@
 import base64
 from io import BytesIO
-from typing import Union, TextIO, BinaryIO
+from typing import BinaryIO, Union
 
 from .base import BotXType
 
@@ -17,4 +17,4 @@ class File(BotXType):
 
     @property
     def raw_data(self) -> bytes:
-        return base64.b64decode(self.data.split(',', 1)[1])
+        return base64.b64decode(self.data.split(",", 1)[1])

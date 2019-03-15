@@ -1,13 +1,8 @@
-from io import TextIOWrapper
-from typing import Any, Dict, List, NoReturn, Optional, Union
+import aiohttp
+from typing import Any, Dict, List, NoReturn, Optional, Union, BinaryIO, TextIO
 from uuid import UUID
 
-import aiohttp
-
-from botx.botbase import BotBase
-from botx.core.dispatcher import AsyncDispatcher
-
-from .types import (
+from botx.types import (
     BubbleElement,
     KeyboardElement,
     ResponseCommand,
@@ -19,9 +14,11 @@ from .types import (
     Status,
     SyncID,
 )
+from .basebot import BaseBot
+from .dispatcher.asyncdispatcher import AsyncDispatcher
 
 
-class AsyncBot(BotBase):
+class AsyncBot(BaseBot):
     bot_id: UUID
     bot_host: str
     _session: aiohttp.ClientSession
@@ -131,7 +128,7 @@ class AsyncBot(BotBase):
             notification=response_result,
             group_chat_ids=group_chat_ids,
             recipients=recipients,
-        ).to_dict()
+        ).dict()
 
         async with self._session.post(
             self._url_notification.format(host), json=response
@@ -139,7 +136,7 @@ class AsyncBot(BotBase):
             return await resp.text()
 
     async def send_file(
-        self, file: TextIOWrapper, chat_id: Union[SyncID, UUID], bot_id: UUID, host: str
+        self, file: Union[TextIO, BinaryIO], chat_id: Union[SyncID, UUID], bot_id: UUID, host: str
     ) -> str:
         response = ResponseFile(bot_id=bot_id, sync_id=chat_id, file=file).dict()
 

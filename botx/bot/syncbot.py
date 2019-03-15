@@ -1,27 +1,10 @@
 import multiprocessing
-from io import TextIOWrapper, BufferedReader
-from typing import Any, Dict, List, NoReturn, Optional, Union, BinaryIO, TextIO
+from typing import Any, BinaryIO, Dict, List, NoReturn, Optional, TextIO, Union
 from uuid import UUID
 
 import requests
 
-# import logging
-# try:
-#     import http.client as http_client
-# except ImportError:
-#     # Python 2
-#     import httplib as http_client
-# http_client.HTTPConnection.debuglevel = 1
-#
-# # You must initialize logging, otherwise you'll not see debug output.
-# logging.basicConfig()
-# logging.getLogger().setLevel(logging.DEBUG)
-# requests_log = logging.getLogger("requests.packages.urllib3")
-# requests_log.setLevel(logging.DEBUG)
-# requests_log.propagate = True
-from .botbase import BotBase
-from .core import SyncDispatcher
-from .types import (
+from botx.types import (
     BubbleElement,
     KeyboardElement,
     ResponseCommand,
@@ -32,11 +15,13 @@ from .types import (
     ResponseRecipientsEnum,
     Status,
     SyncID,
-    File,
 )
 
+from .basebot import BaseBot
+from .dispatcher.syncdispatcher import SyncDispatcher
 
-class SyncBot(BotBase):
+
+class SyncBot(BaseBot):
     bot_id: UUID
     bot_host: str
     _dispatcher: SyncDispatcher
@@ -60,15 +45,15 @@ class SyncBot(BotBase):
         return self._dispatcher.parse_request(data, request_type="command")
 
     def send_message(
-            self,
-            text: str,
-            chat_id: Union[SyncID, UUID, List[UUID]],
-            bot_id: UUID,
-            host: str,
-            *,
-            recipients: Union[List[UUID], str] = ResponseRecipientsEnum.all,
-            bubble: Optional[List[List[BubbleElement]]] = None,
-            keyboard: Optional[List[List[KeyboardElement]]] = None,
+        self,
+        text: str,
+        chat_id: Union[SyncID, UUID, List[UUID]],
+        bot_id: UUID,
+        host: str,
+        *,
+        recipients: Union[List[UUID], str] = ResponseRecipientsEnum.all,
+        bubble: Optional[List[List[BubbleElement]]] = None,
+        keyboard: Optional[List[List[KeyboardElement]]] = None,
     ) -> str:
         if not bubble:
             bubble = []
@@ -103,14 +88,14 @@ class SyncBot(BotBase):
             )
 
     def _send_command_result(
-            self,
-            text: str,
-            chat_id: SyncID,
-            bot_id: UUID,
-            host: str,
-            recipients: Union[List[UUID], str],
-            bubble: List[List[BubbleElement]],
-            keyboard: List[List[KeyboardElement]],
+        self,
+        text: str,
+        chat_id: SyncID,
+        bot_id: UUID,
+        host: str,
+        recipients: Union[List[UUID], str],
+        bubble: List[List[BubbleElement]],
+        keyboard: List[List[KeyboardElement]],
     ) -> str:
         response_result = ResponseCommandResult(
             body=text, bubble=bubble, keyboard=keyboard
@@ -126,14 +111,14 @@ class SyncBot(BotBase):
         return resp.text
 
     def _send_notification_result(
-            self,
-            text: str,
-            group_chat_ids: List[UUID],
-            bot_id: UUID,
-            host: str,
-            recipients: Union[List[UUID], str],
-            bubble: List[List[BubbleElement]],
-            keyboard: List[List[KeyboardElement]],
+        self,
+        text: str,
+        group_chat_ids: List[UUID],
+        bot_id: UUID,
+        host: str,
+        recipients: Union[List[UUID], str],
+        bubble: List[List[BubbleElement]],
+        keyboard: List[List[KeyboardElement]],
     ) -> str:
         response_result = ResponseNotificationResult(
             body=text, bubble=bubble, keyboard=keyboard
@@ -148,11 +133,17 @@ class SyncBot(BotBase):
         return resp.text
 
     def send_file(
-            self, file: Union[TextIO, BinaryIO], chat_id: Union[SyncID, UUID], bot_id: UUID, host: str
+        self,
+        file: Union[TextIO, BinaryIO],
+        chat_id: Union[SyncID, UUID],
+        bot_id: UUID,
+        host: str,
     ) -> str:
         try:
             files = {"file": file}
-            response = ResponseFile(bot_id=bot_id, sync_id=chat_id, file=file).dict(exclude={"file"})
+            response = ResponseFile(bot_id=bot_id, sync_id=chat_id, file=file).dict(
+                exclude={"file"}
+            )
 
             return requests.post(
                 self._url_file.format(host), files=files, data=response

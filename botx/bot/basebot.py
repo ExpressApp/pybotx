@@ -1,21 +1,20 @@
 import abc
 from functools import partial
-from io import TextIOWrapper
-from typing import Any, Callable, Dict, List, NoReturn, Optional, Union
+from typing import Any, Callable, Dict, List, NoReturn, Optional, Union, BinaryIO, TextIO
 from uuid import UUID
 
-from botx.core.dispatcher import BaseDispatcher
-from .core import CommandHandler
-from .types import (
+from botx.types import (
     BubbleElement,
     KeyboardElement,
     ResponseRecipientsEnum,
     Status,
     SyncID,
 )
+from .dispatcher.basedispatcher import BaseDispatcher
+from .dispatcher.commandhandler import CommandHandler
 
 
-class BotBase(abc.ABC):
+class BaseBot(abc.ABC):
     _dispatcher: BaseDispatcher
     _url_command: str = "https://{}/api/v2/botx/command/callback"
     _url_notification: str = "https://{}/api/v2/botx/notification/callback"
@@ -57,6 +56,7 @@ class BotBase(abc.ABC):
                     system_command_handler=system_command_handler,
                 )
             )
+
             return func
         else:
             return partial(
@@ -123,6 +123,6 @@ class BotBase(abc.ABC):
 
     @abc.abstractmethod
     def send_file(
-        self, file: TextIOWrapper, chat_id: Union[SyncID, UUID], bot_id: UUID, host: str
+        self, file: Union[TextIO, BinaryIO], chat_id: Union[SyncID, UUID], bot_id: UUID, host: str
     ) -> str:  # pragma: no cover
         pass
