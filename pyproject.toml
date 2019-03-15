@@ -2,7 +2,7 @@
 name = "botx"
 version = "0.1.0"
 description = "Python implementation for BotX API"
-authors = []
+authors = ["Michael Morozov <email>"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
