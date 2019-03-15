@@ -4,7 +4,6 @@ from typing import Any, Dict, NoReturn, Union
 
 from botx.core import BotXException
 from botx.types import Message, RequestTypeEnum, Status, SyncID
-
 from .basedispatcher import BaseDispatcher
 from .commandhandler import CommandHandler
 

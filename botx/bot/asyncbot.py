@@ -1,5 +1,5 @@
 import aiohttp
-from typing import Any, Dict, List, NoReturn, Optional, Union, BinaryIO, TextIO
+from typing import Any, BinaryIO, Dict, List, NoReturn, Optional, TextIO, Union
 from uuid import UUID
 
 from botx.types import (
@@ -74,6 +74,8 @@ class AsyncBot(BaseBot):
             elif isinstance(chat_id, list):
                 group_chat_ids = chat_id
 
+            print("here")
+
             return await self._send_notification_result(
                 text=text,
                 group_chat_ids=group_chat_ids,
@@ -136,11 +138,16 @@ class AsyncBot(BaseBot):
             return await resp.text()
 
     async def send_file(
-        self, file: Union[TextIO, BinaryIO], chat_id: Union[SyncID, UUID], bot_id: UUID, host: str
+        self,
+        file: Union[TextIO, BinaryIO],
+        chat_id: Union[SyncID, UUID],
+        bot_id: UUID,
+        host: str,
     ) -> str:
         response = ResponseFile(bot_id=bot_id, sync_id=chat_id, file=file).dict()
+        response["file"] = file
 
         async with self._session.post(
-            self._url_notification.format(host), data=response
+            self._url_file.format(host), data=response
         ) as resp:
             return await resp.text()

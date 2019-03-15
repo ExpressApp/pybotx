@@ -42,4 +42,3 @@ class ResponseNotification(BotXType):
 class ResponseFile(BotXType):
     bot_id: UUID
     sync_id: SyncID
-    file: Any

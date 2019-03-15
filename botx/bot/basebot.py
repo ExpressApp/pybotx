@@ -1,6 +1,16 @@
 import abc
 from functools import partial
-from typing import Any, Callable, Dict, List, NoReturn, Optional, Union, BinaryIO, TextIO
+from typing import (
+    Any,
+    BinaryIO,
+    Callable,
+    Dict,
+    List,
+    NoReturn,
+    Optional,
+    TextIO,
+    Union,
+)
 from uuid import UUID
 
 from botx.types import (
@@ -123,6 +133,10 @@ class BaseBot(abc.ABC):
 
     @abc.abstractmethod
     def send_file(
-        self, file: Union[TextIO, BinaryIO], chat_id: Union[SyncID, UUID], bot_id: UUID, host: str
+        self,
+        file: Union[TextIO, BinaryIO],
+        chat_id: Union[SyncID, UUID],
+        bot_id: UUID,
+        host: str,
     ) -> str:  # pragma: no cover
         pass

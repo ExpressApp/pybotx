@@ -1,9 +1,9 @@
-import abc
 from collections import OrderedDict
+
+import abc
 from typing import Any, Awaitable, Dict, NoReturn, Optional, Union
 
 from botx.types import RequestTypeEnum, Status, StatusResult
-
 from .commandhandler import CommandHandler
 
 

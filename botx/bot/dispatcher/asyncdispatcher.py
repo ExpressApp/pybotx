@@ -1,11 +1,9 @@
+import aiojobs
 import inspect
 from typing import Any, Dict, NoReturn, Union
 
-import aiojobs
-
 from botx.core import BotXException
-from botx.types import Message, RequestTypeEnum, Status
-
+from botx.types import Message, RequestTypeEnum, Status, SyncID
 from .basedispatcher import BaseDispatcher
 from .commandhandler import CommandHandler
 
@@ -32,6 +30,8 @@ class AsyncDispatcher(BaseDispatcher):
 
     async def _create_message(self, data: Dict[str, Any]) -> bool:
         message = Message(**data)
+        message.sync_id = SyncID(str(message.sync_id))
+
         cmd = message.command.cmd
         command = self._handlers.get(cmd)
         if command:
@@ -39,7 +39,6 @@ class AsyncDispatcher(BaseDispatcher):
             return True
         else:
             if self._default_handler:
-                print(self._default_handler)
                 await self._scheduler.spawn(self._default_handler.func(message))
                 return True
         return False

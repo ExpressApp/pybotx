@@ -1,8 +1,8 @@
 import multiprocessing
-from typing import Any, BinaryIO, Dict, List, NoReturn, Optional, TextIO, Union
-from uuid import UUID
 
 import requests
+from typing import Any, BinaryIO, Dict, List, NoReturn, Optional, TextIO, Union
+from uuid import UUID
 
 from botx.types import (
     BubbleElement,
@@ -16,7 +16,6 @@ from botx.types import (
     Status,
     SyncID,
 )
-
 from .basebot import BaseBot
 from .dispatcher.syncdispatcher import SyncDispatcher
 
@@ -139,14 +138,9 @@ class SyncBot(BaseBot):
         bot_id: UUID,
         host: str,
     ) -> str:
-        try:
-            files = {"file": file}
-            response = ResponseFile(bot_id=bot_id, sync_id=chat_id, file=file).dict(
-                exclude={"file"}
-            )
+        files = {"file": file}
+        response = ResponseFile(bot_id=bot_id, sync_id=chat_id).dict()
 
-            return requests.post(
-                self._url_file.format(host), files=files, data=response
-            ).text
-        except Exception as e:
-            print(e)
+        return requests.post(
+            self._url_file.format(host), files=files, data=response
+        ).text
