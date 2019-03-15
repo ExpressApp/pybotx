@@ -1,40 +1,25 @@
-from typing import Dict, Any, Set
+import json
+from uuid import UUID
 
 from pydantic import BaseConfig
 
 from botx.base import BotXObject
 
 
+class _UUIDJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, UUID):
+            return str(o)
+
+        return super().default(o)
+
+
 class BotXType(BotXObject):
     class Config(BaseConfig):
         allow_population_by_alias = True
 
-    def dict(
-        self,
-        *,
-        include: Set[str] = None,
-        exclude: Set[str] = None,
-        by_alias: bool = True,
-    ) -> Dict[str, Any]:
-        if not exclude:
-            exclude = set()
-        return super().dict(include=include, exclude=exclude, by_alias=by_alias)
+    def json(self, *, by_alias: bool = True, **kwargs):
+        return super().json(by_alias=by_alias, **kwargs)
 
-    def json(
-        self,
-        *,
-        include: Set[str] = None,
-        exclude: Set[str] = None,
-        by_alias: bool = True,
-        encoder=None,
-        **dumps_kwargs,
-    ) -> str:
-        if not exclude:
-            exclude = set()
-        return super().json(
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            encoder=encoder,
-            **dumps_kwargs,
-        )
+    def dict(self, *, by_alias: bool = True, **kwargs):
+        return json.loads(json.dumps(super().dict(by_alias=by_alias, **kwargs), cls=_UUIDJSONEncoder))

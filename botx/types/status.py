@@ -1,13 +1,12 @@
-from typing import List, Optional
+from typing import List
 
 from .base import BotXType
-
 from .core import MenuCommand, StatusEnum
 
 
 class StatusResult(BotXType):
     enabled: bool = True
-    status_message: Optional[str] = None
+    status_message: str = "Bot is working"
     commands: List[MenuCommand] = []
 
 

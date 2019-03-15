@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, Dict, Any, Union
+from typing import Any, Dict, Optional, Union
 from uuid import UUID
 
 from pydantic import Schema
@@ -26,7 +26,7 @@ class MessageUser(BotXType):
 
 
 class Message(BotXType):
-    sync_id: Union[UUID, SyncID]
+    sync_id: SyncID
     command: MessageCommand
     file: Optional[File] = None
     user: MessageUser = Schema(..., alias="from")

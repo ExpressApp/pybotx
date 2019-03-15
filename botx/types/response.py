@@ -1,10 +1,11 @@
 from enum import Enum
-from typing import List, Union
+from io import TextIOWrapper
+from typing import List, Union, Optional, Any
 from uuid import UUID
 
 from .base import BotXType
 from .bubble import BubbleElement
-from .core import MenuCommand, StatusEnum
+from .core import MenuCommand, StatusEnum, SyncID
 from .keyboard import KeyboardElement
 
 
@@ -29,10 +30,11 @@ class ResponseNotificationResult(ResponseResult):
 
 
 class ResponseCommand(BotXType):
-    sync_id: UUID
+    sync_id: SyncID
     bot_id: UUID
     recipients: Union[List[UUID], ResponseRecipientsEnum] = ResponseRecipientsEnum.all
     command_result: ResponseCommandResult
+    file: Optional[str] = None
 
 
 class ResponseNotification(BotXType):
@@ -40,8 +42,10 @@ class ResponseNotification(BotXType):
     recipients: Union[List[UUID], ResponseRecipientsEnum] = ResponseRecipientsEnum.all
     group_chat_ids: List[UUID] = []
     notification: ResponseNotificationResult
+    file: Optional[str] = None
 
 
-class ResponseDocument(BotXType):
+class ResponseFile(BotXType):
     bot_id: UUID
-    sync_id: UUID
+    sync_id: SyncID
+    file: Any

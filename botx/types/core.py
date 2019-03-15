@@ -1,7 +1,6 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional
-
-from graphene import UUID
+from uuid import UUID
 
 from .base import BotXType
 

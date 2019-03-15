@@ -1,18 +1,14 @@
-import asyncio
 from collections import OrderedDict
 
 import abc
 import aiojobs
 import inspect
-import asgiref.sync
-import uuid
-from concurrent.futures.process import ProcessPoolExecutor
+from concurrent.futures.thread import ThreadPoolExecutor
 from enum import Enum
-from typing import Dict, Any, Union, NoReturn, Optional, Callable, Awaitable
+from typing import Any, Awaitable, Dict, NoReturn, Optional, Union
 
-from botx.bot import Bot
 from botx.exception import BotXException
-from botx.types import Message, Status, StatusResult
+from botx.types import Message, Status, StatusResult, SyncID
 from .commandhandler import CommandHandler
 
 
@@ -21,42 +17,39 @@ class RequestTypeEnum(str, Enum):
     command: str = "command"
 
 
-class Dispatcher(abc.ABC):
-    _bot: Bot
+class BaseDispatcher(abc.ABC):
     _handlers: Dict[str, CommandHandler]
     _default_handler: Optional[CommandHandler] = None
 
-    def __init__(self, bot: Bot):
-        self._bot = bot
+    def __init__(self):
         self._handlers = OrderedDict()
 
     @abc.abstractmethod
-    def shutdown(self) -> NoReturn:
+    def start(self) -> NoReturn:  # pragma: no cover
+        pass
+
+    @abc.abstractmethod
+    def shutdown(self) -> NoReturn:  # pragma: no cover
         pass
 
     @abc.abstractmethod
     def parse_request(
         self, data: Dict[str, Any], request_type: Union[str, RequestTypeEnum]
-    ) -> Union[Status, bool]:
+    ) -> Union[Status, bool]:  # pragma: no cover
         pass
 
     @abc.abstractmethod
-    def _create_message(self, data: Dict[str, Any]) -> Union[Awaitable, bool]:
+    def _create_message(
+        self, data: Dict[str, Any]
+    ) -> Union[Awaitable, bool]:  # pragma: no cover
         pass
 
-    def _check_bot_id(self, data: Dict[str, Any]) -> NoReturn:
-        if "bot_id" not in data:
-            raise BotXException("missing bot_id field in data")
-        if not uuid.UUID(data["bot_id"]) != self._bot.bot_id:
-            raise BotXException("mismatched_bot_id from data")
-
-    def _create_status(self, data: Dict[str, Any]) -> Status:
-        self._check_bot_id(data)
-
+    def _create_status(self) -> Status:
         commands = []
         for command_name, handler in self._handlers.items():
-            if not handler.exclude_from_status:
-                commands.append(handler.to_status_command())
+            menu_command = handler.to_status_command()
+            if menu_command:
+                commands.append(menu_command)
 
         return Status(result=StatusResult(commands=commands))
 
@@ -67,14 +60,14 @@ class Dispatcher(abc.ABC):
             self._handlers[handler.command] = handler
 
 
-class AsyncDispatcher(Dispatcher):
+class AsyncDispatcher(BaseDispatcher):
     _scheduler = aiojobs.Scheduler
 
-    def __init__(self, bot: Bot):
-        super().__init__(bot)
-        self._scheduler: aiojobs.Scheduler = asgiref.sync.async_to_sync(
-            aiojobs.create_scheduler
-        )()
+    def __init__(self):
+        super().__init__()
+
+    async def start(self) -> NoReturn:
+        self._scheduler = await aiojobs.create_scheduler()
 
     async def shutdown(self) -> NoReturn:
         await self._scheduler.close()
@@ -83,13 +76,11 @@ class AsyncDispatcher(Dispatcher):
         self, data: Dict[str, Any], request_type: Union[str, RequestTypeEnum]
     ) -> Union[Status, bool]:
         if request_type == RequestTypeEnum.status:
-            return self._create_status(data)
+            return self._create_status()
         elif request_type == RequestTypeEnum.command:
             return await self._create_message(data)
 
     async def _create_message(self, data: Dict[str, Any]) -> bool:
-        self._check_bot_id(data)
-
         message = Message(**data)
         cmd = message.command.cmd
         command = self._handlers.get(cmd)
@@ -98,23 +89,27 @@ class AsyncDispatcher(Dispatcher):
             return True
         else:
             if self._default_handler:
-                await self._scheduler.spawn(command.func(message))
+                print(self._default_handler)
+                await self._scheduler.spawn(self._default_handler.func(message))
                 return True
         return False
 
     def add_handler(self, handler: CommandHandler) -> NoReturn:
-        if not inspect.isawaitable(handler.func):
+        if not inspect.iscoroutinefunction(handler.func):
             raise BotXException("can not add not async handler to async dispatcher")
 
         super().add_handler(handler)
 
 
-class SyncDispatcher(Dispatcher):
-    _pool: ProcessPoolExecutor
+class SyncDispatcher(BaseDispatcher):
+    _pool: ThreadPoolExecutor
 
-    def __init__(self, bot: Bot, workers: int):
-        super().__init__(bot)
-        self._pool = ProcessPoolExecutor(max_workers=workers)
+    def __init__(self, workers: int):
+        super().__init__()
+        self._pool = ThreadPoolExecutor(max_workers=workers)
+
+    def start(self) -> NoReturn:
+        pass
 
     def shutdown(self) -> NoReturn:
         self._pool.shutdown()
@@ -123,29 +118,29 @@ class SyncDispatcher(Dispatcher):
         self, data: Dict[str, Any], request_type: Union[str, RequestTypeEnum]
     ) -> Union[Status, bool]:
         if request_type == RequestTypeEnum.status:
-            return self._create_status(data)
+            return self._create_status()
         elif request_type == RequestTypeEnum.command:
             return self._create_message(data)
         else:
             raise BotXException(f"wrong request type {repr(request_type)}")
 
     def _create_message(self, data: Dict[str, Any]) -> bool:
-        self._check_bot_id(data)
-
         message = Message(**data)
+        message.sync_id = SyncID(str(message.sync_id))
+
         cmd = message.command.cmd
         command = self._handlers.get(cmd)
         if command:
-            self._pool.submit(command.func, message=message)
+            self._pool.submit(command.func, message)
             return True
         else:
             if self._default_handler:
-                self._pool.submit(command.func, message=message)
+                self._pool.submit(self._default_handler.func, message=message)
                 return True
         return False
 
     def add_handler(self, handler: CommandHandler) -> NoReturn:
-        if inspect.isawaitable(handler.func):
+        if inspect.iscoroutinefunction(handler.func):
             raise BotXException("can not add async handler to sync dispatcher")
 
         super().add_handler(handler)

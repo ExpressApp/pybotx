@@ -1,7 +1,7 @@
-from typing import Callable, Optional, Any, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 from botx.base import BotXObject
-from botx.types import MenuCommand, CommandUIElement
+from botx.types import CommandUIElement, MenuCommand
 
 
 class CommandHandler(BotXObject):
@@ -13,9 +13,14 @@ class CommandHandler(BotXObject):
     use_as_default_handler: bool = False
     options: Dict[str, Any] = {}
     elements: List[CommandUIElement] = []
+    system_command_handler: bool = False
 
     def to_status_command(self) -> Optional[MenuCommand]:
-        if not self.exclude_from_status and not self.use_as_default_handler:
+        if (
+            not self.exclude_from_status
+            and not self.use_as_default_handler
+            and not self.system_command_handler
+        ):
             return MenuCommand(
                 body=self.command,
                 name=self.name,

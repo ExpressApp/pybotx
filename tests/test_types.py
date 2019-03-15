@@ -1,9 +1,10 @@
+import base64
 import uuid
 
 import pytest
 from pydantic import ValidationError
 
-from botx.types import *
+from botx import *
 
 
 def test_bubble_element():
@@ -34,15 +35,6 @@ def test_message_command():
     assert m.cmd == "/doit"
     assert m.cmd_arg == "arg1 arg2"
     assert m.data == {"field": 42}
-
-
-def test_file():
-    data = ("a" * 1024 + "\n") * 1024
-    f = File(data=data, file_name="file.txt").file
-    c = 0
-    for _ in f:
-        c += 1
-    assert c == 1024
 
 
 def test_keyboard_element():
