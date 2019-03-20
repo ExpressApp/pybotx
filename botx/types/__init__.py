@@ -1,5 +1,4 @@
 from .bubble import BubbleElement
-from .command import MessageCommand
 from .core import (
     ChatTypeEnum,
     CommandUIElement,
@@ -9,9 +8,10 @@ from .core import (
     StatusEnum,
     SyncID,
 )
+from .cts import CTS, BotCredentials, CTSCredentials
 from .file import File
 from .keyboard import KeyboardElement
-from .message import Message, MessageUser
+from .message import Message, MessageCommand, MessageUser
 from .response import (
     ResponseCommand,
     ResponseCommandResult,

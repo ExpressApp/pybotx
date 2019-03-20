@@ -28,3 +28,5 @@ class CommandHandler(BotXObject):
                 options=self.options,
                 elements=self.elements,
             )
+
+        return None
