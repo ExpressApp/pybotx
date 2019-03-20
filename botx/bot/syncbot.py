@@ -1,11 +1,16 @@
+import json
 import multiprocessing
-
-import requests
-from typing import Any, BinaryIO, Dict, List, NoReturn, Optional, TextIO, Union
+from typing import Any, BinaryIO, Dict, List, NoReturn, Optional, TextIO, Tuple, Union
 from uuid import UUID
 
+import requests
+
+from botx.core import BotXException
 from botx.types import (
+    BotCredentials,
     BubbleElement,
+    CTSCredentials,
+    File,
     KeyboardElement,
     ResponseCommand,
     ResponseCommandResult,
@@ -16,6 +21,7 @@ from botx.types import (
     Status,
     SyncID,
 )
+
 from .basebot import BaseBot
 from .dispatcher.syncdispatcher import SyncDispatcher
 
@@ -24,12 +30,16 @@ class SyncBot(BaseBot):
     bot_id: UUID
     bot_host: str
     _dispatcher: SyncDispatcher
-    _workers: Optional[int] = multiprocessing.cpu_count()
 
-    def __init__(self):
-        super().__init__()
+    def __init__(
+        self,
+        *,
+        workers: int = multiprocessing.cpu_count(),
+        credentials: Optional[BotCredentials] = None,
+    ):
+        super().__init__(credentials=credentials)
 
-        self._dispatcher = SyncDispatcher(workers=self._workers)
+        self._dispatcher = SyncDispatcher(workers=workers)
 
     def start(self) -> NoReturn:
         self._dispatcher.start()
@@ -43,6 +53,28 @@ class SyncBot(BaseBot):
     def parse_command(self, data: Dict[str, Any]) -> bool:
         return self._dispatcher.parse_request(data, request_type="command")
 
+    def _obtain_token(self, host: str, bot_id: UUID) -> Tuple[str, int]:
+        if host not in self._credentials.known_cts:
+            raise BotXException(f"unregistered cts with host {repr(host)}")
+
+        cts = self._credentials.known_cts[host][0]
+        signature = cts.calculate_signature(bot_id)
+
+        resp = requests.get(
+            self._url_token.format(host=host, bot_id=bot_id),
+            params={"signature": signature},
+        )
+        if resp.status_code != 200:
+            return resp.text, resp.status_code
+
+        token = json.loads(resp.text).get("token")
+        self._credentials.known_cts[host] = (
+            cts,
+            CTSCredentials(bot_id=bot_id, token=token),
+        )
+
+        return resp.text, resp.status_code
+
     def send_message(
         self,
         text: str,
@@ -50,14 +82,23 @@ class SyncBot(BaseBot):
         bot_id: UUID,
         host: str,
         *,
+        file: Optional[Union[TextIO, BinaryIO]] = None,
         recipients: Union[List[UUID], str] = ResponseRecipientsEnum.all,
         bubble: Optional[List[List[BubbleElement]]] = None,
         keyboard: Optional[List[List[KeyboardElement]]] = None,
-    ) -> str:
+    ) -> Tuple[str, int]:
         if not bubble:
             bubble = []
         if not keyboard:
             keyboard = []
+
+        token = self._get_token_from_credentials(host)
+        if not token:
+            res = self._obtain_token(host, bot_id)
+            if res[1] != 200:
+                return res
+
+        response_file = File.from_file(file) if file else None
 
         if isinstance(chat_id, SyncID):
             return self._send_command_result(
@@ -65,6 +106,7 @@ class SyncBot(BaseBot):
                 chat_id=chat_id,
                 bot_id=bot_id,
                 host=host,
+                file=response_file,
                 recipients=recipients,
                 bubble=bubble,
                 keyboard=keyboard,
@@ -81,6 +123,7 @@ class SyncBot(BaseBot):
                 group_chat_ids=group_chat_ids,
                 bot_id=bot_id,
                 host=host,
+                file=response_file,
                 recipients=recipients,
                 bubble=bubble,
                 keyboard=keyboard,
@@ -92,10 +135,11 @@ class SyncBot(BaseBot):
         chat_id: SyncID,
         bot_id: UUID,
         host: str,
+        file: Optional[Union[BinaryIO, TextIO]],
         recipients: Union[List[UUID], str],
         bubble: List[List[BubbleElement]],
         keyboard: List[List[KeyboardElement]],
-    ) -> str:
+    ) -> Tuple[str, int]:
         response_result = ResponseCommandResult(
             body=text, bubble=bubble, keyboard=keyboard
         )
@@ -105,9 +149,16 @@ class SyncBot(BaseBot):
             sync_id=str(chat_id),
             command_result=response_result,
             recipients=recipients,
+            file=file,
         )
-        resp = requests.post(self._url_command.format(host), json=response.dict())
-        return resp.text
+        resp = requests.post(
+            self._url_command.format(host=host),
+            json=response.dict(),
+            headers={
+                "Authorization": f"Bearer {self._get_token_from_credentials(host)}"
+            },
+        )
+        return resp.text, resp.status_code
 
     def _send_notification_result(
         self,
@@ -115,10 +166,11 @@ class SyncBot(BaseBot):
         group_chat_ids: List[UUID],
         bot_id: UUID,
         host: str,
+        file: Optional[Union[BinaryIO, TextIO]],
         recipients: Union[List[UUID], str],
         bubble: List[List[BubbleElement]],
         keyboard: List[List[KeyboardElement]],
-    ) -> str:
+    ) -> Tuple[str, int]:
         response_result = ResponseNotificationResult(
             body=text, bubble=bubble, keyboard=keyboard
         )
@@ -127,9 +179,16 @@ class SyncBot(BaseBot):
             notification=response_result,
             group_chat_ids=group_chat_ids,
             recipients=recipients,
+            file=file,
         )
-        resp = requests.post(self._url_notification.format(host), json=response.dict())
-        return resp.text
+        resp = requests.post(
+            self._url_notification.format(host=host),
+            json=response.dict(),
+            headers={
+                "Authorization": f"Bearer {self._get_token_from_credentials(host)}"
+            },
+        )
+        return resp.text, resp.status_code
 
     def send_file(
         self,
@@ -137,10 +196,20 @@ class SyncBot(BaseBot):
         chat_id: Union[SyncID, UUID],
         bot_id: UUID,
         host: str,
-    ) -> str:
+    ) -> Tuple[str, int]:
+        token = self._get_token_from_credentials(host)
+        if not token:
+            res = self._obtain_token(host, bot_id)
+            if res[1] != 200:
+                return res
+
         files = {"file": file}
         response = ResponseFile(bot_id=bot_id, sync_id=chat_id).dict()
 
-        return requests.post(
-            self._url_file.format(host), files=files, data=response
-        ).text
+        resp = requests.post(
+            self._url_file.format(host=host),
+            files=files,
+            data=response,
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        return resp.text, resp.status_code

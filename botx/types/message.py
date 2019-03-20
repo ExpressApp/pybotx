@@ -4,7 +4,6 @@ from uuid import UUID
 from pydantic import Schema
 
 from .base import BotXType
-from .command import MessageCommand
 from .core import ChatTypeEnum, SyncID
 from .file import File
 
@@ -19,12 +18,30 @@ class MessageUser(BotXType):
     host: str
 
 
+class MessageCommand(BotXType):
+    body: str
+    data: Dict[str, Any] = {}
+
+    @property
+    def cmd(self) -> str:
+        return self.body.split(" ", 1)[0]
+
+    @property
+    def cmd_arg(self) -> str:
+        return "".join(self.body.split(" ", 1)[1:])
+
+
 class Message(BotXType):
     sync_id: SyncID
     command: MessageCommand
     file: Optional[File] = None
     user: MessageUser = Schema(..., alias="from")
     bot_id: UUID
+
+    def __init__(self, **data):
+        super().__init__(**data)
+
+        self.sync_id = SyncID(data["sync_id"])
 
     @property
     def body(self) -> str:
