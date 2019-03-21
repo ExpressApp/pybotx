@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "botx"
-version = "1.0.0a"
+version = "1.0.0a1"
 description = "Python implementation for Express BotX API"
 authors = [
     "Michael Morozov <mmorozov@ccsteam.ru>",
@@ -14,7 +14,7 @@ exclude = ["tests"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
-pydantic = "^0.20.1"
+pydantic = "^0.21"
 requests = "^2.21"
 aiohttp = "^3.5"
 aiojobs = "^0.2.2"

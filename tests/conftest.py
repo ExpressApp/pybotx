@@ -254,8 +254,8 @@ def custom_handler():
 
 @pytest.fixture
 def custom_async_handler():
-    async def f(m):
-        return m
+    async def f(m, b):
+        ...
 
     return CommandHandler(
         name="async handler", command="/acmd", description="command handler", func=f
@@ -278,15 +278,15 @@ def custom_default_handler():
         name="default handler",
         command="/defaultcmd",
         description="default command handler",
-        func=lambda x: x,
+        func=lambda x, y: ...,
         use_as_default_handler=True,
     )
 
 
 @pytest.fixture
 def custom_default_async_handler():
-    async def f(m):
-        return m
+    async def f(m, b):
+        pass
 
     return CommandHandler(
         name="default handler",

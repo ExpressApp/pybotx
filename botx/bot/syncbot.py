@@ -36,8 +36,9 @@ class SyncBot(BaseBot):
         *,
         workers: int = multiprocessing.cpu_count(),
         credentials: Optional[BotCredentials] = None,
+        disable_credentials: bool = False,
     ):
-        super().__init__(credentials=credentials)
+        super().__init__(credentials=credentials, disable_credentials=disable_credentials)
 
         self._dispatcher = SyncDispatcher(workers=workers)
 
@@ -93,7 +94,7 @@ class SyncBot(BaseBot):
             keyboard = []
 
         token = self._get_token_from_credentials(host)
-        if not token:
+        if not token and not self._disable_credentials:
             res = self._obtain_token(host, bot_id)
             if res[1] != 200:
                 return res
@@ -198,7 +199,7 @@ class SyncBot(BaseBot):
         host: str,
     ) -> Tuple[str, int]:
         token = self._get_token_from_credentials(host)
-        if not token:
+        if not token and not self._disable_credentials:
             res = self._obtain_token(host, bot_id)
             if res[1] != 200:
                 return res

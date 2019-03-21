@@ -30,8 +30,8 @@ class AsyncBot(BaseBot):
     bot_host: str
     _session: aiohttp.ClientSession
 
-    def __init__(self, *, credentials: Optional[BotCredentials] = None):
-        super().__init__(credentials=credentials)
+    def __init__(self, *, credentials: Optional[BotCredentials] = None, disable_credentials: bool = False):
+        super().__init__(credentials=credentials, disable_credentials=disable_credentials)
 
         self._dispatcher = AsyncDispatcher()
         self._session = aiohttp.ClientSession()
@@ -89,7 +89,7 @@ class AsyncBot(BaseBot):
             keyboard = []
 
         token = self._get_token_from_credentials(host)
-        if not token:
+        if not token and not self._disable_credentials:
             res = await self._obtain_token(host, bot_id)
             if res[1] != 200:
                 return res
@@ -196,7 +196,7 @@ class AsyncBot(BaseBot):
         host: str,
     ) -> Tuple[str, int]:
         token = self._get_token_from_credentials(host)
-        if not token:
+        if not token and not self._disable_credentials:
             res = await self._obtain_token(host, bot_id)
             if res[1] != 200:
                 return res
