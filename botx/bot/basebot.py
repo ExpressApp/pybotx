@@ -1,95 +1,75 @@
 import abc
-from functools import partial
-from typing import (
-    Any,
-    BinaryIO,
-    Callable,
-    Dict,
-    List,
-    NoReturn,
-    Optional,
-    TextIO,
-    Union,
-)
+from typing import Any, BinaryIO, Dict, List, NoReturn, Optional, TextIO, Tuple, Union
 from uuid import UUID
 
+from botx.core import BotXAPI
 from botx.types import (
+    CTS,
+    BotCredentials,
     BubbleElement,
     KeyboardElement,
     ResponseRecipientsEnum,
     Status,
     SyncID,
 )
+
 from .dispatcher.basedispatcher import BaseDispatcher
 from .dispatcher.commandhandler import CommandHandler
+from .router import CommandRouter
 
 
-class BaseBot(abc.ABC):
+class BaseBot(abc.ABC, CommandRouter):
     _dispatcher: BaseDispatcher
-    _url_command: str = "https://{}/api/v2/botx/command/callback"
-    _url_notification: str = "https://{}/api/v2/botx/notification/callback"
-    _url_file: str = "https://{}/api/v1/botx/file/callback"
+    _credentials: BotCredentials
+    _url_token: str = BotXAPI.V2.token.url
+    _url_command: str = BotXAPI.V3.command.url
+    _url_notification: str = BotXAPI.V3.notification.url
+    _url_file: str = BotXAPI.V1.file.url
+
+    def __init__(self, *, credentials: Optional[BotCredentials] = None):
+        if credentials:
+            self._credentials = credentials
+        else:
+            self._credentials = BotCredentials()
+
+    def register_cts(self, cts: CTS):
+        self._credentials.known_cts[cts.host] = (cts, None)
+
+    def get_cts_credentials(self) -> BotCredentials:
+        return self._credentials
 
     def add_handler(self, handler: CommandHandler) -> NoReturn:
         self._dispatcher.add_handler(handler)
 
-    def command(
-        self,
-        func: Optional[Callable] = None,
-        *,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        body: Optional[str] = None,
-        use_as_default_handler: bool = False,
-        exclude_from_status: bool = False,
-        system_command_handler: bool = False,
-    ) -> Optional[Callable]:
-        if func:
-            name = name or "".join(
-                func.__name__.lower().rsplit("command", 1)[0].rsplit("_", 1)
-            )
-            body = (
-                (body if body.startswith("/") or system_command_handler else f"/{body}")
-                if body
-                else f"/{name}"
-            )
-            description = description or f"{name} command"
+    def add_commands(self, router: CommandRouter) -> NoReturn:
+        for _, handler in router._handlers.items():
+            self.add_handler(handler)
 
-            self.add_handler(
-                CommandHandler(
-                    command=body,
-                    func=func,
-                    name=name.capitalize(),
-                    description=description,
-                    exclude_from_status=exclude_from_status,
-                    use_as_default_handler=use_as_default_handler,
-                    system_command_handler=system_command_handler,
-                )
-            )
+    def _get_token_from_credentials(self, host) -> Optional[str]:
+        credentials = self._credentials.known_cts.get(host, (None, None))[1]
+        if not credentials:
+            return None
 
-            return func
-        else:
-            return partial(
-                self.command,
-                name=name,
-                description=description,
-                body=body,
-                exclude_from_status=exclude_from_status,
-                use_as_default_handler=use_as_default_handler,
-                system_command_handler=system_command_handler,
-            )
+        return credentials.token
+
+    def start(self) -> NoReturn:
+        """Run some outer dependencies that can not be started in init"""
 
     @abc.abstractmethod
-    def start(self) -> NoReturn:  # pragma: no cover
-        pass
+    def stop(self) -> NoReturn:
+        """Stop special objects and dispatcher for bot"""
 
     @abc.abstractmethod
-    def parse_status(self) -> Status:  # pragma: no cover
-        pass
+    def parse_status(self) -> Status:
+        """Create status object for bot"""
 
     @abc.abstractmethod
     def parse_command(self, data: Dict[str, Any]) -> bool:  # pragma: no cover
-        pass
+        """Execute command from request"""
+
+    @abc.abstractmethod
+    def _obtain_token(self, host: str, bot_id: UUID) -> Tuple[str, int]:
+        """Obtain token from BotX for making requests"""
 
     @abc.abstractmethod
     def send_message(
@@ -99,11 +79,12 @@ class BaseBot(abc.ABC):
         bot_id: UUID,
         host: str,
         *,
+        file: Optional[Union[TextIO, BinaryIO]] = None,
         recipients: Union[List[UUID], str] = ResponseRecipientsEnum.all,
         bubble: Optional[List[List[BubbleElement]]] = None,
         keyboard: Optional[List[List[KeyboardElement]]] = None,
-    ) -> str:  # pragma: no cover
-        pass
+    ) -> Tuple[str, int]:
+        """Create answer for notification or for command and send it to BotX API"""
 
     @abc.abstractmethod
     def _send_command_result(
@@ -112,11 +93,12 @@ class BaseBot(abc.ABC):
         chat_id: SyncID,
         bot_id: UUID,
         host: str,
+        file: Optional[Union[TextIO, BinaryIO]],
         recipients: Union[List[UUID], str],
         bubble: List[List[BubbleElement]],
         keyboard: List[List[KeyboardElement]],
-    ) -> str:  # pragma: no cover
-        pass
+    ) -> Tuple[str, int]:
+        """Send command result answer"""
 
     @abc.abstractmethod
     def _send_notification_result(
@@ -125,11 +107,12 @@ class BaseBot(abc.ABC):
         group_chat_ids: List[UUID],
         bot_id: UUID,
         host: str,
+        file: Optional[Union[TextIO, BinaryIO]],
         recipients: Union[List[UUID], str],
         bubble: List[List[BubbleElement]],
         keyboard: List[List[KeyboardElement]],
-    ) -> str:  # pragma: no cover
-        pass
+    ) -> Tuple[str, int]:
+        """Send notification result answer"""
 
     @abc.abstractmethod
     def send_file(
@@ -138,5 +121,5 @@ class BaseBot(abc.ABC):
         chat_id: Union[SyncID, UUID],
         bot_id: UUID,
         host: str,
-    ) -> str:  # pragma: no cover
-        pass
+    ) -> Tuple[str, int]:
+        """Send separate file to BotX API"""

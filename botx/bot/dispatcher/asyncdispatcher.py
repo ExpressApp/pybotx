@@ -1,9 +1,11 @@
-import aiojobs
 import inspect
 from typing import Any, Dict, NoReturn, Union
 
+import aiojobs
+
 from botx.core import BotXException
-from botx.types import Message, RequestTypeEnum, Status, SyncID
+from botx.types import Message, RequestTypeEnum, Status
+
 from .basedispatcher import BaseDispatcher
 from .commandhandler import CommandHandler
 
@@ -27,10 +29,11 @@ class AsyncDispatcher(BaseDispatcher):
             return self._create_status()
         elif request_type == RequestTypeEnum.command:
             return await self._create_message(data)
+        else:
+            raise BotXException(f"wrong request type {repr(request_type)}")
 
     async def _create_message(self, data: Dict[str, Any]) -> bool:
         message = Message(**data)
-        message.sync_id = SyncID(str(message.sync_id))
 
         cmd = message.command.cmd
         command = self._handlers.get(cmd)

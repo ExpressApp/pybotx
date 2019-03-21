@@ -1,8 +1,16 @@
 [tool.poetry]
 name = "botx"
-version = "0.5.0"
-description = "Python implementation for BotX API"
-authors = ["Michael Morozov <email>"]
+version = "1.0.0a"
+description = "Python implementation for Express BotX API"
+authors = [
+    "Michael Morozov <mmorozov@ccsteam.ru>",
+    "Sidnev Nikolay <nsidnev@ccsteam.ru>",
+    "Bondarenko Georgy <gbondarenko@ccsteam.ru>",
+]
+readme = "README.md"
+documentation = "https://hackmd.ccsteam.ru/XjpW4k1rRq-jJmgHA5Mj8A"
+license = "MIT"
+exclude = ["tests"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
@@ -12,13 +20,13 @@ aiohttp = "^3.5"
 aiojobs = "^0.2.2"
 
 [tool.poetry.dev-dependencies]
-pylint = "^2.3"
-mypy = "^0.670.0"
 black = {version = "^18.3-alpha.0",allows-prereleases = true}
 isort = "^4.3"
 pytest = "^4.3"
 pytest-cov = "^2.6"
 pytest-asyncio = "^0.10.0"
+responses = "^0.10.6"
+aresponses = "^1.1"
 
 [build-system]
 requires = ["poetry>=0.12"]

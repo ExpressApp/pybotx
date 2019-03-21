@@ -1,10 +1,12 @@
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 from uuid import UUID
 
 from .base import BotXType
 from .bubble import BubbleElement
 from .core import MenuCommand, ResponseRecipientsEnum, StatusEnum, SyncID
+from .file import File
 from .keyboard import KeyboardElement
+from .mention import Mention
 
 
 class ResponseResult(BotXType):
@@ -28,7 +30,8 @@ class ResponseCommand(BotXType):
     bot_id: UUID
     recipients: Union[List[UUID], ResponseRecipientsEnum] = ResponseRecipientsEnum.all
     command_result: ResponseCommandResult
-    file: Optional[str] = None
+    mentions: List[Mention] = []
+    file: Optional[File] = None
 
 
 class ResponseNotification(BotXType):
@@ -36,7 +39,8 @@ class ResponseNotification(BotXType):
     recipients: Union[List[UUID], ResponseRecipientsEnum] = ResponseRecipientsEnum.all
     group_chat_ids: List[UUID] = []
     notification: ResponseNotificationResult
-    file: Optional[str] = None
+    mentions: List[Mention] = []
+    file: Optional[File] = None
 
 
 class ResponseFile(BotXType):

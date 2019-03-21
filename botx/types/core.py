@@ -24,11 +24,19 @@ class RequestTypeEnum(str, Enum):
     command: str = "command"
 
 
+class MentionTypeEnum(str, Enum):
+    user: str = "user"
+    all: str = "all"
+    cts: str = "cts"
+    channel: str = "channel"
+
+
 class CommandUIElement(BotXType):
     type: str
     label: str
     order: Optional[int] = None
     value: Optional[Any] = None
+    name: Optional[str] = None
     disabled: Optional[bool] = None
 
 
@@ -41,4 +49,8 @@ class MenuCommand(BotXType):
 
 
 class SyncID(UUID):
-    pass
+    def __init__(self, obj, **data):
+        if isinstance(obj, UUID):
+            super().__init__(str(obj), **data)
+        else:
+            super().__init__(obj, **data)

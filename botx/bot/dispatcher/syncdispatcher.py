@@ -3,7 +3,8 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from typing import Any, Dict, NoReturn, Union
 
 from botx.core import BotXException
-from botx.types import Message, RequestTypeEnum, Status, SyncID
+from botx.types import Message, RequestTypeEnum, Status
+
 from .basedispatcher import BaseDispatcher
 from .commandhandler import CommandHandler
 
@@ -14,9 +15,6 @@ class SyncDispatcher(BaseDispatcher):
     def __init__(self, workers: int):
         super().__init__()
         self._pool = ThreadPoolExecutor(max_workers=workers)
-
-    def start(self) -> NoReturn:
-        pass
 
     def shutdown(self) -> NoReturn:
         self._pool.shutdown()
@@ -33,7 +31,6 @@ class SyncDispatcher(BaseDispatcher):
 
     def _create_message(self, data: Dict[str, Any]) -> bool:
         message = Message(**data)
-        message.sync_id = SyncID(str(message.sync_id))
 
         cmd = message.command.cmd
         command = self._handlers.get(cmd)

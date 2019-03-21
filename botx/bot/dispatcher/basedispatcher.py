@@ -1,9 +1,9 @@
-from collections import OrderedDict
-
 import abc
+from collections import OrderedDict
 from typing import Any, Awaitable, Dict, NoReturn, Optional, Union
 
 from botx.types import RequestTypeEnum, Status, StatusResult
+
 from .commandhandler import CommandHandler
 
 
@@ -14,25 +14,22 @@ class BaseDispatcher(abc.ABC):
     def __init__(self):
         self._handlers = OrderedDict()
 
-    @abc.abstractmethod
-    def start(self) -> NoReturn:  # pragma: no cover
-        pass
+    def start(self) -> NoReturn:
+        """Start dispatcher-related things like aiojobs.Scheduler"""
 
     @abc.abstractmethod
-    def shutdown(self) -> NoReturn:  # pragma: no cover
-        pass
+    def shutdown(self) -> NoReturn:
+        """Stop dispatcher-related things like thread or coroutine joining"""
 
     @abc.abstractmethod
     def parse_request(
         self, data: Dict[str, Any], request_type: Union[str, RequestTypeEnum]
-    ) -> Union[Status, bool]:  # pragma: no cover
-        pass
+    ) -> Union[Status, bool]:
+        """Parse request and call status creation or executing handler for command"""
 
     @abc.abstractmethod
-    def _create_message(
-        self, data: Dict[str, Any]
-    ) -> Union[Awaitable, bool]:  # pragma: no cover
-        pass
+    def _create_message(self, data: Dict[str, Any]) -> Union[Awaitable, bool]:
+        """Create new message for command handler and spawn worker for it"""
 
     def _create_status(self) -> Status:
         commands = []
