@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from functools import partial
 from typing import Callable, Dict, NoReturn, Optional
 
@@ -6,6 +8,9 @@ from .dispatcher.commandhandler import CommandHandler
 
 class CommandRouter:
     _handlers: Dict[str, CommandHandler]
+
+    def __init__(self):
+        self._handlers = OrderedDict()
 
     def add_handler(self, handler: CommandHandler) -> NoReturn:
         self._handlers[handler.command] = handler

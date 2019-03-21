@@ -302,11 +302,7 @@ def custom_default_async_handler():
 
 @pytest.fixture
 def custom_router():
-    class CustomRouter(CommandRouter):
-        def __init__(self):
-            self._handlers = OrderedDict()
-
-    return CustomRouter()
+    return CommandRouter()
 
 
 @pytest.fixture

@@ -18,16 +18,12 @@ def test_router_commands_nesting(
     custom_handler,
     custom_default_async_handler,
 ):
-    class CustomRouter(CommandRouter):
-        def __init__(self):
-            self._handlers = OrderedDict()
-
-    router1 = CustomRouter()
+    router1 = CommandRouter()
 
     router1.add_handler(custom_default_handler)
     router1.add_handler(custom_async_handler)
 
-    router2 = CustomRouter()
+    router2 = CommandRouter()
     router2.add_handler(custom_handler)
     router2.add_handler(custom_default_async_handler)
 
