@@ -248,7 +248,10 @@ def custom_dispatcher():
 @pytest.fixture
 def custom_handler():
     return CommandHandler(
-        name="handler", command="/cmd", description="command handler", func=lambda x, b: ...
+        name="handler",
+        command="/cmd",
+        description="command handler",
+        func=lambda x, b: ...,
     )
 
 

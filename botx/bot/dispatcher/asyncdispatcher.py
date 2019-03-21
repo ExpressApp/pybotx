@@ -12,7 +12,7 @@ from .commandhandler import CommandHandler
 
 class AsyncDispatcher(BaseDispatcher):
     _scheduler = aiojobs.Scheduler
-    _bot: 'AsyncBot'
+    _bot: "AsyncBot"
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -43,7 +43,9 @@ class AsyncDispatcher(BaseDispatcher):
             return True
         else:
             if self._default_handler:
-                await self._scheduler.spawn(self._default_handler.func(message, self._bot))
+                await self._scheduler.spawn(
+                    self._default_handler.func(message, self._bot)
+                )
                 return True
         return False
 

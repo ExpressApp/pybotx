@@ -11,6 +11,7 @@ from botx.types import (
     CTSCredentials,
     File,
     KeyboardElement,
+    Mention,
     ResponseCommand,
     ResponseCommandResult,
     ResponseFile,
@@ -30,8 +31,15 @@ class AsyncBot(BaseBot):
     bot_host: str
     _session: aiohttp.ClientSession
 
-    def __init__(self, *, credentials: Optional[BotCredentials] = None, disable_credentials: bool = False):
-        super().__init__(credentials=credentials, disable_credentials=disable_credentials)
+    def __init__(
+        self,
+        *,
+        credentials: Optional[BotCredentials] = None,
+        disable_credentials: bool = False,
+    ):
+        super().__init__(
+            credentials=credentials, disable_credentials=disable_credentials
+        )
 
         self._dispatcher = AsyncDispatcher(bot=self)
         self._session = aiohttp.ClientSession()
@@ -81,6 +89,7 @@ class AsyncBot(BaseBot):
         *,
         file: Optional[Union[BinaryIO, TextIO]] = None,
         recipients: Union[List[UUID], str] = ResponseRecipientsEnum.all,
+        mentions: Optional[List[Mention]] = None,
         bubble: Optional[List[List[BubbleElement]]] = None,
         keyboard: Optional[List[List[KeyboardElement]]] = None,
     ) -> Tuple[str, int]:
@@ -88,6 +97,8 @@ class AsyncBot(BaseBot):
             bubble = []
         if not keyboard:
             keyboard = []
+        if not mentions:
+            mentions = []
 
         token = self._get_token_from_credentials(host)
         if not token and not self._disable_credentials:
@@ -105,6 +116,7 @@ class AsyncBot(BaseBot):
                 host=host,
                 file=response_file,
                 recipients=recipients,
+                mentions=mentions,
                 bubble=bubble,
                 keyboard=keyboard,
             )
@@ -122,6 +134,7 @@ class AsyncBot(BaseBot):
                 host=host,
                 file=response_file,
                 recipients=recipients,
+                mentions=mentions,
                 bubble=bubble,
                 keyboard=keyboard,
             )
@@ -134,6 +147,7 @@ class AsyncBot(BaseBot):
         host: str,
         file: Optional[Union[BinaryIO, TextIO]],
         recipients: Union[List[UUID], str],
+        mentions: List[Mention],
         bubble: List[List[BubbleElement]],
         keyboard: List[List[KeyboardElement]],
     ) -> Tuple[str, int]:
@@ -146,6 +160,7 @@ class AsyncBot(BaseBot):
             sync_id=str(chat_id),
             command_result=response_result,
             recipients=recipients,
+            mentions=mentions,
             file=file,
         ).dict()
 
@@ -166,6 +181,7 @@ class AsyncBot(BaseBot):
         host: str,
         file: Optional[Union[BinaryIO, TextIO]],
         recipients: Union[List[UUID], str],
+        mentions: List[Mention],
         bubble: List[List[BubbleElement]],
         keyboard: List[List[KeyboardElement]],
     ) -> Tuple[str, int]:
@@ -177,6 +193,7 @@ class AsyncBot(BaseBot):
             notification=response_result,
             group_chat_ids=group_chat_ids,
             recipients=recipients,
+            mentions=mentions,
             file=file,
         ).dict()
 

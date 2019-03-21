@@ -10,7 +10,7 @@ from .commandhandler import CommandHandler
 class BaseDispatcher(abc.ABC):
     _handlers: Dict[str, CommandHandler]
     _default_handler: Optional[CommandHandler] = None
-    _bot: 'BaseBot'
+    _bot: "BaseBot"
 
     def __init__(self, bot):
         self._handlers = OrderedDict()

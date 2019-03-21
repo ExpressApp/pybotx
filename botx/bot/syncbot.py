@@ -12,6 +12,7 @@ from botx.types import (
     CTSCredentials,
     File,
     KeyboardElement,
+    Mention,
     ResponseCommand,
     ResponseCommandResult,
     ResponseFile,
@@ -38,7 +39,9 @@ class SyncBot(BaseBot):
         credentials: Optional[BotCredentials] = None,
         disable_credentials: bool = False,
     ):
-        super().__init__(credentials=credentials, disable_credentials=disable_credentials)
+        super().__init__(
+            credentials=credentials, disable_credentials=disable_credentials
+        )
 
         self._dispatcher = SyncDispatcher(workers=workers, bot=self)
 
@@ -85,6 +88,7 @@ class SyncBot(BaseBot):
         *,
         file: Optional[Union[TextIO, BinaryIO]] = None,
         recipients: Union[List[UUID], str] = ResponseRecipientsEnum.all,
+        mentions: Optional[List[Mention]] = None,
         bubble: Optional[List[List[BubbleElement]]] = None,
         keyboard: Optional[List[List[KeyboardElement]]] = None,
     ) -> Tuple[str, int]:
@@ -92,6 +96,8 @@ class SyncBot(BaseBot):
             bubble = []
         if not keyboard:
             keyboard = []
+        if not mentions:
+            mentions = []
 
         token = self._get_token_from_credentials(host)
         if not token and not self._disable_credentials:
@@ -109,6 +115,7 @@ class SyncBot(BaseBot):
                 host=host,
                 file=response_file,
                 recipients=recipients,
+                mentions=mentions,
                 bubble=bubble,
                 keyboard=keyboard,
             )
@@ -126,6 +133,7 @@ class SyncBot(BaseBot):
                 host=host,
                 file=response_file,
                 recipients=recipients,
+                mentions=mentions,
                 bubble=bubble,
                 keyboard=keyboard,
             )
@@ -138,6 +146,7 @@ class SyncBot(BaseBot):
         host: str,
         file: Optional[Union[BinaryIO, TextIO]],
         recipients: Union[List[UUID], str],
+        mentions: List[Mention],
         bubble: List[List[BubbleElement]],
         keyboard: List[List[KeyboardElement]],
     ) -> Tuple[str, int]:
@@ -150,6 +159,7 @@ class SyncBot(BaseBot):
             sync_id=str(chat_id),
             command_result=response_result,
             recipients=recipients,
+            mentions=mentions,
             file=file,
         )
         resp = requests.post(
@@ -169,6 +179,7 @@ class SyncBot(BaseBot):
         host: str,
         file: Optional[Union[BinaryIO, TextIO]],
         recipients: Union[List[UUID], str],
+        mentions: List[Mention],
         bubble: List[List[BubbleElement]],
         keyboard: List[List[KeyboardElement]],
     ) -> Tuple[str, int]:
@@ -180,6 +191,7 @@ class SyncBot(BaseBot):
             notification=response_result,
             group_chat_ids=group_chat_ids,
             recipients=recipients,
+            mentions=mentions,
             file=file,
         )
         resp = requests.post(

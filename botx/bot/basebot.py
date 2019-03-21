@@ -8,6 +8,7 @@ from botx.types import (
     BotCredentials,
     BubbleElement,
     KeyboardElement,
+    Mention,
     ResponseRecipientsEnum,
     Status,
     SyncID,
@@ -27,7 +28,12 @@ class BaseBot(abc.ABC, CommandRouter):
     _url_notification: str = BotXAPI.V3.notification.url
     _url_file: str = BotXAPI.V1.file.url
 
-    def __init__(self, *, credentials: Optional[BotCredentials] = None, disable_credentials: bool = False):
+    def __init__(
+        self,
+        *,
+        credentials: Optional[BotCredentials] = None,
+        disable_credentials: bool = False,
+    ):
         if credentials:
             self._credentials = credentials
         else:
@@ -76,53 +82,56 @@ class BaseBot(abc.ABC, CommandRouter):
 
     @abc.abstractmethod
     def send_message(
-            self,
-            text: str,
-            chat_id: Union[SyncID, UUID, List[UUID]],
-            bot_id: UUID,
-            host: str,
-            *,
-            file: Optional[Union[TextIO, BinaryIO]] = None,
-            recipients: Union[List[UUID], str] = ResponseRecipientsEnum.all,
-            bubble: Optional[List[List[BubbleElement]]] = None,
-            keyboard: Optional[List[List[KeyboardElement]]] = None,
+        self,
+        text: str,
+        chat_id: Union[SyncID, UUID, List[UUID]],
+        bot_id: UUID,
+        host: str,
+        *,
+        file: Optional[Union[TextIO, BinaryIO]] = None,
+        recipients: Union[List[UUID], str] = ResponseRecipientsEnum.all,
+        mentions: Optional[List[Mention]] = None,
+        bubble: Optional[List[List[BubbleElement]]] = None,
+        keyboard: Optional[List[List[KeyboardElement]]] = None,
     ) -> Tuple[str, int]:
         """Create answer for notification or for command and send it to BotX API"""
 
     @abc.abstractmethod
     def _send_command_result(
-            self,
-            text: str,
-            chat_id: SyncID,
-            bot_id: UUID,
-            host: str,
-            file: Optional[Union[TextIO, BinaryIO]],
-            recipients: Union[List[UUID], str],
-            bubble: List[List[BubbleElement]],
-            keyboard: List[List[KeyboardElement]],
+        self,
+        text: str,
+        chat_id: SyncID,
+        bot_id: UUID,
+        host: str,
+        file: Optional[Union[TextIO, BinaryIO]],
+        recipients: Union[List[UUID], str],
+        mentions: List[Mention],
+        bubble: List[List[BubbleElement]],
+        keyboard: List[List[KeyboardElement]],
     ) -> Tuple[str, int]:
         """Send command result answer"""
 
     @abc.abstractmethod
     def _send_notification_result(
-            self,
-            text: str,
-            group_chat_ids: List[UUID],
-            bot_id: UUID,
-            host: str,
-            file: Optional[Union[TextIO, BinaryIO]],
-            recipients: Union[List[UUID], str],
-            bubble: List[List[BubbleElement]],
-            keyboard: List[List[KeyboardElement]],
+        self,
+        text: str,
+        group_chat_ids: List[UUID],
+        bot_id: UUID,
+        host: str,
+        file: Optional[Union[TextIO, BinaryIO]],
+        recipients: Union[List[UUID], str],
+        mentions: List[Mention],
+        bubble: List[List[BubbleElement]],
+        keyboard: List[List[KeyboardElement]],
     ) -> Tuple[str, int]:
         """Send notification result answer"""
 
     @abc.abstractmethod
     def send_file(
-            self,
-            file: Union[TextIO, BinaryIO],
-            chat_id: Union[SyncID, UUID],
-            bot_id: UUID,
-            host: str,
+        self,
+        file: Union[TextIO, BinaryIO],
+        chat_id: Union[SyncID, UUID],
+        bot_id: UUID,
+        host: str,
     ) -> Tuple[str, int]:
         """Send separate file to BotX API"""
