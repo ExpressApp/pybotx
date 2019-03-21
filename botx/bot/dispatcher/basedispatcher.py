@@ -10,9 +10,11 @@ from .commandhandler import CommandHandler
 class BaseDispatcher(abc.ABC):
     _handlers: Dict[str, CommandHandler]
     _default_handler: Optional[CommandHandler] = None
+    _bot: 'BaseBot'
 
-    def __init__(self):
+    def __init__(self, bot):
         self._handlers = OrderedDict()
+        self._bot = bot
 
     def start(self) -> NoReturn:
         """Start dispatcher-related things like aiojobs.Scheduler"""

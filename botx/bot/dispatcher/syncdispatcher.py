@@ -11,9 +11,10 @@ from .commandhandler import CommandHandler
 
 class SyncDispatcher(BaseDispatcher):
     _pool: ThreadPoolExecutor
+    _bot: 'SyncBot'
 
-    def __init__(self, workers: int):
-        super().__init__()
+    def __init__(self, workers: int, bot: 'SyncBot'):
+        super().__init__(bot)
         self._pool = ThreadPoolExecutor(max_workers=workers)
 
     def shutdown(self) -> NoReturn:
@@ -35,11 +36,11 @@ class SyncDispatcher(BaseDispatcher):
         cmd = message.command.cmd
         command = self._handlers.get(cmd)
         if command:
-            self._pool.submit(command.func, message)
+            self._pool.submit(command.func, message=message, bot=self._bot)
             return True
         else:
             if self._default_handler:
-                self._pool.submit(self._default_handler.func, message=message)
+                self._pool.submit(self._default_handler.func, message=message, bot=self._bot)
                 return True
         return False
 

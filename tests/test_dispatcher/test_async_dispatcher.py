@@ -6,7 +6,7 @@ from botx.bot.dispatcher.asyncdispatcher import AsyncDispatcher
 
 @pytest.mark.asyncio
 async def test_async_dispatcher_init():
-    d = AsyncDispatcher()
+    d = AsyncDispatcher(None)
     await d.start()
     assert d._scheduler is not None
     await d.shutdown()
@@ -14,7 +14,7 @@ async def test_async_dispatcher_init():
 
 @pytest.mark.asyncio
 async def test_sync_dispatcher_wrong_request_parsing():
-    d = AsyncDispatcher()
+    d = AsyncDispatcher(None)
     await d.start()
     with pytest.raises(BotXException):
         await d.parse_request({}, request_type="wrong type")
@@ -23,7 +23,7 @@ async def test_sync_dispatcher_wrong_request_parsing():
 
 @pytest.mark.asyncio
 async def test_sync_dispatcher_command_request_parsing(command_with_text_and_file):
-    d = AsyncDispatcher()
+    d = AsyncDispatcher(None)
     await d.start()
     r = await d.parse_request(command_with_text_and_file, RequestTypeEnum.command)
     assert not r
@@ -32,7 +32,7 @@ async def test_sync_dispatcher_command_request_parsing(command_with_text_and_fil
 
 @pytest.mark.asyncio
 async def test_sync_dispatcher_status_creation(custom_async_handler):
-    d = AsyncDispatcher()
+    d = AsyncDispatcher(None)
     await d.start()
     d.add_handler(custom_async_handler)
     assert await d.parse_request({}, request_type="status") == Status(
@@ -43,12 +43,12 @@ async def test_sync_dispatcher_status_creation(custom_async_handler):
 
 @pytest.mark.asyncio
 async def test_sync_dispatcher_default_handler_processing(command_with_text_and_file):
-    d = AsyncDispatcher()
+    d = AsyncDispatcher(None)
     await d.start()
 
     result_array = []
 
-    async def handler_function(message):
+    async def handler_function(message, bot):
         result_array.append("default")
 
     d.add_handler(
@@ -71,11 +71,11 @@ async def test_sync_dispatcher_default_handler_processing(command_with_text_and_
 
 @pytest.mark.asyncio
 async def test_sync_dispatcher_message_creation(command_with_text_and_file):
-    d = AsyncDispatcher()
+    d = AsyncDispatcher(None)
     await d.start()
     result_array = []
 
-    async def handler_function(message):
+    async def handler_function(message, bot):
         result_array.append(message.body)
 
     d.add_handler(
@@ -99,7 +99,7 @@ async def test_sync_dispatcher_message_creation(command_with_text_and_file):
 
 @pytest.mark.asyncio
 async def test_sync_dispatcher_not_accepting_coroutine_as_handler():
-    d = AsyncDispatcher()
+    d = AsyncDispatcher(None)
     await d.start()
 
     def f(m):

@@ -242,13 +242,13 @@ def custom_dispatcher():
         def _create_message(self, data: Dict[str, Any]) -> Union[Awaitable, bool]:
             ...
 
-    return CustomDispatcher()
+    return CustomDispatcher(None)
 
 
 @pytest.fixture
 def custom_handler():
     return CommandHandler(
-        name="handler", command="/cmd", description="command handler", func=lambda x: x
+        name="handler", command="/cmd", description="command handler", func=lambda x, b: ...
     )
 
 
@@ -264,8 +264,8 @@ def custom_async_handler():
 
 @pytest.fixture
 def custom_async_handler_with_sync_command_body():
-    async def f(m):
-        return m
+    async def f(m, b):
+        pass
 
     return CommandHandler(
         name="async handler", command="/cmd", description="command handler", func=f
@@ -311,7 +311,7 @@ def custom_base_bot_class():
     class CustomBot(BaseBot):
         def __init__(self, **data):
             super().__init__(**data)
-            self._dispatcher = SyncDispatcher(workers=1)
+            self._dispatcher = SyncDispatcher(workers=1, bot=self)
 
         def stop(self):
             ...

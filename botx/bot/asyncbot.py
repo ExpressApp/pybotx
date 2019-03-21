@@ -33,7 +33,7 @@ class AsyncBot(BaseBot):
     def __init__(self, *, credentials: Optional[BotCredentials] = None, disable_credentials: bool = False):
         super().__init__(credentials=credentials, disable_credentials=disable_credentials)
 
-        self._dispatcher = AsyncDispatcher()
+        self._dispatcher = AsyncDispatcher(bot=self)
         self._session = aiohttp.ClientSession()
 
     async def start(self) -> NoReturn:
@@ -41,6 +41,7 @@ class AsyncBot(BaseBot):
 
     async def stop(self) -> NoReturn:
         await self._dispatcher.shutdown()
+        await self._session.close()
 
     async def parse_status(self) -> Status:
         return await self._dispatcher.parse_request({}, request_type="status")

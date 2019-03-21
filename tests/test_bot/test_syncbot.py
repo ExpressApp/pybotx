@@ -258,3 +258,16 @@ def test_sync_bot_work_with_disabled_credentials(sync_requests, command_with_tex
 
     m = Message(**command_with_text_and_file)
     bot.send_message(m.body, m.sync_id, m.bot_id, m.host)
+
+
+def test_sync_dispatcher_throws_bot_to_command(command_with_text_and_file):
+    bot = Bot()
+
+    bot.start()
+
+    @bot.command
+    def cmd(m, b):
+        assert b == bot
+
+    bot.parse_command(command_with_text_and_file)
+    bot.stop()

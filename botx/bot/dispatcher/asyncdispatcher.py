@@ -12,9 +12,10 @@ from .commandhandler import CommandHandler
 
 class AsyncDispatcher(BaseDispatcher):
     _scheduler = aiojobs.Scheduler
+    _bot: 'AsyncBot'
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
 
     async def start(self) -> NoReturn:
         self._scheduler = await aiojobs.create_scheduler()
@@ -38,11 +39,11 @@ class AsyncDispatcher(BaseDispatcher):
         cmd = message.command.cmd
         command = self._handlers.get(cmd)
         if command:
-            await self._scheduler.spawn(command.func(message))
+            await self._scheduler.spawn(command.func(message, self._bot))
             return True
         else:
             if self._default_handler:
-                await self._scheduler.spawn(self._default_handler.func(message))
+                await self._scheduler.spawn(self._default_handler.func(message, self._bot))
                 return True
         return False
 

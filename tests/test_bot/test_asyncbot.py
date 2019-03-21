@@ -280,3 +280,17 @@ async def test_sync_bot_work_with_disabled_credentials(async_requests, command_w
     await bot.send_message(m.body, m.sync_id, m.bot_id, m.host)
 
     await bot.stop()
+
+
+@pytest.mark.asyncio
+async def test_async_dispatcher_throws_bot_to_command(command_with_text_and_file):
+    bot = AsyncBot()
+
+    await bot.start()
+
+    @bot.command
+    async def cmd(m, b):
+        assert b == bot
+
+    await bot.parse_command(command_with_text_and_file)
+    await bot.stop()

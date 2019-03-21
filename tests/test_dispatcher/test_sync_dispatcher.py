@@ -5,31 +5,31 @@ from botx.bot.dispatcher.syncdispatcher import SyncDispatcher
 
 
 def test_sync_dispatcher_attributes():
-    d = SyncDispatcher(workers=1)
+    d = SyncDispatcher(workers=1, bot=None)
     assert d._pool is not None
     assert d._pool._max_workers == 1
     d.shutdown()
 
 
 def test_sync_dispatcher_wrong_request_parsing():
-    d = SyncDispatcher(workers=1)
+    d = SyncDispatcher(workers=1, bot=None)
     with pytest.raises(BotXException):
         d.parse_request({}, request_type="wrong type")
     d.shutdown()
 
 
 def test_sync_dispatcher_command_request_parsing(command_with_text_and_file):
-    d = SyncDispatcher(workers=1)
+    d = SyncDispatcher(workers=1, bot=None)
     r = d.parse_request(command_with_text_and_file, RequestTypeEnum.command)
     assert not r
     d.shutdown()
 
 
 def test_sync_dispatcher_default_handler_processing(command_with_text_and_file):
-    d = SyncDispatcher(workers=1)
+    d = SyncDispatcher(workers=1, bot=None)
     result_array = []
 
-    def handler_function(message):
+    def handler_function(message, bot):
         result_array.append("default")
 
     d.add_handler(
@@ -51,10 +51,10 @@ def test_sync_dispatcher_default_handler_processing(command_with_text_and_file):
 
 
 def test_sync_dispatcher_message_creation(command_with_text_and_file):
-    d = SyncDispatcher(workers=3)
+    d = SyncDispatcher(workers=3, bot=None)
     result_array = []
 
-    def handler_function(message):
+    def handler_function(message, bot):
         result_array.append(message.body)
 
     d.add_handler(
@@ -77,7 +77,7 @@ def test_sync_dispatcher_message_creation(command_with_text_and_file):
 
 
 def test_sync_dispatcher_status_creation(custom_handler):
-    d = SyncDispatcher(workers=4)
+    d = SyncDispatcher(workers=4, bot=None)
     d.add_handler(custom_handler)
     assert d.parse_request({}, request_type="status") == Status(
         result=StatusResult(commands=[custom_handler.to_status_command()])
@@ -85,7 +85,7 @@ def test_sync_dispatcher_status_creation(custom_handler):
 
 
 def test_sync_dispatcher_not_accepting_coroutine_as_handler():
-    d = SyncDispatcher(workers=4)
+    d = SyncDispatcher(workers=4, bot=None)
 
     async def f(m):
         pass

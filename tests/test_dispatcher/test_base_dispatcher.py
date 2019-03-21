@@ -7,7 +7,7 @@ def test_base_dispatcher_attributes(custom_dispatcher):
 
 
 def test_base_dispatcher_separate_handlers(custom_dispatcher, custom_handler):
-    custom_dispatcher2 = custom_dispatcher.__class__()
+    custom_dispatcher2 = custom_dispatcher.__class__(None)
     custom_dispatcher.add_handler(custom_handler)
     assert custom_dispatcher._handlers != custom_dispatcher2._handlers
 

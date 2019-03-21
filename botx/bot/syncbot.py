@@ -40,7 +40,7 @@ class SyncBot(BaseBot):
     ):
         super().__init__(credentials=credentials, disable_credentials=disable_credentials)
 
-        self._dispatcher = SyncDispatcher(workers=workers)
+        self._dispatcher = SyncDispatcher(workers=workers, bot=self)
 
     def start(self) -> NoReturn:
         self._dispatcher.start()
