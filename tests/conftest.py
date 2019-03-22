@@ -162,7 +162,17 @@ def hostname():
 
 @pytest.fixture
 def bot_id():
-    return "808ae429-8bef-47c6-ba31-1bec0b949b97"
+    return "8dada2c8-67a6-4434-9dec-570d244e78ee"
+
+
+@pytest.fixture
+def secret():
+    return 'secret'
+
+
+@pytest.fixture
+def right_signature():
+    return '904E39D3BC549C71F4A4BDA66AFCDA6FC90D471A64889B45CC8D2288E56526AD'
 
 
 @pytest.fixture
@@ -235,7 +245,7 @@ def custom_dispatcher():
             ...
 
         def parse_request(
-            self, data: Dict[str, Any], request_type: Union[str, RequestTypeEnum]
+                self, data: Dict[str, Any], request_type: Union[str, RequestTypeEnum]
         ) -> Union[Status, bool]:
             ...
 

@@ -44,6 +44,9 @@ class BaseBot(abc.ABC, CommandRouter):
     def register_cts(self, cts: CTS):
         self._credentials.known_cts[cts.host] = (cts, None)
 
+    def add_cts_credentials(self, credentials: BotCredentials) -> NoReturn:
+        self._credentials.known_cts.update(credentials.known_cts)
+
     def get_cts_credentials(self) -> BotCredentials:
         return self._credentials
 
