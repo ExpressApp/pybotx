@@ -31,8 +31,6 @@ LOGGER = logging.getLogger("botx")
 
 
 class SyncBot(BaseBot):
-    bot_id: UUID
-    bot_host: str
     _dispatcher: SyncDispatcher
 
     def __init__(

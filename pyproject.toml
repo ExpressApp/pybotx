@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "botx"
-version = "1.0.0a5"
+version = "1.0.0a6"
 description = "Python implementation for Express BotX API"
 authors = [
     "Michael Morozov <mmorozov@ccsteam.ru>",

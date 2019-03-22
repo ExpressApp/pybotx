@@ -12,7 +12,7 @@ class File(BotXType):
     file_name: str
 
     @classmethod
-    def from_file(cls, file: Union[TextIO, BinaryIO]):
+    def from_file(cls, file: Union[TextIO, BinaryIO]) -> 'File':
         file_name = pathlib.Path(file.name).name
         file_data = file.read()
 

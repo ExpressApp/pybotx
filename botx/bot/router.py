@@ -27,7 +27,7 @@ class CommandRouter:
         use_as_default_handler: bool = False,
         exclude_from_status: bool = False,
         system_command_handler: bool = False,
-    ) -> Optional[Callable]:
+    ) -> Callable:
         if func:
             name = name or "".join(
                 func.__name__.lower().rsplit("command", 1)[0].rsplit("_", 1)
