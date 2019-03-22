@@ -1,8 +1,8 @@
+import aiohttp
 import json
+import logging
 from typing import Any, BinaryIO, Dict, List, NoReturn, Optional, TextIO, Tuple, Union
 from uuid import UUID
-
-import aiohttp
 
 from botx.core import BotXException
 from botx.types import (
@@ -21,9 +21,10 @@ from botx.types import (
     Status,
     SyncID,
 )
-
 from .basebot import BaseBot
 from .dispatcher.asyncdispatcher import AsyncDispatcher
+
+LOGGER = logging.getLogger("botx")
 
 
 class AsyncBot(BaseBot):
@@ -32,10 +33,10 @@ class AsyncBot(BaseBot):
     _session: aiohttp.ClientSession
 
     def __init__(
-        self,
-        *,
-        credentials: Optional[BotCredentials] = None,
-        disable_credentials: bool = False,
+            self,
+            *,
+            credentials: Optional[BotCredentials] = None,
+            disable_credentials: bool = False,
     ):
         super().__init__(
             credentials=credentials, disable_credentials=disable_credentials
@@ -64,12 +65,15 @@ class AsyncBot(BaseBot):
         cts = self._credentials.known_cts[host][0]
         signature = cts.calculate_signature(bot_id)
 
+        LOGGER.debug(f"obtaining token for operations from BotX API on {cts.host !r}")
+
         async with self._session.get(
-            self._url_token.format(host=host, bot_id=bot_id),
-            params={"signature": signature},
+                self._url_token.format(host=host, bot_id=bot_id),
+                params={"signature": signature},
         ) as resp:
             text = await resp.text()
             if resp.status != 200:
+                LOGGER.debug(f"can not obtain token")
                 return text, resp.status
 
             token = json.loads(text).get("token")
@@ -81,17 +85,17 @@ class AsyncBot(BaseBot):
             return text, resp.status
 
     async def send_message(
-        self,
-        text: str,
-        chat_id: Union[SyncID, UUID, List[UUID]],
-        bot_id: UUID,
-        host: str,
-        *,
-        file: Optional[Union[BinaryIO, TextIO]] = None,
-        recipients: Union[List[UUID], str] = ResponseRecipientsEnum.all,
-        mentions: Optional[List[Mention]] = None,
-        bubble: Optional[List[List[BubbleElement]]] = None,
-        keyboard: Optional[List[List[KeyboardElement]]] = None,
+            self,
+            text: str,
+            chat_id: Union[SyncID, UUID, List[UUID]],
+            bot_id: UUID,
+            host: str,
+            *,
+            file: Optional[Union[BinaryIO, TextIO]] = None,
+            recipients: Union[List[UUID], str] = ResponseRecipientsEnum.all,
+            mentions: Optional[List[Mention]] = None,
+            bubble: Optional[List[List[BubbleElement]]] = None,
+            keyboard: Optional[List[List[KeyboardElement]]] = None,
     ) -> Tuple[str, int]:
         if not bubble:
             bubble = []
@@ -140,16 +144,16 @@ class AsyncBot(BaseBot):
             )
 
     async def _send_command_result(
-        self,
-        text: str,
-        chat_id: SyncID,
-        bot_id: UUID,
-        host: str,
-        file: Optional[Union[BinaryIO, TextIO]],
-        recipients: Union[List[UUID], str],
-        mentions: List[Mention],
-        bubble: List[List[BubbleElement]],
-        keyboard: List[List[KeyboardElement]],
+            self,
+            text: str,
+            chat_id: SyncID,
+            bot_id: UUID,
+            host: str,
+            file: Optional[Union[BinaryIO, TextIO]],
+            recipients: Union[List[UUID], str],
+            mentions: List[Mention],
+            bubble: List[List[BubbleElement]],
+            keyboard: List[List[KeyboardElement]],
     ) -> Tuple[str, int]:
         response_result = ResponseCommandResult(
             body=text, bubble=bubble, keyboard=keyboard
@@ -162,28 +166,32 @@ class AsyncBot(BaseBot):
             recipients=recipients,
             mentions=mentions,
             file=file,
-        ).dict()
+        )
+
+        LOGGER.debug(
+            f"sending command result to BotX on {host !r}: {response.json() !r}"
+        )
 
         async with self._session.post(
-            self._url_command.format(host=host),
-            json=response,
-            headers={
-                "Authorization": f"Bearer {self._get_token_from_credentials(host)}"
-            },
+                self._url_command.format(host=host),
+                json=response.dict(),
+                headers={
+                    "Authorization": f"Bearer {self._get_token_from_credentials(host)}"
+                },
         ) as resp:
             return await resp.text(), resp.status
 
     async def _send_notification_result(
-        self,
-        text: str,
-        group_chat_ids: List[UUID],
-        bot_id: UUID,
-        host: str,
-        file: Optional[Union[BinaryIO, TextIO]],
-        recipients: Union[List[UUID], str],
-        mentions: List[Mention],
-        bubble: List[List[BubbleElement]],
-        keyboard: List[List[KeyboardElement]],
+            self,
+            text: str,
+            group_chat_ids: List[UUID],
+            bot_id: UUID,
+            host: str,
+            file: Optional[Union[BinaryIO, TextIO]],
+            recipients: Union[List[UUID], str],
+            mentions: List[Mention],
+            bubble: List[List[BubbleElement]],
+            keyboard: List[List[KeyboardElement]],
     ) -> Tuple[str, int]:
         response_result = ResponseNotificationResult(
             body=text, bubble=bubble, keyboard=keyboard
@@ -195,23 +203,27 @@ class AsyncBot(BaseBot):
             recipients=recipients,
             mentions=mentions,
             file=file,
-        ).dict()
+        )
+
+        LOGGER.debug(
+            f"sending notification result to BotX on {host !r}: {response.json() !r}"
+        )
 
         async with self._session.post(
-            self._url_notification.format(host=host),
-            json=response,
-            headers={
-                "Authorization": f"Bearer {self._get_token_from_credentials(host)}"
-            },
+                self._url_notification.format(host=host),
+                json=response.dict(),
+                headers={
+                    "Authorization": f"Bearer {self._get_token_from_credentials(host)}"
+                },
         ) as resp:
             return await resp.text(), resp.status
 
     async def send_file(
-        self,
-        file: Union[TextIO, BinaryIO],
-        chat_id: Union[SyncID, UUID],
-        bot_id: UUID,
-        host: str,
+            self,
+            file: Union[TextIO, BinaryIO],
+            chat_id: Union[SyncID, UUID],
+            bot_id: UUID,
+            host: str,
     ) -> Tuple[str, int]:
         token = self._get_token_from_credentials(host)
         if not token and not self._disable_credentials:
@@ -222,11 +234,13 @@ class AsyncBot(BaseBot):
         response = ResponseFile(bot_id=bot_id, sync_id=chat_id, file=file).dict()
         response["file"] = file
 
+        LOGGER.debug(f"sending file to BotX on {host !r}")
+
         async with self._session.post(
-            self._url_file.format(host=host),
-            data=response,
-            headers={
-                "Authorization": f"Bearer {self._get_token_from_credentials(host)}"
-            },
+                self._url_file.format(host=host),
+                data=response,
+                headers={
+                    "Authorization": f"Bearer {self._get_token_from_credentials(host)}"
+                },
         ) as resp:
             return await resp.text(), resp.status

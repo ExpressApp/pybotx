@@ -1,4 +1,5 @@
 import inspect
+import logging
 from typing import Any, Dict, NoReturn, Union
 
 import aiojobs
@@ -8,6 +9,8 @@ from botx.types import Message, RequestTypeEnum, Status
 
 from .basedispatcher import BaseDispatcher
 from .commandhandler import CommandHandler
+
+LOGGER = logging.getLogger("botx")
 
 
 class AsyncDispatcher(BaseDispatcher):
@@ -31,22 +34,28 @@ class AsyncDispatcher(BaseDispatcher):
         elif request_type == RequestTypeEnum.command:
             return await self._create_message(data)
         else:
-            raise BotXException(f"wrong request type {repr(request_type)}")
+            raise BotXException(f"wrong request type {request_type !r}")
 
     async def _create_message(self, data: Dict[str, Any]) -> bool:
         message = Message(**data)
+        LOGGER.debug(f"message created: {message.json() !r}")
 
         cmd = message.command.cmd
         command = self._handlers.get(cmd)
         if command:
+            LOGGER.debug(f"spawning command {cmd !r}")
             await self._scheduler.spawn(command.func(message, self._bot))
             return True
         else:
+            LOGGER.debug(f"no command {cmd !r} found")
             if self._default_handler:
+                LOGGER.debug("spawning default handler")
                 await self._scheduler.spawn(
                     self._default_handler.func(message, self._bot)
                 )
                 return True
+
+        LOGGER.debug("default handler was not set")
         return False
 
     def add_handler(self, handler: CommandHandler) -> NoReturn:

@@ -1,4 +1,5 @@
 import abc
+import logging
 from typing import Any, BinaryIO, Dict, List, NoReturn, Optional, TextIO, Tuple, Union
 from uuid import UUID
 
@@ -18,6 +19,8 @@ from .dispatcher.basedispatcher import BaseDispatcher
 from .dispatcher.commandhandler import CommandHandler
 from .router import CommandRouter
 
+LOGGER = logging.getLogger("botx")
+
 
 class BaseBot(abc.ABC, CommandRouter):
     _dispatcher: BaseDispatcher
@@ -34,17 +37,22 @@ class BaseBot(abc.ABC, CommandRouter):
         credentials: Optional[BotCredentials] = None,
         disable_credentials: bool = False,
     ):
-        if credentials:
-            self._credentials = credentials
-        else:
-            self._credentials = BotCredentials()
+        super().__init__()
+
+        self._credentials = credentials if credentials else BotCredentials()
+
+        if disable_credentials:
+            LOGGER.warning("token obtaining disabled")
 
         self._disable_credentials = disable_credentials
 
     def register_cts(self, cts: CTS):
+        LOGGER.debug(f"register new CTS {cts.host !r} for bot")
+
         self._credentials.known_cts[cts.host] = (cts, None)
 
     def add_cts_credentials(self, credentials: BotCredentials) -> NoReturn:
+        LOGGER.debug(f"add new credentials for bot {credentials.json() !r}")
         self._credentials.known_cts.update(credentials.known_cts)
 
     def get_cts_credentials(self) -> BotCredentials:
@@ -60,6 +68,7 @@ class BaseBot(abc.ABC, CommandRouter):
     def _get_token_from_credentials(self, host) -> Optional[str]:
         credentials = self._credentials.known_cts.get(host, (None, None))[1]
         if not credentials:
+            LOGGER.debug(f"no credentials for {host !r} found")
             return None
 
         return credentials.token

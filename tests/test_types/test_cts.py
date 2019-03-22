@@ -10,9 +10,8 @@ def test_cts(hostname, bot_id, secret, right_signature):
         CTS(host=hostname, secret_key=secret).calculate_signature(bot_id)
         == base64.b16encode(
             hmac.new(
-                key=secret.encode(),
-                msg=str(bot_id).encode(),
-                digestmod=hashlib.sha256,
+                key=secret.encode(), msg=str(bot_id).encode(), digestmod=hashlib.sha256
             ).digest()
-        ).decode() == right_signature
+        ).decode()
+        == right_signature
     )

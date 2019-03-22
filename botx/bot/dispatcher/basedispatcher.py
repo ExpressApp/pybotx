@@ -1,10 +1,13 @@
 import abc
+import logging
 from collections import OrderedDict
 from typing import Any, Awaitable, Dict, NoReturn, Optional, Union
 
 from botx.types import RequestTypeEnum, Status, StatusResult
 
 from .commandhandler import CommandHandler
+
+LOGGER = logging.getLogger("botx")
 
 
 class BaseDispatcher(abc.ABC):
@@ -44,6 +47,8 @@ class BaseDispatcher(abc.ABC):
 
     def add_handler(self, handler: CommandHandler) -> NoReturn:
         if handler.use_as_default_handler:
+            LOGGER.debug(f"set default handler {handler.name !r}")
             self._default_handler = handler
         else:
+            LOGGER.debug(f"add new handler for {handler.command !r}")
             self._handlers[handler.command] = handler

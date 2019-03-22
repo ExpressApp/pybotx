@@ -1,4 +1,5 @@
 import json
+import logging
 import multiprocessing
 from typing import Any, BinaryIO, Dict, List, NoReturn, Optional, TextIO, Tuple, Union
 from uuid import UUID
@@ -25,6 +26,8 @@ from botx.types import (
 
 from .basebot import BaseBot
 from .dispatcher.syncdispatcher import SyncDispatcher
+
+LOGGER = logging.getLogger("botx")
 
 
 class SyncBot(BaseBot):
@@ -64,11 +67,14 @@ class SyncBot(BaseBot):
         cts = self._credentials.known_cts[host][0]
         signature = cts.calculate_signature(bot_id)
 
+        LOGGER.debug(f"obtaining token for operations from BotX API on {cts.host !r}")
+
         resp = requests.get(
             self._url_token.format(host=host, bot_id=bot_id),
             params={"signature": signature},
         )
         if resp.status_code != 200:
+            LOGGER.debug(f"can not obtain token")
             return resp.text, resp.status_code
 
         token = json.loads(resp.text).get("token")
@@ -162,6 +168,11 @@ class SyncBot(BaseBot):
             mentions=mentions,
             file=file,
         )
+
+        LOGGER.debug(
+            f"sending command result to BotX on {host !r}: {response.json() !r}"
+        )
+
         resp = requests.post(
             self._url_command.format(host=host),
             json=response.dict(),
@@ -194,6 +205,11 @@ class SyncBot(BaseBot):
             mentions=mentions,
             file=file,
         )
+
+        LOGGER.debug(
+            f"sending notification result to BotX on {host !r}: {response.json() !r}"
+        )
+
         resp = requests.post(
             self._url_notification.format(host=host),
             json=response.dict(),
@@ -218,6 +234,8 @@ class SyncBot(BaseBot):
 
         files = {"file": file}
         response = ResponseFile(bot_id=bot_id, sync_id=chat_id).dict()
+
+        LOGGER.debug(f"sending file to BotX on {host !r}")
 
         resp = requests.post(
             self._url_file.format(host=host),
