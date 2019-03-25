@@ -15,32 +15,23 @@ class ResponseResult(BotXType):
     commands: List[MenuCommand] = []
     keyboard: List[List[KeyboardElement]] = []
     bubble: List[List[BubbleElement]] = []
+    mentions: List[Mention] = []
 
 
-class ResponseCommandResult(ResponseResult):
-    pass
+class BaseResponse(BotXType):
+    bot_id: UUID
+    recipients: Union[List[UUID], ResponseRecipientsEnum] = ResponseRecipientsEnum.all
+    file: Optional[File] = None
 
 
-class ResponseNotificationResult(ResponseResult):
-    pass
-
-
-class ResponseCommand(BotXType):
+class ResponseCommand(BaseResponse):
     sync_id: SyncID
-    bot_id: UUID
-    recipients: Union[List[UUID], ResponseRecipientsEnum] = ResponseRecipientsEnum.all
-    command_result: ResponseCommandResult
-    mentions: List[Mention] = []
-    file: Optional[File] = None
+    command_result: ResponseResult
 
 
-class ResponseNotification(BotXType):
-    bot_id: UUID
-    recipients: Union[List[UUID], ResponseRecipientsEnum] = ResponseRecipientsEnum.all
+class ResponseNotification(BaseResponse):
     group_chat_ids: List[UUID] = []
-    notification: ResponseNotificationResult
-    mentions: List[Mention] = []
-    file: Optional[File] = None
+    notification: ResponseResult
 
 
 class ResponseFile(BotXType):

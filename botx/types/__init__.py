@@ -16,10 +16,8 @@ from .mention import Mention, MentionUser
 from .message import Message, MessageCommand, MessageUser
 from .response import (
     ResponseCommand,
-    ResponseCommandResult,
     ResponseFile,
     ResponseNotification,
-    ResponseNotificationResult,
     ResponseResult,
 )
 from .status import Status, StatusResult

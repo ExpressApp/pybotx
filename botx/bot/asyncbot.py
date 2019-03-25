@@ -14,11 +14,10 @@ from botx.types import (
     KeyboardElement,
     Mention,
     ResponseCommand,
-    ResponseCommandResult,
     ResponseFile,
     ResponseNotification,
-    ResponseNotificationResult,
     ResponseRecipientsEnum,
+    ResponseResult,
     Status,
     SyncID,
 )
@@ -157,8 +156,8 @@ class AsyncBot(BaseBot):
         bubble: List[List[BubbleElement]],
         keyboard: List[List[KeyboardElement]],
     ) -> Tuple[str, int]:
-        response_result = ResponseCommandResult(
-            body=text, bubble=bubble, keyboard=keyboard
+        response_result = ResponseResult(
+            body=text, bubble=bubble, keyboard=keyboard, mentions=mentions
         )
 
         response = ResponseCommand(
@@ -166,7 +165,6 @@ class AsyncBot(BaseBot):
             sync_id=str(chat_id),
             command_result=response_result,
             recipients=recipients,
-            mentions=mentions,
             file=file,
         )
 
@@ -195,15 +193,14 @@ class AsyncBot(BaseBot):
         bubble: List[List[BubbleElement]],
         keyboard: List[List[KeyboardElement]],
     ) -> Tuple[str, int]:
-        response_result = ResponseNotificationResult(
-            body=text, bubble=bubble, keyboard=keyboard
+        response_result = ResponseResult(
+            body=text, bubble=bubble, keyboard=keyboard, mentions=mentions
         )
         response = ResponseNotification(
             bot_id=bot_id,
             notification=response_result,
             group_chat_ids=group_chat_ids,
             recipients=recipients,
-            mentions=mentions,
             file=file,
         )
 
