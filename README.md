@@ -1,5 +1,5 @@
 # pyBotX
-Version: 1.0.0a6
+Version: 1.0.0a7
 ###### tags: `documentation`, `library`, `botx`, `sdk`, `python`, `bots`
 
 ## Содержание
