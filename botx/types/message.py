@@ -64,8 +64,8 @@ class Message(BotXType):
         return self.user.group_chat_id
 
     @property
-    def chat_type(self) -> ChatTypeEnum:
-        return self.user.chat_type
+    def chat_type(self) -> str:
+        return self.user.chat_type.name
 
     @property
     def host(self) -> str:

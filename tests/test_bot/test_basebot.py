@@ -59,7 +59,56 @@ def test_bot_storage_credentials_retrieving(custom_base_bot_class, hostname):
     cts = CTS(host=hostname, secret_key="secret_key")
     bot._credentials.known_cts[cts.host] = (
         cts,
-        CTSCredentials(bot_id=uuid.uuid4(), token="token_for_bot"),
+        CTSCredentials(bot_id=uuid.uuid4(), result="token_for_bot"),
     )
 
     assert bot._get_token_from_credentials(hostname) == "token_for_bot"
+
+
+def test_bot_credentials_update(custom_base_bot_class, bot_id, hostname, secret):
+    bot = custom_base_bot_class(
+        credentials=BotCredentials(
+            known_cts={
+                hostname: [
+                    CTS(host=hostname, secret_key=secret),
+                    CTSCredentials(bot_id=bot_id, result="result_token_for_operations"),
+                ]
+            }
+        )
+    )
+
+    bot.add_cts_credentials(
+        BotCredentials(
+            known_cts={
+                hostname: [
+                    CTS(host=hostname, secret_key=secret),
+                    CTSCredentials(
+                        bot_id=bot_id, result="result_token_for_operations_replaced"
+                    ),
+                ]
+            }
+        )
+    )
+
+    assert (
+        bot.get_cts_credentials().known_cts[hostname][1].result
+        == "result_token_for_operations_replaced"
+    )
+
+    second_host = hostname + "2"
+    bot.add_cts_credentials(
+        BotCredentials(
+            known_cts={
+                second_host: [
+                    CTS(host=second_host, secret_key=secret),
+                    CTSCredentials(
+                        bot_id=bot_id, result="result_token_for_operations_replaced"
+                    ),
+                ]
+            }
+        )
+    )
+
+    print(bot.get_cts_credentials())
+
+    assert len(bot.get_cts_credentials().known_cts) == 2

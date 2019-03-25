@@ -20,7 +20,7 @@ def sync_requests(hostname, bot_id):
         mock.add(
             BotXAPI.V2.token.method,
             BotXAPI.V2.token.url.format(host=hostname, bot_id=bot_id),
-            json={"status": "ok", "token": "token_for_operations"},
+            json={"status": "ok", "result": "token_for_operations"},
         )
         mock.add(
             BotXAPI.V3.notification.method,
@@ -79,7 +79,7 @@ async def async_requests(hostname, bot_id):
             BotXAPI.V2.token.url.split("{host}", 1)[1].format(bot_id=bot_id),
             BotXAPI.V2.token.method.lower(),
             aresponses.Response(
-                body=json.dumps({"status": "ok", "token": "token_for_operations"}),
+                body=json.dumps({"status": "ok", "result": "token_for_operations"}),
                 status=200,
             ),
         )
@@ -88,7 +88,7 @@ async def async_requests(hostname, bot_id):
             BotXAPI.V3.notification.url.split("{host}", 1)[1],
             BotXAPI.V3.notification.method.lower(),
             aresponses.Response(
-                body=json.dumps({"status": "ok", "token": "notification_result_sent"}),
+                body=json.dumps({"status": "ok", "result": "notification_result_sent"}),
                 status=200,
             ),
         )
@@ -97,7 +97,7 @@ async def async_requests(hostname, bot_id):
             BotXAPI.V3.command.url.split("{host}", 1)[1],
             BotXAPI.V3.command.method.lower(),
             aresponses.Response(
-                body=json.dumps({"status": "ok", "token": "command_result_sent"}),
+                body=json.dumps({"status": "ok", "result": "command_result_sent"}),
                 status=200,
             ),
         )
@@ -106,7 +106,7 @@ async def async_requests(hostname, bot_id):
             BotXAPI.V1.file.url.split("{host}", 1)[1],
             BotXAPI.V1.file.method.lower(),
             aresponses.Response(
-                body=json.dumps({"status": "ok", "token": "file_sent"}), status=200
+                body=json.dumps({"status": "ok", "result": "file_sent"}), status=200
             ),
         )
         yield mock

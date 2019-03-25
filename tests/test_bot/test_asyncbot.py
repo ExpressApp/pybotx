@@ -68,7 +68,7 @@ async def test_async_bot_token_obtaining(hostname, bot_id, async_requests):
     await bot._obtain_token(hostname, bot_id)
     assert bot._credentials.known_cts[cts.host] == (
         cts,
-        CTSCredentials(bot_id=bot_id, token="token_for_operations"),
+        CTSCredentials(bot_id=bot_id, result="token_for_operations"),
     )
 
     await bot.stop()

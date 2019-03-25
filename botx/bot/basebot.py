@@ -71,7 +71,7 @@ class BaseBot(abc.ABC, CommandRouter):
             LOGGER.debug(f"no credentials for {host !r} found")
             return None
 
-        return credentials.token
+        return credentials.result
 
     def start(self) -> NoReturn:
         """Run some outer dependencies that can not be started in init"""
