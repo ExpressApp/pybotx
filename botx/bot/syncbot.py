@@ -75,10 +75,10 @@ class SyncBot(BaseBot):
             LOGGER.debug(f"can not obtain token")
             return resp.text, resp.status_code
 
-        token = json.loads(resp.text).get("token")
+        result = json.loads(resp.text).get("result")
         self._credentials.known_cts[host] = (
             cts,
-            CTSCredentials(bot_id=bot_id, token=token),
+            CTSCredentials(bot_id=bot_id, result=result),
         )
 
         return resp.text, resp.status_code

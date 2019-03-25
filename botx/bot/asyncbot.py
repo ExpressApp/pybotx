@@ -76,10 +76,10 @@ class AsyncBot(BaseBot):
                 LOGGER.debug(f"can not obtain token")
                 return text, resp.status
 
-            token = json.loads(text).get("token")
+            result = json.loads(text).get("result")
             self._credentials.known_cts[host] = (
                 cts,
-                CTSCredentials(bot_id=bot_id, token=token),
+                CTSCredentials(bot_id=bot_id, result=result),
             )
 
             return text, resp.status

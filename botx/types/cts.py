@@ -23,7 +23,7 @@ class CTS(BotXType):
 
 class CTSCredentials(BotXType):
     bot_id: UUID
-    token: str
+    result: str
 
 
 class BotCredentials(BotXType):
