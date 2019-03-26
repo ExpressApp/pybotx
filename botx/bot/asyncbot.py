@@ -13,6 +13,7 @@ from botx.types import (
     File,
     KeyboardElement,
     Mention,
+    Message,
     ResponseCommand,
     ResponseFile,
     ResponseNotification,
@@ -143,6 +144,29 @@ class AsyncBot(BaseBot):
                 bubble=bubble,
                 keyboard=keyboard,
             )
+
+    async def answer_message(
+        self,
+        text: str,
+        message: Message,
+        *,
+        file: Optional[Union[TextIO, BinaryIO]] = None,
+        recipients: Union[List[UUID], str] = ResponseRecipientsEnum.all,
+        mentions: Optional[List[Mention]] = None,
+        bubble: Optional[List[List[BubbleElement]]] = None,
+        keyboard: Optional[List[List[KeyboardElement]]] = None,
+    ) -> Tuple[str, int]:
+        return await self.send_message(
+            text,
+            message.sync_id,
+            message.bot_id,
+            message.host,
+            file=file,
+            recipients=recipients,
+            mentions=mentions,
+            bubble=bubble,
+            keyboard=keyboard,
+        )
 
     async def _send_command_result(
         self,

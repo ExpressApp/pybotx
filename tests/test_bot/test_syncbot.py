@@ -296,3 +296,13 @@ def test_sync_dispatcher_throws_bot_to_command(command_with_text_and_file):
 
     bot.parse_command(command_with_text_and_file)
     bot.stop()
+
+
+def test_sync_answer_message(command_with_text_and_file, sync_requests):
+    bot = Bot(disable_credentials=True)
+    bot.start()
+
+    message = Message(**command_with_text_and_file)
+    bot.answer_message(message.body, message)
+
+    bot.stop()

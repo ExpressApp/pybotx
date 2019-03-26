@@ -10,6 +10,7 @@ from botx.types import (
     BubbleElement,
     KeyboardElement,
     Mention,
+    Message,
     ResponseRecipientsEnum,
     Status,
     SyncID,
@@ -107,6 +108,20 @@ class BaseBot(abc.ABC, CommandRouter):
         keyboard: Optional[List[List[KeyboardElement]]] = None,
     ) -> Tuple[str, int]:
         """Create answer for notification or for command and send it to BotX API"""
+
+    @abc.abstractmethod
+    def answer_message(
+        self,
+        text: str,
+        message: Message,
+        *,
+        file: Optional[Union[TextIO, BinaryIO]] = None,
+        recipients: Union[List[UUID], str] = ResponseRecipientsEnum.all,
+        mentions: Optional[List[Mention]] = None,
+        bubble: Optional[List[List[BubbleElement]]] = None,
+        keyboard: Optional[List[List[KeyboardElement]]] = None,
+    ):
+        """Send message with credentials from incoming message"""
 
     @abc.abstractmethod
     def _send_command_result(
