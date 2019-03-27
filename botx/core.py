@@ -10,11 +10,11 @@ _API_ENDPOINTS = {
 }
 
 
-class BotXObject(BaseModel):
+class BotXException(Exception):
     pass
 
 
-class BotXException(Exception):
+class BotXObject(BaseModel):
     pass
 
 

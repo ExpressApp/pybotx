@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from botx import CommandHandler, CommandRouter
 
 

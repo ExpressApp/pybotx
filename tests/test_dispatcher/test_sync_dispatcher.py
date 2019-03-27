@@ -87,11 +87,16 @@ def test_sync_dispatcher_status_creation(custom_handler):
 def test_sync_dispatcher_not_accepting_coroutine_as_handler():
     d = SyncDispatcher(workers=4, bot=None)
 
-    async def f(m):
+    async def f(m, b):
         pass
 
     with pytest.raises(BotXException):
         d.add_handler(CommandHandler(name="a", command="a", description="a", func=f))
+
+    try:
+        d.add_handler(CommandHandler(name="a", command="a", description="a", func=f))
+    except BotXException as e:
+        print(e)
 
 
 def test_exception_returned_if_occurred_in_handler():

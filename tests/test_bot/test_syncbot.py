@@ -11,6 +11,7 @@ from botx import (
     Message,
     Status,
     StatusResult,
+    ValidationError,
 )
 
 
@@ -306,3 +307,11 @@ def test_sync_answer_message(command_with_text_and_file, sync_requests):
     bot.answer_message(message.body, message)
 
     bot.stop()
+
+
+def test_exception_from_request_parsing_with_error():
+    bot = Bot(disable_credentials=True)
+    bot.start()
+
+    with pytest.raises(ValidationError):
+        bot.parse_command({})
