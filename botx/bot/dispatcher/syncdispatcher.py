@@ -1,3 +1,4 @@
+import functools
 import inspect
 import logging
 from concurrent.futures.thread import ThreadPoolExecutor
@@ -39,18 +40,20 @@ class SyncDispatcher(BaseDispatcher):
 
         cmd = message.command.cmd
         command = self._handlers.get(cmd)
+        func_to_spawn = None
         if command:
             LOGGER.debug(f"spawning command {cmd !r}")
-            self._pool.submit(command.func, message=message, bot=self._bot)
-            return True
+            func_to_spawn = command.func
         else:
             LOGGER.debug(f"no command {cmd !r} found")
             if self._default_handler:
                 LOGGER.debug("spawning default handler")
-                self._pool.submit(
-                    self._default_handler.func, message=message, bot=self._bot
-                )
-                return True
+                func_to_spawn = self._default_handler.func
+
+        if func_to_spawn:
+            self._pool.submit(func_to_spawn, message, self._bot)
+
+            return True
 
         LOGGER.debug("default handler was not set")
         return False
@@ -58,5 +61,18 @@ class SyncDispatcher(BaseDispatcher):
     def add_handler(self, handler: CommandHandler) -> NoReturn:
         if inspect.iscoroutinefunction(handler.func):
             raise BotXException("can not add async handler to sync dispatcher")
+
+        def thread_logger_helper(f):
+            @functools.wraps(f)
+            def wrapper(message, bot):
+                try:
+                    return f(message, bot)
+                except Exception as e:
+                    LOGGER.exception(e)
+                    return e
+
+            return wrapper
+
+        handler.func = thread_logger_helper(handler.func)
 
         super().add_handler(handler)

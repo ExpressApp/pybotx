@@ -23,7 +23,7 @@ def test_cts_registration(custom_base_bot_class, hostname):
 
 
 def test_bot_router_nesting(
-        custom_base_bot_class, custom_router, custom_handler, custom_default_handler
+    custom_base_bot_class, custom_router, custom_handler, custom_default_handler
 ):
     custom_router.add_handler(custom_default_handler)
     custom_router.add_handler(custom_handler)
@@ -36,7 +36,7 @@ def test_bot_router_nesting(
 
 
 def test_bot_adding_commands_behaviour(
-        custom_base_bot_class, custom_router, custom_handler
+    custom_base_bot_class, custom_router, custom_handler
 ):
     custom_router.add_handler(custom_handler)
 
@@ -91,8 +91,8 @@ def test_bot_credentials_update(custom_base_bot_class, bot_id, hostname, secret)
     )
 
     assert (
-            bot.get_cts_credentials().known_cts[hostname][1].result
-            == "result_token_for_operations_replaced"
+        bot.get_cts_credentials().known_cts[hostname][1].result
+        == "result_token_for_operations_replaced"
     )
 
     second_host = hostname + "2"

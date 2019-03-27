@@ -42,7 +42,7 @@ def test_sync_dispatcher_default_handler_processing(command_with_text_and_file):
         )
     )
 
-    d.parse_request(command_with_text_and_file, request_type="command")
+    assert d.parse_request(command_with_text_and_file, request_type="command")
 
     d.shutdown()
 
@@ -92,3 +92,17 @@ def test_sync_dispatcher_not_accepting_coroutine_as_handler():
 
     with pytest.raises(BotXException):
         d.add_handler(CommandHandler(name="a", command="a", description="a", func=f))
+
+
+def test_exception_returned_if_occurred_in_handler():
+    d = SyncDispatcher(workers=1, bot=None)
+
+    error = Exception("exception from handler")
+
+    def f(m, b):
+        raise error
+
+    d.add_handler(CommandHandler(name="a", command="a", description="a", func=f))
+    assert d._handlers["a"].func(None, None) == error
+
+    d.shutdown()

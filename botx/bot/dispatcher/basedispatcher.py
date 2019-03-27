@@ -1,8 +1,10 @@
 import abc
+import inspect
 import logging
 from collections import OrderedDict
 from typing import Any, Awaitable, Dict, NoReturn, Optional, Union
 
+from botx.core import BotXException
 from botx.types import RequestTypeEnum, Status, StatusResult
 
 from .commandhandler import CommandHandler
@@ -46,6 +48,11 @@ class BaseDispatcher(abc.ABC):
         return Status(result=StatusResult(commands=commands))
 
     def add_handler(self, handler: CommandHandler) -> NoReturn:
+        if len(inspect.getfullargspec(handler.func).args) != 2:
+            raise BotXException(
+                "command handler for bot requires 2 arguments for message and for bot instance"
+            )
+
         if handler.use_as_default_handler:
             LOGGER.debug(f"set default handler {handler.name !r}")
             self._default_handler = handler

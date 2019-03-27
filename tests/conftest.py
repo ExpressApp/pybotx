@@ -245,7 +245,7 @@ def custom_dispatcher():
             ...
 
         def parse_request(
-                self, data: Dict[str, Any], request_type: Union[str, RequestTypeEnum]
+            self, data: Dict[str, Any], request_type: Union[str, RequestTypeEnum]
         ) -> Union[Status, bool]:
             ...
 
@@ -337,10 +337,7 @@ def custom_base_bot_class():
         def send_message(self, **kwargs):
             ...
 
-        def answer_message(
-                self,
-                **kwargs,
-        ):
+        def answer_message(self, **kwargs):
             ...
 
         def _send_command_result(self, **kwargs):

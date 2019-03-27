@@ -50,9 +50,10 @@ class AsyncDispatcher(BaseDispatcher):
             LOGGER.debug(f"no command {cmd !r} found")
             if self._default_handler:
                 LOGGER.debug("spawning default handler")
-                await self._scheduler.spawn(
+                job = await self._scheduler.spawn(
                     self._default_handler.func(message, self._bot)
                 )
+                print(job)
                 return True
 
         LOGGER.debug("default handler was not set")

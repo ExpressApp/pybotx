@@ -1,4 +1,6 @@
-from botx import Status, StatusResult
+import pytest
+
+from botx import BotXException, CommandHandler, Status, StatusResult
 
 
 def test_base_dispatcher_attributes(custom_dispatcher):
@@ -37,4 +39,29 @@ def test_base_dispatcher_add_handler(
     custom_dispatcher.add_handler(custom_handler)
     assert custom_dispatcher._create_status() == Status(
         result=StatusResult(commands=[custom_handler.to_status_command()])
+    )
+
+
+def test_dispatcher_command_handler_signature_check(custom_dispatcher):
+    def f():
+        pass
+
+    with pytest.raises(BotXException):
+        custom_dispatcher.add_handler(
+            CommandHandler(name="a", command="a", description="a", func=f)
+        )
+
+    def f(m):
+        pass
+
+    with pytest.raises(BotXException):
+        custom_dispatcher.add_handler(
+            CommandHandler(name="a", command="a", description="a", func=f)
+        )
+
+    def f(m, b):
+        pass
+
+    custom_dispatcher.add_handler(
+        CommandHandler(name="a", command="a", description="a", func=f)
     )
