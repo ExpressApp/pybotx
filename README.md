@@ -1,1 +1,1 @@
-# Python implementation for Express BotX API
+# Python Lib for BotX
