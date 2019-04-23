@@ -30,7 +30,7 @@ class CommandRouter:
     ) -> Callable:
         if func:
             name = name or "".join(
-                func.__name__.lower().rsplit("command", 1)[0].rsplit("_", 1)
+                func.__name__.lower().rsplit("command", 1)[0].split("_")
             )
             body = (
                 (body if body.startswith("/") or system_command_handler else f"/{body}")

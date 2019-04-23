@@ -110,3 +110,16 @@ def test_bot_credentials_update(custom_base_bot_class, bot_id, hostname, secret)
     )
 
     assert len(bot.get_cts_credentials().known_cts) == 2
+
+
+def test_long_function_name_processing_into_right_command(custom_base_bot_class):
+    bot = custom_base_bot_class()
+
+    @bot.command
+    def function_with_long_name_with_many_underscores(m):
+        pass
+
+    assert "functionwithlongnamewithmanyunderscores" in map(
+        lambda c: c.name.lower(),
+        bot._dispatcher.parse_request({}, "status").result.commands,
+    )
