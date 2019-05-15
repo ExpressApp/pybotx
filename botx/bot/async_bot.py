@@ -1,10 +1,9 @@
 import json
 import logging
-import multiprocessing
 from typing import Any, BinaryIO, Dict, List, NoReturn, Optional, TextIO, Tuple, Union
 from uuid import UUID
 
-import requests
+import aiohttp
 
 from botx.core import BotXException
 from botx.types import (
@@ -24,19 +23,20 @@ from botx.types import (
     SyncID,
 )
 
-from .basebot import BaseBot
-from .dispatcher.syncdispatcher import SyncDispatcher
+from .base_bot import BaseBot
+from .dispatcher.async_dispatcher import AsyncDispatcher
 
 LOGGER = logging.getLogger("botx")
 
 
-class SyncBot(BaseBot):
-    _dispatcher: SyncDispatcher
+class AsyncBot(BaseBot):
+    bot_id: UUID
+    bot_host: str
+    _session: aiohttp.ClientSession
 
     def __init__(
         self,
         *,
-        workers: int = multiprocessing.cpu_count(),
         credentials: Optional[BotCredentials] = None,
         disable_credentials: bool = False,
     ):
@@ -44,21 +44,23 @@ class SyncBot(BaseBot):
             credentials=credentials, disable_credentials=disable_credentials
         )
 
-        self._dispatcher = SyncDispatcher(workers=workers, bot=self)
+        self._dispatcher = AsyncDispatcher(bot=self)
+        self._session = aiohttp.ClientSession()
 
-    def start(self) -> NoReturn:
-        self._dispatcher.start()
+    async def start(self) -> NoReturn:
+        await self._dispatcher.start()
 
-    def stop(self) -> NoReturn:
-        self._dispatcher.shutdown()
+    async def stop(self) -> NoReturn:
+        await self._dispatcher.shutdown()
+        await self._session.close()
 
-    def parse_status(self) -> Status:
-        return self._dispatcher.parse_request({}, request_type="status")
+    async def parse_status(self) -> Status:
+        return await self._dispatcher.parse_request({}, request_type="status")
 
-    def parse_command(self, data: Dict[str, Any]) -> bool:
-        return self._dispatcher.parse_request(data, request_type="command")
+    async def parse_command(self, data: Dict[str, Any]) -> bool:
+        return await self._dispatcher.parse_request(data, request_type="command")
 
-    def _obtain_token(self, host: str, bot_id: UUID) -> Tuple[str, int]:
+    async def _obtain_token(self, host: str, bot_id: UUID) -> Tuple[str, int]:
         if host not in self._credentials.known_cts:
             raise BotXException(f"unregistered cts with host {repr(host)}")
 
@@ -67,30 +69,31 @@ class SyncBot(BaseBot):
 
         LOGGER.debug(f"obtaining token for operations from BotX API on {cts.host !r}")
 
-        resp = requests.get(
+        async with self._session.get(
             self._url_token.format(host=host, bot_id=bot_id),
             params={"signature": signature},
-        )
-        if resp.status_code != 200:
-            LOGGER.debug(f"can not obtain token")
-            return resp.text, resp.status_code
+        ) as resp:
+            text = await resp.text()
+            if resp.status != 200:
+                LOGGER.debug(f"can not obtain token")
+                return text, resp.status
 
-        result = json.loads(resp.text).get("result")
-        self._credentials.known_cts[host] = (
-            cts,
-            CTSCredentials(bot_id=bot_id, result=result),
-        )
+            result = json.loads(text).get("result")
+            self._credentials.known_cts[host] = (
+                cts,
+                CTSCredentials(bot_id=bot_id, result=result),
+            )
 
-        return resp.text, resp.status_code
+            return text, resp.status
 
-    def send_message(
+    async def send_message(
         self,
         text: str,
         chat_id: Union[SyncID, UUID, List[UUID]],
         bot_id: UUID,
         host: str,
         *,
-        file: Optional[Union[TextIO, BinaryIO]] = None,
+        file: Optional[Union[BinaryIO, TextIO]] = None,
         recipients: Union[List[UUID], str] = ResponseRecipientsEnum.all,
         mentions: Optional[List[Mention]] = None,
         bubble: Optional[List[List[BubbleElement]]] = None,
@@ -105,14 +108,14 @@ class SyncBot(BaseBot):
 
         token = self._get_token_from_credentials(host)
         if not token and not self._disable_credentials:
-            res = self._obtain_token(host, bot_id)
+            res = await self._obtain_token(host, bot_id)
             if res[1] != 200:
                 return res
 
         response_file = File.from_file(file) if file else None
 
         if isinstance(chat_id, SyncID):
-            return self._send_command_result(
+            return await self._send_command_result(
                 text=text,
                 chat_id=chat_id,
                 bot_id=bot_id,
@@ -130,7 +133,7 @@ class SyncBot(BaseBot):
             elif isinstance(chat_id, list):
                 group_chat_ids = chat_id
 
-            return self._send_notification_result(
+            return await self._send_notification_result(
                 text=text,
                 group_chat_ids=group_chat_ids,
                 bot_id=bot_id,
@@ -142,7 +145,7 @@ class SyncBot(BaseBot):
                 keyboard=keyboard,
             )
 
-    def answer_message(
+    async def answer_message(
         self,
         text: str,
         message: Message,
@@ -153,7 +156,7 @@ class SyncBot(BaseBot):
         bubble: Optional[List[List[BubbleElement]]] = None,
         keyboard: Optional[List[List[KeyboardElement]]] = None,
     ) -> Tuple[str, int]:
-        return self.send_message(
+        return await self.send_message(
             text,
             message.sync_id,
             message.bot_id,
@@ -165,7 +168,7 @@ class SyncBot(BaseBot):
             keyboard=keyboard,
         )
 
-    def _send_command_result(
+    async def _send_command_result(
         self,
         text: str,
         chat_id: SyncID,
@@ -193,16 +196,16 @@ class SyncBot(BaseBot):
             f"sending command result to BotX on {host !r}: {response.json() !r}"
         )
 
-        resp = requests.post(
+        async with self._session.post(
             self._url_command.format(host=host),
             json=response.dict(),
             headers={
                 "Authorization": f"Bearer {self._get_token_from_credentials(host)}"
             },
-        )
-        return resp.text, resp.status_code
+        ) as resp:
+            return await resp.text(), resp.status
 
-    def _send_notification_result(
+    async def _send_notification_result(
         self,
         text: str,
         group_chat_ids: List[UUID],
@@ -229,16 +232,16 @@ class SyncBot(BaseBot):
             f"sending notification result to BotX on {host !r}: {response.json() !r}"
         )
 
-        resp = requests.post(
+        async with self._session.post(
             self._url_notification.format(host=host),
             json=response.dict(),
             headers={
                 "Authorization": f"Bearer {self._get_token_from_credentials(host)}"
             },
-        )
-        return resp.text, resp.status_code
+        ) as resp:
+            return await resp.text(), resp.status
 
-    def send_file(
+    async def send_file(
         self,
         file: Union[TextIO, BinaryIO],
         chat_id: Union[SyncID, UUID],
@@ -247,19 +250,20 @@ class SyncBot(BaseBot):
     ) -> Tuple[str, int]:
         token = self._get_token_from_credentials(host)
         if not token and not self._disable_credentials:
-            res = self._obtain_token(host, bot_id)
+            res = await self._obtain_token(host, bot_id)
             if res[1] != 200:
                 return res
 
-        files = {"file": file}
-        response = ResponseFile(bot_id=bot_id, sync_id=chat_id).dict()
+        response = ResponseFile(bot_id=bot_id, sync_id=chat_id, file=file).dict()
+        response["file"] = file
 
         LOGGER.debug(f"sending file to BotX on {host !r}")
 
-        resp = requests.post(
+        async with self._session.post(
             self._url_file.format(host=host),
-            files=files,
             data=response,
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        return resp.text, resp.status_code
+            headers={
+                "Authorization": f"Bearer {self._get_token_from_credentials(host)}"
+            },
+        ) as resp:
+            return await resp.text(), resp.status

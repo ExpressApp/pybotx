@@ -1,14 +1,5 @@
 from pydantic import BaseModel
 
-_API_ENDPOINTS = {
-    "v1": {"file": "https://{host}/api/v1/botx/file/callback"},
-    "v2": {
-        "token": "https://{host}/api/v2/botx/bots/{bot_id}/token",
-        "command": "https://{host}/api/v2/botx/command/callback",
-        "notification": "https://{host}/api/v2/botx/notification/callback",
-    },
-}
-
 
 class BotXException(Exception):
     pass

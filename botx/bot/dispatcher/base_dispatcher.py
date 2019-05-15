@@ -2,12 +2,15 @@ import abc
 import inspect
 import logging
 from collections import OrderedDict
-from typing import Any, Awaitable, Dict, NoReturn, Optional, Union
+from typing import TYPE_CHECKING, Any, Awaitable, Dict, NoReturn, Optional, Union
 
 from botx.core import BotXException
 from botx.types import RequestTypeEnum, Status, StatusResult
 
-from .commandhandler import CommandHandler
+from .command_handler import CommandHandler
+
+if TYPE_CHECKING:
+    from botx.bot.base_bot import BaseBot
 
 LOGGER = logging.getLogger("botx")
 

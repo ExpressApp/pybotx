@@ -1,1 +1,1 @@
-from .commandhandler import CommandHandler
+from .command_handler import CommandHandler

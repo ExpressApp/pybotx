@@ -1,7 +1,7 @@
 import pytest
 
 from botx import BotXException, CommandHandler, RequestTypeEnum, Status, StatusResult
-from botx.bot.dispatcher.syncdispatcher import SyncDispatcher
+from botx.bot.dispatcher.sync_dispatcher import SyncDispatcher
 
 
 def test_sync_dispatcher_attributes():

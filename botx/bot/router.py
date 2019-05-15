@@ -2,7 +2,7 @@ from collections import OrderedDict
 from functools import partial
 from typing import Callable, Dict, NoReturn, Optional
 
-from .dispatcher.commandhandler import CommandHandler
+from .dispatcher.command_handler import CommandHandler
 
 
 class CommandRouter:

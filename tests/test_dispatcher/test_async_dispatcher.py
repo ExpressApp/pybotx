@@ -1,7 +1,7 @@
 import pytest
 
 from botx import BotXException, CommandHandler, RequestTypeEnum, Status, StatusResult
-from botx.bot.dispatcher.asyncdispatcher import AsyncDispatcher
+from botx.bot.dispatcher.async_dispatcher import AsyncDispatcher
 
 
 @pytest.mark.asyncio

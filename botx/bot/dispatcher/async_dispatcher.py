@@ -1,14 +1,17 @@
 import inspect
 import logging
-from typing import Any, Dict, NoReturn, Union
+from typing import TYPE_CHECKING, Any, Dict, NoReturn, Union
 
 import aiojobs
 
 from botx.core import BotXException
 from botx.types import Message, RequestTypeEnum, Status
 
-from .basedispatcher import BaseDispatcher
-from .commandhandler import CommandHandler
+from .base_dispatcher import BaseDispatcher
+from .command_handler import CommandHandler
+
+if TYPE_CHECKING:
+    from botx.bot.async_bot import AsyncBot
 
 LOGGER = logging.getLogger("botx")
 

@@ -8,9 +8,9 @@ import pytest
 import responses
 
 from botx import CommandHandler, CommandRouter, RequestTypeEnum, Status
-from botx.bot.basebot import BaseBot
-from botx.bot.dispatcher.basedispatcher import BaseDispatcher
-from botx.bot.dispatcher.syncdispatcher import SyncDispatcher
+from botx.bot.base_bot import BaseBot
+from botx.bot.dispatcher.base_dispatcher import BaseDispatcher
+from botx.bot.dispatcher.sync_dispatcher import SyncDispatcher
 from botx.core import BotXAPI
 
 

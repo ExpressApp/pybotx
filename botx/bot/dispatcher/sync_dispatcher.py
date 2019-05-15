@@ -1,14 +1,17 @@
-import functools
 import inspect
 import logging
 from concurrent.futures.thread import ThreadPoolExecutor
-from typing import Any, Dict, NoReturn, Union
+from functools import wraps
+from typing import TYPE_CHECKING, Any, Dict, NoReturn, Union
 
 from botx.core import BotXException
 from botx.types import Message, RequestTypeEnum, Status
 
-from .basedispatcher import BaseDispatcher
-from .commandhandler import CommandHandler
+from .base_dispatcher import BaseDispatcher
+from .command_handler import CommandHandler
+
+if TYPE_CHECKING:
+    from botx.bot.sync_bot import SyncBot
 
 LOGGER = logging.getLogger("botx")
 
@@ -63,7 +66,7 @@ class SyncDispatcher(BaseDispatcher):
             raise BotXException("can not add async handler to sync dispatcher")
 
         def thread_logger_helper(f):
-            @functools.wraps(f)
+            @wraps(f)
             def wrapper(message, bot):
                 try:
                     return f(message, bot)

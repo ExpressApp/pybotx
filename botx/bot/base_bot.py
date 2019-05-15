@@ -16,8 +16,8 @@ from botx.types import (
     SyncID,
 )
 
-from .dispatcher.basedispatcher import BaseDispatcher
-from .dispatcher.commandhandler import CommandHandler
+from .dispatcher.base_dispatcher import BaseDispatcher
+from .dispatcher.command_handler import CommandHandler
 from .router import CommandRouter
 
 LOGGER = logging.getLogger("botx")
