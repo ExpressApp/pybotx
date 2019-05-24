@@ -30,9 +30,7 @@ def test_router_commands_nesting(
     router2.add_commands(router1)
 
     assert len(router2._handlers) == 3
-    assert (
-        router2._handlers[custom_default_handler.command].use_as_default_handler == True
-    )
+    assert router2._handlers[custom_default_handler.command].use_as_default_handler
 
 
 def test_router_command_decorator_simple(custom_router):

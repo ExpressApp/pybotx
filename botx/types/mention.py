@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from .base import BotXType
-from .core import MentionTypeEnum
+from .enums import MentionTypeEnum
 
 
 class MentionUser(BotXType):

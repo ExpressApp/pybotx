@@ -1,11 +1,10 @@
 import json
 import logging
 import multiprocessing
-from typing import Any, BinaryIO, Dict, List, NoReturn, Optional, TextIO, Tuple, Union
+from typing import Any, BinaryIO, Dict, List, Optional, TextIO, Tuple, Union, cast
 from uuid import UUID
 
 import requests
-
 from botx.core import BotXException
 from botx.types import (
     BotCredentials,
@@ -46,17 +45,17 @@ class SyncBot(BaseBot):
 
         self._dispatcher = SyncDispatcher(workers=workers, bot=self)
 
-    def start(self) -> NoReturn:
+    def start(self):
         self._dispatcher.start()
 
-    def stop(self) -> NoReturn:
+    def stop(self):
         self._dispatcher.shutdown()
 
     def parse_status(self) -> Status:
-        return self._dispatcher.parse_request({}, request_type="status")
+        return cast(Status, self._dispatcher.parse_request({}, request_type="status"))
 
     def parse_command(self, data: Dict[str, Any]) -> bool:
-        return self._dispatcher.parse_request(data, request_type="command")
+        return cast(bool, self._dispatcher.parse_request(data, request_type="command"))
 
     def _obtain_token(self, host: str, bot_id: UUID) -> Tuple[str, int]:
         if host not in self._credentials.known_cts:
@@ -65,14 +64,14 @@ class SyncBot(BaseBot):
         cts = self._credentials.known_cts[host][0]
         signature = cts.calculate_signature(bot_id)
 
-        LOGGER.debug(f"obtaining token for operations from BotX API on {cts.host !r}")
+        LOGGER.debug("obtaining token for operations from BotX API on %r", cts.host)
 
         resp = requests.get(
             self._url_token.format(host=host, bot_id=bot_id),
             params={"signature": signature},
         )
         if resp.status_code != 200:
-            LOGGER.debug(f"can not obtain token")
+            LOGGER.debug("can not obtain token")
             return resp.text, resp.status_code
 
         result = json.loads(resp.text).get("result")
@@ -123,7 +122,8 @@ class SyncBot(BaseBot):
                 bubble=bubble,
                 keyboard=keyboard,
             )
-        elif isinstance(chat_id, UUID) or isinstance(chat_id, list):
+
+        if isinstance(chat_id, (UUID, list)):
             group_chat_ids = []
             if isinstance(chat_id, UUID):
                 group_chat_ids.append(chat_id)
@@ -141,6 +141,8 @@ class SyncBot(BaseBot):
                 bubble=bubble,
                 keyboard=keyboard,
             )
+
+        raise BotXException(f"{type(chat_id)} is not accesible for chat_id argument")
 
     def answer_message(
         self,
@@ -171,7 +173,7 @@ class SyncBot(BaseBot):
         chat_id: SyncID,
         bot_id: UUID,
         host: str,
-        file: Optional[Union[BinaryIO, TextIO]],
+        file: Optional[File],
         recipients: Union[List[UUID], str],
         mentions: List[Mention],
         bubble: List[List[BubbleElement]],
@@ -189,9 +191,7 @@ class SyncBot(BaseBot):
             file=file,
         )
 
-        LOGGER.debug(
-            f"sending command result to BotX on {host !r}: {response.json() !r}"
-        )
+        LOGGER.debug("sending command result to BotX on %r: %r", host, response.json())
 
         resp = requests.post(
             self._url_command.format(host=host),
@@ -208,7 +208,7 @@ class SyncBot(BaseBot):
         group_chat_ids: List[UUID],
         bot_id: UUID,
         host: str,
-        file: Optional[Union[BinaryIO, TextIO]],
+        file: Optional[File],
         recipients: Union[List[UUID], str],
         mentions: List[Mention],
         bubble: List[List[BubbleElement]],
@@ -226,7 +226,7 @@ class SyncBot(BaseBot):
         )
 
         LOGGER.debug(
-            f"sending notification result to BotX on {host !r}: {response.json() !r}"
+            "sending notification result to BotX on %r: %r", host, response.json()
         )
 
         resp = requests.post(
@@ -254,7 +254,7 @@ class SyncBot(BaseBot):
         files = {"file": file}
         response = ResponseFile(bot_id=bot_id, sync_id=chat_id).dict()
 
-        LOGGER.debug(f"sending file to BotX on {host !r}")
+        LOGGER.debug("sending file to BotX on %r", host)
 
         resp = requests.post(
             self._url_file.format(host=host),

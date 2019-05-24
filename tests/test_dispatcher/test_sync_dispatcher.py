@@ -1,5 +1,4 @@
 import pytest
-
 from botx import BotXException, CommandHandler, RequestTypeEnum, Status, StatusResult
 from botx.bot.dispatcher.sync_dispatcher import SyncDispatcher
 
@@ -97,17 +96,3 @@ def test_sync_dispatcher_not_accepting_coroutine_as_handler():
         d.add_handler(CommandHandler(name="a", command="a", description="a", func=f))
     except BotXException as e:
         print(e)
-
-
-def test_exception_returned_if_occurred_in_handler():
-    d = SyncDispatcher(workers=1, bot=None)
-
-    error = Exception("exception from handler")
-
-    def f(m, b):
-        raise error
-
-    d.add_handler(CommandHandler(name="a", command="a", description="a", func=f))
-    assert d._handlers["a"].func(None, None) == error
-
-    d.shutdown()

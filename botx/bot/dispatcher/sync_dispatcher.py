@@ -2,7 +2,7 @@ import inspect
 import logging
 from concurrent.futures.thread import ThreadPoolExecutor
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Dict, NoReturn, Union
+from typing import TYPE_CHECKING, Any, Dict, Union
 
 from botx.core import BotXException
 from botx.types import Message, RequestTypeEnum, Status
@@ -11,7 +11,7 @@ from .base_dispatcher import BaseDispatcher
 from .command_handler import CommandHandler
 
 if TYPE_CHECKING:
-    from botx.bot.sync_bot import SyncBot
+    from botx.bot.sync_bot import SyncBot  # pylint: disable=cyclic-import
 
 LOGGER = logging.getLogger("botx")
 
@@ -24,7 +24,7 @@ class SyncDispatcher(BaseDispatcher):
         super().__init__(bot)
         self._pool = ThreadPoolExecutor(max_workers=workers)
 
-    def shutdown(self) -> NoReturn:
+    def shutdown(self):
         self._pool.shutdown()
 
     def parse_request(
@@ -32,23 +32,24 @@ class SyncDispatcher(BaseDispatcher):
     ) -> Union[Status, bool]:
         if request_type == RequestTypeEnum.status:
             return self._create_status()
-        elif request_type == RequestTypeEnum.command:
+
+        if request_type == RequestTypeEnum.command:
             return self._create_message(data)
-        else:
-            raise BotXException(f"wrong request type {repr(request_type)}")
+
+        raise BotXException(f"wrong request type {repr(request_type)}")
 
     def _create_message(self, data: Dict[str, Any]) -> bool:
         message = Message(**data)
-        LOGGER.debug(f"message created: {message.json() !r}")
+        LOGGER.debug("message created: %r", message.json())
 
         cmd = message.command.cmd
         command = self._handlers.get(cmd)
         func_to_spawn = None
         if command:
-            LOGGER.debug(f"spawning command {cmd !r}")
+            LOGGER.debug("spawning command %r", cmd)
             func_to_spawn = command.func
         else:
-            LOGGER.debug(f"no command {cmd !r} found")
+            LOGGER.debug("no command found %r", cmd)
             if self._default_handler:
                 LOGGER.debug("spawning default handler")
                 func_to_spawn = self._default_handler.func
@@ -61,21 +62,20 @@ class SyncDispatcher(BaseDispatcher):
         LOGGER.debug("default handler was not set")
         return False
 
-    def add_handler(self, handler: CommandHandler) -> NoReturn:
+    def add_handler(self, handler: CommandHandler):
         if inspect.iscoroutinefunction(handler.func):
             raise BotXException("can not add async handler to sync dispatcher")
 
-        def thread_logger_helper(f):
-            @wraps(f)
+        def thread_logger_helper(func):
+            @wraps(func)
             def wrapper(message, bot):
                 try:
-                    return f(message, bot)
-                except Exception as e:
-                    LOGGER.exception(e)
-                    return e
+                    func(message, bot)
+                except Exception as exc:  # pylint: disable=broad-except
+                    LOGGER.exception(exc)
 
             return wrapper
 
-        handler.func = thread_logger_helper(handler.func)
+        handler.func = thread_logger_helper(handler.func)  # type: ignore
 
         super().add_handler(handler)

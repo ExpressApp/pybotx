@@ -3,7 +3,8 @@ from uuid import UUID
 
 from .base import BotXType
 from .bubble import BubbleElement
-from .core import MenuCommand, ResponseRecipientsEnum, StatusEnum, SyncID
+from .core import MenuCommand, SyncID
+from .enums import ResponseRecipientsEnum, StatusEnum
 from .file import File
 from .keyboard import KeyboardElement
 from .mention import Mention

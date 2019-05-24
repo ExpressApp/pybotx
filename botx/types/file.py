@@ -25,9 +25,9 @@ class File(BotXType):
 
     @property
     def file(self) -> BinaryIO:
-        d = BytesIO(self.raw_data)
-        d.name = self.file_name
-        return d
+        bytes_data = BytesIO(self.raw_data)
+        bytes_data.name = self.file_name
+        return bytes_data
 
     @property
     def raw_data(self) -> bytes:

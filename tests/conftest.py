@@ -1,12 +1,10 @@
 import base64
 import json
-from collections import OrderedDict
 from typing import Any, Awaitable, Dict, NoReturn, Union
 
 import aresponses
 import pytest
 import responses
-
 from botx import CommandHandler, CommandRouter, RequestTypeEnum, Status
 from botx.bot.base_bot import BaseBot
 from botx.bot.dispatcher.base_dispatcher import BaseDispatcher

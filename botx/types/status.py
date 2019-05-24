@@ -1,7 +1,8 @@
 from typing import List
 
 from .base import BotXType
-from .core import MenuCommand, StatusEnum
+from .core import MenuCommand
+from .enums import StatusEnum
 
 
 class StatusResult(BotXType):

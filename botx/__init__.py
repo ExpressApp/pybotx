@@ -1,7 +1,7 @@
 from pydantic import ValidationError
 
-from .bot import AsyncBot, CommandHandler, CommandRouter
-from .bot import SyncBot as Bot
+from .bot.dispatcher.command_handler import CommandHandler
+from .bot.router import CommandRouter
 from .core import BotXException
 from .types import (
     CTS,
@@ -26,7 +26,20 @@ from .types import (
     SyncID,
 )
 
-__all__ = [
+try:
+    import aiohttp  # noqa
+    from .bot.async_bot import AsyncBot
+except ImportError:
+    AsyncBot = None  # type: ignore
+
+try:
+    import requests  # noqa
+    from .bot.sync_bot import SyncBot as Bot
+except ImportError:
+    Bot = None  # type: ignore
+
+
+__all__ = (
     "AsyncBot",
     "Bot",
     "CommandHandler",
@@ -53,4 +66,4 @@ __all__ = [
     "StatusEnum",
     "StatusResult",
     "SyncID",
-]
+)

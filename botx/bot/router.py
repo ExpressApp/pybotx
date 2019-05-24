@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from functools import partial
-from typing import Callable, Dict, NoReturn, Optional
+from typing import Callable, Dict, Optional
 
 from .dispatcher.command_handler import CommandHandler
 
@@ -11,11 +11,15 @@ class CommandRouter:
     def __init__(self):
         self._handlers = OrderedDict()
 
-    def add_handler(self, handler: CommandHandler) -> NoReturn:
+    @property
+    def handlers(self):
+        return self._handlers
+
+    def add_handler(self, handler: CommandHandler):
         self._handlers[handler.command] = handler
 
-    def add_commands(self, router: "CommandRouter") -> NoReturn:
-        self._handlers.update(router._handlers)
+    def add_commands(self, router: "CommandRouter"):
+        self._handlers.update(router.handlers)
 
     def command(
         self,
@@ -52,13 +56,13 @@ class CommandRouter:
             )
 
             return func
-        else:
-            return partial(
-                self.command,
-                name=name,
-                description=description,
-                body=body,
-                exclude_from_status=exclude_from_status,
-                use_as_default_handler=use_as_default_handler,
-                system_command_handler=system_command_handler,
-            )
+
+        return partial(
+            self.command,
+            name=name,
+            description=description,
+            body=body,
+            exclude_from_status=exclude_from_status,
+            use_as_default_handler=use_as_default_handler,
+            system_command_handler=system_command_handler,
+        )

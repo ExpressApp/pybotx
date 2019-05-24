@@ -10,7 +10,7 @@ from botx.types import RequestTypeEnum, Status, StatusResult
 from .command_handler import CommandHandler
 
 if TYPE_CHECKING:
-    from botx.bot.base_bot import BaseBot
+    from botx.bot.base_bot import BaseBot  # pylint: disable=cyclic-import
 
 LOGGER = logging.getLogger("botx")
 
@@ -34,7 +34,7 @@ class BaseDispatcher(abc.ABC):
     @abc.abstractmethod
     def parse_request(
         self, data: Dict[str, Any], request_type: Union[str, RequestTypeEnum]
-    ) -> Union[Status, bool]:
+    ) -> Union[Union[Status, bool], Awaitable[Union[Status, bool]]]:
         """Parse request and call status creation or executing handler for command"""
 
     @abc.abstractmethod
@@ -43,22 +43,22 @@ class BaseDispatcher(abc.ABC):
 
     def _create_status(self) -> Status:
         commands = []
-        for command_name, handler in self._handlers.items():
+        for _, handler in self._handlers.items():
             menu_command = handler.to_status_command()
             if menu_command:
                 commands.append(menu_command)
 
         return Status(result=StatusResult(commands=commands))
 
-    def add_handler(self, handler: CommandHandler) -> NoReturn:
+    def add_handler(self, handler: CommandHandler):
         if len(inspect.getfullargspec(handler.func).args) != 2:
             raise BotXException(
                 "command handler for bot requires 2 arguments for message and for bot instance"
             )
 
         if handler.use_as_default_handler:
-            LOGGER.debug(f"set default handler {handler.name !r}")
+            LOGGER.debug("set default handler %r", handler.name)
             self._default_handler = handler
         else:
-            LOGGER.debug(f"add new handler for {handler.command !r}")
+            LOGGER.debug("add new handler for %r", handler.command)
             self._handlers[handler.command] = handler
