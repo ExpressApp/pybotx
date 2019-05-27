@@ -45,20 +45,36 @@ class BaseBot(abc.ABC, CommandRouter):
 
         if disable_credentials:
             LOGGER.warning("token obtaining disabled")
+            self._url_command = BotXAPI.V2.command.url
+            self._url_notification = BotXAPI.V2.notification.url
 
         self._disable_credentials = disable_credentials
 
     def register_cts(self, cts: CTS):
         LOGGER.debug("register new CTS %r for bot", cts.host)
+        self._credentials.known_cts.append(cts)
 
-        self._credentials.known_cts[cts.host] = (cts, None)
-
-    def add_cts_credentials(self, credentials: BotCredentials):
+    def add_bot_credentials(self, credentials: BotCredentials):
         LOGGER.debug("add new credentials for bot %r", credentials.json())
-        self._credentials.known_cts.update(credentials.known_cts)
+        self._credentials.known_cts = [
+            cts
+            for host, cts in {
+                cts.host: cts
+                for cts in self._credentials.known_cts + credentials.known_cts
+            }.items()
+        ]
 
-    def get_cts_credentials(self) -> BotCredentials:
+    @property
+    def credentials(self) -> BotCredentials:
         return self._credentials
+
+    def _set_cts_credentials(self, new_cts: CTS):
+        i = [
+            i
+            for i, cts in enumerate(self._credentials.known_cts)
+            if cts.host == new_cts.host
+        ][0]
+        self._credentials.known_cts[i] = new_cts
 
     def add_handler(self, handler: CommandHandler):
         self._dispatcher.add_handler(handler)
@@ -67,13 +83,16 @@ class BaseBot(abc.ABC, CommandRouter):
         for _, handler in router.handlers.items():
             self.add_handler(handler)
 
-    def _get_token_from_credentials(self, host) -> Optional[str]:
-        credentials = self._credentials.known_cts.get(host, (None, None))[1]
-        if not credentials:
+    def _get_token_from_cts(self, host: str) -> Optional[str]:
+        cts = self.get_cts_by_host(host)
+        if not cts or not cts.credentials:
             LOGGER.debug("no credentials for %r found", host)
             return None
 
-        return credentials.result
+        return cts.credentials.token
+
+    def get_cts_by_host(self, host: str) -> Optional[CTS]:
+        return {cts.host: cts for cts in self.credentials.known_cts}.get(host)
 
     def start(self):
         """Run some outer dependencies that can not be started in init"""

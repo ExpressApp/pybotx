@@ -1,15 +1,21 @@
 import base64
 import hashlib
 import hmac
-from typing import Dict, Optional, Tuple
+from typing import List, Optional
 from uuid import UUID
 
 from .base import BotXType
 
 
+class CTSCredentials(BotXType):
+    bot_id: UUID
+    token: str
+
+
 class CTS(BotXType):
     host: str
     secret_key: str
+    credentials: Optional[CTSCredentials] = None
 
     def calculate_signature(self, bot_id: UUID) -> str:
         return base64.b16encode(
@@ -21,10 +27,5 @@ class CTS(BotXType):
         ).decode()
 
 
-class CTSCredentials(BotXType):
-    bot_id: UUID
-    result: str
-
-
 class BotCredentials(BotXType):
-    known_cts: Dict[str, Tuple[CTS, Optional[CTSCredentials]]] = {}
+    known_cts: List[CTS] = []

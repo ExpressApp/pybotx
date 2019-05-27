@@ -66,9 +66,8 @@ async def test_async_bot_token_obtaining(hostname, bot_id, async_requests):
     cts = CTS(host=hostname, secret_key="secret")
     bot.register_cts(cts)
     await bot._obtain_token(hostname, bot_id)
-    assert bot._credentials.known_cts[cts.host] == (
-        cts,
-        CTSCredentials(bot_id=bot_id, result="token_for_operations"),
+    assert bot.get_cts_by_host(hostname).credentials == CTSCredentials(
+        bot_id=bot_id, token="token_for_operations"
     )
 
     await bot.stop()
@@ -85,7 +84,7 @@ async def test_async_bot_token_obtaining_with_errored_request(
     bot.register_cts(cts)
 
     await bot._obtain_token(hostname, bot_id)
-    assert bot._credentials.known_cts[cts.host][1] is None
+    assert bot.get_cts_by_host(hostname).credentials is None
 
     await bot.stop()
 
@@ -121,10 +120,8 @@ async def test_async_bot_message_as_command_sending(
             )
         )
 
-    bot = AsyncBot()
+    bot = AsyncBot(disable_credentials=True)
     await bot.start()
-
-    bot.register_cts(CTS(host=hostname, secret_key="secret"))
 
     bot._send_command_result = custom_command_sending
     bot._send_notification_result = custom_notification_sending
@@ -180,10 +177,8 @@ async def test_async_bot_message_as_notification_sending(
             )
         )
 
-    bot = AsyncBot()
+    bot = AsyncBot(disable_credentials=True)
     await bot.start()
-
-    bot.register_cts(CTS(host=hostname, secret_key="secret"))
 
     bot._send_command_result = custom_command_sending
     bot._send_notification_result = custom_notification_sending
@@ -232,10 +227,8 @@ async def test_async_bot_message_as_notification_sending(
 async def test_async_bot_requests(
     command_with_text_and_file, hostname, bot_id, async_requests
 ):
-    bot = AsyncBot()
+    bot = AsyncBot(disable_credentials=True)
     await bot.start()
-
-    bot.register_cts(CTS(host=hostname, secret_key="secret"))
 
     m = Message(**command_with_text_and_file)
     assert (
@@ -263,10 +256,8 @@ async def test_async_bot_requests(
 async def test_async_bot_message_sending_error_requests(
     command_with_text_and_file, hostname, bot_id, async_error_requests
 ):
-    bot = AsyncBot()
+    bot = AsyncBot(disable_credentials=True)
     await bot.start()
-
-    bot.register_cts(CTS(host=hostname, secret_key="secret"))
 
     m = Message(**command_with_text_and_file)
     assert (await bot.send_message(m.body, m.sync_id, m.bot_id, m.host)) != 200
@@ -278,10 +269,8 @@ async def test_async_bot_message_sending_error_requests(
 async def test_async_bot_file_sending_error_requests(
     command_with_text_and_file, hostname, bot_id, async_error_requests
 ):
-    bot = AsyncBot()
+    bot = AsyncBot(disable_credentials=True)
     await bot.start()
-
-    bot.register_cts(CTS(host=hostname, secret_key="secret"))
 
     m = Message(**command_with_text_and_file)
     assert (await bot.send_file(m.file.file, m.sync_id, m.bot_id, m.host)) != 200
@@ -309,7 +298,7 @@ async def test_sync_bot_work_with_disabled_credentials(
 
 @pytest.mark.asyncio
 async def test_async_dispatcher_throws_bot_to_command(command_with_text_and_file):
-    bot = AsyncBot()
+    bot = AsyncBot(disable_credentials=True)
 
     await bot.start()
 

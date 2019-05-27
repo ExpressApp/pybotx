@@ -8,10 +8,11 @@ def test_init(custom_base_bot_class, hostname):
     assert bot._credentials == BotCredentials()
 
     bot.register_cts(CTS(host=hostname, secret_key="secret_key"))
-    credentials = bot.get_cts_credentials()
+    credentials = bot.credentials
 
     bot2 = custom_base_bot_class(credentials=credentials)
-    assert bot2._credentials == credentials
+
+    assert bot2.credentials == credentials
 
 
 def test_cts_registration(custom_base_bot_class, hostname):
@@ -19,7 +20,7 @@ def test_cts_registration(custom_base_bot_class, hostname):
     cts = CTS(host=hostname, secret_key="secret_key")
     bot.register_cts(cts)
 
-    assert bot.get_cts_credentials().known_cts[hostname] == (cts, None)
+    assert bot.get_cts_by_host(hostname) == cts
 
 
 def test_bot_router_nesting(
@@ -54,62 +55,69 @@ def test_bot_adding_commands_behaviour(
 def test_bot_storage_credentials_retrieving(custom_base_bot_class, hostname):
     bot = custom_base_bot_class()
 
-    assert not bot._get_token_from_credentials(hostname)
+    assert not bot._get_token_from_cts(hostname)
 
-    cts = CTS(host=hostname, secret_key="secret_key")
-    bot._credentials.known_cts[cts.host] = (
-        cts,
-        CTSCredentials(bot_id=uuid.uuid4(), result="token_for_bot"),
+    bot.register_cts(
+        CTS(
+            host=hostname,
+            secret_key="secret_key",
+            credentials=CTSCredentials(bot_id=uuid.uuid4(), token="token_for_bot"),
+        )
     )
 
-    assert bot._get_token_from_credentials(hostname) == "token_for_bot"
+    assert bot._get_token_from_cts(hostname) == "token_for_bot"
 
 
 def test_bot_credentials_update(custom_base_bot_class, bot_id, hostname, secret):
     bot = custom_base_bot_class(
         credentials=BotCredentials(
-            known_cts={
-                hostname: [
-                    CTS(host=hostname, secret_key=secret),
-                    CTSCredentials(bot_id=bot_id, result="result_token_for_operations"),
-                ]
-            }
+            known_cts=[
+                CTS(
+                    host=hostname,
+                    secret_key=secret,
+                    credentials=CTSCredentials(
+                        bot_id=bot_id, token="result_token_for_operations"
+                    ),
+                )
+            ]
         )
     )
 
-    bot.add_cts_credentials(
+    bot.add_bot_credentials(
         BotCredentials(
-            known_cts={
-                hostname: [
-                    CTS(host=hostname, secret_key=secret),
-                    CTSCredentials(
-                        bot_id=bot_id, result="result_token_for_operations_replaced"
+            known_cts=[
+                CTS(
+                    host=hostname,
+                    secret_key=secret,
+                    credentials=CTSCredentials(
+                        bot_id=bot_id, token="result_token_for_operations_replaced"
                     ),
-                ]
-            }
+                )
+            ]
         )
     )
 
     assert (
-        bot.get_cts_credentials().known_cts[hostname][1].result
+        bot.get_cts_by_host(hostname).credentials.token
         == "result_token_for_operations_replaced"
     )
 
     second_host = hostname + "2"
-    bot.add_cts_credentials(
+    bot.add_bot_credentials(
         BotCredentials(
-            known_cts={
-                second_host: [
-                    CTS(host=second_host, secret_key=secret),
-                    CTSCredentials(
-                        bot_id=bot_id, result="result_token_for_operations_replaced"
+            known_cts=[
+                CTS(
+                    host=second_host,
+                    secret_key=secret,
+                    credentials=CTSCredentials(
+                        bot_id=bot_id, token="result_token_for_operations_replaced"
                     ),
-                ]
-            }
+                )
+            ]
         )
     )
 
-    assert len(bot.get_cts_credentials().known_cts) == 2
+    assert len(bot.credentials.known_cts) == 2
 
 
 def test_long_function_name_processing_into_right_command(custom_base_bot_class):

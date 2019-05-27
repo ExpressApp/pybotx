@@ -21,6 +21,12 @@ class BotXAPI(BotXObject):
         )
 
     class V2:
+        command: BotXEndpoint = BotXEndpoint(
+            method="POST", url="https://{host}/api/v2/botx/command/callback"
+        )
+        notification: BotXEndpoint = BotXEndpoint(
+            method="POST", url="https://{host}/api/v2/botx/notification/callback"
+        )
         token: BotXEndpoint = BotXEndpoint(
             method="GET", url="https://{host}/api/v2/botx/bots/{bot_id}/token"
         )

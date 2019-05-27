@@ -4,6 +4,7 @@ from typing import Any, BinaryIO, Dict, List, Optional, TextIO, Tuple, Union, ca
 from uuid import UUID
 
 import aiohttp
+
 from botx.core import BotXException
 from botx.types import (
     BotCredentials,
@@ -13,6 +14,7 @@ from botx.types import (
     KeyboardElement,
     Mention,
     Message,
+    RequestTypeEnum,
     ResponseCommand,
     ResponseFile,
     ResponseNotification,
@@ -29,8 +31,6 @@ LOGGER = logging.getLogger("botx")
 
 
 class AsyncBot(BaseBot):
-    bot_id: UUID
-    bot_host: str
     _session: aiohttp.ClientSession
     _dispatcher: AsyncDispatcher
 
@@ -45,10 +45,10 @@ class AsyncBot(BaseBot):
         )
 
         self._dispatcher = AsyncDispatcher(bot=self)
-        self._session = aiohttp.ClientSession()
 
     async def start(self):
         await self._dispatcher.start()
+        self._session = aiohttp.ClientSession()
 
     async def stop(self):
         await self._dispatcher.shutdown()
@@ -56,19 +56,25 @@ class AsyncBot(BaseBot):
 
     async def parse_status(self) -> Status:
         return cast(
-            Status, await self._dispatcher.parse_request({}, request_type="status")
+            Status,
+            await self._dispatcher.parse_request(
+                {}, request_type=RequestTypeEnum.status.value
+            ),
         )
 
     async def parse_command(self, data: Dict[str, Any]) -> bool:
         return cast(
-            bool, await self._dispatcher.parse_request(data, request_type="command")
+            bool,
+            await self._dispatcher.parse_request(
+                data, request_type=RequestTypeEnum.status.value
+            ),
         )
 
     async def _obtain_token(self, host: str, bot_id: UUID) -> Tuple[str, int]:
-        if host not in self._credentials.known_cts:
+        cts = self.get_cts_by_host(host)
+        if not cts:
             raise BotXException(f"unregistered cts with host {repr(host)}")
 
-        cts = self._credentials.known_cts[host][0]
         signature = cts.calculate_signature(bot_id)
 
         LOGGER.debug("obtaining token for operations from BotX API on %r", cts.host)
@@ -82,11 +88,10 @@ class AsyncBot(BaseBot):
                 LOGGER.debug("can not obtain token")
                 return text, resp.status
 
-            result = json.loads(text).get("result")
-            self._credentials.known_cts[host] = (
-                cts,
-                CTSCredentials(bot_id=bot_id, result=result),
-            )
+            token = json.loads(text).get("result")
+
+            cts.credentials = CTSCredentials(bot_id=bot_id, token=token)
+            self._set_cts_credentials(cts)
 
             return text, resp.status
 
@@ -110,7 +115,7 @@ class AsyncBot(BaseBot):
         if not mentions:
             mentions = []
 
-        token = self._get_token_from_credentials(host)
+        token = self._get_token_from_cts(host)
         if not token and not self._disable_credentials:
             res = await self._obtain_token(host, bot_id)
             if res[1] != 200:
@@ -150,7 +155,7 @@ class AsyncBot(BaseBot):
                 keyboard=keyboard,
             )
 
-        raise BotXException(f"{type(chat_id)} is not accesible for chat_id argument")
+        raise BotXException(f"{type(chat_id)} is not accessible for chat_id argument")
 
     async def answer_message(
         self,
@@ -204,9 +209,7 @@ class AsyncBot(BaseBot):
         async with self._session.post(
             self._url_command.format(host=host),
             json=response.dict(),
-            headers={
-                "Authorization": f"Bearer {self._get_token_from_credentials(host)}"
-            },
+            headers={"Authorization": f"Bearer {self._get_token_from_cts(host)}"},
         ) as resp:
             return await resp.text(), resp.status
 
@@ -240,9 +243,7 @@ class AsyncBot(BaseBot):
         async with self._session.post(
             self._url_notification.format(host=host),
             json=response.dict(),
-            headers={
-                "Authorization": f"Bearer {self._get_token_from_credentials(host)}"
-            },
+            headers={"Authorization": f"Bearer {self._get_token_from_cts(host)}"},
         ) as resp:
             return await resp.text(), resp.status
 
@@ -253,7 +254,7 @@ class AsyncBot(BaseBot):
         bot_id: UUID,
         host: str,
     ) -> Tuple[str, int]:
-        token = self._get_token_from_credentials(host)
+        token = self._get_token_from_cts(host)
         if not token and not self._disable_credentials:
             res = await self._obtain_token(host, bot_id)
             if res[1] != 200:
@@ -267,8 +268,6 @@ class AsyncBot(BaseBot):
         async with self._session.post(
             self._url_file.format(host=host),
             data=response,
-            headers={
-                "Authorization": f"Bearer {self._get_token_from_credentials(host)}"
-            },
+            headers={"Authorization": f"Bearer {self._get_token_from_cts(host)}"},
         ) as resp:
             return await resp.text(), resp.status

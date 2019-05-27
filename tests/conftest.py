@@ -5,6 +5,7 @@ from typing import Any, Awaitable, Dict, NoReturn, Union
 import aresponses
 import pytest
 import responses
+
 from botx import CommandHandler, CommandRouter, RequestTypeEnum, Status
 from botx.bot.base_bot import BaseBot
 from botx.bot.dispatcher.base_dispatcher import BaseDispatcher
@@ -19,6 +20,16 @@ def sync_requests(hostname, bot_id):
             BotXAPI.V2.token.method,
             BotXAPI.V2.token.url.format(host=hostname, bot_id=bot_id),
             json={"status": "ok", "result": "token_for_operations"},
+        )
+        mock.add(
+            BotXAPI.V2.notification.method,
+            BotXAPI.V2.notification.url.format(host=hostname),
+            json={"status": "ok", "message": "notification_result_sent"},
+        )
+        mock.add(
+            BotXAPI.V2.command.method,
+            BotXAPI.V2.command.url.format(host=hostname),
+            json={"status": "ok", "message": "command_result_sent"},
         )
         mock.add(
             BotXAPI.V3.notification.method,
@@ -44,6 +55,18 @@ def sync_error_requests(hostname, bot_id):
         mock.add(
             BotXAPI.V2.token.method,
             BotXAPI.V2.token.url.format(host=hostname, bot_id=bot_id),
+            json={"status": "error", "message": " error response"},
+            status=500,
+        )
+        mock.add(
+            BotXAPI.V2.notification.method,
+            BotXAPI.V2.notification.url.format(host=hostname),
+            json={"status": "error", "message": " error response"},
+            status=500,
+        )
+        mock.add(
+            BotXAPI.V2.command.method,
+            BotXAPI.V2.command.url.format(host=hostname),
             json={"status": "error", "message": " error response"},
             status=500,
         )
@@ -78,6 +101,24 @@ async def async_requests(hostname, bot_id):
             BotXAPI.V2.token.method.lower(),
             aresponses.Response(
                 body=json.dumps({"status": "ok", "result": "token_for_operations"}),
+                status=200,
+            ),
+        )
+        mock.add(
+            hostname,
+            BotXAPI.V2.notification.url.split("{host}", 1)[1],
+            BotXAPI.V2.notification.method.lower(),
+            aresponses.Response(
+                body=json.dumps({"status": "ok", "result": "notification_result_sent"}),
+                status=200,
+            ),
+        )
+        mock.add(
+            hostname,
+            BotXAPI.V2.command.url.split("{host}", 1)[1],
+            BotXAPI.V2.command.method.lower(),
+            aresponses.Response(
+                body=json.dumps({"status": "ok", "result": "command_result_sent"}),
                 status=200,
             ),
         )
@@ -118,6 +159,24 @@ async def async_error_requests(hostname, bot_id):
             hostname,
             BotXAPI.V2.token.url.split("{host}", 1)[1].format(bot_id=bot_id),
             BotXAPI.V2.token.method.lower(),
+            aresponses.Response(
+                body=json.dumps({"status": "error", "message": " error response"}),
+                status=500,
+            ),
+        )
+        mock.add(
+            hostname,
+            BotXAPI.V2.notification.url.split("{host}", 1)[1],
+            BotXAPI.V2.notification.method.lower(),
+            aresponses.Response(
+                body=json.dumps({"status": "error", "message": " error response"}),
+                status=500,
+            ),
+        )
+        mock.add(
+            hostname,
+            BotXAPI.V2.command.url.split("{host}", 1)[1],
+            BotXAPI.V2.command.method.lower(),
             aresponses.Response(
                 body=json.dumps({"status": "error", "message": " error response"}),
                 status=500,

@@ -5,6 +5,7 @@ from typing import Any, BinaryIO, Dict, List, Optional, TextIO, Tuple, Union, ca
 from uuid import UUID
 
 import requests
+
 from botx.core import BotXException
 from botx.types import (
     BotCredentials,
@@ -31,6 +32,7 @@ LOGGER = logging.getLogger("botx")
 
 class SyncBot(BaseBot):
     _dispatcher: SyncDispatcher
+    _session: requests.Session
 
     def __init__(
         self,
@@ -44,12 +46,14 @@ class SyncBot(BaseBot):
         )
 
         self._dispatcher = SyncDispatcher(workers=workers, bot=self)
+        self._session = requests.Session()
 
     def start(self):
         self._dispatcher.start()
 
     def stop(self):
         self._dispatcher.shutdown()
+        self._session.close()
 
     def parse_status(self) -> Status:
         return cast(Status, self._dispatcher.parse_request({}, request_type="status"))
@@ -58,15 +62,15 @@ class SyncBot(BaseBot):
         return cast(bool, self._dispatcher.parse_request(data, request_type="command"))
 
     def _obtain_token(self, host: str, bot_id: UUID) -> Tuple[str, int]:
-        if host not in self._credentials.known_cts:
+        cts = self.get_cts_by_host(host)
+        if not cts:
             raise BotXException(f"unregistered cts with host {repr(host)}")
 
-        cts = self._credentials.known_cts[host][0]
         signature = cts.calculate_signature(bot_id)
 
         LOGGER.debug("obtaining token for operations from BotX API on %r", cts.host)
 
-        resp = requests.get(
+        resp = self._session.get(
             self._url_token.format(host=host, bot_id=bot_id),
             params={"signature": signature},
         )
@@ -74,11 +78,10 @@ class SyncBot(BaseBot):
             LOGGER.debug("can not obtain token")
             return resp.text, resp.status_code
 
-        result = json.loads(resp.text).get("result")
-        self._credentials.known_cts[host] = (
-            cts,
-            CTSCredentials(bot_id=bot_id, result=result),
-        )
+        token = json.loads(resp.text).get("result")
+
+        cts.credentials = CTSCredentials(bot_id=bot_id, token=token)
+        self._set_cts_credentials(cts)
 
         return resp.text, resp.status_code
 
@@ -102,7 +105,7 @@ class SyncBot(BaseBot):
         if not mentions:
             mentions = []
 
-        token = self._get_token_from_credentials(host)
+        token = self._get_token_from_cts(host)
         if not token and not self._disable_credentials:
             res = self._obtain_token(host, bot_id)
             if res[1] != 200:
@@ -142,7 +145,7 @@ class SyncBot(BaseBot):
                 keyboard=keyboard,
             )
 
-        raise BotXException(f"{type(chat_id)} is not accesible for chat_id argument")
+        raise BotXException(f"{type(chat_id)} is not accessible for chat_id argument")
 
     def answer_message(
         self,
@@ -193,12 +196,10 @@ class SyncBot(BaseBot):
 
         LOGGER.debug("sending command result to BotX on %r: %r", host, response.json())
 
-        resp = requests.post(
+        resp = self._session.post(
             self._url_command.format(host=host),
             json=response.dict(),
-            headers={
-                "Authorization": f"Bearer {self._get_token_from_credentials(host)}"
-            },
+            headers={"Authorization": f"Bearer {self._get_token_from_cts(host)}"},
         )
         return resp.text, resp.status_code
 
@@ -229,12 +230,10 @@ class SyncBot(BaseBot):
             "sending notification result to BotX on %r: %r", host, response.json()
         )
 
-        resp = requests.post(
+        resp = self._session.post(
             self._url_notification.format(host=host),
             json=response.dict(),
-            headers={
-                "Authorization": f"Bearer {self._get_token_from_credentials(host)}"
-            },
+            headers={"Authorization": f"Bearer {self._get_token_from_cts(host)}"},
         )
         return resp.text, resp.status_code
 
@@ -245,7 +244,7 @@ class SyncBot(BaseBot):
         bot_id: UUID,
         host: str,
     ) -> Tuple[str, int]:
-        token = self._get_token_from_credentials(host)
+        token = self._get_token_from_cts(host)
         if not token and not self._disable_credentials:
             res = self._obtain_token(host, bot_id)
             if res[1] != 200:
@@ -256,7 +255,7 @@ class SyncBot(BaseBot):
 
         LOGGER.debug("sending file to BotX on %r", host)
 
-        resp = requests.post(
+        resp = self._session.post(
             self._url_file.format(host=host),
             files=files,
             data=response,

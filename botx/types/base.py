@@ -1,8 +1,9 @@
 import json
 from uuid import UUID
 
-from botx.core import BotXObject
 from pydantic import BaseConfig
+
+from botx.core import BotXObject
 
 
 class _UUIDJSONEncoder(json.JSONEncoder):

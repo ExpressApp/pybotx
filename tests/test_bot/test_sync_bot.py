@@ -71,9 +71,8 @@ def test_sync_bot_token_obtaining(hostname, bot_id, sync_requests):
 
     bot.register_cts(cts)
     bot._obtain_token(hostname, bot_id)
-    assert bot._credentials.known_cts[cts.host] == (
-        cts,
-        CTSCredentials(bot_id=bot_id, result="token_for_operations"),
+    assert bot.get_cts_by_host(hostname).credentials == CTSCredentials(
+        bot_id=bot_id, token="token_for_operations"
     )
 
 
@@ -85,7 +84,7 @@ def test_sync_bot_token_obtaining_with_errored_request(
     bot.register_cts(cts)
 
     bot._obtain_token(hostname, bot_id)
-    assert bot._credentials.known_cts[cts.host][1] is None
+    assert bot.get_cts_by_host(hostname).credentials is None
 
 
 def test_sync_bot_message_as_command_sending(
@@ -118,8 +117,7 @@ def test_sync_bot_message_as_command_sending(
             )
         )
 
-    bot = Bot()
-    bot.register_cts(CTS(host=hostname, secret_key="secret"))
+    bot = Bot(disable_credentials=True)
 
     bot._send_command_result = custom_command_sending
     bot._send_notification_result = custom_notification_sending
@@ -172,8 +170,7 @@ def test_sync_bot_message_as_notification_sending(
             )
         )
 
-    bot = Bot()
-    bot.register_cts(CTS(host=hostname, secret_key="secret"))
+    bot = Bot(disable_credentials=True)
 
     bot._send_command_result = custom_command_sending
     bot._send_notification_result = custom_notification_sending
@@ -219,8 +216,7 @@ def test_sync_bot_message_as_notification_sending(
 def test_sync_bot_command_request(
     command_with_text_and_file, hostname, bot_id, sync_requests
 ):
-    bot = Bot()
-    bot.register_cts(CTS(host=hostname, secret_key="secret"))
+    bot = Bot(disable_credentials=True)
 
     m = Message(**command_with_text_and_file)
     assert (
@@ -236,8 +232,7 @@ def test_sync_bot_command_request(
 def test_sync_bot_notification_request(
     command_with_text_and_file, hostname, bot_id, sync_requests
 ):
-    bot = Bot()
-    bot.register_cts(CTS(host=hostname, secret_key="secret"))
+    bot = Bot(disable_credentials=True)
 
     m = Message(**command_with_text_and_file)
     assert (
@@ -253,8 +248,7 @@ def test_sync_bot_notification_request(
 def test_sync_bot_file_request(
     command_with_text_and_file, hostname, bot_id, sync_requests
 ):
-    bot = Bot()
-    bot.register_cts(CTS(host=hostname, secret_key="secret"))
+    bot = Bot(disable_credentials=True)
 
     m = Message(**command_with_text_and_file)
 
@@ -264,8 +258,7 @@ def test_sync_bot_file_request(
 def test_sync_bot_error_requests(
     command_with_text_and_file, hostname, bot_id, sync_error_requests
 ):
-    bot = Bot()
-    bot.register_cts(CTS(host=hostname, secret_key="secret"))
+    bot = Bot(disable_credentials=True)
 
     m = Message(**command_with_text_and_file)
     assert bot.send_message(m.body, m.sync_id, m.bot_id, m.host) != 200
