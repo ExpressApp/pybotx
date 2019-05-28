@@ -56,6 +56,14 @@ will send back arguments from ``/echo`` command
     async def echo(message: Message, bot: AsyncBot):
         await bot.answer_message(message.command.cmd_arg, message)
 
+    @bot.command
+    async def greeting(message: Message, bot: AsyncBot):
+        bot.register_next_step_handler(message, greet_user)
+        await bot.answer_message(f"Hello, what's your name?", message)
+
+    async def greet_user(message: Message, bot: AsyncBot):
+        await bot.answer_message(f"Hello {message.body}", message)
+
     app = FastAPI()
 
     @app.get('/status', response_model=Status)
