@@ -35,25 +35,25 @@ def test_router_commands_nesting(
 
 def test_router_command_decorator_simple(custom_router):
     @custom_router.command
-    def func(m):
+    def func(m, b):
         pass
 
     assert len(custom_router._handlers) == 1
     assert "/func" in custom_router._handlers
     assert custom_router._handlers["/func"] == CommandHandler(
-        command="/func", func=func, name="Func", description="func command"
+        command="/func", func=func.func, name="func", description="func command"
     )
 
 
 def test_router_command_decorator_call_simple(custom_router):
     @custom_router.command()
-    def func(m):
+    def func(m, b):
         pass
 
     assert len(custom_router._handlers) == 1
     assert "/func" in custom_router._handlers
     assert custom_router._handlers["/func"] == CommandHandler(
-        command="/func", func=func, name="Func", description="func command"
+        command="/func", func=func.func, name="func", description="func command"
     )
 
 
@@ -65,7 +65,10 @@ def test_router_command_decorator_with_name(custom_router):
     assert len(custom_router._handlers) == 1
     assert "/handler" in custom_router._handlers
     assert custom_router._handlers["/handler"] == CommandHandler(
-        command="/handler", func=func, name="Handler", description="handler command"
+        command="/handler",
+        func=func.func,
+        name="handler",
+        description="handler command",
     )
 
 
@@ -77,7 +80,7 @@ def test_router_command_decorator_with_docstring(custom_router):
     assert len(custom_router._handlers) == 1
     assert "/handler" in custom_router._handlers
     assert custom_router._handlers["/handler"] == CommandHandler(
-        command="/handler", func=func, name="Handler", description="func command"
+        command="/handler", func=func.func, name="handler", description="func command"
     )
 
 
@@ -85,12 +88,12 @@ def test_router_command_decorator_with_full_args(custom_router):
     @custom_router.command(
         name="handler", body="/function", description="command description"
     )
-    def func(m):
+    def func(m, b):
         """func command"""
 
     assert custom_router._handlers["/function"] == CommandHandler(
         command="/function",
-        func=func,
-        name="Handler",
+        func=func.func,
+        name="handler",
         description="command description",
     )

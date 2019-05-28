@@ -309,6 +309,9 @@ def custom_dispatcher():
         def _create_message(self, data: Dict[str, Any]) -> Union[Awaitable, bool]:
             ...
 
+        def register_next_step_handler(self, message, func):
+            pass
+
     return CustomDispatcher(None)
 
 

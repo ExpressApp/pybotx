@@ -69,7 +69,7 @@ def test_sync_bot_token_obtaining(hostname, bot_id, sync_requests):
 
     cts = CTS(host=hostname, secret_key="secret")
 
-    bot.register_cts(cts)
+    bot.add_cts(cts)
     bot._obtain_token(hostname, bot_id)
     assert bot.get_cts_by_host(hostname).credentials == CTSCredentials(
         bot_id=bot_id, token="token_for_operations"
@@ -81,7 +81,7 @@ def test_sync_bot_token_obtaining_with_errored_request(
 ):
     bot = Bot()
     cts = CTS(host=hostname, secret_key="secret")
-    bot.register_cts(cts)
+    bot.add_cts(cts)
 
     bot._obtain_token(hostname, bot_id)
     assert bot.get_cts_by_host(hostname).credentials is None
@@ -308,3 +308,25 @@ def test_exception_from_request_parsing_with_error():
 
     with pytest.raises(ValidationError):
         bot.parse_command({})
+
+
+def test_bot_next_step_handler(command_with_text_and_file):
+    bot = Bot(disable_credentials=True, workers=1)
+    bot.start()
+
+    args = []
+
+    def nf(m, b):
+        args.append(1)
+
+    @bot.command
+    def cmd(m, b: Bot):
+        b.register_next_step_handler(m, nf)
+
+    bot.parse_command(command_with_text_and_file)
+    assert args == []
+    bot.parse_command(command_with_text_and_file)
+
+    bot.stop()
+
+    assert args[0] == 1

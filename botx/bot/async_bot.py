@@ -66,7 +66,7 @@ class AsyncBot(BaseBot):
         return cast(
             bool,
             await self._dispatcher.parse_request(
-                data, request_type=RequestTypeEnum.status.value
+                data, request_type=RequestTypeEnum.command.value
             ),
         )
 

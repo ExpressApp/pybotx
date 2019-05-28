@@ -13,15 +13,5 @@ lint: reformat
 	flake8 botx
 	mypy botx
 
-	# todo: pylint - look at duplicated code later
-	pylint \
-		--disable=no-member \
-		--disable=missing-docstring \
-		--disable=bad-continuation \
-		--disable=too-few-public-methods \
-		--disable=too-many-arguments \
-		--disable=duplicate-code \
-		botx
-
 tests:
 	docker-compose up --build

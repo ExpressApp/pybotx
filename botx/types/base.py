@@ -6,7 +6,7 @@ from pydantic import BaseConfig
 from botx.core import BotXObject
 
 
-class _UUIDJSONEncoder(json.JSONEncoder):
+class UUIDJSONEncoder(json.JSONEncoder):
     def default(self, o):  # pylint: disable=method-hidden
         if isinstance(o, UUID):
             return str(o)
@@ -27,5 +27,5 @@ class BotXType(BotXObject):
         self, *, by_alias: bool = True, **kwargs
     ):  # pylint: disable=arguments-differ
         return json.loads(
-            json.dumps(super().dict(by_alias=by_alias, **kwargs), cls=_UUIDJSONEncoder)
+            json.dumps(super().dict(by_alias=by_alias, **kwargs), cls=UUIDJSONEncoder)
         )

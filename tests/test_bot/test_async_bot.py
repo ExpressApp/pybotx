@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 
 from botx import (
@@ -64,7 +66,7 @@ async def test_async_bot_token_obtaining(hostname, bot_id, async_requests):
         await bot._obtain_token(hostname, bot_id)
 
     cts = CTS(host=hostname, secret_key="secret")
-    bot.register_cts(cts)
+    bot.add_cts(cts)
     await bot._obtain_token(hostname, bot_id)
     assert bot.get_cts_by_host(hostname).credentials == CTSCredentials(
         bot_id=bot_id, token="token_for_operations"
@@ -81,7 +83,7 @@ async def test_async_bot_token_obtaining_with_errored_request(
     await bot.start()
 
     cts = CTS(host=hostname, secret_key="secret")
-    bot.register_cts(cts)
+    bot.add_cts(cts)
 
     await bot._obtain_token(hostname, bot_id)
     assert bot.get_cts_by_host(hostname).credentials is None
@@ -319,3 +321,32 @@ async def test_async_answer_message(command_with_text_and_file, async_requests):
     await bot.answer_message(message.body, message)
 
     await bot.stop()
+
+
+@pytest.mark.asyncio
+async def test_bot_next_step_handler(command_with_text_and_file):
+    bot = AsyncBot(disable_credentials=True)
+    await bot.start()
+
+    args = []
+
+    async def nf(m, b):
+        args.append(1)
+
+    @bot.command
+    async def cmd(m, b: AsyncBot):
+        b.register_next_step_handler(m, nf)
+
+    assert await bot.parse_command(command_with_text_and_file)
+
+    assert args == []
+
+    await asyncio.sleep(0)
+
+    assert await bot.parse_command(command_with_text_and_file)
+
+    await asyncio.sleep(0)
+
+    await bot.stop()
+
+    assert args[0] == 1

@@ -11,7 +11,7 @@ from .base_dispatcher import BaseDispatcher
 from .command_handler import CommandHandler
 
 if TYPE_CHECKING:
-    from botx.bot.sync_bot import SyncBot  # pylint: disable=cyclic-import
+    from botx.bot.sync_bot import SyncBot
 
 LOGGER = logging.getLogger("botx")
 
@@ -38,32 +38,8 @@ class SyncDispatcher(BaseDispatcher):
 
         raise BotXException(f"wrong request type {repr(request_type)}")
 
-    def _create_message(self, data: Dict[str, Any]) -> bool:
-        message = Message(**data)
-        LOGGER.debug("message created: %r", message.json())
-
-        cmd = message.command.cmd
-        command = self._handlers.get(cmd)
-        func_to_spawn = None
-        if command:
-            LOGGER.debug("spawning command %r", cmd)
-            func_to_spawn = command.func
-        else:
-            LOGGER.debug("no command found %r", cmd)
-            if self._default_handler:
-                LOGGER.debug("spawning default handler")
-                func_to_spawn = self._default_handler.func
-
-        if func_to_spawn:
-            self._pool.submit(func_to_spawn, message, self._bot)
-
-            return True
-
-        LOGGER.debug("default handler was not set")
-        return False
-
     def add_handler(self, handler: CommandHandler):
-        if inspect.iscoroutinefunction(handler.func):
+        if inspect.iscoroutinefunction(handler.func):  # type: ignore
             raise BotXException("can not add async handler to sync dispatcher")
 
         def thread_logger_helper(func):
@@ -71,7 +47,7 @@ class SyncDispatcher(BaseDispatcher):
             def wrapper(message, bot):
                 try:
                     func(message, bot)
-                except Exception as exc:  # pylint: disable=broad-except
+                except Exception as exc:
                     LOGGER.exception(exc)
 
             return wrapper
@@ -79,3 +55,71 @@ class SyncDispatcher(BaseDispatcher):
         handler.func = thread_logger_helper(handler.func)  # type: ignore
 
         super().add_handler(handler)
+
+    def register_next_step_handler(self, message: Message, func):
+        if inspect.iscoroutinefunction(func):
+            raise BotXException("can not add async handler to sync dispatcher")
+
+        def thread_logger_helper(f):
+            @wraps(f)
+            def wrapper(m, b):
+                try:
+                    func(m, b)
+                except Exception as exc:
+                    LOGGER.exception(exc)
+
+            return wrapper
+
+        key = (message.host, message.bot_id, message.group_chat_id, message.user_huid)
+        with self._lock:
+            if key in self._next_step_handlers:
+                self._next_step_handlers[key].append(thread_logger_helper(func))
+            else:
+                self._next_step_handlers[key] = [thread_logger_helper(func)]
+
+    def _create_message(self, data: Dict[str, Any]) -> bool:
+        message = Message(**data)
+        LOGGER.debug("message created: %r", message.json())
+
+        try:
+            key = (
+                message.host,
+                message.bot_id,
+                message.group_chat_id,
+                message.user_huid,
+            )
+
+            with self._lock:
+                next_step_handler = self._next_step_handlers[
+                    (
+                        message.host,
+                        message.bot_id,
+                        message.group_chat_id,
+                        message.user_huid,
+                    )
+                ].pop()
+
+            LOGGER.debug("spawning next step handler for %r ", key)
+            self._pool.submit(next_step_handler, message, self._bot)
+
+            return True
+        except (IndexError, KeyError):
+            cmd = message.command.cmd
+            command = self._handlers.get(cmd)
+            func_to_spawn = None
+            if command:
+                LOGGER.debug("spawning command %r", cmd)
+                func_to_spawn = command.func
+            else:
+                LOGGER.debug("no command found %r", cmd)
+                if self._default_handler:
+                    LOGGER.debug("spawning default handler")
+                    func_to_spawn = self._default_handler.func
+
+            if func_to_spawn:
+                self._pool.submit(func_to_spawn, message, self._bot)
+
+                return True
+
+            LOGGER.debug("default handler was not set")
+            return False

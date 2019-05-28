@@ -31,8 +31,10 @@ class CommandRouter:
         use_as_default_handler: bool = False,
         exclude_from_status: bool = False,
         system_command_handler: bool = False,
-    ) -> Callable:
+    ):
         if func:
+            command_name = name or func.__name__.lower()
+
             name = name or "".join(
                 func.__name__.lower().rsplit("command", 1)[0].split("_")
             )
@@ -43,19 +45,19 @@ class CommandRouter:
             )
             description = description or func.__doc__ or f"{name} command"
 
-            self.add_handler(
-                CommandHandler(
-                    command=body,
-                    func=func,
-                    name=name.capitalize(),
-                    description=description,
-                    exclude_from_status=exclude_from_status,
-                    use_as_default_handler=use_as_default_handler,
-                    system_command_handler=system_command_handler,
-                )
+            handler = CommandHandler(
+                command=body,
+                func=func,
+                name=command_name,
+                description=description,
+                exclude_from_status=exclude_from_status,
+                use_as_default_handler=use_as_default_handler,
+                system_command_handler=system_command_handler,
             )
 
-            return func
+            self.add_handler(handler)
+
+            return handler
 
         return partial(
             self.command,

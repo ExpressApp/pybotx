@@ -50,9 +50,9 @@ class BaseBot(abc.ABC, CommandRouter):
 
         self._disable_credentials = disable_credentials
 
-    def register_cts(self, cts: CTS):
-        LOGGER.debug("register new CTS %r for bot", cts.host)
-        self._credentials.known_cts.append(cts)
+    @property
+    def credentials(self) -> BotCredentials:
+        return self._credentials
 
     def add_bot_credentials(self, credentials: BotCredentials):
         LOGGER.debug("add new credentials for bot %r", credentials.json())
@@ -64,17 +64,9 @@ class BaseBot(abc.ABC, CommandRouter):
             }.items()
         ]
 
-    @property
-    def credentials(self) -> BotCredentials:
-        return self._credentials
-
-    def _set_cts_credentials(self, new_cts: CTS):
-        i = [
-            i
-            for i, cts in enumerate(self._credentials.known_cts)
-            if cts.host == new_cts.host
-        ][0]
-        self._credentials.known_cts[i] = new_cts
+    def add_cts(self, cts: CTS):
+        LOGGER.debug("register new CTS %r for bot", cts.host)
+        self._credentials.known_cts.append(cts)
 
     def add_handler(self, handler: CommandHandler):
         self._dispatcher.add_handler(handler)
@@ -82,14 +74,6 @@ class BaseBot(abc.ABC, CommandRouter):
     def add_commands(self, router: CommandRouter):
         for _, handler in router.handlers.items():
             self.add_handler(handler)
-
-    def _get_token_from_cts(self, host: str) -> Optional[str]:
-        cts = self.get_cts_by_host(host)
-        if not cts or not cts.credentials:
-            LOGGER.debug("no credentials for %r found", host)
-            return None
-
-        return cts.credentials.token
 
     def get_cts_by_host(self, host: str) -> Optional[CTS]:
         return {cts.host: cts for cts in self.credentials.known_cts}.get(host)
@@ -108,12 +92,6 @@ class BaseBot(abc.ABC, CommandRouter):
     @abc.abstractmethod
     def parse_command(self, data: Dict[str, Any]) -> Union[bool, Awaitable[bool]]:
         """Execute command from request"""
-
-    @abc.abstractmethod
-    def _obtain_token(
-        self, host: str, bot_id: UUID
-    ) -> Union[Tuple[str, int], Awaitable[Tuple[str, int]]]:
-        """Obtain token from BotX for making requests"""
 
     @abc.abstractmethod
     def send_message(
@@ -146,6 +124,42 @@ class BaseBot(abc.ABC, CommandRouter):
         """Send message with credentials from incoming message"""
 
     @abc.abstractmethod
+    def send_file(
+        self,
+        file: Union[TextIO, BinaryIO],
+        chat_id: Union[SyncID, UUID],
+        bot_id: UUID,
+        host: str,
+    ) -> Union[Tuple[str, int], Awaitable[Tuple[str, int]]]:
+        """Send separate file to BotX API"""
+
+    def register_next_step_handler(self, message: Message, func):
+        if message.user_huid:
+            self._dispatcher.register_next_step_handler(message, func)
+
+    def _set_cts_credentials(self, new_cts: CTS):
+        i = [
+            i
+            for i, cts in enumerate(self._credentials.known_cts)
+            if cts.host == new_cts.host
+        ][0]
+        self._credentials.known_cts[i] = new_cts
+
+    def _get_token_from_cts(self, host: str) -> Optional[str]:
+        cts = self.get_cts_by_host(host)
+        if not cts or not cts.credentials:
+            LOGGER.debug("no credentials for %r found", host)
+            return None
+
+        return cts.credentials.token
+
+    @abc.abstractmethod
+    def _obtain_token(
+        self, host: str, bot_id: UUID
+    ) -> Union[Tuple[str, int], Awaitable[Tuple[str, int]]]:
+        """Obtain token from BotX for making requests"""
+
+    @abc.abstractmethod
     def _send_command_result(
         self,
         text: str,
@@ -174,13 +188,3 @@ class BaseBot(abc.ABC, CommandRouter):
         keyboard: List[List[KeyboardElement]],
     ) -> Union[Tuple[str, int], Awaitable[Tuple[str, int]]]:
         """Send notification result answer"""
-
-    @abc.abstractmethod
-    def send_file(
-        self,
-        file: Union[TextIO, BinaryIO],
-        chat_id: Union[SyncID, UUID],
-        bot_id: UUID,
-        host: str,
-    ) -> Union[Tuple[str, int], Awaitable[Tuple[str, int]]]:
-        """Send separate file to BotX API"""

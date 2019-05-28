@@ -61,30 +61,6 @@ class SyncBot(BaseBot):
     def parse_command(self, data: Dict[str, Any]) -> bool:
         return cast(bool, self._dispatcher.parse_request(data, request_type="command"))
 
-    def _obtain_token(self, host: str, bot_id: UUID) -> Tuple[str, int]:
-        cts = self.get_cts_by_host(host)
-        if not cts:
-            raise BotXException(f"unregistered cts with host {repr(host)}")
-
-        signature = cts.calculate_signature(bot_id)
-
-        LOGGER.debug("obtaining token for operations from BotX API on %r", cts.host)
-
-        resp = self._session.get(
-            self._url_token.format(host=host, bot_id=bot_id),
-            params={"signature": signature},
-        )
-        if resp.status_code != 200:
-            LOGGER.debug("can not obtain token")
-            return resp.text, resp.status_code
-
-        token = json.loads(resp.text).get("result")
-
-        cts.credentials = CTSCredentials(bot_id=bot_id, token=token)
-        self._set_cts_credentials(cts)
-
-        return resp.text, resp.status_code
-
     def send_message(
         self,
         text: str,
@@ -170,6 +146,56 @@ class SyncBot(BaseBot):
             keyboard=keyboard,
         )
 
+    def send_file(
+        self,
+        file: Union[TextIO, BinaryIO],
+        chat_id: Union[SyncID, UUID],
+        bot_id: UUID,
+        host: str,
+    ) -> Tuple[str, int]:
+        token = self._get_token_from_cts(host)
+        if not token and not self._disable_credentials:
+            res = self._obtain_token(host, bot_id)
+            if res[1] != 200:
+                return res
+
+        files = {"file": file}
+        response = ResponseFile(bot_id=bot_id, sync_id=chat_id).dict()
+
+        LOGGER.debug("sending file to BotX on %r", host)
+
+        resp = self._session.post(
+            self._url_file.format(host=host),
+            files=files,
+            data=response,
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        return resp.text, resp.status_code
+
+    def _obtain_token(self, host: str, bot_id: UUID) -> Tuple[str, int]:
+        cts = self.get_cts_by_host(host)
+        if not cts:
+            raise BotXException(f"unregistered cts with host {repr(host)}")
+
+        signature = cts.calculate_signature(bot_id)
+
+        LOGGER.debug("obtaining token for operations from BotX API on %r", cts.host)
+
+        resp = self._session.get(
+            self._url_token.format(host=host, bot_id=bot_id),
+            params={"signature": signature},
+        )
+        if resp.status_code != 200:
+            LOGGER.debug("can not obtain token")
+            return resp.text, resp.status_code
+
+        token = json.loads(resp.text).get("result")
+
+        cts.credentials = CTSCredentials(bot_id=bot_id, token=token)
+        self._set_cts_credentials(cts)
+
+        return resp.text, resp.status_code
+
     def _send_command_result(
         self,
         text: str,
@@ -234,31 +260,5 @@ class SyncBot(BaseBot):
             self._url_notification.format(host=host),
             json=response.dict(),
             headers={"Authorization": f"Bearer {self._get_token_from_cts(host)}"},
-        )
-        return resp.text, resp.status_code
-
-    def send_file(
-        self,
-        file: Union[TextIO, BinaryIO],
-        chat_id: Union[SyncID, UUID],
-        bot_id: UUID,
-        host: str,
-    ) -> Tuple[str, int]:
-        token = self._get_token_from_cts(host)
-        if not token and not self._disable_credentials:
-            res = self._obtain_token(host, bot_id)
-            if res[1] != 200:
-                return res
-
-        files = {"file": file}
-        response = ResponseFile(bot_id=bot_id, sync_id=chat_id).dict()
-
-        LOGGER.debug("sending file to BotX on %r", host)
-
-        resp = self._session.post(
-            self._url_file.format(host=host),
-            files=files,
-            data=response,
-            headers={"Authorization": f"Bearer {token}"},
         )
         return resp.text, resp.status_code
