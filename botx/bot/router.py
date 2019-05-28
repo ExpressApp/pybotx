@@ -68,3 +68,20 @@ class CommandRouter:
             use_as_default_handler=use_as_default_handler,
             system_command_handler=system_command_handler,
         )
+
+    def file_handler(self, func):
+        return self.command(
+            func,
+            name="file_receiver",
+            body="file_transfer",
+            exclude_from_status=True,
+            system_command_handler=True,
+        )
+
+    def default_handler(self, func):
+        return self.command(func, use_as_default_handler=True)
+
+    def chat_created(self, func):
+        return self.command(
+            func, body="system:chat_created", system_command_handler=True
+        )
