@@ -1,412 +1,304 @@
 import base64
-import json
-from typing import Any, Awaitable, Dict, NoReturn, Union
+import pathlib
+import random
+import string
+from uuid import UUID, uuid4
 
 import aresponses
 import pytest
 import responses
+from aiohttp.web_response import json_response
 
-from botx import CommandHandler, CommandRouter, RequestTypeEnum, Status
-from botx.bot.base_bot import BaseBot
-from botx.bot.dispatcher.base_dispatcher import BaseDispatcher
-from botx.bot.dispatcher.sync_dispatcher import SyncDispatcher
+from botx import AsyncBot, Bot, Message, ReplyMessage, SyncID
 from botx.core import BotXAPI
 
+from .utils import generate_user, get_route_path_from_template
+
 
 @pytest.fixture
-def sync_requests(hostname, bot_id):
+def secret() -> str:
+    return "".join(
+        random.choice(string.ascii_letters) for _ in range(random.randrange(20, 30))
+    )
+
+
+@pytest.fixture(scope="session")
+def host() -> str:
+    return "cts.example.com"
+
+
+@pytest.fixture(scope="session")
+def bot_id() -> UUID:
+    return uuid4()
+
+
+@pytest.fixture
+def sync_id() -> SyncID:
+    return SyncID(uuid4())
+
+
+@pytest.fixture
+def gif_file_content() -> bytes:
+    path = pathlib.Path(__file__).parent
+    with open(path / "files" / "file.gif", "rb") as f:
+        return f.read()
+
+
+@pytest.fixture
+def json_file_content() -> str:
+    path = pathlib.Path(__file__).parent
+    with open(path / "files" / "file.json", "r") as f:
+        return f.read()
+
+
+@pytest.fixture
+def png_file_content() -> bytes:
+    path = pathlib.Path(__file__).parent
+    with open(path / "files" / "file.png", "rb") as f:
+        return f.read()
+
+
+@pytest.fixture
+def txt_file_content() -> str:
+    path = pathlib.Path(__file__).parent
+    with open(path / "files" / "file.txt", "r") as f:
+        return f.read()
+
+
+@pytest.fixture
+def message_data(bot_id: UUID, sync_id: SyncID, host: str, json_file_content):
+    def _create_message_data(command: str = "/cmd", file: bool = True):
+        encoded_data = base64.b64encode(json_file_content.encode()).decode()
+
+        file_data = (
+            {
+                "data": f"data:application/json;base64,{encoded_data}",
+                "file_name": "file.json",
+            }
+            if file
+            else None
+        )
+
+        data = {
+            "bot_id": str(bot_id),
+            "command": {"body": command, "command_type": "user", "data": {}},
+            "file": file_data,
+            "from": generate_user(host),
+            "sync_id": str(sync_id),
+        }
+        return data
+
+    return _create_message_data
+
+
+@pytest.fixture
+def reply_message(message_data) -> ReplyMessage:
+    return ReplyMessage.from_message("text", Message(**message_data()))
+
+
+@pytest.fixture
+def handler_factory():
+    def _create_handler(handler_type: str = "sync"):
+        if handler_type == "sync":
+
+            def sync_handler(message: Message, bot: Bot) -> None:
+                pass
+
+            return sync_handler
+        elif handler_type == "async":
+
+            async def async_handler(message: Message, bot: AsyncBot) -> None:
+                pass
+
+            return async_handler
+        else:
+            raise ValueError("handler_type can be only 'sync' or 'async'")
+
+    return _create_handler
+
+
+@pytest.fixture(scope="session")
+def valid_sync_requests_mock(host: str, bot_id: UUID) -> responses.RequestsMock:
+    resp = {"status": "ok", "result": "result"}
+
     with responses.RequestsMock(assert_all_requests_are_fired=False) as mock:
         mock.add(
             BotXAPI.V2.token.method,
-            BotXAPI.V2.token.url.format(host=hostname, bot_id=bot_id),
-            json={"status": "ok", "result": "token_for_operations"},
+            BotXAPI.V2.token.url.format(host=host, bot_id=bot_id),
+            json=resp,
         )
+
         mock.add(
             BotXAPI.V2.notification.method,
-            BotXAPI.V2.notification.url.format(host=hostname),
-            json={"status": "ok", "message": "notification_result_sent"},
+            BotXAPI.V2.notification.url.format(host=host),
+            json=resp,
         )
         mock.add(
             BotXAPI.V2.command.method,
-            BotXAPI.V2.command.url.format(host=hostname),
-            json={"status": "ok", "message": "command_result_sent"},
+            BotXAPI.V2.command.url.format(host=host),
+            json=resp,
         )
+
         mock.add(
             BotXAPI.V3.notification.method,
-            BotXAPI.V3.notification.url.format(host=hostname),
-            json={"status": "ok", "message": "notification_result_sent"},
+            BotXAPI.V3.notification.url.format(host=host),
+            json=resp,
         )
         mock.add(
             BotXAPI.V3.command.method,
-            BotXAPI.V3.command.url.format(host=hostname),
-            json={"status": "ok", "message": "command_result_sent"},
+            BotXAPI.V3.command.url.format(host=host),
+            json=resp,
         )
+
         mock.add(
-            BotXAPI.V1.file.method,
-            BotXAPI.V1.file.url.format(host=hostname),
-            json={"status": "ok", "message": "file_sent"},
+            BotXAPI.V1.file.method, BotXAPI.V1.file.url.format(host=host), json=resp
         )
+
         yield mock
 
 
 @pytest.fixture
-def sync_error_requests(hostname, bot_id):
+async def valid_async_requests_mock(
+    host: str, bot_id: UUID
+) -> aresponses.ResponsesMockServer:
+    resp = {"status": "ok", "result": "result"}
+
+    async with aresponses.ResponsesMockServer() as mock:
+        mock.add(
+            host,
+            get_route_path_from_template(BotXAPI.V2.token.url).format(bot_id=bot_id),
+            BotXAPI.V2.token.method.lower(),
+            json_response(resp),
+        )
+
+        mock.add(
+            host,
+            get_route_path_from_template(BotXAPI.V2.notification.url),
+            BotXAPI.V2.notification.method.lower(),
+            json_response(resp),
+        )
+        mock.add(
+            host,
+            get_route_path_from_template(BotXAPI.V2.command.url),
+            BotXAPI.V2.command.method.lower(),
+            json_response(resp),
+        )
+
+        mock.add(
+            host,
+            get_route_path_from_template(BotXAPI.V3.notification.url),
+            BotXAPI.V3.notification.method.lower(),
+            json_response(resp),
+        )
+        mock.add(
+            host,
+            get_route_path_from_template(BotXAPI.V3.command.url),
+            BotXAPI.V3.command.method.lower(),
+            json_response(resp),
+        )
+
+        mock.add(
+            host,
+            get_route_path_from_template(BotXAPI.V1.file.url),
+            BotXAPI.V1.file.method.lower(),
+            json_response(resp),
+        )
+
+        yield mock
+
+
+@pytest.fixture
+def wrong_sync_requests_mock(host: str, bot_id: UUID) -> responses.RequestsMock:
+    resp = {"status": "error", "message": "error response"}
+
     with responses.RequestsMock(assert_all_requests_are_fired=False) as mock:
         mock.add(
             BotXAPI.V2.token.method,
-            BotXAPI.V2.token.url.format(host=hostname, bot_id=bot_id),
-            json={"status": "error", "message": " error response"},
+            BotXAPI.V2.token.url.format(host=host, bot_id=bot_id),
+            json=resp,
             status=500,
         )
+
         mock.add(
             BotXAPI.V2.notification.method,
-            BotXAPI.V2.notification.url.format(host=hostname),
-            json={"status": "error", "message": " error response"},
+            BotXAPI.V2.notification.url.format(host=host),
+            json=resp,
             status=500,
         )
         mock.add(
             BotXAPI.V2.command.method,
-            BotXAPI.V2.command.url.format(host=hostname),
-            json={"status": "error", "message": " error response"},
+            BotXAPI.V2.command.url.format(host=host),
+            json=resp,
             status=500,
         )
+
         mock.add(
             BotXAPI.V3.notification.method,
-            BotXAPI.V3.notification.url.format(host=hostname),
-            json={"status": "error", "message": " error response"},
+            BotXAPI.V3.notification.url.format(host=host),
+            json=resp,
             status=500,
         )
         mock.add(
             BotXAPI.V3.command.method,
-            BotXAPI.V3.command.url.format(host=hostname),
-            json={"status": "error", "message": " error response"},
+            BotXAPI.V3.command.url.format(host=host),
+            json=resp,
             status=500,
         )
+
         mock.add(
             BotXAPI.V1.file.method,
-            BotXAPI.V1.file.url.format(host=hostname),
-            json={"status": "error", "message": " error response"},
+            BotXAPI.V1.file.url.format(host=host),
+            json=resp,
             status=500,
         )
+
         yield mock
 
 
 @pytest.fixture
-async def async_requests(hostname, bot_id):
-    mock: aresponses.ResponsesMockServer
+async def wrong_async_requests_mock(
+    host: str, bot_id: UUID
+) -> aresponses.ResponsesMockServer:
+    resp = {"status": "error", "message": "error response"}
     async with aresponses.ResponsesMockServer() as mock:
         mock.add(
-            hostname,
-            BotXAPI.V2.token.url.split("{host}", 1)[1].format(bot_id=bot_id),
+            host,
+            get_route_path_from_template(BotXAPI.V2.token.url).format(bot_id=bot_id),
             BotXAPI.V2.token.method.lower(),
-            aresponses.Response(
-                body=json.dumps({"status": "ok", "result": "token_for_operations"}),
-                status=200,
-            ),
+            json_response(resp, status=500),
         )
+
         mock.add(
-            hostname,
-            BotXAPI.V2.notification.url.split("{host}", 1)[1],
+            host,
+            get_route_path_from_template(BotXAPI.V2.notification.url),
             BotXAPI.V2.notification.method.lower(),
-            aresponses.Response(
-                body=json.dumps({"status": "ok", "result": "notification_result_sent"}),
-                status=200,
-            ),
+            json_response(resp, status=500),
         )
         mock.add(
-            hostname,
-            BotXAPI.V2.command.url.split("{host}", 1)[1],
+            host,
+            get_route_path_from_template(BotXAPI.V2.command.url),
             BotXAPI.V2.command.method.lower(),
-            aresponses.Response(
-                body=json.dumps({"status": "ok", "result": "command_result_sent"}),
-                status=200,
-            ),
+            json_response(resp, status=500),
         )
+
         mock.add(
-            hostname,
-            BotXAPI.V3.notification.url.split("{host}", 1)[1],
+            host,
+            get_route_path_from_template(BotXAPI.V3.notification.url),
             BotXAPI.V3.notification.method.lower(),
-            aresponses.Response(
-                body=json.dumps({"status": "ok", "result": "notification_result_sent"}),
-                status=200,
-            ),
+            json_response(resp, status=500),
         )
         mock.add(
-            hostname,
-            BotXAPI.V3.command.url.split("{host}", 1)[1],
+            host,
+            get_route_path_from_template(BotXAPI.V3.command.url),
             BotXAPI.V3.command.method.lower(),
-            aresponses.Response(
-                body=json.dumps({"status": "ok", "result": "command_result_sent"}),
-                status=200,
-            ),
+            json_response(resp, status=500),
         )
+
         mock.add(
-            hostname,
-            BotXAPI.V1.file.url.split("{host}", 1)[1],
+            host,
+            get_route_path_from_template(BotXAPI.V1.file.url),
             BotXAPI.V1.file.method.lower(),
-            aresponses.Response(
-                body=json.dumps({"status": "ok", "result": "file_sent"}), status=200
-            ),
+            json_response(resp, status=500),
         )
+
         yield mock
-
-
-@pytest.fixture
-async def async_error_requests(hostname, bot_id):
-    mock: aresponses.ResponsesMockServer
-    async with aresponses.ResponsesMockServer() as mock:
-        mock.add(
-            hostname,
-            BotXAPI.V2.token.url.split("{host}", 1)[1].format(bot_id=bot_id),
-            BotXAPI.V2.token.method.lower(),
-            aresponses.Response(
-                body=json.dumps({"status": "error", "message": " error response"}),
-                status=500,
-            ),
-        )
-        mock.add(
-            hostname,
-            BotXAPI.V2.notification.url.split("{host}", 1)[1],
-            BotXAPI.V2.notification.method.lower(),
-            aresponses.Response(
-                body=json.dumps({"status": "error", "message": " error response"}),
-                status=500,
-            ),
-        )
-        mock.add(
-            hostname,
-            BotXAPI.V2.command.url.split("{host}", 1)[1],
-            BotXAPI.V2.command.method.lower(),
-            aresponses.Response(
-                body=json.dumps({"status": "error", "message": " error response"}),
-                status=500,
-            ),
-        )
-        mock.add(
-            hostname,
-            BotXAPI.V3.notification.url.split("{host}", 1)[1],
-            BotXAPI.V3.notification.method.lower(),
-            aresponses.Response(
-                body=json.dumps({"status": "error", "message": " error response"}),
-                status=500,
-            ),
-        )
-        mock.add(
-            hostname,
-            BotXAPI.V3.command.url.split("{host}", 1)[1],
-            BotXAPI.V3.command.method.lower(),
-            aresponses.Response(
-                body=json.dumps({"status": "error", "message": " error response"}),
-                status=500,
-            ),
-        )
-        mock.add(
-            hostname,
-            BotXAPI.V1.file.url.split("{host}", 1)[1],
-            BotXAPI.V1.file.method.lower(),
-            aresponses.Response(
-                body=json.dumps({"status": "error", "message": " error response"}),
-                status=500,
-            ),
-        )
-        yield mock
-
-
-@pytest.fixture
-def hostname():
-    return "some.cts.ru"
-
-
-@pytest.fixture
-def bot_id():
-    return "8dada2c8-67a6-4434-9dec-570d244e78ee"
-
-
-@pytest.fixture
-def secret():
-    return "secret"
-
-
-@pytest.fixture
-def right_signature():
-    return "904E39D3BC549C71F4A4BDA66AFCDA6FC90D471A64889B45CC8D2288E56526AD"
-
-
-@pytest.fixture
-def user(hostname):
-    return {
-        "user_huid": "a896e9ce-ab02-4927-8bca-51c2d3d0bda5",
-        "group_chat_id": "cac806e0-4fea-4cd8-aafc-95e7129350e0",
-        "ad_login": "test_user",
-        "ad_domain": "test.com",
-        "username": "Test",
-        "chat_type": "group_chat",
-        "host": hostname,
-    }
-
-
-@pytest.fixture
-def binary_img_file():
-    with open("tests/files/file.png", "rb") as f:
-        return {
-            "data": f"data:image/png;base64,{base64.b64encode(f.read()).decode()}",
-            "file_name": "file.png",
-        }
-
-
-@pytest.fixture
-def binary_gif_file():
-    with open("tests/files/file.gif", "rb") as f:
-        return {
-            "data": f"data:image/gif;base64,{base64.b64encode(f.read()).decode()}",
-            "file_name": "file.gif",
-        }
-
-
-@pytest.fixture
-def text_txt_file():
-    with open("tests/files/file.txt", "r") as f:
-        return {
-            "data": f"data:text/plain;base64,{base64.b64encode(f.read().encode()).decode()}",
-            "file_name": "file.txt",
-        }
-
-
-@pytest.fixture
-def text_json_file():
-    with open("tests/files/file.json", "r") as f:
-        return {
-            "data": f"data:application/json;base64,{base64.b64encode(f.read().encode()).decode()}",
-            "file_name": "file.json",
-        }
-
-
-@pytest.fixture
-def command_with_text_and_file(text_json_file, user, bot_id):
-    return {
-        "sync_id": "a465f0f3-1354-491c-8f11-f400164295cb",
-        "command": {"body": "/cmd arg", "data": {}},
-        "file": text_json_file,
-        "from": user,
-        "bot_id": bot_id,
-    }
-
-
-@pytest.fixture
-def custom_dispatcher():
-    class CustomDispatcher(BaseDispatcher):
-        def start(self) -> NoReturn:
-            ...
-
-        def shutdown(self) -> NoReturn:
-            ...
-
-        def parse_request(
-            self, data: Dict[str, Any], request_type: Union[str, RequestTypeEnum]
-        ) -> Union[Status, bool]:
-            ...
-
-        def _create_message(self, data: Dict[str, Any]) -> Union[Awaitable, bool]:
-            ...
-
-        def register_next_step_handler(self, message, func):
-            pass
-
-    return CustomDispatcher(None)
-
-
-@pytest.fixture
-def custom_handler():
-    return CommandHandler(
-        name="handler",
-        command="/cmd",
-        description="command handler",
-        func=lambda x, b: ...,
-    )
-
-
-@pytest.fixture
-def custom_async_handler():
-    async def f(m, b):
-        ...
-
-    return CommandHandler(
-        name="async handler", command="/acmd", description="command handler", func=f
-    )
-
-
-@pytest.fixture
-def custom_async_handler_with_sync_command_body():
-    async def f(m, b):
-        pass
-
-    return CommandHandler(
-        name="async handler", command="/cmd", description="command handler", func=f
-    )
-
-
-@pytest.fixture
-def custom_default_handler():
-    return CommandHandler(
-        name="default handler",
-        command="/defaultcmd",
-        description="default command handler",
-        func=lambda x, y: ...,
-        use_as_default_handler=True,
-    )
-
-
-@pytest.fixture
-def custom_default_async_handler():
-    async def f(m, b):
-        pass
-
-    return CommandHandler(
-        name="default handler",
-        command="/defaultcmd",
-        description="default command handler",
-        func=f,
-        use_as_default_handler=True,
-    )
-
-
-@pytest.fixture
-def custom_router():
-    return CommandRouter()
-
-
-@pytest.fixture
-def custom_base_bot_class():
-    class CustomBot(BaseBot):
-        def __init__(self, **data):
-            super().__init__(**data)
-            self._dispatcher = SyncDispatcher(workers=1, bot=self)
-
-        def stop(self):
-            ...
-
-        def parse_status(self):
-            ...
-
-        def parse_command(self, **kwargs):
-            ...
-
-        def _obtain_token(self, **kwargs):
-            ...
-
-        def send_message(self, **kwargs):
-            ...
-
-        def answer_message(self, **kwargs):
-            ...
-
-        def _send_command_result(self, **kwargs):
-            ...
-
-        def _send_notification_result(self, **kwargs):
-            ...
-
-        def send_file(self, **kwargs):
-            ...
-
-    return CustomBot

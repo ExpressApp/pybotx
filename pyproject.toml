@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "botx"
-version = "0.10.0"
+version = "0.11.0"
 description = "Python implementation for Express BotX API"
 authors = [
     "Michael Morozov <mmorozov@ccsteam.ru>",
@@ -8,22 +8,17 @@ authors = [
     "Bondarenko Georgy <gbondarenko@ccsteam.ru>",
 ]
 readme = "README.md"
-documentation = "https://hackmd.ccsteam.ru/XjpW4k1rRq-jJmgHA5Mj8A"
+documentation = "https://pybotx.github.io"
 license = "MIT"
 exclude = ["tests", "docs"]
 
 
 [tool.poetry.dependencies]
 python = "^3.6"
-pydantic = "^0.26"
-
-requests = { version = "^2.22", optional = true }
-
-aiojobs = { version = "^0.2.2", optional = true }
-aiohttp = {version = "^3.5.4", optional = true }
-
-sphinx = { version = "^1.8", optional = true }
-sphinx_rtd_theme = { version ="^0.4.3", optional = true }
+pydantic = "0.28"
+requests = "^2.22"
+aiojobs = "^0.2.2"
+aiohttp = "^3.5.4"
 
 pytest = { version = "^4.5", optional = true }
 pytest-cov = { version = "^2.7", optional = true }
@@ -31,33 +26,48 @@ pytest-asyncio = { version = "^0.10.0", optional = true }
 responses = { version = "^0.10.6", optional = true }
 aresponses = { version = "^1.1", optional = true }
 
+mkdocs = { version = "^1.0", optional = true }
+mkdocs-material = { version = "^4.4", optional = true }
+
+fastapi = { version = "^0.30.0", extas = ["all"], optional = true }
+
 [tool.poetry.dev-dependencies]
 black = { version = "^18.3-alpha.0", allows-prereleases = true}
 isort = "^4.3"
 autoflake = "^1.3"
 
-flake8 = "^3.7"
 mypy = "^0.701.0"
 
 
 [tool.poetry.extras]
-sync = ["requests"]
-async = ["aiohttp", "aiojobs"]
-docs = ["sphinx", "sphinx_rtd_theme"]
+docs = ["mkdocs", "mkdocs-material"]
+examples = ["fastapi"]
 test = ["pytest", "pytest-cov", "pytest-asyncio", "responses", "aresponses"]
 
 [tool.black]
+target_version = ['py36', 'py37', 'py38']
 include = '\.pyi?$'
 exclude = '''
-/(
-    \.git
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+/(\.git/
+  |\.eggs
+  |\.hg
+  |__pycache__
+  |\.cache
+  |\.ipynb_checkpoints
+  |\.mypy_cache
+  |\.pytest_cache
+  |\.tox
+  |\.venv
+  |node_modules
+  |_build
+  |buck-out
+  |build
+  |dist
+  |media
+  |infrastructure
+  |templates
+  |locale
+  |docs
 )/
 '''
 
