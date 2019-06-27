@@ -6,7 +6,7 @@
     <a href="https://github.com/ExpressApp/pybotx/blob/master/LICENSE">
         <img src="https://img.shields.io/github/license/Naereen/StrapDown.js.svg" alt="License">
     </a>
-    <a href="https://github.com/nsidnev/fastapi-realworld-example-app/blob/master/LICENSE">
+    <a href="https://github.com/ambv/black">
         <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code Style">
     </a>
     <a href="https://pypi.org/project/botx/">

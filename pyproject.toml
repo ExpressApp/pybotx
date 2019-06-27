@@ -10,7 +10,7 @@ authors = [
 ]
 readme = "README.md"
 
-documentation = "https://pybotx.github.io"
+documentation = "https://expressapp.github.io/pybotx"
 repository = "https://github.com/ExpressApp/pybotx"
 
 license = "MIT"
