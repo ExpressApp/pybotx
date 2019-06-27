@@ -428,7 +428,7 @@ class TestSyncBot:
             with open(path / "files" / "file.json", "r") as f:
                 file = File.from_file(f)
 
-            with pytest.raises(BotXException) as e:
+            with pytest.raises(BotXException):
                 bot.send_file(file.file, message.sync_id, message.bot_id, message.host)
 
             bot.stop()
@@ -751,7 +751,7 @@ class TestAsyncBot:
             with open(path / "files" / "file.json", "r") as f:
                 file = File.from_file(f)
 
-            with pytest.raises(BotXException) as e:
+            with pytest.raises(BotXException):
                 await bot.send_file(
                     file.file, message.sync_id, message.bot_id, message.host
                 )

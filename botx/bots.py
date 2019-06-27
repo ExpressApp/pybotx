@@ -48,6 +48,7 @@ from .models import (
 )
 
 BOTX_LOGGER = logging.getLogger("botx")
+CPU_COUNT = multiprocessing.cpu_count()
 
 
 class BaseBot(abc.ABC, HandlersCollector):
@@ -178,7 +179,8 @@ class BaseBot(abc.ABC, HandlersCollector):
             )
         else:
             raise BotXException(
-                "next step handlers registration is available only for messages from real users"
+                "next step handlers registration is available "
+                "only for messages from real users"
             )
 
     @abc.abstractmethod
@@ -225,7 +227,7 @@ class SyncBot(BaseBot):
     def __init__(
         self,
         *,
-        workers: int = multiprocessing.cpu_count(),
+        workers: int = CPU_COUNT,
         credentials: Optional[BotCredentials] = None,
         disable_credentials: bool = False,
     ) -> None:

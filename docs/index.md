@@ -19,7 +19,7 @@
 
 # Introduction
 
-Pybotx is a toolkit for building bots for Express providing a mechanism for simple integration with your favourite web frameworks.
+`pybotx` is a toolkit for building bots for Express providing a mechanism for simple integration with your favourite web frameworks.
 
 Main features:
 
@@ -34,7 +34,7 @@ Main features:
 
 Python 3.6+
 
-Pybotx use the following libraries:
+`pybotx` use the following libraries:
 
 * <a href="https://github.com/samuelcolvin/pydantic" target="_blank">Pydantic</a> for the data parts.
 * <a href="https://github.com/kennethreitz/requests" target="_blank">Requests</a> for making synchronous calls to BotX API.
@@ -91,7 +91,7 @@ def bot_command(message: Message):
     bot.execute_command(message.dict())
 ```
 <details markdown="1">
-<summary>Or use <code>async def</code>...</summary>
+<summary>Or use <code>async def</code></summary>
 
 ```Python3 hl_lines="1 6 10 11 23 24 28 33 34"
 from botx import AsyncBot, Message, Status

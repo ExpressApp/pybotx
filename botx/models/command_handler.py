@@ -7,7 +7,7 @@ from .status import MenuCommand
 
 class CommandCallback(BotXType):
     callback: Callable
-    args: Tuple[Any, ...] = tuple()
+    args: Tuple[Any, ...] = ()
     kwargs: Dict[str, Any] = {}
 
 

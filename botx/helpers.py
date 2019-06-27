@@ -21,7 +21,7 @@ def create_message(data: Dict[str, Any]) -> Message:
 
 
 def get_headers(token: str) -> Dict[str, str]:
-    return dict(authorization=f"Bearer {token}")
+    return {"authorization": f"Bearer {token}"}
 
 
 def thread_logger_wrapper(func: Callable) -> Callable:

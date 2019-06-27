@@ -11,7 +11,7 @@ python:
 install:
     - pip install poetry
     - poetry config settings.virtualenvs.create false
-    - poetry install --extras "sync async test"
+    - poetry install
 
 script:
     - bash scripts/test.sh

@@ -41,7 +41,7 @@
 
 ## 0.9.2
 
-* Removed unused for now argument from thread wrapper.
+* Removed unused for now argument `bot` from thread wrapper.
 
 ## 0.9.1
 

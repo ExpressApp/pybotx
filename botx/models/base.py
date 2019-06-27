@@ -30,7 +30,7 @@ class BotXType(BaseModel):
             **dumps_kwargs,
         )
 
-    def dict(
+    def dict(  # noqa: A003
         self,
         *,
         include: "SetStr" = None,
