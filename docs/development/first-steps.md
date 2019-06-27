@@ -111,12 +111,12 @@ You must call them to be sure that the bot will work properly.
 
 ```Python3 hl_lines="4 9"
 ...
-@app.get("/status", response_model=Status, status_code=HTTP_202_ACCEPTED)
+@app.get("/status", response_model=Status)
 def bot_status():
     return bot.status
 
 
-@app.post("/command")
+@app.post("/command", status_code=HTTP_202_ACCEPTED)
 def bot_command(message: Message):
     bot.execute_command(message.dict())
 ...
@@ -404,12 +404,12 @@ app.add_middleware(
 )
 
 
-@app.get("/status", response_model=Status, status_code=HTTP_202_ACCEPTED)
+@app.get("/status", response_model=Status)
 def bot_status():
     return bot.status
 
 
-@app.post("/command")
+@app.post("/command", status_code=HTTP_202_ACCEPTED)
 def bot_command(message: Message):
     bot.execute_command(message.dict())
 ```

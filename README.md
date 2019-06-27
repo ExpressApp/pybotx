@@ -81,12 +81,12 @@ app.add_middleware(
 )
 
 
-@app.get("/status", response_model=Status, status_code=HTTP_202_ACCEPTED)
+@app.get("/status", response_model=Status)
 def bot_status():
     return bot.status
 
 
-@app.post("/command")
+@app.post("/command", status_code=HTTP_202_ACCEPTED)
 def bot_command(message: Message):
     bot.execute_command(message.dict())
 ```
@@ -120,12 +120,12 @@ app.add_event_handler("startup", bot.start)
 app.add_event_handler("shutdown", bot.stop)
 
 
-@app.get("/status", response_model=Status, status_code=HTTP_202_ACCEPTED)
+@app.get("/status", response_model=Status)
 async def bot_status():
     return bot.status
 
 
-@app.post("/command")
+@app.post("/command", status_code=HTTP_202_ACCEPTED)
 async def bot_command(message: Message):
     await bot.execute_command(message.dict())
 ```
