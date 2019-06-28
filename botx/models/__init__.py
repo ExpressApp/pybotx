@@ -1,7 +1,13 @@
 from .command_handler import CommandCallback, CommandHandler
 from .common import CommandUIElement, MenuCommand, NotificationOpts, SyncID
 from .cts import CTS, BotCredentials, CTSCredentials
-from .enums import ChatTypeEnum, MentionTypeEnum, ResponseRecipientsEnum, StatusEnum
+from .enums import (
+    ChatTypeEnum,
+    MentionTypeEnum,
+    ResponseRecipientsEnum,
+    StatusEnum,
+    SystemEventsEnum,
+)
 from .file import File
 from .mention import Mention, MentionUser
 from .message import Message, MessageCommand, MessageUser, ReplyMessage
@@ -43,4 +49,5 @@ __all__ = (
     "CommandCallback",
     "ReplyMessage",
     "NotificationOpts",
+    "SystemEventsEnum",
 )

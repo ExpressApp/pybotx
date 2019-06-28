@@ -1,5 +1,6 @@
 import json
 import pathlib
+import re
 import uuid
 
 import aresponses
@@ -20,6 +21,7 @@ from botx import (
     ReplyMessage,
     Status,
     StatusResult,
+    SystemEventsEnum,
 )
 from botx.core import TEXT_MAX_LENGTH, BotXAPI, BotXException
 from botx.models import ResponseCommand, ResponseNotification, ResponseResult
@@ -99,16 +101,22 @@ class TestBaseBot:
         collector.handler(handler_factory("sync"), command="cmd")
         bot.include_handlers(collector)
 
-        handler = bot.handlers["/cmd"]
+        handler = bot.handlers[re.compile("/cmd")]
         assert handler.callback.args == (bot,)
 
     def test_status_property(self, handler_factory):
         bot = Bot(workers=1)
         bot.handler(handler_factory("sync"))
 
+        print(bot.handlers)
+
         assert bot.status == Status(
             result=StatusResult(
-                commands=[bot.handlers["/sync-handler"].to_status_command()]
+                commands=[
+                    bot.handlers[
+                        re.compile(re.escape("/sync-handler"))
+                    ].to_status_command()
+                ]
             )
         )
 
@@ -116,12 +124,12 @@ class TestBaseBot:
         bot = Bot(workers=1, disable_credentials=True)
         bot.start()
 
-        message = Message(**message_data(command="/handler"))
+        message = Message(**message_data(command="/my-handler"))
 
         testing_array = []
 
         @bot.handler
-        def handler(msg: Message, *_):
+        def my_handler(msg: Message, *_):
             def ns_handler(*args):
                 testing_array.append(args)
 
@@ -140,12 +148,12 @@ class TestBaseBot:
         bot = Bot(workers=1, disable_credentials=True)
         bot.start()
 
-        message = Message(**message_data(command="system:random_command"))
+        message = Message(**message_data(command=SystemEventsEnum.chat_created.value))
         message.user.user_huid = None
 
         testing_array = []
 
-        @bot.system_command_handler(command="random_command")
+        @bot.system_event_handler(event=SystemEventsEnum.chat_created)
         def handler(msg: Message, *_):
             def ns_handler(*args):
                 pass
@@ -154,6 +162,8 @@ class TestBaseBot:
                 bot.register_next_step_handler(msg, ns_handler)
             except BotXException as e:
                 testing_array.append(e)
+
+        print(bot.handlers)
 
         bot.execute_command(message.dict())
 

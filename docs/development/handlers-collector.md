@@ -78,24 +78,29 @@ But it also provides some additional key arguments that can be used to change th
     * `commands: List[str] = None` - list of command aliases that will also run handler execution.
     * `use_as_default_handler: bool = False` - indicates that the handler will be used in the absence of other handlers for the command.
     * `exclude_from_status: bool = False` - indicates that handler will not appear in the list of public commands.
-    * `system_command_handler: bool = False` - just won't add a mandatory slash to the beginning of the command.
+    * `system_event_handler: bool = False` - just won't add a mandatory slash to the beginning of the command.
     
  * `HandlersCollector.hidden_command_handler` - is a `HandlersCollector.handler` with `exclude_from_status` set to `True` and removed 
-`description`, `use_as_default_handler` and `system_command_handler` arguments.
+`description`, `use_as_default_handler` and `system_event_handler` arguments.
  * `HandlerCollector.file_handler` - is a handler for receiving files sent to the bot and it takes no additional arguments. 
  The file will be placed in the `Message.file` property as the `File` class instance.
  * `HandlersCollector.default_handler` - is a handler for handling any commands that do not have associated handlers and also takes no additional arguments.
- * `HandlersCollector.system_command_handler` - is a handler for specific BotX API system commands with еру reserved `system:` namespace. 
- It requires a `command` key argument, which is the body of the command without `system:` in it. See the example bellow.
+ * `HandlersCollector.system_event_handler` - is a handler for specific BotX API system commands with the reserved `system:` namespace. 
+ It requires a `event` key argument, which is the body of the command. See the example bellow.
  
     Predefined handlers for system events:
     
      * `HandlersCollector.chat_created_handler` - handles `system:chat_created` system event.
   
-    If you want to register a handler for the `system:chat_created` system event, you should register it as follows:
+    If you want to register a handler for the `system:chat_created` system event using `HandlersCollector.system_event_handler`,
+    you should register it as follows:
  
 ```Python3
-@bot.system_command_handler(command='chat_created')
+from botx import SystemEventsEnum
+
+...
+
+@bot.system_event_handler(event=SystemEventsEnum.chat_created)
 def handler(message: Message, bot: Bot):
     ...
 ```

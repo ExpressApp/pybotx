@@ -4,7 +4,7 @@ import logging
 from collections import OrderedDict
 from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Lock
-from typing import Any, Awaitable, Dict, List, Optional, Tuple
+from typing import Any, Awaitable, Dict, List, Optional, Pattern, Tuple
 from uuid import UUID
 
 import aiojobs
@@ -17,7 +17,7 @@ BOTX_LOGGER = logging.getLogger("botx")
 
 
 class BaseDispatcher(abc.ABC):
-    _handlers: Dict[str, CommandHandler]
+    _handlers: Dict[Pattern, CommandHandler]
     _lock: Lock
     _next_step_handlers: Dict[
         Tuple[str, UUID, UUID, Optional[UUID]], List[CommandCallback]
@@ -84,7 +84,10 @@ class BaseDispatcher(abc.ABC):
     def _get_command_handler_from_message(self, message: Message) -> CommandHandler:
         cmd = message.command.command
 
-        handler = self._handlers.get(cmd)
+        handler = None
+        for cmd_pattern in self._handlers:
+            if cmd_pattern.match(cmd):
+                handler = self._handlers[cmd_pattern]
 
         if handler:
             return handler

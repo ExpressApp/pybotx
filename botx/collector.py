@@ -1,24 +1,26 @@
+import re
 from functools import partial
-from typing import Callable, Dict, List, Optional
+from typing import AnyStr, Callable, Dict, List, Optional, Pattern, Union
 
 from .core import (
     DEFAULT_HANDLER_BODY,
     FILE_HANDLER_NAME,
-    SYSTEM_CHAT_CREATED,
     SYSTEM_FILE_TRANSFER,
     BotXException,
 )
-from .models import CommandCallback, CommandHandler
+from .models import CommandCallback, CommandHandler, SystemEventsEnum
+
+COMMAND_STRING = Union[str, Pattern[AnyStr]]
 
 
 class HandlersCollector:
-    _handlers: Dict[str, CommandHandler]
+    _handlers: Dict[Pattern, CommandHandler]
 
     def __init__(self) -> None:
         self._handlers = {}
 
     @property
-    def handlers(self) -> Dict[str, CommandHandler]:
+    def handlers(self) -> Dict[Pattern, CommandHandler]:
         return self._handlers
 
     def add_handler(self, handler: CommandHandler, force_replace: bool = False) -> None:
@@ -41,11 +43,10 @@ class HandlersCollector:
         *,
         name: Optional[str] = None,
         description: Optional[str] = None,
-        command: Optional[str] = None,
-        commands: Optional[List[str]] = None,
+        command: Optional[COMMAND_STRING] = None,
+        commands: Optional[List[COMMAND_STRING]] = None,
         use_as_default_handler: Optional[bool] = False,
         exclude_from_status: Optional[bool] = False,
-        system_command_handler: Optional[bool] = False,
     ) -> Callable:
         if callback:
             if not commands:
@@ -62,13 +63,13 @@ class HandlersCollector:
                         "can not determine name for handler, set it explicitly"
                     )
 
-                if command:
-                    if system_command_handler or use_as_default_handler:
-                        command = command.strip("/")
-                    else:
-                        command = f"/{command.strip('/')}"
-                else:
+                if not command:
                     command = f"/{name}"
+
+                if isinstance(command, str):
+                    command = re.escape(f"/{command.strip('/')}")
+                else:
+                    command = command.pattern
 
                 description = (
                     description or callback.__doc__ or f"{name.capitalize()} handler"
@@ -82,7 +83,6 @@ class HandlersCollector:
                         description=description,
                         exclude_from_status=exclude_from_status,
                         use_as_default_handler=use_as_default_handler,
-                        system_command_handler=system_command_handler,
                     )
                 )
 
@@ -96,7 +96,21 @@ class HandlersCollector:
             commands=commands,
             exclude_from_status=exclude_from_status,
             use_as_default_handler=use_as_default_handler,
-            system_command_handler=system_command_handler,
+        )
+
+    def regex_handler(
+        self,
+        callback: Optional[Callable] = None,
+        *,
+        name: Optional[str] = None,
+        command: Optional[COMMAND_STRING] = None,
+        commands: Optional[List[COMMAND_STRING]] = None,
+    ) -> Callable:
+        return self.hidden_command_handler(
+            callback=callback,
+            name=name,
+            command=re.compile(command),
+            commands=[re.compile(cmd) for cmd in commands] if commands else None,
         )
 
     def hidden_command_handler(
@@ -104,8 +118,8 @@ class HandlersCollector:
         callback: Optional[Callable] = None,
         *,
         name: Optional[str] = None,
-        command: Optional[str] = None,
-        commands: Optional[List[str]] = None,
+        command: Optional[COMMAND_STRING] = None,
+        commands: Optional[List[COMMAND_STRING]] = None,
     ) -> Callable:
         return self.handler(
             callback=callback,
@@ -120,7 +134,7 @@ class HandlersCollector:
             callback,
             name=FILE_HANDLER_NAME,
             command=SYSTEM_FILE_TRANSFER,
-            system_command_handler=True,
+            exclude_from_status=True,
         )
 
     def default_handler(self, callback: Callable) -> Callable:
@@ -128,19 +142,19 @@ class HandlersCollector:
             callback, command=DEFAULT_HANDLER_BODY, use_as_default_handler=True
         )
 
-    def system_command_handler(
+    def system_event_handler(
         self,
         callback: Optional[Callable] = None,
         *,
-        command: str,
+        event: Union[str, SystemEventsEnum],
         name: Optional[str] = None,
     ) -> Callable:
-        return self.handler(
-            callback=callback,
-            name=name,
-            command="system:" + command,
-            system_command_handler=True,
-        )
+        if isinstance(event, SystemEventsEnum):
+            command = event.value
+        else:
+            command = event
+
+        return self.regex_handler(callback=callback, name=name, command=command)
 
     def chat_created_handler(self, callback: Callable) -> Callable:
-        return self.system_command_handler(callback, command=SYSTEM_CHAT_CREATED)
+        return self.system_event_handler(callback, event=SystemEventsEnum.chat_created)

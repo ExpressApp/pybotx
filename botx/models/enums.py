@@ -20,3 +20,7 @@ class MentionTypeEnum(str, Enum):
     all: str = "all"
     cts: str = "cts"
     channel: str = "channel"
+
+
+class SystemEventsEnum(str, Enum):
+    chat_created: str = "system:chat_created"

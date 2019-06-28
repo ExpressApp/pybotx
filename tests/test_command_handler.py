@@ -25,7 +25,3 @@ def test_command_handler_status_representation(handler_factory):
     handler.exclude_from_status = False
     handler.use_as_default_handler = True
     assert not handler.to_status_command()
-
-    handler.use_as_default_handler = False
-    handler.system_command_handler = True
-    assert not handler.to_status_command()

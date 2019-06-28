@@ -28,6 +28,7 @@ from .models import (
     StatusEnum,
     StatusResult,
     SyncID,
+    SystemEventsEnum,
 )
 
 __all__ = (
@@ -36,6 +37,7 @@ __all__ = (
     "BotXException",
     "ValidationError",
     "CTS",
+    "SystemEventsEnum",
     "BotCredentials",
     "ChatTypeEnum",
     "CommandUIElement",
