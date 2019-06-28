@@ -101,13 +101,13 @@ def handler_factory():
     def _create_handler(handler_type: str = "sync"):
         if handler_type == "sync":
 
-            def sync_handler(message: Message, bot: Bot) -> None:
+            def sync_handler(*_) -> None:
                 pass
 
             return sync_handler
         elif handler_type == "async":
 
-            async def async_handler(message: Message, bot: AsyncBot) -> None:
+            async def async_handler(*_) -> None:
                 pass
 
             return async_handler
@@ -132,22 +132,26 @@ def valid_sync_requests_mock(host: str, bot_id: UUID) -> responses.RequestsMock:
             BotXAPI.V2.notification.method,
             BotXAPI.V2.notification.url.format(host=host),
             json=resp,
+            status=202,
         )
         mock.add(
             BotXAPI.V2.command.method,
             BotXAPI.V2.command.url.format(host=host),
             json=resp,
+            status=202,
         )
 
         mock.add(
             BotXAPI.V3.notification.method,
             BotXAPI.V3.notification.url.format(host=host),
             json=resp,
+            status=202,
         )
         mock.add(
             BotXAPI.V3.command.method,
             BotXAPI.V3.command.url.format(host=host),
             json=resp,
+            status=202,
         )
 
         mock.add(
@@ -175,26 +179,26 @@ async def valid_async_requests_mock(
             host,
             get_route_path_from_template(BotXAPI.V2.notification.url),
             BotXAPI.V2.notification.method.lower(),
-            json_response(resp),
+            json_response(resp, status=202),
         )
         mock.add(
             host,
             get_route_path_from_template(BotXAPI.V2.command.url),
             BotXAPI.V2.command.method.lower(),
-            json_response(resp),
+            json_response(resp, status=202),
         )
 
         mock.add(
             host,
             get_route_path_from_template(BotXAPI.V3.notification.url),
             BotXAPI.V3.notification.method.lower(),
-            json_response(resp),
+            json_response(resp, status=202),
         )
         mock.add(
             host,
             get_route_path_from_template(BotXAPI.V3.command.url),
             BotXAPI.V3.command.method.lower(),
-            json_response(resp),
+            json_response(resp, status=202),
         )
 
         mock.add(

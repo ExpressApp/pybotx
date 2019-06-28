@@ -1,3 +1,7 @@
+## 0.11.1
+
+* Fixed raising exception on successful status codes from BotX API.
+
 ## 0.11.0
 
 * `BotXException` will be raised if there is an error in sending message, obtaining tokens, parsing incoming message data and some other cases.

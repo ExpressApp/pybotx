@@ -85,7 +85,7 @@ But it also provides some additional key arguments that can be used to change th
  * `HandlerCollector.file_handler` - is a handler for receiving files sent to the bot and it takes no additional arguments. 
  The file will be placed in the `Message.file` property as the `File` class instance.
  * `HandlersCollector.default_handler` - is a handler for handling any commands that do not have associated handlers and also takes no additional arguments.
- * `HandlersCollector.system_command_handler` - is a handler for specific BotX API system commands with еру reserved `system:` namespace. 
+ * `HandlersCollector.system_command_handler` - is a handler for specific BotX API system commands with the reserved `system:` namespace. 
  It requires a `command` key argument, which is the body of the command without `system:` in it. See the example bellow.
  
     Predefined handlers for system events:

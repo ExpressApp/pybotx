@@ -365,7 +365,7 @@ class SyncBot(BaseBot):
         resp = self._session.post(
             self._file_url.format(host=host), data=response, files=files
         )
-        if resp.status_code != 200:
+        if resp.status_code >= 400:
             raise BotXException(
                 "unable to send file to botx",
                 data=get_data_for_api_error_sync(
@@ -392,7 +392,7 @@ class SyncBot(BaseBot):
             self._token_url.format(host=host, bot_id=bot_id),
             params={"signature": signature},
         )
-        if resp.status_code != 200:
+        if resp.status_code >= 400:
             raise BotXException(
                 "unable to obtain token from botx",
                 data=get_data_for_api_error_sync(
@@ -443,7 +443,7 @@ class SyncBot(BaseBot):
             json=command_resp.dict(),
             headers=headers,
         )
-        if resp.status_code != 200:
+        if resp.status_code >= 400:
             raise BotXException(
                 "unable to send handler result",
                 data=get_data_for_api_error_sync(
@@ -490,7 +490,7 @@ class SyncBot(BaseBot):
             json=notification_resp.dict(),
             headers=headers,
         )
-        if resp.status_code != 200:
+        if resp.status_code >= 400:
             raise BotXException(
                 "unable to send notification result",
                 data=get_data_for_api_error_sync(
@@ -644,7 +644,7 @@ class AsyncBot(BaseBot):
         async with self._session.post(
             self._file_url.format(host=host), data=response
         ) as resp:
-            if resp.status != 200:
+            if resp.status >= 400:
                 raise BotXException(
                     "unable to send file to botx",
                     data=await get_data_for_api_error_async(
@@ -671,7 +671,7 @@ class AsyncBot(BaseBot):
             self._token_url.format(host=host, bot_id=bot_id),
             params={"signature": signature},
         ) as resp:
-            if resp.status != 200:
+            if resp.status >= 400:
                 raise BotXException(
                     "unable to obtain token from botx",
                     data=await get_data_for_api_error_async(
@@ -722,7 +722,7 @@ class AsyncBot(BaseBot):
             json=command_resp.dict(),
             headers=headers,
         ) as resp:
-            if resp.status != 200:
+            if resp.status >= 400:
                 raise BotXException(
                     "unable to send handler result",
                     data=await get_data_for_api_error_async(
@@ -769,7 +769,7 @@ class AsyncBot(BaseBot):
             json=notification_resp.dict(),
             headers=headers,
         ) as resp:
-            if resp.status != 200:
+            if resp.status >= 400:
                 raise BotXException(
                     "unable to send notification result",
                     data=await get_data_for_api_error_async(

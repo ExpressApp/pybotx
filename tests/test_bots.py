@@ -43,11 +43,11 @@ class TestBaseBot:
 
             def command_callback(*_):
                 testing_array.append("command")
-                return 200, {}, ""
+                return 202, {}, "{}"
 
             def notification_callback(*_):
                 testing_array.append("notification")
-                return 200, {}, ""
+                return 202, {}, "{}"
 
             mock.add_callback(
                 BotXAPI.V2.notification.method,
@@ -211,7 +211,7 @@ class TestSyncBot:
 
                 def command_callback(request: requests.PreparedRequest):
                     testing_array.append(json.loads(request.body.decode()))
-                    return 200, {}, ""
+                    return 202, {}, ""
 
                 mock.add_callback(
                     BotXAPI.V2.command.method,
@@ -246,7 +246,7 @@ class TestSyncBot:
 
                 def notification_callback(request: requests.PreparedRequest):
                     testing_array.append(json.loads(request.body.decode()))
-                    return 200, {}, ""
+                    return 202, {}, ""
 
                 mock.add_callback(
                     BotXAPI.V2.notification.method,
@@ -279,7 +279,7 @@ class TestSyncBot:
 
                 def notification_callback(request: requests.PreparedRequest):
                     testing_array.append(json.loads(request.body.decode()))
-                    return 200, {}, ""
+                    return 202, {}, ""
 
                 mock.add_callback(
                     BotXAPI.V2.notification.method,
@@ -323,10 +323,10 @@ class TestSyncBot:
             with responses.RequestsMock(assert_all_requests_are_fired=False) as mock:
                 testing_array = []
 
-                def command_callback(request: requests.PreparedRequest):
-                    return 200, {}, ""
+                def command_callback(*_):
+                    return 202, {}, ""
 
-                def token_callback(request: requests.PreparedRequest):
+                def token_callback(*_):
                     testing_array.append(1)
                     return 200, {}, json.dumps({"result": "token"})
 
@@ -362,7 +362,7 @@ class TestSyncBot:
 
                 def file_callback(request: requests.PreparedRequest):
                     testing_array.append(request.body)
-                    return 200, {}, ""
+                    return 202, {}, ""
 
                 mock.add_callback(
                     BotXAPI.V1.file.method,
@@ -505,7 +505,7 @@ class TestAsyncBot:
 
                 async def command_callback(request: BaseRequest):
                     testing_array.append(await request.json())
-                    return json_response()
+                    return json_response(status=202)
 
                 mock.add(
                     host,
@@ -541,7 +541,7 @@ class TestAsyncBot:
 
                 async def notification_callback(request: BaseRequest):
                     testing_array.append(await request.json())
-                    return json_response()
+                    return json_response(status=202)
 
                 mock.add(
                     host,
@@ -575,7 +575,7 @@ class TestAsyncBot:
 
                 async def notification_callback(request: BaseRequest):
                     testing_array.append(await request.json())
-                    return json_response()
+                    return json_response(status=202)
 
                 mock.add(
                     host,
@@ -630,7 +630,7 @@ class TestAsyncBot:
                         return json_response({"result": "token"})
 
                     async def command_callback(*_):
-                        return json_response()
+                        return json_response(status=202)
 
                     mock.add(
                         host,
@@ -667,7 +667,7 @@ class TestAsyncBot:
 
                 async def file_callback(request: BaseRequest):
                     testing_array.append((await request.text()).encode())
-                    return json_response()
+                    return json_response(status=202)
 
                 mock.add(
                     host,
