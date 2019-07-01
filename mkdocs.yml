@@ -16,6 +16,10 @@ nav:
         - HandlersCollector: 'development/handlers-collector.md'
         - Developing Using Tokens: 'development/cts-tokens.md'
         - Deployment: 'development/bots-deployment.md'
+    - API Reference:
+        - Bots: 'api-reference/bots.md'
+        - HandlersCollector: 'api-reference/handlers-collector.md'
+        - BotX Types: 'api-reference/botx-types.md'
     - Changelog: 'changelog.md'
 
 markdown_extensions:

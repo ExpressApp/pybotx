@@ -51,6 +51,12 @@ BOTX_LOGGER = logging.getLogger("botx")
 CPU_COUNT = multiprocessing.cpu_count()
 
 
+# TODO: add add_exception_handler
+# TODO: different name?
+
+# TODO: dependencies injection system
+
+
 class BaseBot(abc.ABC, HandlersCollector):
     _dispatcher: BaseDispatcher
     _credentials: BotCredentials

@@ -16,11 +16,11 @@
 
 `Bot.send_message` accepts 4 required positional arguments and many optional:
 
- * `text: str` - the text that will be send to chat
- * `chat_id: Union[SyncID, UUID, List[UUID]]` - is the identifier of the location where the text will be sent. 
+ * `text: str` - the text that will be send to chat.
+ * `chat_id: Union[SyncID, UUID, List[UUID]]` - the identifier of the location where the text will be sent. 
 You can send single message to many chats by passing a `list` of chat ids.
- * `bot_id: UUID` - is the bot's identifier in the CTS instance.
- * `host: str` - is the domain where the BotX API is running.
+ * `bot_id: UUID` - the bot's identifier in the CTS instance.
+ * `host: str` - the domain where the BotX API is running.
  
  ---
  
@@ -92,8 +92,8 @@ def my_handler(message: Message, bot: Bot)
 
  * `file: Union[TextIO, BytesIO]` - file-like object that will be sent to user.
  * `chat_id: Union[SyncID, UUID]` - last message identifier.
- * `bot_id: UUID` - is the bot's identifier in the CTS instance.
- * `host: str` - is the domain where the BotX API is running.
+ * `bot_id: UUID` - the bot's identifier in the CTS instance.
+ * `host: str` - the domain where the BotX API is running.
 
 ### Add `Bubble` and `Keyboard`
 

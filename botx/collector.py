@@ -32,9 +32,9 @@ class HandlersCollector:
         self._handlers[handler.command] = handler
 
     def include_handlers(
-        self, router: "HandlersCollector", force_replace: bool = False
+        self, collector: "HandlersCollector", force_replace: bool = False
     ) -> None:
-        for handler in router.handlers.values():
+        for handler in collector.handlers.values():
             self.add_handler(handler, force_replace=force_replace)
 
     def handler(

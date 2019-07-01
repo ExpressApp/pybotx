@@ -15,7 +15,7 @@ def test_message_creator_creates_message_or_raise_exception(message_data):
 
 
 def test_transformation_data_to_chat_created_data(message_data):
-    message = create_message(message_data('system:chat_created'))
+    message = create_message(message_data("system:chat_created"))
 
     assert isinstance(message.command.data, ChatCreatedData)
 
