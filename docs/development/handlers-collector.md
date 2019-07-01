@@ -74,12 +74,13 @@ But it also provides some additional key arguments that can be used to change th
     
     * `name: str = None` - the command name (useless field, maybe later will be use inside `pybotx`).
     * `description: str = None` - the description of the command that will be displayed in the status, default built by rule "`name` description".
-    * `command: str = None` - the body for the command for which the `Bot` instance will run the associated handler.
-    * `commands: List[str] = None` - list of command aliases that will also run handler execution.
+    * `command: Union[str, Pattern] = None` - the body for the command for which the `Bot` instance will run the associated handler.
+    * `commands: List[str, Pattern] = None` - list of command aliases that will also run handler execution.
     * `use_as_default_handler: bool = False` - indicates that the handler will be used in the absence of other handlers for the command.
     * `exclude_from_status: bool = False` - indicates that handler will not appear in the list of public commands.
-    * `system_event_handler: bool = False` - just won't add a mandatory slash to the beginning of the command.
     
+ * `HandlersCollector.regex_handler` - is a handler that accepts string as regex string and then will match incoming message body 
+ with `command` argument or strings from `commands` List.
  * `HandlersCollector.hidden_command_handler` - is a `HandlersCollector.handler` with `exclude_from_status` set to `True` and removed 
 `description`, `use_as_default_handler` and `system_event_handler` arguments.
  * `HandlerCollector.file_handler` - is a handler for receiving files sent to the bot and it takes no additional arguments. 

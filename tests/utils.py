@@ -17,13 +17,15 @@ def generate_username() -> str:
     )
 
 
-def generate_user(host: str):
+def generate_user(host: str, admin: bool = False, chat_creator: bool = False):
     return {
         "ad_domain": "domain.com",
         "ad_login": generate_acsii_name(),
         "chat_type": "chat",
         "group_chat_id": uuid.uuid4(),
         "host": host,
+        "is_creator": chat_creator,
+        "is_admin": admin,
         "user_huid": uuid.uuid4(),
         "username": generate_username(),
     }

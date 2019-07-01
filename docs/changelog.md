@@ -1,3 +1,15 @@
+## 0.12.0
+
+* `HandlersCollector.handler` now accepts strings or regular patters in the `command` argument and list of them in the `commands` argument.
+* `system_command_handler` argument has been removed from the `HandlersCollector.handler` method.
+* `HandlersCollector.system_command_handler` now takes an `event` argument of type `SystemEventsEnum` instead of the deleted argument `comamnd`.
+* Added `HandlersCollector.regex_handler` which accepts a string and compiles it into a regular expression pattern.
+* `MessageCommand.data` field will now automatically converted to events data types corresponding to special events, 
+such as creating a new chat with a bot.
+
+## 0.11.1
+* Fixed raising exception on successful status codes from the BotX API.
+
 ## 0.11.0
 
 * `BotXException` will be raised if there is an error in sending message, obtaining tokens, parsing incoming message data and some other cases.

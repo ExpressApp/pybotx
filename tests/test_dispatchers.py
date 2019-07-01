@@ -72,6 +72,80 @@ class TestBaseDispatcher:
 
         assert test_array == [i + 1 for i in range(3)]
 
+    def test_execution_by_regex_in_regex_handler(self, message_data):
+        dispatcher = SyncDispatcher(workers=1)
+        dispatcher.start()
+
+        collector = HandlersCollector()
+        msg = message_data(command="hello world")
+
+        test_array = []
+
+        @collector.regex_handler(command=r"hello *")
+        def handler(message: Message):
+            test_array.append(message.body)
+
+        dispatcher.add_handler(collector.handlers[re.compile(r"hello *")])
+        dispatcher.execute_command(msg)
+
+        dispatcher.shutdown()
+
+        assert test_array
+
+    def test_execution_by_regex_in_normal_handler(self, message_data):
+        dispatcher = SyncDispatcher(workers=1)
+        dispatcher.start()
+
+        collector = HandlersCollector()
+        msg = message_data(command="/hello world")
+
+        test_array = []
+
+        @collector.regex_handler(command=r"/hello")
+        def handler(message: Message):
+            test_array.append(message.body)
+
+        dispatcher.add_handler(collector.handlers[re.compile(r"/hello")])
+        dispatcher.execute_command(msg)
+
+        dispatcher.shutdown()
+
+        assert test_array
+
+    def test_handlers_matching_by_full_match(self, message_data, handler_factory):
+        dispatcher = SyncDispatcher(workers=1)
+        dispatcher.start()
+
+        collector = HandlersCollector()
+        msg = message_data(command="/hel world")
+
+        collector.regex_handler(command=r"/hello")(handler_factory("sync"))
+
+        dispatcher.add_handler(collector.handlers[re.compile(r"/hello")])
+
+        with pytest.raises(BotXException):
+            dispatcher.execute_command(msg)
+
+        dispatcher.shutdown()
+
+    def test_checking_all_handlers_before_default(self, message_data, handler_factory):
+        dispatcher = SyncDispatcher(workers=1)
+        dispatcher.start()
+
+        collector = HandlersCollector()
+        msg = message_data(command="/hello world")
+
+        collector.regex_handler(command=r"/hell")(handler_factory("sync"))
+        collector.regex_handler(command=r"/hello-world")(handler_factory("sync"))
+
+        for handler in collector.handlers.values():
+            dispatcher.add_handler(handler)
+
+        with pytest.raises(BotXException):
+            dispatcher.execute_command(msg)
+
+        dispatcher.shutdown()
+
 
 class TestDispatcherAcceptableHandlers:
     def test_sync_dispatcher_accept_only_sync_functions(self, message_data):

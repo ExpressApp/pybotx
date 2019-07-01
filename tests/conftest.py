@@ -9,10 +9,10 @@ import pytest
 import responses
 from aiohttp.web_response import json_response
 
-from botx import AsyncBot, Bot, Message, ReplyMessage, SyncID
+from botx import Message, ReplyMessage, SyncID, SystemEventsEnum
 from botx.core import BotXAPI
 
-from .utils import generate_user, get_route_path_from_template
+from .utils import generate_user, generate_username, get_route_path_from_template
 
 
 @pytest.fixture
@@ -66,8 +66,34 @@ def txt_file_content() -> str:
 
 
 @pytest.fixture
-def message_data(bot_id: UUID, sync_id: SyncID, host: str, json_file_content):
-    def _create_message_data(command: str = "/cmd", file: bool = True):
+def chat_created_data():
+    return {
+        "group_chat_id": uuid4(),
+        "chat_type": "group_chat",
+        "name": "Test Chat",
+        "creator": uuid4(),
+        "members": [
+            {
+                "huid": uuid4(),
+                "user_kind": random.choice(["user", "botx"]),
+                "name": generate_username(),
+                "admin": random.choice([True, False]),
+            }
+            for i in range(random.randrange(2, 6))
+        ],
+    }
+
+
+@pytest.fixture
+def message_data(
+    bot_id: UUID, sync_id: SyncID, host: str, json_file_content, chat_created_data
+):
+    def _create_message_data(
+        command: str = "/cmd",
+        file: bool = True,
+        admin: bool = False,
+        chat_creator: bool = False,
+    ):
         encoded_data = base64.b64encode(json_file_content.encode()).decode()
 
         file_data = (
@@ -79,11 +105,17 @@ def message_data(bot_id: UUID, sync_id: SyncID, host: str, json_file_content):
             else None
         )
 
+        command_body = {"body": command, "command_type": "user", "data": {}}
+
+        if command == SystemEventsEnum.chat_created.value:
+            command_body["data"] = chat_created_data
+            command_body["command_type"] = "system"
+
         data = {
             "bot_id": str(bot_id),
-            "command": {"body": command, "command_type": "user", "data": {}},
+            "command": command_body,
             "file": file_data,
-            "from": generate_user(host),
+            "from": generate_user(host, admin, chat_creator),
             "sync_id": str(sync_id),
         }
         return data
@@ -101,13 +133,13 @@ def handler_factory():
     def _create_handler(handler_type: str = "sync"):
         if handler_type == "sync":
 
-            def sync_handler(message: Message, bot: Bot) -> None:
+            def sync_handler(*_) -> None:
                 pass
 
             return sync_handler
         elif handler_type == "async":
 
-            async def async_handler(message: Message, bot: AsyncBot) -> None:
+            async def async_handler(*_) -> None:
                 pass
 
             return async_handler

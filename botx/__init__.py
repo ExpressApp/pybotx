@@ -7,9 +7,11 @@ from .models import (
     CTS,
     BotCredentials,
     BubbleElement,
+    ChatCreatedData,
     ChatTypeEnum,
     CommandCallback,
     CommandHandler,
+    CommandTypeEnum,
     CommandUIElement,
     CTSCredentials,
     File,
@@ -29,6 +31,7 @@ from .models import (
     StatusResult,
     SyncID,
     SystemEventsEnum,
+    UserInChatCreated,
 )
 
 __all__ = (
@@ -43,6 +46,7 @@ __all__ = (
     "CommandUIElement",
     "CTSCredentials",
     "File",
+    "CommandTypeEnum",
     "Mention",
     "MentionTypeEnum",
     "MentionUser",
@@ -62,4 +66,6 @@ __all__ = (
     "NotificationOpts",
     "ResponseRecipientsEnum",
     "CommandCallback",
+    "ChatCreatedData",
+    "UserInChatCreated",
 )

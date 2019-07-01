@@ -24,3 +24,13 @@ class MentionTypeEnum(str, Enum):
 
 class SystemEventsEnum(str, Enum):
     chat_created: str = "system:chat_created"
+
+
+class UserKindEnum(str, Enum):
+    bot: str = "botx"
+    user: str = "user"
+
+
+class CommandTypeEnum(str, Enum):
+    user: str = "user"
+    system: str = "system"

@@ -8,14 +8,19 @@ import requests
 from pydantic import ValidationError
 
 from .core import BotXException
-from .models import Message, SyncID
+from .models import ChatCreatedData, Message, SyncID, SystemEventsEnum
 
 BOTX_LOGGER = logging.getLogger("botx")
 
 
 def create_message(data: Dict[str, Any]) -> Message:
     try:
-        return Message(**data)
+        message = Message(**data)
+
+        if message.body == SystemEventsEnum.chat_created.value:
+            message.command.data = ChatCreatedData(**message.command.data)
+
+        return message
     except ValidationError as exc:
         raise BotXException from exc
 

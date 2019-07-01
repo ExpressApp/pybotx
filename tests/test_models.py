@@ -68,39 +68,39 @@ def test_message_user_email(message_data):
 class TestMessageCommand:
     def test_command_split_body_right_with_no_whitespace(self):
         body = "/handler"
-        message_command = MessageCommand(body=body)
+        message_command = MessageCommand(body=body, command_type="user")
 
         assert message_command.command == body
 
     def test_command_split_body_right_with_whitespaces(self):
         body = "/handler    "
-        message_command = MessageCommand(body=body)
+        message_command = MessageCommand(body=body, command_type="user")
 
         assert message_command.command == body.strip()
 
     def test_arguments_are_empty_list_if_args_string_is_empty(self):
         body = "/handler"
-        message_command = MessageCommand(body=body)
+        message_command = MessageCommand(body=body, command_type="user")
 
         assert message_command.arguments == []
 
     def test_arguments_are_empty_list_if_args_string_is_whitespace(self):
         body = "/handler  \t \n \v "
-        message_command = MessageCommand(body=body)
+        message_command = MessageCommand(body=body, command_type="user")
 
         assert message_command.arguments == []
 
     def test_arguments_are_list_of_strings_if_args_string_is_words_string(self):
         arguments = ["arg1", "arg2", "arg3", "arg4"]
         body = f"/handler {' '.join(arguments)}"
-        message_command = MessageCommand(body=body)
+        message_command = MessageCommand(body=body, command_type="user")
 
         assert message_command.arguments == arguments
 
     def test_single_argument_property(self):
         arguments = ["arg1", "arg2", "arg3", "arg4"]
         body = f"/handler {' '.join(arguments)}"
-        message_command = MessageCommand(body=body)
+        message_command = MessageCommand(body=body, command_type="user")
 
         assert message_command.single_argument == " ".join(arguments)
 

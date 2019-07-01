@@ -4,7 +4,7 @@ from typing import Callable
 import pytest
 
 from botx import BotXException, HandlersCollector, SystemEventsEnum
-from botx.core import DEFAULT_HANDLER_BODY
+from botx.core import DEFAULT_HANDLER_BODY, SYSTEM_FILE_TRANSFER
 
 
 class TestHandlersCollector:
@@ -100,6 +100,16 @@ class TestHandlersCollector:
         assert re.compile("/info") in collector.handlers
         assert re.compile("/information") in collector.handlers
 
+    def test_regex_registration_many_handlers(self, handler_factory):
+        collector = HandlersCollector()
+
+        collector.regex_handler(commands=["hello *", "привет *"])(
+            handler_factory("sync")
+        )
+
+        assert re.compile(r"hello *") in collector.handlers
+        assert re.compile(r"привет *") in collector.handlers
+
 
 class TestHandlersCollectorNamingRules:
     def test_decorator_auto_naming(self):
@@ -108,8 +118,6 @@ class TestHandlersCollectorNamingRules:
         @collector.handler
         def handler_function(*_):
             pass
-
-        print(collector.handlers)
 
         handler = collector.handlers[re.compile(re.escape("/handler-function"))]
         assert handler.name == handler_function.__name__
@@ -170,3 +178,21 @@ class TestHandlersCollectorExtraCommands:
 
         handler = collector.handlers[DEFAULT_HANDLER_BODY]
         assert handler.use_as_default_handler
+
+    def test_system_command_handler_accept_strings(self, handler_factory):
+        collector = HandlersCollector()
+        collector.system_event_handler(handler_factory("sync"), event="event")
+
+        assert re.compile("event") in collector.handlers
+
+    def test_chat_collector_registration(self, handler_factory):
+        collector = HandlersCollector()
+        collector.chat_created_handler(handler_factory("sync"))
+
+        assert re.compile(SystemEventsEnum.chat_created.value) in collector.handlers
+
+    def test_file_handler_registration(self, handler_factory):
+        collector = HandlersCollector()
+        collector.file_handler(handler_factory("sync"))
+
+        assert re.compile(SYSTEM_FILE_TRANSFER) in collector.handlers

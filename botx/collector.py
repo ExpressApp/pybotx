@@ -103,13 +103,13 @@ class HandlersCollector:
         callback: Optional[Callable] = None,
         *,
         name: Optional[str] = None,
-        command: Optional[COMMAND_STRING] = None,
-        commands: Optional[List[COMMAND_STRING]] = None,
+        command: Optional[str] = None,
+        commands: Optional[List[str]] = None,
     ) -> Callable:
         return self.hidden_command_handler(
             callback=callback,
             name=name,
-            command=re.compile(command),
+            command=re.compile(command) if command else None,
             commands=[re.compile(cmd) for cmd in commands] if commands else None,
         )
 

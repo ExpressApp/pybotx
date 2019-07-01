@@ -108,8 +108,6 @@ class TestBaseBot:
         bot = Bot(workers=1)
         bot.handler(handler_factory("sync"))
 
-        print(bot.handlers)
-
         assert bot.status == Status(
             result=StatusResult(
                 commands=[
@@ -155,15 +153,13 @@ class TestBaseBot:
 
         @bot.system_event_handler(event=SystemEventsEnum.chat_created)
         def handler(msg: Message, *_):
-            def ns_handler(*args):
+            def ns_handler(*_):
                 pass
 
             try:
                 bot.register_next_step_handler(msg, ns_handler)
             except BotXException as e:
                 testing_array.append(e)
-
-        print(bot.handlers)
 
         bot.execute_command(message.dict())
 

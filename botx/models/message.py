@@ -19,7 +19,8 @@ from botx.core import TEXT_MAX_LENGTH
 
 from .base import BotXType
 from .common import NotificationOpts, SyncID
-from .enums import ChatTypeEnum, ResponseRecipientsEnum
+from .enums import ChatTypeEnum, CommandTypeEnum, ResponseRecipientsEnum
+from .events import ChatCreatedData
 from .file import File
 from .mention import Mention, MentionUser
 from .ui import BubbleElement, KeyboardElement
@@ -29,6 +30,8 @@ if TYPE_CHECKING:  # pragma: no cover
 
     TUIElement = TypeVar("TUIElement", bound=UIElement)
 
+CommandDataType = Union[Dict[str, Any], ChatCreatedData]
+
 
 class MessageUser(BotXType):
     user_huid: Optional[UUID]
@@ -37,6 +40,8 @@ class MessageUser(BotXType):
     ad_login: Optional[str]
     ad_domain: Optional[str]
     username: Optional[str]
+    is_admin: bool
+    is_creator: bool
     host: str
 
     @property
@@ -49,7 +54,8 @@ class MessageUser(BotXType):
 
 class MessageCommand(BotXType):
     body: str
-    data: Dict[str, Any] = {}
+    command_type: CommandTypeEnum
+    data: CommandDataType = {}
 
     @property
     def command(self) -> str:
@@ -82,7 +88,7 @@ class Message(BotXType):
         return self.command.body
 
     @property
-    def data(self) -> Dict[str, Any]:
+    def data(self) -> CommandDataType:
         return self.command.data
 
     @property

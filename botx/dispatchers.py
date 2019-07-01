@@ -82,12 +82,17 @@ class BaseDispatcher(abc.ABC):
             ].pop()
 
     def _get_command_handler_from_message(self, message: Message) -> CommandHandler:
+        body = message.command.body
         cmd = message.command.command
 
         handler = None
         for cmd_pattern in self._handlers:
-            if cmd_pattern.match(cmd):
+            if cmd_pattern.fullmatch(body):
                 handler = self._handlers[cmd_pattern]
+                break
+            elif cmd_pattern.fullmatch(cmd):
+                handler = self._handlers[cmd_pattern]
+                break
 
         if handler:
             return handler

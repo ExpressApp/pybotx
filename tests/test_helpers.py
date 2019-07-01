@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 
-from botx import BotXException
+from botx import BotXException, ChatCreatedData
 from botx.helpers import create_message, get_headers, thread_logger_wrapper
 
 
@@ -12,6 +12,12 @@ def test_message_creator_creates_message_or_raise_exception(message_data):
 
     with pytest.raises(BotXException):
         create_message({})
+
+
+def test_transformation_data_to_chat_created_data(message_data):
+    message = create_message(message_data('system:chat_created'))
+
+    assert isinstance(message.command.data, ChatCreatedData)
 
 
 def test_headers_factory_for_botx_api():
