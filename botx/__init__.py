@@ -1,3 +1,4 @@
+from loguru import logger
 from pydantic import ValidationError
 
 from .bots import AsyncBot, SyncBot as Bot
@@ -33,6 +34,9 @@ from .models import (
     SystemEventsEnum,
     UserInChatCreated,
 )
+
+logger.disable("botx")
+
 
 __all__ = (
     "Bot",

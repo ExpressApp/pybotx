@@ -36,10 +36,12 @@ Python 3.6+
 
 `pybotx` use the following libraries:
 
-* <a href="https://github.com/samuelcolvin/pydantic" target="_blank">Pydantic</a> for the data parts.
-* <a href="https://github.com/kennethreitz/requests" target="_blank">Requests</a> for making synchronous calls to BotX API.
-* <a href="https://github.com/aio-libs/aiohttp" target="_blank">Aiohttp</a> for making asynchronous calls to BotX API.
-* <a href="https://github.com/aio-libs/aiojobs" target="_blank">Aiojobs</a> for dispatching asynchronous tasks.
+* <a href="https://github.com/samuelcolvin/pydantic" target="_blank">pydantic</a> for the data parts.
+* <a href="https://github.com/kennethreitz/requests" target="_blank">requests</a> for making synchronous calls to BotX API.
+* <a href="https://github.com/aio-libs/aiohttp" target="_blank">aiohttp</a> for making asynchronous calls to BotX API.
+* <a href="https://github.com/aio-libs/aiojobs" target="_blank">aiojobs</a> for dispatching asynchronous tasks.
+* <a href="https://github.com/django/asgiref" target="_blank">asgiref</a> for handlers transformation.
+* <a href="https://github.com/Delgan/loguru" target="_blank">loguru</a> for beautiful and powerful logs.
 
 ## Installation
 ```bash

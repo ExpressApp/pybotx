@@ -1,5 +1,4 @@
 import abc
-import logging
 import multiprocessing
 from typing import (
     Any,
@@ -16,6 +15,7 @@ from uuid import UUID
 
 import aiohttp
 import requests
+from loguru import logger
 
 from .collector import HandlersCollector
 from .core import TEXT_MAX_LENGTH, BotXAPI, BotXException
@@ -28,6 +28,7 @@ from .helpers import (
 from .models import (
     CTS,
     BotCredentials,
+    BotXTokenResponse,
     BubbleElement,
     CommandCallback,
     CommandHandler,
@@ -47,7 +48,6 @@ from .models import (
     SyncID,
 )
 
-BOTX_LOGGER = logging.getLogger("botx")
 CPU_COUNT = multiprocessing.cpu_count()
 
 
@@ -77,7 +77,7 @@ class BaseBot(abc.ABC, HandlersCollector):
         self._credentials = credentials if credentials else BotCredentials()
 
         if disable_credentials:
-            BOTX_LOGGER.debug("tokens obtaining disabled")
+            logger.info("tokens obtaining disabled, switch to BotX API V2")
 
             self._command_url = BotXAPI.V2.command.url
             self._notification_url = BotXAPI.V2.notification.url
@@ -169,7 +169,7 @@ class BaseBot(abc.ABC, HandlersCollector):
     def send_file(
         self,
         file: Union[TextIO, BinaryIO],
-        chat_id: Union[SyncID, UUID],
+        sync_id: Union[SyncID, UUID],
         bot_id: UUID,
         host: str,
     ) -> Optional[Awaitable[None]]:
@@ -357,16 +357,16 @@ class SyncBot(BaseBot):
     def send_file(
         self,
         file: Union[TextIO, BinaryIO],
-        chat_id: Union[SyncID, UUID],
+        sync_id: Union[SyncID, UUID],
         bot_id: UUID,
         host: str,
     ) -> None:
         self._obtain_token(host, bot_id)
 
         files = {"file": file}
-        response = ResponseFile(bot_id=bot_id, sync_id=chat_id).dict()
+        response = ResponseFile(bot_id=bot_id, sync_id=sync_id).dict()
 
-        BOTX_LOGGER.debug("sending file: %s", {"file_response": response})
+        logger.bind(sync_id=sync_id, host=host, bot_id=bot_id).debug("sending file")
 
         resp = self._session.post(
             self._file_url.format(host=host), data=response, files=files
@@ -375,11 +375,13 @@ class SyncBot(BaseBot):
             raise BotXException(
                 "unable to send file to botx",
                 data=get_data_for_api_error_sync(
-                    host=host, bot_id=bot_id, response=resp, chat_ids=chat_id
+                    host=host, bot_id=bot_id, response=resp, chat_ids=sync_id
                 ),
             )
 
     def _obtain_token(self, host: str, bot_id: UUID) -> None:
+        logger_ctx = logger.bind(host=host, bot_id=bot_id)
+
         if self._disable_credentials:
             return
 
@@ -392,8 +394,9 @@ class SyncBot(BaseBot):
 
         signature = cts.calculate_signature(bot_id)
 
-        BOTX_LOGGER.debug("calculated signature for %s: %s", cts.host, signature)
+        logger_ctx.bind(signature=signature).debug("calculated signature")
 
+        logger_ctx.debug("send token obtaining request")
         resp = self._session.get(
             self._token_url.format(host=host, bot_id=bot_id),
             params={"signature": signature},
@@ -406,9 +409,12 @@ class SyncBot(BaseBot):
                 ),
             )
 
-        token = resp.json().get("result")
+        resp_data = resp.json()
+        logger_ctx.bind(response_data=resp_data).debug("successful response received")
 
-        cts.credentials = CTSCredentials(bot_id=bot_id, token=token)
+        token = BotXTokenResponse(**resp_data)
+
+        cts.credentials = CTSCredentials(bot_id=bot_id, token=token.result)
 
     def _send_command_result(
         self,
@@ -439,9 +445,8 @@ class SyncBot(BaseBot):
             else {}
         )
 
-        BOTX_LOGGER.debug(
-            "sending command response: %s",
-            {"command_response": command_resp.json(), "headers": headers},
+        logger.bind(command_response=command_resp.dict(), headers=headers).debug(
+            "sending command response"
         )
 
         resp = self._session.post(
@@ -486,11 +491,9 @@ class SyncBot(BaseBot):
             else {}
         )
 
-        BOTX_LOGGER.debug(
-            "sending notification response: %s",
-            {"notification_response": notification_resp.json(), "headers": headers},
-        )
-
+        logger.bind(
+            notification_response=notification_resp.dict(), headers=headers
+        ).debug("sending notification response")
         resp = self._session.post(
             self._notification_url.format(host=host),
             json=notification_resp.dict(),
@@ -635,15 +638,15 @@ class AsyncBot(BaseBot):
     async def send_file(
         self,
         file: Union[TextIO, BinaryIO],
-        chat_id: Union[SyncID, UUID],
+        sync_id: Union[SyncID, UUID],
         bot_id: UUID,
         host: str,
     ) -> None:
         await self._obtain_token(host, bot_id)
 
-        response = ResponseFile(bot_id=bot_id, sync_id=chat_id).dict()
+        response = ResponseFile(bot_id=bot_id, sync_id=sync_id).dict()
 
-        BOTX_LOGGER.debug("sending file: %s", {"file_response": response})
+        logger.bind(sync_id=sync_id, host=host, bot_id=bot_id).debug("sending file")
 
         response["file"] = file
 
@@ -654,11 +657,13 @@ class AsyncBot(BaseBot):
                 raise BotXException(
                     "unable to send file to botx",
                     data=await get_data_for_api_error_async(
-                        host=host, bot_id=bot_id, response=resp, chat_ids=chat_id
+                        host=host, bot_id=bot_id, response=resp, chat_ids=sync_id
                     ),
                 )
 
     async def _obtain_token(self, host: str, bot_id: UUID) -> None:
+        logger_ctx = logger.bind(host=host, bot_id=bot_id)
+
         if self._disable_credentials:
             return
 
@@ -671,8 +676,9 @@ class AsyncBot(BaseBot):
 
         signature = cts.calculate_signature(bot_id)
 
-        BOTX_LOGGER.debug("calculated signature for %s: %s", cts.host, signature)
+        logger_ctx.bind(signature=signature).debug("calculated signature")
 
+        logger_ctx.debug("send token obtaining request")
         async with self._session.get(
             self._token_url.format(host=host, bot_id=bot_id),
             params={"signature": signature},
@@ -685,9 +691,14 @@ class AsyncBot(BaseBot):
                     ),
                 )
 
-            token = (await resp.json()).get("result")
+            resp_data = await resp.json()
+            logger_ctx.bind(response_data=resp_data).debug(
+                "successful response received"
+            )
 
-            cts.credentials = CTSCredentials(bot_id=bot_id, token=token)
+            token = BotXTokenResponse(**resp_data)
+
+            cts.credentials = CTSCredentials(bot_id=bot_id, token=token.result)
 
     async def _send_command_result(
         self,
@@ -718,9 +729,8 @@ class AsyncBot(BaseBot):
             else {}
         )
 
-        BOTX_LOGGER.debug(
-            "sending command response: %s",
-            {"command_response": command_resp.json(), "headers": headers},
+        logger.bind(command_response=command_resp.dict(), headers=headers).debug(
+            "sending command response"
         )
 
         async with self._session.post(
@@ -765,11 +775,9 @@ class AsyncBot(BaseBot):
             else {}
         )
 
-        BOTX_LOGGER.debug(
-            "sending notification response: %s",
-            {"notification_response": notification_resp.json(), "headers": headers},
-        )
-
+        logger.bind(
+            notification_response=notification_resp.dict(), headers=headers
+        ).debug("sending notification response")
         async with self._session.post(
             self._notification_url.format(host=host),
             json=notification_resp.dict(),

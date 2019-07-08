@@ -148,7 +148,7 @@ class TestBaseDispatcher:
 
 
 class TestDispatcherAcceptableHandlers:
-    def test_sync_dispatcher_accept_only_sync_functions(self, message_data):
+    def test_sync_dispatcher_accept_async_functions(self, message_data):
         collector = HandlersCollector()
 
         @collector.handler
@@ -157,14 +157,31 @@ class TestDispatcherAcceptableHandlers:
 
         dispatcher = SyncDispatcher(workers=1)
 
-        with pytest.raises(BotXException):
-            dispatcher.add_handler(collector.handlers[re.compile("/handler")])
-        with pytest.raises(BotXException):
-            dispatcher.register_next_step_handler(
-                Message(**message_data()), CommandCallback(callback=handler)
-            )
+        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+        dispatcher.register_next_step_handler(
+            Message(**message_data()), CommandCallback(callback=handler)
+        )
 
-    def test_async_dispatcher_accept_only_coroutines(self, message_data):
+    def test_sync_dispatcher_can_execute_async_handlers(self, message_data):
+        collector = HandlersCollector()
+
+        testing_array = []
+
+        @collector.handler
+        async def handler(*_):
+            testing_array.append(True)
+
+        dispatcher = SyncDispatcher(workers=1)
+
+        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+
+        dispatcher.start()
+        dispatcher.execute_command(message_data("/handler"))
+        dispatcher.shutdown()
+
+        assert testing_array
+
+    def test_async_dispatcher_accept_not_only_coroutines(self, message_data):
         collector = HandlersCollector()
 
         @collector.handler
@@ -173,12 +190,30 @@ class TestDispatcherAcceptableHandlers:
 
         dispatcher = AsyncDispatcher()
 
-        with pytest.raises(BotXException):
-            dispatcher.add_handler(collector.handlers[re.compile("/handler")])
-        with pytest.raises(BotXException):
-            dispatcher.register_next_step_handler(
-                Message(**message_data()), CommandCallback(callback=handler)
-            )
+        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+        dispatcher.register_next_step_handler(
+            Message(**message_data()), CommandCallback(callback=handler)
+        )
+
+    @pytest.mark.asyncio
+    async def test_async_dispatcher_can_execute_sync_handlers(self, message_data):
+        collector = HandlersCollector()
+
+        testing_array = []
+
+        @collector.handler
+        def handler(*_):
+            testing_array.append(True)
+
+        dispatcher = AsyncDispatcher()
+
+        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+
+        await dispatcher.start()
+        await dispatcher.execute_command(message_data("/handler"))
+        await dispatcher.shutdown()
+
+        assert testing_array
 
 
 class TestDispatchersLifespan:

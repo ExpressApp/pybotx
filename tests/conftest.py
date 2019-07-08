@@ -1,4 +1,5 @@
 import base64
+import logging
 import pathlib
 import random
 import string
@@ -8,6 +9,7 @@ import aresponses
 import pytest
 import responses
 from aiohttp.web_response import json_response
+from loguru import logger
 
 from botx import Message, ReplyMessage, SyncID, SystemEventsEnum
 from botx.core import BotXAPI
@@ -334,3 +336,14 @@ async def wrong_async_requests_mock(
         )
 
         yield mock
+
+
+@pytest.fixture
+def caplog(caplog):
+    class PropogateHandler(logging.Handler):
+        def emit(self, record):
+            logging.getLogger(record.name).handle(record)
+
+    handler_id = logger.add(PropogateHandler(), format="{message}")
+    yield caplog
+    logger.remove(handler_id)

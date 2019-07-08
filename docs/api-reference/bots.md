@@ -43,7 +43,7 @@ You can send single message to many chats by passing a `list` of chat ids.
     * `bubble: Optional[List[List[BubbleElement]]] = None`
     * `keyboard: Optional[List[List[KeyboardElement]]] = None`
     * `opts: Optional[NotificationOpts] = None`
-* `.send_file(file, chat_id, bot_id, host)` - send file to chat using message id.
+    * `.send_file(file, sync_id, bot_id, host)` - send file to chat using message id.
     * `file: Union[TextIO, BinaryIO]` - file-like object that will be sent to user.
     * `chat_id: Union[SyncID, UUID]` - last message identifier.
     * `bot_id: UUID` - the bot's identifier in the CTS instance.

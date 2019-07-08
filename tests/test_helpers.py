@@ -1,23 +1,29 @@
-import logging
-from unittest import mock
-
 import pytest
+from loguru import logger
 
 from botx import BotXException, ChatCreatedData
-from botx.helpers import create_message, get_headers, thread_logger_wrapper
+from botx.helpers import create_message, get_headers, logger_wrapper
 
 
-def test_message_creator_creates_message_or_raise_exception(message_data):
-    create_message(message_data())
+class TestCreateMessageHelper:
+    def test_message_creator_creates_message_or_raise_exception(self, message_data):
+        create_message(message_data())
 
-    with pytest.raises(BotXException):
-        create_message({})
+        with pytest.raises(BotXException):
+            create_message({})
 
+    def test_transformation_data_to_chat_created_data(self, message_data):
+        message = create_message(message_data("system:chat_created"))
 
-def test_transformation_data_to_chat_created_data(message_data):
-    message = create_message(message_data("system:chat_created"))
+        assert isinstance(message.command.data, ChatCreatedData)
 
-    assert isinstance(message.command.data, ChatCreatedData)
+    def test_that_only_known_system_events_are_transformed(self, message_data):
+        msg = message_data("system:chat_created2")
+        msg["command"]["command_type"] = "system"
+
+        message = create_message(msg)
+
+        assert isinstance(message.command.data, dict)
 
 
 def test_headers_factory_for_botx_api():
@@ -32,14 +38,15 @@ def test_headers_factory_for_botx_api():
     assert required_headers == {}
 
 
-def test_thread_wrapper_logs_exception():
-    logger = logging.getLogger("botx")
-    with mock.patch.object(logger, "exception") as mock_exception:
-        exc = Exception("test exception")
+def test_logger_wrapper_logs_exception(caplog):
+    exc = Exception("test exception")
 
-        @thread_logger_wrapper
-        def func(*args):
-            raise exc
+    logger.enable("botx")
 
-        func(None, None)
-        mock_exception.assert_called_once_with(exc)
+    @logger_wrapper
+    def func(*_):
+        raise exc
+
+    func(None, None)
+
+    assert "test exception" in caplog.text

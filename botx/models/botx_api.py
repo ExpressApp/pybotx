@@ -1,4 +1,3 @@
-
 from typing import List, Optional, Union
 from uuid import UUID
 
@@ -8,6 +7,10 @@ from .enums import ResponseRecipientsEnum, StatusEnum
 from .file import File
 from .mention import Mention
 from .ui import BubbleElement, KeyboardElement
+
+
+class BotXTokenResponse(BotXType):
+    result: str
 
 
 class ResponseResult(BotXType):

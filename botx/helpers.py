@@ -1,16 +1,14 @@
-import logging
 from functools import wraps
 from typing import Any, Callable, Dict, List, Optional, Union
 from uuid import UUID
 
 import aiohttp
 import requests
+from loguru import logger
 from pydantic import ValidationError
 
 from .core import BotXException
 from .models import ChatCreatedData, CommandTypeEnum, Message, SyncID, SystemEventsEnum
-
-BOTX_LOGGER = logging.getLogger("botx")
 
 
 def create_message(data: Dict[str, Any]) -> Message:
@@ -30,15 +28,14 @@ def get_headers(token: str) -> Dict[str, str]:
     return {"authorization": f"Bearer {token}"}
 
 
-def thread_logger_wrapper(func: Callable) -> Callable:
+def logger_wrapper(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(message: Message, *args: Any, **kwargs: Any) -> None:
         try:
-
             # mypy has problems with callable with stars arguments; see #5876
             func(message, *args, **kwargs)  # type: ignore
-        except Exception as exc:
-            BOTX_LOGGER.exception(exc)
+        except Exception:
+            logger.exception("exception in handler")
 
     return wrapper
 

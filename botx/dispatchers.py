@@ -1,6 +1,5 @@
 import abc
 import asyncio
-import logging
 from collections import OrderedDict
 from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Lock
@@ -8,12 +7,12 @@ from typing import Any, Awaitable, Dict, List, Optional, Pattern, Tuple
 from uuid import UUID
 
 import aiojobs
+import asgiref.sync
+from loguru import logger
 
 from .core import BotXException
-from .helpers import create_message, thread_logger_wrapper
+from .helpers import create_message, logger_wrapper
 from .models import CommandCallback, CommandHandler, Message, Status, StatusResult
-
-BOTX_LOGGER = logging.getLogger("botx")
 
 
 class BaseDispatcher(abc.ABC):
@@ -50,12 +49,14 @@ class BaseDispatcher(abc.ABC):
         """Parse request and call status creation or executing handler for handler"""
 
     def add_handler(self, handler: CommandHandler) -> None:
+        logger_ctx = logger.bind(handler=handler.dict())
+
         if handler.use_as_default_handler:
-            BOTX_LOGGER.debug("registered default handler")
+            logger_ctx.debug("registered default handler")
 
             self._default_handler = handler
         else:
-            BOTX_LOGGER.debug(f"registered handler for {handler.command}")
+            logger_ctx.debug(f"registered handler for {handler.command}")
 
             self._handlers[handler.command] = handler
 
@@ -74,6 +75,22 @@ class BaseDispatcher(abc.ABC):
                 self._next_step_handlers[key].append(callback)
             else:
                 self._next_step_handlers[key] = [callback]
+
+    def _get_callback_for_message(self, message: Message) -> CommandCallback:
+        logger_ctx = logger.bind(message=message.dict())
+
+        try:
+            callback = self._get_next_step_handler_from_message(message)
+            logger_ctx.bind(callback=callback.dict()).debug(
+                "found registered next step handler for message"
+            )
+        except (IndexError, KeyError):
+            callback = self._get_command_handler_from_message(message).callback
+            logger_ctx.bind(command=message.command.command).debug(
+                "found handler for command"
+            )
+
+        return callback
 
     def _get_next_step_handler_from_message(self, message: Message) -> CommandCallback:
         with self._lock:
@@ -118,41 +135,41 @@ class SyncDispatcher(BaseDispatcher):
 
     def execute_command(self, data: Dict[str, Any]) -> None:
         message = create_message(data)
+        logger.bind(message=message.dict()).debug("parsed message successful")
 
-        try:
-            callback = self._get_next_step_handler_from_message(message)
-            self._pool.submit(
-                callback.callback, message, *callback.args, **callback.kwargs
-            )
-        except (IndexError, KeyError):
-            handler = self._get_command_handler_from_message(message)
-            self._pool.submit(
-                handler.callback.callback,
-                message,
-                *handler.callback.args,
-                **handler.callback.kwargs,
-            )
+        callback = self._get_callback_for_message(message)
+
+        self._pool.submit(callback.callback, message, *callback.args, **callback.kwargs)
 
     def add_handler(self, handler: CommandHandler) -> None:
         if asyncio.iscoroutinefunction(handler.callback.callback):
-            raise BotXException("can not add async handler to sync dispatcher")
+            logger.bind(handler=handler.dict()).debug(
+                "transforming handler callback coroutine to function"
+            )
+            handler.callback.callback = asgiref.sync.async_to_sync(
+                handler.callback.callback
+            )
 
         func = handler.callback.callback
 
         # mypy can not recognize assigment to functions; see #2427
-        handler.callback.callback = thread_logger_wrapper(func=func)  # type: ignore
+        handler.callback.callback = logger_wrapper(func=func)  # type: ignore
         super().add_handler(handler)
 
     def register_next_step_handler(
         self, message: Message, callback: CommandCallback
     ) -> None:
         if asyncio.iscoroutinefunction(callback.callback):
-            raise BotXException("can not add async handler to sync dispatcher")
+            logger_ctx = logger.bind(callback=callback.dict())
+            logger_ctx.warning("transforming function in runtime is not cheap")
+            logger_ctx.debug("transforming handler callback coroutine to function")
+
+            callback.callback = asgiref.sync.async_to_sync(callback.callback)
 
         func = callback.callback
 
         # mypy can not recognize assigment to functions; see #2427
-        callback.callback = thread_logger_wrapper(func=func)  # type: ignore
+        callback.callback = logger_wrapper(func=func)  # type: ignore
         self._add_next_step_handler(message, callback)
 
 
@@ -167,23 +184,21 @@ class AsyncDispatcher(BaseDispatcher):
 
     async def execute_command(self, data: Dict[str, Any]) -> None:
         message = create_message(data)
+        logger.bind(message=message.dict()).debug("parsed message successful")
 
-        try:
-            callback = self._get_next_step_handler_from_message(message)
-            await self._scheduler.spawn(
-                callback.callback(message, *callback.args, **callback.kwargs)
-            )
-        except KeyError:
-            handler = self._get_command_handler_from_message(message)
-            await self._scheduler.spawn(
-                handler.callback.callback(
-                    message, *handler.callback.args, **handler.callback.kwargs
-                )
-            )
+        callback = self._get_callback_for_message(message)
+        await self._scheduler.spawn(
+            callback.callback(message, *callback.args, **callback.kwargs)
+        )
 
     def add_handler(self, handler: CommandHandler) -> None:
         if not asyncio.iscoroutinefunction(handler.callback.callback):
-            raise BotXException("can not add not async handler to async dispatcher")
+            logger.bind(handler=handler.dict()).debug(
+                "transforming handler callback to coroutine"
+            )
+            handler.callback.callback = asgiref.sync.sync_to_async(
+                handler.callback.callback
+            )
 
         super().add_handler(handler)
 
@@ -191,6 +206,10 @@ class AsyncDispatcher(BaseDispatcher):
         self, message: Message, callback: CommandCallback
     ) -> None:
         if not asyncio.iscoroutinefunction(callback.callback):
-            raise BotXException("can not add not async handler to async dispatcher")
+            logger_ctx = logger.bind(callback=callback.dict())
+            logger_ctx.warning("transforming function in runtime is not cheap")
+            logger_ctx.debug("transforming handler callback to coroutine")
+
+            callback.callback = asgiref.sync.async_to_sync(callback.callback)
 
         self._add_next_step_handler(message, callback)

@@ -91,7 +91,7 @@ def my_handler(message: Message, bot: Bot)
 `Bot` and `AsyncBot` have `.send_file` method that takes 4 required arguments:
 
  * `file: Union[TextIO, BytesIO]` - file-like object that will be sent to user.
- * `chat_id: Union[SyncID, UUID]` - last message identifier.
+ * `sync_id: Union[SyncID, UUID]` - last message identifier.
  * `bot_id: UUID` - the bot's identifier in the CTS instance.
  * `host: str` - the domain where the BotX API is running.
 
