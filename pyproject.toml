@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "botx"
-version = "0.11.0"
+version = "0.12.0"
 description = "A little python library for building bots for Express"
 
 authors = [

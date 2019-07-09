@@ -101,7 +101,7 @@ class TestBaseBot:
         collector.handler(handler_factory("sync"), command="cmd")
         bot.include_handlers(collector)
 
-        handler = bot.handlers[re.compile("/cmd")]
+        handler = bot.handlers[re.compile(re.escape("/cmd"))]
         assert handler.callback.args == (bot,)
 
     def test_status_property(self, handler_factory):

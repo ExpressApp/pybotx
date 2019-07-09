@@ -16,13 +16,17 @@ class TestBaseDispatcher:
         collector.default_handler(handler_factory("sync"))
 
         dispatcher = SyncDispatcher(workers=1)
-        dispatcher.add_handler(collector.handlers[re.compile("/cmd")])
-        dispatcher.add_handler(collector.handlers[re.compile("/hidden")])
+        dispatcher.add_handler(collector.handlers[re.compile(re.escape("/cmd"))])
+        dispatcher.add_handler(collector.handlers[re.compile(re.escape("/hidden"))])
         dispatcher.add_handler(collector.handlers[DEFAULT_HANDLER_BODY])
 
         assert dispatcher.status == Status(
             result=StatusResult(
-                commands=[collector.handlers[re.compile("/cmd")].to_status_command()]
+                commands=[
+                    collector.handlers[
+                        re.compile(re.escape("/cmd"))
+                    ].to_status_command()
+                ]
             )
         )
 
@@ -64,7 +68,7 @@ class TestBaseDispatcher:
             for _ in range(3):
                 dispatcher.register_next_step_handler(message, callback)
 
-        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+        dispatcher.add_handler(collector.handlers[re.compile(re.escape("/handler"))])
         for i in range(4):
             dispatcher.execute_command(msg)
 
@@ -157,7 +161,7 @@ class TestDispatcherAcceptableHandlers:
 
         dispatcher = SyncDispatcher(workers=1)
 
-        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+        dispatcher.add_handler(collector.handlers[re.compile(re.escape("/handler"))])
         dispatcher.register_next_step_handler(
             Message(**message_data()), CommandCallback(callback=handler)
         )
@@ -173,7 +177,7 @@ class TestDispatcherAcceptableHandlers:
 
         dispatcher = SyncDispatcher(workers=1)
 
-        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+        dispatcher.add_handler(collector.handlers[re.compile(re.escape("/handler"))])
 
         dispatcher.start()
         dispatcher.execute_command(message_data("/handler"))
@@ -190,7 +194,7 @@ class TestDispatcherAcceptableHandlers:
 
         dispatcher = AsyncDispatcher(tasks_limit=10)
 
-        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+        dispatcher.add_handler(collector.handlers[re.compile(re.escape("/handler"))])
         dispatcher.register_next_step_handler(
             Message(**message_data()), CommandCallback(callback=handler)
         )
@@ -207,7 +211,7 @@ class TestDispatcherAcceptableHandlers:
 
         dispatcher = AsyncDispatcher(tasks_limit=10)
 
-        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+        dispatcher.add_handler(collector.handlers[re.compile(re.escape("/handler"))])
 
         await dispatcher.start()
         await dispatcher.execute_command(message_data("/handler"))
@@ -250,7 +254,7 @@ class TestSyncDispatcherHandlersExecution:
 
         dispatcher = SyncDispatcher(workers=1)
         dispatcher.start()
-        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+        dispatcher.add_handler(collector.handlers[re.compile(re.escape("/handler"))])
         dispatcher.execute_command(message_data(command="/handler"))
         dispatcher.shutdown()
 
@@ -276,7 +280,7 @@ class TestSyncDispatcherHandlersExecution:
                 message, CommandCallback(callback=ns_handler)
             )
 
-        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+        dispatcher.add_handler(collector.handlers[re.compile(re.escape("/handler"))])
         dispatcher.execute_command(msg)
 
         assert testing_array
@@ -308,7 +312,7 @@ class TestSyncDispatcherHandlersExecution:
                 message, CommandCallback(callback=ns_handler, args=args, kwargs=kwargs)
             )
 
-        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+        dispatcher.add_handler(collector.handlers[re.compile(re.escape("/handler"))])
         dispatcher.execute_command(msg)
 
         assert testing_array
@@ -339,7 +343,7 @@ class TestSyncDispatcherHandlersExecution:
         ):
             testing_array.extend([(arg1, arg2), dict(kwarg1=kwarg1, kwarg2=kwarg2)])
 
-        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+        dispatcher.add_handler(collector.handlers[re.compile(re.escape("/handler"))])
         dispatcher.execute_command(message_data(command="/handler"))
 
         assert testing_array == [args, kwargs]
@@ -375,7 +379,7 @@ class TestSyncDispatcherHandlersExecution:
                 CommandCallback(callback=second_handler, args=args, kwargs=kwargs),
             )
 
-        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+        dispatcher.add_handler(collector.handlers[re.compile(re.escape("/handler"))])
         dispatcher.execute_command(msg)
 
         dispatcher.execute_command(msg)
@@ -408,7 +412,7 @@ class TestAsyncDispatcherHandlersExecution:
 
         dispatcher = AsyncDispatcher(tasks_limit=10)
         await dispatcher.start()
-        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+        dispatcher.add_handler(collector.handlers[re.compile(re.escape("/handler"))])
         await dispatcher.execute_command(message_data(command="/handler"))
         await dispatcher.shutdown()
 
@@ -435,7 +439,7 @@ class TestAsyncDispatcherHandlersExecution:
                 message, CommandCallback(callback=ns_handler)
             )
 
-        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+        dispatcher.add_handler(collector.handlers[re.compile(re.escape("/handler"))])
         await dispatcher.execute_command(msg)
 
         await asyncio.sleep(0.1)
@@ -471,7 +475,7 @@ class TestAsyncDispatcherHandlersExecution:
                 message, CommandCallback(callback=ns_handler, args=args, kwargs=kwargs)
             )
 
-        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+        dispatcher.add_handler(collector.handlers[re.compile(re.escape("/handler"))])
         await dispatcher.execute_command(msg)
 
         await asyncio.sleep(0.1)
@@ -504,7 +508,7 @@ class TestAsyncDispatcherHandlersExecution:
         ):
             testing_array.extend([(arg1, arg2), dict(kwarg1=kwarg1, kwarg2=kwarg2)])
 
-        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+        dispatcher.add_handler(collector.handlers[re.compile(re.escape("/handler"))])
         await dispatcher.execute_command(message_data(command="/handler"))
 
         await asyncio.sleep(0.1)
@@ -542,7 +546,7 @@ class TestAsyncDispatcherHandlersExecution:
                 CommandCallback(callback=second_handler, args=args, kwargs=kwargs),
             )
 
-        dispatcher.add_handler(collector.handlers[re.compile("/handler")])
+        dispatcher.add_handler(collector.handlers[re.compile(re.escape("/handler"))])
         await dispatcher.execute_command(msg)
         await asyncio.sleep(0.1)
         await dispatcher.execute_command(msg)
