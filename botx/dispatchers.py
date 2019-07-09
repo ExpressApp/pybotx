@@ -146,7 +146,7 @@ class SyncDispatcher(BaseDispatcher):
             logger.bind(handler=handler.dict()).debug(
                 "transforming handler callback coroutine to function"
             )
-            handler.callback.callback = asgiref.sync.async_to_sync(
+            handler.callback.callback = asgiref.sync.async_to_sync(  # type: ignore
                 handler.callback.callback
             )
 
@@ -164,7 +164,9 @@ class SyncDispatcher(BaseDispatcher):
             logger_ctx.warning("transforming function in runtime is not cheap")
             logger_ctx.debug("transforming handler callback coroutine to function")
 
-            callback.callback = asgiref.sync.async_to_sync(callback.callback)
+            callback.callback = asgiref.sync.async_to_sync(  # type: ignore
+                callback.callback
+            )
 
         func = callback.callback
 
@@ -175,9 +177,16 @@ class SyncDispatcher(BaseDispatcher):
 
 class AsyncDispatcher(BaseDispatcher):
     _scheduler: aiojobs.Scheduler
+    _tasks_limit: int
+
+    def __init__(self, tasks_limit: int) -> None:
+        super().__init__()
+        self._tasks_limit = tasks_limit
 
     async def start(self) -> None:
-        self._scheduler = await aiojobs.create_scheduler()
+        self._scheduler = await aiojobs.create_scheduler(
+            limit=self._tasks_limit, pending_limit=0
+        )
 
     async def shutdown(self) -> None:
         await self._scheduler.close()
@@ -196,7 +205,7 @@ class AsyncDispatcher(BaseDispatcher):
             logger.bind(handler=handler.dict()).debug(
                 "transforming handler callback to coroutine"
             )
-            handler.callback.callback = asgiref.sync.sync_to_async(
+            handler.callback.callback = asgiref.sync.sync_to_async(  # type: ignore
                 handler.callback.callback
             )
 
@@ -210,6 +219,8 @@ class AsyncDispatcher(BaseDispatcher):
             logger_ctx.warning("transforming function in runtime is not cheap")
             logger_ctx.debug("transforming handler callback to coroutine")
 
-            callback.callback = asgiref.sync.async_to_sync(callback.callback)
+            callback.callback = asgiref.sync.async_to_sync(  # type: ignore
+                callback.callback
+            )
 
         self._add_next_step_handler(message, callback)

@@ -1,10 +1,11 @@
 `pybotx` provides 2 classes for writing bots that inherit handlers registration behaviour from `HandlersCollector`:
 
-* `Bot(workers, credentials, disable_credentials)` - bot that provides a synchronous sdk.
+* `Bot(*, workers, credentials, disable_credentials)` - bot that provides a synchronous sdk.
     * `workers: int` - the number of threads to run handlers concurrent, the number of processors by default.
     * `credentials: Optional[BotCredentials] = None` - an instance of `BotCredentials` with a list of registered `CTS` and obtained tokens.
     * `disable_credentials: bool = False` - use the deprecated BotX API, which does not require tokens.
-* `AsyncBot(credentials, disable_credentials)` - bot that provides a asynchronous sdk.
+* `AsyncBot(*, concurrent_tasks, credentials, disable_credentials)` - bot that provides a asynchronous sdk.
+    * `concurrent_tasks: int = 1500` - the number of coroutines that can be executed by the bot at the same time, the rest will be in the queue.
     * `credentials: Optional[BotCredentials] = None`
     * `disable_credentials: bool = False`
     

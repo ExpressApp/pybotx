@@ -49,12 +49,7 @@ from .models import (
 )
 
 CPU_COUNT = multiprocessing.cpu_count()
-
-
-# TODO: add add_exception_handler
-# TODO: different name?
-
-# TODO: dependencies injection system
+TASKS_LIMIT = 1500
 
 
 class BaseBot(abc.ABC, HandlersCollector):
@@ -515,6 +510,7 @@ class AsyncBot(BaseBot):
     def __init__(
         self,
         *,
+        concurrent_tasks: int = TASKS_LIMIT,
         credentials: Optional[BotCredentials] = None,
         disable_credentials: bool = False,
     ) -> None:
@@ -522,7 +518,7 @@ class AsyncBot(BaseBot):
             credentials=credentials, disable_credentials=disable_credentials
         )
 
-        self._dispatcher = AsyncDispatcher()
+        self._dispatcher = AsyncDispatcher(tasks_limit=concurrent_tasks)
 
     async def start(self) -> None:
         await self._dispatcher.start()

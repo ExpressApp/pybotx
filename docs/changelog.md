@@ -9,6 +9,7 @@ such as creating a new chat with a bot.
 * Added logging via `loguru`.
 * Renamed `chat_id` argument in `send_file` to `sync_id`.
 * `Bot` and` AsyncBot` can now accept both coroutines and normal functions.
+* Increase count of concurrent async handlers.
 
 ## 0.11.1
 * Fixed raising exception on successful status codes from the BotX API.
