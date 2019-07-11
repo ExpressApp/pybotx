@@ -5,6 +5,7 @@ import pytest
 
 from botx import BotXException, HandlersCollector, SystemEventsEnum
 from botx.core import DEFAULT_HANDLER_BODY, SYSTEM_FILE_TRANSFER
+from tests.utils import re_from_str
 
 
 class TestHandlersCollector:
@@ -28,7 +29,7 @@ class TestHandlersCollector:
 
         handler_func = collector.handler(command=handler_body)(handler_factory("sync"))
 
-        handler = collector.handlers[re.compile(re.escape("/handler"))]
+        handler = collector.handlers[re_from_str("/handler")]
         assert handler.callback.callback == handler_func
 
     def test_raising_exception_in_handlers_merge(self, handler_factory):
@@ -82,7 +83,7 @@ class TestHandlersCollector:
 
     def test_decorator_accept_body_with_commands(self, handler_factory):
         collector = HandlersCollector()
-        command_names_list = [re.compile(re.escape(f"/cmd{i}")) for i in range(4)]
+        command_names_list = [re_from_str(f"/cmd{i}") for i in range(4)]
 
         collector.handler(
             handler_factory("sync"), command="/cmd0", commands=["cmd1", "cmd2", "cmd3"]
@@ -97,8 +98,8 @@ class TestHandlersCollector:
         def get_processed_information(*_):
             pass
 
-        assert re.compile(re.escape("/info")) in collector.handlers
-        assert re.compile(re.escape("/information")) in collector.handlers
+        assert re_from_str("/info") in collector.handlers
+        assert re_from_str("/information") in collector.handlers
 
     def test_regex_registration_many_handlers(self, handler_factory):
         collector = HandlersCollector()
@@ -119,7 +120,7 @@ class TestHandlersCollectorNamingRules:
         def handler_function(*_):
             pass
 
-        handler = collector.handlers[re.compile(re.escape("/handler-function"))]
+        handler = collector.handlers[re_from_str("/handler-function")]
         assert handler.name == handler_function.__name__
 
     def test_naming_rules_for_common_commands(self, handler_factory):
@@ -129,7 +130,7 @@ class TestHandlersCollectorNamingRules:
         function = handler_factory("sync")
         collector.handler(function, name=handler_name)
 
-        handler = collector.handlers[re.compile(re.escape(f"/{handler_name}"))]
+        handler = collector.handlers[re_from_str(f"/{handler_name}")]
         assert handler.callback.callback == function
         assert handler.name == handler_name
         assert handler.description == f"{handler_name.capitalize()} handler"
@@ -159,7 +160,7 @@ class TestHandlersCollectorNamingRules:
         collector = HandlersCollector()
         collector.handler(handler_factory("sync"), command="/////command")
 
-        assert re.compile(re.escape("/command")) in collector.handlers
+        assert re_from_str("/command") in collector.handlers
 
 
 class TestHandlersCollectorExtraCommands:
@@ -169,7 +170,7 @@ class TestHandlersCollectorExtraCommands:
         collector = HandlersCollector()
         collector.hidden_command_handler(handler_factory("sync"), command=handler_body)
 
-        handler = collector.handlers[re.compile(re.escape(handler_body))]
+        handler = collector.handlers[re_from_str(handler_body)]
         assert handler.exclude_from_status
 
     def test_default_handler_attributes(self, handler_factory):

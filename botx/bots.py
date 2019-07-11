@@ -55,29 +55,15 @@ TASKS_LIMIT = 1500
 class BaseBot(abc.ABC, HandlersCollector):
     _dispatcher: BaseDispatcher
     _credentials: BotCredentials
-    _disable_credentials: bool
-    _token_url: str = BotXAPI.V2.token.url
-    _command_url: str = BotXAPI.V3.command.url
-    _notification_url: str = BotXAPI.V3.notification.url
-    _file_url: str = BotXAPI.V1.file.url
+    _token_url: str = BotXAPI.V4.token.url
+    _command_url: str = BotXAPI.V4.command.url
+    _notification_url: str = BotXAPI.V4.notification.url
+    _file_url: str = BotXAPI.V4.file.url
 
-    def __init__(
-        self,
-        *,
-        credentials: Optional[BotCredentials] = None,
-        disable_credentials: bool = False,
-    ) -> None:
+    def __init__(self, *, credentials: Optional[BotCredentials] = None) -> None:
         super().__init__()
 
         self._credentials = credentials if credentials else BotCredentials()
-
-        if disable_credentials:
-            logger.info("tokens obtaining disabled, switch to BotX API V2")
-
-            self._command_url = BotXAPI.V2.command.url
-            self._notification_url = BotXAPI.V2.notification.url
-
-        self._disable_credentials = disable_credentials
 
     @property
     def credentials(self) -> BotCredentials:
@@ -226,15 +212,9 @@ class SyncBot(BaseBot):
     _session: requests.Session
 
     def __init__(
-        self,
-        *,
-        workers: int = CPU_COUNT,
-        credentials: Optional[BotCredentials] = None,
-        disable_credentials: bool = False,
+        self, *, workers: int = CPU_COUNT, credentials: Optional[BotCredentials] = None
     ) -> None:
-        super().__init__(
-            credentials=credentials, disable_credentials=disable_credentials
-        )
+        super().__init__(credentials=credentials)
 
         self._dispatcher = SyncDispatcher(workers=workers)
         self._session = requests.Session()
@@ -377,9 +357,6 @@ class SyncBot(BaseBot):
     def _obtain_token(self, host: str, bot_id: UUID) -> None:
         logger_ctx = logger.bind(host=host, bot_id=bot_id)
 
-        if self._disable_credentials:
-            return
-
         cts = self.get_cts_by_host(host)
         if not cts:
             raise BotXException(f"unregistered cts with host {repr(host)}")
@@ -434,11 +411,7 @@ class SyncBot(BaseBot):
             file=file,
             opts=opts,
         )
-        headers = (
-            get_headers(self.get_token_from_cts(host))
-            if not self._disable_credentials
-            else {}
-        )
+        headers = get_headers(self.get_token_from_cts(host))
 
         logger.bind(command_response=command_resp.dict(), headers=headers).debug(
             "sending command response"
@@ -480,11 +453,7 @@ class SyncBot(BaseBot):
             file=file,
             opts=opts,
         )
-        headers = (
-            get_headers(self.get_token_from_cts(host))
-            if not self._disable_credentials
-            else {}
-        )
+        headers = get_headers(self.get_token_from_cts(host))
 
         logger.bind(
             notification_response=notification_resp.dict(), headers=headers
@@ -512,11 +481,8 @@ class AsyncBot(BaseBot):
         *,
         concurrent_tasks: int = TASKS_LIMIT,
         credentials: Optional[BotCredentials] = None,
-        disable_credentials: bool = False,
     ) -> None:
-        super().__init__(
-            credentials=credentials, disable_credentials=disable_credentials
-        )
+        super().__init__(credentials=credentials)
 
         self._dispatcher = AsyncDispatcher(tasks_limit=concurrent_tasks)
 
@@ -660,9 +626,6 @@ class AsyncBot(BaseBot):
     async def _obtain_token(self, host: str, bot_id: UUID) -> None:
         logger_ctx = logger.bind(host=host, bot_id=bot_id)
 
-        if self._disable_credentials:
-            return
-
         cts = self.get_cts_by_host(host)
         if not cts:
             raise BotXException(f"unregistered cts with host {repr(host)}")
@@ -719,11 +682,7 @@ class AsyncBot(BaseBot):
             file=file,
             opts=opts,
         )
-        headers = (
-            get_headers(self.get_token_from_cts(host))
-            if not self._disable_credentials
-            else {}
-        )
+        headers = get_headers(self.get_token_from_cts(host))
 
         logger.bind(command_response=command_resp.dict(), headers=headers).debug(
             "sending command response"
@@ -765,11 +724,7 @@ class AsyncBot(BaseBot):
             file=file,
             opts=opts,
         )
-        headers = (
-            get_headers(self.get_token_from_cts(host))
-            if not self._disable_credentials
-            else {}
-        )
+        headers = get_headers(self.get_token_from_cts(host))
 
         logger.bind(
             notification_response=notification_resp.dict(), headers=headers

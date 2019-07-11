@@ -1,3 +1,5 @@
+import re
+import typing
 import uuid
 from random import choice, randint
 from string import ascii_lowercase
@@ -29,3 +31,7 @@ def generate_user(host: str, admin: bool = False, chat_creator: bool = False):
         "user_huid": uuid.uuid4(),
         "username": generate_username(),
     }
+
+
+def re_from_str(string: str) -> typing.Pattern:
+    return re.compile(re.escape(string))

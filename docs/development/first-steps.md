@@ -11,8 +11,8 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette.status import HTTP_202_ACCEPTED
 
-bot = Bot(disable_credentials=True)
-
+bot = Bot()
+bot.add_cts(CTS(host="cts.example.com", secret_key="secret"))
 
 @bot.default_handler
 def echo_handler(message: Message, bot: Bot):
@@ -60,14 +60,15 @@ from starlette.status import HTTP_202_ACCEPTED
 
 ### Step 2: initialize your `Bot`
 
-```Python3 hl_lines="2"
+```Python3 hl_lines="2 3"
 ...
-bot = Bot(disable_credentials=True)
+bot = Bot()
+bot.add_cts(CTS(host="cts.example.com", secret_key="secret"))
 ...
 ```
 
 The `bot` variable will be an "instance" of the class `Bot`.
-We also disable obtaining tokens for cts servers for simplifying.
+We also register an instance of the cts server to get tokens and the ability to send requests to the API.
 
 ### Step 3: define default handler
 
@@ -142,7 +143,8 @@ We'll use the `/fill-info` command to start the chain:
 ...
 users_data = {}
 
-bot = Bot(disable_credentials)
+bot = Bot()
+bot.add_cts(CTS(host="cts.example.com", secret_key="secret"))
 
 @bot.handler
 def fill_info(message: Message, bot: Bot):
@@ -299,8 +301,8 @@ from starlette.status import HTTP_202_ACCEPTED
 
 users_data = {}
 
-bot = Bot(disable_credentials=True)
-
+bot = Bot()
+bot.add_cts(CTS(host="cts.example.com", secret_key="secret"))
 
 @bot.default_handler
 def echo_handler(message: Message, bot: Bot):

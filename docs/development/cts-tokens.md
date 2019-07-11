@@ -1,4 +1,4 @@
-To use new features of the BotX API, you must prove that your bot is a real bot registered on the Express server.
+To use the BotX API, you must prove that your bot is a real bot registered on the Express server.
 You can do this by registering an instance of the `CTS` class with the `secret_key` for this bot in `Bot` or `AsyncBot` instances.
 
 Here is a short example:

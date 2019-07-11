@@ -3,15 +3,26 @@ import logging
 import pathlib
 import random
 import string
+from typing import Callable, Dict
 from uuid import UUID, uuid4
 
 import aresponses
 import pytest
 import responses
+from _pytest.logging import LogCaptureFixture
 from aiohttp.web_response import json_response
 from loguru import logger
 
-from botx import Message, ReplyMessage, SyncID, SystemEventsEnum
+from botx import (
+    CTS,
+    AsyncBot,
+    Bot,
+    CTSCredentials,
+    Message,
+    ReplyMessage,
+    SyncID,
+    SystemEventsEnum,
+)
 from botx.core import BotXAPI
 
 from .utils import generate_user, generate_username, get_route_path_from_template
@@ -68,7 +79,7 @@ def txt_file_content() -> str:
 
 
 @pytest.fixture
-def chat_created_data():
+def chat_created_data() -> Dict:
     return {
         "group_chat_id": uuid4(),
         "chat_type": "group_chat",
@@ -81,21 +92,25 @@ def chat_created_data():
                 "name": generate_username(),
                 "admin": random.choice([True, False]),
             }
-            for i in range(random.randrange(2, 6))
+            for _ in range(random.randrange(2, 6))
         ],
     }
 
 
 @pytest.fixture
 def message_data(
-    bot_id: UUID, sync_id: SyncID, host: str, json_file_content, chat_created_data
-):
+    bot_id: UUID,
+    sync_id: SyncID,
+    host: str,
+    json_file_content: str,
+    chat_created_data: Dict,
+) -> Callable:
     def _create_message_data(
         command: str = "/cmd",
         file: bool = True,
         admin: bool = False,
         chat_creator: bool = False,
-    ):
+    ) -> Dict:
         encoded_data = base64.b64encode(json_file_content.encode()).decode()
 
         file_data = (
@@ -126,13 +141,13 @@ def message_data(
 
 
 @pytest.fixture
-def reply_message(message_data) -> ReplyMessage:
+def reply_message(message_data: Callable) -> ReplyMessage:
     return ReplyMessage.from_message("text", Message(**message_data()))
 
 
 @pytest.fixture
-def handler_factory():
-    def _create_handler(handler_type: str = "sync"):
+def handler_factory() -> Callable:
+    def _create_handler(handler_type: str = "sync") -> Callable:
         if handler_type == "sync":
 
             def sync_handler(*_) -> None:
@@ -157,35 +172,22 @@ def valid_sync_requests_mock(host: str, bot_id: UUID) -> responses.RequestsMock:
 
     with responses.RequestsMock(assert_all_requests_are_fired=False) as mock:
         mock.add(
-            BotXAPI.V2.token.method,
-            BotXAPI.V2.token.url.format(host=host, bot_id=bot_id),
-            json=resp,
-        )
-
-        mock.add(
-            BotXAPI.V2.notification.method,
-            BotXAPI.V2.notification.url.format(host=host),
+            BotXAPI.V4.token.method,
+            BotXAPI.V4.token.url.format(host=host, bot_id=bot_id),
             json=resp,
         )
         mock.add(
-            BotXAPI.V2.command.method,
-            BotXAPI.V2.command.url.format(host=host),
-            json=resp,
-        )
-
-        mock.add(
-            BotXAPI.V3.notification.method,
-            BotXAPI.V3.notification.url.format(host=host),
+            BotXAPI.V4.notification.method,
+            BotXAPI.V4.notification.url.format(host=host),
             json=resp,
         )
         mock.add(
-            BotXAPI.V3.command.method,
-            BotXAPI.V3.command.url.format(host=host),
+            BotXAPI.V4.command.method,
+            BotXAPI.V4.command.url.format(host=host),
             json=resp,
         )
-
         mock.add(
-            BotXAPI.V1.file.method, BotXAPI.V1.file.url.format(host=host), json=resp
+            BotXAPI.V4.file.method, BotXAPI.V4.file.url.format(host=host), json=resp
         )
 
         yield mock
@@ -200,41 +202,26 @@ async def valid_async_requests_mock(
     async with aresponses.ResponsesMockServer() as mock:
         mock.add(
             host,
-            get_route_path_from_template(BotXAPI.V2.token.url).format(bot_id=bot_id),
-            BotXAPI.V2.token.method.lower(),
-            json_response(resp),
-        )
-
-        mock.add(
-            host,
-            get_route_path_from_template(BotXAPI.V2.notification.url),
-            BotXAPI.V2.notification.method.lower(),
+            get_route_path_from_template(BotXAPI.V4.token.url).format(bot_id=bot_id),
+            BotXAPI.V4.token.method.lower(),
             json_response(resp),
         )
         mock.add(
             host,
-            get_route_path_from_template(BotXAPI.V2.command.url),
-            BotXAPI.V2.command.method.lower(),
-            json_response(resp),
-        )
-
-        mock.add(
-            host,
-            get_route_path_from_template(BotXAPI.V3.notification.url),
-            BotXAPI.V3.notification.method.lower(),
+            get_route_path_from_template(BotXAPI.V4.notification.url),
+            BotXAPI.V4.notification.method.lower(),
             json_response(resp),
         )
         mock.add(
             host,
-            get_route_path_from_template(BotXAPI.V3.command.url),
-            BotXAPI.V3.command.method.lower(),
+            get_route_path_from_template(BotXAPI.V4.command.url),
+            BotXAPI.V4.command.method.lower(),
             json_response(resp),
         )
-
         mock.add(
             host,
-            get_route_path_from_template(BotXAPI.V1.file.url),
-            BotXAPI.V1.file.method.lower(),
+            get_route_path_from_template(BotXAPI.V4.file.url),
+            BotXAPI.V4.file.method.lower(),
             json_response(resp),
         )
 
@@ -247,41 +234,32 @@ def wrong_sync_requests_mock(host: str, bot_id: UUID) -> responses.RequestsMock:
 
     with responses.RequestsMock(assert_all_requests_are_fired=False) as mock:
         mock.add(
-            BotXAPI.V2.token.method,
-            BotXAPI.V2.token.url.format(host=host, bot_id=bot_id),
-            json=resp,
-            status=500,
-        )
-
-        mock.add(
-            BotXAPI.V2.notification.method,
-            BotXAPI.V2.notification.url.format(host=host),
+            BotXAPI.V4.token.method,
+            BotXAPI.V4.token.url.format(host=host, bot_id=bot_id),
             json=resp,
             status=500,
         )
         mock.add(
-            BotXAPI.V2.command.method,
-            BotXAPI.V2.command.url.format(host=host),
-            json=resp,
-            status=500,
-        )
-
-        mock.add(
-            BotXAPI.V3.notification.method,
-            BotXAPI.V3.notification.url.format(host=host),
+            BotXAPI.V4.notification.method,
+            BotXAPI.V4.notification.url.format(host=host),
             json=resp,
             status=500,
         )
         mock.add(
-            BotXAPI.V3.command.method,
-            BotXAPI.V3.command.url.format(host=host),
+            BotXAPI.V4.command.method,
+            BotXAPI.V4.command.url.format(host=host),
             json=resp,
             status=500,
         )
-
         mock.add(
-            BotXAPI.V1.file.method,
-            BotXAPI.V1.file.url.format(host=host),
+            BotXAPI.V4.notification.method,
+            BotXAPI.V4.notification.url.format(host=host),
+            json=resp,
+            status=500,
+        )
+        mock.add(
+            BotXAPI.V4.file.method,
+            BotXAPI.V4.file.url.format(host=host),
             json=resp,
             status=500,
         )
@@ -294,44 +272,30 @@ async def wrong_async_requests_mock(
     host: str, bot_id: UUID
 ) -> aresponses.ResponsesMockServer:
     resp = {"status": "error", "message": "error response"}
+
     async with aresponses.ResponsesMockServer() as mock:
         mock.add(
             host,
-            get_route_path_from_template(BotXAPI.V2.token.url).format(bot_id=bot_id),
-            BotXAPI.V2.token.method.lower(),
-            json_response(resp, status=500),
-        )
-
-        mock.add(
-            host,
-            get_route_path_from_template(BotXAPI.V2.notification.url),
-            BotXAPI.V2.notification.method.lower(),
+            get_route_path_from_template(BotXAPI.V4.token.url).format(bot_id=bot_id),
+            BotXAPI.V4.token.method.lower(),
             json_response(resp, status=500),
         )
         mock.add(
             host,
-            get_route_path_from_template(BotXAPI.V2.command.url),
-            BotXAPI.V2.command.method.lower(),
-            json_response(resp, status=500),
-        )
-
-        mock.add(
-            host,
-            get_route_path_from_template(BotXAPI.V3.notification.url),
-            BotXAPI.V3.notification.method.lower(),
+            get_route_path_from_template(BotXAPI.V4.notification.url),
+            BotXAPI.V4.notification.method.lower(),
             json_response(resp, status=500),
         )
         mock.add(
             host,
-            get_route_path_from_template(BotXAPI.V3.command.url),
-            BotXAPI.V3.command.method.lower(),
+            get_route_path_from_template(BotXAPI.V4.command.url),
+            BotXAPI.V4.command.method.lower(),
             json_response(resp, status=500),
         )
-
         mock.add(
             host,
-            get_route_path_from_template(BotXAPI.V1.file.url),
-            BotXAPI.V1.file.method.lower(),
+            get_route_path_from_template(BotXAPI.V4.file.url),
+            BotXAPI.V4.file.method.lower(),
             json_response(resp, status=500),
         )
 
@@ -339,7 +303,7 @@ async def wrong_async_requests_mock(
 
 
 @pytest.fixture
-def caplog(caplog):
+def caplog(caplog) -> LogCaptureFixture:
     class PropogateHandler(logging.Handler):
         def emit(self, record):
             logging.getLogger(record.name).handle(record)
@@ -347,3 +311,29 @@ def caplog(caplog):
     handler_id = logger.add(PropogateHandler(), format="{message}")
     yield caplog
     logger.remove(handler_id)
+
+
+@pytest.fixture
+def bot_with_token(host: str, bot_id: UUID) -> Bot:
+    bot = Bot(workers=1)
+    bot.add_cts(
+        CTS(
+            host=host,
+            secret_key="secret",
+            credentials=CTSCredentials(bot_id=bot_id, token="token"),
+        )
+    )
+    return bot
+
+
+@pytest.fixture
+async def async_bot_with_token(host: str, bot_id: UUID) -> AsyncBot:
+    bot = AsyncBot()
+    bot.add_cts(
+        CTS(
+            host=host,
+            secret_key="secret",
+            credentials=CTSCredentials(bot_id=bot_id, token="token"),
+        )
+    )
+    return bot

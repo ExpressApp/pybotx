@@ -60,12 +60,13 @@ Let's create a simple echo bot.
 
 * Create a file `main.py` with following content:
 ```Python3
-from botx import Bot, Message, Status
+from botx import Bot, CTS, Message, Status
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette.status import HTTP_202_ACCEPTED
 
-bot = Bot(disable_credentials=True)
+bot = Bot()
+bot.add_cts(CTS(host="cts.example.com", secret_key="secret"))
 
 
 @bot.default_handler
@@ -96,13 +97,13 @@ def bot_command(message: Message):
 <summary>Or use <code>async def</code></summary>
 
 ```Python3 hl_lines="1 6 10 11 23 24 28 33 34"
-from botx import AsyncBot, Message, Status
+from botx import AsyncBot, CTS, Message, Status
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette.status import HTTP_202_ACCEPTED
 
-bot = AsyncBot(disable_credentials=True)
-
+bot = AsyncBot()
+bot.add_cts(CTS(host="cts.example.com", secret_key="secret"))
 
 @bot.default_handler
 async def echo_handler(message: Message, bot: Bot):
