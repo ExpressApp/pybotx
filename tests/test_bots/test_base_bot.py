@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 
 from botx import (
@@ -16,26 +18,20 @@ from tests.utils import re_from_str
 
 class TestBaseBot:
     def test_default_credentials_are_empty(self):
-        bot = Bot(workers=1)
+        bot = Bot()
 
         assert bot.credentials == BotCredentials()
 
     def test_adding_cts(self, host, secret):
         cts = CTS(host=host, secret_key=secret)
 
-        bot = Bot(workers=1)
+        bot = Bot()
         bot.add_cts(cts)
 
         assert bot.get_cts_by_host(host) == cts
 
-    def test_raising_exception_for_retrieving_token_for_unregistered_cts(self, host):
-        bot = Bot(workers=1)
-
-        with pytest.raises(BotXException):
-            bot.get_token_from_cts(host)
-
     def test_adding_credentials_without_duplicates(self, host, secret):
-        bot = Bot(workers=1)
+        bot = Bot()
         credentials = BotCredentials(known_cts=[CTS(host=host, secret_key=secret)])
 
         bot.add_credentials(credentials)
@@ -44,7 +40,7 @@ class TestBaseBot:
         assert bot.credentials == credentials
 
     def test_bot_append_self_to_handlers_args(self, handler_factory):
-        bot = Bot(workers=1)
+        bot = Bot()
         collector = HandlersCollector()
 
         collector.handler(handler_factory("sync"), command="cmd")
@@ -53,11 +49,12 @@ class TestBaseBot:
         handler = bot.handlers[re_from_str("/cmd")]
         assert handler.callback.args == (bot,)
 
-    def test_status_property(self, handler_factory):
-        bot = Bot(workers=1)
+    @pytest.mark.asyncio
+    async def test_status(self, handler_factory):
+        bot = Bot()
         bot.handler(handler_factory("sync"))
 
-        assert bot.status == Status(
+        assert await bot.status() == Status(
             result=StatusResult(
                 commands=[
                     bot.handlers[re_from_str("/sync-handler")].to_status_command()
@@ -65,9 +62,10 @@ class TestBaseBot:
             )
         )
 
-    def test_next_step_handlers_execution(self, message_data):
-        bot = Bot(workers=1)
-        bot.start()
+    @pytest.mark.asyncio
+    async def test_next_step_handlers_execution(self, message_data):
+        bot = Bot()
+        await bot.start()
 
         message = Message(**message_data(command="/my-handler"))
 
@@ -80,18 +78,22 @@ class TestBaseBot:
 
             bot.register_next_step_handler(msg, ns_handler)
 
-        bot.execute_command(message.dict())
-        bot.execute_command(message.dict())
+        await bot.execute_command(message.dict())
 
-        bot.stop()
+        await asyncio.sleep(0.1)
+
+        await bot.execute_command(message.dict())
+
+        await bot.stop()
 
         assert testing_array == [(message, bot)]
 
-    def test_raising_exception_for_registration_ns_handlers_without_users(
+    @pytest.mark.asyncio
+    async def test_raising_exception_for_registration_ns_handlers_without_users(
         self, message_data
     ):
-        bot = Bot(workers=1)
-        bot.start()
+        bot = Bot()
+        await bot.start()
 
         message = Message(**message_data(command=SystemEventsEnum.chat_created.value))
         message.user.user_huid = None
@@ -108,8 +110,102 @@ class TestBaseBot:
             except BotXException as e:
                 testing_array.append(e)
 
-        bot.execute_command(message.dict())
+        await bot.execute_command(message.dict())
 
-        bot.stop()
+        await bot.stop()
 
         assert testing_array
+
+    @pytest.mark.asyncio
+    async def test_exception_catcher_handles_errors_from_handler(self, message_data):
+        bot = Bot()
+        await bot.start()
+
+        message = Message(**message_data())
+
+        testing_array = []
+
+        re = RuntimeError("test")
+
+        @bot.exception_catcher([Exception])
+        async def error_handler(exc: Exception, msg: Message, bot: Bot) -> None:
+            testing_array.append((exc, msg, bot))
+
+        @bot.handler(command="cmd")
+        async def handler(*_):
+            raise re
+
+        await bot.execute_command(message.dict())
+
+        await bot.stop()
+
+        assert testing_array[0] == (re, message, bot)
+
+    @pytest.mark.asyncio
+    async def test_exception_catcher_handles_errors_from_sync_handler(
+        self, message_data
+    ):
+        bot = Bot()
+        await bot.start()
+
+        message = Message(**message_data())
+
+        testing_array = []
+
+        re = RuntimeError("test")
+
+        @bot.exception_catcher([Exception])
+        def error_handler(exc: Exception, msg: Message, bot: Bot) -> None:
+            testing_array.append((exc, msg, bot))
+
+        @bot.handler(command="cmd")
+        def handler(*_):
+            raise re
+
+        await bot.execute_command(message.dict())
+
+        await asyncio.sleep(0.1)
+
+        await bot.stop()
+
+        assert testing_array[0] == (re, message, bot)
+
+    def test_raising_error_for_duplicate_exceptions_catchers(self):
+        bot = Bot()
+
+        @bot.exception_catcher([Exception])
+        async def error_handler(*_) -> None:
+            pass
+
+        with pytest.raises(BotXException):
+
+            @bot.exception_catcher([Exception])
+            async def error_handler(*_) -> None:
+                pass
+
+    @pytest.mark.asyncio
+    async def test_replacing_catcher_when_force_replace(self, message_data):
+        bot = Bot()
+        await bot.start()
+
+        message = Message(**message_data())
+
+        testing_array = []
+
+        @bot.exception_catcher([Exception])
+        async def error_handler(*_) -> None:
+            testing_array.append(False)
+
+        @bot.exception_catcher([Exception], force_replace=True)
+        async def error_handler(*_) -> None:
+            testing_array.append(True)
+
+        @bot.handler(command="cmd")
+        async def handler(*_):
+            raise Exception
+
+        await bot.execute_command(message.dict())
+
+        await bot.stop()
+
+        assert testing_array[0]

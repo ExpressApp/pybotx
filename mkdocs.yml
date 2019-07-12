@@ -14,6 +14,8 @@ nav:
         - First Steps: 'development/first-steps.md'
         - Sending Messages And Files: 'development/sending-data.md'
         - HandlersCollector: 'development/handlers-collector.md'
+        - Handling Errors: 'development/handling-errors.md'
+        - Use Synchronous SDK: 'development/sync.md'
         - Developing Using Tokens: 'development/cts-tokens.md'
         - Deployment: 'development/bots-deployment.md'
     - API Reference:

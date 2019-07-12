@@ -3,6 +3,9 @@
     <em>A little python library for building bots for Express</em>
 </p>
 <p align="center">
+    <a href="https://travis-ci.org/ExpressApp/pybotx">
+        <img src="https://travis-ci.org/ExpressApp/pybotx.svg?branch=master" alt="Travis-CI">
+    </a>
     <a href="https://github.com/ExpressApp/pybotx/blob/master/LICENSE">
         <img src="https://img.shields.io/github/license/Naereen/StrapDown.js.svg" alt="License">
     </a>
@@ -24,7 +27,7 @@
 Main features:
 
  * Simple integration with your web apps.
- * Synchronous API as well as asynchronous.
+ * Asynchronous API with synchronous as a fallback option.
  * 100% test coverage.
  * 100% type annotated codebase.
 
@@ -37,10 +40,8 @@ Python 3.6+
 `pybotx` use the following libraries:
 
 * <a href="https://github.com/samuelcolvin/pydantic" target="_blank">pydantic</a> for the data parts.
-* <a href="https://github.com/kennethreitz/requests" target="_blank">requests</a> for making synchronous calls to BotX API.
-* <a href="https://github.com/aio-libs/aiohttp" target="_blank">aiohttp</a> for making asynchronous calls to BotX API.
+* <a href="https://github.com/encode/http3" target="_blank">http3</a> for making HTTP calls to BotX API.
 * <a href="https://github.com/aio-libs/aiojobs" target="_blank">aiojobs</a> for dispatching asynchronous tasks.
-* <a href="https://github.com/django/asgiref" target="_blank">asgiref</a> for handlers transformation.
 * <a href="https://github.com/Delgan/loguru" target="_blank">loguru</a> for beautiful and powerful logs.
 
 ## Installation
@@ -70,42 +71,6 @@ bot.add_cts(CTS(host="cts.example.com", secret_key="secret"))
 
 
 @bot.default_handler
-def echo_handler(message: Message, bot: Bot):
-    bot.answer_message(message.body, message)
-
-
-app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-@app.get("/status", response_model=Status)
-def bot_status():
-    return bot.status
-
-
-@app.post("/command", status_code=HTTP_202_ACCEPTED)
-def bot_command(message: Message):
-    bot.execute_command(message.dict())
-```
-<details markdown="1">
-<summary>Or use <code>async def</code></summary>
-
-```Python3 hl_lines="1 6 10 11 23 24 28 33 34"
-from botx import AsyncBot, CTS, Message, Status
-from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
-from starlette.status import HTTP_202_ACCEPTED
-
-bot = AsyncBot()
-bot.add_cts(CTS(host="cts.example.com", secret_key="secret"))
-
-@bot.default_handler
 async def echo_handler(message: Message, bot: Bot):
     await bot.answer_message(message.body, message)
 
@@ -119,20 +84,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.add_event_handler("startup", bot.start)
-app.add_event_handler("shutdown", bot.stop)
-
 
 @app.get("/status", response_model=Status)
 async def bot_status():
-    return bot.status
+    return await bot.status()
 
 
 @app.post("/command", status_code=HTTP_202_ACCEPTED)
 async def bot_command(message: Message):
     await bot.execute_command(message.dict())
 ```
-</details>
 
 * Deploy a bot on your server using uvicorn and set the url for the webhook in Express.
 ```bash

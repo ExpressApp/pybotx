@@ -1,7 +1,7 @@
 from loguru import logger
 from pydantic import ValidationError
 
-from .bots import AsyncBot, SyncBot as Bot
+from .bots import AsyncBot as Bot
 from .collector import HandlersCollector
 from .core import BotXException
 from .models import (
@@ -23,10 +23,13 @@ from .models import (
     MenuCommand,
     Message,
     MessageCommand,
+    MessageMarkup,
     MessageUser,
     NotificationOpts,
+    NotifyOptions,
     ReplyMessage,
     ResponseRecipientsEnum,
+    SendingCredentials,
     Status,
     StatusEnum,
     StatusResult,
@@ -36,7 +39,6 @@ from .models import (
 )
 
 logger.disable("botx")
-
 
 __all__ = (
     "Bot",
@@ -62,7 +64,6 @@ __all__ = (
     "StatusEnum",
     "StatusResult",
     "SyncID",
-    "AsyncBot",
     "CommandHandler",
     "ReplyMessage",
     "BubbleElement",
@@ -72,4 +73,7 @@ __all__ = (
     "CommandCallback",
     "ChatCreatedData",
     "UserInChatCreated",
+    "MessageMarkup",
+    "NotifyOptions",
+    "SendingCredentials",
 )

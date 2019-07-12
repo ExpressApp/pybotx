@@ -2,7 +2,7 @@
 
 ### Properties
 
-* `handlers: Dict[Pattern, CommandHandler]` - dictionary of registered handlers with their command patterns.
+* `.handlers: Dict[Pattern, CommandHandler]` - dictionary of registered handlers with their command patterns.
         
 ### Handlers Registration
 

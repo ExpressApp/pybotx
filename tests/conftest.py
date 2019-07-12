@@ -1,29 +1,30 @@
-import base64
 import logging
 import pathlib
 import random
 import string
-from typing import Callable, Dict
+from typing import Callable, Dict, Optional
 from uuid import UUID, uuid4
 
-import aresponses
 import pytest
-import responses
 from _pytest.logging import LogCaptureFixture
-from aiohttp.web_response import json_response
+from http3 import AsyncClient
 from loguru import logger
+from starlette.applications import Starlette
+from starlette.responses import JSONResponse
+from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 from botx import (
     CTS,
-    AsyncBot,
     Bot,
     CTSCredentials,
+    File,
     Message,
     ReplyMessage,
     SyncID,
     SystemEventsEnum,
 )
 from botx.core import BotXAPI
+from botx.sync import SyncBot
 
 from .utils import generate_user, generate_username, get_route_path_from_template
 
@@ -51,31 +52,31 @@ def sync_id() -> SyncID:
 
 
 @pytest.fixture
-def gif_file_content() -> bytes:
+def gif_file() -> File:
     path = pathlib.Path(__file__).parent
     with open(path / "files" / "file.gif", "rb") as f:
-        return f.read()
+        return File.from_file(f)
 
 
 @pytest.fixture
-def json_file_content() -> str:
+def json_file() -> File:
     path = pathlib.Path(__file__).parent
     with open(path / "files" / "file.json", "r") as f:
-        return f.read()
+        return File.from_file(f)
 
 
 @pytest.fixture
-def png_file_content() -> bytes:
+def png_file() -> File:
     path = pathlib.Path(__file__).parent
     with open(path / "files" / "file.png", "rb") as f:
-        return f.read()
+        return File.from_file(f)
 
 
 @pytest.fixture
-def txt_file_content() -> str:
+def txt_file() -> File:
     path = pathlib.Path(__file__).parent
     with open(path / "files" / "file.txt", "r") as f:
-        return f.read()
+        return File.from_file(f)
 
 
 @pytest.fixture
@@ -99,11 +100,7 @@ def chat_created_data() -> Dict:
 
 @pytest.fixture
 def message_data(
-    bot_id: UUID,
-    sync_id: SyncID,
-    host: str,
-    json_file_content: str,
-    chat_created_data: Dict,
+    bot_id: UUID, sync_id: SyncID, host: str, json_file, chat_created_data: Dict
 ) -> Callable:
     def _create_message_data(
         command: str = "/cmd",
@@ -111,17 +108,6 @@ def message_data(
         admin: bool = False,
         chat_creator: bool = False,
     ) -> Dict:
-        encoded_data = base64.b64encode(json_file_content.encode()).decode()
-
-        file_data = (
-            {
-                "data": f"data:application/json;base64,{encoded_data}",
-                "file_name": "file.json",
-            }
-            if file
-            else None
-        )
-
         command_body = {"body": command, "command_type": "user", "data": {}}
 
         if command == SystemEventsEnum.chat_created.value:
@@ -131,7 +117,7 @@ def message_data(
         data = {
             "bot_id": str(bot_id),
             "command": command_body,
-            "file": file_data,
+            "file": json_file.dict() if file else None,
             "from": generate_user(host, admin, chat_creator),
             "sync_id": str(sync_id),
         }
@@ -166,144 +152,73 @@ def handler_factory() -> Callable:
     return _create_handler
 
 
-@pytest.fixture(scope="session")
-def valid_sync_requests_mock(host: str, bot_id: UUID) -> responses.RequestsMock:
-    resp = {"status": "ok", "result": "result"}
-
-    with responses.RequestsMock(assert_all_requests_are_fired=False) as mock:
-        mock.add(
-            BotXAPI.V4.token.method,
-            BotXAPI.V4.token.url.format(host=host, bot_id=bot_id),
-            json=resp,
-        )
-        mock.add(
-            BotXAPI.V4.notification.method,
-            BotXAPI.V4.notification.url.format(host=host),
-            json=resp,
-        )
-        mock.add(
-            BotXAPI.V4.command.method,
-            BotXAPI.V4.command.url.format(host=host),
-            json=resp,
-        )
-        mock.add(
-            BotXAPI.V4.file.method, BotXAPI.V4.file.url.format(host=host), json=resp
-        )
-
-        yield mock
-
-
 @pytest.fixture
-async def valid_async_requests_mock(
-    host: str, bot_id: UUID
-) -> aresponses.ResponsesMockServer:
-    resp = {"status": "ok", "result": "result"}
+def get_botx_api_app() -> Callable:
+    async def default_route(*_) -> JSONResponse:
+        return JSONResponse({"status": "ok", "result": "result"})
 
-    async with aresponses.ResponsesMockServer() as mock:
-        mock.add(
-            host,
-            get_route_path_from_template(BotXAPI.V4.token.url).format(bot_id=bot_id),
-            BotXAPI.V4.token.method.lower(),
-            json_response(resp),
+    async def default_error_route(*_) -> JSONResponse:
+        return JSONResponse(
+            {"status": "error", "message": "error response"},
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR,
         )
-        mock.add(
-            host,
-            get_route_path_from_template(BotXAPI.V4.notification.url),
-            BotXAPI.V4.notification.method.lower(),
-            json_response(resp),
-        )
-        mock.add(
-            host,
+
+    def get_default_route(generate_error_response: bool) -> Callable:
+        return default_route if not generate_error_response else default_error_route
+
+    def _get_asgi_app(
+        command_route: Optional[Callable] = None,
+        notification_route: Optional[Callable] = None,
+        file_route: Optional[Callable] = None,
+        token_route: Optional[Callable] = None,
+        *,
+        generate_error_response: bool = False,
+    ) -> Starlette:
+        app = Starlette()
+        app.add_route(
             get_route_path_from_template(BotXAPI.V4.command.url),
-            BotXAPI.V4.command.method.lower(),
-            json_response(resp),
+            command_route or get_default_route(generate_error_response),
+            methods=[BotXAPI.V4.command.method],
         )
-        mock.add(
-            host,
-            get_route_path_from_template(BotXAPI.V4.file.url),
-            BotXAPI.V4.file.method.lower(),
-            json_response(resp),
-        )
-
-        yield mock
-
-
-@pytest.fixture
-def wrong_sync_requests_mock(host: str, bot_id: UUID) -> responses.RequestsMock:
-    resp = {"status": "error", "message": "error response"}
-
-    with responses.RequestsMock(assert_all_requests_are_fired=False) as mock:
-        mock.add(
-            BotXAPI.V4.token.method,
-            BotXAPI.V4.token.url.format(host=host, bot_id=bot_id),
-            json=resp,
-            status=500,
-        )
-        mock.add(
-            BotXAPI.V4.notification.method,
-            BotXAPI.V4.notification.url.format(host=host),
-            json=resp,
-            status=500,
-        )
-        mock.add(
-            BotXAPI.V4.command.method,
-            BotXAPI.V4.command.url.format(host=host),
-            json=resp,
-            status=500,
-        )
-        mock.add(
-            BotXAPI.V4.notification.method,
-            BotXAPI.V4.notification.url.format(host=host),
-            json=resp,
-            status=500,
-        )
-        mock.add(
-            BotXAPI.V4.file.method,
-            BotXAPI.V4.file.url.format(host=host),
-            json=resp,
-            status=500,
-        )
-
-        yield mock
-
-
-@pytest.fixture
-async def wrong_async_requests_mock(
-    host: str, bot_id: UUID
-) -> aresponses.ResponsesMockServer:
-    resp = {"status": "error", "message": "error response"}
-
-    async with aresponses.ResponsesMockServer() as mock:
-        mock.add(
-            host,
-            get_route_path_from_template(BotXAPI.V4.token.url).format(bot_id=bot_id),
-            BotXAPI.V4.token.method.lower(),
-            json_response(resp, status=500),
-        )
-        mock.add(
-            host,
+        app.add_route(
             get_route_path_from_template(BotXAPI.V4.notification.url),
-            BotXAPI.V4.notification.method.lower(),
-            json_response(resp, status=500),
+            notification_route or get_default_route(generate_error_response),
+            methods=[BotXAPI.V4.notification.method],
         )
-        mock.add(
-            host,
-            get_route_path_from_template(BotXAPI.V4.command.url),
-            BotXAPI.V4.command.method.lower(),
-            json_response(resp, status=500),
-        )
-        mock.add(
-            host,
+        app.add_route(
             get_route_path_from_template(BotXAPI.V4.file.url),
-            BotXAPI.V4.file.method.lower(),
-            json_response(resp, status=500),
+            file_route or get_default_route(generate_error_response),
+            methods=[BotXAPI.V4.file.method],
+        )
+        app.add_route(
+            get_route_path_from_template(BotXAPI.V4.token.url),
+            token_route or get_default_route(generate_error_response),
+            methods=[BotXAPI.V4.token.method],
         )
 
-        yield mock
+        return app
+
+    return _get_asgi_app
 
 
 @pytest.fixture
-def caplog(caplog) -> LogCaptureFixture:
+def botx_api_app(get_botx_api_app: Callable) -> Starlette:
+    return get_botx_api_app()
+
+
+@pytest.fixture
+def botx_error_api_app(get_botx_api_app: Callable) -> Starlette:
+    async def route(*_) -> JSONResponse:
+        return JSONResponse(
+            {"status": "error", "message": "error response"},
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    return get_botx_api_app(*([route] * 4))
+
+
+@pytest.fixture
+def caplog(caplog: LogCaptureFixture) -> LogCaptureFixture:
     class PropogateHandler(logging.Handler):
         def emit(self, record):
             logging.getLogger(record.name).handle(record)
@@ -314,26 +229,35 @@ def caplog(caplog) -> LogCaptureFixture:
 
 
 @pytest.fixture
-def bot_with_token(host: str, bot_id: UUID) -> Bot:
-    bot = Bot(workers=1)
-    bot.add_cts(
-        CTS(
-            host=host,
-            secret_key="secret",
-            credentials=CTSCredentials(bot_id=bot_id, token="token"),
+def get_bot(get_botx_api_app: Callable, bot_id: UUID, host: str) -> Callable:
+    def _get_bot(
+        *,
+        command_route: Optional[Callable] = None,
+        notification_route: Optional[Callable] = None,
+        file_route: Optional[Callable] = None,
+        token_route: Optional[Callable] = None,
+        set_token: bool = False,
+        generate_error_response: bool = False,
+        create_sync_bot: bool = False,
+    ) -> Bot:
+        app = get_botx_api_app(
+            command_route,
+            notification_route,
+            file_route,
+            token_route,
+            generate_error_response=generate_error_response,
         )
-    )
-    return bot
+        bot = Bot() if not create_sync_bot else SyncBot()
+        bot._client._client = AsyncClient(app=app)
+        if set_token:
+            bot.add_cts(
+                CTS(
+                    host=host,
+                    secret_key="secret",
+                    credentials=CTSCredentials(bot_id=bot_id, token="token"),
+                )
+            )
 
+        return bot
 
-@pytest.fixture
-async def async_bot_with_token(host: str, bot_id: UUID) -> AsyncBot:
-    bot = AsyncBot()
-    bot.add_cts(
-        CTS(
-            host=host,
-            secret_key="secret",
-            credentials=CTSCredentials(bot_id=bot_id, token="token"),
-        )
-    )
-    return bot
+    return _get_bot

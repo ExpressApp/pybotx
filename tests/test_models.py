@@ -124,25 +124,6 @@ class TestMessage:
 
 
 class TestFile:
-    def test_file_converts_from_text_io(self, json_file_content):
-        with open("tests/files/file.json") as f:
-            file = File.from_file(f)
-
-        assert file.raw_data.decode() == json_file_content
-
-    def test_file_converts_from_bytes_io(self, gif_file_content):
-        with open("tests/files/file.gif", "rb") as f:
-            file = File.from_file(f)
-
-        assert file.raw_data == gif_file_content
-
-    def test_file_property_file_is_file_like_object(self, json_file_content):
-        with open("tests/files/file.json") as f:
-            file = File.from_file(f)
-
-        with file.file as f:
-            assert f.read().decode() == json_file_content
-
     def test_file_media_type_splited_right_from_data_string(self):
         with open("tests/files/file.txt") as f:
             file = File.from_file(f)

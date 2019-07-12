@@ -1,8 +1,7 @@
 import pytest
-from loguru import logger
 
 from botx import BotXException, ChatCreatedData
-from botx.helpers import create_message, get_headers, logger_wrapper
+from botx.helpers import create_message, is_coroutine_callable
 
 
 class TestCreateMessageHelper:
@@ -26,27 +25,16 @@ class TestCreateMessageHelper:
         assert isinstance(message.command.data, dict)
 
 
-def test_headers_factory_for_botx_api():
-    required_headers = {"authorization": "Bearer token"}
+def test_check_class_is_coroutine():
+    class TestClass:
+        pass
 
-    headers = get_headers(token="token")
-    for header, value in headers.items():
-        if header in required_headers:
-            required_value = required_headers.pop(header)
-            assert value == required_value
-
-    assert required_headers == {}
+    assert not is_coroutine_callable(TestClass)
 
 
-def test_logger_wrapper_logs_exception(caplog):
-    exc = Exception("test exception")
+def test_check_class_instance_call_is_coroutine():
+    class TestClass:
+        async def __call__(self):
+            pass
 
-    logger.enable("botx")
-
-    @logger_wrapper
-    def func(*_):
-        raise exc
-
-    func(None, None)
-
-    assert "test exception" in caplog.text
+    assert is_coroutine_callable(TestClass())

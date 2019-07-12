@@ -8,11 +8,21 @@
 such as creating a new chat with a bot.
 * Added logging via `loguru`.
 * Renamed `chat_id` argument in `send_file` to `sync_id`.
-* `Bot` and` AsyncBot` can now accept both coroutines and normal functions.
+* `Bot` can now accept both coroutines and normal functions.
 * Increase count of concurrent async handlers.
-* Drop support for BotX API V1, V2 and V3.
+* Dropped support for BotX API V1, V2 and V3.
+* Moved synchronous `Bot` to `botx.sync` module. The current `Bot` is an alias to the `AsyncBot`.
+* `Bot.status` again became a coroutine to add the ability to receive different commands for different users 
+depending on different conditions defined in the handlers (to be added to future releases, when BotX API support comes up).
+* Added mechanism for catching exceptions.
+* <b>Changed methods signatures</b>. See [api-reference](/api-reference/bots/) for details.
+
+## 0.11.2
+
+* Removed the `data` field in bubbles and keyboards to fix display problem on some clients.
 
 ## 0.11.1
+
 * Fixed raising exception on successful status codes from the BotX API.
 
 ## 0.11.0

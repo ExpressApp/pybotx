@@ -10,6 +10,7 @@ if TYPE_CHECKING:  # pragma: no cover
 class BotXType(BaseModel):
     class Config(BaseConfig):
         allow_population_by_alias = True
+        orm_mode = True
 
     def json(
         self,

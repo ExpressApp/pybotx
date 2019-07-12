@@ -1,32 +1,35 @@
+import asyncio
 import re
 
 import pytest
 
 from botx import CommandCallback, HandlersCollector, Message, Status, StatusResult
 from botx.core import DEFAULT_HANDLER_BODY, BotXException
-from botx.dispatchers import SyncDispatcher
+from botx.dispatchers import AsyncDispatcher
 from tests.utils import re_from_str
 
 
 class TestBaseDispatcher:
-    def test_dispatcher_status_property(self, handler_factory):
+    @pytest.mark.asyncio
+    async def test_dispatcher_status(self, handler_factory):
         collector = HandlersCollector()
         collector.handler(handler_factory("sync"), command="cmd")
         collector.hidden_command_handler(handler_factory("sync"), command="hidden")
         collector.default_handler(handler_factory("sync"))
 
-        dispatcher = SyncDispatcher(workers=1)
+        dispatcher = AsyncDispatcher(tasks_limit=1)
         dispatcher.add_handler(collector.handlers[re_from_str("/cmd")])
         dispatcher.add_handler(collector.handlers[re_from_str("/hidden")])
         dispatcher.add_handler(collector.handlers[DEFAULT_HANDLER_BODY])
 
-        assert dispatcher.status == Status(
+        assert await dispatcher.status() == Status(
             result=StatusResult(
                 commands=[collector.handlers[re_from_str("/cmd")].to_status_command()]
             )
         )
 
-    def test_setting_default_handler(self, message_data):
+    @pytest.mark.asyncio
+    async def test_setting_default_handler(self, message_data):
         collector = HandlersCollector()
 
         test_array = []
@@ -35,18 +38,20 @@ class TestBaseDispatcher:
         def handler(*_):
             test_array.append("text")
 
-        dispatcher = SyncDispatcher(workers=1)
-        dispatcher.start()
-        dispatcher.add_handler(collector.handlers[DEFAULT_HANDLER_BODY])
-        dispatcher.execute_command(message_data(command="text"))
+        dispatcher = AsyncDispatcher(tasks_limit=1)
+        await dispatcher.start()
 
-        dispatcher.shutdown()
+        dispatcher.add_handler(collector.handlers[DEFAULT_HANDLER_BODY])
+        await dispatcher.execute_command(message_data(command="text"))
+
+        await dispatcher.shutdown()
 
         assert test_array
 
-    def test_registration_next_step_handlers_chains(self, message_data):
-        dispatcher = SyncDispatcher(workers=1)
-        dispatcher.start()
+    @pytest.mark.asyncio
+    async def test_registration_next_step_handlers_chains(self, message_data):
+        dispatcher = AsyncDispatcher(tasks_limit=10)
+        await dispatcher.start()
 
         collector = HandlersCollector()
 
@@ -66,15 +71,17 @@ class TestBaseDispatcher:
 
         dispatcher.add_handler(collector.handlers[re_from_str("/handler")])
         for i in range(4):
-            dispatcher.execute_command(msg)
+            await dispatcher.execute_command(msg)
+            await asyncio.sleep(0.1)
 
-        dispatcher.shutdown()
+        await dispatcher.shutdown()
 
         assert test_array == [i + 1 for i in range(3)]
 
-    def test_execution_by_regex_in_regex_handler(self, message_data):
-        dispatcher = SyncDispatcher(workers=1)
-        dispatcher.start()
+    @pytest.mark.asyncio
+    async def test_execution_by_regex_in_regex_handler(self, message_data):
+        dispatcher = AsyncDispatcher(tasks_limit=1)
+        await dispatcher.start()
 
         collector = HandlersCollector()
         msg = message_data(command="hello world")
@@ -86,15 +93,16 @@ class TestBaseDispatcher:
             test_array.append(message.body)
 
         dispatcher.add_handler(collector.handlers[re.compile(r"hello *")])
-        dispatcher.execute_command(msg)
+        await dispatcher.execute_command(msg)
 
-        dispatcher.shutdown()
+        await dispatcher.shutdown()
 
         assert test_array
 
-    def test_execution_by_regex_in_normal_handler(self, message_data):
-        dispatcher = SyncDispatcher(workers=1)
-        dispatcher.start()
+    @pytest.mark.asyncio
+    async def test_execution_by_regex_in_normal_handler(self, message_data):
+        dispatcher = AsyncDispatcher(tasks_limit=1)
+        await dispatcher.start()
 
         collector = HandlersCollector()
         msg = message_data(command="/hello world")
@@ -106,15 +114,16 @@ class TestBaseDispatcher:
             test_array.append(message.body)
 
         dispatcher.add_handler(collector.handlers[re.compile(r"/hello")])
-        dispatcher.execute_command(msg)
+        await dispatcher.execute_command(msg)
 
-        dispatcher.shutdown()
+        await dispatcher.shutdown()
 
         assert test_array
 
-    def test_handlers_matching_by_full_match(self, message_data, handler_factory):
-        dispatcher = SyncDispatcher(workers=1)
-        dispatcher.start()
+    @pytest.mark.asyncio
+    async def test_handlers_matching_by_full_match(self, message_data, handler_factory):
+        dispatcher = AsyncDispatcher(tasks_limit=1)
+        await dispatcher.start()
 
         collector = HandlersCollector()
         msg = message_data(command="/hel world")
@@ -124,13 +133,16 @@ class TestBaseDispatcher:
         dispatcher.add_handler(collector.handlers[re.compile(r"/hello")])
 
         with pytest.raises(BotXException):
-            dispatcher.execute_command(msg)
+            await dispatcher.execute_command(msg)
 
-        dispatcher.shutdown()
+        await dispatcher.shutdown()
 
-    def test_checking_all_handlers_before_default(self, message_data, handler_factory):
-        dispatcher = SyncDispatcher(workers=1)
-        dispatcher.start()
+    @pytest.mark.asyncio
+    async def test_checking_all_handlers_before_default(
+        self, message_data, handler_factory
+    ):
+        dispatcher = AsyncDispatcher(tasks_limit=1)
+        await dispatcher.start()
 
         collector = HandlersCollector()
         msg = message_data(command="/hello world")
@@ -142,6 +154,6 @@ class TestBaseDispatcher:
             dispatcher.add_handler(handler)
 
         with pytest.raises(BotXException):
-            dispatcher.execute_command(msg)
+            await dispatcher.execute_command(msg)
 
-        dispatcher.shutdown()
+        await dispatcher.shutdown()

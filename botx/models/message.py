@@ -118,12 +118,9 @@ def _add_ui_element(
     command: str,
     label: Optional[str] = None,
     *,
-    data: Optional[Dict[str, Any]] = None,
     new_row: bool = True,
 ) -> None:
-    data = data or {}
-
-    element = ui_cls(command=command, label=label, data=data)
+    element = ui_cls(command=command, label=label)
 
     if new_row:
         ui_array.append([element])
@@ -171,36 +168,24 @@ class ReplyMessage(BotXType):
         cast(List[UUID], self.recipients).extend(recipients)
 
     def add_bubble(
-        self,
-        command: str,
-        label: Optional[str] = None,
-        *,
-        data: Optional[Dict[str, Any]] = None,
-        new_row: bool = True,
+        self, command: str, label: Optional[str] = None, *, new_row: bool = True
     ) -> None:
         _add_ui_element(
             ui_cls=BubbleElement,
             ui_array=self.bubble,
             command=command,
             label=label,
-            data=data,
             new_row=new_row,
         )
 
     def add_keyboard_button(
-        self,
-        command: str,
-        label: Optional[str] = None,
-        *,
-        data: Optional[Dict[str, Any]] = None,
-        new_row: bool = True,
+        self, command: str, label: Optional[str] = None, *, new_row: bool = True
     ) -> None:
         _add_ui_element(
             ui_cls=KeyboardElement,
             ui_array=self.keyboard,
             command=command,
             label=label,
-            data=data,
             new_row=new_row,
         )
 

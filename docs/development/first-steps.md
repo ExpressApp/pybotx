@@ -14,9 +14,10 @@ from starlette.status import HTTP_202_ACCEPTED
 bot = Bot()
 bot.add_cts(CTS(host="cts.example.com", secret_key="secret"))
 
+
 @bot.default_handler
-def echo_handler(message: Message, bot: Bot):
-    bot.answer_message(message.body, message)
+async def echo_handler(message: Message, bot: Bot):
+    await bot.answer_message(message.body, message)
 
 
 app = FastAPI()
@@ -29,14 +30,14 @@ app.add_middleware(
 )
 
 
-@app.get("/status", response_model=Status, status_code=HTTP_202_ACCEPTED)
-def bot_status():
-    return bot.status
+@app.get("/status", response_model=Status)
+async def bot_status():
+    return await bot.status()
 
 
-@app.post("/command")
-def bot_command(message: Message):
-    bot.execute_command(message.dict())
+@app.post("/command", status_code=HTTP_202_ACCEPTED)
+async def bot_command(message: Message):
+    await bot.execute_command(message.dict())
 ```
 
 ## First, let's see how this code works
@@ -75,8 +76,8 @@ We also register an instance of the cts server to get tokens and the ability to 
 ```Python3 hl_lines="2 3"
 ...
 @bot.default_handler
-def echo_handler(message: Message, bot: Bot):
-    bot.answer_message(message.body, message)
+async def echo_handler(message: Message, bot: Bot):
+    async bot.answer_message(message.body, message)
 ...
 ```
 
@@ -87,12 +88,12 @@ This handler will be called for all commands that have not appropriate handlers.
 ```Python3 hl_lines="4"
 ...
 @bot.default_handler
-def echo_handler(message: Message, bot: Bot):
-    bot.answer_message(message.body, message)
+async def echo_handler(message: Message, bot: Bot):
+    async bot.answer_message(message.body, message)
 ...
 ```
 
-`Bot.answer_message` will send some text to the user by using sync_id, bot_id and host data from the `Message` instance.
+`Bot.answer_message` will send some text to the user by using `sync_id`, `bot_id` and `host` data from the `Message` instance.
 This is a simple wrapper for the `Bot.send_message` method, which is used to gain more control over sending messages process, 
 allowing you to specify a different host, bot_id, sync_id, group_chat_id or a list of them.
 
@@ -113,17 +114,17 @@ You must call them to be sure that the bot will work properly.
 ```Python3 hl_lines="4 9"
 ...
 @app.get("/status", response_model=Status)
-def bot_status():
-    return bot.status
+await def bot_status():
+    return await bot.status()
 
 
 @app.post("/command", status_code=HTTP_202_ACCEPTED)
-def bot_command(message: Message):
-    bot.execute_command(message.dict())
+async def bot_command(message: Message):
+    await bot.execute_command(message.dict())
 ...
 ```
 
-Here we define to `FastAPI` routes:
+Here we define 2 `FastAPI` routes:
 
  * `GET` on `/status` will tell BotX API which commands are available for your bot.
  * `POST` on `/command` will receive data for incoming messages for your bot and execute handlers for commands.
@@ -147,20 +148,20 @@ bot = Bot()
 bot.add_cts(CTS(host="cts.example.com", secret_key="secret"))
 
 @bot.handler
-def fill_info(message: Message, bot: Bot):
+async def fill_info(message: Message, bot: Bot):
     if message.user_huid not in users_data:
         text = (
             "Hi! I'm a bot that will ask some questions about you.\n"
             "First of all: what is your name?"
         )
-        bot.answer_message(text, message)
+        await bot.answer_message(text, message)
     else:
         text = (
             "You've already filled out infomation about yourself.\n"
             "You can view it by typing `/my-info` command.\n"
             "You can also view the processed information by typing `/info` command."
         )
-        bot.answer_message(text, message)
+        await bot.answer_message(text, message)
 ...
 ```
 
@@ -175,13 +176,13 @@ Now let's define another 2 handlers for the commands that were mentioned in the 
 ```Python3 hl_lines="2 19"
 ...
 @bot.handler(command='my-info')
-def get_info_for_user(message: Message, bot: Bot):
+async def get_info_for_user(message: Message, bot: Bot):
     if message.user_huid not in users_data:
         text = (
             "I have no infomation about you :(\n"
             "Type `/fill-info` so I can collect it, please."
         )
-        bot.answer_message(text, message)
+        await bot.answer_message(text, message)
     else:
         text = (
             f"Your name: {users_data[message.user_huid]['name']}\n"
@@ -189,10 +190,10 @@ def get_info_for_user(message: Message, bot: Bot):
             f"Your gender: {users_data[message.user_huid]['gender']}\n"
             "This is all that I have now."
         )
-        bot.answer_message(text, message)
+        await bot.answer_message(text, message)
         
 @bot.handler(commands=['info', '/infomation'])
-def get_processed_infomation(message: Message, bot: Bot):
+async def get_processed_infomation(message: Message, bot: Bot):
     users_count = len(users_data)
     average_age = sum(user['age'] for user in users_data) / users_count
     gender_array = [1 if user['gender'] == 'male' else 2 for user in users_data]
@@ -203,7 +204,7 @@ def get_processed_infomation(message: Message, bot: Bot):
         f"Female users count: {gender_array.count(2)}"    
     )
     
-    bot.answer_message(text, message)
+    await bot.answer_message(text, message)
 ...
 ```
 
@@ -231,13 +232,13 @@ Lets' define these handlers and, finally, create a chain of questions from the b
 ```Python3 hl_lines="10"
 ...
 @bot.handler
-def fill_info(message: Message, bot: Bot):
+async def fill_info(message: Message, bot: Bot):
     if message.user_huid not in users_data:
         text = (
             "Hi! I'm a bot that will ask some questions about you.\n"
             "First of all: what is your name?"
         )
-        bot.answer_message(text, message)
+        await bot.answer_message(text, message)
         bot.register_next_step_handler(message, get_name)
     else:
         text = (
@@ -245,37 +246,38 @@ def fill_info(message: Message, bot: Bot):
             "You can view it by typing `/my-info` command.\n"
             "You can also view the processed information by typing `/info` command."
         )
-        bot.answer_message(text, message)
+        await bot.answer_message(text, message)
 ...
-def get_name(message: Message, bot: Bot):
+async def get_name(message: Message, bot: Bot):
     users_data[message.user_huid]["name"] = message.body
-    bot.answer_message("Good! Move next: how old are you?", message)
+    await bot.answer_message("Good! Move next: how old are you?", message)
     bot.register_next_step_handler(message, get_age)
 
 
-def get_age(message: Message, bot: Bot):
+async def get_age(message: Message, bot: Bot):
     try:
         age = int(message.body)
         if age <= 5:
-            bot.answer_message(
+            await bot.answer_message(
                 "Sorry, but it's not true. Say your real age, please!", message
             )
+            bot.register_next_step_handler(message, get_age)
         else:
             users_data[message.user_huid]["age"] = age
-            bot.answer_message("Got it! Final question: your gender?", message)
+            await bot.answer_message("Got it! Final question: your gender?", message)
             bot.register_next_step_handler(message, get_gender)
     except ValueError:
-        bot.answer_message("No, no, no. Pleas tell me your age in numbers!", message)
+        await bot.answer_message("No, no, no. Pleas tell me your age in numbers!", message)
         bot.register_next_step_handler(message, get_age)
 
 
-def get_gender(message: Message, bot: Bot):
+async def get_gender(message: Message, bot: Bot):
     gender = message.body
     if gender in ["male", "female"]:
         users_data[message.user_huid]["gender"] = gender
-        bot.answer_message("Ok! Thanks for taking the time to answer my questions.", message)
+        await bot.answer_message("Ok! Thanks for taking the time to answer my questions.", message)
     else:
-        bot.answer_message(
+        await bot.answer_message(
             "Sorry, but I can not recognize your answer! Type 'male' or 'female', please!",
             message,
         )
@@ -285,9 +287,9 @@ def get_gender(message: Message, bot: Bot):
 
 What's going on here? We added one line to our `/fill-info` command to start a chain of questions for our user.
 We also defined 3 functions, whose signature is similar to the usual handler signature, but instead of registration them using the `Bot.handler` decorator, 
-we do this using the `Bot.register_next_step_handler` method, 
-passing it our message as the first argument and the handler that will be executed for the next user message as the second.
-We also can pass positional and key arguments if we need them, but this not our case now.
+we do this using the `Bot.register_next_step_handler` method. We pass into method our message as the first argument 
+and the handler that will be executed for the next user message as the second. We also can pass positional and key 
+arguments if we need them, but this not our case now.
 
 ## Complete example
 
@@ -304,20 +306,21 @@ users_data = {}
 bot = Bot()
 bot.add_cts(CTS(host="cts.example.com", secret_key="secret"))
 
+
 @bot.default_handler
-def echo_handler(message: Message, bot: Bot):
-    bot.answer_message(message.body, message)
+async def echo_handler(message: Message, bot: Bot):
+    await bot.answer_message(message.body, message)
 
 
 @bot.handler
-def fill_info(message: Message, bot: Bot):
+async def fill_info(message: Message, bot: Bot):
     if message.user_huid not in users_data:
         users_data[message.user_huid] = {}
         text = (
             "Hi! I'm a bot that will ask some questions about you.\n"
             "First of all: what is your name?"
         )
-        bot.answer_message(text, message)
+        await bot.answer_message(text, message)
         bot.register_next_step_handler(message, get_name)
     else:
         text = (
@@ -325,17 +328,17 @@ def fill_info(message: Message, bot: Bot):
             "You can view it by typing `/my-info` command.\n"
             "You can also view the processed information by typing `/info` command."
         )
-        bot.answer_message(text, message)
+        await bot.answer_message(text, message)
 
 
-@bot.handler(command='my-info')
-def get_info_for_user(message: Message, bot: Bot):
+@bot.handler(command="my-info")
+async def get_info_for_user(message: Message, bot: Bot):
     if message.user_huid not in users_data:
         text = (
             "I have no infomation about you :(\n"
             "Type `/fill-info` so I can collect it, please."
         )
-        bot.answer_message(text, message)
+        await bot.answer_message(text, message)
     else:
         text = (
             f"Your name: {users_data[message.user_huid]['name']}\n"
@@ -343,53 +346,60 @@ def get_info_for_user(message: Message, bot: Bot):
             f"Your gender: {users_data[message.user_huid]['gender']}\n"
             "This is all that I have now."
         )
-        bot.answer_message(text, message)
-        
-        
-@bot.handler(commands=['info', '/infomation'])
-def get_processed_infomation(message: Message, bot: Bot):
+        await bot.answer_message(text, message)
+
+
+@bot.handler(commands=["info", "/infomation"])
+async def get_processed_infomation(message: Message, bot: Bot):
     users_count = len(users_data)
-    average_age = sum(user['age'] for user in users_data.values()) / users_count
-    gender_array = [1 if user['gender'] == 'male' else 2 for user in users_data.values()]
+    average_age = sum(user["age"] for user in users_data.values()) / users_count
+    gender_array = [
+        1 if user["gender"] == "male" else 2 for user in users_data.values()
+    ]
     text = (
         f"Count of users: {users_count}\n"
         f"Average age: {average_age}\n"
-        f"Male users count: {gender_array.count(1)}\n"    
-        f"Female users count: {gender_array.count(2)}"    
+        f"Male users count: {gender_array.count(1)}\n"
+        f"Female users count: {gender_array.count(2)}"
     )
-    
-    bot.answer_message(text, message)
-    
 
-def get_name(message: Message, bot: Bot):
+    await bot.answer_message(text, message)
+
+
+async def get_name(message: Message, bot: Bot):
     users_data[message.user_huid]["name"] = message.body
-    bot.answer_message("Good! Move next: how old are you?", message)
+    await bot.answer_message("Good! Move next: how old are you?", message)
     bot.register_next_step_handler(message, get_age)
 
 
-def get_age(message: Message, bot: Bot):
+async def get_age(message: Message, bot: Bot):
     try:
         age = int(message.body)
         if age <= 5:
             bot.answer_message(
                 "Sorry, but it's not true. Say your real age, please!", message
             )
+            bot.register_next_step_handler(message, get_age)
         else:
             users_data[message.user_huid]["age"] = age
-            bot.answer_message("Got it! Final question: your gender?", message)
+            await bot.answer_message("Got it! Final question: your gender?", message)
             bot.register_next_step_handler(message, get_gender)
     except ValueError:
-        bot.answer_message("No, no, no. Pleas tell me your age in numbers!", message)
+        await bot.answer_message(
+            "No, no, no. Pleas tell me your age in numbers!", message
+        )
         bot.register_next_step_handler(message, get_age)
 
 
-def get_gender(message: Message, bot: Bot):
+async def get_gender(message: Message, bot: Bot):
     gender = message.body
     if gender in ["male", "female"]:
         users_data[message.user_huid]["gender"] = gender
-        bot.answer_message("Ok! Thanks for taking the time to answer my questions.", message)
+        await bot.answer_message(
+            "Ok! Thanks for taking the time to answer my questions.", message
+        )
     else:
-        bot.answer_message(
+        await bot.answer_message(
             "Sorry, but I can not recognize your answer! Type 'male' or 'female', please!",
             message,
         )
@@ -407,11 +417,11 @@ app.add_middleware(
 
 
 @app.get("/status", response_model=Status)
-def bot_status():
-    return bot.status
+async def bot_status():
+    return await bot.status()
 
 
 @app.post("/command", status_code=HTTP_202_ACCEPTED)
-def bot_command(message: Message):
-    bot.execute_command(message.dict())
+async def bot_command(message: Message):
+    await bot.execute_command(message.dict())
 ```

@@ -20,11 +20,9 @@ exclude = ["tests", "docs", "scripts", "README.md", "setup.cfg"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
-pydantic = "0.28"
-requests = "^2.22"
+pydantic = "0.30"
+http3 = "^0.6.7"
 aiojobs = "^0.2.2"
-aiohttp = "^3.5.4"
-asgiref = "^3.1"
 loguru = "^0.3.0"
 
 mkdocs = { version = "^1.0", optional = true }
@@ -55,8 +53,8 @@ flake8-alfred = "^1.1"
 pytest = "^4.5"
 pytest-cov = "^2.7"
 pytest-asyncio = "^0.10.0"
-responses = "^0.10.6"
-aresponses = "^1.1"
+starlette = "^0.12.3"
+python-multipart = "^0.0.5"
 
 
 [tool.poetry.extras]

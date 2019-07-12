@@ -51,6 +51,16 @@ All these classes are `pydantic` models except `BotXException`, `SyncID` and enu
     * `.name: Optional[str] = None`
     * `.disabled: Optional[bool] = None`
 
+### SendingCredentials
+
+* `SendingCredentials`
+    * `sync_id: Optional[SyncID] = None`
+    * `chat_ids: List[UUID] = []`
+    * `bot_id: UUID`
+    * `host: str`
+    * `token: Optional[str] = None`
+
+
 ### Message
 
 * `Message`
@@ -131,6 +141,11 @@ All these classes are `pydantic` models except `BotXException`, `SyncID` and enu
 
 ### Markup
 
+* `MessageMarkup`
+    * `bubbles: List[List[BubbleElement]] = []`
+    * `keyboard: List[List[KeyboardElement]] = []`
+
+
 #### Bubbles
 
 * `BubbleElement`
@@ -144,6 +159,14 @@ All these classes are `pydantic` models except `BotXException`, `SyncID` and enu
     * `.command: str`
     * `.label: Optional[str] = None`
     * `.data: Dict[str, Any] = {}` 
+
+### Options
+
+* `NotifyOptions`
+    * `recipients: Union[List[UUID], ResponseRecipientsEnum, str] = ResponseRecipientsEnum.all`
+    * `mentions: List[Mention] = []`
+    * `notifications: NotificationOpts = NotificationOpts()`
+
 
 ### Mention
 

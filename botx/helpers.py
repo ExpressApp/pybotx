@@ -1,14 +1,28 @@
-from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Union
-from uuid import UUID
+import asyncio
+import functools
+import inspect
+import json
+import typing
+from typing import Any, Callable, Dict, cast
 
-import aiohttp
-import requests
-from loguru import logger
+from http3.models import BaseResponse
 from pydantic import ValidationError
 
 from .core import BotXException
-from .models import ChatCreatedData, CommandTypeEnum, Message, SyncID, SystemEventsEnum
+from .models import (
+    BotXAPIErrorData,
+    ChatCreatedData,
+    CommandTypeEnum,
+    ErrorResponseData,
+    Message,
+    SendingCredentials,
+    SystemEventsEnum,
+)
+
+try:
+    import contextvars  # Python 3.7+ only.
+except ImportError:  # pragma: no cover
+    contextvars = None  # type: ignore
 
 
 def create_message(data: Dict[str, Any]) -> Message:
@@ -17,72 +31,65 @@ def create_message(data: Dict[str, Any]) -> Message:
 
         if message.command.command_type == CommandTypeEnum.system:
             if message.body == SystemEventsEnum.chat_created.value:
-                message.command.data = ChatCreatedData(**message.command.data)
+                message.command.data = ChatCreatedData(
+                    **cast(Dict[str, Any], message.command.data)
+                )
 
         return message
     except ValidationError as exc:
         raise BotXException from exc
 
 
-def get_headers(token: str) -> Dict[str, str]:
-    return {"authorization": f"Bearer {token}"}
-
-
-def logger_wrapper(func: Callable) -> Callable:
-    @wraps(func)
-    def wrapper(message: Message, *args: Any, **kwargs: Any) -> None:
-        try:
-            # mypy has problems with callable with stars arguments; see #5876
-            func(message, *args, **kwargs)  # type: ignore
-        except Exception:
-            logger.exception("exception in handler")
-
-    return wrapper
-
-
-def get_data_for_api_error_sync(
-    host: str,
-    bot_id: UUID,
-    response: requests.Response,
-    chat_ids: Optional[Union[SyncID, UUID, List[UUID]]] = None,
+def get_data_for_api_error(
+    address: SendingCredentials, response: BaseResponse
 ) -> Dict[str, Any]:
-    data = {
-        "host": host,
-        "bot_id": str(bot_id),
-        "response": {"status_code": response.status_code, "body": response.json()},
-    }
+    error_data = BotXAPIErrorData(
+        address=address,
+        response=ErrorResponseData(
+            status_code=response.status_code, body=response.text
+        ),
+    )
 
-    if chat_ids:
-        if isinstance(chat_ids, (SyncID, UUID)):
-            data["sync_id"] = str(chat_ids)
-        else:
-            if len(chat_ids) == 1:
-                data["chat_id"] = str(chat_ids[0])
-            else:
-                data["chat_ids_list"] = [str(chat_id) for chat_id in chat_ids]
-
-    return data
+    return json.loads(error_data.json())
 
 
-async def get_data_for_api_error_async(
-    host: str,
-    bot_id: UUID,
-    response: aiohttp.client.ClientResponse,
-    chat_ids: Optional[Union[SyncID, UUID, List[UUID]]] = None,
-) -> Dict[str, Any]:
-    data = {
-        "host": host,
-        "bot_id": str(bot_id),
-        "response": {"status_code": response.status, "body": await response.json()},
-    }
+async def run_in_threadpool(func: Callable, *args: Any, **kwargs: Any) -> typing.Any:
+    loop = asyncio.get_event_loop()
+    if contextvars is not None:  # pragma: no cover
+        child = functools.partial(func, *args, **kwargs)
+        context = contextvars.copy_context()
+        func = context.run
+        args = (child,)
+    elif kwargs:  # pragma: no cover
+        func = functools.partial(func, **kwargs)
+    return await loop.run_in_executor(None, func, *args)
 
-    if chat_ids:
-        if isinstance(chat_ids, (SyncID, UUID)):
-            data["sync_id"] = str(chat_ids)
-        else:
-            if len(chat_ids) == 1:
-                data["chat_id"] = str(chat_ids[0])
-            else:
-                data["chat_ids_list"] = [str(chat_id) for chat_id in chat_ids]
 
-    return data
+def is_coroutine_callable(call: Callable) -> bool:
+    if inspect.isfunction(call):
+        return asyncio.iscoroutinefunction(call)
+    if inspect.isclass(call):
+        return False
+    call = getattr(call, "__call__", None)  # noqa: B004
+    return asyncio.iscoroutinefunction(call)
+
+
+async def call_function_as_coroutine(func: Callable, *args: Any, **kwargs: Any) -> Any:
+    if is_coroutine_callable(func):
+        return await func(*args, **kwargs)
+    else:
+        return await run_in_threadpool(func, *args, **kwargs)
+
+
+def call_coroutine_as_function(func: Callable, *args: Any, **kwargs: Any) -> Any:
+    coro = func(*args, **kwargs)
+
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+
+    if loop.is_running():
+        return coro
+
+    return loop.run_until_complete(coro)
