@@ -18,7 +18,7 @@ from pydantic import Schema
 from botx.core import TEXT_MAX_LENGTH
 
 from .base import BotXType
-from .common import NotificationOpts, SyncID
+from .common import NotificationOpts
 from .enums import ChatTypeEnum, CommandTypeEnum, ResponseRecipientsEnum
 from .events import ChatCreatedData
 from .file import File
@@ -72,16 +72,11 @@ class MessageCommand(BotXType):
 
 
 class Message(BotXType):
-    sync_id: SyncID
+    sync_id: UUID
     command: MessageCommand
     file: Optional[File] = None
     user: MessageUser = Schema(..., alias="from")  # type: ignore
     bot_id: UUID
-
-    def __init__(self, **data: Dict[str, Any]) -> None:
-        super().__init__(**data)
-
-        self.sync_id = SyncID(self.sync_id)
 
     @property
     def body(self) -> str:
@@ -130,7 +125,8 @@ def _add_ui_element(
 
 class ReplyMessage(BotXType):
     text: str = Schema(..., max_length=TEXT_MAX_LENGTH)  # type: ignore
-    chat_id: Union[SyncID, UUID, List[UUID]]
+    sync_id: Optional[UUID] = None
+    chat_ids: List[UUID] = []
     bot_id: UUID
     host: str
     recipients: Union[List[UUID], str] = ResponseRecipientsEnum.all
@@ -143,9 +139,17 @@ class ReplyMessage(BotXType):
     @classmethod
     def from_message(cls, text: str, message: Message) -> "ReplyMessage":
         reply_msg = cls(
-            text=text, chat_id=message.sync_id, bot_id=message.bot_id, host=message.host
+            text=text,
+            sync_id=message.sync_id,
+            bot_id=message.bot_id,
+            host=message.host,
+            chat_ids=[message.group_chat_id],
         )
         return reply_msg
+
+    @property
+    def chat_id(self) -> Optional[UUID]:
+        return self.chat_ids[0] if self.chat_ids else None
 
     def add_file(self, file: Union[TextIO, BinaryIO]) -> None:
         self.file = File.from_file(file)

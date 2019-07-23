@@ -11,7 +11,7 @@ from tests.utils import re_from_str
 class TestAsyncDispatcherHandlersExecution:
     @pytest.mark.asyncio
     async def test_raising_exception_when_missing_handler_call(self, message_data):
-        dispatcher = AsyncDispatcher(tasks_limit=10)
+        dispatcher = AsyncDispatcher()
         await dispatcher.start()
 
         with pytest.raises(BotXException):
@@ -29,7 +29,7 @@ class TestAsyncDispatcherHandlersExecution:
         async def handler(*_):
             testing_array.append("text")
 
-        dispatcher = AsyncDispatcher(tasks_limit=10)
+        dispatcher = AsyncDispatcher()
         await dispatcher.start()
         dispatcher.add_handler(collector.handlers[re_from_str("/handler")])
         await dispatcher.execute_command(message_data(command="/handler"))
@@ -39,7 +39,7 @@ class TestAsyncDispatcherHandlersExecution:
 
     @pytest.mark.asyncio
     async def test_next_step_handlers_registration(self, message_data):
-        dispatcher = AsyncDispatcher(tasks_limit=10)
+        dispatcher = AsyncDispatcher()
         await dispatcher.start()
 
         collector = HandlersCollector()
@@ -71,7 +71,7 @@ class TestAsyncDispatcherHandlersExecution:
 
     @pytest.mark.asyncio
     async def test_passing_extra_arguments_into_next_step_handlers(self, message_data):
-        dispatcher = AsyncDispatcher(tasks_limit=10)
+        dispatcher = AsyncDispatcher()
         await dispatcher.start()
 
         collector = HandlersCollector()
@@ -107,7 +107,7 @@ class TestAsyncDispatcherHandlersExecution:
 
     @pytest.mark.asyncio
     async def test_allowing_extra_arguments_for_common_handlers(self, message_data):
-        dispatcher = AsyncDispatcher(tasks_limit=10)
+        dispatcher = AsyncDispatcher()
         await dispatcher.start()
 
         collector = HandlersCollector()
@@ -137,7 +137,7 @@ class TestAsyncDispatcherHandlersExecution:
 
     @pytest.mark.asyncio
     async def test_calling_common_handlers_from_next_step_handler(self, message_data):
-        dispatcher = AsyncDispatcher(tasks_limit=10)
+        dispatcher = AsyncDispatcher()
         await dispatcher.start()
         msg = message_data(command="/handler")
 

@@ -1,4 +1,5 @@
 import abc
+import asyncio
 from collections import OrderedDict
 from typing import (
     Any,
@@ -8,13 +9,13 @@ from typing import (
     List,
     Optional,
     Pattern,
+    Set,
     Tuple,
     Type,
     Union,
 )
 from uuid import UUID
 
-import aiojobs
 from loguru import logger
 
 from .core import BotXException
@@ -145,20 +146,18 @@ class BaseDispatcher(abc.ABC):
 
 
 class AsyncDispatcher(BaseDispatcher):
-    _scheduler: aiojobs.Scheduler
-    _tasks_limit: int
+    _tasks: Set[asyncio.Future]
 
-    def __init__(self, tasks_limit: int) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self._tasks_limit = tasks_limit
+        self._tasks = set()
 
     async def start(self) -> None:
-        self._scheduler = await aiojobs.create_scheduler(
-            limit=self._tasks_limit, pending_limit=0
-        )
+        pass
 
     async def shutdown(self) -> None:
-        await self._scheduler.close()
+        if self._tasks:
+            await asyncio.wait(self._tasks, return_when=asyncio.ALL_COMPLETED)
 
     async def status(self) -> Status:
         commands = []
@@ -170,8 +169,11 @@ class AsyncDispatcher(BaseDispatcher):
         return Status(result=StatusResult(commands=commands))
 
     async def execute_command(self, data: Dict[str, Any]) -> None:
-        await self._scheduler.spawn(
-            execute_callback_with_exception_catching(
-                self.exception_catchers, self._get_callback_copy_for_message_data(data)
+        self._tasks.add(
+            asyncio.create_task(
+                execute_callback_with_exception_catching(
+                    self.exception_catchers,
+                    self._get_callback_copy_for_message_data(data),
+                )
             )
         )

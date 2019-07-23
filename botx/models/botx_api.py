@@ -6,7 +6,7 @@ from pydantic import Schema
 from botx.core import TEXT_MAX_LENGTH
 
 from .base import BotXType
-from .common import MenuCommand, NotificationOpts, SyncID
+from .common import MenuCommand, NotificationOpts
 from .enums import ResponseRecipientsEnum, StatusEnum
 from .file import File
 from .mention import Mention
@@ -30,15 +30,19 @@ class BotXResultPayload(BotXType):
     mentions: List[Mention] = []
 
 
+class BotXPayloadOptions(BotXType):
+    notification_opts: NotificationOpts = NotificationOpts()
+
+
 class BotXBasePayload(BotXType):
     bot_id: UUID
     recipients: Union[List[UUID], ResponseRecipientsEnum] = ResponseRecipientsEnum.all
     file: Optional[File] = None
-    opts: NotificationOpts = NotificationOpts()
+    opts: BotXPayloadOptions = BotXPayloadOptions()
 
 
 class BotXCommandResultPayload(BotXBasePayload):
-    sync_id: SyncID
+    sync_id: UUID
     command_result: BotXResultPayload
 
 
@@ -49,11 +53,11 @@ class BotXNotificationPayload(BotXBasePayload):
 
 class BotXFilePayload(BotXType):
     bot_id: UUID
-    sync_id: SyncID
+    sync_id: UUID
 
 
 class SendingCredentials(BotXType):
-    sync_id: Optional[SyncID] = None
+    sync_id: Optional[UUID] = None
     chat_ids: List[UUID] = []
     bot_id: UUID
     host: str
@@ -65,7 +69,7 @@ class MessageMarkup(BotXType):
     keyboard: List[List[KeyboardElement]] = []
 
 
-class NotifyOptions(BotXType):
+class MessageOptions(BotXType):
     recipients: Union[
         List[UUID], str, ResponseRecipientsEnum
     ] = ResponseRecipientsEnum.all
@@ -77,7 +81,7 @@ class SendingPayload(BotXType):
     text: Optional[str] = Schema(None, max_length=TEXT_MAX_LENGTH)
     file: Optional[File] = None
     markup: MessageMarkup = MessageMarkup()
-    options: NotifyOptions = NotifyOptions()
+    options: MessageOptions = MessageOptions()
 
 
 class ErrorResponseData(BotXType):

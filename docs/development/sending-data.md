@@ -9,8 +9,9 @@
     Note about using different values to send messages
     
     
-    * `sync_id` is the `UUID` accosiated with the message in Express. For proper work, it must be always an instance of the `SyncID` class. You can cast an existing `UUID` to this type by passing the value to the init method.
-    * `group_chat_id` - is the `UUID` accosiated with one of the chats in Express. In most cases, you can use it to send messages, but you must use `sync_id` to send a file. However, in such cases it can be either an instance of `SyncID` or `UUID`.
+    * `sync_id` is the `UUID` accosiated with the message in Express. You should use it only in command handlers.
+    * `group_chat_id` - is the `UUID` accosiated with one of the chats in Express. In most cases, you should use it to 
+    send messages, outside of handlers.
     
 
 ### Using `reply`
@@ -26,10 +27,10 @@ Here is an example of using this method outside from handler:
 async def some_function():
     reply = ReplyMessage(
         text="You were chosen by random.", 
-        chat_id=get_random_chat_id(), 
         bot_id=BOT_ID, 
         host=CTS_HOST,
     )
+    reply.chat_id = get_random_chat_id()
     await bot.reply(reply)
 ```
 

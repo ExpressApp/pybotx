@@ -2,24 +2,33 @@ import abc
 from typing import Any, Awaitable, Dict, Optional
 from uuid import UUID
 
-from http3 import AsyncClient
-from http3.models import BaseResponse
-from http3.status_codes import StatusCode
+from httpx import AsyncClient
+from httpx.models import BaseResponse
+from httpx.status_codes import StatusCode
 
-from botx.helpers import get_data_for_api_error
-from botx.models import (
+from botx.models.botx_api import BotXPayloadOptions
+
+from .core import BotXAPI, BotXException
+from .helpers import get_data_for_api_error
+from .models import (
     BotXCommandResultPayload,
     BotXFilePayload,
     BotXNotificationPayload,
     BotXResultPayload,
+    BotXTokenRequestParams,
+    SendingCredentials,
+    SendingPayload,
 )
-
-from .core import BotXAPI, BotXException
-from .models import BotXTokenRequestParams, SendingCredentials, SendingPayload
 
 
 def get_headers(token: str) -> Dict[str, str]:
     return {"authorization": f"Bearer {token}"}
+
+
+def check_api_error(resp: BaseResponse) -> bool:
+    return StatusCode.is_client_error(resp.status_code) or StatusCode.is_server_error(
+        resp.status_code
+    )
 
 
 class BaseBotXClient(abc.ABC):
@@ -49,12 +58,6 @@ class BaseBotXClient(abc.ABC):
         self, credentials: SendingCredentials, payload: SendingPayload
     ) -> Optional[Awaitable[None]]:
         """Send notification result answer"""
-
-
-def check_api_error(resp: BaseResponse) -> bool:
-    return StatusCode.is_client_error(resp.status_code) or StatusCode.is_server_error(
-        resp.status_code
-    )
 
 
 class AsyncBotXClient(BaseBotXClient):
@@ -109,7 +112,7 @@ class AsyncBotXClient(BaseBotXClient):
             ),
             recipients=payload.options.recipients,
             file=payload.file,
-            opts=payload.options.notifications,
+            opts=BotXPayloadOptions(notification_opts=payload.options.notifications),
         )
         resp = await self._client.post(
             self._command_url.format(host=credentials.host),
@@ -138,7 +141,7 @@ class AsyncBotXClient(BaseBotXClient):
             ),
             recipients=payload.options.recipients,
             file=payload.file,
-            opts=payload.options.notifications,
+            opts=BotXPayloadOptions(notification_opts=payload.options.notifications),
         )
         resp = await self._client.post(
             self._notification_url.format(host=credentials.host),

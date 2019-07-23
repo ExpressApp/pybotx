@@ -8,12 +8,12 @@ from .botx_api import (
     BotXTokenResponse,
     ErrorResponseData,
     MessageMarkup,
-    NotifyOptions,
+    MessageOptions,
     SendingCredentials,
     SendingPayload,
 )
 from .command_handler import CommandCallback, CommandHandler
-from .common import CommandUIElement, MenuCommand, NotificationOpts, SyncID
+from .common import CommandUIElement, MenuCommand, NotificationOpts
 from .cts import CTS, BotCredentials, CTSCredentials
 from .enums import (
     ChatTypeEnum,
@@ -43,7 +43,6 @@ __all__ = (
     "MenuCommand",
     "ResponseRecipientsEnum",
     "StatusEnum",
-    "SyncID",
     "BotXCommandResultPayload",
     "BotXFilePayload",
     "BotXNotificationPayload",
@@ -67,7 +66,7 @@ __all__ = (
     "SendingCredentials",
     "MessageMarkup",
     "SendingPayload",
-    "NotifyOptions",
+    "MessageOptions",
     "BotXTokenRequestParams",
     "BotXAPIErrorData",
     "ErrorResponseData",

@@ -65,7 +65,8 @@ class TestAsyncBot:
         message = Message(**message_data())
 
         reply_msg = ReplyMessage.from_message("", message)
-        reply_msg.chat_id = uuid.uuid4()
+        reply_msg.sync_id = None
+        reply_msg.chat_ids = [uuid.uuid4()]
         await bot.reply(reply_msg)
 
     @pytest.mark.asyncio
@@ -74,7 +75,7 @@ class TestAsyncBot:
         message = Message(**message_data())
 
         reply_msg = ReplyMessage.from_message("", message)
-        reply_msg.chat_id = [uuid.uuid4()]
+        reply_msg.chat_ids = [uuid.uuid4()]
         await bot.reply(reply_msg)
 
     class TestAsyncBotCallsToAPI:

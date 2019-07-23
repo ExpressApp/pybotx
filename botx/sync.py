@@ -10,7 +10,7 @@ from .models import (
     BotCredentials,
     Message,
     MessageMarkup,
-    NotifyOptions,
+    MessageOptions,
     ReplyMessage,
     SendingCredentials,
     Status,
@@ -23,7 +23,7 @@ class SyncDispatcher(AsyncDispatcher):
     _pool: ThreadPoolExecutor
 
     def __init__(self, tasks_limit: int) -> None:
-        super().__init__(0)
+        super().__init__()
         self._pool = ThreadPoolExecutor(max_workers=tasks_limit)
 
     def start(self) -> None:  # type: ignore
@@ -76,7 +76,7 @@ class SyncBot(AsyncBot):
         *,
         file: Optional[Union[BinaryIO, TextIO]] = None,
         markup: Optional[MessageMarkup] = None,
-        options: Optional[NotifyOptions] = None,
+        options: Optional[MessageOptions] = None,
     ) -> None:
         return call_coroutine_as_function(
             super().send_message,
@@ -94,7 +94,7 @@ class SyncBot(AsyncBot):
         *,
         file: Optional[Union[BinaryIO, TextIO]] = None,
         markup: Optional[MessageMarkup] = None,
-        options: Optional[NotifyOptions] = None,
+        options: Optional[MessageOptions] = None,
     ) -> None:
         return call_coroutine_as_function(
             super().answer_message,

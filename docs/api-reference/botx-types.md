@@ -1,4 +1,4 @@
-All these classes are `pydantic` models except `BotXException`, `SyncID` and enums.
+All these classes are `pydantic` models except `BotXException` and enums.
 
 ### CommandHandler
 
@@ -54,17 +54,17 @@ All these classes are `pydantic` models except `BotXException`, `SyncID` and enu
 ### SendingCredentials
 
 * `SendingCredentials`
-    * `sync_id: Optional[SyncID] = None`
-    * `chat_ids: List[UUID] = []`
-    * `bot_id: UUID`
-    * `host: str`
-    * `token: Optional[str] = None`
+    * `.sync_id: Optional[UUID] = None`
+    * `.chat_ids: List[UUID] = []`
+    * `.bot_id: UUID`
+    * `.host: str`
+    * `.token: Optional[str] = None`
 
 
 ### Message
 
 * `Message`
-    * `.sync_id: SyncID`
+    * `.sync_id: UUID`
     * `.command: MessageCommand`
     * `.file: Optional[File] = None`
     * `.user: MessageUser`
@@ -105,7 +105,8 @@ All these classes are `pydantic` models except `BotXException`, `SyncID` and enu
 
 * `ReplyMessage`
     * `.text: str`
-    * `.chat_id: Union[SyncID, UUID, List[UUID]]`
+    * `.sync_id: UUID`
+    * `.chat_ids: List[UUID]`
     * `.bot_id: UUID`
     * `.host: str`
     * `.recipients: Union[List[UUID], str] = ResponseRecipientsEnum.all`
@@ -114,6 +115,8 @@ All these classes are `pydantic` models except `BotXException`, `SyncID` and enu
     * `.keyboard: List[List[KeyboardElement]] = []`
     * `.opts: NotificationOpts = NotificationOpts()`
     * `.file: Optional[File] = None`
+    ---
+    * `.chat_id: UUID readonly`
     ---
     * `.add_file(file)`
     * `.mention_user(user_huid, name)`
@@ -162,10 +165,10 @@ All these classes are `pydantic` models except `BotXException`, `SyncID` and enu
 
 ### Options
 
-* `NotifyOptions`
-    * `recipients: Union[List[UUID], ResponseRecipientsEnum, str] = ResponseRecipientsEnum.all`
-    * `mentions: List[Mention] = []`
-    * `notifications: NotificationOpts = NotificationOpts()`
+* `MessageOptions`
+    * `.recipients: Union[List[UUID], ResponseRecipientsEnum, str] = ResponseRecipientsEnum.all`
+    * `.mentions: List[Mention] = []`
+    * `.notifications: NotificationOpts = NotificationOpts()`
 
 
 ### Mention
@@ -244,8 +247,8 @@ All these classes are `pydantic` models except `BotXException`, `SyncID` and enu
 #### ChatTypeEnum
 
 * `ChatTypeEnum`
-    * `chat: str = "chat"`
-    * `group_chat: str = "group_chat"`
+    * `.chat: str = "chat"`
+    * `.group_chat: str = "group_chat"`
 
 #### MentionTypeEnum
 
@@ -274,17 +277,8 @@ All these classes are `pydantic` models except `BotXException`, `SyncID` and enu
     * `.system: str = "system"`
 
 
-### Other
-
-#### SyncID
-
-* `SyncID(obj, **data)`
-    * `obj: Union[UUID, str]`
-    * `**data: Any`
-
-
 #### BotXException
 
 * `BotXException(message, data)`
-    * `message: str = ""`
-    * `data: Optional[Dict[str, Any]] = None`
+    * `.message: str = ""`
+    * `.data: Optional[Dict[str, Any]] = None`

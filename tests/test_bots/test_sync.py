@@ -80,7 +80,8 @@ class TestSyncBot:
         message = Message(**message_data())
 
         reply_msg = ReplyMessage.from_message("", message)
-        reply_msg.chat_id = uuid.uuid4()
+        reply_msg.sync_id = None
+        reply_msg.chat_ids = [uuid.uuid4()]
         bot.reply(reply_msg)
 
     def test_set_many_chat_ids_in_reply(self, message_data, get_bot):
@@ -88,7 +89,7 @@ class TestSyncBot:
         message = Message(**message_data())
 
         reply_msg = ReplyMessage.from_message("", message)
-        reply_msg.chat_id = [uuid.uuid4()]
+        reply_msg.chat_ids = [uuid.uuid4()]
         bot.reply(reply_msg)
 
     class TestSyncBotCallsToAPI:

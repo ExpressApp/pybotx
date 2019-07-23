@@ -1,5 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
-from uuid import UUID
+from typing import Any, Dict, List, Optional
 
 from .base import BotXType
 
@@ -24,11 +23,3 @@ class MenuCommand(BotXType):
 class NotificationOpts(BotXType):
     send: bool = True
     force_dnd: bool = False
-
-
-class SyncID(UUID):
-    def __init__(self, obj: Union[UUID, str], **data: Any) -> None:
-        if isinstance(obj, UUID):
-            super().__init__(str(obj), **data)
-        else:
-            super().__init__(obj, **data)

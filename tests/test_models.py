@@ -13,7 +13,6 @@ from botx import (
     NotificationOpts,
     ReplyMessage,
     ResponseRecipientsEnum,
-    SyncID,
 )
 from botx.models.base import BotXType
 from botx.models.ui import UIElement
@@ -27,13 +26,6 @@ def test_botx_type_serialized_by_alias_by_default():
     assert custom_instance.custom_field == "some string"
     assert "customField" in custom_instance.dict()
     assert "customField" in custom_instance.json()
-
-
-def test_sync_id_inits_from_uuid_and_from_uuid_init_parameters():
-    custom_uuid = uuid.uuid4()
-
-    assert SyncID(custom_uuid)
-    assert SyncID(str(custom_uuid))
 
 
 def test_ui_elements_get_label_anyway():
@@ -106,11 +98,6 @@ class TestMessageCommand:
 
 
 class TestMessage:
-    def test_sync_id_in_message_is_sync_id_instance(self, message_data):
-        message = Message(**message_data())
-
-        assert isinstance(message.sync_id, SyncID)
-
     def test_message_attributes(self, message_data):
         message = Message(**message_data())
 
@@ -149,18 +136,23 @@ class TestReplyMessage:
         reply = ReplyMessage.from_message("text", message)
 
         assert reply.text == "text"
-        assert reply.chat_id == message.sync_id
-        assert isinstance(reply.chat_id, SyncID)
+        assert reply.sync_id == message.sync_id
+        assert reply.chat_id == message.group_chat_id
         assert reply.bot_id == message.bot_id
         assert reply.host == message.host
 
+    def test_none_for_empty_chat_ids(self, message_data):
+        reply = ReplyMessage.from_message("", Message(**message_data()))
+        reply.chat_ids = []
+        assert not reply.chat_id
+
     def test_group_chat_ids_assigning(self, reply_message):
         chat_ids = [uuid.uuid4() for _ in range(4)]
-        reply_message.chat_id = chat_ids[0]
-        assert reply_message.chat_id == chat_ids[0]
+        reply_message.chat_ids = chat_ids[0]
+        assert reply_message.chat_ids == chat_ids[0]
 
-        reply_message.chat_id = chat_ids
-        assert reply_message.chat_id == chat_ids
+        reply_message.chat_ids = chat_ids
+        assert reply_message.chat_ids == chat_ids
 
     def test_file_property(self, reply_message, tmpdir):
         with open(tmpdir / "tmp.txt", "w") as f:

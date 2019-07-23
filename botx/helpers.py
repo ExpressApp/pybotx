@@ -5,7 +5,7 @@ import json
 import typing
 from typing import Any, Callable, Dict, cast
 
-from http3.models import BaseResponse
+from httpx.models import BaseResponse
 from pydantic import ValidationError
 
 from .core import BotXException

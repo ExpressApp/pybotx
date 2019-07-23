@@ -7,22 +7,13 @@ from uuid import UUID, uuid4
 
 import pytest
 from _pytest.logging import LogCaptureFixture
-from http3 import AsyncClient
+from httpx import AsyncClient
 from loguru import logger
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
-from botx import (
-    CTS,
-    Bot,
-    CTSCredentials,
-    File,
-    Message,
-    ReplyMessage,
-    SyncID,
-    SystemEventsEnum,
-)
+from botx import CTS, Bot, CTSCredentials, File, Message, ReplyMessage, SystemEventsEnum
 from botx.core import BotXAPI
 from botx.sync import SyncBot
 
@@ -47,8 +38,8 @@ def bot_id() -> UUID:
 
 
 @pytest.fixture
-def sync_id() -> SyncID:
-    return SyncID(uuid4())
+def sync_id() -> UUID:
+    return uuid4()
 
 
 @pytest.fixture
@@ -100,7 +91,7 @@ def chat_created_data() -> Dict:
 
 @pytest.fixture
 def message_data(
-    bot_id: UUID, sync_id: SyncID, host: str, json_file, chat_created_data: Dict
+    bot_id: UUID, sync_id: UUID, host: str, json_file, chat_created_data: Dict
 ) -> Callable:
     def _create_message_data(
         command: str = "/cmd",

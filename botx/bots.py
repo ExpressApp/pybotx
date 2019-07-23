@@ -11,7 +11,6 @@ from typing import (
     Type,
     Union,
 )
-from uuid import UUID
 
 from .clients import AsyncBotXClient
 from .collector import HandlersCollector
@@ -27,15 +26,12 @@ from .models import (
     File,
     Message,
     MessageMarkup,
-    NotifyOptions,
+    MessageOptions,
     ReplyMessage,
     SendingCredentials,
     SendingPayload,
     Status,
-    SyncID,
 )
-
-TASKS_LIMIT = 1500
 
 
 class BaseBot(abc.ABC, HandlersCollector):
@@ -124,7 +120,7 @@ class BaseBot(abc.ABC, HandlersCollector):
         *,
         file: Optional[Union[BinaryIO, TextIO]] = None,
         markup: Optional[MessageMarkup] = None,
-        options: Optional[NotifyOptions] = None,
+        options: Optional[MessageOptions] = None,
     ) -> Optional[Awaitable[None]]:
         """Create answer for notification or for handler and send it to BotX API"""
 
@@ -140,7 +136,7 @@ class BaseBot(abc.ABC, HandlersCollector):
         *,
         file: Optional[Union[BinaryIO, TextIO]] = None,
         markup: Optional[MessageMarkup] = None,
-        options: Optional[NotifyOptions] = None,
+        options: Optional[MessageOptions] = None,
     ) -> Optional[Awaitable[None]]:
         """Send message with credentials from incoming message"""
 
@@ -161,15 +157,10 @@ class AsyncBot(BaseBot):
     _dispatcher: AsyncDispatcher
     _client: AsyncBotXClient
 
-    def __init__(
-        self,
-        *,
-        concurrent_tasks: int = TASKS_LIMIT,
-        credentials: Optional[BotCredentials] = None,
-    ) -> None:
+    def __init__(self, *, credentials: Optional[BotCredentials] = None) -> None:
         super().__init__(credentials=credentials)
 
-        self._dispatcher = AsyncDispatcher(tasks_limit=concurrent_tasks)
+        self._dispatcher = AsyncDispatcher()
         self._client = AsyncBotXClient()
 
     async def start(self) -> None:
@@ -191,10 +182,10 @@ class AsyncBot(BaseBot):
         *,
         file: Optional[Union[BinaryIO, TextIO]] = None,
         markup: Optional[MessageMarkup] = None,
-        options: Optional[NotifyOptions] = None,
+        options: Optional[MessageOptions] = None,
     ) -> None:
         markup = markup or MessageMarkup()
-        options = options or NotifyOptions()
+        options = options or MessageOptions()
 
         if len(text) > TEXT_MAX_LENGTH:
             raise BotXException(
@@ -223,7 +214,7 @@ class AsyncBot(BaseBot):
         *,
         file: Optional[Union[BinaryIO, TextIO]] = None,
         markup: Optional[MessageMarkup] = None,
-        options: Optional[NotifyOptions] = None,
+        options: Optional[MessageOptions] = None,
     ) -> None:
         await self.send_message(
             text,
@@ -236,21 +227,19 @@ class AsyncBot(BaseBot):
         )
 
     async def reply(self, message: ReplyMessage) -> None:
-        credentials = SendingCredentials(bot_id=message.bot_id, host=message.host)
-        if isinstance(message.chat_id, SyncID):
-            credentials.sync_id = message.chat_id
-        else:
-            if isinstance(message.chat_id, UUID):
-                credentials.chat_ids = [message.chat_id]
-            else:
-                credentials.chat_ids = message.chat_id
+        credentials = SendingCredentials(
+            bot_id=message.bot_id,
+            host=message.host,
+            sync_id=message.sync_id,
+            chat_ids=message.chat_ids,
+        )
 
         await self.send_message(
             message.text,
             credentials,
             file=message.file.file if message.file else None,
             markup=MessageMarkup(bubbles=message.bubble, keyboard=message.keyboard),
-            options=NotifyOptions(
+            options=MessageOptions(
                 recipients=message.recipients,
                 mentions=message.mentions,
                 notifications=message.opts,

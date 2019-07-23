@@ -17,7 +17,7 @@ class TestBaseDispatcher:
         collector.hidden_command_handler(handler_factory("sync"), command="hidden")
         collector.default_handler(handler_factory("sync"))
 
-        dispatcher = AsyncDispatcher(tasks_limit=1)
+        dispatcher = AsyncDispatcher()
         dispatcher.add_handler(collector.handlers[re_from_str("/cmd")])
         dispatcher.add_handler(collector.handlers[re_from_str("/hidden")])
         dispatcher.add_handler(collector.handlers[DEFAULT_HANDLER_BODY])
@@ -38,7 +38,7 @@ class TestBaseDispatcher:
         def handler(*_):
             test_array.append("text")
 
-        dispatcher = AsyncDispatcher(tasks_limit=1)
+        dispatcher = AsyncDispatcher()
         await dispatcher.start()
 
         dispatcher.add_handler(collector.handlers[DEFAULT_HANDLER_BODY])
@@ -50,7 +50,7 @@ class TestBaseDispatcher:
 
     @pytest.mark.asyncio
     async def test_registration_next_step_handlers_chains(self, message_data):
-        dispatcher = AsyncDispatcher(tasks_limit=10)
+        dispatcher = AsyncDispatcher()
         await dispatcher.start()
 
         collector = HandlersCollector()
@@ -80,7 +80,7 @@ class TestBaseDispatcher:
 
     @pytest.mark.asyncio
     async def test_execution_by_regex_in_regex_handler(self, message_data):
-        dispatcher = AsyncDispatcher(tasks_limit=1)
+        dispatcher = AsyncDispatcher()
         await dispatcher.start()
 
         collector = HandlersCollector()
@@ -101,7 +101,7 @@ class TestBaseDispatcher:
 
     @pytest.mark.asyncio
     async def test_execution_by_regex_in_normal_handler(self, message_data):
-        dispatcher = AsyncDispatcher(tasks_limit=1)
+        dispatcher = AsyncDispatcher()
         await dispatcher.start()
 
         collector = HandlersCollector()
@@ -122,7 +122,7 @@ class TestBaseDispatcher:
 
     @pytest.mark.asyncio
     async def test_handlers_matching_by_full_match(self, message_data, handler_factory):
-        dispatcher = AsyncDispatcher(tasks_limit=1)
+        dispatcher = AsyncDispatcher()
         await dispatcher.start()
 
         collector = HandlersCollector()
@@ -141,7 +141,7 @@ class TestBaseDispatcher:
     async def test_checking_all_handlers_before_default(
         self, message_data, handler_factory
     ):
-        dispatcher = AsyncDispatcher(tasks_limit=1)
+        dispatcher = AsyncDispatcher()
         await dispatcher.start()
 
         collector = HandlersCollector()

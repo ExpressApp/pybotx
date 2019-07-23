@@ -12,7 +12,7 @@ def test_async_dispatcher_accept_not_only_coroutines(message_data):
     def handler(*_):
         pass
 
-    dispatcher = AsyncDispatcher(tasks_limit=10)
+    dispatcher = AsyncDispatcher()
 
     dispatcher.add_handler(collector.handlers[re_from_str("/handler")])
     dispatcher.register_next_step_handler(
@@ -30,7 +30,7 @@ async def test_async_dispatcher_can_execute_sync_handlers(message_data):
     def handler(*_):
         testing_array.append(True)
 
-    dispatcher = AsyncDispatcher(tasks_limit=10)
+    dispatcher = AsyncDispatcher()
 
     dispatcher.add_handler(collector.handlers[re_from_str("/handler")])
 
@@ -43,6 +43,6 @@ async def test_async_dispatcher_can_execute_sync_handlers(message_data):
 
 @pytest.mark.asyncio
 async def test_async_dispatcher_lifespan_events():
-    dispatcher = AsyncDispatcher(tasks_limit=10)
+    dispatcher = AsyncDispatcher()
     await dispatcher.start()
     await dispatcher.shutdown()
