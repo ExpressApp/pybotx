@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from .base import BotXType
 
@@ -6,7 +6,6 @@ from .base import BotXType
 class UIElement(BotXType):
     command: str
     label: Optional[str] = None
-    data: Dict[str, Any] = {}
 
     def __init__(self, **data: Any) -> None:
         super().__init__(**data)

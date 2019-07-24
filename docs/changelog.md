@@ -1,3 +1,7 @@
+## 0.11.2
+
+* Removed the `data` field in bubbles and keyboards to fix display problem on some clients.
+
 ## 0.11.1
 
 * Fixed raising exception on successful status codes from BotX API.

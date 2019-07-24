@@ -9,7 +9,7 @@ import pytest
 import responses
 from aiohttp.web_response import json_response
 
-from botx import AsyncBot, Bot, Message, ReplyMessage, SyncID
+from botx import Message, ReplyMessage, SyncID
 from botx.core import BotXAPI
 
 from .utils import generate_user, get_route_path_from_template

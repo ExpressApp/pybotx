@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "botx"
-version = "0.11.1"
+version = "0.11.2"
 description = "A little python library for building bots for Express"
 
 authors = [
-    "Michael Morozov <mmorozov@ccsteam.ru>",
     "Sidnev Nikolay <nsidnev@ccsteam.ru>",
+    "Michael Morozov <mmorozov@ccsteam.ru>",
     "Bondarenko Georgy <gbondarenko@ccsteam.ru>",
 ]
 readme = "README.md"
