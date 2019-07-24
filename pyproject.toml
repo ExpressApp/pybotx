@@ -4,8 +4,8 @@ version = "0.12.0"
 description = "A little python library for building bots for Express"
 
 authors = [
-    "Michael Morozov <mmorozov@ccsteam.ru>",
     "Sidnev Nikolay <nsidnev@ccsteam.ru>",
+    "Michael Morozov <mmorozov@ccsteam.ru>",
     "Bondarenko Georgy <gbondarenko@ccsteam.ru>",
 ]
 readme = "README.md"
