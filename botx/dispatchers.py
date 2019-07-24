@@ -165,7 +165,7 @@ class AsyncDispatcher(BaseDispatcher):
             await self._scheduler.spawn(
                 callback.callback(message, *callback.args, **callback.kwargs)
             )
-        except KeyError:
+        except (IndexError, KeyError):
             handler = self._get_command_handler_from_message(message)
             await self._scheduler.spawn(
                 handler.callback.callback(

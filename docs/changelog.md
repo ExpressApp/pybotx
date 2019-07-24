@@ -1,3 +1,7 @@
+## 0.11.3
+
+* Fixed `IndexError` when trying to get next step handler for the message.
+
 ## 0.11.2
 
 * Removed the `data` field in bubbles and keyboards to fix display problem on some clients.
