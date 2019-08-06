@@ -12,6 +12,8 @@ from typing import (
     Union,
 )
 
+from botx.helpers import call_coroutine_as_function
+
 from .clients import AsyncBotXClient
 from .collector import HandlersCollector
 from .core import TEXT_MAX_LENGTH, BotXAPI, BotXException
@@ -147,7 +149,7 @@ class BaseBot(abc.ABC, HandlersCollector):
         """Send separate file to BotX API"""
 
     @abc.abstractmethod
-    def _obtain_token(
+    def obtain_token(
         self, credentials: SendingCredentials
     ) -> Optional[Awaitable[None]]:
         """Obtain token from BotX for making requests"""
@@ -175,7 +177,67 @@ class AsyncBot(BaseBot):
     async def execute_command(self, data: Dict[str, Any]) -> None:
         await self._dispatcher.execute_command(data)
 
-    async def send_message(
+    def send_message(
+        self,
+        text: str,
+        credentials: SendingCredentials,
+        *,
+        file: Optional[Union[BinaryIO, TextIO]] = None,
+        markup: Optional[MessageMarkup] = None,
+        options: Optional[MessageOptions] = None,
+    ) -> Optional[Awaitable[None]]:
+        return call_coroutine_as_function(
+            self._send_message,
+            text,
+            credentials,
+            file=file,
+            markup=markup,
+            options=options,
+        )
+
+    def answer_message(
+        self,
+        text: str,
+        message: Message,
+        *,
+        file: Optional[Union[BinaryIO, TextIO]] = None,
+        markup: Optional[MessageMarkup] = None,
+        options: Optional[MessageOptions] = None,
+    ) -> Optional[Awaitable[None]]:
+        return self.send_message(
+            text,
+            SendingCredentials(
+                sync_id=message.sync_id, bot_id=message.bot_id, host=message.host
+            ),
+            file=file,
+            markup=markup,
+            options=options,
+        )
+
+    def reply(self, message: ReplyMessage) -> Optional[Awaitable[None]]:
+        return self.send_message(
+            message.text,
+            SendingCredentials(
+                bot_id=message.bot_id,
+                host=message.host,
+                sync_id=message.sync_id,
+                chat_ids=message.chat_ids,
+            ),
+            file=message.file.file if message.file else None,
+            markup=MessageMarkup(bubbles=message.bubble, keyboard=message.keyboard),
+            options=MessageOptions(
+                recipients=message.recipients,
+                mentions=message.mentions,
+                notifications=message.opts,
+            ),
+        )
+
+    def send_file(
+        self, file: Union[TextIO, BinaryIO], credentials: SendingCredentials
+    ) -> Optional[Awaitable[None]]:
+        return call_coroutine_as_function(self._send_file, file, credentials)
+
+    async def _send_message(
         self,
         text: str,
         credentials: SendingCredentials,
@@ -192,7 +254,7 @@ class AsyncBot(BaseBot):
                 f"message text must be shorter {TEXT_MAX_LENGTH} symbols"
             )
 
-        await self._obtain_token(credentials)
+        await self.obtain_token(credentials)
 
         payload = SendingPayload(
             text=text,
@@ -207,54 +269,15 @@ class AsyncBot(BaseBot):
         else:
             raise BotXException("both sync_id and chat_ids in credentials are missed")
 
-    async def answer_message(
-        self,
-        text: str,
-        message: Message,
-        *,
-        file: Optional[Union[BinaryIO, TextIO]] = None,
-        markup: Optional[MessageMarkup] = None,
-        options: Optional[MessageOptions] = None,
-    ) -> None:
-        await self.send_message(
-            text,
-            SendingCredentials(
-                sync_id=message.sync_id, bot_id=message.bot_id, host=message.host
-            ),
-            file=file,
-            markup=markup,
-            options=options,
-        )
-
-    async def reply(self, message: ReplyMessage) -> None:
-        credentials = SendingCredentials(
-            bot_id=message.bot_id,
-            host=message.host,
-            sync_id=message.sync_id,
-            chat_ids=message.chat_ids,
-        )
-
-        await self.send_message(
-            message.text,
-            credentials,
-            file=message.file.file if message.file else None,
-            markup=MessageMarkup(bubbles=message.bubble, keyboard=message.keyboard),
-            options=MessageOptions(
-                recipients=message.recipients,
-                mentions=message.mentions,
-                notifications=message.opts,
-            ),
-        )
-
-    async def send_file(
+    async def _send_file(
         self, file: Union[TextIO, BinaryIO], credentials: SendingCredentials
     ) -> None:
-        await self._obtain_token(credentials)
+        await self.obtain_token(credentials)
         await self._client.send_file(
             credentials, SendingPayload(file=File.from_file(file))
         )
 
-    async def _obtain_token(self, credentials: SendingCredentials) -> None:
+    async def obtain_token(self, credentials: SendingCredentials) -> None:
         cts = self.get_cts_by_host(credentials.host)
         if not cts:
             raise BotXException(f"unregistered cts with host {repr(credentials.host)}")

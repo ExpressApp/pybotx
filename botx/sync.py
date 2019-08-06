@@ -1,20 +1,12 @@
 import multiprocessing
 from concurrent.futures.thread import ThreadPoolExecutor
-from typing import Any, BinaryIO, Dict, Optional, TextIO, Union
+from typing import Any, Dict, Optional
 
 from .bots import AsyncBot
 from .dispatchers import AsyncDispatcher
 from .execution import execute_callback_with_exception_catching
 from .helpers import call_coroutine_as_function
-from .models import (
-    BotCredentials,
-    Message,
-    MessageMarkup,
-    MessageOptions,
-    ReplyMessage,
-    SendingCredentials,
-    Status,
-)
+from .models import BotCredentials, Status
 
 WORKERS_COUNT = multiprocessing.cpu_count() * 4
 
@@ -68,50 +60,6 @@ class SyncBot(AsyncBot):
 
     def execute_command(self, data: Dict[str, Any]) -> None:  # type: ignore
         self._dispatcher.execute_command(data)
-
-    def send_message(  # type: ignore
-        self,
-        text: str,
-        credentials: SendingCredentials,
-        *,
-        file: Optional[Union[BinaryIO, TextIO]] = None,
-        markup: Optional[MessageMarkup] = None,
-        options: Optional[MessageOptions] = None,
-    ) -> None:
-        return call_coroutine_as_function(
-            super().send_message,
-            text,
-            credentials,
-            file=file,
-            markup=markup,
-            options=options,
-        )
-
-    def answer_message(  # type: ignore
-        self,
-        text: str,
-        message: Message,
-        *,
-        file: Optional[Union[BinaryIO, TextIO]] = None,
-        markup: Optional[MessageMarkup] = None,
-        options: Optional[MessageOptions] = None,
-    ) -> None:
-        return call_coroutine_as_function(
-            super().answer_message,
-            text,
-            message,
-            file=file,
-            markup=markup,
-            options=options,
-        )
-
-    def reply(self, message: ReplyMessage) -> None:  # type: ignore
-        return call_coroutine_as_function(super().reply, message)
-
-    def send_file(  # type: ignore
-        self, file: Union[TextIO, BinaryIO], credentials: SendingCredentials
-    ) -> None:
-        return call_coroutine_as_function(super().send_file, file, credentials)
 
 
 Bot = SyncBot
