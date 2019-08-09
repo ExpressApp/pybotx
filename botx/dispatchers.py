@@ -56,14 +56,12 @@ class BaseDispatcher(abc.ABC):
         """Parse request and call status creation or executing handler for handler"""
 
     def add_handler(self, handler: CommandHandler) -> None:
-        logger_ctx = logger.bind(handler=handler.dict())
-
         if handler.use_as_default_handler:
-            logger_ctx.debug("registered default handler")
+            logger.debug("registered default handler")
 
             self._default_handler = handler
         else:
-            logger_ctx.debug(f"registered handler for {handler.command}")
+            logger.debug(f"registered handler for {handler.command.pattern !r}")
 
             self._handlers[handler.command] = handler
 
@@ -90,18 +88,12 @@ class BaseDispatcher(abc.ABC):
             self._next_step_handlers[key] = [callback]
 
     def _get_callback_for_message(self, message: Message) -> CommandCallback:
-        logger_ctx = logger.bind(message=message.dict())
-
         try:
             callback = self._get_next_step_handler_from_message(message)
-            logger_ctx.bind(callback=callback.dict()).debug(
-                "found registered next step handler for message"
-            )
         except (IndexError, KeyError):
-            callback = self._get_command_handler_from_message(message).callback
-            logger_ctx.bind(command=message.command.command).debug(
-                "found handler for command"
-            )
+            handler = self._get_command_handler_from_message(message)
+            callback = handler.callback
+            logger.info(f"handler for {handler.command.pattern !r}")
 
         return callback
 
@@ -137,7 +129,6 @@ class BaseDispatcher(abc.ABC):
         self, message_data: Dict[str, Any]
     ) -> CommandCallback:
         message = create_message(message_data)
-        logger.bind(message=message.dict()).debug("parsed message successful")
 
         callback = self._get_callback_for_message(message)
         callback_copy = callback.copy(update={"args": (message,) + callback.args})

@@ -1,6 +1,6 @@
 import re
 from functools import partial
-from typing import AnyStr, Callable, Dict, List, Optional, Pattern, Union
+from typing import Callable, Dict, List, Optional, Pattern, Union
 
 from .core import (
     DEFAULT_HANDLER_BODY,
@@ -9,8 +9,7 @@ from .core import (
     BotXException,
 )
 from .models import CommandCallback, CommandHandler, SystemEventsEnum
-
-COMMAND_STRING = Union[str, Pattern[AnyStr]]
+from .types import COMMAND_STRING
 
 
 class HandlersCollector:

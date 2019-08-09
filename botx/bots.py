@@ -12,12 +12,11 @@ from typing import (
     Union,
 )
 
-from botx.helpers import call_coroutine_as_function
-
 from .clients import AsyncBotXClient
 from .collector import HandlersCollector
 from .core import TEXT_MAX_LENGTH, BotXAPI, BotXException
 from .dispatchers import AsyncDispatcher, BaseDispatcher
+from .helpers import call_coroutine_as_function
 from .models import (
     CTS,
     BotCredentials,
