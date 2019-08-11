@@ -12,7 +12,7 @@ from .botx_api import (
     SendingCredentials,
     SendingPayload,
 )
-from .command_handler import CommandCallback, CommandHandler
+from .command_handler import CommandCallback, CommandHandler, Dependency
 from .common import CommandUIElement, MenuCommand, NotificationOpts
 from .cts import CTS, BotCredentials, CTSCredentials
 from .enums import (
@@ -32,6 +32,7 @@ from .ui import BubbleElement, KeyboardElement
 
 __all__ = (
     "File",
+    "Dependency",
     "CTS",
     "BotCredentials",
     "ChatCreatedData",

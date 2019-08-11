@@ -73,8 +73,8 @@ class TestBaseBot:
 
         @bot.handler
         def my_handler(msg: Message, *_):
-            def ns_handler(*args):
-                testing_array.append(args)
+            def ns_handler(m: Message, b: Bot, *args):
+                testing_array.append((m, b) + args)
 
             bot.register_next_step_handler(msg, ns_handler)
 
@@ -209,3 +209,133 @@ class TestBaseBot:
         await bot.stop()
 
         assert testing_array[0]
+
+    @pytest.mark.asyncio
+    async def test_registering_default_handler(self, message_data):
+        bot = Bot()
+        await bot.start()
+
+        testing_array = []
+        message = Message(**message_data())
+
+        @bot.default_handler
+        def handler():
+            testing_array.append(1)
+
+        await bot.execute_command(message.dict())
+
+        await bot.stop()
+
+        assert testing_array
+
+    @pytest.mark.asyncio
+    async def test_adding_many_ns_handlers_in_handler(self, message_data):
+        bot = Bot()
+        await bot.start()
+
+        message = Message(**message_data(command="/handler"))
+        testing_array = []
+
+        @bot.handler
+        async def handler(msg: Message, b: Bot):
+            def ns_handler():
+                testing_array.append(1)
+
+            b.register_next_step_handler(msg, ns_handler)
+            b.register_next_step_handler(msg, ns_handler)
+
+        await bot.stop()
+
+        for _ in range(3):
+            await bot.execute_command(message.dict())
+            await asyncio.sleep(0.1)
+
+        assert len(testing_array) == 2
+
+    @pytest.mark.asyncio
+    async def test_raising_error_with_missing_handler(self, message_data):
+        bot = Bot()
+        await bot.start()
+
+        with pytest.raises(BotXException):
+            await bot.execute_command(message_data())
+
+        await bot.stop()
+
+    @pytest.mark.asyncio
+    async def test_regex_handler(self, message_data):
+        hello_msg = Message(**message_data(command="/hello"))
+        hello_world_msg = Message(**message_data(command="/hello world"))
+        hell_msg = Message(**message_data(command="/hell"))
+
+        bot = Bot()
+        await bot.start()
+
+        testing_array = []
+
+        @bot.regex_handler(command=r"/hell.+")
+        async def handler():
+            testing_array.append(1)
+
+        await bot.execute_command(hello_msg.dict())
+        await asyncio.sleep(0.1)
+
+        await bot.execute_command(hello_world_msg.dict())
+        await asyncio.sleep(0.1)
+
+        with pytest.raises(BotXException):
+            await bot.execute_command(hell_msg.dict())
+
+        await asyncio.sleep(0.1)
+        assert len(testing_array) == 2
+
+        await bot.stop()
+
+    @pytest.mark.asyncio
+    async def test_full_body_regex(self, message_data):
+        hello_world_msg = Message(**message_data(command="/hello world"))
+
+        bot = Bot()
+
+        testing_array = []
+
+        @bot.regex_handler(command="/hello")
+        async def handler():
+            testing_array.append(1)
+
+        await bot.execute_command(hello_world_msg.dict())
+        await asyncio.sleep(0.1)
+
+        assert testing_array
+
+    @pytest.mark.asyncio
+    async def test_hidden_commands_not_in_status(self):
+        bot = Bot()
+
+        @bot.hidden_command_handler(command="/cmd")
+        async def handler():
+            pass
+
+        status = await bot.status()
+        assert len(status.result.commands) == 0
+
+    @pytest.mark.asyncio
+    async def test_execute_background_dependencies(self, message_data):
+        testing_array = []
+
+        async def dep():
+            testing_array.append(1)
+
+        bot = Bot(dependencies=[dep])
+
+        @bot.handler(command="/cmd")
+        async def handler():
+            testing_array.append(1)
+
+        message = Message(**message_data())
+        await bot.execute_command(message.dict())
+        await asyncio.sleep(0.1)
+
+        await bot.stop()
+
+        assert len(testing_array) == 2

@@ -33,16 +33,20 @@ class BotXEndpoint:
 
 
 class BotXAPI:
-    class V4:
+    class V1:
         file: BotXEndpoint = BotXEndpoint(
-            method="POST", url="https://{host}/api/v4/botx/file/callback"
+            method="POST", url="https://{host}/api/v1/botx/file/callback"
         )
+
+    class V2:
         token: BotXEndpoint = BotXEndpoint(
-            method="GET", url="https://{host}/api/v4/botx/bots/{bot_id}/token"
+            method="GET", url="https://{host}/api/v2/botx/bots/{bot_id}/token"
         )
+
+    class V3:
         command: BotXEndpoint = BotXEndpoint(
-            method="POST", url="https://{host}/api/v4/botx/command/callback"
+            method="POST", url="https://{host}/api/v3/botx/command/callback"
         )
         notification: BotXEndpoint = BotXEndpoint(
-            method="POST", url="https://{host}/api/v4/botx/notification/callback"
+            method="POST", url="https://{host}/api/v3/botx/notification/callback"
         )

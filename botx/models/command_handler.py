@@ -5,10 +5,15 @@ from .common import CommandUIElement
 from .status import MenuCommand
 
 
+class Dependency(BotXType):
+    call: Callable
+
+
 class CommandCallback(BotXType):
     callback: Callable
     args: Tuple[Any, ...] = ()
     kwargs: Dict[str, Any] = {}
+    background_dependencies: List[Dependency] = []
 
 
 class CommandHandler(BotXType):

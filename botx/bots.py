@@ -14,7 +14,7 @@ from typing import (
 
 from .clients import AsyncBotXClient
 from .collector import HandlersCollector
-from .core import TEXT_MAX_LENGTH, BotXAPI, BotXException
+from .core import TEXT_MAX_LENGTH, BotXException
 from .dispatchers import AsyncDispatcher, BaseDispatcher
 from .helpers import call_coroutine_as_function
 from .models import (
@@ -38,13 +38,14 @@ from .models import (
 class BaseBot(abc.ABC, HandlersCollector):
     _dispatcher: BaseDispatcher
     _credentials: BotCredentials
-    _token_url: str = BotXAPI.V4.token.url
-    _command_url: str = BotXAPI.V4.command.url
-    _notification_url: str = BotXAPI.V4.notification.url
-    _file_url: str = BotXAPI.V4.file.url
 
-    def __init__(self, *, credentials: Optional[BotCredentials] = None) -> None:
-        super().__init__()
+    def __init__(
+        self,
+        *,
+        credentials: Optional[BotCredentials] = None,
+        dependencies: Optional[List[Callable]] = None,
+    ) -> None:
+        super().__init__(dependencies=dependencies)
 
         self._credentials = credentials if credentials else BotCredentials()
 
@@ -156,13 +157,18 @@ class BaseBot(abc.ABC, HandlersCollector):
 
 class AsyncBot(BaseBot):
     _dispatcher: AsyncDispatcher
-    _client: AsyncBotXClient
+    client: AsyncBotXClient
 
-    def __init__(self, *, credentials: Optional[BotCredentials] = None) -> None:
-        super().__init__(credentials=credentials)
+    def __init__(
+        self,
+        *,
+        credentials: Optional[BotCredentials] = None,
+        dependencies: Optional[List[Callable]] = None,
+    ) -> None:
+        super().__init__(credentials=credentials, dependencies=dependencies)
 
         self._dispatcher = AsyncDispatcher()
-        self._client = AsyncBotXClient()
+        self.client = AsyncBotXClient()
 
     async def start(self) -> None:
         await self._dispatcher.start()
@@ -262,9 +268,9 @@ class AsyncBot(BaseBot):
             options=options,
         )
         if credentials.sync_id:
-            await self._client.send_command_result(credentials, payload)
+            await self.client.send_command_result(credentials, payload)
         elif credentials.chat_ids:
-            await self._client.send_notification(credentials, payload)
+            await self.client.send_notification(credentials, payload)
         else:
             raise BotXException("both sync_id and chat_ids in credentials are missed")
 
@@ -272,7 +278,7 @@ class AsyncBot(BaseBot):
         self, file: Union[TextIO, BinaryIO], credentials: SendingCredentials
     ) -> None:
         await self.obtain_token(credentials)
-        await self._client.send_file(
+        await self.client.send_file(
             credentials, SendingPayload(file=File.from_file(file))
         )
 
@@ -287,7 +293,7 @@ class AsyncBot(BaseBot):
 
         signature = cts.calculate_signature(credentials.bot_id)
 
-        token_data = await self._client.obtain_token(
+        token_data = await self.client.obtain_token(
             credentials.host, credentials.bot_id, signature
         )
         token = BotXTokenResponse(**token_data).result

@@ -8,15 +8,19 @@ from .core import (
     SYSTEM_FILE_TRANSFER,
     BotXException,
 )
-from .models import CommandCallback, CommandHandler, SystemEventsEnum
+from .models import CommandCallback, CommandHandler, Dependency, SystemEventsEnum
 from .types import COMMAND_STRING
 
 
 class HandlersCollector:
     _handlers: Dict[Pattern, CommandHandler]
+    dependencies: List[Dependency] = []
 
-    def __init__(self) -> None:
+    def __init__(self, dependencies: Optional[List[Callable]] = None) -> None:
         self._handlers = {}
+
+        if dependencies:
+            self.dependencies = [Dependency(call=call) for call in dependencies]
 
     @property
     def handlers(self) -> Dict[Pattern, CommandHandler]:
@@ -46,8 +50,13 @@ class HandlersCollector:
         commands: Optional[List[COMMAND_STRING]] = None,
         use_as_default_handler: Optional[bool] = False,
         exclude_from_status: Optional[bool] = False,
+        dependencies: Optional[List[Callable]] = None,
     ) -> Callable:
         if callback:
+            transformed_dependencies = (
+                [Dependency(call=dep) for dep in dependencies] if dependencies else []
+            )
+
             if not commands:
                 commands = [command or ""]
             elif command:
@@ -74,16 +83,20 @@ class HandlersCollector:
                     description or callback.__doc__ or f"{name.capitalize()} handler"
                 )
 
-                self.add_handler(
-                    CommandHandler(
-                        command=command,
-                        callback=CommandCallback(callback=callback),
-                        name=command_name,
-                        description=description,
-                        exclude_from_status=exclude_from_status,
-                        use_as_default_handler=use_as_default_handler,
-                    )
+                handler = CommandHandler(
+                    command=command,
+                    callback=CommandCallback(
+                        callback=callback,
+                        background_dependencies=self.dependencies
+                        + transformed_dependencies,
+                    ),
+                    name=command_name,
+                    description=description,
+                    exclude_from_status=exclude_from_status,
+                    use_as_default_handler=use_as_default_handler,
                 )
+
+                self.add_handler(handler)
 
             return callback
 
@@ -95,6 +108,7 @@ class HandlersCollector:
             commands=commands,
             exclude_from_status=exclude_from_status,
             use_as_default_handler=use_as_default_handler,
+            dependencies=dependencies,
         )
 
     def regex_handler(
@@ -104,12 +118,14 @@ class HandlersCollector:
         name: Optional[str] = None,
         command: Optional[str] = None,
         commands: Optional[List[str]] = None,
+        dependencies: Optional[List[Callable]] = None,
     ) -> Callable:
         return self.hidden_command_handler(
             callback=callback,
             name=name,
             command=re.compile(command) if command else None,
             commands=[re.compile(cmd) for cmd in commands] if commands else None,
+            dependencies=dependencies,
         )
 
     def hidden_command_handler(
@@ -119,6 +135,7 @@ class HandlersCollector:
         name: Optional[str] = None,
         command: Optional[COMMAND_STRING] = None,
         commands: Optional[List[COMMAND_STRING]] = None,
+        dependencies: Optional[List[Callable]] = None,
     ) -> Callable:
         return self.handler(
             callback=callback,
@@ -126,19 +143,28 @@ class HandlersCollector:
             command=command,
             commands=commands,
             exclude_from_status=True,
+            dependencies=dependencies,
         )
 
-    def file_handler(self, callback: Callable) -> Callable:
+    def file_handler(
+        self, callback: Callable, dependencies: Optional[List[Callable]] = None
+    ) -> Callable:
         return self.handler(
             callback,
             name=FILE_HANDLER_NAME,
             command=SYSTEM_FILE_TRANSFER,
             exclude_from_status=True,
+            dependencies=dependencies,
         )
 
-    def default_handler(self, callback: Callable) -> Callable:
+    def default_handler(
+        self, callback: Callable, dependencies: Optional[List[Callable]] = None
+    ) -> Callable:
         return self.handler(
-            callback, command=DEFAULT_HANDLER_BODY, use_as_default_handler=True
+            callback,
+            command=DEFAULT_HANDLER_BODY,
+            use_as_default_handler=True,
+            dependencies=dependencies,
         )
 
     def system_event_handler(
@@ -147,13 +173,20 @@ class HandlersCollector:
         *,
         event: Union[str, SystemEventsEnum],
         name: Optional[str] = None,
+        dependencies: Optional[List[Callable]] = None,
     ) -> Callable:
         if isinstance(event, SystemEventsEnum):
             command = event.value
         else:
             command = event
 
-        return self.regex_handler(callback=callback, name=name, command=command)
+        return self.regex_handler(
+            callback=callback, name=name, command=command, dependencies=dependencies
+        )
 
-    def chat_created_handler(self, callback: Callable) -> Callable:
-        return self.system_event_handler(callback, event=SystemEventsEnum.chat_created)
+    def chat_created_handler(
+        self, callback: Callable, dependencies: Optional[List[Callable]] = None
+    ) -> Callable:
+        return self.system_event_handler(
+            callback, event=SystemEventsEnum.chat_created, dependencies=dependencies
+        )

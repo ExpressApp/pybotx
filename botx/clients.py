@@ -32,10 +32,10 @@ def check_api_error(resp: BaseResponse) -> bool:
 
 
 class BaseBotXClient(abc.ABC):
-    _token_url: str = BotXAPI.V4.token.url
-    _command_url: str = BotXAPI.V4.command.url
-    _notification_url: str = BotXAPI.V4.notification.url
-    _file_url: str = BotXAPI.V4.file.url
+    _token_url: str = BotXAPI.V2.token.url
+    _command_url: str = BotXAPI.V3.command.url
+    _notification_url: str = BotXAPI.V3.notification.url
+    _file_url: str = BotXAPI.V1.file.url
 
     @abc.abstractmethod
     def send_file(
@@ -61,17 +61,17 @@ class BaseBotXClient(abc.ABC):
 
 
 class AsyncBotXClient(BaseBotXClient):
-    _client: AsyncClient
+    client: AsyncClient
 
     def __init__(self) -> None:
-        self._client = AsyncClient()
+        self.client = AsyncClient()
 
     async def send_file(
         self, credentials: SendingCredentials, payload: SendingPayload
     ) -> None:
         assert payload.file, "payload should include File object"
 
-        resp = await self._client.post(
+        resp = await self.client.post(
             self._file_url.format(host=credentials.host),
             data=BotXFilePayload.from_orm(credentials).dict(),
             files={"file": payload.file.file},
@@ -83,7 +83,7 @@ class AsyncBotXClient(BaseBotXClient):
             )
 
     async def obtain_token(self, host: str, bot_id: UUID, signature: str) -> Any:
-        resp = await self._client.get(
+        resp = await self.client.get(
             self._token_url.format(host=host, bot_id=bot_id),
             params=BotXTokenRequestParams(signature=signature).dict(),
         )
@@ -114,7 +114,7 @@ class AsyncBotXClient(BaseBotXClient):
             file=payload.file,
             opts=BotXPayloadOptions(notification_opts=payload.options.notifications),
         )
-        resp = await self._client.post(
+        resp = await self.client.post(
             self._command_url.format(host=credentials.host),
             json=command_result.dict(),
             headers=get_headers(credentials.token),
@@ -143,7 +143,7 @@ class AsyncBotXClient(BaseBotXClient):
             file=payload.file,
             opts=BotXPayloadOptions(notification_opts=payload.options.notifications),
         )
-        resp = await self._client.post(
+        resp = await self.client.post(
             self._notification_url.format(host=credentials.host),
             json=notification.dict(),
             headers=get_headers(credentials.token),

@@ -1,6 +1,6 @@
 import multiprocessing
 from concurrent.futures.thread import ThreadPoolExecutor
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from .bots import AsyncBot
 from .dispatchers import AsyncDispatcher
@@ -44,8 +44,9 @@ class SyncBot(AsyncBot):
         *,
         concurrent_tasks: int = WORKERS_COUNT,
         credentials: Optional[BotCredentials] = None,
+        dependencies: Optional[List[Callable]] = None
     ) -> None:
-        super().__init__(credentials=credentials)
+        super().__init__(credentials=credentials, dependencies=dependencies)
 
         self._dispatcher = SyncDispatcher(concurrent_tasks)
 

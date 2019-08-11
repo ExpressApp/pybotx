@@ -5,10 +5,49 @@ import pytest
 
 from botx import BotXException, HandlersCollector, SystemEventsEnum
 from botx.core import DEFAULT_HANDLER_BODY, SYSTEM_FILE_TRANSFER
+from botx.models import Dependency
 from tests.utils import re_from_str
 
 
 class TestHandlersCollector:
+    def test_dependencies_on_collector_level(self, handler_factory):
+        def dep_func():
+            pass
+
+        collector = HandlersCollector(dependencies=[dep_func])
+        collector.handler(handler_factory("sync"))
+
+        handler = collector.handlers[re_from_str("/sync-handler")]
+        assert handler.callback.background_dependencies == [Dependency(call=dep_func)]
+
+    def test_dependencies_on_decorator_level(self, handler_factory):
+        def dep_func():
+            pass
+
+        collector = HandlersCollector()
+        collector.handler(handler_factory("sync"), dependencies=[dep_func])
+
+        handler = collector.handlers[re_from_str("/sync-handler")]
+        assert handler.callback.background_dependencies == [Dependency(call=dep_func)]
+
+    def test_dependencies_on_collector_and_decorator_level(self, handler_factory):
+        def dep_func_for_collector():
+            pass
+
+        def dep_func_for_decorator():
+            pass
+
+        collector = HandlersCollector(dependencies=[dep_func_for_collector])
+        collector.handler(
+            handler_factory("sync"), dependencies=[dep_func_for_decorator]
+        )
+
+        handler = collector.handlers[re_from_str("/sync-handler")]
+        assert handler.callback.background_dependencies == [
+            Dependency(call=dep_func_for_collector),
+            Dependency(call=dep_func_for_decorator),
+        ]
+
     def test_handlers_adding(self, handler_factory):
         collector = HandlersCollector()
         collector.handler(handler_factory("sync"))

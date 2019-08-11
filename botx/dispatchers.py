@@ -90,6 +90,9 @@ class BaseDispatcher(abc.ABC):
     def _get_callback_for_message(self, message: Message) -> CommandCallback:
         try:
             callback = self._get_next_step_handler_from_message(message)
+            logger.info(
+                f"next step handler for {message.group_chat_id} {message.user_huid}"
+            )
         except (IndexError, KeyError):
             handler = self._get_command_handler_from_message(message)
             callback = handler.callback
@@ -106,24 +109,18 @@ class BaseDispatcher(abc.ABC):
         body = message.command.body
         cmd = message.command.command
 
-        handler = None
         for cmd_pattern in self._handlers:
             if cmd_pattern.fullmatch(body):
-                handler = self._handlers[cmd_pattern]
-                break
+                return self._handlers[cmd_pattern]
             elif cmd_pattern.fullmatch(cmd):
-                handler = self._handlers[cmd_pattern]
-                break
+                return self._handlers[cmd_pattern]
+        else:
+            if self._default_handler:
+                return self._default_handler
 
-        if handler:
-            return handler
-
-        if self._default_handler:
-            return self._default_handler
-
-        raise BotXException(
-            "unhandled command with missing handler", data={"handler": message.body}
-        )
+            raise BotXException(
+                "unhandled command with missing handler", data={"handler": message.body}
+            )
 
     def _get_callback_copy_for_message_data(
         self, message_data: Dict[str, Any]

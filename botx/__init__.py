@@ -4,6 +4,7 @@ from pydantic import ValidationError
 from .bots import AsyncBot as Bot
 from .collector import HandlersCollector
 from .core import BotXException
+from .dependencies import Depends
 from .models import (
     CTS,
     BotCredentials,
@@ -40,6 +41,7 @@ from .models import (
 logger.disable("botx")
 
 __all__ = (
+    "Depends",
     "Bot",
     "HandlersCollector",
     "BotXException",

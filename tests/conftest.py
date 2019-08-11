@@ -167,24 +167,24 @@ def get_botx_api_app() -> Callable:
     ) -> Starlette:
         app = Starlette()
         app.add_route(
-            get_route_path_from_template(BotXAPI.V4.command.url),
+            get_route_path_from_template(BotXAPI.V3.command.url),
             command_route or get_default_route(generate_error_response),
-            methods=[BotXAPI.V4.command.method],
+            methods=[BotXAPI.V3.command.method],
         )
         app.add_route(
-            get_route_path_from_template(BotXAPI.V4.notification.url),
+            get_route_path_from_template(BotXAPI.V3.notification.url),
             notification_route or get_default_route(generate_error_response),
-            methods=[BotXAPI.V4.notification.method],
+            methods=[BotXAPI.V3.notification.method],
         )
         app.add_route(
-            get_route_path_from_template(BotXAPI.V4.file.url),
+            get_route_path_from_template(BotXAPI.V1.file.url),
             file_route or get_default_route(generate_error_response),
-            methods=[BotXAPI.V4.file.method],
+            methods=[BotXAPI.V1.file.method],
         )
         app.add_route(
-            get_route_path_from_template(BotXAPI.V4.token.url),
+            get_route_path_from_template(BotXAPI.V2.token.url),
             token_route or get_default_route(generate_error_response),
-            methods=[BotXAPI.V4.token.method],
+            methods=[BotXAPI.V2.token.method],
         )
 
         return app
@@ -239,7 +239,7 @@ def get_bot(get_botx_api_app: Callable, bot_id: UUID, host: str) -> Callable:
             generate_error_response=generate_error_response,
         )
         bot = Bot() if not create_sync_bot else SyncBot()
-        bot._client._client = AsyncClient(app=app)
+        bot.client.client = AsyncClient(app=app)
         if set_token:
             bot.add_cts(
                 CTS(
