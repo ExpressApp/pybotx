@@ -147,10 +147,13 @@ class HandlersCollector:
         )
 
     def file_handler(
-        self, callback: Callable, dependencies: Optional[List[Callable]] = None
+        self,
+        callback: Optional[Callable] = None,
+        *,
+        dependencies: Optional[List[Callable]] = None,
     ) -> Callable:
         return self.handler(
-            callback,
+            callback=callback,
             name=FILE_HANDLER_NAME,
             command=SYSTEM_FILE_TRANSFER,
             exclude_from_status=True,
@@ -158,10 +161,13 @@ class HandlersCollector:
         )
 
     def default_handler(
-        self, callback: Callable, dependencies: Optional[List[Callable]] = None
+        self,
+        callback: Optional[Callable] = None,
+        *,
+        dependencies: Optional[List[Callable]] = None,
     ) -> Callable:
         return self.handler(
-            callback,
+            callback=callback,
             command=DEFAULT_HANDLER_BODY,
             use_as_default_handler=True,
             dependencies=dependencies,
@@ -185,8 +191,13 @@ class HandlersCollector:
         )
 
     def chat_created_handler(
-        self, callback: Callable, dependencies: Optional[List[Callable]] = None
+        self,
+        callback: Optional[Callable] = None,
+        *,
+        dependencies: Optional[List[Callable]] = None,
     ) -> Callable:
         return self.system_event_handler(
-            callback, event=SystemEventsEnum.chat_created, dependencies=dependencies
+            callback=callback,
+            event=SystemEventsEnum.chat_created,
+            dependencies=dependencies,
         )
