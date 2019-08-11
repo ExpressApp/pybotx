@@ -158,7 +158,7 @@ class AsyncDispatcher(BaseDispatcher):
 
     async def execute_command(self, data: Dict[str, Any]) -> None:
         self._tasks.add(
-            asyncio.create_task(
+            asyncio.ensure_future(
                 execute_callback_with_exception_catching(
                     self.exception_catchers,
                     self._get_callback_copy_for_message_data(data),
