@@ -43,6 +43,25 @@ async def my_handler(message: Message, bot: Bot):
     await bot.reply(reply)
 ```
 
+### Send file
+
+```python3
+from botx import SendingCredentials
+...
+@bot.handler
+async def my_handler(message: Message, bot: Bot):
+    with open("file.txt") as f:
+        file = File.from_file(f)
+
+    await bot.send_file(
+        file.file,
+        SendingCredentials(
+            sync_id=message.sync_id, bot_id=message.bot_id, host=message.host
+        ),
+    )
+...
+```
+
 ### Send file with message
 
 !!! warning
@@ -52,17 +71,18 @@ To attach a file to your message, simply pass it to the `file` argument for tje 
 or use `ReplyMessage.add_file` if you use `Bot.reply`. This will create an instance of the `File` class that will be used to send result. 
 If you want to use the same file several times, you can create a `File` object manually and use the `File.file` property to reuse the data.
 
-```Python3
+```python3
 @bot.handler
-async def my_handler(message: Message, bot: Bot)
-    with open('file.txt') as f:
+async def my_handler(message: Message, bot: Bot):
+    with open("file.txt") as f:
         file = File.from_file(f)
-       
+
     await bot.answer_message("Your file", message, file=file.file)
-    
+
     reply = ReplyMessage.from_message("Your file (again)", message)
     reply.add_file(file)
     await bot.reply(reply)
+...
 ```
 
 ### Add `Bubble` and `Keyboard`

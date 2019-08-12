@@ -1,7 +1,7 @@
 import pytest
 from loguru import logger
 
-from botx import Message
+from botx import BotXDependencyFailure, Message
 from botx.execution import execute_callback_with_exception_catching
 
 from .utils import create_callback
@@ -177,3 +177,18 @@ class TestExceptionCatcherExecution:
         )
 
         assert testing_array == [ze, re]
+
+    @pytest.mark.asyncio
+    async def test_doing_nothing_when_raised_dependency_error(
+        self, caplog, get_bot, message_data
+    ):
+        logger.enable("botx")
+
+        def func():
+            raise BotXDependencyFailure
+
+        await execute_callback_with_exception_catching(
+            {}, create_callback(func, Message(**message_data()), get_bot())
+        )
+
+        assert not caplog.text

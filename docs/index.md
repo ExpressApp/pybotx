@@ -40,8 +40,7 @@ Python 3.6+
 `pybotx` use the following libraries:
 
 * <a href="https://github.com/samuelcolvin/pydantic" target="_blank">pydantic</a> for the data parts.
-* <a href="https://github.com/encode/http3" target="_blank">http3</a> for making HTTP calls to BotX API.
-* <a href="https://github.com/aio-libs/aiojobs" target="_blank">aiojobs</a> for dispatching asynchronous tasks.
+* <a href="https://github.com/encode/httpx" target="_blank">httpx</a> for making HTTP calls to BotX API.
 * <a href="https://github.com/Delgan/loguru" target="_blank">loguru</a> for beautiful and powerful logs.
 
 ## Installation

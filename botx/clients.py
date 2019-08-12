@@ -1,5 +1,5 @@
 import abc
-from typing import Any, Awaitable, Dict, Optional
+from typing import Any, Awaitable, Callable, Dict, Optional
 from uuid import UUID
 
 from httpx import AsyncClient
@@ -61,21 +61,19 @@ class BaseBotXClient(abc.ABC):
 
 
 class AsyncBotXClient(BaseBotXClient):
-    client: AsyncClient
-
-    def __init__(self) -> None:
-        self.client = AsyncClient()
+    asgi_app: Optional[Callable] = None
 
     async def send_file(
         self, credentials: SendingCredentials, payload: SendingPayload
     ) -> None:
         assert payload.file, "payload should include File object"
 
-        resp = await self.client.post(
-            self._file_url.format(host=credentials.host),
-            data=BotXFilePayload.from_orm(credentials).dict(),
-            files={"file": payload.file.file},
-        )
+        async with AsyncClient(app=self.asgi_app) as client:
+            resp = await client.post(
+                self._file_url.format(host=credentials.host),
+                data=BotXFilePayload.from_orm(credentials).dict(),
+                files={"file": payload.file.file},
+            )
         if check_api_error(resp):
             raise BotXException(
                 "unable to send file to BotX API",
@@ -83,10 +81,11 @@ class AsyncBotXClient(BaseBotXClient):
             )
 
     async def obtain_token(self, host: str, bot_id: UUID, signature: str) -> Any:
-        resp = await self.client.get(
-            self._token_url.format(host=host, bot_id=bot_id),
-            params=BotXTokenRequestParams(signature=signature).dict(),
-        )
+        async with AsyncClient(app=self.asgi_app) as client:
+            resp = await client.get(
+                self._token_url.format(host=host, bot_id=bot_id),
+                params=BotXTokenRequestParams(signature=signature).dict(),
+            )
         if check_api_error(resp):
             raise BotXException(
                 "unable to obtain token from BotX API",
@@ -114,11 +113,13 @@ class AsyncBotXClient(BaseBotXClient):
             file=payload.file,
             opts=BotXPayloadOptions(notification_opts=payload.options.notifications),
         )
-        resp = await self.client.post(
-            self._command_url.format(host=credentials.host),
-            json=command_result.dict(),
-            headers=get_headers(credentials.token),
-        )
+
+        async with AsyncClient(app=self.asgi_app) as client:
+            resp = await client.post(
+                self._command_url.format(host=credentials.host),
+                json=command_result.dict(),
+                headers=get_headers(credentials.token),
+            )
         if check_api_error(resp):
             raise BotXException(
                 "unable to send command result to BotX API",
@@ -143,11 +144,12 @@ class AsyncBotXClient(BaseBotXClient):
             file=payload.file,
             opts=BotXPayloadOptions(notification_opts=payload.options.notifications),
         )
-        resp = await self.client.post(
-            self._notification_url.format(host=credentials.host),
-            json=notification.dict(),
-            headers=get_headers(credentials.token),
-        )
+        async with AsyncClient(app=self.asgi_app) as client:
+            resp = await client.post(
+                self._notification_url.format(host=credentials.host),
+                json=notification.dict(),
+                headers=get_headers(credentials.token),
+            )
         if check_api_error(resp):
             raise BotXException(
                 "unable to send notification to BotX API",

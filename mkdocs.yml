@@ -15,8 +15,11 @@ nav:
         - Sending Messages And Files: 'development/sending-data.md'
         - HandlersCollector: 'development/handlers-collector.md'
         - Handling Errors: 'development/handling-errors.md'
+        - Dependencies Injection: 'development/dependencies-injection.md'
+        - Logging: 'development/logging.md'
         - Use Synchronous SDK: 'development/sync.md'
         - Developing Using Tokens: 'development/cts-tokens.md'
+        - Testing: 'development/tests.md'
         - Deployment: 'development/bots-deployment.md'
     - API Reference:
         - Bots: 'api-reference/bots.md'

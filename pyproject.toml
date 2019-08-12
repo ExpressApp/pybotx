@@ -3,11 +3,7 @@ name = "botx"
 version = "0.12.0"
 description = "A little python library for building bots for Express"
 
-authors = [
-    "Sidnev Nikolay <nsidnev@ccsteam.ru>",
-    "Michael Morozov <mmorozov@ccsteam.ru>",
-    "Bondarenko Georgy <gbondarenko@ccsteam.ru>",
-]
+authors = ["Sidnev Nikolay <nsidnev@ccsteam.ru>"]
 readme = "README.md"
 
 documentation = "https://expressapp.github.io/pybotx"
@@ -21,7 +17,7 @@ exclude = ["tests", "docs", "scripts", "README.md", "setup.cfg"]
 [tool.poetry.dependencies]
 python = "^3.6"
 pydantic = "0.30.0"
-httpx = "^0.6.7"
+httpx = "^0.6.8"
 loguru = "^0.3.0"
 
 mkdocs = { version = "^1.0", optional = true }

@@ -17,14 +17,14 @@ Let's divide these commands in a following way:
 ### `HandlersCollector`
 
 `HandlersCollector` is a class that can collect registered handlers in itself and then transfer them to bot.
-In fact `Bot` and `AsyncBot` are subclasses of `HandlersCollector` so all methods available to `HandlersCollector` are also available to bots.
+In fact `Bot` is subclass of `HandlersCollector` so all methods available to `HandlersCollector` are also available to bots.
 
 
 Using `HandlersCollector` is quite simple:
 
  1. Create an instance of the class.
  2. Register your handlers, just like you do it for your bot.
- 3. Include registered handlers in your `Bot` or `AsyncBot` instance using the `.include_handlers` method.
+ 3. Include registered handlers in your `Bot` instance using the `.include_handlers` method.
 
 Here is an example. 
 
@@ -78,6 +78,7 @@ But it also provides some additional key arguments that can be used to change th
     * `commands: List[str, Pattern] = None` - list of command aliases that will also run handler execution.
     * `use_as_default_handler: bool = False` - indicates that the handler will be used in the absence of other handlers for the command.
     * `exclude_from_status: bool = False` - indicates that handler will not appear in the list of public commands.
+    * `dependencies: List[Callable] = None` - list of background dependencies that will be executed before handler.
     
  * `HandlersCollector.regex_handler` - is a handler that accepts string as regex string and then will match incoming message body 
  with `command` argument or strings from `commands` List.

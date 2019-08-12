@@ -7,7 +7,6 @@ from uuid import UUID, uuid4
 
 import pytest
 from _pytest.logging import LogCaptureFixture
-from httpx import AsyncClient
 from loguru import logger
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse
@@ -239,7 +238,7 @@ def get_bot(get_botx_api_app: Callable, bot_id: UUID, host: str) -> Callable:
             generate_error_response=generate_error_response,
         )
         bot = Bot() if not create_sync_bot else SyncBot()
-        bot.client.client = AsyncClient(app=app)
+        bot.client.asgi_app = app
         if set_token:
             bot.add_cts(
                 CTS(

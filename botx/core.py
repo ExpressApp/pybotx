@@ -26,6 +26,10 @@ class BotXException(Exception):
         super().__init__(msg)
 
 
+class BotXDependencyFailure(Exception):
+    pass
+
+
 @dataclass
 class BotXEndpoint:
     method: str
