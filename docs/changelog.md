@@ -18,6 +18,7 @@ depending on different conditions defined in the handlers (to be added to future
 * Added mechanism for catching exceptions.
 * <b>Changed methods signatures</b>. See [api-reference](/api-reference/bots/) for details.
 * Fixed `opts` shape.
+* Added dependency injection system
 
 ## 0.11.3
 
