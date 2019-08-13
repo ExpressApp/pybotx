@@ -1,12 +1,12 @@
 import abc
+import json
 from typing import Any, Awaitable, Callable, Dict, Optional
 from uuid import UUID
 
 from httpx import AsyncClient
 from httpx.models import BaseResponse
 from httpx.status_codes import StatusCode
-
-from botx.models.botx_api import BotXPayloadOptions
+from loguru import logger
 
 from .core import BotXAPI, BotXException
 from .helpers import get_data_for_api_error
@@ -19,6 +19,9 @@ from .models import (
     SendingCredentials,
     SendingPayload,
 )
+from .models.botx_api import BotXPayloadOptions
+
+logger_ctx = logger.bind(botx_client=True)
 
 
 def get_headers(token: str) -> Dict[str, str]:
@@ -69,6 +72,11 @@ class AsyncBotXClient(BaseBotXClient):
         assert payload.file, "payload should include File object"
 
         async with AsyncClient(app=self.asgi_app) as client:
+            logger_ctx.bind(
+                credentials=json.loads(credentials.json(exclude={"token", "chat_ids"})),
+                payload={"filename": payload.file.file_name},
+            ).debug("send file")
+
             resp = await client.post(
                 self._file_url.format(host=credentials.host),
                 data=BotXFilePayload.from_orm(credentials).dict(),
@@ -82,6 +90,11 @@ class AsyncBotXClient(BaseBotXClient):
 
     async def obtain_token(self, host: str, bot_id: UUID, signature: str) -> Any:
         async with AsyncClient(app=self.asgi_app) as client:
+            logger_ctx.bind(
+                credentials={"host": host, "bot_id": str(bot_id)},
+                payload={"signature": signature},
+            ).debug("obtain token")
+
             resp = await client.get(
                 self._token_url.format(host=host, bot_id=bot_id),
                 params=BotXTokenRequestParams(signature=signature).dict(),
@@ -115,6 +128,11 @@ class AsyncBotXClient(BaseBotXClient):
         )
 
         async with AsyncClient(app=self.asgi_app) as client:
+            logger_ctx.bind(
+                credentials=json.loads(credentials.json(exclude={"token", "chat_ids"})),
+                payload=json.loads(command_result.json()),
+            ).debug("send command result")
+
             resp = await client.post(
                 self._command_url.format(host=credentials.host),
                 json=command_result.dict(),
@@ -145,6 +163,11 @@ class AsyncBotXClient(BaseBotXClient):
             opts=BotXPayloadOptions(notification_opts=payload.options.notifications),
         )
         async with AsyncClient(app=self.asgi_app) as client:
+            logger.bind(
+                credentials=json.loads(credentials.json(exclude={"token", "sync_id"})),
+                payload=json.loads(notification.json()),
+            ).debug("send notification")
+
             resp = await client.post(
                 self._notification_url.format(host=credentials.host),
                 json=notification.dict(),

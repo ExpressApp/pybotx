@@ -18,6 +18,14 @@ All these classes are `pydantic` models except `BotXException` and enums.
     * `.callback: Callable`
     * `.args: Tuple[Any, ...] = ()`
     * `.kwargs: Dict[str, Any] = {}`
+    * `.background_dependencies: List[Dependency] = []`
+
+### Dependencies
+
+* `Dependency`
+    * `.call: Callable`
+   
+* `Depends(dependency: Callable) -> Any`
 
 ### Status
 
@@ -116,7 +124,9 @@ All these classes are `pydantic` models except `BotXException` and enums.
     * `.opts: NotificationOpts = NotificationOpts()`
     * `.file: Optional[File] = None`
     ---
+    
     * `.chat_id: UUID readonly`
+    
     ---
     * `.add_file(file)`
     * `.mention_user(user_huid, name)`
@@ -282,3 +292,6 @@ All these classes are `pydantic` models except `BotXException` and enums.
 * `BotXException(message, data)`
     * `.message: str = ""`
     * `.data: Optional[Dict[str, Any]] = None`
+
+
+* `BotXDependencyFailure`

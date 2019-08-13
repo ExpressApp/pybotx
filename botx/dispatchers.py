@@ -23,6 +23,8 @@ from .execution import execute_callback_with_exception_catching
 from .helpers import create_message
 from .models import CommandCallback, CommandHandler, Message, Status, StatusResult
 
+logger_ctx = logger.bind(botx_dispatcher=True)
+
 
 class BaseDispatcher(abc.ABC):
     _handlers: Dict[Pattern, CommandHandler]
@@ -61,7 +63,7 @@ class BaseDispatcher(abc.ABC):
 
             self._default_handler = handler
         else:
-            logger.debug(f"registered handler for {handler.command.pattern !r}")
+            logger.debug(f"registered handler => {handler.command.pattern !r}")
 
             self._handlers[handler.command] = handler
 
@@ -77,11 +79,17 @@ class BaseDispatcher(abc.ABC):
             raise BotXException(f"catcher for {exc} was already registered")
 
         self._exceptions_map[exc] = callback
+        logger_ctx.bind(exc_type=exc).debug("registered new exception catcher")
 
     def _add_next_step_handler(
         self, message: Message, callback: CommandCallback
     ) -> None:
         key = (message.host, message.bot_id, message.group_chat_id, message.user_huid)
+        logger_ctx.bind(message=message).debug(
+            "registered next step handler => "
+            "host: {0}; bot_id: {1}, group_chat_id: {2}, user_huid: {3}",
+            *key,
+        )
         if key in self._next_step_handlers:
             self._next_step_handlers[key].append(callback)
         else:
@@ -90,13 +98,20 @@ class BaseDispatcher(abc.ABC):
     def _get_callback_for_message(self, message: Message) -> CommandCallback:
         try:
             callback = self._get_next_step_handler_from_message(message)
-            logger.info(
-                f"next step handler for {message.group_chat_id} {message.user_huid}"
+            logger.bind(message=message).info(
+                "next step handler => "
+                "host: {0}; bot_id: {1}, group_chat_id: {2}, user_huid: {3}",
+                message.host,
+                message.bot_id,
+                message.group_chat_id,
+                message.user_huid,
             )
         except (IndexError, KeyError):
             handler = self._get_command_handler_from_message(message)
             callback = handler.callback
-            logger.info(f"handler for {handler.command.pattern !r}")
+            logger.bind(message=message).info(
+                f"handler => {handler.command.pattern !r}"
+            )
 
         return callback
 

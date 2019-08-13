@@ -47,7 +47,7 @@ for displaying notifications, users who will receive messages and mentions.
     * `**kwargs: Any` - additional key arguments to be passed to the handler.
 
 ### Errors Handlers Registrations
-* `exception_catcher(exceptions, force_replace)` - decorator to register a handler that will be used when an exception occurs during 
+* `.exception_catcher(exceptions, force_replace)` - decorator to register a handler that will be used when an exception occurs during 
 the execution of a handler for a command.
     * `exceptions: List[Type[Exception]]` - list of exception types that will be handled by exception handler
     * `force_replace: bool = False` - replace the existing handler for exception with a new one if the new one, 

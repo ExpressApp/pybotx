@@ -22,7 +22,7 @@
 
 # Introduction
 
-`pybotx` is a toolkit for building bots for Express providing a mechanism for simple integration with your favourite web frameworks.
+`pybotx` is a framework for building bots for Express providing a mechanism for simple integration with your favourite web frameworks.
 
 Main features:
 
