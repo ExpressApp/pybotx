@@ -1,3 +1,4 @@
+import re
 from typing import Any, Callable, Dict, List, Optional, Pattern, Tuple
 
 from .base import BotXType
@@ -28,8 +29,9 @@ class CommandHandler(BotXType):
 
     def to_status_command(self) -> Optional[MenuCommand]:
         if not self.exclude_from_status and not self.use_as_default_handler:
+            unescaped_command_body = re.sub(r"\\(.)", r"\1", self.command.pattern)
             return MenuCommand(
-                body=self.command.pattern,
+                body=unescaped_command_body,
                 name=self.name,
                 description=self.description,
                 options=self.options,

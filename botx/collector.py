@@ -38,6 +38,9 @@ class HandlersCollector:
         self, collector: "HandlersCollector", force_replace: bool = False
     ) -> None:
         for handler in collector.handlers.values():
+            handler.callback.background_dependencies = (
+                self.dependencies + handler.callback.background_dependencies
+            )
             self.add_handler(handler, force_replace=force_replace)
 
     def handler(

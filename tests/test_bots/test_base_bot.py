@@ -6,6 +6,7 @@ from botx import (
     CTS,
     Bot,
     BotCredentials,
+    Depends,
     HandlersCollector,
     Message,
     Status,
@@ -80,7 +81,7 @@ class TestBaseBot:
 
         await bot.execute_command(message.dict())
 
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0)
 
         await bot.execute_command(message.dict())
 
@@ -164,7 +165,7 @@ class TestBaseBot:
 
         await bot.execute_command(message.dict())
 
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0)
 
         await bot.stop()
 
@@ -248,7 +249,7 @@ class TestBaseBot:
 
         for _ in range(3):
             await bot.execute_command(message.dict())
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0)
 
         assert len(testing_array) == 2
 
@@ -278,15 +279,15 @@ class TestBaseBot:
             testing_array.append(1)
 
         await bot.execute_command(hello_msg.dict())
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0)
 
         await bot.execute_command(hello_world_msg.dict())
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0)
 
         with pytest.raises(BotXException):
             await bot.execute_command(hell_msg.dict())
 
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0)
         assert len(testing_array) == 2
 
         await bot.stop()
@@ -304,7 +305,7 @@ class TestBaseBot:
             testing_array.append(1)
 
         await bot.execute_command(hello_world_msg.dict())
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0)
 
         assert testing_array
 
@@ -334,8 +335,41 @@ class TestBaseBot:
 
         message = Message(**message_data())
         await bot.execute_command(message.dict())
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0)
 
         await bot.stop()
 
         assert len(testing_array) == 2
+
+    def test_bot_dependencies_placed_before_other(self, get_bot, handler_factory):
+        def bot_dep():
+            pass
+
+        def collector_dep():
+            pass
+
+        collector = HandlersCollector(dependencies=[collector_dep])
+        bot = Bot(dependencies=[bot_dep])
+
+        collector.handler(handler_factory("sync"))
+        bot.include_handlers(collector)
+
+        handler = bot.handlers[re_from_str("/sync-handler")]
+        assert handler.callback.background_dependencies == [
+            Depends(bot_dep),
+            Depends(collector_dep),
+        ]
+
+    @pytest.mark.asyncio
+    async def test_not_escaping_symbols_in_status(self):
+        bot = Bot()
+
+        cmd = "/name-with-dashes"
+
+        @bot.handler(command=cmd)
+        def handler():
+            pass
+
+        status = await bot.status()
+        long_command = status.result.commands[0]
+        assert long_command.body == cmd
