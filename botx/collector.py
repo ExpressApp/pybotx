@@ -1,6 +1,6 @@
-import re
+import inspect
 from functools import partial
-from typing import Callable, Dict, List, Optional, Pattern, Union
+from typing import Callable, Dict, List, Optional, Union
 
 from .core import (
     DEFAULT_HANDLER_BODY,
@@ -9,11 +9,17 @@ from .core import (
     BotXException,
 )
 from .models import CommandCallback, CommandHandler, Dependency, SystemEventsEnum
-from .types import COMMAND_STRING
+
+
+def get_name(handler: Callable) -> str:
+    if inspect.isfunction(handler) or inspect.isclass(handler):
+        return handler.__name__
+
+    return handler.__class__.__name__
 
 
 class HandlersCollector:
-    _handlers: Dict[Pattern, CommandHandler]
+    _handlers: Dict[str, CommandHandler]
     dependencies: List[Dependency] = []
 
     def __init__(self, dependencies: Optional[List[Callable]] = None) -> None:
@@ -23,7 +29,7 @@ class HandlersCollector:
             self.dependencies = [Dependency(call=call) for call in dependencies]
 
     @property
-    def handlers(self) -> Dict[Pattern, CommandHandler]:
+    def handlers(self) -> Dict[str, CommandHandler]:
         return self._handlers
 
     def add_handler(self, handler: CommandHandler, force_replace: bool = False) -> None:
@@ -49,13 +55,18 @@ class HandlersCollector:
         *,
         name: Optional[str] = None,
         description: Optional[str] = None,
-        command: Optional[COMMAND_STRING] = None,
-        commands: Optional[List[COMMAND_STRING]] = None,
+        full_description: Optional[str] = None,
+        command: Optional[str] = None,
+        commands: Optional[List[str]] = None,
         use_as_default_handler: Optional[bool] = False,
         exclude_from_status: Optional[bool] = False,
         dependencies: Optional[List[Callable]] = None,
     ) -> Callable:
         if callback:
+            assert inspect.isfunction(callback) or inspect.ismethod(
+                callback
+            ), "A callback must be function or method"
+
             transformed_dependencies = (
                 [Dependency(call=dep) for dep in dependencies] if dependencies else []
             )
@@ -66,35 +77,29 @@ class HandlersCollector:
                 commands.append(command)
 
             for command in commands:
-                try:
-                    command_name = name or callback.__name__.lower()
-                    name = name or callback.__name__.lower().replace("_", "-")
-                except AttributeError:
-                    raise BotXException(
-                        "can not determine name for handler, set it explicitly"
-                    )
+                command_name = name or get_name(callback)
 
                 if not command:
-                    command = f"/{name}"
+                    command_body = (name or get_name(callback)).replace("_", "-")
+                    command = command_body
 
-                if isinstance(command, str):
-                    command = re.escape(f"/{command.strip('/')}")
-                else:
-                    command = command.pattern
+                if not (exclude_from_status or use_as_default_handler):
+                    command = "/" + command.strip("/")
 
-                description = (
-                    description or callback.__doc__ or f"{name.capitalize()} handler"
-                )
+                description = description or inspect.cleandoc(callback.__doc__ or "")
+                full_description = full_description or description
 
                 handler = CommandHandler(
                     command=command,
                     callback=CommandCallback(
                         callback=callback,
-                        background_dependencies=self.dependencies
-                        + transformed_dependencies,
+                        background_dependencies=(
+                            self.dependencies + transformed_dependencies
+                        ),
                     ),
                     name=command_name,
                     description=description,
+                    full_description=full_description,
                     exclude_from_status=exclude_from_status,
                     use_as_default_handler=use_as_default_handler,
                 )
@@ -107,27 +112,11 @@ class HandlersCollector:
             self.handler,
             name=name,
             description=description,
+            full_description=full_description,
             command=command,
             commands=commands,
             exclude_from_status=exclude_from_status,
             use_as_default_handler=use_as_default_handler,
-            dependencies=dependencies,
-        )
-
-    def regex_handler(
-        self,
-        callback: Optional[Callable] = None,
-        *,
-        name: Optional[str] = None,
-        command: Optional[str] = None,
-        commands: Optional[List[str]] = None,
-        dependencies: Optional[List[Callable]] = None,
-    ) -> Callable:
-        return self.hidden_command_handler(
-            callback=callback,
-            name=name,
-            command=re.compile(command) if command else None,
-            commands=[re.compile(cmd) for cmd in commands] if commands else None,
             dependencies=dependencies,
         )
 
@@ -136,8 +125,8 @@ class HandlersCollector:
         callback: Optional[Callable] = None,
         *,
         name: Optional[str] = None,
-        command: Optional[COMMAND_STRING] = None,
-        commands: Optional[List[COMMAND_STRING]] = None,
+        command: Optional[str] = None,
+        commands: Optional[List[str]] = None,
         dependencies: Optional[List[Callable]] = None,
     ) -> Callable:
         return self.handler(
@@ -189,7 +178,7 @@ class HandlersCollector:
         else:
             command = event
 
-        return self.regex_handler(
+        return self.hidden_command_handler(
             callback=callback, name=name, command=command, dependencies=dependencies
         )
 

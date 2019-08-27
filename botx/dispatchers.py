@@ -8,7 +8,6 @@ from typing import (
     Dict,
     List,
     Optional,
-    Pattern,
     Set,
     Tuple,
     Type,
@@ -27,7 +26,7 @@ logger_ctx = logger.bind(botx_dispatcher=True)
 
 
 class BaseDispatcher(abc.ABC):
-    _handlers: Dict[Pattern, CommandHandler]
+    _handlers: Dict[str, CommandHandler]
     _next_step_handlers: Dict[
         Tuple[str, UUID, UUID, Optional[UUID]], List[CommandCallback]
     ]
@@ -63,7 +62,7 @@ class BaseDispatcher(abc.ABC):
 
             self._default_handler = handler
         else:
-            logger.debug(f"registered handler => {handler.command.pattern !r}")
+            logger.debug(f"registered handler => {handler.command !r}")
 
             self._handlers[handler.command] = handler
 
@@ -109,9 +108,7 @@ class BaseDispatcher(abc.ABC):
         except (IndexError, KeyError):
             handler = self._get_command_handler_from_message(message)
             callback = handler.callback
-            logger.bind(message=message).info(
-                f"handler => {handler.command.pattern !r}"
-            )
+            logger.bind(message=message).info(f"handler => {handler.command !r}")
 
         return callback
 
@@ -121,14 +118,11 @@ class BaseDispatcher(abc.ABC):
         ].pop()
 
     def _get_command_handler_from_message(self, message: Message) -> CommandHandler:
-        body = message.command.body
         cmd = message.command.command
 
-        for cmd_pattern in self._handlers:
-            if cmd_pattern.fullmatch(body):
-                return self._handlers[cmd_pattern]
-            elif cmd_pattern.fullmatch(cmd):
-                return self._handlers[cmd_pattern]
+        for cmd_string in self._handlers:
+            if cmd_string == cmd:
+                return self._handlers[cmd]
         else:
             if self._default_handler:
                 return self._default_handler

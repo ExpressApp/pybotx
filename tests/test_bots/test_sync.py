@@ -19,7 +19,7 @@ from botx.models import (
     BotXResultPayload,
 )
 from botx.sync import Bot
-from tests.utils import get_test_route, re_from_str
+from tests.utils import get_test_route
 
 
 class TestSyncBot:
@@ -29,9 +29,7 @@ class TestSyncBot:
 
         assert bot.status() == Status(
             result=StatusResult(
-                commands=[
-                    bot.handlers[re_from_str("/sync-handler")].to_status_command()
-                ]
+                commands=[bot.handlers["/sync-handler"].to_status_command()]
             )
         )
 

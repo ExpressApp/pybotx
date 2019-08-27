@@ -1,5 +1,4 @@
-import re
-from typing import Any, Callable, Dict, List, Optional, Pattern, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from .base import BotXType
 from .common import CommandUIElement
@@ -19,9 +18,11 @@ class CommandCallback(BotXType):
 
 class CommandHandler(BotXType):
     name: str
-    command: Pattern
+    command: str
     description: str
     callback: CommandCallback
+    full_description: Optional[str] = ""
+    command_params: List[str] = []
     exclude_from_status: bool = False
     use_as_default_handler: bool = False
     options: Dict[str, Any] = {}
@@ -29,9 +30,8 @@ class CommandHandler(BotXType):
 
     def to_status_command(self) -> Optional[MenuCommand]:
         if not self.exclude_from_status and not self.use_as_default_handler:
-            unescaped_command_body = re.sub(r"\\(.)", r"\1", self.command.pattern)
             return MenuCommand(
-                body=unescaped_command_body,
+                body=self.command,
                 name=self.name,
                 description=self.description,
                 options=self.options,

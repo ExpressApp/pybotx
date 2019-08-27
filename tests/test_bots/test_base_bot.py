@@ -14,7 +14,6 @@ from botx import (
     SystemEventsEnum,
 )
 from botx.core import BotXException
-from tests.utils import re_from_str
 
 
 class TestBaseBot:
@@ -47,7 +46,7 @@ class TestBaseBot:
         collector.handler(handler_factory("sync"), command="cmd")
         bot.include_handlers(collector)
 
-        handler = bot.handlers[re_from_str("/cmd")]
+        handler = bot.handlers["/cmd"]
         assert handler.callback.args == (bot,)
 
     @pytest.mark.asyncio
@@ -57,9 +56,7 @@ class TestBaseBot:
 
         assert await bot.status() == Status(
             result=StatusResult(
-                commands=[
-                    bot.handlers[re_from_str("/sync-handler")].to_status_command()
-                ]
+                commands=[bot.handlers["/sync-handler"].to_status_command()]
             )
         )
 
@@ -81,9 +78,11 @@ class TestBaseBot:
 
         await bot.execute_command(message.dict())
 
-        await asyncio.sleep(0)
+        await asyncio.sleep(0.1)
 
         await bot.execute_command(message.dict())
+
+        await asyncio.sleep(0.1)
 
         await bot.stop()
 
@@ -230,6 +229,29 @@ class TestBaseBot:
         assert testing_array
 
     @pytest.mark.asyncio
+    async def test_call_default_handler_if_no_handler_found(self, message_data):
+        bot = Bot()
+        await bot.start()
+
+        testing_array = []
+
+        @bot.handler
+        def func():
+            pass
+
+        @bot.default_handler
+        def default():
+            testing_array.append(1)
+
+        await bot.execute_command(message_data())
+
+        await asyncio.sleep(0)
+
+        await bot.stop()
+
+        assert testing_array
+
+    @pytest.mark.asyncio
     async def test_adding_many_ns_handlers_in_handler(self, message_data):
         bot = Bot()
         await bot.start()
@@ -262,52 +284,6 @@ class TestBaseBot:
             await bot.execute_command(message_data())
 
         await bot.stop()
-
-    @pytest.mark.asyncio
-    async def test_regex_handler(self, message_data):
-        hello_msg = Message(**message_data(command="/hello"))
-        hello_world_msg = Message(**message_data(command="/hello world"))
-        hell_msg = Message(**message_data(command="/hell"))
-
-        bot = Bot()
-        await bot.start()
-
-        testing_array = []
-
-        @bot.regex_handler(command=r"/hell.+")
-        async def handler():
-            testing_array.append(1)
-
-        await bot.execute_command(hello_msg.dict())
-        await asyncio.sleep(0)
-
-        await bot.execute_command(hello_world_msg.dict())
-        await asyncio.sleep(0)
-
-        with pytest.raises(BotXException):
-            await bot.execute_command(hell_msg.dict())
-
-        await asyncio.sleep(0)
-        assert len(testing_array) == 2
-
-        await bot.stop()
-
-    @pytest.mark.asyncio
-    async def test_full_body_regex(self, message_data):
-        hello_world_msg = Message(**message_data(command="/hello world"))
-
-        bot = Bot()
-
-        testing_array = []
-
-        @bot.regex_handler(command="/hello")
-        async def handler():
-            testing_array.append(1)
-
-        await bot.execute_command(hello_world_msg.dict())
-        await asyncio.sleep(0)
-
-        assert testing_array
 
     @pytest.mark.asyncio
     async def test_hidden_commands_not_in_status(self):
@@ -354,7 +330,7 @@ class TestBaseBot:
         collector.handler(handler_factory("sync"))
         bot.include_handlers(collector)
 
-        handler = bot.handlers[re_from_str("/sync-handler")]
+        handler = bot.handlers["/sync-handler"]
         assert handler.callback.background_dependencies == [
             Depends(bot_dep),
             Depends(collector_dep),

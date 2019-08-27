@@ -1,12 +1,11 @@
 import json
-import re
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
-SYSTEM_FILE_TRANSFER = re.compile("file_transfer")
+SYSTEM_FILE_TRANSFER = "file_transfer"
 FILE_HANDLER_NAME = "file_receiver"
 
-DEFAULT_HANDLER_BODY = re.compile("DEFAULT_HANDLER")
+DEFAULT_HANDLER_BODY = "DEFAULT_HANDLER"
 
 TEXT_MAX_LENGTH = 4096
 
