@@ -8,7 +8,8 @@ from httpx.models import BaseResponse
 from httpx.status_codes import StatusCode
 from loguru import logger
 
-from .core import BotXAPI, BotXException
+from .core import BotXAPI
+from .exceptions import BotXAPIException
 from .helpers import get_data_for_api_error
 from .models import (
     BotXCommandResultPayload,
@@ -83,7 +84,7 @@ class AsyncBotXClient(BaseBotXClient):
                 files={"file": payload.file.file},
             )
         if check_api_error(resp):
-            raise BotXException(
+            raise BotXAPIException(
                 "unable to send file to BotX API",
                 data=get_data_for_api_error(credentials, resp),
             )
@@ -100,7 +101,7 @@ class AsyncBotXClient(BaseBotXClient):
                 params=BotXTokenRequestParams(signature=signature).dict(),
             )
         if check_api_error(resp):
-            raise BotXException(
+            raise BotXAPIException(
                 "unable to obtain token from BotX API",
                 data=get_data_for_api_error(
                     SendingCredentials(host=host, bot_id=bot_id, token=""), resp
@@ -139,7 +140,7 @@ class AsyncBotXClient(BaseBotXClient):
                 headers=get_headers(credentials.token),
             )
         if check_api_error(resp):
-            raise BotXException(
+            raise BotXAPIException(
                 "unable to send command result to BotX API",
                 data=get_data_for_api_error(credentials, resp),
             )
@@ -174,7 +175,7 @@ class AsyncBotXClient(BaseBotXClient):
                 headers=get_headers(credentials.token),
             )
         if check_api_error(resp):
-            raise BotXException(
+            raise BotXAPIException(
                 "unable to send notification to BotX API",
                 data=get_data_for_api_error(credentials, resp),
             )

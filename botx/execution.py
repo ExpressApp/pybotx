@@ -2,8 +2,8 @@ from typing import TYPE_CHECKING, Callable, Dict, List, Type, cast
 
 from loguru import logger
 
-from .core import BotXDependencyFailure
 from .dependencies import solve_dependencies
+from .exceptions import BotXDependencyFailure
 from .helpers import call_function_as_coroutine
 from .models import CommandCallback, Dependency, Message
 
@@ -59,9 +59,13 @@ async def execute_callback_with_exception_catching(
         await call_function_as_coroutine(
             callback.callback, *callback.args, **callback.kwargs, **callback_deps
         )
-    except BotXDependencyFailure:
-        pass
     except Exception as exc:
+        is_dependency_failure = isinstance(exc, BotXDependencyFailure)
+        is_dep_failure_handled = BotXDependencyFailure not in exceptions_map
+
+        if is_dependency_failure and is_dep_failure_handled:
+            return
+
         catcher_res = await _handle_exception(exceptions_map, exc, message, bot)
         if not catcher_res:
             logger.exception(f"uncaught exception {exc !r}")

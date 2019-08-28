@@ -1,14 +1,18 @@
 import inspect
+import re
 from functools import partial
-from typing import Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Mapping, Optional, Union
 
 from .core import (
     DEFAULT_HANDLER_BODY,
     FILE_HANDLER_NAME,
+    PRIMITIVE_TYPES,
     SYSTEM_FILE_TRANSFER,
-    BotXException,
 )
+from .exceptions import BotXException, BotXValidationError
 from .models import CommandCallback, CommandHandler, Dependency, SystemEventsEnum
+
+PARAM_REGEX = re.compile("{([a-zA-Z_][a-zA-Z0-9_]*)}")
 
 
 def get_name(handler: Callable) -> str:
@@ -16,6 +20,47 @@ def get_name(handler: Callable) -> str:
         return handler.__name__
 
     return handler.__class__.__name__
+
+
+def get_regex_for_command(
+    command: str, params: Dict[str, Union[str, bool, float, int]]
+) -> str:
+    command_regex = "^"
+
+    idx = 0
+    for match in PARAM_REGEX.finditer(command):
+        param_name = match.groups()[0]
+
+        assert param_name in params, f"undefined parameter name {param_name !r}"
+
+        command_regex += command[idx : match.start()]
+        command_regex += f"(?P<{param_name}>\\w+)"
+
+        idx = match.end()
+
+    command_regex += command[idx:]
+
+    return command_regex
+
+
+def replace_params(
+    command: str, passed_params: Dict[str, Any], required_params: Dict[str, Any]
+) -> str:
+    filled_params = set()
+    for key, value in list(passed_params.items()):
+        if "{" + key + "}" in command:
+            filled_params.add(key)
+            command = command.replace("{" + key + "}", str(value))
+            passed_params.pop(key)
+            continue
+
+        raise BotXValidationError(f"unknown passed parameter {key}")
+
+    missed_params = set(required_params).difference(filled_params)
+    if missed_params:
+        raise BotXValidationError(f"missed required command params: {missed_params}")
+
+    return command
 
 
 class HandlersCollector:
@@ -28,17 +73,26 @@ class HandlersCollector:
         if dependencies:
             self.dependencies = [Dependency(call=call) for call in dependencies]
 
+    def command_for(self, command_name: str, **params: Any) -> str:
+        for handler in self._handlers.values():
+            if handler.name == command_name:
+                return replace_params(
+                    handler.command, params, handler.callback.command_params
+                )
+        else:
+            raise BotXException(f"handler with name {command_name} does not exist")
+
     @property
     def handlers(self) -> Dict[str, CommandHandler]:
         return self._handlers
 
     def add_handler(self, handler: CommandHandler, force_replace: bool = False) -> None:
-        if handler.command in self._handlers and not force_replace:
+        if handler.menu_command in self._handlers and not force_replace:
             raise BotXException(
-                f"can not add 2 handlers for {handler.command !r} command"
+                f"can not add 2 handlers for {handler.menu_command !r} command"
             )
 
-        self._handlers[handler.command] = handler
+        self._handlers[handler.menu_command] = handler
 
     def include_handlers(
         self, collector: "HandlersCollector", force_replace: bool = False
@@ -89,13 +143,26 @@ class HandlersCollector:
                 description = description or inspect.cleandoc(callback.__doc__ or "")
                 full_description = full_description or description
 
+                signature: inspect.Signature = inspect.signature(callback)
+                params: Mapping[str, inspect.Parameter] = signature.parameters
+                handler_params = {}
+                for param_name, param in params.items():
+                    if param.annotation in PRIMITIVE_TYPES:
+                        handler_params[param_name] = param.annotation
+
+                regex = get_regex_for_command(command, handler_params)
+                menu_command = command.split(" ", 1)[0]
+
                 handler = CommandHandler(
+                    regex_command=regex,
                     command=command,
+                    menu_command=menu_command,
                     callback=CommandCallback(
                         callback=callback,
                         background_dependencies=(
                             self.dependencies + transformed_dependencies
                         ),
+                        command_params=handler_params,
                     ),
                     name=command_name,
                     description=description,

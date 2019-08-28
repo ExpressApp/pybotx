@@ -6,6 +6,7 @@ from botx import (
     CTS,
     Bot,
     BotCredentials,
+    BotXException,
     Depends,
     HandlersCollector,
     Message,
@@ -13,7 +14,6 @@ from botx import (
     StatusResult,
     SystemEventsEnum,
 )
-from botx.core import BotXException
 
 
 class TestBaseBot:
@@ -349,3 +349,19 @@ class TestBaseBot:
         status = await bot.status()
         long_command = status.result.commands[0]
         assert long_command.body == cmd
+
+    @pytest.mark.asyncio
+    async def test_passing_params_from_command_into_handlers(self, message_data):
+        bot = Bot()
+
+        testing_array = []
+
+        @bot.handler(command="/command {username} {password}")
+        def func(username: str, password: int):
+            testing_array.append((username, password))
+
+        await bot.execute_command(message_data("/command user 123"))
+
+        await asyncio.sleep(0.1)
+
+        assert testing_array == [("user", 123)]

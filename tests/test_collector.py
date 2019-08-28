@@ -1,8 +1,9 @@
+import re
 from typing import Callable
 
 import pytest
 
-from botx import BotXException, HandlersCollector, SystemEventsEnum
+from botx import BotXException, BotXValidationError, HandlersCollector, SystemEventsEnum
 from botx.core import DEFAULT_HANDLER_BODY, SYSTEM_FILE_TRANSFER
 from botx.models import Dependency
 
@@ -212,3 +213,98 @@ class TestHandlersCollectorExtraCommands:
         collector.file_handler(handler_factory("sync"))
 
         assert SYSTEM_FILE_TRANSFER in collector.handlers
+
+
+class TestParametersParsing:
+    def test_parameters_detecting(self):
+        collector = HandlersCollector()
+
+        @collector.handler(command="/handler {arg}")
+        def function(arg: int):
+            pass
+
+        handler = collector.handlers["/handler"]
+
+        assert handler.regex_command == re.compile(r"^/handler (?P<arg>\w+)")
+        assert handler.menu_command == "/handler"
+        assert handler.callback.command_params == {"arg": int}
+
+    def test_different_parameters_types(self):
+        collector = HandlersCollector()
+
+        cmd = "/handler {str_arg} {int_arg} {float_arg} {bool_arg}"
+
+        @collector.handler(command=cmd)
+        def function(str_arg: str, int_arg: int, float_arg: float, bool_arg: bool):
+            pass
+
+        handler = collector.handlers["/handler"]
+
+        assert handler.regex_command == re.compile(
+            r"^/handler (?P<str_arg>\w+) (?P<int_arg>\w+) (?P<float_arg>\w+) (?P<bool_arg>\w+)"
+        )
+        assert handler.menu_command == "/handler"
+        assert handler.callback.command_params == {
+            "bool_arg": bool,
+            "float_arg": float,
+            "int_arg": int,
+            "str_arg": str,
+        }
+
+    def test_passing_command_params_into_handler(self):
+        collector = HandlersCollector()
+
+        testing_array = []
+
+        @collector.handler(command="/command {username} {password}")
+        def handler(username: str, password: int):
+            testing_array.append((username, password))
+
+        with pytest.raises(BotXValidationError):
+            collector.command_for("handler")
+
+        result_command = collector.command_for(
+            "handler", username="user", password="123"
+        )
+        assert result_command == "/command user 123"
+
+    def test_raising_error_when_passing_unknown_params_into_command_for(self):
+        collector = HandlersCollector()
+
+        testing_array = []
+
+        @collector.handler(command="/command {username} {password}")
+        def handler(username: str, password: int):
+            testing_array.append((username, password))
+
+        with pytest.raises(BotXValidationError):
+            collector.command_for("handler", wrong_param=None)
+
+        result_command = collector.command_for(
+            "handler", username="user", password="123"
+        )
+        assert result_command == "/command user 123"
+
+    def test_raising_error_for_unknown_command_in_command_for(self):
+        collector = HandlersCollector()
+
+        with pytest.raises(BotXException):
+            collector.command_for("handler")
+
+    def test_checking_many_handlers_in_command_for(self):
+        collector = HandlersCollector()
+
+        @collector.handler(command="/command1 {username} {password}")
+        def handler1(username: str, password: int):
+            pass
+
+        @collector.handler(command="/command2")
+        def handler2():
+            pass
+
+        assert (
+            collector.command_for("handler1", username="a", password=123)
+            == "/command1 a 123"
+        )
+
+        assert collector.command_for("handler2") == "/command2"

@@ -6,7 +6,6 @@ from typing import (
     List,
     Optional,
     TextIO,
-    Type,
     TypeVar,
     Union,
     cast,
@@ -16,6 +15,7 @@ from uuid import UUID
 from pydantic import Schema
 
 from botx.core import TEXT_MAX_LENGTH
+from .ui import add_ui_element
 
 from .base import BotXType
 from .common import NotificationOpts
@@ -67,8 +67,7 @@ class MessageCommand(BotXType):
 
     @property
     def single_argument(self) -> str:
-        arg_in_list = self.body.split(" ", 1)[1:]
-        return arg_in_list[0] if arg_in_list else ""
+        return self.body[len(self.command):].strip()
 
 
 class Message(BotXType):
@@ -105,22 +104,6 @@ class Message(BotXType):
     @property
     def host(self) -> str:
         return self.user.host
-
-
-def _add_ui_element(
-    ui_cls: Type["TUIElement"],
-    ui_array: List[List["TUIElement"]],
-    command: str,
-    label: Optional[str] = None,
-    *,
-    new_row: bool = True,
-) -> None:
-    element = ui_cls(command=command, label=label)
-
-    if new_row:
-        ui_array.append([element])
-    else:
-        ui_array[-1].append(element)
 
 
 class ReplyMessage(BotXType):
@@ -174,7 +157,7 @@ class ReplyMessage(BotXType):
     def add_bubble(
         self, command: str, label: Optional[str] = None, *, new_row: bool = True
     ) -> None:
-        _add_ui_element(
+        add_ui_element(
             ui_cls=BubbleElement,
             ui_array=self.bubble,
             command=command,
@@ -185,7 +168,7 @@ class ReplyMessage(BotXType):
     def add_keyboard_button(
         self, command: str, label: Optional[str] = None, *, new_row: bool = True
     ) -> None:
-        _add_ui_element(
+        add_ui_element(
             ui_cls=KeyboardElement,
             ui_array=self.keyboard,
             command=command,
@@ -198,3 +181,4 @@ class ReplyMessage(BotXType):
 
     def force_notification(self, force: bool) -> None:
         self.opts.force_dnd = force
+

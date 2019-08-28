@@ -4,13 +4,12 @@ from uuid import UUID
 from pydantic import Schema
 
 from botx.core import TEXT_MAX_LENGTH
-
 from .base import BotXType
 from .common import MenuCommand, NotificationOpts
 from .enums import ResponseRecipientsEnum, StatusEnum
 from .file import File
 from .mention import Mention
-from .ui import BubbleElement, KeyboardElement
+from .ui import BubbleElement, KeyboardElement, add_ui_element
 
 
 class BotXTokenResponse(BotXType):
@@ -67,6 +66,28 @@ class SendingCredentials(BotXType):
 class MessageMarkup(BotXType):
     bubbles: List[List[BubbleElement]] = []
     keyboard: List[List[KeyboardElement]] = []
+
+    def add_bubble(
+            self, command: str, label: Optional[str] = None, *, new_row: bool = True
+    ) -> None:
+        add_ui_element(
+            ui_cls=BubbleElement,
+            ui_array=self.bubbles,
+            command=command,
+            label=label,
+            new_row=new_row,
+        )
+
+    def add_keyboard_button(
+            self, command: str, label: Optional[str] = None, *, new_row: bool = True
+    ) -> None:
+        add_ui_element(
+            ui_cls=KeyboardElement,
+            ui_array=self.keyboard,
+            command=command,
+            label=label,
+            new_row=new_row,
+        )
 
 
 class MessageOptions(BotXType):

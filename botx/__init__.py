@@ -2,9 +2,14 @@ from loguru import logger
 from pydantic import ValidationError
 
 from .bots import AsyncBot as Bot
-from .collector import HandlersCollector
-from .core import BotXDependencyFailure, BotXException
+from .collectors import HandlersCollector
 from .dependencies import Depends
+from .exceptions import (
+    BotXAPIException,
+    BotXDependencyFailure,
+    BotXException,
+    BotXValidationError,
+)
 from .models import (
     CTS,
     BotCredentials,
@@ -77,4 +82,6 @@ __all__ = (
     "MessageMarkup",
     "MessageOptions",
     "SendingCredentials",
+    "BotXAPIException",
+    "BotXValidationError",
 )

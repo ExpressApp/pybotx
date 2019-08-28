@@ -17,7 +17,7 @@ from uuid import UUID
 
 from loguru import logger
 
-from .core import BotXException
+from .exceptions import BotXException
 from .execution import execute_callback_with_exception_catching
 from .helpers import create_message
 from .models import CommandCallback, CommandHandler, Message, Status, StatusResult
@@ -39,7 +39,7 @@ class BaseDispatcher(abc.ABC):
         self._exceptions_map = {}
 
     def start(self) -> Optional[Awaitable[None]]:
-        """Start dispatcher-related things like aiojobs.Scheduler"""
+        """Start dispatcher-related things"""
 
     def shutdown(self) -> Optional[Awaitable[None]]:
         """Stop dispatcher-related things like thread or coroutine joining"""
@@ -118,11 +118,23 @@ class BaseDispatcher(abc.ABC):
         ].pop()
 
     def _get_command_handler_from_message(self, message: Message) -> CommandHandler:
-        cmd = message.command.command
+        body = message.command.body
 
-        for cmd_string in self._handlers:
-            if cmd_string == cmd:
-                return self._handlers[cmd]
+        for handler in self._handlers.values():
+            match = handler.regex_command.match(body)
+            if match:
+                matched_params = match.groupdict()
+                for key, value in list(matched_params.items()):
+                    matched_params[key] = handler.callback.command_params[key](value)
+
+                handler_copy = handler.copy()
+                handler_copy.callback = handler.callback.copy(
+                    update={
+                        "kwargs": {**matched_params, **handler_copy.callback.kwargs}
+                    }
+                )
+
+                return handler
         else:
             if self._default_handler:
                 return self._default_handler

@@ -8,7 +8,7 @@ from typing import Any, Callable, Dict, cast
 from httpx.models import BaseResponse
 from pydantic import ValidationError
 
-from .core import BotXException
+from .exceptions import BotXValidationError
 from .models import (
     BotXAPIErrorData,
     ChatCreatedData,
@@ -37,7 +37,7 @@ def create_message(data: Dict[str, Any]) -> Message:
 
         return message
     except ValidationError as exc:
-        raise BotXException from exc
+        raise BotXValidationError from exc
 
 
 def get_data_for_api_error(

@@ -9,6 +9,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 class BotXType(BaseModel):
     class Config(BaseConfig):
+        arbitrary_types_allowed = True
         allow_population_by_alias = True
         orm_mode = True
 

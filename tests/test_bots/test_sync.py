@@ -1,4 +1,5 @@
 import uuid
+from time import sleep
 
 import pytest
 
@@ -68,7 +69,7 @@ class TestSyncBot:
     ):
         bot = get_bot(set_token=True, create_sync_bot=True)
         message = Message(**message_data())
-        with pytest.raises(BotXException) as e:
+        with pytest.raises(BotXException):
             bot.send_message(
                 "", SendingCredentials(bot_id=message.bot_id, host=message.host)
             )

@@ -13,9 +13,10 @@ from typing import (
 )
 
 from .clients import AsyncBotXClient
-from .collector import HandlersCollector
-from .core import TEXT_MAX_LENGTH, BotXException
+from .collectors import HandlersCollector
+from .core import TEXT_MAX_LENGTH
 from .dispatchers import AsyncDispatcher, BaseDispatcher
+from .exceptions import BotXException
 from .helpers import call_coroutine_as_function
 from .models import (
     CTS,
