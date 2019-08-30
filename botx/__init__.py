@@ -41,6 +41,7 @@ from .models import (
     StatusResult,
     SystemEventsEnum,
     UserInChatCreated,
+    UserKindEnum,
 )
 
 logger.disable("botx")
@@ -84,4 +85,5 @@ __all__ = (
     "SendingCredentials",
     "BotXAPIException",
     "BotXValidationError",
+    "UserKindEnum",
 )

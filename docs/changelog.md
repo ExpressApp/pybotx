@@ -1,3 +1,7 @@
+## 0.12.1
+
+* Export `UserKindEnum` from `botx`.
+
 ## 0.12.0
 
 * `HandlersCollector.handler` now accepts strings or regular patters in the `command` argument and list of them in the `commands` argument.

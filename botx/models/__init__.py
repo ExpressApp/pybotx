@@ -22,6 +22,7 @@ from .enums import (
     ResponseRecipientsEnum,
     StatusEnum,
     SystemEventsEnum,
+    UserKindEnum,
 )
 from .events import ChatCreatedData, UserInChatCreated
 from .file import File
@@ -71,4 +72,5 @@ __all__ = (
     "BotXTokenRequestParams",
     "BotXAPIErrorData",
     "ErrorResponseData",
+    "UserKindEnum",
 )
