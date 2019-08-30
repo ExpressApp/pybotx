@@ -10,6 +10,7 @@ from botx import (
     MentionTypeEnum,
     Message,
     MessageCommand,
+    MessageMarkup,
     NotificationOpts,
     ReplyMessage,
     ResponseRecipientsEnum,
@@ -128,6 +129,12 @@ class TestFile:
             file = File.from_file(f)
             assert file.media_type == "image/png"
 
+    def test_file_from_bytes(self):
+        with open("tests/files/file.gif", "rb") as f:
+            file = File.from_file(f)
+
+        assert file == File.from_bytes(file.file_name, file.raw_data)
+
 
 class TestReplyMessage:
     def test_creating_from_message(self, message_data):
@@ -227,3 +234,43 @@ class TestReplyMessage:
 
         reply_message.add_keyboard_button("/cmd3")
         assert len(reply_message.keyboard) == 2
+
+
+class TestMarkup:
+    def test_bubble_adding(self):
+        markup = MessageMarkup()
+
+        markup.add_bubble("/cmd")
+
+        bubble_element = markup.bubbles[0][0]
+        assert bubble_element == BubbleElement(command="/cmd")
+
+    def test_adding_rows_to_bubble(self):
+        markup = MessageMarkup()
+
+        markup.add_bubble("/cmd")
+
+        markup.add_bubble("/cmd2", new_row=False)
+        assert len(markup.bubbles[0]) == 2
+
+        markup.add_bubble("/cmd3")
+        assert len(markup.bubbles) == 2
+
+    def test_keyboard_adding(self):
+        markup = MessageMarkup()
+
+        markup.add_keyboard_button("/cmd")
+
+        keyboard_element = markup.keyboard[0][0]
+        assert keyboard_element == KeyboardElement(command="/cmd")
+
+    def test_adding_rows_to_keyboard(self):
+        markup = MessageMarkup()
+
+        markup.add_keyboard_button("/cmd")
+
+        markup.add_keyboard_button("/cmd2", new_row=False)
+        assert len(markup.keyboard[0]) == 2
+
+        markup.add_keyboard_button("/cmd3")
+        assert len(markup.keyboard) == 2

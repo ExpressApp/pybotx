@@ -4,6 +4,7 @@ from uuid import UUID
 from pydantic import Schema
 
 from botx.core import TEXT_MAX_LENGTH
+
 from .base import BotXType
 from .common import MenuCommand, NotificationOpts
 from .enums import ResponseRecipientsEnum, StatusEnum
@@ -68,7 +69,7 @@ class MessageMarkup(BotXType):
     keyboard: List[List[KeyboardElement]] = []
 
     def add_bubble(
-            self, command: str, label: Optional[str] = None, *, new_row: bool = True
+        self, command: str, label: Optional[str] = None, *, new_row: bool = True
     ) -> None:
         add_ui_element(
             ui_cls=BubbleElement,
@@ -79,7 +80,7 @@ class MessageMarkup(BotXType):
         )
 
     def add_keyboard_button(
-            self, command: str, label: Optional[str] = None, *, new_row: bool = True
+        self, command: str, label: Optional[str] = None, *, new_row: bool = True
     ) -> None:
         add_ui_element(
             ui_cls=KeyboardElement,

@@ -15,7 +15,6 @@ from uuid import UUID
 from pydantic import Schema
 
 from botx.core import TEXT_MAX_LENGTH
-from .ui import add_ui_element
 
 from .base import BotXType
 from .common import NotificationOpts
@@ -23,7 +22,7 @@ from .enums import ChatTypeEnum, CommandTypeEnum, ResponseRecipientsEnum
 from .events import ChatCreatedData
 from .file import File
 from .mention import Mention, MentionUser
-from .ui import BubbleElement, KeyboardElement
+from .ui import BubbleElement, KeyboardElement, add_ui_element
 
 if TYPE_CHECKING:  # pragma: no cover
     from .ui import UIElement
@@ -67,7 +66,7 @@ class MessageCommand(BotXType):
 
     @property
     def single_argument(self) -> str:
-        return self.body[len(self.command):].strip()
+        return self.body[len(self.command) :].strip()
 
 
 class Message(BotXType):
@@ -181,4 +180,3 @@ class ReplyMessage(BotXType):
 
     def force_notification(self, force: bool) -> None:
         self.opts.force_dnd = force
-

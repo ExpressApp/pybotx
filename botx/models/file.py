@@ -23,6 +23,12 @@ class File(BotXType):
         media_type = mimetypes.guess_type(file_name)[0] or "text/plain"
         return File(file_name=file_name, data=f"data:{media_type};base64,{data}")
 
+    @classmethod
+    def from_bytes(cls, filename: str, data: bytes) -> "File":
+        file = BytesIO(data)
+        file.name = filename
+        return cls.from_file(file)
+
     @property
     def file(self) -> BinaryIO:
         bytes_data = BytesIO(self.raw_data)

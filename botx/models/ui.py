@@ -1,4 +1,4 @@
-from typing import Any, Optional, Type, List, TypeVar
+from typing import Any, List, Optional, Type, TypeVar
 
 from .base import BotXType
 
@@ -24,12 +24,12 @@ class KeyboardElement(UIElement):
 
 
 def add_ui_element(
-        ui_cls: Type["TUIElement"],
-        ui_array: List[List["TUIElement"]],
-        command: str,
-        label: Optional[str] = None,
-        *,
-        new_row: bool = True,
+    ui_cls: Type["TUIElement"],
+    ui_array: List[List["TUIElement"]],
+    command: str,
+    label: Optional[str] = None,
+    *,
+    new_row: bool = True,
 ) -> None:
     element = ui_cls(command=command, label=label)
 
