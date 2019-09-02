@@ -5,10 +5,8 @@
 
 ## 0.12.0
 
-* `HandlersCollector.handler` now accepts strings or regular patters in the `command` argument and list of them in the `commands` argument.
 * `system_command_handler` argument has been removed from the `HandlersCollector.handler` method.
 * `HandlersCollector.system_command_handler` now takes an `event` argument of type `SystemEventsEnum` instead of the deleted argument `comamnd`.
-* Added `HandlersCollector.regex_handler` which accepts a string and compiles it into a regular expression pattern.
 * `MessageCommand.data` field will now automatically converted to events data types corresponding to special events, 
 such as creating a new chat with a bot.
 * Added logging via `loguru`.
@@ -20,9 +18,10 @@ such as creating a new chat with a bot.
 depending on different conditions defined in the handlers (to be added to future releases, when BotX API support comes up).
 * Added mechanism for catching exceptions.
 * Add ability to use sync and async functions to send data from `Bot`.
-* <b>Changed methods signatures</b>. See [api-reference](/api-reference/bots/) for details.
+* <b>Changed methods signatures</b>. See [api-reference](../api-reference/bots/) for details.
 * Fixed `opts` shape.
 * Added dependency injection system
+* Added parsing command params into handler arguments. 
 
 ## 0.11.3
 
