@@ -1,7 +1,8 @@
 ## 0.12.1
 
 * Export `UserKindEnum` from `botx`.
-* Upgrade `pydantic` to `0.32.2`
+* Upgrade `pydantic` to `0.32.2`.
+* Added `channel` type to `ChatTypeEnum`.
 
 ## 0.12.0
 
@@ -18,7 +19,7 @@ such as creating a new chat with a bot.
 depending on different conditions defined in the handlers (to be added to future releases, when BotX API support comes up).
 * Added mechanism for catching exceptions.
 * Add ability to use sync and async functions to send data from `Bot`.
-* <b>Changed methods signatures</b>. See [api-reference](../api-reference/bots/) for details.
+* <b>Changed methods signatures</b>. See `api-reference` for details.
 * Fixed `opts` shape.
 * Added dependency injection system
 * Added parsing command params into handler arguments. 

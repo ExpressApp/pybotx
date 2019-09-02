@@ -13,6 +13,7 @@ class ResponseRecipientsEnum(str, Enum):
 class ChatTypeEnum(str, Enum):
     chat: str = "chat"
     group_chat: str = "group_chat"
+    channel: str = "channel"
 
 
 class MentionTypeEnum(str, Enum):
