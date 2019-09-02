@@ -16,7 +16,7 @@ exclude = ["tests", "docs", "scripts", "README.md", "setup.cfg"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
-pydantic = "0.30.0"
+pydantic = "0.32.2"
 httpx = "^0.7.1"
 loguru = "^0.3.0"
 

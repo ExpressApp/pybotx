@@ -1,6 +1,7 @@
 ## 0.12.1
 
 * Export `UserKindEnum` from `botx`.
+* Upgrade `pydantic` to `0.32.2`
 
 ## 0.12.0
 
