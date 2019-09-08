@@ -1,3 +1,7 @@
+## 0.12.2
+
+* Clear `AsyncBot` tasks on shutdown.
+
 ## 0.12.1
 
 * Export `UserKindEnum` from `botx`.

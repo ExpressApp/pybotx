@@ -168,6 +168,8 @@ class AsyncDispatcher(BaseDispatcher):
         if self._tasks:
             await asyncio.wait(self._tasks, return_when=asyncio.ALL_COMPLETED)
 
+        self._tasks = set()
+
     async def status(self) -> Status:
         commands = []
         for _, handler in self._handlers.items():
