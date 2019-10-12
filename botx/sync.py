@@ -44,7 +44,7 @@ class SyncBot(AsyncBot):
         *,
         concurrent_tasks: int = WORKERS_COUNT,
         credentials: Optional[BotCredentials] = None,
-        dependencies: Optional[List[Callable]] = None
+        dependencies: Optional[List[Callable]] = None,
     ) -> None:
         super().__init__(credentials=credentials, dependencies=dependencies)
 

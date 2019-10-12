@@ -1,3 +1,9 @@
+## 0.12.3
+
+* Fix docs about removed `HandlesCollector.regex_handler`.
+* Update `httpx` to `0.7.5`.
+* Start using `https` for connection to `BotX API`.
+
 ## 0.12.2
 
 * Clear `AsyncBot` tasks on shutdown.
@@ -12,21 +18,21 @@
 
 * `system_command_handler` argument has been removed from the `HandlersCollector.handler` method.
 * `HandlersCollector.system_command_handler` now takes an `event` argument of type `SystemEventsEnum` instead of the deleted argument `comamnd`.
-* `MessageCommand.data` field will now automatically converted to events data types corresponding to special events, 
+* `MessageCommand.data` field will now automatically converted to events data types corresponding to special events,
 such as creating a new chat with a bot.
 * Added logging via `loguru`.
 * Dropped `aiojobs`.
 * Replaced `requests` and `aiohttp` with `httpx`.
 * `Bot` can now accept both coroutines and normal functions.
 * Moved synchronous `Bot` to `botx.sync` module. The current `Bot` is an alias to the `AsyncBot`.
-* `Bot.status` again became a coroutine to add the ability to receive different commands for different users 
+* `Bot.status` again became a coroutine to add the ability to receive different commands for different users
 depending on different conditions defined in the handlers (to be added to future releases, when BotX API support comes up).
 * Added mechanism for catching exceptions.
 * Add ability to use sync and async functions to send data from `Bot`.
 * <b>Changed methods signatures</b>. See `api-reference` for details.
 * Fixed `opts` shape.
 * Added dependency injection system
-* Added parsing command params into handler arguments. 
+* Added parsing command params into handler arguments.
 
 ## 0.11.3
 
