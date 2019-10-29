@@ -30,6 +30,7 @@ class SystemEventsEnum(str, Enum):
 class UserKindEnum(str, Enum):
     bot: str = "botx"
     user: str = "user"
+    cts_user: str = "cts_user"
 
 
 class CommandTypeEnum(str, Enum):

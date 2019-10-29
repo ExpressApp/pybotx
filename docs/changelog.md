@@ -1,3 +1,7 @@
+## 0.12.4
+
+* Add `cts_user` value to `UserKindEnum`.
+
 ## 0.12.3
 
 * Fix docs about removed `HandlesCollector.regex_handler`.
