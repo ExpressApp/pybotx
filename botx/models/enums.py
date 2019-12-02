@@ -18,6 +18,7 @@ class ChatTypeEnum(str, Enum):
 
 class MentionTypeEnum(str, Enum):
     user: str = "user"
+    contact: str = "contact"
     all: str = "all"
     cts: str = "cts"
     channel: str = "channel"

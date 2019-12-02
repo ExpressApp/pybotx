@@ -18,7 +18,12 @@ from botx.core import TEXT_MAX_LENGTH
 
 from .base import BotXType
 from .common import NotificationOpts
-from .enums import ChatTypeEnum, CommandTypeEnum, ResponseRecipientsEnum
+from .enums import (
+    ChatTypeEnum,
+    CommandTypeEnum,
+    MentionTypeEnum,
+    ResponseRecipientsEnum,
+)
 from .events import ChatCreatedData
 from .file import File
 from .mention import Mention, MentionUser
@@ -140,6 +145,13 @@ class ReplyMessage(BotXType):
         self.mentions.append(
             Mention(mention_data=MentionUser(user_huid=user_huid, name=name))
         )
+
+    def mention_contact(self, user_huid: UUID, name: Optional[str] = None) -> None:
+        mention = Mention(
+            mention_data=MentionUser(user_huid=user_huid, name=name),
+            mention_type=MentionTypeEnum.contact,
+        )
+        self.mentions.append(mention)
 
     def add_recipient(self, recipient: UUID) -> None:
         if self.recipients == ResponseRecipientsEnum.all:

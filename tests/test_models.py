@@ -181,6 +181,16 @@ class TestReplyMessage:
         assert mention.mention_type == MentionTypeEnum.user
         assert mention.mention_data.user_huid == user_huid
 
+    def test_contact_mentioning(self, reply_message):
+        user_huid = uuid.uuid4()
+        reply_message.mention_contact(user_huid)
+        assert reply_message.mentions
+
+        mention = reply_message.mentions[0]
+
+        assert mention.mention_type == MentionTypeEnum.contact
+        assert mention.mention_data.user_huid == user_huid
+
     def test_recipients_adding(self, reply_message):
         users = [uuid.uuid4() for _ in range(4)]
         reply_message.add_recipient(users[0])
