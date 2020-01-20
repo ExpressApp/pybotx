@@ -1,59 +1,51 @@
 [tool.poetry]
 name = "botx"
-version = "0.12.4"
-description = "A little python library for building bots for Express"
+version = "0.13.0"
+description = "A little python framework for building bots for eXpress"
+license = "MIT"
 
 authors = ["Sidnev Nikolay <nsidnev@ccsteam.ru>"]
+
 readme = "README.md"
 
 documentation = "https://expressapp.github.io/pybotx"
 repository = "https://github.com/ExpressApp/pybotx"
 
-license = "MIT"
-
-exclude = ["tests", "docs", "scripts", "README.md", "setup.cfg"]
-
 
 [tool.poetry.dependencies]
 python = "^3.6"
-pydantic = "0.32.2"
-httpx = "^0.7.5"
-loguru = "^0.3.0"
+pydantic = "^1.0"
+httpx = "^0.11.0"
+loguru = "^0.4.0"
 
+# for testing by users
+starlette = { version = "^0.12.9", optional = true }
+
+# for docs
 mkdocs = { version = "^1.0", optional = true }
 mkdocs-material = { version = "^4.4", optional = true }
+mkdocstrings = { version = "^0.7", optional = true }
+markdown-include = { version = "^0.5.1", optional = true }
+fastapi = { version = "^0.47.0", optional = true }
 
 
 [tool.poetry.dev-dependencies]
-black = { version = "^18.3-alpha.0", allows-prereleases = true}
+black = "^19.10b0"
 isort = "^4.3"
 autoflake = "^1.3"
 
-mypy = "^0.701.0"
-
-flake8 = "^3.7"
-flake8-builtins = "^1.4"
-flake8-logging-format = "^0.6.0"
-flake8-bugbear = "^19.3"
-flake8-pep3101 = "^1.2"
-flake8-comprehensions = "^2.1"
-flake8-string-format = "^0.2.3"
-flake8-eradicate = "^0.2.0"
-flake8-broken-line = "^0.1.0"
-flake8-print = "^3.1"
-flake8-mutable = "^1.2"
+mypy = "^0.740"
 flake8-fixme = "^1.1"
-flake8-alfred = "^1.1"
+wemake-python-styleguide = "^0.13.1"
 
-pytest = "^4.5"
-pytest-cov = "^2.7"
+pytest = "^5.2"
+pytest-cov = "^2.8"
 pytest-asyncio = "^0.10.0"
-starlette = "^0.12.3"
-python-multipart = "^0.0.5"
 
 
 [tool.poetry.extras]
-doc = ["mkdocs", "mkdocs-material"]
+docs = ["mkdocs", "mkdocs-material", "mkdocstrings", "markdown-include", "fastapi"]
+tests = ["starlette"]
 
 
 [tool.black]
@@ -79,11 +71,10 @@ exclude = '''
   |infrastructure
   |templates
   |locale
-  |docs
 )/
 '''
 
 
 [build-system]
-requires = ["poetry>=0.12"]
+requires = ["poetry>=0.1.0"]
 build-backend = "poetry.masonry.api"

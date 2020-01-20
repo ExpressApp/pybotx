@@ -1,104 +1,200 @@
+from typing import Optional
+
 import pytest
 
-from botx import Depends, Message
-from botx.bots import AsyncBot
-from botx.dependencies import solve_dependencies
-from botx.models import Dependency
+from botx import (
+    AsyncClient,
+    Bot,
+    Client,
+    DependencyFailure,
+    Depends,
+    IncomingMessage,
+    Message,
+    testing,
+)
 
 
-def test_public_function_depends():
-    def dep_func():
-        pass
-
-    assert Depends(dep_func) == Dependency(call=dep_func)
-
-
-class TestDependenciesSolving:
+class TestPassingSpecialDependencies:
     @pytest.mark.asyncio
-    async def test_sync_solving_without_deps(self, get_bot, message_data):
-        def func_without_deps():
-            pass
+    async def test_passing_message_as_dependency(
+        self, bot: Bot, incoming_message: IncomingMessage
+    ) -> None:
+        msg: Optional[Message] = None
+        bot.collector.default_message_handler = None
 
-        assert {} == await solve_dependencies(
-            Message(**message_data()), get_bot(), Depends(func_without_deps)
-        )
+        @bot.default
+        async def handler_with_message(message: Message) -> None:
+            nonlocal msg
+            msg = message
 
-    @pytest.mark.asyncio
-    async def test_sync_solving_without_sub_deps(self, get_bot, message_data):
-        def dep_func():
-            return 1
+        with testing.TestClient(bot) as test_client:
+            await test_client.send_command(incoming_message)
 
-        def func_with_deps(dep=Depends(dep_func)):
-            pass
-
-        assert {"dep": 1} == await solve_dependencies(
-            Message(**message_data()), get_bot(), Depends(func_with_deps)
-        )
+        assert msg.incoming_message == incoming_message
 
     @pytest.mark.asyncio
-    async def test_sync_solving_with_sub_deps(self, get_bot, message_data):
-        def inner_dep_func():
-            return 1
+    async def test_passing_bot_as_dependency(
+        self, bot: Bot, incoming_message: IncomingMessage
+    ) -> None:
+        dep_bot: Optional[Bot] = None
+        bot.collector.default_message_handler = None
 
-        def dep_func(dep=Depends(inner_dep_func)):
-            return {"dep": dep}
+        @bot.default
+        async def handler_with_message(handler_bot: Bot) -> None:
+            nonlocal dep_bot
+            dep_bot = handler_bot
 
-        def func_with_deps(dep=Depends(dep_func)):
-            pass
+        with testing.TestClient(bot) as test_client:
+            await test_client.send_command(incoming_message)
 
-        assert {"dep": {"dep": 1}} == await solve_dependencies(
-            Message(**message_data()), get_bot(), Depends(func_with_deps)
-        )
-
-    @pytest.mark.asyncio
-    async def test_sync_solving_with_many_deps(self, get_bot, message_data):
-        def inner_dep_func():
-            return 1
-
-        def dep_func(dep1=Depends(inner_dep_func), dep2=Depends(inner_dep_func)):
-            return {"dep1": dep1, "dep2": dep2}
-
-        def func_with_deps(dep1=Depends(dep_func), dep2=Depends(dep_func)):
-            pass
-
-        assert await solve_dependencies(
-            Message(**message_data()), get_bot(), Depends(func_with_deps)
-        ) == {"dep1": {"dep1": 1, "dep2": 1}, "dep2": {"dep1": 1, "dep2": 1}}
+        assert dep_bot == bot
 
     @pytest.mark.asyncio
-    async def test_solving_with_mixing_sync_and_async_deps(self, get_bot, message_data):
-        async def inner_dep_func():
-            return 1
+    async def test_passing_async_client_as_dependency(
+        self, bot: Bot, incoming_message: IncomingMessage
+    ) -> None:
+        bot_client: Optional[AsyncClient] = None
+        bot.collector.default_message_handler = None
 
-        def dep_func(dep1=Depends(inner_dep_func), dep2=Depends(inner_dep_func)):
-            return {"dep1": dep1, "dep2": dep2}
+        @bot.default
+        async def handler_with_message(client: AsyncClient) -> None:
+            nonlocal bot_client
+            bot_client = client
 
-        async def func_with_deps(dep1=Depends(dep_func), dep2=Depends(dep_func)):
-            pass
+        with testing.TestClient(bot) as test_client:
+            await test_client.send_command(incoming_message)
 
-        assert await solve_dependencies(
-            Message(**message_data()), get_bot(), Depends(func_with_deps)
-        ) == {"dep1": {"dep1": 1, "dep2": 1}, "dep2": {"dep1": 1, "dep2": 1}}
+        assert bot_client == bot.client
 
     @pytest.mark.asyncio
-    async def test_solve_deps_with_passing_message_and_bot_in_deps(
-        self, get_bot, message_data
-    ):
-        msg = Message(**message_data())
-        bot = get_bot()
+    async def test_passing_sync_client_as_dependency(
+        self, bot: Bot, incoming_message: IncomingMessage
+    ) -> None:
+        bot_client: Optional[Client] = None
+        bot.collector.default_message_handler = None
 
-        def dep_func_msg(message: Message):
-            return {"message": message}
+        @bot.default
+        async def handler_with_message(client: Client) -> None:
+            nonlocal bot_client
+            bot_client = client
 
-        def dep_func_bot(bot: AsyncBot):
-            return {"bot": bot}
+        with testing.TestClient(bot) as test_client:
+            await test_client.send_command(incoming_message)
 
-        def dep_func(dep1=Depends(dep_func_bot), dep2=Depends(dep_func_msg)):
-            return {"dep1": dep1, "dep2": dep2}
+        assert bot_client == bot.sync_client
 
-        def func_with_deps(dep=Depends(dep_func)):
-            pass
+    @pytest.mark.asyncio
+    async def test_solving_forward_references_for_special_dependencies(
+        self, bot: Bot, incoming_message: IncomingMessage
+    ) -> None:
+        bot_client: Optional[AsyncClient] = None
+        bot.collector.default_message_handler = None
 
-        assert await solve_dependencies(msg, bot, Depends(func_with_deps)) == {
-            "dep": {"dep1": {"bot": bot}, "dep2": {"message": msg}}
-        }
+        @bot.default
+        async def handler_with_message(client: "AsyncClient") -> None:
+            nonlocal bot_client
+            bot_client = client
+
+        with testing.TestClient(bot) as test_client:
+            await test_client.send_command(incoming_message)
+
+        assert bot_client == bot.client
+
+
+def test_error_passing_non_special_param_or_dependency(
+    bot: Bot, incoming_message: IncomingMessage
+) -> None:
+    with pytest.raises(ValueError):
+
+        @bot.handler
+        def handler(_: int) -> None:
+            ...  # pragma: no cover
+
+
+@pytest.mark.asyncio
+async def test_dependency_executed_only_once_per_message(
+    bot: Bot, incoming_message: IncomingMessage
+) -> None:
+    counter = 0
+    bot.collector.default_message_handler = None
+
+    def increase_counter() -> None:
+        nonlocal counter
+        counter += 1
+
+    @bot.default(dependencies=[Depends(increase_counter)])
+    async def handler_with_message(_: None = Depends(increase_counter)) -> None:
+        ...
+
+    with testing.TestClient(bot) as test_client:
+        await test_client.send_command(incoming_message)
+
+    assert counter == 1
+
+    with testing.TestClient(bot) as test_client:
+        await test_client.send_command(incoming_message)
+
+    assert counter == 2
+
+
+@pytest.mark.asyncio
+async def test_that_dependency_can_be_overriden(
+    bot: Bot, incoming_message: IncomingMessage
+) -> None:
+    incoming_message.command.body = "/command with arguments"
+
+    entered_into_dependency = False
+
+    def original_dependency() -> None:
+        ...  # pragma: no cover
+
+    async def fake_dependency() -> None:
+        nonlocal entered_into_dependency
+        entered_into_dependency = True
+
+    @bot.handler(command="/command", dependencies=[Depends(original_dependency)])
+    async def handler_for_command() -> None:
+        ...  # pragma: no cover
+
+    bot.dependency_overrides[original_dependency] = fake_dependency
+
+    with testing.TestClient(bot) as test_client:
+        await test_client.send_command(incoming_message)
+
+    assert entered_into_dependency
+
+
+@pytest.mark.asyncio
+async def test_that_flow_can_be_stopped_by_raising_dependency_error(
+    bot: Bot, incoming_message: IncomingMessage
+) -> None:
+    bot.collector.default_message_handler = None
+    entered_into_dependency = False
+    entered_into_handler = False
+
+    def first_success_dependency() -> None:
+        ...
+
+    async def second_failed_dependency() -> None:
+        nonlocal entered_into_dependency
+        entered_into_dependency = True
+        raise DependencyFailure
+
+    def third_dependency_that_wont_be_executed() -> None:
+        ...  # pragma: no cover
+
+    @bot.default(
+        dependencies=[
+            Depends(first_success_dependency),
+            Depends(second_failed_dependency),
+            Depends(third_dependency_that_wont_be_executed),
+        ]
+    )
+    async def handler_for_command_that_wont_be_executed() -> None:  # pragma: no cover
+        nonlocal entered_into_handler
+        entered_into_handler = True
+
+    with testing.TestClient(bot) as test_client:
+        await test_client.send_command(incoming_message)
+
+    assert entered_into_dependency and not entered_into_handler

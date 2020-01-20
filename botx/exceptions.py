@@ -1,29 +1,36 @@
-import json
-from typing import Any, Dict, Optional
+"""Exceptions that are used in this library."""
+from typing import Any
+
+# All inits here are required for auto docs
 
 
-class BotXException(Exception):
-    def __init__(self, message: str = "", data: Optional[Dict[str, Any]] = None):
-        self.message = message
-        self.data = data
+class NoMatchFound(Exception):
+    """Raised by collector if no matching handler exists."""
 
-        msg = ""
-
-        if message:
-            msg = f"\n[msg] -> {message}"
-        if data:
-            msg += f"\n[data] -> {json.dumps(data, indent=4)}"
-
-        super().__init__(msg)
+    def __init__(self, *args: Any) -> None:
+        """Init NoMatchFound exception."""
+        super().__init__(*args)
 
 
-class BotXAPIException(BotXException):
-    pass
+class DependencyFailure(Exception):
+    """Raised when there is error in dependency and flow should be stopped."""
+
+    def __init__(self, *args: Any) -> None:
+        """Init DependencyFailure exception."""
+        super().__init__(*args)
 
 
-class BotXDependencyFailure(BotXException):
-    pass
+class BotXAPIError(Exception):
+    """Raised if there is an error in requests to BotX API."""
+
+    def __init__(self, *args: Any) -> None:
+        """Init BotXAPIError exception."""
+        super().__init__(*args)
 
 
-class BotXValidationError(BotXException):
-    pass
+class ServerUnknownError(Exception):
+    """Raised if bot does not know host."""
+
+    def __init__(self, *args: Any) -> None:
+        """Init ServerUnknownError exception."""
+        super().__init__(*args)

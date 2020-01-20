@@ -13,21 +13,30 @@ nav:
     - Tutorial - User Guide:
         - First Steps: 'development/first-steps.md'
         - Sending Messages And Files: 'development/sending-data.md'
-        - HandlersCollector: 'development/handlers-collector.md'
+        - Handlers Collecting: 'development/collector.md'
         - Handling Errors: 'development/handling-errors.md'
         - Dependencies Injection: 'development/dependencies-injection.md'
         - Logging: 'development/logging.md'
-        - Use Synchronous SDK: 'development/sync.md'
-        - Developing Using Tokens: 'development/cts-tokens.md'
         - Testing: 'development/tests.md'
-        - Deployment: 'development/bots-deployment.md'
     - API Reference:
-        - Bots: 'api-reference/bots.md'
-        - HandlersCollector: 'api-reference/handlers-collector.md'
-        - BotX Types: 'api-reference/botx-types.md'
+        - Bots: 'reference/bots.md'
+        - Clients: 'reference/clients.md'
+        - Collecting: 'reference/collecting.md'
+        - Exceptions: 'reference/exceptions.md'
+        - Testing: 'reference/testing.md'
+        - Models: 'reference/models.md'
+        - Dependencies: 'reference/dependencies.md'
+        - Middlewares: 'reference/middlewares.md'
     - Changelog: 'changelog.md'
 
 markdown_extensions:
-  - markdown.extensions.codehilite:
-      guess_lang: false
-  - admonition
+    - markdown.extensions.codehilite:
+        guess_lang: false
+    - markdown_include.include:
+        base_path: docs
+    - admonition
+    - codehilite
+
+plugins:
+  - search
+  - mkdocstrings
