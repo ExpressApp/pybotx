@@ -4,19 +4,23 @@ import uuid
 from typing import Any, BinaryIO, Callable, List, Optional, TextIO, Tuple, Union
 
 import httpx
-from starlette import status
-from starlette.applications import Starlette
-from starlette.requests import Request
-from starlette.responses import JSONResponse, Response
 
 from botx.api_helpers import BotXAPI
 from botx.bots import Bot
 from botx.models import enums, events, files, receiving, requests, responses
 from botx.models.enums import ChatTypes
 from botx.models.requests import UpdatePayload
+from starlette import status
+from starlette.applications import Starlette
+from starlette.requests import Request
+from starlette.responses import JSONResponse, Response
 
 APIMessage = Union[
-    requests.CommandResult, requests.Notification, requests.UpdatePayload
+    requests.CommandResult,
+    requests.Notification,
+    requests.UpdatePayload,
+    requests.StealthEnablePayload,
+    requests.StealthDisablePayload,
 ]
 
 
@@ -101,6 +105,26 @@ class _BotXAPICallbacksFactory:
 
         return factory
 
+    def get_stealth_enable_callback(self) -> Callable:
+        """Generate callback for stealth enable endpoint."""  # noqa: D202
+
+        async def factory(request: Request) -> JSONResponse:
+            payload = requests.StealthEnablePayload.parse_obj(await request.json())
+            self.messages.append(payload)
+            return JSONResponse(responses.StealthResponse().dict())
+
+        return factory
+
+    def get_stealth_disable_callback(self) -> Callable:
+        """Generate callback for stealth disable endpoint."""  # noqa: D202
+
+        async def factory(request: Request) -> JSONResponse:
+            payload = requests.StealthDisablePayload.parse_obj(await request.json())
+            self.messages.append(payload)
+            return JSONResponse(responses.StealthResponse().dict())
+
+        return factory
+
 
 def _botx_api_mock(
     messages: List[APIMessage], generate_errored: bool = False
@@ -135,6 +159,16 @@ def _botx_api_mock(
         BotXAPI.edit_event_endpoint.endpoint,
         factory.get_update_callback(),
         [BotXAPI.edit_event_endpoint.method],
+    )
+    app.add_route(
+        BotXAPI.stealth_set_endpoint.endpoint,
+        factory.get_stealth_enable_callback(),
+        [BotXAPI.stealth_set_endpoint.method],
+    )
+    app.add_route(
+        BotXAPI.stealth_disable_endpoint.endpoint,
+        factory.get_stealth_disable_callback(),
+        [BotXAPI.stealth_disable_endpoint.method],
     )
     return app
 
