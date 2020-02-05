@@ -34,7 +34,7 @@ class PushResponse(BaseModel):
 class StealthResponse(BaseModel):
     """Entity that will be returned from BotX API as a result of set/unset stealth"""
 
-    status: Statuses = Statuses.ok
+    status: Statuses
     """operation status"""
     result: Optional[bool] = None
     """operation result."""
