@@ -6,66 +6,31 @@ Take echo-bot, from the [Introduction](/), and gradually improve it step by step
 Right now we have the following code:
 
 ```Python3
-from botx import Bot, Message, Status
-from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
-from starlette.status import HTTP_202_ACCEPTED
-
-bot = Bot()
-bot.add_cts(CTS(host="cts.example.com", secret_key="secret"))
-
-
-@bot.default_handler
-async def echo_handler(message: Message, bot: Bot):
-    await bot.answer_message(message.body, message)
-
-
-app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-@app.get("/status", response_model=Status)
-async def bot_status():
-    return await bot.status()
-
-
-@app.post("/command", status_code=HTTP_202_ACCEPTED)
-async def bot_command(message: Message):
-    await bot.execute_command(message.dict())
+{!./src/development/first_steps/first_steps0.py!}
 ```
 
 ## First, let's see how this code works
 <small>We will explain only those parts that relate to `pybotx`, and not to the frameworks used in this documentation.</small>
 
-### Step 1: import `Bot`, `Message` and `Status` classes
+### Step 1: import `Bot`, `Message`, `Status` and other classes
 
 ```Python3 hl_lines="1"
-from botx import Bot, Message, Status
-from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
-from starlette.status import HTTP_202_ACCEPTED
-...
+{!./src/development/first_steps/first_steps0.py!}
 ```
 
-* `Bot` is a Python class that provides all the functions to your bots.
-
-* `Message` is a class that provides data to your handlers for commands.
-
-* `Status` is a class that is used here only to document the `FastAPI` route.
+* [Bot][botx.bots.Bot] is a class that provides all the core functionality to your bots.
+* [Message][botx.models.messages.Message] provides data to your handlers for commands.
+* [Status][botx.models.menu.Status] is used here only to document the `FastAPI` route,
+but in fact it stores information about public commands that user of your bot should see in menu.
+* [ExpressServer][botx.models.credentials.ExpressServer] is used for storing information 
+about servers with which your bot is able to communicate.
+* [IncomingMessage][botx.models.receiving.IncomingMessage] is a pydantic model that is used 
+for base validating of data, that was received on your bot's webhook.
 
 ### Step 2: initialize your `Bot`
 
-```Python3 hl_lines="2 3"
-...
-bot = Bot()
-bot.add_cts(CTS(host="cts.example.com", secret_key="secret"))
-...
+```Python3 hl_lines="5"
+{!./src/development/first_steps/first_steps0.py!}
 ```
 
 The `bot` variable will be an "instance" of the class `Bot`.
@@ -73,55 +38,40 @@ We also register an instance of the cts server to get tokens and the ability to 
 
 ### Step 3: define default handler
 
-```Python3 hl_lines="2 3"
-...
-@bot.default_handler
-async def echo_handler(message: Message, bot: Bot):
-    async bot.answer_message(message.body, message)
-...
+```Python3 hl_lines="8"
+{!./src/development/first_steps/first_steps0.py!}
 ```
 
 This handler will be called for all commands that have not appropriate handlers.
+We also set `include_in_status=False` so that handler won't be visible in menu and it won't
+complain about "wrong" body generated for it automatically.
 
 ### Step 4: send text to user
 
-```Python3 hl_lines="4"
-...
-@bot.default_handler
-async def echo_handler(message: Message, bot: Bot):
-    async bot.answer_message(message.body, message)
-...
+```Python3 hl_lines="10"
+{!./src/development/first_steps/first_steps0.py!}
 ```
 
-`Bot.answer_message` will send some text to the user by using `sync_id`, `bot_id` and `host` data from the `Message` instance.
-This is a simple wrapper for the `Bot.send_message` method, which is used to gain more control over sending messages process, 
-allowing you to specify a different host, bot_id, sync_id, group_chat_id or a list of them.
+[`.answer_message`][botx.bots.Bot.answer_message] will send text to the user by using 
+[sync_id][botx.models.messages.Message.sync_id], [bot_id][botx.models.messages.Message.bot_id] 
+and [host][botx.models.messages.Message.host] data from the [Message][botx.models.messages.Message] instance.
+This is a simple wrapper for the [`.send`][botx.bots.Bot.send] method, which is used to 
+gain more control over sending messages process, allowing you to specify a different 
+host, bot_id, sync_id, group_chat_id or a list of them.
 
-### Step 5: register lifespan events for bot proper initialization
+### Step 5: register handler for bot proper shutdown.
 
-```Python3 hl_lines="2 3"
-...
-app.add_event_handler("startup", bot.start)
-app.add_event_handler("shutdown", bot.stop)
-...
+```Python3 hl_lines="14"
+{!./src/development/first_steps/first_steps0.py!}
 ```
 
-The `Bot.start` and `Bot.stop` methods are used to initialize some data that cannot be initialized when creating a `Bot` instance.
+The [`.shutdown`][botx.bots.Bot.shutdown] method is used to stop pending handler.
 You must call them to be sure that the bot will work properly. 
 
 ### Step 6: define webhooks for bot
 
-```Python3 hl_lines="4 9"
-...
-@app.get("/status", response_model=Status)
-await def bot_status():
-    return await bot.status()
-
-
-@app.post("/command", status_code=HTTP_202_ACCEPTED)
-async def bot_command(message: Message):
-    await bot.execute_command(message.dict())
-...
+```Python3 hl_lines="17 22"
+{!./src/development/first_steps/first_steps0.py!}
 ```
 
 Here we define 2 `FastAPI` routes:
@@ -129,10 +79,22 @@ Here we define 2 `FastAPI` routes:
  * `GET` on `/status` will tell BotX API which commands are available for your bot.
  * `POST` on `/command` will receive data for incoming messages for your bot and execute handlers for commands.
 
-!!! warning
+!!! info
 
-    If `Bot.execute_command` did not find a handler for the command in the message, it will raise an `BotXException`, 
-    which you probably want to handle. You can register default handler to process all commands that do not have their own handler.
+    If [`.execute_command`][botx.bots.Bot.execute_command] did not find a handler for 
+    the command in the message, it will raise an `NoMatch` error in background, 
+    which you probably want to [handle](/development/handling-errors). You can register default handler to process all commands that do not have their own handler.
+    
+### Step 7 (Improvement): Reply to user if message was received from host, which is not registered
+
+We can send to BotX API a special response, that will say to user that bot can not communicate with 
+user properly, since message was received from unknown host. We do it by handling 
+[ServerUnknownError][botx.exceptions.ServerUnknownError] and returning to BotX API information
+about error.
+
+```Python3 hl_lines="35"
+{!./src/development/first_steps/first_steps1.py!}
+```
 
 ## Define new handlers
 
@@ -140,32 +102,13 @@ Let's define a new handler that will trigger a chain of questions for the user t
 
 We'll use the `/fill-info` command to start the chain:
 
-```Python3 
-...
-users_data = {}
-
-bot = Bot()
-bot.add_cts(CTS(host="cts.example.com", secret_key="secret"))
-
-@bot.handler
-async def fill_info(message: Message, bot: Bot):
-    if message.user_huid not in users_data:
-        text = (
-            "Hi! I'm a bot that will ask some questions about you.\n"
-            "First of all: what is your name?"
-        )
-        await bot.answer_message(text, message)
-    else:
-        text = (
-            "You've already filled out infomation about yourself.\n"
-            "You can view it by typing `/my-info` command.\n"
-            "You can also view the processed information by typing `/info` command."
-        )
-        await bot.answer_message(text, message)
-...
+```Python3 hl_lines="14"
+{!./src/development/first_steps/first_steps2.py!}
 ```
 
-Here is nothing new for now. Everything was explained in previous sections. 
+Here we define a new handler for `/fill-info` command using [`.handler`][botx.bots.Bot.handler] decorator.
+This decorator will generate for us body for our command and register it doing it available to handle.
+We also defined a `users_data` dictionary to store information from our users.
 
 Now let's define another 2 handlers for the commands that were mentioned in the message text that we send to the user: 
 
@@ -173,255 +116,62 @@ Now let's define another 2 handlers for the commands that were mentioned in the 
  * `/info` will send back the number of users who filled in information about themselves, their average age and number of male and female users.
  * `/infomation` is an alias to `/info` command.
  
-```Python3 hl_lines="2 19"
-...
-@bot.handler(command='my-info')
-async def get_info_for_user(message: Message, bot: Bot):
-    if message.user_huid not in users_data:
-        text = (
-            "I have no infomation about you :(\n"
-            "Type `/fill-info` so I can collect it, please."
-        )
-        await bot.answer_message(text, message)
-    else:
-        text = (
-            f"Your name: {users_data[message.user_huid]['name']}\n"
-            f"Your age: {users_data[message.user_huid]['age']}\n"
-            f"Your gender: {users_data[message.user_huid]['gender']}\n"
-            "This is all that I have now."
-        )
-        await bot.answer_message(text, message)
-        
-@bot.handler(commands=['info', '/infomation'])
-async def get_processed_infomation(message: Message, bot: Bot):
-    users_count = len(users_data)
-    average_age = sum(user['age'] for user in users_data) / users_count
-    gender_array = [1 if user['gender'] == 'male' else 2 for user in users_data]
-    text = (
-        f"Count of users: {users_count}\n"
-        f"Average age: {average_age}\n"
-        f"Male users count: {gender_array.count(1)}\n"    
-        f"Female users count: {gender_array.count(2)}"    
-    )
-    
-    await bot.answer_message(text, message)
-...
+```Python3 hl_lines="32 50"
+{!./src/development/first_steps/first_steps3.py!}
 ```
 
-Take a look at highlighted lines. `Bot.handler` method takes a different number of arguments. 
-The most commonly used arguments are `command` and `commands`. 
+Take a look at highlighted lines. [`.handler`][botx.bots.Bot.handler] method takes a 
+different number of arguments. The most commonly used arguments are `command` and `commands`. 
 `command` is a single string that defines a command for a handler. 
 `commands` is a list of strings that can be used to define a variety of aliases for a handler. 
 You can use them together. In this case, they simply merge into one array as if you specified only `commands` argument.
 
 See also at how the commands themselves are declared:
 
- * for the `fill_info` function we have not defined any `command` but it will be implicitly converted to the `fill-info` command.
- * for the `get_info_for_user` function we had explicitly specified `my-info` string, but it will be converted to `/my-info` inside the `Bot.handler` decorator.
- * for the `get_processed_information` we specified a `commands` argument to define many aliases for the handler. All commands strings will also be converted to have only one leading slash.
+ * for the `fill_info` function we have not defined any `command` but it will be implicitly converted to the `/fill-info` command.
+ * for the `get_info_for_user` function we had explicitly specified `/my-info` string.
+ * for the `get_processed_information` we specified a `commands` argument to define many aliases for the handler.
  
 ## Register next step handlers
 
-`pybotx` provide you the ability to change mechanism of handlers processing.
-To use it, you must define a function that accepts 2 required positional arguments, as in usual handlers for commands: 
-first for the message and then for the bot. 
-You can also add additional positional and key arguments to the handler that will be passed when it is called.
+`pybotx` provide you the ability to change mechanism of handlers processing by mechanism of
+middlewares. It also provides a middleware for handling chains of messages by [`Next Step Middleware`][botx.middlewares.ns.NextStepMiddleware].
 
-Lets' define these handlers and, finally, create a chain of questions from the bot to the user:
+To use it you should define functions that will be used when messages that start chain will be handled. 
+All functions should be defined before bot starts to handler messages, since dynamic registration
+can cause different hard to find problems.
 
-```Python3 hl_lines="10"
-...
-@bot.handler
-async def fill_info(message: Message, bot: Bot):
-    if message.user_huid not in users_data:
-        text = (
-            "Hi! I'm a bot that will ask some questions about you.\n"
-            "First of all: what is your name?"
-        )
-        await bot.answer_message(text, message)
-        bot.register_next_step_handler(message, get_name)
-    else:
-        text = (
-            "You've already filled out infomation about yourself.\n"
-            "You can view it by typing `/my-info` command.\n"
-            "You can also view the processed information by typing `/info` command."
-        )
-        await bot.answer_message(text, message)
-...
-async def get_name(message: Message, bot: Bot):
-    users_data[message.user_huid]["name"] = message.body
-    await bot.answer_message("Good! Move next: how old are you?", message)
-    bot.register_next_step_handler(message, get_age)
+Lets' define these handlers and, finally, create a chain of questions from the bot to the user.
 
+First we should import our middleware and functions that will register function fo next 
+message from user.
 
-async def get_age(message: Message, bot: Bot):
-    try:
-        age = int(message.body)
-        if age <= 5:
-            await bot.answer_message(
-                "Sorry, but it's not true. Say your real age, please!", message
-            )
-            bot.register_next_step_handler(message, get_age)
-        else:
-            users_data[message.user_huid]["age"] = age
-            await bot.answer_message("Got it! Final question: your gender?", message)
-            bot.register_next_step_handler(message, get_gender)
-    except ValueError:
-        await bot.answer_message("No, no, no. Pleas tell me your age in numbers!", message)
-        bot.register_next_step_handler(message, get_age)
-
-
-async def get_gender(message: Message, bot: Bot):
-    gender = message.body
-    if gender in ["male", "female"]:
-        users_data[message.user_huid]["gender"] = gender
-        await bot.answer_message("Ok! Thanks for taking the time to answer my questions.", message)
-    else:
-        await bot.answer_message(
-            "Sorry, but I can not recognize your answer! Type 'male' or 'female', please!",
-            message,
-        )
-        bot.register_next_step_handler(message, get_gender)
-...
+```Python3 hl_lines="2"
+{!./src/development/first_steps/first_steps4.py!}
 ```
 
-What's going on here? We added one line to our `/fill-info` command to start a chain of questions for our user.
-We also defined 3 functions, whose signature is similar to the usual handler signature, but instead of registration them using the `Bot.handler` decorator, 
-we do this using the `Bot.register_next_step_handler` method. We pass into method our message as the first argument 
-and the handler that will be executed for the next user message as the second. We also can pass positional and key 
-arguments if we need them, but this not our case now.
+Next we should define our functions and register it in our middleware.
 
-## Complete example
-
-That is all! Here is full listing:
-
-```Python3
-from botx import Bot, Message, Status
-from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
-from starlette.status import HTTP_202_ACCEPTED
-
-users_data = {}
-
-bot = Bot()
-bot.add_cts(CTS(host="cts.example.com", secret_key="secret"))
-
-
-@bot.default_handler
-async def echo_handler(message: Message, bot: Bot):
-    await bot.answer_message(message.body, message)
-
-
-@bot.handler
-async def fill_info(message: Message, bot: Bot):
-    if message.user_huid not in users_data:
-        users_data[message.user_huid] = {}
-        text = (
-            "Hi! I'm a bot that will ask some questions about you.\n"
-            "First of all: what is your name?"
-        )
-        await bot.answer_message(text, message)
-        bot.register_next_step_handler(message, get_name)
-    else:
-        text = (
-            "You've already filled out infomation about yourself.\n"
-            "You can view it by typing `/my-info` command.\n"
-            "You can also view the processed information by typing `/info` command."
-        )
-        await bot.answer_message(text, message)
-
-
-@bot.handler(command="my-info")
-async def get_info_for_user(message: Message, bot: Bot):
-    if message.user_huid not in users_data:
-        text = (
-            "I have no infomation about you :(\n"
-            "Type `/fill-info` so I can collect it, please."
-        )
-        await bot.answer_message(text, message)
-    else:
-        text = (
-            f"Your name: {users_data[message.user_huid]['name']}\n"
-            f"Your age: {users_data[message.user_huid]['age']}\n"
-            f"Your gender: {users_data[message.user_huid]['gender']}\n"
-            "This is all that I have now."
-        )
-        await bot.answer_message(text, message)
-
-
-@bot.handler(commands=["info", "/infomation"])
-async def get_processed_infomation(message: Message, bot: Bot):
-    users_count = len(users_data)
-    average_age = sum(user["age"] for user in users_data.values()) / users_count
-    gender_array = [
-        1 if user["gender"] == "male" else 2 for user in users_data.values()
-    ]
-    text = (
-        f"Count of users: {users_count}\n"
-        f"Average age: {average_age}\n"
-        f"Male users count: {gender_array.count(1)}\n"
-        f"Female users count: {gender_array.count(2)}"
-    )
-
-    await bot.answer_message(text, message)
-
-
-async def get_name(message: Message, bot: Bot):
-    users_data[message.user_huid]["name"] = message.body
-    await bot.answer_message("Good! Move next: how old are you?", message)
-    bot.register_next_step_handler(message, get_age)
-
-
-async def get_age(message: Message, bot: Bot):
-    try:
-        age = int(message.body)
-        if age <= 5:
-            bot.answer_message(
-                "Sorry, but it's not true. Say your real age, please!", message
-            )
-            bot.register_next_step_handler(message, get_age)
-        else:
-            users_data[message.user_huid]["age"] = age
-            await bot.answer_message("Got it! Final question: your gender?", message)
-            bot.register_next_step_handler(message, get_gender)
-    except ValueError:
-        await bot.answer_message(
-            "No, no, no. Pleas tell me your age in numbers!", message
-        )
-        bot.register_next_step_handler(message, get_age)
-
-
-async def get_gender(message: Message, bot: Bot):
-    gender = message.body
-    if gender in ["male", "female"]:
-        users_data[message.user_huid]["gender"] = gender
-        await bot.answer_message(
-            "Ok! Thanks for taking the time to answer my questions.", message
-        )
-    else:
-        await bot.answer_message(
-            "Sorry, but I can not recognize your answer! Type 'male' or 'female', please!",
-            message,
-        )
-        bot.register_next_step_handler(message, get_gender)
-
-
-app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-@app.get("/status", response_model=Status)
-async def bot_status():
-    return await bot.status()
-
-
-@app.post("/command", status_code=HTTP_202_ACCEPTED)
-async def bot_command(message: Message):
-    await bot.execute_command(message.dict())
+```Python3 hl_lines="11 17 36 51 52 53"
+{!./src/development/first_steps/first_steps4.py!}
 ```
+
+And the last part of this step is use 
+[register_next_step_handler][botx.middlewares.ns.register_next_step_handler] function to
+register handler for next message from user.
+
+```Python3 hl_lines="14 24 28 33 48 68"
+{!./src/development/first_steps/first_steps4.py!}
+```
+
+### Recap
+
+What's going on here? We added one line to our `/fill-info` command to start a chain of 
+questions for our user. We also defined 3 functions, whose signature is similar to the 
+usual handler signature, but instead of registration them using the 
+[`.handler`][botx.bots.Bot.handler] decorator, we do this while registering out 
+[`Next Step Middleware`][botx.middlewares.ns.NextStepMiddleware] for bot. We change message
+handling flow using the [register_next_step_handler][botx.middlewares.ns.register_next_step_handler] function.
+We pass into function our message as the first argument and the handler that will be 
+executed for the next user message as the second. We also can pass key arguments if we need them 
+and get them in our handler using [`Message state`][botx.models.datastructures.State] then, but this not our case now.
