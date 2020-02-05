@@ -1,5 +1,6 @@
 """pydantic models for responses from BotX API."""
 
+from typing import Dict, List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -28,3 +29,18 @@ class PushResponse(BaseModel):
     """operation status of push."""
     result: PushResult
     """operation result."""
+
+
+class StealthResponse(BaseModel):
+    """Entity that will be returned from BotX API as a result of set/unset stealth"""
+
+    status: Statuses = Field(Statuses.ok, const=True)
+    """operation status"""
+    result: Optional[bool] = None
+    """operation result."""
+    reason: Optional[str] = None
+    """reason of error."""
+    errors: Optional[List[str]] = None
+    """list of errors"""
+    error_data: Optional[Dict[str, str]] = None
+    """error data"""

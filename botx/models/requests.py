@@ -51,6 +51,8 @@ class UpdatePayload(BaseModel):
 class ResultOptions(BaseModel):
     """Configuration for command result or notification that is send to BotX API."""
 
+    stealth_mode: bool = False
+    """send message only when stealth mode is enabled"""
     notification_opts: NotificationOptions = NotificationOptions()
     """message options for configuring notifications."""
 
@@ -95,3 +97,21 @@ class EventEdition(BaseModel):
     """update for message content."""
     opts: Optional[ResultOptions] = None
     """update for options update. *Not used for now*."""
+
+
+class StealthDisablePayload(BaseModel):
+    """Data structure that will be sent to BotX API to disable stealth mode"""
+
+    group_chat_id: UUID
+    """ID of chat"""
+
+
+class StealthEnablePayload(StealthDisablePayload):
+    """Data structure that will be sent to BotX API to enable stealth mode"""
+
+    disable_web: bool = False
+    """disable web client for chat"""
+    burn_in: Optional[int] = None
+    """expire time for read messages, sec"""
+    expire_in: Optional[int] = None
+    """expire time for unread messages, sec"""

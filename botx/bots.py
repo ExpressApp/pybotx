@@ -27,6 +27,7 @@ from botx.middlewares.base import BaseMiddleware
 from botx.middlewares.exceptions import ExceptionMiddleware
 from botx.models import datastructures, enums, files, menu, messages, sending
 from botx.models.credentials import ExpressServer, ServerCredentials
+from botx.models.requests import StealthDisablePayload, StealthEnablePayload
 
 
 class Bot:  # noqa: WPS214, WPS230
@@ -603,6 +604,49 @@ class Bot:  # noqa: WPS214, WPS230
         message = messages.SendingMessage(credentials=credentials)
         message.add_file(file, filename)
         return await self.send(message)
+
+    async def stealth_enable(
+        self,
+        credentials: sending.SendingCredentials,
+        chat_id: UUID,
+        disable_web: bool,
+        burn_in: Optional[int],
+        expire_in: Optional[int],
+    ) -> None:
+        """Enable stealth mode
+
+        Arguments:
+            credentials: credentials of chat.
+            chat_id: id of chat to enable stealth,
+            disable_web: disable web client for chat,
+            burn_in: time to burn,
+            expire_in: time to expire,
+        """
+        await self._obtain_token(credentials)
+        return await self.client.stealth_enable(
+            credentials=credentials,
+            payload=StealthEnablePayload(
+                group_chat_id=chat_id,
+                disable_web=disable_web,
+                burn_in=burn_in,
+                expire_in=expire_in,
+            ),
+        )
+
+    async def stealth_disable(
+        self, credentials: sending.SendingCredentials, chat_id: UUID,
+    ) -> None:
+        """Disable stealth mode
+
+        Arguments:
+            credentials: credentials of chat.
+            chat_id: id of chat to disable stealth,
+        """
+        await self._obtain_token(credentials)
+        return await self.client.stealth_disable(
+            credentials=credentials,
+            payload=StealthDisablePayload(group_chat_id=chat_id,),
+        )
 
     async def shutdown(self) -> None:
         """Wait for all running handlers shutdown."""
