@@ -1,3 +1,9 @@
+
+## 0.13.1 (Feb 6, 2020)
+
+### Added
+* Stealth mode enable/disable methods `Bot.stealth_enable()` and `Bot.stealth_disable`
+
 ## 0.13.0 (Jan 20, 2020)
 
 !!! warning
