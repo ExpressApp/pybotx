@@ -41,7 +41,6 @@ wemake-python-styleguide = "^0.13.1"
 pytest = "^5.2"
 pytest-cov = "^2.8"
 pytest-asyncio = "^0.10.0"
-mkdocs = "^1.0.4"
 
 
 [tool.poetry.extras]

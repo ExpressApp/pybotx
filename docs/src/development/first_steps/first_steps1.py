@@ -8,9 +8,9 @@ from botx import (
     ServerUnknownError,
     Status,
 )
+from starlette.status import HTTP_202_ACCEPTED, HTTP_406_NOT_ACCEPTABLE
 
 from fastapi import FastAPI, HTTPException
-from starlette.status import HTTP_202_ACCEPTED, HTTP_406_NOT_ACCEPTABLE
 
 bot = Bot(known_hosts=[ExpressServer(host="cts.example.com", secret_key="secret")])
 
