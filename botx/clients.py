@@ -8,6 +8,7 @@ from loguru import logger
 
 from botx.api_helpers import BotXAPI, RequestPayloadBuilder, is_api_error_code
 from botx.exceptions import BotXAPIError
+from botx.models.requests import StealthDisablePayload, StealthEnablePayload
 from botx.models.responses import PushResponse, TokenResponse
 from botx.models.sending import MessagePayload, SendingCredentials, UpdatePayload
 from botx.utils import LogsShapeBuilder
@@ -218,6 +219,54 @@ class AsyncClient(BaseClient):
         self._check_api_response(
             update_event_response, "unable to update event in BotX API"
         )
+
+    async def stealth_enable(
+        self, credentials: SendingCredentials, payload: StealthEnablePayload
+    ) -> None:
+        """Enable stealth mode.
+
+        Arguments:
+            credentials: credentials that are used for sending result.
+            payload: silent mode options.
+
+        Raises:
+            BotXAPIError: raised if there was an error in calling BotX API.
+            AssertionError: raised if there was an error in credentials configuration.
+        """
+
+        assert credentials.host, _HOST_SHOULD_BE_FILLED_ERROR
+        assert credentials.token, _TOKEN_SHOULD_BE_FILLED_ERROR
+        logger.bind(payload=payload.dict()).debug("Stealth mode enable")
+        response = await self.http_client.post(
+            BotXAPI.stealth_enable(host=credentials.host, scheme=self.scheme),
+            data=payload.json(),
+            headers=self._get_bearer_headers(token=credentials.token),
+        )
+        self._check_api_response(response, "Unable to set stealth mode")
+
+    async def stealth_disable(
+        self, credentials: SendingCredentials, payload: StealthDisablePayload
+    ) -> None:
+        """Disable stealth mode.
+
+        Arguments:
+            credentials: credentials that are used for sending result.
+            payload: contains chat ID.
+
+        Raises:
+            BotXAPIError: raised if there was an error in calling BotX API.
+            AssertionError: raised if there was an error in credentials configuration.
+        """
+
+        assert credentials.host, _HOST_SHOULD_BE_FILLED_ERROR
+        assert credentials.token, _TOKEN_SHOULD_BE_FILLED_ERROR
+        logger.bind(payload=payload.dict()).debug("Stealth mode disable")
+        response = await self.http_client.post(
+            BotXAPI.stealth_disable(host=credentials.host, scheme=self.scheme),
+            data=payload.json(),
+            headers=self._get_bearer_headers(token=credentials.token),
+        )
+        self._check_api_response(response, "Unable to unset stealth mode")
 
 
 class Client(BaseClient):
