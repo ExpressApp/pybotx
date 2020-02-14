@@ -157,7 +157,7 @@ class Handler:  # noqa: WPS230
             args: sequence of elements that are arguments for command.
         """
         args_str = " ".join((str(arg) for arg in args[1:]))
-        return "{0} {1}".format(self.body, args_str)
+        return "{0} {1}".format(self.body, args_str).strip()
 
     async def __call__(self, message: messages.Message) -> None:
         """Execute handler using incoming message.
