@@ -325,3 +325,8 @@ class TestStealthMode:
             )
             msg = client.messages[-1]
             assert msg.group_chat_id == message.group_chat_id
+
+
+@pytest.mark.asyncio
+async def test_no_error_when_stopping_bot_with_no_tasks(bot: Bot) -> None:
+    await bot.shutdown()
