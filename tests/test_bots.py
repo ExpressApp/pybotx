@@ -1,5 +1,6 @@
-import pytest
 import uuid
+
+import pytest
 
 from botx import (
     Bot,
@@ -331,9 +332,7 @@ class TestStealthMode:
 class TestAddRemoveUsers:
     users_huids = list(uuid.uuid4() for _ in range(3))
 
-    async def test_add_user(
-        self, bot: Bot, incoming_message: IncomingMessage
-    ) -> None:
+    async def test_add_user(self, bot: Bot, incoming_message: IncomingMessage) -> None:
         message = Message.from_dict(incoming_message.dict(), bot)
         with testing.TestClient(bot) as client:
             sync_id = await bot.answer_message("some text", message,)
@@ -344,7 +343,7 @@ class TestAddRemoveUsers:
                     bot_id=incoming_message.bot_id,
                 ),
                 chat_id=message.group_chat_id,
-                users_huids=self.users_huids
+                users_huids=self.users_huids,
             )
             msg = client.messages[-1]
             assert msg.group_chat_id == message.group_chat_id
@@ -363,11 +362,12 @@ class TestAddRemoveUsers:
                     bot_id=incoming_message.bot_id,
                 ),
                 chat_id=message.group_chat_id,
-                users_huids=self.users_huids
+                users_huids=self.users_huids,
             )
             msg = client.messages[-1]
             assert msg.group_chat_id == message.group_chat_id
             assert msg.user_huids == self.users_huids
+
 
 @pytest.mark.asyncio
 async def test_no_error_when_stopping_bot_with_no_tasks(bot: Bot) -> None:
