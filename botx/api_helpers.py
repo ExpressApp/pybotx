@@ -53,6 +53,18 @@ class BotXAPI:
     edit_event_endpoint = BotXEndpoint(
         method="POST", endpoint="/api/v3/botx/events/edit_event"
     )
+    add_user_endpoint = BotXEndpoint(
+        method="POST", endpoint="/api/v3/botx/chats/add_user"
+    )
+    remove_user_endpoint = BotXEndpoint(
+        method="POST", endpoint="/api/v3/botx/chats/remove_user"
+    )
+    stealth_set_endpoint = BotXEndpoint(
+        method="POST", endpoint="/api/v3/botx/chats/stealth_set"
+    )
+    stealth_disable_endpoint = BotXEndpoint(
+        method="POST", endpoint="/api/v3/botx/chats/stealth_disable"
+    )
 
     @classmethod
     def token(
@@ -117,6 +129,36 @@ class BotXAPI:
         """
         return _URL_TEMPLATE.format(
             scheme=scheme, host=host, endpoint=cls.edit_event_endpoint.endpoint
+        )
+
+    @classmethod
+    def stealth_enable(cls, host: str, scheme: str = HTTPS_SCHEME) -> str:
+        """Build stealth enable URL
+
+        Arguments:
+            host: host for URL.
+            scheme: HTTP URL schema.
+
+        Returns:
+            URL for stealth enable endpoint for BotX API.
+        """
+        return _URL_TEMPLATE.format(
+            scheme=scheme, host=host, endpoint=cls.stealth_set_endpoint.endpoint
+        )
+
+    @classmethod
+    def stealth_disable(cls, host: str, scheme: str = HTTPS_SCHEME) -> str:
+        """Build stealth disable URL
+
+        Arguments:
+            host: host for URL.
+            scheme: HTTP URL schema.
+
+        Returns:
+            URL for stealth disable endpoint for BotX API.
+        """
+        return _URL_TEMPLATE.format(
+            scheme=scheme, host=host, endpoint=cls.stealth_disable_endpoint.endpoint
         )
 
 

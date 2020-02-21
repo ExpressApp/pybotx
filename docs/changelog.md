@@ -1,3 +1,16 @@
+## 0.13.2 (Feb 14, 2020)
+
+### Fixed
+
+* Check that there are futures while stopping bot.
+* Strip command in `Handler.command_for` so no space at the end.
+
+## 0.13.1 (Feb 6, 2020)
+
+### Added
+
+* Stealth mode enable/disable methods `Bot.stealth_enable` and `Bot.stealth_disable`.
+
 ## 0.13.0 (Jan 20, 2020)
 
 !!! warning

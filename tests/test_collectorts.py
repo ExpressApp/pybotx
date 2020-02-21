@@ -179,3 +179,18 @@ def test_handler_can_not_consist_from_slashes_only(bot: Bot) -> None:
         @bot.handler(command="/////")
         def some_handler() -> None:
             pass  # pragma: no cover
+
+
+def test_no_extra_space_on_command_built_through_command_for() -> None:
+    handler = Handler(
+        body="/command",
+        handler=handler_function,
+        dependencies=[Depends(handler_function)],
+    )
+
+    assert handler.command_for() == "/command"
+
+    assert (
+        handler.command_for(None, 1, "some string", True)
+        == "/command 1 some string True"
+    )
