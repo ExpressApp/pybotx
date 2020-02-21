@@ -8,7 +8,11 @@ from loguru import logger
 
 from botx.api_helpers import BotXAPI, RequestPayloadBuilder, is_api_error_code
 from botx.exceptions import BotXAPIError
-from botx.models.requests import StealthDisablePayload, StealthEnablePayload, AddRemoveUsersPayload
+from botx.models.requests import (
+    AddRemoveUsersPayload,
+    StealthDisablePayload,
+    StealthEnablePayload,
+)
 from botx.models.responses import PushResponse, TokenResponse
 from botx.models.sending import MessagePayload, SendingCredentials, UpdatePayload
 from botx.utils import LogsShapeBuilder
@@ -268,7 +272,9 @@ class AsyncClient(BaseClient):
         )
         self._check_api_response(response, "Unable to unset stealth mode")
 
-    async def add_users(self, credentials: SendingCredentials, payload: AddRemoveUsersPayload) -> None:
+    async def add_users(
+        self, credentials: SendingCredentials, payload: AddRemoveUsersPayload
+    ) -> None:
         """Add users to chat.
 
         Arguments:
@@ -283,13 +289,15 @@ class AsyncClient(BaseClient):
         assert credentials.token, _TOKEN_SHOULD_BE_FILLED_ERROR
         logger.bind(payload=payload.dict()).debug("Add users to chat")
         response = await self.http_client.post(
-            BotXAPI.add_user_endpoint(host=credentials.host, scheme=self.scheme),
+            BotXAPI.add_user(host=credentials.host, scheme=self.scheme),
             data=payload.json(),
             headers=self._get_bearer_headers(token=credentials.token),
         )
         self._check_api_response(response, "Unable to add users to chat")
 
-    async def remove_users(self, credentials: SendingCredentials, payload: AddRemoveUsersPayload) -> None:
+    async def remove_users(
+        self, credentials: SendingCredentials, payload: AddRemoveUsersPayload
+    ) -> None:
         """Remove users from chat.
 
         Arguments:
@@ -304,7 +312,7 @@ class AsyncClient(BaseClient):
         assert credentials.token, _TOKEN_SHOULD_BE_FILLED_ERROR
         logger.bind(payload=payload.dict()).debug("Add users to chat")
         response = await self.http_client.post(
-            BotXAPI.remove_user_endpoint(host=credentials.host, scheme=self.scheme),
+            BotXAPI.remove_user(host=credentials.host, scheme=self.scheme),
             data=payload.json(),
             headers=self._get_bearer_headers(token=credentials.token),
         )

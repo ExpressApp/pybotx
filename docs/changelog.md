@@ -1,3 +1,8 @@
+## 0.13.3 (Feb 21, 2020)
+
+### Added
+* Methods to add/remove users to/from chat `Bot.add_users()` and `Bot.remove_users()`
+
 ## 0.13.2 (Feb 14, 2020)
 
 ### Fixed
@@ -9,7 +14,7 @@
 
 ### Added
 
-* Stealth mode enable/disable methods `Bot.stealth_enable` and `Bot.stealth_disable`.
+* Stealth mode enable/disable methods `Bot.stealth_enable()` and `Bot.stealth_disable()`.
 
 ## 0.13.0 (Jan 20, 2020)
 

@@ -1,4 +1,5 @@
 import pytest
+import uuid
 
 from botx import (
     Bot,
@@ -284,8 +285,8 @@ async def test_updating_message(bot: Bot, incoming_message: IncomingMessage) -> 
         assert update.body == "new text"
 
 
+@pytest.mark.asyncio
 class TestStealthMode:
-    @pytest.mark.asyncio
     async def test_enable_stealth_mode(
         self, bot: Bot, incoming_message: IncomingMessage
     ) -> None:
@@ -308,7 +309,6 @@ class TestStealthMode:
             assert msg.burn_in == 60
             assert msg.expire_in == 60
 
-    @pytest.mark.asyncio
     async def test_disable_stealth_mode(
         self, bot: Bot, incoming_message: IncomingMessage
     ) -> None:
@@ -327,91 +327,47 @@ class TestStealthMode:
             assert msg.group_chat_id == message.group_chat_id
 
 
-class TestStealthMode:
-    @pytest.mark.asyncio
-    async def test_enable_stealth_mode(
+@pytest.mark.asyncio
+class TestAddRemoveUsers:
+    users_huids = list(uuid.uuid4() for _ in range(3))
+
+    async def test_add_user(
         self, bot: Bot, incoming_message: IncomingMessage
     ) -> None:
         message = Message.from_dict(incoming_message.dict(), bot)
         with testing.TestClient(bot) as client:
             sync_id = await bot.answer_message("some text", message,)
-            await bot.stealth_enable(
+            await bot.add_users(
                 SendingCredentials(
                     sync_id=sync_id,
                     host=incoming_message.user.host,
                     bot_id=incoming_message.bot_id,
                 ),
                 chat_id=message.group_chat_id,
-                burn_in=60,
-                expire_in=60,
-                disable_web=False,
+                users_huids=self.users_huids
             )
             msg = client.messages[-1]
             assert msg.group_chat_id == message.group_chat_id
-            assert msg.burn_in == 60
-            assert msg.expire_in == 60
+            assert msg.user_huids == self.users_huids
 
-    @pytest.mark.asyncio
-    async def test_disable_stealth_mode(
+    async def test_remove_user(
         self, bot: Bot, incoming_message: IncomingMessage
     ) -> None:
         message = Message.from_dict(incoming_message.dict(), bot)
         with testing.TestClient(bot) as client:
             sync_id = await bot.answer_message("some text", message,)
-            await bot.stealth_disable(
+            await bot.remove_users(
                 SendingCredentials(
                     sync_id=sync_id,
                     host=incoming_message.user.host,
                     bot_id=incoming_message.bot_id,
                 ),
                 chat_id=message.group_chat_id,
+                users_huids=self.users_huids
             )
             msg = client.messages[-1]
             assert msg.group_chat_id == message.group_chat_id
-
-
-class TestStealthMode:
-    @pytest.mark.asyncio
-    async def test_enable_stealth_mode(
-        self, bot: Bot, incoming_message: IncomingMessage
-    ) -> None:
-        message = Message.from_dict(incoming_message.dict(), bot)
-        with testing.TestClient(bot) as client:
-            sync_id = await bot.answer_message("some text", message,)
-            await bot.stealth_enable(
-                SendingCredentials(
-                    sync_id=sync_id,
-                    host=incoming_message.user.host,
-                    bot_id=incoming_message.bot_id,
-                ),
-                chat_id=message.group_chat_id,
-                burn_in=60,
-                expire_in=60,
-                disable_web=False,
-            )
-            msg = client.messages[-1]
-            assert msg.group_chat_id == message.group_chat_id
-            assert msg.burn_in == 60
-            assert msg.expire_in == 60
-
-    @pytest.mark.asyncio
-    async def test_disable_stealth_mode(
-        self, bot: Bot, incoming_message: IncomingMessage
-    ) -> None:
-        message = Message.from_dict(incoming_message.dict(), bot)
-        with testing.TestClient(bot) as client:
-            sync_id = await bot.answer_message("some text", message,)
-            await bot.stealth_disable(
-                SendingCredentials(
-                    sync_id=sync_id,
-                    host=incoming_message.user.host,
-                    bot_id=incoming_message.bot_id,
-                ),
-                chat_id=message.group_chat_id,
-            )
-            msg = client.messages[-1]
-            assert msg.group_chat_id == message.group_chat_id
-
+            assert msg.user_huids == self.users_huids
 
 @pytest.mark.asyncio
 async def test_no_error_when_stopping_bot_with_no_tasks(bot: Bot) -> None:

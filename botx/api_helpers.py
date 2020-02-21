@@ -161,6 +161,36 @@ class BotXAPI:
             scheme=scheme, host=host, endpoint=cls.stealth_disable_endpoint.endpoint
         )
 
+    @classmethod
+    def add_user(cls, host: str, scheme: str = HTTPS_SCHEME) -> str:
+        """Build add user URL
+
+        Arguments:
+            host: host for URL.
+            scheme: HTTP URL schema.
+
+        Returns:
+            URL for add user endpoint for BotX API.
+        """
+        return _URL_TEMPLATE.format(
+            scheme=scheme, host=host, endpoint=cls.add_user_endpoint.endpoint
+        )
+
+    @classmethod
+    def remove_user(cls, host: str, scheme: str = HTTPS_SCHEME) -> str:
+        """Build remove user URL
+
+        Arguments:
+            host: host for URL.
+            scheme: HTTP URL schema.
+
+        Returns:
+            URL for add user endpoint for BotX API.
+        """
+        return _URL_TEMPLATE.format(
+            scheme=scheme, host=host, endpoint=cls.remove_user_endpoint.endpoint
+        )
+
 
 def is_api_error_code(code: int) -> bool:
     """Check that status code returned from BotX API is a HTTP error code.
