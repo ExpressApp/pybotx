@@ -27,7 +27,11 @@ from botx.middlewares.base import BaseMiddleware
 from botx.middlewares.exceptions import ExceptionMiddleware
 from botx.models import datastructures, enums, files, menu, messages, sending
 from botx.models.credentials import ExpressServer, ServerCredentials
-from botx.models.requests import StealthDisablePayload, StealthEnablePayload, AddRemoveUsersPayload
+from botx.models.requests import (
+    AddRemoveUsersPayload,
+    StealthDisablePayload,
+    StealthEnablePayload,
+)
 
 
 class Bot:  # noqa: WPS214, WPS230
@@ -648,7 +652,12 @@ class Bot:  # noqa: WPS214, WPS230
             payload=StealthDisablePayload(group_chat_id=chat_id,),
         )
 
-    async def add_user(self, credentials: sending.SendingCredentials, chat_id: UUID, users_huids: List[UUID]) -> None:
+    async def add_users(
+        self,
+        credentials: sending.SendingCredentials,
+        chat_id: UUID,
+        users_huids: List[UUID],
+    ) -> None:
         """Add users to chat
 
         Arguments:
@@ -659,10 +668,17 @@ class Bot:  # noqa: WPS214, WPS230
         await self._obtain_token(credentials)
         return await self.client.add_users(
             credentials=credentials,
-            payload=AddRemoveUsersPayload(group_chat_id=chat_id, user_huids=users_huids)
+            payload=AddRemoveUsersPayload(
+                group_chat_id=chat_id, user_huids=users_huids
+            ),
         )
 
-    async def remove_user(self, credentials: sending.SendingCredentials, chat_id: UUID, users_huids: List[UUID]) -> None:
+    async def remove_users(
+        self,
+        credentials: sending.SendingCredentials,
+        chat_id: UUID,
+        users_huids: List[UUID],
+    ) -> None:
         """Remove users from chat
 
         Arguments:
@@ -673,7 +689,9 @@ class Bot:  # noqa: WPS214, WPS230
         await self._obtain_token(credentials)
         return await self.client.remove_users(
             credentials=credentials,
-            payload=AddRemoveUsersPayload(group_chat_id=chat_id, user_huids=users_huids)
+            payload=AddRemoveUsersPayload(
+                group_chat_id=chat_id, user_huids=users_huids
+            ),
         )
 
     async def shutdown(self) -> None:
