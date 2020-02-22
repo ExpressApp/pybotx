@@ -213,7 +213,7 @@ class AsyncClient(BaseClient):
         ).debug("update event in BotX API")
         update_event_response = await self.http_client.post(
             BotXAPI.edit_event(host=credentials.host, scheme=self.scheme),
-            data=edition.json(exclude_none=True),
+            data=edition.json(by_alias=True, exclude_none=True),
             headers=self._get_bearer_headers(token=credentials.token),
         )
         self._check_api_response(

@@ -1,3 +1,9 @@
+## 0.13.3 (unreleased)
+
+### Fixed
+
+* Encode message update payload by alias.
+
 ## 0.13.2 (Feb 14, 2020)
 
 ### Fixed
