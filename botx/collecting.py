@@ -285,6 +285,7 @@ class Collector:  # noqa: WPS214
         full_description: Optional[str] = None,
         include_in_status: Union[bool, Callable] = True,
         dependencies: Optional[Sequence[deps.Depends]] = None,
+        dependency_overrides_provider: Any = None,
     ) -> None:
         """Create new handler from passed arguments and store it inside.
 
@@ -303,6 +304,7 @@ class Collector:  # noqa: WPS214
                 callable function with no arguments *(for now)*.
             dependencies: sequence of dependencies that should be executed before
                 handler.
+            dependency_overrides_provider: mock of callable for handler.
         """
         if body is None:
             name = name or utils.get_name_from_callable(handler)
@@ -319,6 +321,9 @@ class Collector:  # noqa: WPS214
                 name != registered_handler.name
             ), f"Handler with name {registered_handler.name} already registered"
 
+        dep_override = (
+            dependency_overrides_provider or self.dependency_overrides_provider
+        )
         command_handler = Handler(
             body=body,
             handler=handler,
@@ -327,7 +332,7 @@ class Collector:  # noqa: WPS214
             full_description=full_description,
             include_in_status=include_in_status,
             dependencies=dependencies,
-            dependency_overrides_provider=self.dependency_overrides_provider,
+            dependency_overrides_provider=dep_override,
         )
         self.handlers.append(command_handler)
         self.handlers.sort(key=lambda handler: len(handler.body), reverse=True)
@@ -387,6 +392,7 @@ class Collector:  # noqa: WPS214
                     full_description=full_description,
                     include_in_status=include_in_status,
                     dependencies=dependencies,
+                    dependency_overrides_provider=dependency_overrides_provider,
                 )
 
             return handler
