@@ -1,3 +1,9 @@
+## 0.13.3 (Unreleased)
+
+### Changed
+
+* Disable `loguru` logger by default.
+
 ## 0.13.2 (Feb 14, 2020)
 
 ### Fixed
