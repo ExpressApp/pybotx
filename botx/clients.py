@@ -310,13 +310,13 @@ class AsyncClient(BaseClient):
         """
         assert credentials.host, _HOST_SHOULD_BE_FILLED_ERROR
         assert credentials.token, _TOKEN_SHOULD_BE_FILLED_ERROR
-        logger.bind(payload=payload.dict()).debug("Add users to chat")
+        logger.bind(payload=payload.dict()).debug("Remove users from chat")
         response = await self.http_client.post(
             BotXAPI.remove_user(host=credentials.host, scheme=self.scheme),
             data=payload.json(),
             headers=self._get_bearer_headers(token=credentials.token),
         )
-        self._check_api_response(response, "Unable to add users to chat")
+        self._check_api_response(response, "Unable to remove users from chat")
 
 
 class Client(BaseClient):
