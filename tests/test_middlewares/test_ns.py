@@ -16,20 +16,22 @@ def test_register_ns_middleware_using_functions_dict(bot: Bot) -> None:
     def test_function() -> None:
         ...  # pragma: no cover
 
-    bot.add_middleware(
-        NextStepMiddleware, bot=bot, functions={"ns_handler": test_function}
-    )
+    functions = {"ns_handler": test_function}
 
-    assert list(bot.state.ns_handlers.keys()) == ["ns_handler"]
+    bot.add_middleware(NextStepMiddleware, bot=bot, functions=functions)
+
+    [bot.state.ns_collector.handler_for(name) for name in functions]
 
 
 def test_register_ns_middleware_using_functions_set(bot: Bot) -> None:
     def test_function() -> None:
         ...  # pragma: no cover
 
-    bot.add_middleware(NextStepMiddleware, bot=bot, functions={test_function})
+    functions = {test_function}
 
-    assert list(bot.state.ns_handlers.keys()) == ["test_function"]
+    bot.add_middleware(NextStepMiddleware, bot=bot, functions=functions)
+
+    assert [bot.state.ns_collector.handler_for(name) for name in ["test_function"]]
 
 
 def test_no_duplicate_handlers_registration(bot: Bot) -> None:
@@ -53,7 +55,7 @@ def test_register_break_handler_as_string(bot: Bot) -> None:
         NextStepMiddleware, bot=bot, functions={}, break_handler="break_handler"
     )
 
-    assert bot.exception_middleware.executor.break_handler == bot.handler_for(
+    assert bot.state.ns_collector.handler_for("break_handler") == bot.handler_for(
         "break_handler"
     )
 
@@ -70,9 +72,20 @@ def test_register_break_handler_as_handler(bot: Bot) -> None:
         break_handler=bot.handler_for("break_handler"),
     )
 
-    assert bot.exception_middleware.executor.break_handler == bot.handler_for(
+    assert bot.state.ns_collector.handler_for("break_handler") == bot.handler_for(
         "break_handler"
     )
+
+
+def test_register_break_handler_as_function(bot: Bot) -> None:
+    async def break_handler() -> None:
+        ...  # pragma: no cover
+
+    bot.add_middleware(
+        NextStepMiddleware, bot=bot, functions={}, break_handler=break_handler,
+    )
+
+    assert bot.state.ns_collector.handler_for("break_handler").handler == break_handler
 
 
 @pytest.mark.asyncio
@@ -200,31 +213,6 @@ async def test_setting_args_from_ns_registration_into_state(
         assert message_state.arg1 == 1
         assert message_state.arg2 == "2"
         assert message_state.arg3
-
-
-@pytest.mark.asyncio
-async def test_ability_to_use_bot_handlers_as_ns(
-    bot: Bot, incoming_message: IncomingMessage
-) -> None:
-    entered_into_handler = False
-
-    @bot.handler(command="/handler-as-ns")
-    def handler_as_ns() -> None:
-        nonlocal entered_into_handler
-        entered_into_handler = True
-
-    @bot.handler(command="/start-ns")
-    def chain_start(message: Message) -> None:
-        register_next_step_handler(message, "handler_as_ns")
-
-    bot.add_middleware(NextStepMiddleware, bot=bot, functions={})
-
-    with testing.TestClient(bot) as client:
-        incoming_message.command.body = "/start-ns"
-        await client.send_command(incoming_message)
-        await client.send_command(incoming_message)
-
-        assert entered_into_handler
 
 
 @pytest.mark.asyncio

@@ -1,7 +1,18 @@
 ## 0.13.3 (Unreleased)
 
+### Added
+
+* Add background dependencies to next step middleware.
+* Next step break handler can be registered as function.
+
+### Fixed
+
+* Add missing `dependency_overrides_provider` to `botx.collecting.Collector.add_handler`.
+
 ### Changed
 
+* Refactored next step middleware
+* Next step middleware won't now lookup for handler in bot.
 * Disable `loguru` logger by default.
 
 ## 0.13.2 (Feb 14, 2020)
