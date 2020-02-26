@@ -662,7 +662,7 @@ class Bot:  # noqa: WPS214, WPS230
 
         Arguments:
             credentials: credentials of chat.
-            chat_id: id of chat to disable stealth,
+            chat_id: id of chat to add users,
             users_huids: list of user's huids
         """
         await self._obtain_token(credentials)
