@@ -293,7 +293,7 @@ class AsyncClient(BaseClient):
             data=payload.json(),
             headers=self._get_bearer_headers(token=credentials.token),
         )
-        self._check_api_response(response, "Unable to add users to chat")
+        self._check_api_response(response, "unable to add users to chat")
 
     async def remove_users(
         self, credentials: SendingCredentials, payload: AddRemoveUsersPayload
