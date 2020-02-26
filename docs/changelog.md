@@ -1,7 +1,8 @@
-## 0.13.3 (Feb 21, 2020)
+## 0.13.3 (Unreleased)
 
 ### Added
-* Methods to add/remove users to/from chat `Bot.add_users()` and `Bot.remove_users()`
+
+* Methods to add/remove users to/from chat `Bot.add_users()` and `Bot.remove_users()`.
 
 ## 0.13.2 (Feb 14, 2020)
 
