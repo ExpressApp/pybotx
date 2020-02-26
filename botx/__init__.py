@@ -1,5 +1,7 @@
 """A little python framework for building bots for Express."""
 
+from loguru import logger
+
 from botx.bots import Bot
 from botx.clients import AsyncClient, Client
 from botx.collecting import Collector
@@ -69,3 +71,5 @@ __all__ = (
     "UpdatePayload",
     "SendingCredentials",
 )
+
+logger.disable("botx")
