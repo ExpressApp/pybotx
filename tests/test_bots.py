@@ -335,7 +335,7 @@ class TestAddRemoveUsers:
     async def test_add_user(self, bot: Bot, incoming_message: IncomingMessage) -> None:
         message = Message.from_dict(incoming_message.dict(), bot)
         with testing.TestClient(bot) as client:
-            sync_id = await bot.answer_message("some text", message,)
+            sync_id = await bot.answer_message("some text", message)
             await bot.add_users(
                 SendingCredentials(
                     sync_id=sync_id,
@@ -354,7 +354,7 @@ class TestAddRemoveUsers:
     ) -> None:
         message = Message.from_dict(incoming_message.dict(), bot)
         with testing.TestClient(bot) as client:
-            sync_id = await bot.answer_message("some text", message,)
+            sync_id = await bot.answer_message("some text", message)
             await bot.remove_users(
                 SendingCredentials(
                     sync_id=sync_id,

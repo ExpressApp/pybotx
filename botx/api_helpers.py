@@ -163,7 +163,7 @@ class BotXAPI:
 
     @classmethod
     def add_user(cls, host: str, scheme: str = HTTPS_SCHEME) -> str:
-        """Build add user URL
+        """Build add user URL.
 
         Arguments:
             host: host for URL.
@@ -178,7 +178,7 @@ class BotXAPI:
 
     @classmethod
     def remove_user(cls, host: str, scheme: str = HTTPS_SCHEME) -> str:
-        """Build remove user URL
+        """Build remove user URL.
 
         Arguments:
             host: host for URL.

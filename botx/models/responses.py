@@ -41,9 +41,9 @@ class StealthResponse(BaseModel):
     reason: Optional[str] = None
     """reason of error."""
     errors: Optional[List[str]] = None
-    """list of errors"""
+    """list of errors."""
     error_data: Optional[Dict[str, str]] = None
-    """error data"""
+    """error data."""
 
 
 class AddRemoveUserResponse(BaseModel):

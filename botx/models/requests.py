@@ -123,6 +123,6 @@ class AddRemoveUsersPayload(BaseModel):
     """Data structure that will be sent to BotX API to add/remove users to/from chat"""
 
     group_chat_id: UUID
-    """ID of chat"""
+    """ID of chat."""
     user_huids: List[UUID]
-    """List of users' huids"""
+    """List of users' huids."""

@@ -658,7 +658,7 @@ class Bot:  # noqa: WPS214, WPS230
         chat_id: UUID,
         users_huids: List[UUID],
     ) -> None:
-        """Add users to chat
+        """Add users to chat.
 
         Arguments:
             credentials: credentials of chat.
@@ -679,11 +679,11 @@ class Bot:  # noqa: WPS214, WPS230
         chat_id: UUID,
         users_huids: List[UUID],
     ) -> None:
-        """Remove users from chat
+        """Remove users from chat.
 
         Arguments:
             credentials: credentials of chat.
-            chat_id: id of chat to disable stealth,
+            chat_id: id of chat to remove users,
             users_huids: list of user's huids
         """
         await self._obtain_token(credentials)
