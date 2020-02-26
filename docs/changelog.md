@@ -8,6 +8,7 @@
 ### Fixed
 
 * Add missing `dependency_overrides_provider` to `botx.collecting.Collector.add_handler`.
+* Encode message update payload by alias.
 
 ### Changed
 

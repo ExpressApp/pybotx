@@ -96,7 +96,7 @@ class _BotXAPICallbacksFactory:
         """Generate callback for message update endpoint."""  # noqa: D202
 
         async def factory(request: Request) -> JSONResponse:
-            update = UpdatePayload.parse_obj((await request.json())["result"])
+            update = UpdatePayload.parse_obj((await request.json())["payload"])
             self.messages.append(update)
             if self.generate_errored:
                 return self._error_response
