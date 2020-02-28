@@ -9,10 +9,10 @@ bot.add_middleware(FSMMiddleware, bot=bot, fsm=fsm)
 
 
 @bot.default(include_in_status=False)
-async def default_handler(message: Message):
+async def default_handler(message: Message) -> None:
     if message.body == "start":
         change_state(message, FSMStates.get_first_name)
-        await message.bot.answer_message("start fsm", message)
+        await message.bot.answer_message("enter first name", message)
         return
 
     await message.bot.answer_message("default handler", message)

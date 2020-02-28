@@ -1,3 +1,10 @@
+## 0.13.4 (Unreleased)
+
+### Added
+
+* Examples of bots that are built using `pybotx`:
+    * Bot that defines finite-state machine behaviour for handlers.
+
 ## 0.13.3 (Feb 26, 2020)
 
 ### Added

@@ -66,7 +66,6 @@ class FSMMiddleware(BaseMiddleware):
         current_state: Enum = message.bot.state.fsm_state.setdefault(
             (message.user_huid, message.group_chat_id), self.initial_state
         )
-        {}[1]
         if current_state is not None:
             transition = self.fsm.transitions[current_state]
             handler = self.fsm.collector.handler_for(current_state.name)
