@@ -1,3 +1,10 @@
+## 0.13.4 (Unreleased)
+
+### Changed
+
+* Log exception traceback with `logger.exception` instead of `logger.error` when error was
+not caught.
+
 ## 0.13.3 (Feb 26, 2020)
 
 ### Added
