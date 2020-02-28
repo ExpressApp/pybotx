@@ -1,5 +1,10 @@
 ## 0.13.4 (Unreleased)
 
+### Added
+
+* Examples of bots that are built using `pybotx`:
+    * Bot that defines finite-state machine behaviour for handlers.
+
 ### Changed
 
 * Log exception traceback with `logger.exception` instead of `logger.error` when error was
@@ -62,7 +67,7 @@ not caught.
 * Removed `botx.bots.BaseBot`, only `botx.bots.Bot` is now available.
 * Removed `botx.BotCredentials`. Credentials for bot should be registered via
 sequence of `botx.ExpressServer` instances.
-* `.credentials` property, `.add_credentials`, `.add_cts` methods were removed in `botx.Bot`. 
+* `.credentials` property, `.add_credentials`, `.add_cts` methods were removed in `botx.Bot`.
 Known hosts can be obtained via `.known_hosts` field.
 * `.start` method in `botx.Bot` was removed.
 
