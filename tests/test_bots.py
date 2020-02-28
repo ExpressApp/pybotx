@@ -34,7 +34,6 @@ async def test_returning_bot_commands_status(
         "/handler-command3",
         "/regular-handler",
         "/handler-command",
-        "/default-handler",
     ]
 
 

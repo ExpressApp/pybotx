@@ -240,7 +240,7 @@ class Bot:  # noqa: WPS214, WPS230
         name: Optional[str] = None,
         description: Optional[str] = None,
         full_description: Optional[str] = None,
-        include_in_status: Union[bool, Callable] = True,
+        include_in_status: Union[bool, Callable] = False,
         dependencies: Optional[Sequence[deps.Depends]] = None,
         dependency_overrides_provider: Any = None,
     ) -> Callable:
