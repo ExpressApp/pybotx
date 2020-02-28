@@ -1,3 +1,22 @@
+## 0.13.3 (Feb 26, 2020)
+
+### Added
+
+* Add background dependencies to next step middleware.
+* Next step break handler can be registered as function.
+* Add methods to add/remove users to/from chat using `Bot.add_users()` and `Bot.remove_users()`.
+
+### Fixed
+
+* Add missing `dependency_overrides_provider` to `botx.collecting.Collector.add_handler`.
+* Encode message update payload by alias.
+
+### Changed
+
+* Refactored next step middleware
+* Next step middleware won't now lookup for handler in bot.
+* Disable `loguru` logger by default.
+
 ## 0.13.2 (Feb 14, 2020)
 
 ### Fixed
@@ -9,7 +28,7 @@
 
 ### Added
 
-* Stealth mode enable/disable methods `Bot.stealth_enable` and `Bot.stealth_disable`.
+* Stealth mode enable/disable methods `Bot.stealth_enable()` and `Bot.stealth_disable()`.
 
 ## 0.13.0 (Jan 20, 2020)
 

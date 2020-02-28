@@ -8,7 +8,11 @@ from loguru import logger
 
 from botx.api_helpers import BotXAPI, RequestPayloadBuilder, is_api_error_code
 from botx.exceptions import BotXAPIError
-from botx.models.requests import StealthDisablePayload, StealthEnablePayload
+from botx.models.requests import (
+    AddRemoveUsersPayload,
+    StealthDisablePayload,
+    StealthEnablePayload,
+)
 from botx.models.responses import PushResponse, TokenResponse
 from botx.models.sending import MessagePayload, SendingCredentials, UpdatePayload
 from botx.utils import LogsShapeBuilder
@@ -213,7 +217,7 @@ class AsyncClient(BaseClient):
         ).debug("update event in BotX API")
         update_event_response = await self.http_client.post(
             BotXAPI.edit_event(host=credentials.host, scheme=self.scheme),
-            data=edition.json(exclude_none=True),
+            data=edition.json(by_alias=True, exclude_none=True),
             headers=self._get_bearer_headers(token=credentials.token),
         )
         self._check_api_response(
@@ -267,6 +271,52 @@ class AsyncClient(BaseClient):
             headers=self._get_bearer_headers(token=credentials.token),
         )
         self._check_api_response(response, "Unable to unset stealth mode")
+
+    async def add_users(
+        self, credentials: SendingCredentials, payload: AddRemoveUsersPayload
+    ) -> None:
+        """Add users to chat.
+
+        Arguments:
+            credentials: credentials that are used for sending result.
+            payload: contains chat ID and users' huids.
+
+        Raises:
+            BotXAPIError: raised if there was an error in calling BotX API.
+            AssertionError: raised if there was an error in credentials configuration.
+        """
+        assert credentials.host, _HOST_SHOULD_BE_FILLED_ERROR
+        assert credentials.token, _TOKEN_SHOULD_BE_FILLED_ERROR
+        logger.bind(payload=payload.dict()).debug("add users to chat")
+        response = await self.http_client.post(
+            BotXAPI.add_user(host=credentials.host, scheme=self.scheme),
+            data=payload.json(),
+            headers=self._get_bearer_headers(token=credentials.token),
+        )
+        self._check_api_response(response, "unable to add users to chat")
+
+    async def remove_users(
+        self, credentials: SendingCredentials, payload: AddRemoveUsersPayload
+    ) -> None:
+        """Remove users from chat.
+
+        Arguments:
+            credentials: credentials that are used for sending result.
+            payload: contains chat ID and users' huids.
+
+        Raises:
+            BotXAPIError: raised if there was an error in calling BotX API.
+            AssertionError: raised if there was an error in credentials configuration.
+        """
+        assert credentials.host, _HOST_SHOULD_BE_FILLED_ERROR
+        assert credentials.token, _TOKEN_SHOULD_BE_FILLED_ERROR
+        logger.bind(payload=payload.dict()).debug("remove users from chat")
+        response = await self.http_client.post(
+            BotXAPI.remove_user(host=credentials.host, scheme=self.scheme),
+            data=payload.json(),
+            headers=self._get_bearer_headers(token=credentials.token),
+        )
+        self._check_api_response(response, "unable to remove users from chat")
 
 
 class Client(BaseClient):

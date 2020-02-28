@@ -27,7 +27,11 @@ from botx.middlewares.base import BaseMiddleware
 from botx.middlewares.exceptions import ExceptionMiddleware
 from botx.models import datastructures, enums, files, menu, messages, sending
 from botx.models.credentials import ExpressServer, ServerCredentials
-from botx.models.requests import StealthDisablePayload, StealthEnablePayload
+from botx.models.requests import (
+    AddRemoveUsersPayload,
+    StealthDisablePayload,
+    StealthEnablePayload,
+)
 
 
 class Bot:  # noqa: WPS214, WPS230
@@ -646,6 +650,48 @@ class Bot:  # noqa: WPS214, WPS230
         return await self.client.stealth_disable(
             credentials=credentials,
             payload=StealthDisablePayload(group_chat_id=chat_id,),
+        )
+
+    async def add_users(
+        self,
+        credentials: sending.SendingCredentials,
+        chat_id: UUID,
+        users_huids: List[UUID],
+    ) -> None:
+        """Add users to chat.
+
+        Arguments:
+            credentials: credentials of chat.
+            chat_id: id of chat to add users,
+            users_huids: list of user's huids
+        """
+        await self._obtain_token(credentials)
+        return await self.client.add_users(
+            credentials=credentials,
+            payload=AddRemoveUsersPayload(
+                group_chat_id=chat_id, user_huids=users_huids
+            ),
+        )
+
+    async def remove_users(
+        self,
+        credentials: sending.SendingCredentials,
+        chat_id: UUID,
+        users_huids: List[UUID],
+    ) -> None:
+        """Remove users from chat.
+
+        Arguments:
+            credentials: credentials of chat.
+            chat_id: id of chat to remove users,
+            users_huids: list of user's huids
+        """
+        await self._obtain_token(credentials)
+        return await self.client.remove_users(
+            credentials=credentials,
+            payload=AddRemoveUsersPayload(
+                group_chat_id=chat_id, user_huids=users_huids
+            ),
         )
 
     async def shutdown(self) -> None:

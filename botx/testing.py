@@ -21,6 +21,7 @@ APIMessage = Union[
     requests.UpdatePayload,
     requests.StealthEnablePayload,
     requests.StealthDisablePayload,
+    requests.AddRemoveUsersPayload,
 ]
 
 
@@ -96,7 +97,7 @@ class _BotXAPICallbacksFactory:
         """Generate callback for message update endpoint."""  # noqa: D202
 
         async def factory(request: Request) -> JSONResponse:
-            update = UpdatePayload.parse_obj((await request.json())["result"])
+            update = UpdatePayload.parse_obj((await request.json())["payload"])
             self.messages.append(update)
             if self.generate_errored:
                 return self._error_response
@@ -122,6 +123,16 @@ class _BotXAPICallbacksFactory:
             payload = requests.StealthDisablePayload.parse_obj(await request.json())
             self.messages.append(payload)
             return JSONResponse(responses.StealthResponse().dict())
+
+        return factory
+
+    def get_add_remove_user_callback(self) -> Callable:
+        """Generate callback for add/remove user endpoints."""  # noqa: D202
+
+        async def factory(request: Request) -> JSONResponse:
+            payload = requests.AddRemoveUsersPayload.parse_obj(await request.json())
+            self.messages.append(payload)
+            return JSONResponse(responses.AddRemoveUserResponse().dict())
 
         return factory
 
@@ -169,6 +180,16 @@ def _botx_api_mock(
         BotXAPI.stealth_disable_endpoint.endpoint,
         factory.get_stealth_disable_callback(),
         [BotXAPI.stealth_disable_endpoint.method],
+    )
+    app.add_route(
+        BotXAPI.add_user_endpoint.endpoint,
+        factory.get_add_remove_user_callback(),
+        [BotXAPI.add_user_endpoint.method],
+    )
+    app.add_route(
+        BotXAPI.remove_user_endpoint.endpoint,
+        factory.get_add_remove_user_callback(),
+        [BotXAPI.remove_user_endpoint.method],
     )
     return app
 

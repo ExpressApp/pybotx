@@ -15,6 +15,8 @@ from botx import (
 )
 from botx.testing import MessageBuilder
 
+logger.enable("botx")
+
 
 @pytest.fixture
 def incoming_message() -> IncomingMessage:
