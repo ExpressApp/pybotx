@@ -2,6 +2,8 @@
 
 ### Changed
 
+* Log exception traceback with `logger.exception` instead of `logger.error` when error was
+not caught.
 * Default handler will be excluded from status by default (as it was in library versions before 0.13.0).
 
 ## 0.13.3 (Feb 26, 2020)

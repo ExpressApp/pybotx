@@ -68,7 +68,7 @@ class ExceptionMiddleware:
         """Pass error back to handler if there is one or log error.
 
         Arguments:
-            exc: exception that occured.
+            exc: exception that occurred.
             message: message on which exception occurred.
         """
         handler = self._lookup_handler_for_exception(exc)
@@ -76,7 +76,7 @@ class ExceptionMiddleware:
         if handler is None:
             logger.bind(
                 botx_error=True, payload=LogsShapeBuilder.get_message_shape(message)
-            ).error("uncaught {0} exception {1}", type(exc).__name__, exc)
+            ).exception("uncaught {0} exception {1}", type(exc).__name__, exc)
             return
 
         await concurrency.callable_to_coroutine(handler, exc, message)
