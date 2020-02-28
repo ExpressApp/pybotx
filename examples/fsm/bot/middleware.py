@@ -1,33 +1,41 @@
+from dataclasses import dataclass
 from enum import Enum
-from typing import Callable, Optional, Type, Dict, Tuple
+from typing import Callable, Dict, Final, Optional, Type, Union
 
-from pydantic import BaseModel
-
-from botx import Message
-from botx.collecting import Handler
+from botx import Bot, Message
+from botx.collecting import Collector
 from botx.concurrency import callable_to_coroutine
 from botx.middlewares.base import BaseMiddleware
 from botx.typing import Executor
 
+_default_transition: Final = object()
 
-class Transition(BaseModel):
-    on_failure: Optional[bool] = None
-    on_success: Optional[bool] = None
+
+@dataclass
+class Transition:
+    on_failure: Optional[Union[Enum, object]] = _default_transition
+    on_success: Optional[Union[Enum, object]] = _default_transition
 
 
 class FSM:
     def __init__(self, states: Type[Enum]) -> None:
-        self.handlers: Dict[Enum, Tuple[Transition, Handler]] = {}
+        self.transitions: Dict[Enum, Transition] = {}
+        self.collector = Collector()
+        self.states = states
 
     def handler(
-            self,
-            on_state: Optional[Enum] = None,
-            next_state: Optional[Enum] = None,
-            on_failure: Optional[Enum] = None,
+        self,
+        on_state: Enum,
+        next_state: Optional[Union[Enum, object]] = _default_transition,
+        on_failure: Optional[Union[Enum, object]] = _default_transition,
     ) -> Callable:
         def decorator(handler: Callable) -> Callable:
-            self.handlers[on_state] = (
-                Transition(on_success=next_state, on_failure=on_failure),)
+            self.collector.add_handler(
+                handler, body=on_state.name, name=on_state.name, include_in_status=False
+            )
+            self.transitions[on_state] = Transition(
+                on_success=next_state, on_failure=on_failure
+            )
 
             return handler
 
@@ -35,26 +43,41 @@ class FSM:
 
 
 def change_state(message: Message, new_state: Optional[Enum]) -> None:
-    message.bot.state.fsm_state[message.user_huid] = new_state
+    message.bot.state.fsm_state[(message.user_huid, message.group_chat_id)] = new_state
 
 
 class FSMMiddleware(BaseMiddleware):
-    def __init__(self, executor: Executor, fsm: FSM) -> None:
+    def __init__(
+        self,
+        executor: Executor,
+        bot: Bot,
+        fsm: FSM,
+        initial_state: Optional[Enum] = None,
+    ) -> None:
         super().__init__(executor)
+        bot.state.fsm_state = {}
         self.fsm = fsm
+        self.initial_state = initial_state
+        for state in self.fsm.states:
+            # check that for each state there is registered handler
+            assert state in self.fsm.transitions
 
     async def dispatch(self, message: Message, call_next: Executor) -> None:
-        current_state = message.bot.state.fsm_state
+        current_state: Enum = message.bot.state.fsm_state.setdefault(
+            (message.user_huid, message.group_chat_id), self.initial_state
+        )
+        {}[1]
         if current_state is not None:
-            transitions, handler = self.fsm.handlers[current_state]
+            transition = self.fsm.transitions[current_state]
+            handler = self.fsm.collector.handler_for(current_state.name)
             try:
                 await handler(message)
             except Exception as exc:
-                if transitions.on_failure:
-                    change_state(message, transitions.on_failure)
+                if transition.on_failure is not _default_transition:
+                    change_state(message, transition.on_failure)
                 raise exc
             else:
-                if transitions.on_success:
-                    change_state(message, transitions.on_success)
+                if transition.on_success is not _default_transition:
+                    change_state(message, transition.on_success)
         else:
             await callable_to_coroutine(call_next, message)

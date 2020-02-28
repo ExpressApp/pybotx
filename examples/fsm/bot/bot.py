@@ -1,6 +1,18 @@
-from botx import Bot
+from botx import Bot, ExpressServer, Message
 
-from bot.middleware import FSMMiddleware
+from bot.config import BOT_SECRET, CTS_HOST
+from bot.handlers import FSMStates, fsm
+from bot.middleware import FSMMiddleware, change_state
 
-bot = Bot()
-bot.add_middleware(FSMMiddleware, bot=bot, states=states)
+bot = Bot(known_hosts=[ExpressServer(host=CTS_HOST, secret_key=str(BOT_SECRET))])
+bot.add_middleware(FSMMiddleware, bot=bot, fsm=fsm)
+
+
+@bot.default(include_in_status=False)
+async def default_handler(message: Message):
+    if message.body == "start":
+        change_state(message, FSMStates.get_first_name)
+        await message.bot.answer_message("start fsm", message)
+        return
+
+    await message.bot.answer_message("default handler", message)

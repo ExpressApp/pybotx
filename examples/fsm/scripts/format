@@ -9,3 +9,4 @@ autoflake --recursive --remove-all-unused-imports --remove-unused-variables --in
 black bot
 isort --recursive bot
 
+isort --recursive --thirdparty=botx bot
