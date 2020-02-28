@@ -4,9 +4,9 @@ from enum import Enum, auto
 from typing import DefaultDict, Dict
 from uuid import UUID
 
-from botx import DependencyFailure, Message
+from botx import Message
 
-from bot.middleware import FSM
+from bot.middleware import FSM, FlowError
 
 
 class FSMStates(Enum):
@@ -42,7 +42,7 @@ async def get_middle_name(message: Message) -> None:
 async def get_last_name(message: Message) -> None:
     if message.body == "fail":
         await message.bot.answer_message("failed to read last name", message)
-        raise DependencyFailure
+        raise FlowError
 
     await message.bot.answer_message("enter age", message)
     user_info[message.user_huid]["last_name"] = message.body

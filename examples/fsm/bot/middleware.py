@@ -17,6 +17,10 @@ class Transition:
     on_success: Optional[Union[Enum, object]] = _default_transition
 
 
+class FlowError(Exception):
+    pass
+
+
 class FSM:
     def __init__(self, states: Type[Enum]) -> None:
         self.transitions: Dict[Enum, Transition] = {}
