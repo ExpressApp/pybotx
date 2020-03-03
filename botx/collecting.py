@@ -1,10 +1,9 @@
 """Definition of command handlers and routing mechanism."""
 
 import inspect
-import itertools
 import re
 from functools import partial
-from typing import Any, Awaitable, Callable, Iterator, List, Optional, Sequence, Union
+from typing import Any, Awaitable, Callable, List, Optional, Sequence, Union
 
 from loguru import logger
 
@@ -324,6 +323,9 @@ class Collector:  # noqa: WPS214
         dep_override = (
             dependency_overrides_provider or self.dependency_overrides_provider
         )
+        updated_dependencies = utils.optional_sequence_to_list(
+            self.dependencies
+        ) + utils.optional_sequence_to_list(dependencies)
         command_handler = Handler(
             body=body,
             handler=handler,
@@ -331,7 +333,7 @@ class Collector:  # noqa: WPS214
             description=description,
             full_description=full_description,
             include_in_status=include_in_status,
-            dependencies=dependencies,
+            dependencies=updated_dependencies,
             dependency_overrides_provider=dep_override,
         )
         self.handlers.append(command_handler)
@@ -639,16 +641,6 @@ class Collector:  # noqa: WPS214
             dependencies: additional dependencies that will be applied for all handlers.
         """
         for handler in handlers:
-            # mypy has problems with generic functions passed to map()
-            # see mypy#6697
-            checked_sequences_dependencies: Iterator[List[deps.Depends]] = map(
-                utils.optional_sequence_to_list,
-                (self.dependencies, dependencies, handler.dependencies),
-            )
-            updated_dependencies: List[deps.Depends] = list(
-                itertools.chain(*list(checked_sequences_dependencies))
-            )
-
             self.add_handler(
                 body=handler.body,
                 handler=handler.handler,
@@ -656,5 +648,9 @@ class Collector:  # noqa: WPS214
                 description=handler.description,
                 full_description=handler.full_description,
                 include_in_status=handler.include_in_status,
-                dependencies=updated_dependencies,
+                dependencies=handler.dependencies,
             )
+            created_handler = self.handler_for(handler.name)
+            created_handler.dependencies = utils.optional_sequence_to_list(
+                dependencies
+            ) + utils.optional_sequence_to_list(created_handler.dependencies)
