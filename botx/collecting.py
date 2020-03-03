@@ -126,12 +126,15 @@ class Handler:  # noqa: WPS230
         ), f"Handler must be a function or method"
         self.dependant: deps.Dependant = deps.get_dependant(call=self.handler)
         """Dependency for passed handler."""
-        for depends in self.dependencies:
+        for index, depends in enumerate(self.dependencies):
             assert callable(
                 depends.dependency
             ), "A parameter-less dependency must have a callable dependency"
-            self.dependant.dependencies.append(
-                deps.get_dependant(call=depends.dependency, use_cache=depends.use_cache)
+            self.dependant.dependencies.insert(
+                index,
+                deps.get_dependant(
+                    call=depends.dependency, use_cache=depends.use_cache
+                ),
             )
         self.dependency_overrides_provider: Any = dependency_overrides_provider
         """Overrider for passed dependencies."""
