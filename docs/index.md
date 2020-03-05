@@ -22,7 +22,7 @@
 
 # Introduction
 
-`pybotx` is a framework for building bots for eXpress providing a mechanism for simple 
+`pybotx` is a framework for building bots for eXpress providing a mechanism for simple
 integration with your favourite asynchronous web frameworks.
 
 Main features:
@@ -66,7 +66,7 @@ Or if you are going to write tests:
 $ pip install botx[tests]
 ```
 
-You will also need a web framework to create bots as the current BotX API only works with webhooks. 
+You will also need a web framework to create bots as the current BotX API only works with webhooks.
 This documentation will use <a href="https://github.com/tiangolo/fastapi" target="_blank">FastAPI</a> for the examples bellow.
 ```bash
 $ pip install fastapi uvicorn

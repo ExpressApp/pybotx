@@ -24,7 +24,7 @@ starlette = { version = "^0.12.9", optional = true }
 # for docs
 mkdocs = { version = "^1.0", optional = true }
 mkdocs-material = { version = "^4.4", optional = true }
-mkdocstrings = { version = "^0.7", optional = true }
+mkdocstrings = { version = "^0.8", optional = true }
 markdown-include = { version = "^0.5.1", optional = true }
 fastapi = { version = "^0.47.0", optional = true }
 
