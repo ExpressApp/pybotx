@@ -44,4 +44,5 @@ jobs:
           poetry install --extras tests
       - name: Lint with wps, mypy and style linters and run tests
         run: |
+          source ~/.venv/bin/activate
           ./scripts/test
