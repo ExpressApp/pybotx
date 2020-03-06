@@ -1,9 +1,20 @@
-## 0.13.5 (Unreleased)
+## 0.13.5 (Mar 6, 2020)
+
+### Added
+
+* Add channel type into `MentionTypes`.
+
+### Changed
+
+* Replace travis with github actions.
 
 ### Fixed
 
-* Fix dependencies extending when use `Collector.include_collector` and dependencies are 
+* Fix dependencies extending when use `Collector.include_collector` and dependencies are
 defined in collector initialization.
+* Fix default handler including into another collector.
+* Fix message text logging.
+* Fix internal links in docs.
 
 ## 0.13.4 (Mar 3, 2020)
 
