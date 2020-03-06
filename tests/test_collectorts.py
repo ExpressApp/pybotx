@@ -229,3 +229,20 @@ async def test_dependencies_order_after_including_into_another_collector(
         await test_client.send_command(incoming_message)
 
     assert args == [1, 2, 3]
+
+
+@pytest.mark.asyncio
+async def test_default_handler_after_including_into_another_collector() -> None:
+    first_collector = Collector()
+    second_collector = Collector()
+
+    @second_collector.default
+    async def default_handler() -> None:
+        ...  # pragma: no cover
+
+    first_collector.include_collector(second_collector)
+
+    assert (
+        first_collector.default_message_handler
+        == second_collector.default_message_handler
+    )

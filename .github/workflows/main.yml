@@ -16,21 +16,33 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: actions/cache@v1
-        id: cache-deps
+        id: cache-poetry
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}-py-${{ matrix.python-version }}
+          key: get-poetry-${{ runner.os }}-py-${{ matrix.python-version }}
           restore-keys: |
-            ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}-py-
-            ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}-
-            ${{ runner.os }}-poetry-
-            ${{ runner.os }}-
+            get-poetry-${{ runner.os }}-py-
+            get-poetry-${{ runner.os }}-
+      - name: Install poetry
+        if: steps.cache-poetry.outputs.cache-hit != 'true'
+        run: |
+          pip install poetry==1.0
+          poetry config virtualenvs.in-project true
+      - uses: actions/cache@v1
+        id: cache-deps
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-py-${{ matrix.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            venv-${{ runner.os }}-py-${{ matrix.python-version }}-poetry-
+            venv-${{ runner.os }}-py-${{ matrix.python-version }}-
+            venv-${{ runner.os }}-py-
+            venv-${{ runner.os }}-
       - name: Install dependencies
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |
-          pip install poetry==1.0
-          poetry config virtualenvs.create false
           poetry install --extras tests
       - name: Lint with wps, mypy and style linters and run tests
         run: |
+          source .venv/bin/activate
           ./scripts/test
