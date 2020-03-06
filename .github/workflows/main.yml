@@ -1,0 +1,36 @@
+name: CI
+
+on: push
+
+jobs:
+  checks:
+    name: Lint and test
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/cache@v1
+        id: cache-deps
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}-py-${{ matrix.python-version }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}-py-
+            ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}-
+            ${{ runner.os }}-poetry-
+            ${{ runner.os }}-
+      - name: Install dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: |
+          pip install poetry==1.0
+          poetry config virtualenvs.create false
+          poetry install --extras tests
+      - name: Lint with wps, mypy and style linters and run tests
+        run: |
+          ./scripts/test

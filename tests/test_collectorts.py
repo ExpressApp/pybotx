@@ -196,6 +196,40 @@ def test_no_extra_space_on_command_built_through_command_for() -> None:
     )
 
 
+async def test_dependencies_order_after_including_into_another_collector(
+    bot: Bot, incoming_message: IncomingMessage
+) -> None:
+    incoming_message.command.body = "/command"
+
+    args = []
+
+    def first_dependency():
+        args.append(1)
+
+    def second_dependency():
+        args.append(2)
+
+    def third_dependency():
+        args.append(3)
+
+    first_collector = Collector(dependencies=[Depends(first_dependency)])
+    second_collector = Collector(dependencies=[Depends(second_dependency)])
+
+    @second_collector.handler(
+        command="/command", dependencies=[Depends(third_dependency)]
+    )
+    async def handler_for_command() -> None:
+        ...
+
+    first_collector.include_collector(second_collector)
+    bot.include_collector(first_collector)
+
+    with testing.TestClient(bot) as test_client:
+        await test_client.send_command(incoming_message)
+
+    assert args == [1, 2, 3]
+ 
+ 
 @pytest.mark.asyncio
 async def test_default_handler_after_including_into_another_collector() -> None:
     first_collector = Collector()
@@ -211,3 +245,5 @@ async def test_default_handler_after_including_into_another_collector() -> None:
         first_collector.default_message_handler
         == second_collector.default_message_handler
     )
+    
+    
