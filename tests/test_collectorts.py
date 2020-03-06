@@ -194,3 +194,20 @@ def test_no_extra_space_on_command_built_through_command_for() -> None:
         handler.command_for(None, 1, "some string", True)
         == "/command 1 some string True"
     )
+
+
+@pytest.mark.asyncio
+async def test_dependencies_order_after_including_into_another_collector() -> None:
+    first_collector = Collector()
+    second_collector = Collector()
+
+    @second_collector.default
+    async def default_handler() -> None:
+        ...  # pragma: no cover
+
+    first_collector.include_collector(second_collector)
+
+    assert (
+        first_collector.default_message_handler
+        == second_collector.default_message_handler
+    )

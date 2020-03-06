@@ -168,7 +168,7 @@ class Handler:  # noqa: WPS230
         await self.executor(message)
 
 
-class Collector:  # noqa: WPS214
+class Collector:  # noqa: WPS214, WPS230
     """Collector for different handlers."""
 
     def __init__(
@@ -232,6 +232,9 @@ class Collector:  # noqa: WPS214
         assert not (
             self.default_message_handler and collector.default_message_handler
         ), "Only one default handler can be applied"
+
+        if collector.default_message_handler:
+            self.default_message_handler = collector.default_message_handler
 
         self._add_handlers(collector.handlers, dependencies)
 
