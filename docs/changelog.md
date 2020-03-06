@@ -1,3 +1,10 @@
+## 0.13.5 (Unreleased)
+
+### Fixed
+
+* Fix dependencies extending when use `Collector.include_collector` and dependencies are 
+defined in collector initialization.
+
 ## 0.13.4 (Mar 3, 2020)
 
 ### Added
