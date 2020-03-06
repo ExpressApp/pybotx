@@ -57,6 +57,16 @@ def test_chat_mention_is_chat_mention_type() -> None:
     )
 
 
+def test_chat_mention_is_channel_mention_type() -> None:
+    assert (
+        Mention(
+            mention_data=ChatMention(group_chat_id=uuid.uuid4()),
+            mention_type=MentionTypes.channel,
+        ).mention_type
+        == MentionTypes.channel
+    )
+
+
 def test_chat_mention_can_not_be_generated_with_user_mention_type() -> None:
     with pytest.raises(ValidationError):
         assert Mention(

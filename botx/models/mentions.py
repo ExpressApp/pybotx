@@ -16,6 +16,8 @@ class MentionTypes(str, Enum):  # noqa: WPS600
     """mention user by user_huid."""
     chat = "chat"
     """mention chat in message."""
+    channel = "channel"
+    """mention channel in message."""
 
 
 class UserMention(BaseModel):
@@ -73,7 +75,7 @@ class Mention(BaseModel):
         """
         mention_data = values["mention_data"]
         user_mention_types = {MentionTypes.user, MentionTypes.contact}
-        chat_mention_types = {MentionTypes.chat}
+        chat_mention_types = {MentionTypes.chat, MentionTypes.channel}
 
         if isinstance(mention_data, UserMention):
             if mention_type in user_mention_types:
