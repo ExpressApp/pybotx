@@ -190,7 +190,7 @@ class LogsShapeBuilder:  # noqa: WPS214
         end_text_index = 5
 
         return (
-            "...".join((text[:start_text_index], text[:-end_text_index]))
+            "...".join((text[:start_text_index], text[-end_text_index:]))
             if len(text) > max_log_text_length
             else text
         )
