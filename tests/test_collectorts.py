@@ -197,7 +197,7 @@ def test_no_extra_space_on_command_built_through_command_for() -> None:
 
 
 @pytest.mark.asyncio
-async def test_dependencies_order_after_including_into_another_collector() -> None:
+async def test_default_handler_after_including_into_another_collector() -> None:
     first_collector = Collector()
     second_collector = Collector()
 
