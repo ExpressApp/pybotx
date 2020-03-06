@@ -31,7 +31,7 @@ jobs:
       - uses: actions/cache@v1
         id: cache-deps
         with:
-          path: ~/.venv
+          path: .venv
           key: venv-${{ runner.os }}-py-${{ matrix.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
           restore-keys: |
             venv-${{ runner.os }}-py-${{ matrix.python-version }}-poetry-
@@ -44,5 +44,5 @@ jobs:
           poetry install --extras tests
       - name: Lint with wps, mypy and style linters and run tests
         run: |
-          source ~/.venv/bin/activate
+          source .venv/bin/activate
           ./scripts/test
