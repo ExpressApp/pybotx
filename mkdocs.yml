@@ -1,4 +1,5 @@
 site_name: pybotx
+site_url: https://expressapp.github.io/pybotx
 site_description: A little python library for building bots for Express
 
 theme:
