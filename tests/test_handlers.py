@@ -47,3 +47,8 @@ class TestHandlerConstruction:
     def test_that_menu_command_contain_only_single_word(self) -> None:
         with pytest.raises(AssertionError):
             _ = Handler(body="/many words handler", handler=handler_function)
+
+
+def test_handler_docstring_stored_as_full_description() -> None:
+    handler = Handler(body="/command", handler=handler_function)
+    assert handler.full_description == handler_function.__doc__

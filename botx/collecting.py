@@ -116,7 +116,9 @@ class Handler:  # noqa: WPS230
         """Additional dependencies of handler."""
         self.description: Optional[str] = description
         """Description that will be used in bot's menu."""
-        self.full_description: Optional[str] = full_description
+        self.full_description: str = full_description or inspect.cleandoc(
+            handler.__doc__ or ""
+        )
         """Extra description."""
         self.include_in_status: Union[bool, Callable] = include_in_status
         """Flag or function that will check if command should be showed in menu."""
