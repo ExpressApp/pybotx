@@ -129,6 +129,7 @@ def loguru_caplog(caplog: LogCaptureFixture) -> LogCaptureFixture:
 
 
 def handler_function() -> None:
+    """Handler with description that does nothing."""
     ...  # pragma: no cover
 
 
