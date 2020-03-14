@@ -14,7 +14,7 @@ TSequenceElement = TypeVar("TSequenceElement")
 
 
 def optional_sequence_to_list(
-        seq: Optional[Sequence[TSequenceElement]] = None,
+    seq: Optional[Sequence[TSequenceElement]] = None,
 ) -> List[TSequenceElement]:
     """Convert optional sequence of elements to list.
 
@@ -81,7 +81,7 @@ class LogsShapeBuilder:  # noqa: WPS214
 
     @classmethod
     def get_notification_shape(
-            cls, credentials: SendingCredentials, payload: MessagePayload
+        cls, credentials: SendingCredentials, payload: MessagePayload
     ) -> dict:
         """Get shape for notification that will be sent to BotX API.
 
@@ -99,7 +99,7 @@ class LogsShapeBuilder:  # noqa: WPS214
 
     @classmethod
     def get_command_result_shape(
-            cls, credentials: SendingCredentials, payload: MessagePayload
+        cls, credentials: SendingCredentials, payload: MessagePayload
     ) -> dict:
         """Get shape for command result that will be sent to BotX API.
 
@@ -117,7 +117,7 @@ class LogsShapeBuilder:  # noqa: WPS214
 
     @classmethod
     def get_edition_shape(
-            cls, credentials: SendingCredentials, payload: UpdatePayload
+        cls, credentials: SendingCredentials, payload: UpdatePayload
     ) -> dict:
         """Get shape for event edition that will be send to BotX API.
 
@@ -205,8 +205,4 @@ class LogsShapeBuilder:  # noqa: WPS214
         Returns:
             New file or nothing.
         """
-        return (
-            file.copy(update={"data": "[file content]"}).dict()
-            if file
-            else None
-        )
+        return file.copy(update={"data": "[file content]"}).dict() if file else None
