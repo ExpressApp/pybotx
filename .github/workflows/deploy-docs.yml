@@ -49,6 +49,8 @@ jobs:
         run: |
           source .venv/bin/activate
           ./scripts/build-docs
+        env:
+          SITE_URL: https://pybotx.netlify.com
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.0.3
         with:
