@@ -46,9 +46,8 @@ jobs:
         run: |
           source .venv/bin/activate
           ./scripts/test
-# TODO: uncomment after settings CODECOV_TOKEN. DO NOT MERGE BEFORE
-#      - name: Upload coverage to Codecov
-#        run: bash <(curl -s https://codecov.io/bash) -t $TOKEN -B $REF
-#        env:
-#          TOKEN: ${{ secrets.CODECOV_TOKEN }}
-#          REF: ${{ github.ref }}
+      - name: Upload coverage to Codecov
+        run: bash <(curl -s https://codecov.io/bash) -t $TOKEN -B $REF
+        env:
+          TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          REF: ${{ github.ref }}
