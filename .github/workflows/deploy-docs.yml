@@ -46,7 +46,9 @@ jobs:
         run: |
           poetry install --extras docs
       - name: Build MkDocs
-        run: ./scripts/build-docs
+        run: |
+          source .venv/bin/activate
+          ./scripts/build-docs
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.0.3
         with:
