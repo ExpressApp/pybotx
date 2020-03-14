@@ -1,8 +1,14 @@
 name: Build and Deploy to Netlify
+
 on:
   push:
+    branches:
+      - master
   pull_request:
-    types: [opened, synchronize]
+    types:
+      - opened
+      - synchronize
+
 jobs:
   build:
     runs-on: ubuntu-18.04
@@ -38,7 +44,7 @@ jobs:
       - name: Install dependencies
         if: steps.cache-deps-extras.outputs.cache-hit != 'true'
         run: |
-          poetry install --extras tests docs
+          poetry install --extras docs
       - name: Build MkDocs
         run: ./scripts/build-docs
       - name: Deploy to Netlify
