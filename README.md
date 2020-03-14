@@ -22,8 +22,8 @@
 
 # Introduction
 
-`pybotx` is a framework for building bots for eXpress providing a mechanism for simple
-integration with your favourite asynchronous web frameworks.
+`pybotx` is a framework for building bots for eXpress providing a mechanism for simple 
+integration with your favourite web frameworks.
 
 Main features:
 
@@ -31,16 +31,14 @@ Main features:
  * Asynchronous API with synchronous as a fallback option.
  * 100% test coverage.
  * 100% type annotated codebase.
+ 
+ 
+**NOTE**: *This library is under active development and its API may be unstable. Please lock the version you are using at the minor update level. For example, like this in `poetry`.*
 
-
-!!! warning
-    This library is under active development and its API may be unstable.
-    Please lock the version you are using at the minor update level. For example, like this in `poetry`.
-
-        [tool.poetry.dependencies]
-        ...
-        botx = "^0.13.0"
-        ...
+```toml
+[tool.poetry.dependencies]
+botx = "^0.13.0"
+```
 
 ---
 
