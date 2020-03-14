@@ -45,12 +45,18 @@ jobs:
         if: steps.cache-deps-extras.outputs.cache-hit != 'true'
         run: |
           poetry install --extras docs
-      - name: Build MkDocs
+      - name: Build MkDocs with not-relative domain
+        if: github.event == pull_request
         run: |
           source .venv/bin/activate
           ./scripts/build-docs
         env:
           SITE_URL: https://pybotx.netlify.com
+      - name: Build MkDocs with GitHub Pages relative URL
+        if: github.ref == master
+        run: |
+          source .venv/bin/activate
+          ./scripts/build-docs
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.0.3
         with:
