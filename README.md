@@ -64,7 +64,7 @@ Or if you are going to write tests:
 $ pip install botx[tests]
 ```
 
-You will also need a web framework to create bots as the current BotX API only works with webhooks.
+You will also need a web framework to create bots as the current BotX API only works with webhooks. 
 This documentation will use <a href="https://github.com/tiangolo/fastapi" target="_blank">FastAPI</a> for the examples bellow.
 ```bash
 $ pip install fastapi uvicorn
@@ -75,8 +75,31 @@ $ pip install fastapi uvicorn
 Let's create a simple echo bot.
 
 * Create a file `main.py` with following content:
-```Python3
-{!./src/index/index0.py!}
+```python3
+from botx import Bot, ExpressServer, IncomingMessage, Message, Status
+from fastapi import FastAPI
+from starlette.status import HTTP_202_ACCEPTED
+
+bot = Bot(known_hosts=[ExpressServer(host="cts.example.com", secret_key="secret")])
+
+
+@bot.default(include_in_status=False)
+async def echo_handler(message: Message) -> None:
+    await bot.answer_message(message.body, message)
+
+
+app = FastAPI()
+app.add_event_handler("shutdown", bot.shutdown)
+
+
+@app.get("/status", response_model=Status)
+async def bot_status() -> Status:
+    return await bot.status()
+
+
+@app.post("/command", status_code=HTTP_202_ACCEPTED)
+async def bot_command(message: IncomingMessage) -> None:
+    await bot.execute_command(message.dict())
 ```
 
 * Deploy a bot on your server using uvicorn and set the url for the webhook in Express.
