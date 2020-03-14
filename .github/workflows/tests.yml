@@ -45,7 +45,7 @@ jobs:
       - name: Run tests
         run: |
           source .venv/bin/activate
-          ./scripts/test
+          ./scripts/test --cov-report=xml
       - name: Upload coverage to Codecov
         run: bash <(curl -s https://codecov.io/bash) -t $TOKEN -B $REF
         env:
