@@ -1,13 +1,9 @@
-name: Build and Deploy to Netlify
+name: Build and Deploy to GitHub Pages
 
 on:
   push:
     branches:
       - master
-  pull_request:
-    types:
-      - opened
-      - synchronize
 
 jobs:
   build:
@@ -45,15 +41,7 @@ jobs:
         if: steps.cache-deps-extras.outputs.cache-hit != 'true'
         run: |
           poetry install --extras docs
-      - name: Build MkDocs with not-relative domain
-        if: github.event == pull_request
-        run: |
-          source .venv/bin/activate
-          ./scripts/build-docs
-        env:
-          SITE_URL: https://pybotx.netlify.com
-      - name: Build MkDocs with GitHub Pages relative URL
-        if: github.ref == master
+      - name: Build MkDocs for GitHub Pages
         run: |
           source .venv/bin/activate
           ./scripts/build-docs
