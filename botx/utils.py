@@ -14,7 +14,7 @@ TSequenceElement = TypeVar("TSequenceElement")
 
 
 def optional_sequence_to_list(
-    seq: Optional[Sequence[TSequenceElement]] = None,
+        seq: Optional[Sequence[TSequenceElement]] = None,
 ) -> List[TSequenceElement]:
     """Convert optional sequence of elements to list.
 
@@ -81,7 +81,7 @@ class LogsShapeBuilder:  # noqa: WPS214
 
     @classmethod
     def get_notification_shape(
-        cls, credentials: SendingCredentials, payload: MessagePayload
+            cls, credentials: SendingCredentials, payload: MessagePayload
     ) -> dict:
         """Get shape for notification that will be sent to BotX API.
 
@@ -99,7 +99,7 @@ class LogsShapeBuilder:  # noqa: WPS214
 
     @classmethod
     def get_command_result_shape(
-        cls, credentials: SendingCredentials, payload: MessagePayload
+            cls, credentials: SendingCredentials, payload: MessagePayload
     ) -> dict:
         """Get shape for command result that will be sent to BotX API.
 
@@ -117,7 +117,7 @@ class LogsShapeBuilder:  # noqa: WPS214
 
     @classmethod
     def get_edition_shape(
-        cls, credentials: SendingCredentials, payload: UpdatePayload
+            cls, credentials: SendingCredentials, payload: UpdatePayload
     ) -> dict:
         """Get shape for event edition that will be send to BotX API.
 
@@ -196,7 +196,7 @@ class LogsShapeBuilder:  # noqa: WPS214
         )
 
     @classmethod
-    def _convert_file_to_logs_format(cls, file: Optional[File]) -> Optional[File]:
+    def _convert_file_to_logs_format(cls, file: Optional[File]) -> Optional[dict]:
         """Convert file to a new file that will be showed in logs.
 
         Arguments:
@@ -206,7 +206,7 @@ class LogsShapeBuilder:  # noqa: WPS214
             New file or nothing.
         """
         return (
-            File.from_string("[file content]", filename=file.file_name)
+            file.copy(update={"data": "[file content]"}).dict()
             if file
             else None
         )
