@@ -1,0 +1,52 @@
+name: Build and Deploy to Netlify
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize]
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - uses: actions/cache@v1
+        id: cache-poetry
+        with:
+          path: ~/.cache/pip
+          key: get-poetry-${{ runner.os }}-py-${{ matrix.python-version }}
+          restore-keys: |
+            get-poetry-${{ runner.os }}-py-
+            get-poetry-${{ runner.os }}-
+      - name: Install poetry
+        if: steps.cache-poetry.outputs.cache-hit != 'true'
+        run: |
+          pip install poetry==1.0
+          poetry config virtualenvs.in-project true
+      - uses: actions/cache@v1
+        id: cache-deps-extras
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-py-${{ matrix.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            venv-${{ runner.os }}-py-${{ matrix.python-version }}-poetry-
+            venv-${{ runner.os }}-py-${{ matrix.python-version }}-
+            venv-${{ runner.os }}-py-
+            venv-${{ runner.os }}-
+      - name: Install dependencies
+        if: steps.cache-deps-extras.outputs.cache-hit != 'true'
+        run: |
+          poetry install --extras tests docs
+      - name: Build MkDocs
+        run: ./scripts/build-docs
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v1.0.3
+        with:
+          publish-dir: './site'
+          production-branch: master
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
