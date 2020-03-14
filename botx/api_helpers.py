@@ -68,7 +68,7 @@ class BotXAPI:
 
     @classmethod
     def token(
-            cls, host: str, scheme: str = HTTPS_SCHEME, **endpoint_params: Any
+        cls, host: str, scheme: str = HTTPS_SCHEME, **endpoint_params: Any
     ) -> str:
         """Build token URL.
 
@@ -221,7 +221,7 @@ class RequestPayloadBuilder:
 
     @classmethod
     def build_command_result(
-            cls, credentials: SendingCredentials, payload: MessagePayload
+        cls, credentials: SendingCredentials, payload: MessagePayload
     ) -> CommandResult:
         """Build command result entity.
 
@@ -245,7 +245,7 @@ class RequestPayloadBuilder:
 
     @classmethod
     def build_notification(
-            cls, credentials: SendingCredentials, payload: MessagePayload
+        cls, credentials: SendingCredentials, payload: MessagePayload
     ) -> Notification:
         """Build notification entity.
 
@@ -269,7 +269,7 @@ class RequestPayloadBuilder:
 
     @classmethod
     def build_event_edition(
-            cls, credentials: SendingCredentials, payload: SendingUpdatePayload
+        cls, credentials: SendingCredentials, payload: SendingUpdatePayload
     ) -> EventEdition:
         """Build event edition entity.
 
