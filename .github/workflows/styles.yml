@@ -1,10 +1,10 @@
-name: CI
+name: Styles
 
 on: push
 
 jobs:
-  checks:
-    name: Lint and test
+  styles:
+    name: Styles
     runs-on: ubuntu-18.04
     strategy:
       matrix:
@@ -42,7 +42,7 @@ jobs:
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |
           poetry install --extras tests
-      - name: Lint with wps, mypy and style linters and run tests
+      - name: Run linters
         run: |
           source .venv/bin/activate
-          ./scripts/test
+          ./scripts/lint
