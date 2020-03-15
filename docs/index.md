@@ -20,8 +20,6 @@
 
 ---
 
-TEST
-
 # Introduction
 
 `pybotx` is a framework for building bots for eXpress providing a mechanism for simple
