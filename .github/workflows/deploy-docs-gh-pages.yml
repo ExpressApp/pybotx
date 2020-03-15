@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - fix-docs-deploy-on-master  # for test this pr
 
 jobs:
   build:
