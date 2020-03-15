@@ -196,7 +196,7 @@ class LogsShapeBuilder:  # noqa: WPS214
         )
 
     @classmethod
-    def _convert_file_to_logs_format(cls, file: Optional[File]) -> Optional[File]:
+    def _convert_file_to_logs_format(cls, file: Optional[File]) -> Optional[dict]:
         """Convert file to a new file that will be showed in logs.
 
         Arguments:
@@ -205,8 +205,4 @@ class LogsShapeBuilder:  # noqa: WPS214
         Returns:
             New file or nothing.
         """
-        return (
-            File.from_string("[file content]", filename=file.file_name)
-            if file
-            else None
-        )
+        return file.copy(update={"data": "[file content]"}).dict() if file else None

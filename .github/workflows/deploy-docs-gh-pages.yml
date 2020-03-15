@@ -1,20 +1,19 @@
-name: CI
+name: Build and Deploy to GitHub Pages
 
-on: push
+on:
+  push:
+    branches:
+      - master
 
 jobs:
-  checks:
-    name: Lint and test
+  build:
     runs-on: ubuntu-18.04
-    strategy:
-      matrix:
-        python-version: [3.6, 3.7, 3.8]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.8
       - uses: actions/cache@v1
         id: cache-poetry
         with:
@@ -29,7 +28,7 @@ jobs:
           pip install poetry==1.0
           poetry config virtualenvs.in-project true
       - uses: actions/cache@v1
-        id: cache-deps
+        id: cache-deps-extras
         with:
           path: .venv
           key: venv-${{ runner.os }}-py-${{ matrix.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
@@ -39,10 +38,19 @@ jobs:
             venv-${{ runner.os }}-py-
             venv-${{ runner.os }}-
       - name: Install dependencies
-        if: steps.cache-deps.outputs.cache-hit != 'true'
+        if: steps.cache-deps-extras.outputs.cache-hit != 'true'
         run: |
-          poetry install --extras tests
-      - name: Lint with wps, mypy and style linters and run tests
+          poetry install --extras docs
+      - name: Build MkDocs for GitHub Pages
         run: |
           source .venv/bin/activate
-          ./scripts/test
+          ./scripts/build-docs
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v1.0.3
+        with:
+          publish-dir: './site'
+          production-branch: master
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}

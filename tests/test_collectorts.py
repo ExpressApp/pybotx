@@ -52,7 +52,7 @@ def test_error_when_merging_handlers_with_equal_names(bot: Bot) -> None:
 
 
 def test_sorting_handlers_in_collector_by_body_length(bot: Bot) -> None:
-    assert [handler.body for handler in bot.handlers] == [
+    assert [handler.body for handler in bot.collector._added_handlers] == [
         "/regular-handler-that-excluded-from-status-by-callable-function",
         "/regular-handler-that-included-in-status-by-callable-function",
         "/regular-handler-that-excluded-from-status-and-auto-body",
@@ -62,9 +62,9 @@ def test_sorting_handlers_in_collector_by_body_length(bot: Bot) -> None:
         "system:chat_created",
         "/handler-command1",
         "/handler-command2",
+        "/handler-command3",
         "/handler-command4",
         "/handler-command5",
-        "/handler-command3",
         "/regular-handler",
         "/handler-command",
         "/default-handler",
@@ -79,7 +79,7 @@ def test_sorting_handlers_in_collector_by_body_length_when_merging(bot: Bot) -> 
 
     bot.include_collector(collector)
 
-    assert bot.handlers[0].body == "/" + "a" * 1000
+    assert bot.collector._added_handlers[0].body == "/" + "a" * 1000
 
 
 class TestGeneratingBodyFromHandler:

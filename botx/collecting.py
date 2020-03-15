@@ -116,7 +116,9 @@ class Handler:  # noqa: WPS230
         """Additional dependencies of handler."""
         self.description: Optional[str] = description
         """Description that will be used in bot's menu."""
-        self.full_description: Optional[str] = full_description
+        self.full_description: str = full_description or inspect.cleandoc(
+            handler.__doc__ or ""
+        )
         """Extra description."""
         self.include_in_status: Union[bool, Callable] = include_in_status
         """Flag or function that will check if command should be showed in menu."""
@@ -191,7 +193,8 @@ class Collector:  # noqa: WPS214, WPS230
                 this handler.
         """
         self.handlers: List[Handler] = []
-        """List of registered on this collector handlers."""
+        """List of registered on this collector handlers in order of adding."""
+        self._added_handlers: List[Handler] = []
         self.dependencies: Optional[Sequence[deps.Depends]] = dependencies
         """Background dependencies that will be executed for handlers."""
         self.dependency_overrides_provider: Any = dependency_overrides_provider
@@ -343,7 +346,8 @@ class Collector:  # noqa: WPS214, WPS230
             dependency_overrides_provider=dep_override,
         )
         self.handlers.append(command_handler)
-        self.handlers.sort(key=lambda handler: len(handler.body), reverse=True)
+        self._added_handlers.append(command_handler)
+        self._added_handlers.sort(key=lambda handler: len(handler.body), reverse=True)
 
     def handler(  # noqa: WPS211
         self,
@@ -387,7 +391,7 @@ class Collector:  # noqa: WPS214, WPS230
             )
 
             if command and commands:
-                handler_commands += [command]
+                handler_commands.insert(0, command)
             elif not commands:
                 handler_commands = [command]
 

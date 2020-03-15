@@ -1,42 +1,42 @@
 site_name: pybotx
-site_url: https://expressapp.github.io/pybotx
+site_url: !!python/object/apply:os.getenv ["SITE_URL", "https://expressapp.github.io/pybotx"]
 site_description: A little python library for building bots for Express
 
 theme:
-    name: 'material'
+  name: 'material'
 
 repo_name: ExpressApp/pybotx
 repo_url: https://github.com/ExpressApp/pybotx
 edit_uri: ''
 
 nav:
-    - Introduction: 'index.md'
-    - Tutorial - User Guide:
-        - First Steps: 'development/first-steps.md'
-        - Sending Messages And Files: 'development/sending-data.md'
-        - Handlers Collecting: 'development/collector.md'
-        - Handling Errors: 'development/handling-errors.md'
-        - Dependencies Injection: 'development/dependencies-injection.md'
-        - Logging: 'development/logging.md'
-        - Testing: 'development/tests.md'
-    - API Reference:
-        - Bots: 'reference/bots.md'
-        - Clients: 'reference/clients.md'
-        - Collecting: 'reference/collecting.md'
-        - Exceptions: 'reference/exceptions.md'
-        - Testing: 'reference/testing.md'
-        - Models: 'reference/models.md'
-        - Dependencies: 'reference/dependencies.md'
-        - Middlewares: 'reference/middlewares.md'
-    - Changelog: 'changelog.md'
+  - Introduction: 'index.md'
+  - Tutorial - User Guide:
+      - First Steps: 'development/first-steps.md'
+      - Sending Messages And Files: 'development/sending-data.md'
+      - Handlers Collecting: 'development/collector.md'
+      - Handling Errors: 'development/handling-errors.md'
+      - Dependencies Injection: 'development/dependencies-injection.md'
+      - Logging: 'development/logging.md'
+      - Testing: 'development/tests.md'
+  - API Reference:
+      - Bots: 'reference/bots.md'
+      - Clients: 'reference/clients.md'
+      - Collecting: 'reference/collecting.md'
+      - Exceptions: 'reference/exceptions.md'
+      - Testing: 'reference/testing.md'
+      - Models: 'reference/models.md'
+      - Dependencies: 'reference/dependencies.md'
+      - Middlewares: 'reference/middlewares.md'
+  - Changelog: 'changelog.md'
 
 markdown_extensions:
-    - markdown.extensions.codehilite:
-        guess_lang: false
-    - markdown_include.include:
-        base_path: docs
-    - admonition
-    - codehilite
+  - markdown.extensions.codehilite:
+      guess_lang: false
+  - markdown_include.include:
+      base_path: docs
+  - admonition
+  - codehilite
 
 plugins:
   - search
