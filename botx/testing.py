@@ -287,7 +287,8 @@ class MessageBuilder:  # noqa: WPS214
         if isinstance(file, files.File) or file is None:
             self._file = file
         else:
-            self._file = files.File.from_file(file)
+            self._file = files.File.from_file(file, filename="temp.txt")
+            self._file.file_name = file.name
 
     @property
     def user(self) -> receiving.User:
