@@ -3,9 +3,6 @@
     <em>A little python framework for building bots for eXpress messenger.</em>
 </p>
 <p align="center">
-    <a href="https://travis-ci.org/ExpressApp/pybotx">
-        <img src="https://travis-ci.org/ExpressApp/pybotx.svg?branch=master" alt="Travis-CI">
-    </a>
     <a href="https://github.com/ambv/black">
         <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code Style">
     </a>
@@ -14,6 +11,9 @@
     </a>
     <a href="https://github.com/ExpressApp/pybotx/blob/master/LICENSE">
         <img src="https://img.shields.io/github/license/Naereen/StrapDown.js.svg" alt="License">
+    </a>
+    <a href="https://codecov.io/gh/ExpressApp/pybotx">
+        <img src="https://codecov.io/gh/ExpressApp/pybotx/branch/master/graph/badge.svg" alt="Coverage" />
     </a>
 </p>
 
