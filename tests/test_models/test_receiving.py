@@ -4,7 +4,7 @@ from typing import List
 import pytest
 
 from botx import ChatTypes, CommandTypes
-from botx.models.receiving import Command, User
+from botx.models.receiving import Command, IncomingMessage, User
 
 
 @pytest.mark.parametrize(
@@ -63,4 +63,28 @@ def test_user_email_when_credentials_missed() -> None:
             host="cts.example.com",
         ).email
         is None
+    )
+
+
+def test_skip_validation_for_file() -> None:
+    file_data = {"file_name": "zen.py", "data": "data:text/plain;base64,"}
+
+    IncomingMessage.parse_obj(
+        {
+            "sync_id": "a465f0f3-1354-491c-8f11-f400164295cb",
+            "command": {"body": "/cmd", "command_type": "user", "data": {},},
+            "file": file_data,
+            "from": {
+                "user_huid": None,
+                "group_chat_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
+                "ad_login": None,
+                "ad_domain": None,
+                "username": None,
+                "chat_type": "group_chat",
+                "host": "cts.ccteam.ru",
+                "is_admin": False,
+                "is_creator": False,
+            },
+            "bot_id": "dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4",
+        }
     )

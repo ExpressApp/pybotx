@@ -1,3 +1,5 @@
+from io import StringIO
+
 from botx import File, IncomingMessage
 from botx.testing import MessageBuilder
 
@@ -31,3 +33,15 @@ def test_file_transfer_event() -> None:
 
     builder.body = "file_transfer"
     builder.system_command = True
+
+
+def test_setting_not_processable_file_for_incoming_message() -> None:
+    file = StringIO("import this")
+    file.name = "zen.py"
+
+    builder = MessageBuilder()
+    builder.file = file
+
+    message = builder.message
+
+    assert message.file.file_name == "zen.py"

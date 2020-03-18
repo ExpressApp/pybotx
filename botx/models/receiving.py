@@ -3,7 +3,7 @@
 from typing import Any, Dict, Optional, Tuple, Union
 from uuid import UUID
 
-from pydantic import BaseConfig, BaseModel, Field
+from pydantic import BaseConfig, BaseModel, Field, validator
 
 from botx.models.enums import ChatTypes, CommandTypes
 from botx.models.events import ChatCreatedEvent
@@ -95,3 +95,22 @@ class IncomingMessage(BaseModel):
 
     class Config(BaseConfig):  # noqa: WPS431, D106
         allow_population_by_field_name = True
+
+    @validator("file", always=True, pre=True)
+    def skip_file_validation(
+        cls, value: Optional[Union[dict, File]]  # noqa: N805
+    ) -> Optional[File]:
+        """Skip validation for incoming file since users have not such limits as bot.
+
+        Arguments:
+            value: file data that should be used for building file instance.
+
+        Returns:
+            Constructed file.
+        """
+        if isinstance(value, File):
+            return value
+        elif value is not None:
+            return File.construct(**value)
+
+        return None
