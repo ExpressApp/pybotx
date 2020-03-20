@@ -1,3 +1,19 @@
+## 0.13.6 (Mar 20, 2020)
+
+### Added
+
+* Add Netlify for documention preview.
+* Parse handler docstring as `full_description` for handler.
+* Preserve order of added handlers.
+
+### Changed
+
+* Skip validation for incoming file, so files with unsupported extensions.
+
+### Fixed
+
+* Fix logging file.
+
 ## 0.13.5 (Mar 6, 2020)
 
 ### Added
