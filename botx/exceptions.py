@@ -31,6 +31,10 @@ class BotXAPIError(Exception):
 class ServerUnknownError(Exception):
     """Raised if bot does not know host."""
 
-    def __init__(self, *args: Any) -> None:
+    def __init__(self, host: str) -> None:
         """Init ServerUnknownError exception."""
-        super().__init__(*args)
+        self.host = host
+
+    def __str__(self) -> str:
+        """Return string representation of exception"""
+        return f"unknown server {self.host}"

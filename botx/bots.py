@@ -431,7 +431,7 @@ class Bot:  # noqa: WPS214, WPS230
                 await self(msg)
                 break
         else:
-            raise ServerUnknownError(f"unknown server {msg.host}")
+            raise ServerUnknownError(msg.host)
 
     def add_middleware(
         self, middleware_class: Type[BaseMiddleware], **kwargs: Any
