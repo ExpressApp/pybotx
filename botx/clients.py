@@ -73,7 +73,12 @@ class BaseClient:
                 botx_http_client=True,
                 payload=LogsShapeBuilder.get_response_shape(response),
             ).error(error_message)
-            raise BotXAPIError(error_message)
+            raise BotXAPIError(
+                url=response.url,
+                method=response.request.method,
+                response_content=response.json(),
+                status=response.status_code,
+            )
 
 
 class AsyncClient(BaseClient):
