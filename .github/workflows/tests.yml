@@ -46,3 +46,7 @@ jobs:
         run: |
           source .venv/bin/activate
           ./scripts/test
+      - uses: codecov/codecov-action@v1.0.6
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: true
