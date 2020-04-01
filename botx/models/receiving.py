@@ -1,13 +1,14 @@
 """Definition of messages received by bot or sent by it."""
 
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 from uuid import UUID
 
 from pydantic import BaseConfig, BaseModel, Field, validator
 
-from botx.models.enums import ChatTypes, CommandTypes
+from botx.models.enums import ChatTypes, CommandTypes, EntityTypes
 from botx.models.events import ChatCreatedEvent
 from botx.models.files import File
+from botx.models.mentions import Mention
 
 CommandDataType = Union[ChatCreatedEvent, Dict[str, Any]]
 
@@ -79,6 +80,15 @@ class User(BaseModel):
         return None
 
 
+class Entity(BaseModel):
+    """Additional entity that can be received by bot."""
+
+    type: EntityTypes
+    """entity type."""
+    data: Union[Mention]
+    """entity data."""
+
+
 class IncomingMessage(BaseModel):
     """Message that was received by bot and should be handled."""
 
@@ -92,6 +102,8 @@ class IncomingMessage(BaseModel):
     """information about user from which message was received."""
     bot_id: UUID
     """id of bot that should handle message."""
+    entities: List[Entity] = []
+    """additional entities that can be received by bot."""
 
     class Config(BaseConfig):  # noqa: WPS431, D106
         allow_population_by_field_name = True

@@ -8,7 +8,7 @@ from botx.models.datastructures import State
 from botx.models.enums import Recipients
 from botx.models.files import File
 from botx.models.mentions import ChatMention, Mention, MentionTypes, UserMention
-from botx.models.receiving import Command, IncomingMessage, User
+from botx.models.receiving import Command, Entity, IncomingMessage, User
 from botx.models.sending import (
     MessageMarkup,
     MessageOptions,
@@ -94,6 +94,11 @@ class Message:  # noqa: WPS214
     def host(self) -> str:
         """Host from which message was received."""
         return self.user.host
+
+    @property
+    def entities(self) -> List[Entity]:
+        """Entities passed with message."""
+        return self._message.entities
 
     @property
     def credentials(self) -> SendingCredentials:

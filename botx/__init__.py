@@ -15,6 +15,7 @@ from botx.models.enums import (
     Statuses,
     SystemEvents,
     UserKinds,
+EntityTypes,
 )
 from botx.models.errors import BotDisabledErrorData, BotDisabledResponse
 from botx.models.events import ChatCreatedEvent
@@ -22,7 +23,7 @@ from botx.models.files import File
 from botx.models.mentions import ChatMention, Mention, MentionTypes, UserMention
 from botx.models.menu import Status
 from botx.models.messages import Message, SendingMessage
-from botx.models.receiving import IncomingMessage
+from botx.models.receiving import IncomingMessage, Entity
 from botx.models.sending import (
     MessageMarkup,
     MessageOptions,
@@ -70,6 +71,8 @@ __all__ = (
     "NotificationOptions",
     "UpdatePayload",
     "SendingCredentials",
+    'Entity',
+    'EntityTypes'
 )
 
 logger.disable("botx")

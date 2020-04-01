@@ -66,6 +66,19 @@ def incoming_message() -> IncomingMessage:
                 "is_creator": False,
             },
             "bot_id": "dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4",
+            "entities": [
+                {
+                    "type": "mention",
+                    "data": {
+                        "mention_type": "contact",
+                        "mention_id": "c06a96fa-7881-0bb6-0e0b-0af72fe3683f",
+                        "mention_data": {
+                            "user_huid": "ab103983-6001-44e9-889e-d55feb295494",
+                            "name": "User",
+                        }
+                    }
+                }
+            ]
         }
     )
 
@@ -117,6 +130,7 @@ def test_message_is_proxy_to_incoming_message(incoming_message) -> None:
     assert msg.credentials.sync_id == incoming_message.sync_id
     assert msg.credentials.bot_id == incoming_message.bot_id
     assert msg.credentials.host == incoming_message.user.host
+    assert msg.entities == incoming_message.entities
     assert msg.incoming_message == incoming_message
 
 
@@ -133,7 +147,7 @@ class TestBuildingSendingMessage:
 
     class TestCredentialsBuilding:
         def test_only_credentials_or_separate_credential_parts(
-            self, sending_message: SendingMessage
+                self, sending_message: SendingMessage
         ) -> None:
             with pytest.raises(AssertionError):
                 _ = SendingMessage(
@@ -144,7 +158,7 @@ class TestBuildingSendingMessage:
                 )
 
         def test_credentials_will_be_built_from_credential_parts(
-            self, sending_message: SendingMessage
+                self, sending_message: SendingMessage
         ) -> None:
             msg = SendingMessage(
                 text=sending_message.text,
@@ -156,7 +170,7 @@ class TestBuildingSendingMessage:
 
     class TestMarkupBuilding:
         def test_markup_creation_from_bubbles(
-            self, sending_message: SendingMessage
+                self, sending_message: SendingMessage
         ) -> None:
             msg = SendingMessage(
                 text=sending_message.text,
@@ -167,7 +181,7 @@ class TestBuildingSendingMessage:
             assert msg.markup.bubbles == sending_message.markup.bubbles
 
         def test_markup_creation_from_keyboard(
-            self, sending_message: SendingMessage
+                self, sending_message: SendingMessage
         ) -> None:
             msg = SendingMessage(
                 text=sending_message.text,
@@ -178,7 +192,7 @@ class TestBuildingSendingMessage:
             assert msg.markup.bubbles == []
 
         def test_markup_creation_from_bubbles_and_keyboard(
-            self, sending_message: SendingMessage
+                self, sending_message: SendingMessage
         ) -> None:
             msg = SendingMessage(
                 text=sending_message.text,
@@ -189,7 +203,7 @@ class TestBuildingSendingMessage:
             assert msg.markup == sending_message.markup
 
         def test_only_markup_or_separate_markup_parts(
-            self, sending_message: SendingMessage
+                self, sending_message: SendingMessage
         ) -> None:
             with pytest.raises(AssertionError):
                 _ = SendingMessage(
@@ -218,7 +232,7 @@ class TestBuildingSendingMessage:
             assert msg.options.recipients == sending_message.options.recipients
 
         def test_options_from_notification_options(
-            self, sending_message: SendingMessage
+                self, sending_message: SendingMessage
         ) -> None:
             msg = SendingMessage(
                 text=sending_message.text,
@@ -228,7 +242,7 @@ class TestBuildingSendingMessage:
             assert msg.options.notifications == sending_message.options.notifications
 
         def test_option_from_message_options(
-            self, sending_message: SendingMessage
+                self, sending_message: SendingMessage
         ) -> None:
             msg = SendingMessage(
                 text=sending_message.text,
@@ -238,7 +252,7 @@ class TestBuildingSendingMessage:
             assert msg.options == sending_message.options
 
         def test_only_options_or_separate_options_parts(
-            self, sending_message: SendingMessage
+                self, sending_message: SendingMessage
         ) -> None:
             with pytest.raises(AssertionError):
                 _ = SendingMessage(
@@ -268,7 +282,7 @@ class TestSendingMessageProperties:
             assert sending_message.file == original_file
 
         def test_message_file_from_string_file(
-            self, sending_message: SendingMessage
+                self, sending_message: SendingMessage
         ) -> None:
             original_file = sending_message.file
             sending_message.add_file(
@@ -278,7 +292,7 @@ class TestSendingMessageProperties:
             assert sending_message.file == original_file
 
         def test_message_file_from_bytes_file(
-            self, sending_message: SendingMessage
+                self, sending_message: SendingMessage
         ) -> None:
             original_file = sending_message.file
             sending_message.add_file(
@@ -349,7 +363,7 @@ class TestSendingMessageProperties:
 
     class TestAddingRecipients:
         def test_adding_recipients_separately(
-            self, sending_message: SendingMessage
+                self, sending_message: SendingMessage
         ) -> None:
             users = [uuid.uuid4(), uuid.uuid4()]
             sending_message.payload.options.recipients = Recipients.all
@@ -361,7 +375,7 @@ class TestSendingMessageProperties:
             assert sending_message.options.recipients == users
 
         def test_adding_multiple_recipients(
-            self, sending_message: SendingMessage
+                self, sending_message: SendingMessage
         ) -> None:
             users = [uuid.uuid4(), uuid.uuid4()]
             sending_message.payload.options.recipients = Recipients.all

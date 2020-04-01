@@ -64,3 +64,10 @@ class Statuses(str, Enum):  # noqa: WPS600
     """operation was successfully proceed."""
     error = "error"
     """there was an error while processing operation."""
+
+
+class EntityTypes(str, Enum):  # noqa: WPS600
+    """Types for entities that could be received by bot."""
+
+    mention = "mention"
+    """mention entity."""
