@@ -1,5 +1,3 @@
-import uuid
-
 import pytest
 from pydantic import ValidationError
 
@@ -10,12 +8,6 @@ from botx import (
     SendingCredentials,
     UpdatePayload,
 )
-
-
-def test_message_credentials_chat_id_appending() -> None:
-    chat_id = uuid.uuid4()
-    credentials = SendingCredentials(chat_id=chat_id)
-    assert credentials.chat_ids == [chat_id]
 
 
 def test_message_credentials_require_chat_ids_or_sync_id() -> None:

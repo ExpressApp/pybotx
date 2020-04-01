@@ -70,7 +70,14 @@ class BaseResult(BaseModel):
     """options that control message behaviour."""
 
 
-class CommandResult(BaseResult):
+class CustomMessageIDMixin(BaseModel):
+    """Mixin for sending entities that can set custom sync_id."""
+
+    event_sync_id: Optional[UUID] = None
+    """id that will be used as sync_id for new entity."""
+
+
+class CommandResult(CustomMessageIDMixin, BaseResult):
     """Entity that will be sent to BotX API on command result."""
 
     sync_id: UUID
@@ -79,10 +86,10 @@ class CommandResult(BaseResult):
     """result of operation."""
 
 
-class Notification(BaseResult):
-    """Entity that will be sent to BotX API on notification."""
+class Notification(CustomMessageIDMixin, BaseResult):
+    """Entity that will be sent to single chats to BotX API on notification."""
 
-    group_chat_ids: List[UUID]
+    group_chat_id: UUID
     """chat ids that will receive message."""
     result: ResultPayload = Field(..., alias="notification")
     """result of operation."""
