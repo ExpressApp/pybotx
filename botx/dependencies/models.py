@@ -111,7 +111,8 @@ def get_dependant(
             continue
 
         raise ValueError(
-            f"Param {param.name} can only be a dependency, message, bot or client"
+            f"Param {param.name} of {call} can only be a "
+            f"dependency, message, bot or client, got: {param.annotation}"
         )
 
     return dependant
