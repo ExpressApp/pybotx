@@ -45,7 +45,7 @@ jobs:
       - name: Run tests
         run: |
           source .venv/bin/activate
-          ./scripts/test
+          ./scripts/test --cov-report=xml
       - uses: codecov/codecov-action@v1.0.6
         with:
           file: ./coverage.xml
