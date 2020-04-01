@@ -1,8 +1,15 @@
 import uuid
 from io import StringIO
 
-from botx import File, IncomingMessage, MentionTypes, Entity, EntityTypes, Mention, \
-    UserMention
+from botx import (
+    Entity,
+    EntityTypes,
+    File,
+    IncomingMessage,
+    Mention,
+    MentionTypes,
+    UserMention,
+)
 from botx.testing import MessageBuilder
 
 
@@ -79,8 +86,10 @@ def test_mention_chat_in_message() -> None:
 def test_setting_raw_entities() -> None:
     builder = MessageBuilder()
     builder.entities = [
-        Entity(type=EntityTypes.mention,
-               data=Mention(mention_data=UserMention(user_huid=uuid.uuid4())))
+        Entity(
+            type=EntityTypes.mention,
+            data=Mention(mention_data=UserMention(user_huid=uuid.uuid4())),
+        )
     ]
 
     assert builder.message.entities[0].data.mention_type == MentionTypes.user
