@@ -54,9 +54,11 @@ class _BotXAPICallbacksFactory:
             if self.generate_errored:
                 return self._error_response
 
+            sync_id = command_result.event_sync_id or uuid.uuid4()
+
             return Response(
                 responses.PushResponse(
-                    result=responses.PushResult(sync_id=uuid.uuid4())
+                    result=responses.PushResult(sync_id=sync_id)
                 ).json(),
                 media_type="application/json",
             )
@@ -73,9 +75,11 @@ class _BotXAPICallbacksFactory:
             if self.generate_errored:
                 return self._error_response
 
+            sync_id = notification.event_sync_id or uuid.uuid4()
+
             return Response(
                 responses.PushResponse(
-                    result=responses.PushResult(sync_id=uuid.uuid4())
+                    result=responses.PushResult(sync_id=sync_id)
                 ).json(),
                 media_type="application/json",
             )
@@ -157,9 +161,9 @@ def _botx_api_mock(
         [BotXAPI.command_endpoint.method],
     )
     app.add_route(
-        BotXAPI.notification_endpoint.endpoint,
+        BotXAPI.direct_notification_endpoint.endpoint,
         factory.get_notification_callback(),
-        [BotXAPI.notification_endpoint.method],
+        [BotXAPI.direct_notification_endpoint.method],
     )
     app.add_route(
         BotXAPI.token_endpoint.endpoint,

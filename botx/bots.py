@@ -13,7 +13,6 @@ from typing import (
     TextIO,
     Type,
     Union,
-    cast,
 )
 from uuid import UUID
 
@@ -494,7 +493,7 @@ class Bot:  # noqa: WPS214, WPS230
         file: Optional[Union[BinaryIO, TextIO]] = None,
         markup: Optional[sending.MessageMarkup] = None,
         options: Optional[sending.MessageOptions] = None,
-    ) -> Optional[UUID]:
+    ) -> UUID:
         """Send message as answer to command or notification to chat and get it id.
 
         Arguments:
@@ -505,8 +504,7 @@ class Bot:  # noqa: WPS214, WPS230
             options: extra options for message.
 
         Returns:
-            `UUID` if message was send as command result or `None` if message was send
-            as notification.
+            `UUID` of sent event.
         """
         await self._obtain_token(credentials)
 
@@ -522,15 +520,14 @@ class Bot:  # noqa: WPS214, WPS230
 
         return await self.client.send_notification(credentials, payload)
 
-    async def send(self, message: messages.SendingMessage) -> Optional[UUID]:
+    async def send(self, message: messages.SendingMessage) -> UUID:
         """Send message as answer to command or notification to chat and get it id.
 
         Arguments:
             message: message that should be sent to chat.
 
         Returns:
-            `UUID` of sent event if message was send as command result or `None` if
-            message was send as notification.
+            `UUID` of sent event.
         """
         await self._obtain_token(message.credentials)
 
@@ -572,7 +569,7 @@ class Bot:  # noqa: WPS214, WPS230
         if file:
             sending_message.add_file(file)
 
-        return cast(UUID, await self.send(sending_message))
+        return await self.send(sending_message)
 
     async def update_message(
         self, credentials: sending.SendingCredentials, update: sending.UpdatePayload
@@ -592,7 +589,7 @@ class Bot:  # noqa: WPS214, WPS230
         file: Union[TextIO, BinaryIO, files.File],
         credentials: sending.SendingCredentials,
         filename: Optional[str] = None,
-    ) -> Optional[UUID]:
+    ) -> UUID:
         """Send file in chat and return id of message.
 
         Arguments:
@@ -602,8 +599,7 @@ class Bot:  # noqa: WPS214, WPS230
                 `file` argument.
 
         Returns:
-            `UUID` of sent event if message was send as command result or `None` if
-            message was send as notification.
+            `UUID` of sent event.
         """
         message = messages.SendingMessage(credentials=credentials)
         message.add_file(file, filename)

@@ -47,8 +47,8 @@ class BotXAPI:
     command_endpoint = BotXEndpoint(
         method="POST", endpoint="/api/v3/botx/command/callback"
     )
-    notification_endpoint = BotXEndpoint(
-        method="POST", endpoint="/api/v3/botx/notification/callback"
+    direct_notification_endpoint = BotXEndpoint(
+        method="POST", endpoint="/api/v3/botx/notification/callback/direct"
     )
     edit_event_endpoint = BotXEndpoint(
         method="POST", endpoint="/api/v3/botx/events/edit_event"
@@ -103,17 +103,17 @@ class BotXAPI:
 
     @classmethod
     def notification(cls, host: str, scheme: str = HTTPS_SCHEME) -> str:
-        """Build notification URL.
+        """Build direct notification URL.
 
         Arguments:
             host: host for URL.
             scheme: HTTP URL schema.
 
         Returns:
-            URL for notification endpoint for BotX API.
+            URL for direct notification endpoint for BotX API.
         """
         return _URL_TEMPLATE.format(
-            scheme=scheme, host=host, endpoint=cls.notification_endpoint.endpoint
+            scheme=scheme, host=host, endpoint=cls.direct_notification_endpoint.endpoint
         )
 
     @classmethod
@@ -237,6 +237,7 @@ class RequestPayloadBuilder:
         return CommandResult(
             bot_id=credentials.bot_id,
             sync_id=cast(UUID, credentials.sync_id),
+            event_sync_id=credentials.message_id,
             command_result=cls._build_result_payload(payload),
             recipients=payload.options.recipients,
             file=payload.file,
@@ -260,7 +261,8 @@ class RequestPayloadBuilder:
 
         return Notification(
             bot_id=credentials.bot_id,
-            group_chat_ids=credentials.chat_ids,
+            group_chat_id=cast(UUID, credentials.chat_id),
+            event_sync_id=credentials.message_id,
             notification=cls._build_result_payload(payload),
             recipients=payload.options.recipients,
             file=payload.file,
