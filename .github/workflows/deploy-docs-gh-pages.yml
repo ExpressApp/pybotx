@@ -45,12 +45,9 @@ jobs:
         run: |
           source .venv/bin/activate
           ./scripts/build-docs
-      - name: Deploy to Netlify
-        uses: nwtgck/actions-netlify@v1.0.3
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@releases/v3
         with:
-          publish-dir: './site'
-          production-branch: master
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          ACCESS_TOKEN: ${{ secrets.GH_PAGES_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: site

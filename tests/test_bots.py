@@ -194,6 +194,37 @@ class TestSendingMessageUsingAnswerMessage:
             assert message.file == File.from_string("some content", "file.txt")
 
 
+@pytest.mark.asyncio
+async def test_returning_uuid_from_notification_sending(
+    bot: Bot, incoming_message: IncomingMessage
+) -> None:
+    with testing.TestClient(bot):
+        message = SendingMessage(
+            text="text",
+            chat_id=incoming_message.user.group_chat_id,
+            bot_id=incoming_message.bot_id,
+            host=incoming_message.user.host,
+        )
+        assert await bot.send(message)
+
+
+@pytest.mark.asyncio
+async def test_uuid_from_notification_sending_is_message_id(
+    bot: Bot, incoming_message: IncomingMessage
+) -> None:
+    with testing.TestClient(bot):
+        message_id = uuid.uuid4()
+        message = SendingMessage(
+            text="text",
+            chat_id=incoming_message.user.group_chat_id,
+            bot_id=incoming_message.bot_id,
+            host=incoming_message.user.host,
+            message_id=message_id,
+        )
+        notification_id = await bot.send(message)
+        assert notification_id == message_id
+
+
 class TestSendingFileUsingSendFile:
     @pytest.mark.asyncio
     async def test_sending_file_through_command_result(
@@ -371,3 +402,25 @@ class TestAddRemoveUsers:
 @pytest.mark.asyncio
 async def test_no_error_when_stopping_bot_with_no_tasks(bot: Bot) -> None:
     await bot.shutdown()
+
+
+@pytest.mark.asyncio
+async def test_bot_iterates_over_sorted_handlers(
+    bot: Bot, incoming_message: IncomingMessage
+) -> None:
+    visited_by_body_v2_handler = False
+
+    @bot.handler(command="/body")
+    async def body_handler() -> None:
+        ...  # pragma: no cover
+
+    @bot.handler(command="/body-v2")
+    async def body_v2_handler() -> None:
+        nonlocal visited_by_body_v2_handler
+        visited_by_body_v2_handler = True
+
+    with testing.TestClient(bot) as client:
+        incoming_message.command.body = "/body-v2"
+        await client.send_command(incoming_message)
+
+    assert visited_by_body_v2_handler

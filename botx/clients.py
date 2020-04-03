@@ -168,7 +168,7 @@ class AsyncClient(BaseClient):
 
     async def send_notification(
         self, credentials: SendingCredentials, payload: MessagePayload
-    ) -> None:
+    ) -> UUID:
         """Send notification into chat or chats.
 
         Arguments:
@@ -198,6 +198,9 @@ class AsyncClient(BaseClient):
         self._check_api_response(
             notification_response, "unable to send notification to BotX API"
         )
+
+        parsed_response = PushResponse.parse_obj(notification_response.json())
+        return parsed_response.result.sync_id
 
     async def edit_event(
         self, credentials: SendingCredentials, update_payload: UpdatePayload
