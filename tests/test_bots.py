@@ -194,6 +194,37 @@ class TestSendingMessageUsingAnswerMessage:
             assert message.file == File.from_string("some content", "file.txt")
 
 
+@pytest.mark.asyncio
+async def test_returning_uuid_from_notification_sending(
+    bot: Bot, incoming_message: IncomingMessage
+) -> None:
+    with testing.TestClient(bot):
+        message = SendingMessage(
+            text="text",
+            chat_id=incoming_message.user.group_chat_id,
+            bot_id=incoming_message.bot_id,
+            host=incoming_message.user.host,
+        )
+        assert await bot.send(message)
+
+
+@pytest.mark.asyncio
+async def test_uuid_from_notification_sending_is_message_id(
+    bot: Bot, incoming_message: IncomingMessage
+) -> None:
+    with testing.TestClient(bot):
+        message_id = uuid.uuid4()
+        message = SendingMessage(
+            text="text",
+            chat_id=incoming_message.user.group_chat_id,
+            bot_id=incoming_message.bot_id,
+            host=incoming_message.user.host,
+            message_id=message_id,
+        )
+        notification_id = await bot.send(message)
+        assert notification_id == message_id
+
+
 class TestSendingFileUsingSendFile:
     @pytest.mark.asyncio
     async def test_sending_file_through_command_result(

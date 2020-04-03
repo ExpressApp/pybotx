@@ -93,7 +93,7 @@ class LogsShapeBuilder:  # noqa: WPS214
             Shape for logging in loguru.
         """
         return {
-            "credentials": credentials.dict(exclude={"token", "sync_id", "chat_id"}),
+            "credentials": credentials.dict(exclude={"token", "sync_id"}),
             "payload": cls.get_payload_shape(payload),
         }
 
