@@ -1,3 +1,21 @@
+## 0.14.0 (Apr 3, 2020)
+
+### Added
+
+* Support for extrenal entities in incoming message, like mentions.
+* Add ability to specify custom message id for new message from bot.
+
+### Changed
+
+* Refactor exceptions to be more usefule. Now exceptions have additional properties with extra data.
+* If there will be an error when convering function to handler or dependency, then exception will contain information about failed attributes.
+* Collector will iterate through handlers in right order.
+* Change deploing documentation to github pages from master branch.
+
+### Fixed
+
+* Fix shape for `bot_disabled` response.
+
 ## 0.13.6 (Mar 20, 2020)
 
 ### Added

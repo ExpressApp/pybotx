@@ -3,17 +3,23 @@
     <em>A little python framework for building bots for eXpress messenger.</em>
 </p>
 <p align="center">
-    <a href="https://travis-ci.org/ExpressApp/pybotx">
-        <img src="https://travis-ci.org/ExpressApp/pybotx.svg?branch=master" alt="Travis-CI">
+    <a href=https://github.com/ExpressApp/pybotx>
+        <img src=https://github.com/ExpressApp/pybotx/workflows/Tests/badge.svg alt="Tests" />
+    </a>
+    <a href=https://github.com/ExpressApp/pybotx>
+        <img src=https://github.com/ExpressApp/pybotx/workflows/Styles/badge.svg alt="Styles" />
+    </a>
+    <a href="https://codecov.io/gh/ExpressApp/pybotx">
+        <img src="https://codecov.io/gh/ExpressApp/pybotx/branch/master/graph/badge.svg" alt="Coverage" />
     </a>
     <a href="https://github.com/ambv/black">
-        <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code Style">
+        <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code Style" />
     </a>
     <a href="https://pypi.org/project/botx/">
-        <img src="https://badge.fury.io/py/botx.svg" alt="Package version">
+        <img src="https://badge.fury.io/py/botx.svg" alt="Package version" />
     </a>
     <a href="https://github.com/ExpressApp/pybotx/blob/master/LICENSE">
-        <img src="https://img.shields.io/github/license/Naereen/StrapDown.js.svg" alt="License">
+        <img src="https://img.shields.io/github/license/Naereen/StrapDown.js.svg" alt="License" />
     </a>
 </p>
 
@@ -39,7 +45,7 @@ Main features:
 
         [tool.poetry.dependencies]
         ...
-        botx = "^0.13.0"
+        botx = "^0.14.0"
         ...
 
 ---
