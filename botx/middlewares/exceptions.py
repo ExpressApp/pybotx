@@ -60,6 +60,7 @@ class ExceptionMiddleware:
             handler = self._exception_handlers.get(exc_cls)
             if handler:
                 return handler
+
         return None
 
     async def _handle_error_in_handler(
