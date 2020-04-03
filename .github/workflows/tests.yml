@@ -10,7 +10,7 @@ jobs:
       matrix:
         python-version: [3.6, 3.7, 3.8]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@master
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
@@ -47,7 +47,6 @@ jobs:
           source .venv/bin/activate
           ./scripts/test --cov-report=xml
       - uses: codecov/codecov-action@v1.0.6
-        if: matrix.python-version == 3.8
         with:
           file: ./coverage.xml
           fail_ci_if_error: true
