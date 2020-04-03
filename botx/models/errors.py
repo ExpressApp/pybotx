@@ -1,6 +1,6 @@
 """Definition of errors in processing request from BotX API."""
 
-from typing import Any, Dict, Union
+from typing import Any, Dict, List, Union
 
 from pydantic import BaseModel, validator
 
@@ -20,6 +20,7 @@ class BotDisabledResponse(BaseModel):
     error_data: Union[Dict[str, Any], BotDisabledErrorData]
     """data about occurred error that should include `status_message`
     field in json."""
+    errors: List[str] = []
 
     @validator("error_data", always=True, whole=True)
     def status_message_in_error_data(
