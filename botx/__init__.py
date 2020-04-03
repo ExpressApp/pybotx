@@ -11,6 +11,7 @@ from botx.models.credentials import ExpressServer, ServerCredentials
 from botx.models.enums import (
     ChatTypes,
     CommandTypes,
+    EntityTypes,
     Recipients,
     Statuses,
     SystemEvents,
@@ -22,7 +23,7 @@ from botx.models.files import File
 from botx.models.mentions import ChatMention, Mention, MentionTypes, UserMention
 from botx.models.menu import Status
 from botx.models.messages import Message, SendingMessage
-from botx.models.receiving import IncomingMessage
+from botx.models.receiving import Entity, IncomingMessage
 from botx.models.sending import (
     MessageMarkup,
     MessageOptions,
@@ -70,6 +71,8 @@ __all__ = (
     "NotificationOptions",
     "UpdatePayload",
     "SendingCredentials",
+    "Entity",
+    "EntityTypes",
 )
 
 logger.disable("botx")

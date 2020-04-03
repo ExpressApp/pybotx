@@ -66,6 +66,19 @@ def incoming_message() -> IncomingMessage:
                 "is_creator": False,
             },
             "bot_id": "dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4",
+            "entities": [
+                {
+                    "type": "mention",
+                    "data": {
+                        "mention_type": "contact",
+                        "mention_id": "c06a96fa-7881-0bb6-0e0b-0af72fe3683f",
+                        "mention_data": {
+                            "user_huid": "ab103983-6001-44e9-889e-d55feb295494",
+                            "name": "User",
+                        },
+                    },
+                }
+            ],
         }
     )
 
@@ -117,6 +130,7 @@ def test_message_is_proxy_to_incoming_message(incoming_message) -> None:
     assert msg.credentials.sync_id == incoming_message.sync_id
     assert msg.credentials.bot_id == incoming_message.bot_id
     assert msg.credentials.host == incoming_message.user.host
+    assert msg.entities == incoming_message.entities
     assert msg.incoming_message == incoming_message
 
 
