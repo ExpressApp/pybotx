@@ -91,7 +91,7 @@ async def test_sending_event_update_to_errored_api(
     bot._get_cts_by_host(incoming_message.user.host).server_credentials.token = "token"
 
     with testing.TestClient(bot, generate_error_api=True):
-        with pytest.raises(BotXAPIError):
+        with pytest.raises(BotXAPIError) as error:
             await bot.update_message(
                 Message.from_dict(incoming_message.dict(), bot).credentials,
                 UpdatePayload(text="some text"),
