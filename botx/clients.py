@@ -73,7 +73,12 @@ class BaseClient:
                 botx_http_client=True,
                 payload=LogsShapeBuilder.get_response_shape(response),
             ).error(error_message)
-            raise BotXAPIError(error_message)
+            raise BotXAPIError(
+                url=response.url,
+                method=response.request.method,
+                response_content=response.json(),
+                status=response.status_code,
+            )
 
 
 class AsyncClient(BaseClient):
@@ -163,7 +168,7 @@ class AsyncClient(BaseClient):
 
     async def send_notification(
         self, credentials: SendingCredentials, payload: MessagePayload
-    ) -> None:
+    ) -> UUID:
         """Send notification into chat or chats.
 
         Arguments:
@@ -193,6 +198,9 @@ class AsyncClient(BaseClient):
         self._check_api_response(
             notification_response, "unable to send notification to BotX API"
         )
+
+        parsed_response = PushResponse.parse_obj(notification_response.json())
+        return parsed_response.result.sync_id
 
     async def edit_event(
         self, credentials: SendingCredentials, update_payload: UpdatePayload

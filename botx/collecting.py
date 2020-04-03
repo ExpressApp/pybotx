@@ -262,7 +262,7 @@ class Collector:  # noqa: WPS214, WPS230
             if handler.name == args[0]:
                 return handler.command_for(*args)
 
-        raise NoMatchFound
+        raise NoMatchFound(search_param=args[0])
 
     def handler_for(self, name: str) -> Handler:
         """Find handler in handlers of this bot.
@@ -281,7 +281,7 @@ class Collector:  # noqa: WPS214, WPS230
             if handler.name == name:
                 return handler
 
-        raise NoMatchFound
+        raise NoMatchFound(search_param=name)
 
     def add_handler(  # noqa: WPS211
         self,
@@ -618,7 +618,7 @@ class Collector:  # noqa: WPS214, WPS230
         Arguments:
             message: incoming message that will be passed to handler.
         """
-        for handler in self.handlers:
+        for handler in self._added_handlers:
             if handler.matches(message):
                 logger.bind(botx_collector=True).info(
                     f"botx => {handler.name}: {message.command.command}"
@@ -629,7 +629,7 @@ class Collector:  # noqa: WPS214, WPS230
         if self.default_message_handler:
             await self.default_message_handler(message)
         else:
-            raise NoMatchFound
+            raise NoMatchFound(search_param=message.body)
 
     async def __call__(self, message: messages.Message) -> None:
         """Find handler and execute it.

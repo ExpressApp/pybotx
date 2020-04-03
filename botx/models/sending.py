@@ -18,10 +18,10 @@ class SendingCredentials(BaseModel):
 
     sync_id: Optional[UUID] = None
     """message event id."""
+    message_id: Optional[UUID] = None
+    """id of message that will be sent."""
     chat_id: Optional[UUID] = None
     """chat id in which bot should send message."""
-    chat_ids: List[UUID] = []
-    """list of chats that should receive message."""
     bot_id: Optional[UUID] = None
     """bot that handles message."""
     host: Optional[str] = None
@@ -29,19 +29,17 @@ class SendingCredentials(BaseModel):
     token: Optional[str] = None
     """token that is used for bot authorization on requests to BotX API."""
 
-    @validator("chat_ids", always=True, whole=True)
+    @validator("chat_id", always=True)
     def receiver_id_should_be_passed(
-        cls, value: List[UUID], values: dict  # noqa: N805
-    ) -> List[UUID]:
-        """Add `chat_id` in `chat_ids` if was passed.
+        cls, value: UUID, values: dict  # noqa: N805
+    ) -> UUID:
+        """Check that `chat_id` or `sync_id` was passed.
 
         Arguments:
             value: value that should be checked.
             values: all other values checked before.
         """
-        if values["chat_id"]:
-            value.append(values["chat_id"])
-        elif not (value or values["sync_id"]):
+        if not (value or values["sync_id"]):
             raise ValueError(
                 "sync_id, chat_id or chat_ids should be passed to initialization"
             )

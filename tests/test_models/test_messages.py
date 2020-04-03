@@ -66,6 +66,19 @@ def incoming_message() -> IncomingMessage:
                 "is_creator": False,
             },
             "bot_id": "dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4",
+            "entities": [
+                {
+                    "type": "mention",
+                    "data": {
+                        "mention_type": "contact",
+                        "mention_id": "c06a96fa-7881-0bb6-0e0b-0af72fe3683f",
+                        "mention_data": {
+                            "user_huid": "ab103983-6001-44e9-889e-d55feb295494",
+                            "name": "User",
+                        },
+                    },
+                }
+            ],
         }
     )
 
@@ -117,6 +130,7 @@ def test_message_is_proxy_to_incoming_message(incoming_message) -> None:
     assert msg.credentials.sync_id == incoming_message.sync_id
     assert msg.credentials.bot_id == incoming_message.bot_id
     assert msg.credentials.host == incoming_message.user.host
+    assert msg.entities == incoming_message.entities
     assert msg.incoming_message == incoming_message
 
 
@@ -153,6 +167,29 @@ class TestBuildingSendingMessage:
                 host=sending_message.host,
             )
             assert msg.credentials == sending_message.credentials
+
+        def test_merging_message_id_into_credentials(
+            self, sending_message: SendingMessage
+        ) -> None:
+            message_id = uuid.uuid4()
+            msg = SendingMessage(
+                text=sending_message.text,
+                credentials=sending_message.credentials,
+                message_id=message_id,
+            )
+            assert msg.credentials.message_id == message_id
+
+        def test_leaving_credentials_message_id_into_credentials_if_was_set(
+            self, sending_message: SendingMessage
+        ) -> None:
+            message_id = uuid.uuid4()
+            sending_message.credentials.message_id = message_id
+            msg = SendingMessage(
+                text=sending_message.text,
+                credentials=sending_message.credentials,
+                message_id=uuid.uuid4(),
+            )
+            assert msg.credentials.message_id == sending_message.credentials.message_id
 
     class TestMarkupBuilding:
         def test_markup_creation_from_bubbles(
@@ -305,12 +342,6 @@ class TestSendingMessageProperties:
         chat_id = uuid.uuid4()
         sending_message.chat_id = chat_id
         assert sending_message.chat_id == chat_id
-        assert sending_message.chat_ids == [chat_id]
-
-    def test_message_chat_ids(self, sending_message: SendingMessage) -> None:
-        chat_ids = [uuid.uuid4() for _ in range(10)]
-        sending_message.chat_ids = chat_ids
-        assert sending_message.chat_ids == chat_ids
 
     def test_message_bot_id(self, sending_message: SendingMessage) -> None:
         bot_id = uuid.uuid4()

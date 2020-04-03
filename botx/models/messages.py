@@ -8,7 +8,7 @@ from botx.models.datastructures import State
 from botx.models.enums import Recipients
 from botx.models.files import File
 from botx.models.mentions import ChatMention, Mention, MentionTypes, UserMention
-from botx.models.receiving import Command, IncomingMessage, User
+from botx.models.receiving import Command, Entity, IncomingMessage, User
 from botx.models.sending import (
     MessageMarkup,
     MessageOptions,
@@ -96,10 +96,18 @@ class Message:  # noqa: WPS214
         return self.user.host
 
     @property
+    def entities(self) -> List[Entity]:
+        """Entities passed with message."""
+        return self._message.entities
+
+    @property
     def credentials(self) -> SendingCredentials:
         """Reply credentials for this message."""
         return SendingCredentials(
-            sync_id=self.sync_id, bot_id=self.bot_id, host=self.host
+            sync_id=self.sync_id,
+            bot_id=self.bot_id,
+            host=self.host,
+            chat_id=self.group_chat_id,
         )
 
     @property
@@ -133,7 +141,7 @@ class SendingMessage:  # noqa: WPS214, WPS230
         host: Optional[str] = None,
         sync_id: Optional[UUID] = None,
         chat_id: Optional[UUID] = None,
-        chat_ids: Optional[List[UUID]] = None,
+        message_id: Optional[UUID] = None,
         recipients: Optional[Union[List[UUID], Recipients]] = None,
         mentions: Optional[List[Mention]] = None,
         bubbles: Optional[BubbleMarkup] = None,
@@ -164,7 +172,7 @@ class SendingMessage:  # noqa: WPS214, WPS230
             host: host for message.
             sync_id: message event id.
             chat_id: chat id.
-            chat_ids: sequence of chat ids.
+            message_id: custom id of new message.
             credentials: message credentials.
             bubbles: bubbles that will be attached to message.
             keyboard: keyboard elements that will be attached to message.
@@ -178,8 +186,8 @@ class SendingMessage:  # noqa: WPS214, WPS230
             bot_id=bot_id,
             host=host,
             sync_id=sync_id,
+            message_id=message_id,
             chat_id=chat_id,
-            chat_ids=chat_ids,
             credentials=credentials,
         )
 
@@ -215,6 +223,7 @@ class SendingMessage:  # noqa: WPS214, WPS230
             text=text,
             file=file,
             sync_id=message.sync_id,
+            chat_id=message.group_chat_id,
             bot_id=message.bot_id,
             host=message.host,
         )
@@ -272,22 +281,12 @@ class SendingMessage:  # noqa: WPS214, WPS230
     @property
     def chat_id(self) -> Optional[UUID]:
         """Chat id in which message should be sent."""
-        return self.credentials.chat_ids[0]
+        return self.credentials.chat_id
 
     @chat_id.setter  # noqa: WPS440
     def chat_id(self, chat_id: UUID) -> None:
         """Chat id in which message should be sent."""
-        self.credentials.chat_ids.append(chat_id)
-
-    @property
-    def chat_ids(self) -> List[UUID]:
-        """Chat ids in which message should be sent."""
-        return self.credentials.chat_ids
-
-    @chat_ids.setter  # noqa: WPS440
-    def chat_ids(self, chat_ids: List[UUID]) -> None:
-        """Chat ids in which message should be sent."""
-        self.credentials.chat_ids = chat_ids
+        self.credentials.chat_id = chat_id
 
     @property
     def bot_id(self) -> UUID:
@@ -443,8 +442,8 @@ class SendingMessage:  # noqa: WPS214, WPS230
         bot_id: Optional[UUID] = None,
         host: Optional[str] = None,
         sync_id: Optional[UUID] = None,
+        message_id: Optional[UUID] = None,
         chat_id: Optional[UUID] = None,
-        chat_ids: Optional[List[UUID]] = None,
         credentials: Optional[SendingCredentials] = None,
     ) -> SendingCredentials:
         """Build credentials for message.
@@ -453,8 +452,8 @@ class SendingMessage:  # noqa: WPS214, WPS230
             bot_id: bot id.
             host: host for message.
             sync_id: message event id.
+            message_id: id of new message.
             chat_id: chat id.
-            chat_ids: sequence of chat ids.
             credentials: message credentials.
 
         Returns:
@@ -469,11 +468,15 @@ class SendingMessage:  # noqa: WPS214, WPS230
                 bot_id=bot_id,
                 host=host,
                 sync_id=sync_id,
-                chat_ids=chat_ids or [],
                 chat_id=chat_id,
+                message_id=message_id,
             )
 
         assert credentials, "MessageCredentials or manual values should be passed"
+
+        if credentials.message_id is None:
+            credentials.message_id = message_id
+
         return credentials
 
     def _built_markup(

@@ -9,10 +9,12 @@ from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
+from botx import ChatMention, Mention, MentionTypes, UserMention
 from botx.api_helpers import BotXAPI
 from botx.bots import Bot
 from botx.models import enums, events, files, receiving, requests, responses
-from botx.models.enums import ChatTypes
+from botx.models.enums import ChatTypes, EntityTypes
+from botx.models.receiving import Entity
 from botx.models.requests import UpdatePayload
 
 APIMessage = Union[
@@ -54,9 +56,11 @@ class _BotXAPICallbacksFactory:
             if self.generate_errored:
                 return self._error_response
 
+            sync_id = command_result.event_sync_id or uuid.uuid4()
+
             return Response(
                 responses.PushResponse(
-                    result=responses.PushResult(sync_id=uuid.uuid4())
+                    result=responses.PushResult(sync_id=sync_id)
                 ).json(),
                 media_type="application/json",
             )
@@ -73,9 +77,11 @@ class _BotXAPICallbacksFactory:
             if self.generate_errored:
                 return self._error_response
 
+            sync_id = notification.event_sync_id or uuid.uuid4()
+
             return Response(
                 responses.PushResponse(
-                    result=responses.PushResult(sync_id=uuid.uuid4())
+                    result=responses.PushResult(sync_id=sync_id)
                 ).json(),
                 media_type="application/json",
             )
@@ -157,9 +163,9 @@ def _botx_api_mock(
         [BotXAPI.command_endpoint.method],
     )
     app.add_route(
-        BotXAPI.notification_endpoint.endpoint,
+        BotXAPI.direct_notification_endpoint.endpoint,
         factory.get_notification_callback(),
-        [BotXAPI.notification_endpoint.method],
+        [BotXAPI.direct_notification_endpoint.method],
     )
     app.add_route(
         BotXAPI.token_endpoint.endpoint,
@@ -221,6 +227,7 @@ class MessageBuilder:  # noqa: WPS214
         self._is_system_command: bool = False
         self._command_data: dict = {}
         self._file: Optional[files.File] = None
+        self._entities: List[Entity] = []
 
         # checks for special invariants for events
         self._event_checkers = {
@@ -301,6 +308,16 @@ class MessageBuilder:  # noqa: WPS214
         self._user = user
 
     @property
+    def entities(self) -> List[Entity]:
+        """Additional entities in message."""
+        return self._entities
+
+    @entities.setter  # noqa: WPS440
+    def entities(self, entities: List[Entity]) -> None:
+        """Additional entities in message."""
+        self._entities = entities
+
+    @property
     def message(self) -> receiving.IncomingMessage:
         """Message that was built by builder."""
         command_type = (
@@ -317,6 +334,52 @@ class MessageBuilder:  # noqa: WPS214
             file=self.file,
             bot_id=self.bot_id,
             user=self.user,
+            entities=self.entities,
+        )
+
+    def mention_contact(self, user_huid: uuid.UUID) -> None:
+        """Add contact mention to message for bot.
+
+        Arguments:
+            user_huid: huid of user to mention.
+        """
+        self._entities.append(
+            Entity(
+                type=EntityTypes.mention,
+                data=Mention(
+                    mention_data=UserMention(user_huid=user_huid),
+                    mention_type=MentionTypes.contact,
+                ),
+            )
+        )
+
+    def mention_user(self, user_huid: uuid.UUID) -> None:
+        """Add user mention to message for bot.
+
+        Arguments:
+            user_huid: huid of user to mention.
+        """
+        self._entities.append(
+            Entity(
+                type=EntityTypes.mention,
+                data=Mention(mention_data=UserMention(user_huid=user_huid)),
+            )
+        )
+
+    def mention_chat(self, chat_id: uuid.UUID) -> None:
+        """Add chat mention to message for bot.
+
+        Arguments:
+            chat_id: id of chat to mention.
+        """
+        self._entities.append(
+            Entity(
+                type=EntityTypes.mention,
+                data=Mention(
+                    mention_data=ChatMention(group_chat_id=chat_id),
+                    mention_type=MentionTypes.chat,
+                ),
+            )
         )
 
     @property

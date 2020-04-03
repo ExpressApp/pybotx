@@ -1,6 +1,15 @@
+import uuid
 from io import StringIO
 
-from botx import File, IncomingMessage
+from botx import (
+    Entity,
+    EntityTypes,
+    File,
+    IncomingMessage,
+    Mention,
+    MentionTypes,
+    UserMention,
+)
 from botx.testing import MessageBuilder
 
 
@@ -45,3 +54,42 @@ def test_setting_not_processable_file_for_incoming_message() -> None:
     message = builder.message
 
     assert message.file.file_name == "zen.py"
+
+
+def test_mention_user_in_message() -> None:
+    user_huid = uuid.uuid4()
+    builder = MessageBuilder()
+    builder.mention_user(user_huid)
+
+    assert builder.message.entities[0].data.mention_type == MentionTypes.user
+    assert builder.message.entities[0].data.mention_data.user_huid == user_huid
+
+
+def test_mention_contact_in_message() -> None:
+    user_huid = uuid.uuid4()
+    builder = MessageBuilder()
+    builder.mention_contact(user_huid)
+
+    assert builder.message.entities[0].data.mention_type == MentionTypes.contact
+    assert builder.message.entities[0].data.mention_data.user_huid == user_huid
+
+
+def test_mention_chat_in_message() -> None:
+    chat_id = uuid.uuid4()
+    builder = MessageBuilder()
+    builder.mention_chat(chat_id)
+
+    assert builder.message.entities[0].data.mention_type == MentionTypes.chat
+    assert builder.message.entities[0].data.mention_data.group_chat_id == chat_id
+
+
+def test_setting_raw_entities() -> None:
+    builder = MessageBuilder()
+    builder.entities = [
+        Entity(
+            type=EntityTypes.mention,
+            data=Mention(mention_data=UserMention(user_huid=uuid.uuid4())),
+        )
+    ]
+
+    assert builder.message.entities[0].data.mention_type == MentionTypes.user
