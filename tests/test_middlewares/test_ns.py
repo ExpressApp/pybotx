@@ -2,7 +2,15 @@ from collections import Counter
 
 import pytest
 
-from botx import Bot, ChatCreatedEvent, IncomingMessage, Message, UserKinds, testing
+from botx import (
+    Bot,
+    ChatCreatedEvent,
+    Collector,
+    IncomingMessage,
+    Message,
+    UserKinds,
+    testing,
+)
 from botx.middlewares.ns import (
     NextStepMiddleware,
     register_function_as_ns_handler,
@@ -147,7 +155,8 @@ async def test_error_if_trying_to_register_ns_from_message_without_user_huid(
     def some_function() -> None:
         ...  # pragma: no cover
 
-    bot.collector.handlers = []
+    bot.collector = Collector()
+    bot.exception_middleware.executor = bot.collector
 
     @bot.chat_created
     def chain_start(message: Message) -> None:

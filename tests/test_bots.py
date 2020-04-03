@@ -402,3 +402,25 @@ class TestAddRemoveUsers:
 @pytest.mark.asyncio
 async def test_no_error_when_stopping_bot_with_no_tasks(bot: Bot) -> None:
     await bot.shutdown()
+
+
+@pytest.mark.asyncio
+async def test_bot_iterates_over_sorted_handlers(
+    bot: Bot, incoming_message: IncomingMessage
+) -> None:
+    visited_by_body_v2_handler = False
+
+    @bot.handler(command="/body")
+    async def body_handler() -> None:
+        ...  # pragma: no cover
+
+    @bot.handler(command="/body-v2")
+    async def body_v2_handler() -> None:
+        nonlocal visited_by_body_v2_handler
+        visited_by_body_v2_handler = True
+
+    with testing.TestClient(bot) as client:
+        incoming_message.command.body = "/body-v2"
+        await client.send_command(incoming_message)
+
+    assert visited_by_body_v2_handler

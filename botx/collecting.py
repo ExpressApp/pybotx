@@ -618,7 +618,7 @@ class Collector:  # noqa: WPS214, WPS230
         Arguments:
             message: incoming message that will be passed to handler.
         """
-        for handler in self.handlers:
+        for handler in self._added_handlers:
             if handler.matches(message):
                 logger.bind(botx_collector=True).info(
                     f"botx => {handler.name}: {message.command.command}"
