@@ -450,6 +450,7 @@ class TestClient:  # noqa: WPS214
         self._original_http_client = bot.client.http_client
         self._messages: List[APIMessage] = []
         self._generate_error_api = generate_error_api
+        self.__test__ = False
 
     @property
     def generate_error_api(self) -> bool:
