@@ -438,6 +438,10 @@ class MessageBuilder:  # noqa: WPS214
 class TestClient:  # noqa: WPS214
     """Test client for testing bots."""
 
+    # https://docs.pytest.org/en/latest/changelog.html#changes
+    # Allow to skip test classes from being collected
+    __test__ = False
+
     def __init__(self, bot: Bot, generate_error_api: bool = False) -> None:
         """Init client with required params.
 
