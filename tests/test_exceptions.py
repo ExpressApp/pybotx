@@ -6,17 +6,17 @@ from botx import (
     IncomingMessage,
     Message,
     ServerUnknownError,
-    testing,
+    TestClient,
 )
 from botx.exceptions import NoMatchFound
 
 
 @pytest.mark.asyncio
 async def test_response_info_in_BotXAPIError(
-    bot: Bot, incoming_message: IncomingMessage
+    bot: Bot, incoming_message: IncomingMessage, client: TestClient
 ) -> None:
     message = Message.from_dict(incoming_message.dict(), bot)
-    with testing.TestClient(bot, generate_error_api=True):
+    with TestClient(bot, generate_error_api=True):
         with pytest.raises(BotXAPIError) as err_info:
             await bot.send_message("text", message.credentials)
         error = err_info.value

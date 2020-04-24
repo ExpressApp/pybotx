@@ -11,9 +11,10 @@ from botx import (
     ExpressServer,
     IncomingMessage,
     Message,
+    MessageBuilder,
     ServerCredentials,
+    TestClient,
 )
-from botx.testing import MessageBuilder
 
 logger.enable("botx")
 
@@ -115,6 +116,12 @@ def bot(incoming_message: IncomingMessage) -> Bot:
         await executor(message)
 
     return bot
+
+
+@pytest.fixture
+def client(bot: Bot) -> TestClient:
+    with TestClient(bot) as client:
+        yield client
 
 
 @pytest.fixture

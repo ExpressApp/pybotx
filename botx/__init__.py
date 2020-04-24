@@ -33,6 +33,7 @@ from botx.models.sending import (
     UpdatePayload,
 )
 from botx.params import Depends
+from botx.testing import MessageBuilder, TestClient
 
 __all__ = (
     "Bot",
@@ -73,6 +74,8 @@ __all__ = (
     "SendingCredentials",
     "Entity",
     "EntityTypes",
+    "TestClient",
+    "MessageBuilder",
 )
 
 logger.disable("botx")

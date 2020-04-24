@@ -1,12 +1,12 @@
 import pytest
 from _pytest.logging import LogCaptureFixture
 
-from botx import Bot, IncomingMessage, Message, testing
+from botx import Bot, IncomingMessage, Message, TestClient
 
 
 @pytest.mark.asyncio
 async def test_handling_exception_through_custom_catcher(
-    bot: Bot, incoming_message: IncomingMessage
+    bot: Bot, incoming_message: IncomingMessage, client: TestClient
 ) -> None:
     bot.collector.default_message_handler = None
 
@@ -25,8 +25,7 @@ async def test_handling_exception_through_custom_catcher(
     def handler_that_raises_error() -> None:
         raise exc_for_raising
 
-    with testing.TestClient(bot) as bot_client:
-        await bot_client.send_command(incoming_message)
+    await client.send_command(incoming_message)
 
     assert exc_value == exc_for_raising
     assert exc_message.incoming_message == incoming_message
@@ -34,7 +33,7 @@ async def test_handling_exception_through_custom_catcher(
 
 @pytest.mark.asyncio
 async def test_handling_exception_through_nearest_custom_catcher(
-    bot: Bot, incoming_message: IncomingMessage
+    bot: Bot, incoming_message: IncomingMessage, client: TestClient
 ) -> None:
     bot.collector.default_message_handler = None
 
@@ -55,15 +54,17 @@ async def test_handling_exception_through_nearest_custom_catcher(
     def handler_that_raises_error() -> None:
         raise exc_for_raising
 
-    with testing.TestClient(bot) as bot_client:
-        await bot_client.send_command(incoming_message)
+    await client.send_command(incoming_message)
 
     assert exc_value == exc_for_raising
 
 
 @pytest.mark.asyncio
 async def test_logging_exception_if_was_not_found(
-    bot: Bot, incoming_message: IncomingMessage, loguru_caplog: LogCaptureFixture
+    bot: Bot,
+    incoming_message: IncomingMessage,
+    loguru_caplog: LogCaptureFixture,
+    client: TestClient,
 ) -> None:
     bot.collector.default_message_handler = None
 
@@ -71,7 +72,6 @@ async def test_logging_exception_if_was_not_found(
     def handler_that_raises_error() -> None:
         raise ValueError
 
-    with testing.TestClient(bot) as bot_client:
-        await bot_client.send_command(incoming_message)
+    await client.send_command(incoming_message)
 
     assert "uncaught ValueError exception" in loguru_caplog.text

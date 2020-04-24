@@ -10,14 +10,14 @@ from botx import (
     Depends,
     IncomingMessage,
     Message,
-    testing,
+    TestClient,
 )
 
 
 class TestPassingSpecialDependencies:
     @pytest.mark.asyncio
     async def test_passing_message_as_dependency(
-        self, bot: Bot, incoming_message: IncomingMessage
+        self, bot: Bot, incoming_message: IncomingMessage, client: TestClient
     ) -> None:
         msg: Optional[Message] = None
         bot.collector.default_message_handler = None
@@ -27,14 +27,13 @@ class TestPassingSpecialDependencies:
             nonlocal msg
             msg = message
 
-        with testing.TestClient(bot) as test_client:
-            await test_client.send_command(incoming_message)
+        await client.send_command(incoming_message)
 
         assert msg.incoming_message == incoming_message
 
     @pytest.mark.asyncio
     async def test_passing_bot_as_dependency(
-        self, bot: Bot, incoming_message: IncomingMessage
+        self, bot: Bot, incoming_message: IncomingMessage, client: TestClient
     ) -> None:
         dep_bot: Optional[Bot] = None
         bot.collector.default_message_handler = None
@@ -44,59 +43,55 @@ class TestPassingSpecialDependencies:
             nonlocal dep_bot
             dep_bot = handler_bot
 
-        with testing.TestClient(bot) as test_client:
-            await test_client.send_command(incoming_message)
+        await client.send_command(incoming_message)
 
         assert dep_bot == bot
 
     @pytest.mark.asyncio
     async def test_passing_async_client_as_dependency(
-        self, bot: Bot, incoming_message: IncomingMessage
+        self, bot: Bot, incoming_message: IncomingMessage, client: TestClient
     ) -> None:
         bot_client: Optional[AsyncClient] = None
         bot.collector.default_message_handler = None
 
         @bot.default
-        async def handler_with_message(client: AsyncClient) -> None:
+        async def handler_with_message(botx_client: AsyncClient) -> None:
             nonlocal bot_client
-            bot_client = client
+            bot_client = botx_client
 
-        with testing.TestClient(bot) as test_client:
-            await test_client.send_command(incoming_message)
+        await client.send_command(incoming_message)
 
         assert bot_client == bot.client
 
     @pytest.mark.asyncio
     async def test_passing_sync_client_as_dependency(
-        self, bot: Bot, incoming_message: IncomingMessage
+        self, bot: Bot, incoming_message: IncomingMessage, client: TestClient
     ) -> None:
         bot_client: Optional[Client] = None
         bot.collector.default_message_handler = None
 
         @bot.default
-        async def handler_with_message(client: Client) -> None:
+        async def handler_with_message(botx_client: Client) -> None:
             nonlocal bot_client
-            bot_client = client
+            bot_client = botx_client
 
-        with testing.TestClient(bot) as test_client:
-            await test_client.send_command(incoming_message)
+        await client.send_command(incoming_message)
 
         assert bot_client == bot.sync_client
 
     @pytest.mark.asyncio
     async def test_solving_forward_references_for_special_dependencies(
-        self, bot: Bot, incoming_message: IncomingMessage
+        self, bot: Bot, incoming_message: IncomingMessage, client: TestClient
     ) -> None:
         bot_client: Optional[AsyncClient] = None
         bot.collector.default_message_handler = None
 
         @bot.default
-        async def handler_with_message(client: "AsyncClient") -> None:
+        async def handler_with_message(botx_client: "AsyncClient") -> None:
             nonlocal bot_client
-            bot_client = client
+            bot_client = botx_client
 
-        with testing.TestClient(bot) as test_client:
-            await test_client.send_command(incoming_message)
+        await client.send_command(incoming_message)
 
         assert bot_client == bot.client
 
@@ -113,7 +108,7 @@ def test_error_passing_non_special_param_or_dependency(
 
 @pytest.mark.asyncio
 async def test_dependency_executed_only_once_per_message(
-    bot: Bot, incoming_message: IncomingMessage
+    bot: Bot, incoming_message: IncomingMessage, client: TestClient
 ) -> None:
     counter = 0
     bot.collector.default_message_handler = None
@@ -126,20 +121,18 @@ async def test_dependency_executed_only_once_per_message(
     async def handler_with_message(_: None = Depends(increase_counter)) -> None:
         ...
 
-    with testing.TestClient(bot) as test_client:
-        await test_client.send_command(incoming_message)
+    await client.send_command(incoming_message)
 
     assert counter == 1
 
-    with testing.TestClient(bot) as test_client:
-        await test_client.send_command(incoming_message)
+    await client.send_command(incoming_message)
 
     assert counter == 2
 
 
 @pytest.mark.asyncio
 async def test_that_dependency_can_be_overriden(
-    bot: Bot, incoming_message: IncomingMessage
+    bot: Bot, incoming_message: IncomingMessage, client: TestClient
 ) -> None:
     incoming_message.command.body = "/command with arguments"
 
@@ -158,15 +151,14 @@ async def test_that_dependency_can_be_overriden(
 
     bot.dependency_overrides[original_dependency] = fake_dependency
 
-    with testing.TestClient(bot) as test_client:
-        await test_client.send_command(incoming_message)
+    await client.send_command(incoming_message)
 
     assert entered_into_dependency
 
 
 @pytest.mark.asyncio
 async def test_that_flow_can_be_stopped_by_raising_dependency_error(
-    bot: Bot, incoming_message: IncomingMessage
+    bot: Bot, incoming_message: IncomingMessage, client: TestClient
 ) -> None:
     bot.collector.default_message_handler = None
     entered_into_dependency = False
@@ -194,7 +186,6 @@ async def test_that_flow_can_be_stopped_by_raising_dependency_error(
         nonlocal entered_into_handler
         entered_into_handler = True
 
-    with testing.TestClient(bot) as test_client:
-        await test_client.send_command(incoming_message)
+    await client.send_command(incoming_message)
 
     assert entered_into_dependency and not entered_into_handler
