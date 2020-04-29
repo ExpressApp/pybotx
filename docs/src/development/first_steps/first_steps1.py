@@ -8,11 +8,10 @@ from botx import (
     ServerUnknownError,
     Status,
 )
+from fastapi import FastAPI
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.status import HTTP_202_ACCEPTED, HTTP_503_SERVICE_UNAVAILABLE
-
-from fastapi import FastAPI
 
 bot = Bot(known_hosts=[ExpressServer(host="cts.example.com", secret_key="secret")])
 
