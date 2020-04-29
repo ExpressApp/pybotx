@@ -8,13 +8,13 @@ from botx import (
     IncomingMessage,
     Message,
     SendingMessage,
+    TestClient,
     UpdatePayload,
-    testing,
 )
 
 
 def test_regenerating_app_for_errored_views(bot: Bot) -> None:
-    with testing.TestClient(bot) as client:
+    with TestClient(bot) as client:
         original_mock = client.bot.client.http_client
         client.generate_error_api = True
 
@@ -31,7 +31,7 @@ async def test_disabling_sync_send_for_client(
 
     incoming_message.command.body = "/background-handler"
 
-    with testing.TestClient(bot) as client:
+    with TestClient(bot) as client:
         await client.send_command(incoming_message, False)
 
         assert bot._tasks
@@ -43,7 +43,7 @@ async def test_disabling_sync_send_for_client(
 async def test_sending_command_result_when_token_errored(
     bot: Bot, incoming_message: IncomingMessage
 ) -> None:
-    with testing.TestClient(bot, generate_error_api=True):
+    with TestClient(bot, generate_error_api=True):
         with pytest.raises(BotXAPIError):
             await bot.send(
                 SendingMessage.from_message(
@@ -58,7 +58,7 @@ async def test_sending_notification_to_errored_api(
     bot: Bot, incoming_message: IncomingMessage
 ) -> None:
     bot._get_cts_by_host(incoming_message.user.host).server_credentials.token = "token"
-    with testing.TestClient(bot, generate_error_api=True):
+    with TestClient(bot, generate_error_api=True):
         with pytest.raises(BotXAPIError):
             sending_msg = SendingMessage.from_message(
                 text="some text",
@@ -74,7 +74,7 @@ async def test_sending_command_result_to_errored_api(
 ) -> None:
     bot._get_cts_by_host(incoming_message.user.host).server_credentials.token = "token"
 
-    with testing.TestClient(bot, generate_error_api=True):
+    with TestClient(bot, generate_error_api=True):
         with pytest.raises(BotXAPIError):
             await bot.send(
                 SendingMessage.from_message(
@@ -90,8 +90,8 @@ async def test_sending_event_update_to_errored_api(
 ) -> None:
     bot._get_cts_by_host(incoming_message.user.host).server_credentials.token = "token"
 
-    with testing.TestClient(bot, generate_error_api=True):
-        with pytest.raises(BotXAPIError) as error:
+    with TestClient(bot, generate_error_api=True):
+        with pytest.raises(BotXAPIError):
             await bot.update_message(
                 Message.from_dict(incoming_message.dict(), bot).credentials,
                 UpdatePayload(text="some text"),

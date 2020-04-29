@@ -1,6 +1,6 @@
 import pytest
 
-from botx import Bot, Collector, Depends, IncomingMessage, SystemEvents, testing
+from botx import Bot, Collector, Depends, IncomingMessage, SystemEvents, TestClient
 from botx.collecting import Handler
 from botx.exceptions import NoMatchFound
 from tests.conftest import HandlerClass, handler_function
@@ -137,7 +137,7 @@ def test_registration_handler_for_several_system_events() -> None:
 
 @pytest.mark.asyncio
 async def test_executing_handler_when_found_full_matched_body(
-    bot: Bot, incoming_message: IncomingMessage
+    bot: Bot, incoming_message: IncomingMessage, client: TestClient
 ) -> None:
     incoming_message.command.body = "/command"
 
@@ -148,15 +148,14 @@ async def test_executing_handler_when_found_full_matched_body(
         nonlocal entered_into_command
         entered_into_command = True
 
-    with testing.TestClient(bot) as test_client:
-        await test_client.send_command(incoming_message)
+    await client.send_command(incoming_message)
 
     assert entered_into_command
 
 
 @pytest.mark.asyncio
 async def test_executing_handler_when_found_partial_matched_body(
-    bot: Bot, incoming_message: IncomingMessage
+    bot: Bot, incoming_message: IncomingMessage, client: TestClient
 ) -> None:
     incoming_message.command.body = "/command with arguments"
 
@@ -167,8 +166,7 @@ async def test_executing_handler_when_found_partial_matched_body(
         nonlocal entered_into_command
         entered_into_command = True
 
-    with testing.TestClient(bot) as test_client:
-        await test_client.send_command(incoming_message)
+    await client.send_command(incoming_message)
 
     assert entered_into_command
 
@@ -198,7 +196,7 @@ def test_no_extra_space_on_command_built_through_command_for() -> None:
 
 @pytest.mark.asyncio
 async def test_dependencies_order_after_including_into_another_collector(
-    bot: Bot, incoming_message: IncomingMessage
+    bot: Bot, incoming_message: IncomingMessage, client: TestClient
 ) -> None:
     incoming_message.command.body = "/command"
 
@@ -225,8 +223,7 @@ async def test_dependencies_order_after_including_into_another_collector(
     first_collector.include_collector(second_collector)
     bot.include_collector(first_collector)
 
-    with testing.TestClient(bot) as test_client:
-        await test_client.send_command(incoming_message)
+    await client.send_command(incoming_message)
 
     assert args == [1, 2, 3]
 

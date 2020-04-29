@@ -8,8 +8,8 @@ from botx import (
     Collector,
     IncomingMessage,
     Message,
+    TestClient,
     UserKinds,
-    testing,
 )
 from botx.middlewares.ns import (
     NextStepMiddleware,
@@ -98,7 +98,7 @@ def test_register_break_handler_as_function(bot: Bot) -> None:
 
 @pytest.mark.asyncio
 async def test_error_if_trying_to_register_ns_for_not_registered_function(
-    bot: Bot, incoming_message: IncomingMessage
+    bot: Bot, incoming_message: IncomingMessage, client: TestClient
 ) -> None:
     exc_raised = False
 
@@ -112,15 +112,14 @@ async def test_error_if_trying_to_register_ns_for_not_registered_function(
 
     bot.add_middleware(NextStepMiddleware, bot=bot, functions={})
 
-    with testing.TestClient(bot) as client:
-        incoming_message.command.body = "/start-ns"
-        await client.send_command(incoming_message)
-        assert exc_raised
+    incoming_message.command.body = "/start-ns"
+    await client.send_command(incoming_message)
+    assert exc_raised
 
 
 @pytest.mark.asyncio
 async def test_error_if_trying_to_register_ns_from_message_without_user_huid(
-    bot: Bot, incoming_message: IncomingMessage
+    bot: Bot, incoming_message: IncomingMessage, client: TestClient
 ) -> None:
     exc_raised = False
 
@@ -168,14 +167,13 @@ async def test_error_if_trying_to_register_ns_from_message_without_user_huid(
 
     bot.add_middleware(NextStepMiddleware, bot=bot, functions={})
 
-    with testing.TestClient(bot) as client:
-        await client.send_command(builder.message)
-        assert exc_raised
+    await client.send_command(builder.message)
+    assert exc_raised
 
 
 @pytest.mark.asyncio
 async def test_executing_ns_handlers(
-    bot: Bot, incoming_message: IncomingMessage
+    bot: Bot, incoming_message: IncomingMessage, client: TestClient
 ) -> None:
     commands_visited = Counter()
 
@@ -189,18 +187,17 @@ async def test_executing_ns_handlers(
 
     bot.add_middleware(NextStepMiddleware, bot=bot, functions={ns_handler})
 
-    with testing.TestClient(bot) as client:
-        incoming_message.command.body = "/start-ns"
-        await client.send_command(incoming_message)
-        assert commands_visited["chain_start"] == 1
+    incoming_message.command.body = "/start-ns"
+    await client.send_command(incoming_message)
+    assert commands_visited["chain_start"] == 1
 
-        await client.send_command(incoming_message)
-        assert commands_visited["chain_start"] == commands_visited["ns_handler"] == 1
+    await client.send_command(incoming_message)
+    assert commands_visited["chain_start"] == commands_visited["ns_handler"] == 1
 
 
 @pytest.mark.asyncio
 async def test_setting_args_from_ns_registration_into_state(
-    bot: Bot, incoming_message: IncomingMessage
+    bot: Bot, incoming_message: IncomingMessage, client: TestClient
 ) -> None:
     message_state = None
 
@@ -214,19 +211,18 @@ async def test_setting_args_from_ns_registration_into_state(
 
     bot.add_middleware(NextStepMiddleware, bot=bot, functions={ns_handler})
 
-    with testing.TestClient(bot) as client:
-        incoming_message.command.body = "/start-ns"
-        await client.send_command(incoming_message)
-        await client.send_command(incoming_message)
+    incoming_message.command.body = "/start-ns"
+    await client.send_command(incoming_message)
+    await client.send_command(incoming_message)
 
-        assert message_state.arg1 == 1
-        assert message_state.arg2 == "2"
-        assert message_state.arg3
+    assert message_state.arg1 == 1
+    assert message_state.arg2 == "2"
+    assert message_state.arg3
 
 
 @pytest.mark.asyncio
 async def test_ns_chain_can_be_stopped_by_break_handler(
-    bot: Bot, incoming_message: IncomingMessage
+    bot: Bot, incoming_message: IncomingMessage, client: TestClient
 ) -> None:
     commands_visited = Counter()
 
@@ -250,15 +246,14 @@ async def test_ns_chain_can_be_stopped_by_break_handler(
         break_handler="break_handler",
     )
 
-    with testing.TestClient(bot) as client:
-        incoming_message.command.body = "/start-ns"
-        await client.send_command(incoming_message)
-        await client.send_command(incoming_message)
-        await client.send_command(incoming_message)
+    incoming_message.command.body = "/start-ns"
+    await client.send_command(incoming_message)
+    await client.send_command(incoming_message)
+    await client.send_command(incoming_message)
 
-        incoming_message.command.body = "/break-handler"
-        await client.send_command(incoming_message)
+    incoming_message.command.body = "/break-handler"
+    await client.send_command(incoming_message)
 
-        assert commands_visited["break_handler"] == 1
-        assert commands_visited["chain_start"] == 2
-        assert commands_visited["ns_handler"] == 1
+    assert commands_visited["break_handler"] == 1
+    assert commands_visited["chain_start"] == 2
+    assert commands_visited["ns_handler"] == 1
