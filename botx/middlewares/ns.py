@@ -1,4 +1,5 @@
 """Definition for middleware that precess next step handlers logic."""
+
 import contextlib
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 from uuid import UUID
