@@ -952,8 +952,7 @@ execution if right handler will be found.</p>
 </div>
 <h3 id="botx.middlewares.ns.NextStepMiddleware.__init__"><code class="codehilite"><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">executor</span><span class="p">,</span> <span class="n">bot</span><span class="p">,</span> <span class="n">functions</span><span class="p">,</span> <span class="n">break_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dependency_overrides_provider</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code><a class="headerlink" href="#botx.middlewares.ns.NextStepMiddleware.__init__" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>middlewares/ns.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>42
-43
+<details class="note"><summary>Show source code in <code>middlewares/ns.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>43
 44
 45
 46
@@ -1007,7 +1006,8 @@ execution if right handler will be found.</p>
 94
 95
 96
-97</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+97
+98</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">executor</span><span class="p">:</span> <span class="n">Executor</span><span class="p">,</span>
         <span class="n">bot</span><span class="p">:</span> <span class="n">bots</span><span class="o">.</span><span class="n">Bot</span><span class="p">,</span>
@@ -1114,8 +1114,7 @@ execution if right handler will be found.</p>
 </div>
 <h3 id="botx.middlewares.ns.NextStepMiddleware.dispatch"><code class="codehilite"><span class="n">dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">call_next</span><span class="p">)</span></code><a class="headerlink" href="#botx.middlewares.ns.NextStepMiddleware.dispatch" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>middlewares/ns.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span> 99
-100
+<details class="note"><summary>Show source code in <code>middlewares/ns.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>100
 101
 102
 103
@@ -1144,7 +1143,8 @@ execution if right handler will be found.</p>
 126
 127
 128
-129</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">messages</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span> <span class="n">call_next</span><span class="p">:</span> <span class="n">Executor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+129
+130</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">messages</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span> <span class="n">call_next</span><span class="p">:</span> <span class="n">Executor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute middleware logic.</span>
 
 <span class="sd">        Arguments:</span>
@@ -1208,19 +1208,21 @@ execution if right handler will be found.</p>
 </div>
 <h3 id="botx.middlewares.ns.NextStepMiddleware.drop_next_step_handlers_chain"><code class="codehilite"><span class="n">drop_next_step_handlers_chain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></code><a class="headerlink" href="#botx.middlewares.ns.NextStepMiddleware.drop_next_step_handlers_chain" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>middlewares/ns.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>151
-152
+<details class="note"><summary>Show source code in <code>middlewares/ns.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>152
 153
 154
 155
 156
-157</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">async</span> <span class="k">def</span> <span class="nf">drop_next_step_handlers_chain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">messages</span><span class="o">.</span><span class="n">Message</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+157
+158
+159</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">async</span> <span class="k">def</span> <span class="nf">drop_next_step_handlers_chain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">messages</span><span class="o">.</span><span class="n">Message</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Drop registered chain for message.</span>
 
 <span class="sd">        Arguments:</span>
 <span class="sd">            message: message for which chain should be dropped.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">message</span><span class="o">.</span><span class="n">bot</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ns_store</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">get_chain_key_by_message</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+        <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">KeyError</span><span class="p">):</span>
+            <span class="n">message</span><span class="o">.</span><span class="n">bot</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">ns_store</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">get_chain_key_by_message</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
 </code></pre></div>
 </td></tr></table>
 
@@ -1248,8 +1250,7 @@ execution if right handler will be found.</p>
 </div>
 <h3 id="botx.middlewares.ns.NextStepMiddleware.lookup_next_handler_for_message"><code class="codehilite"><span class="n">lookup_next_handler_for_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></code><a class="headerlink" href="#botx.middlewares.ns.NextStepMiddleware.lookup_next_handler_for_message" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>middlewares/ns.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>131
-132
+<details class="note"><summary>Show source code in <code>middlewares/ns.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>132
 133
 134
 135
@@ -1266,7 +1267,8 @@ execution if right handler will be found.</p>
 146
 147
 148
-149</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">async</span> <span class="k">def</span> <span class="nf">lookup_next_handler_for_message</span><span class="p">(</span>
+149
+150</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">async</span> <span class="k">def</span> <span class="nf">lookup_next_handler_for_message</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">messages</span><span class="o">.</span><span class="n">Message</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Handler</span><span class="p">,</span> <span class="n">NextStepHandlerState</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Find handler in bot storage or in handlers.</span>
@@ -1328,9 +1330,7 @@ execution if right handler will be found.</p>
 </div>
 <h2 id="botx.middlewares.ns.get_chain_key_by_message"><code class="codehilite"><span class="n">get_chain_key_by_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></code><a class="headerlink" href="#botx.middlewares.ns.get_chain_key_by_message" title="Permanent link">&para;</a></h2>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>middlewares/ns.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>160
-161
-162
+<details class="note"><summary>Show source code in <code>middlewares/ns.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>162
 163
 164
 165
@@ -1340,7 +1340,9 @@ execution if right handler will be found.</p>
 169
 170
 171
-172</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_chain_key_by_message</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">messages</span><span class="o">.</span><span class="n">Message</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">UUID</span><span class="p">,</span> <span class="n">UUID</span><span class="p">,</span> <span class="n">UUID</span><span class="p">]:</span>
+172
+173
+174</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_chain_key_by_message</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">messages</span><span class="o">.</span><span class="n">Message</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">UUID</span><span class="p">,</span> <span class="n">UUID</span><span class="p">,</span> <span class="n">UUID</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Generate key for next step handlers chain from message.</span>
 
 <span class="sd">    Arguments:</span>
@@ -1395,9 +1397,7 @@ execution if right handler will be found.</p>
 </div>
 <h2 id="botx.middlewares.ns.register_function_as_ns_handler"><code class="codehilite"><span class="n">register_function_as_ns_handler</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code><a class="headerlink" href="#botx.middlewares.ns.register_function_as_ns_handler" title="Permanent link">&para;</a></h2>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>middlewares/ns.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>175
-176
-177
+<details class="note"><summary>Show source code in <code>middlewares/ns.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>177
 178
 179
 180
@@ -1422,7 +1422,9 @@ execution if right handler will be found.</p>
 199
 200
 201
-202</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">register_function_as_ns_handler</span><span class="p">(</span>
+202
+203
+204</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">register_function_as_ns_handler</span><span class="p">(</span>
     <span class="n">bot</span><span class="p">:</span> <span class="n">bots</span><span class="o">.</span><span class="n">Bot</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Register new function that can be called as next step handler.</span>
@@ -1494,9 +1496,7 @@ handlers or elsewhere, since state on different time can be changed somehow.</p>
 </div>
 <h2 id="botx.middlewares.ns.register_next_step_handler"><code class="codehilite"><span class="n">register_next_step_handler</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">**</span><span class="n">ns_arguments</span><span class="p">)</span></code><a class="headerlink" href="#botx.middlewares.ns.register_next_step_handler" title="Permanent link">&para;</a></h2>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>middlewares/ns.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>205
-206
-207
+<details class="note"><summary>Show source code in <code>middlewares/ns.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>207
 208
 209
 210
@@ -1531,7 +1531,9 @@ handlers or elsewhere, since state on different time can be changed somehow.</p>
 239
 240
 241
-242</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">register_next_step_handler</span><span class="p">(</span>
+242
+243
+244</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">register_next_step_handler</span><span class="p">(</span>
     <span class="n">message</span><span class="p">:</span> <span class="n">messages</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">],</span> <span class="o">**</span><span class="n">ns_arguments</span><span class="p">:</span> <span class="n">Any</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Register new next step handler for next message from user.</span>
