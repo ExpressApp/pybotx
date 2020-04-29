@@ -39,6 +39,19 @@ class Button(BaseModel):
         """
         return value or values["command"]
 
+    @validator("data", always=True)
+    def add_ui_flag_to_data(cls, value: dict) -> dict:  # noqa: N805
+        """Return command data with set UI flag.
+
+        Arguments:
+            value: data passed to bot.
+
+        Returns:
+            Passed data with set "ui" flag to True if it wasn't set already.
+        """
+        value.setdefault("ui", True)  # noqa: WPS425
+        return value
+
 
 class BubbleElement(Button):
     """Bubble buttons that is shown under messages."""
