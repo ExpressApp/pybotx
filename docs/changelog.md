@@ -1,8 +1,19 @@
+## 0.14.1 (Apr 29, 2020)
+
+### Added
+
+* Add flag for messages sent from buttons.
+
+### Fixed
+
+* Attach dependencies on default handler when collector is included by another.
+* Suppress `KeyError` when dropping key from next steps storage.
+
 ## 0.14.0 (Apr 3, 2020)
 
 ### Added
 
-* Support for extrenal entities in incoming message, like mentions.
+* Support for external entities in incoming message, like mentions.
 * Add ability to specify custom message id for new message from bot.
 
 ### Changed
