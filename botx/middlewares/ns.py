@@ -1,5 +1,5 @@
 """Definition for middleware that precess next step handlers logic."""
-
+import contextlib
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 from uuid import UUID
 
@@ -154,7 +154,8 @@ class NextStepMiddleware(BaseMiddleware):
         Arguments:
             message: message for which chain should be dropped.
         """
-        message.bot.state.ns_store.pop(get_chain_key_by_message(message))
+        with contextlib.suppress(KeyError):
+            message.bot.state.ns_store.pop(get_chain_key_by_message(message))
 
 
 def get_chain_key_by_message(message: messages.Message) -> Tuple[str, UUID, UUID, UUID]:
