@@ -485,6 +485,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#botx.models.buttons.Button.add_ui_flag_to_data" class="md-nav__link">
+    add_ui_flag_to_data()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#botx.models.buttons.Button.label_as_command_if_none" class="md-nav__link">
     label_as_command_if_none()
   </a>
@@ -1484,6 +1491,13 @@
           <li class="md-nav__item">
   <a href="#botx.models.messages.Message.incoming_message" class="md-nav__link">
     incoming_message
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#botx.models.messages.Message.sent_from_button" class="md-nav__link">
+    sent_from_button
   </a>
   
 </li>
@@ -2854,6 +2868,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#botx.models.buttons.Button.add_ui_flag_to_data" class="md-nav__link">
+    add_ui_flag_to_data()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#botx.models.buttons.Button.label_as_command_if_none" class="md-nav__link">
     label_as_command_if_none()
   </a>
@@ -3853,6 +3874,13 @@
           <li class="md-nav__item">
   <a href="#botx.models.messages.Message.incoming_message" class="md-nav__link">
     incoming_message
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#botx.models.messages.Message.sent_from_button" class="md-nav__link">
+    sent_from_button
   </a>
   
 </li>
@@ -5151,6 +5179,71 @@
 <h3 id="botx.models.buttons.Button.opts"><code class="codehilite"><span class="n">opts</span><span class="p">:</span> <span class="n">ButtonOptions</span></code> <em>(class)</em><a class="headerlink" href="#botx.models.buttons.Button.opts" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
 <p>options for button.</p>
+</div>
+<h3 id="botx.models.buttons.Button.add_ui_flag_to_data"><code class="codehilite"><span class="n">add_ui_flag_to_data</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></code> <em>(classmethod)</em><a class="headerlink" href="#botx.models.buttons.Button.add_ui_flag_to_data" title="Permanent link">&para;</a></h3>
+<div class="autodoc">
+<details class="note"><summary>Show source code in <code>models/buttons.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">always</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">add_ui_flag_to_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>  <span class="c1"># noqa: N805</span>
+        <span class="sd">&quot;&quot;&quot;Return command data with set UI flag.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            value: data passed to bot.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Passed data with set &quot;ui&quot; flag to True if it wasn&#39;t set already.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">value</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;ui&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>  <span class="c1"># noqa: WPS425</span>
+        <span class="k">return</span> <span class="n">value</span>
+</code></pre></div>
+</td></tr></table>
+
+</details>
+<p>Return command data with set UI flag.</p>
+<p><strong>Parameters</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>value</code></td>
+<td><code>dict</code></td>
+<td>data passed to bot.</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dict</code></td>
+<td>Passed data with set "ui" flag to True if it wasn't set already.</td>
+</tr>
+</tbody>
+</table>
 </div>
 <h3 id="botx.models.buttons.Button.label_as_command_if_none"><code class="codehilite"><span class="n">label_as_command_if_none</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span></code> <em>(classmethod)</em><a class="headerlink" href="#botx.models.buttons.Button.label_as_command_if_none" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
@@ -6648,6 +6741,10 @@
 <div class="autodoc">
 <p>Incoming message from which this was generated.</p>
 </div>
+<h3 id="botx.models.messages.Message.sent_from_button"><code class="codehilite"><span class="n">sent_from_button</span><span class="p">:</span> <span class="nb">bool</span></code> <em>(property, readonly)</em><a class="headerlink" href="#botx.models.messages.Message.sent_from_button" title="Permanent link">&para;</a></h3>
+<div class="autodoc">
+<p>Check if command received from button press.</p>
+</div>
 <h3 id="botx.models.messages.Message.state"><code class="codehilite"><span class="n">state</span><span class="p">:</span> <span class="n">State</span></code><a class="headerlink" href="#botx.models.messages.Message.state" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
 <p>message state.</p>
@@ -6722,19 +6819,19 @@
 </div>
 <h3 id="botx.models.messages.Message.from_dict"><code class="codehilite"><span class="n">from_dict</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">bot</span><span class="p">)</span></code> <em>(classmethod)</em><a class="headerlink" href="#botx.models.messages.Message.from_dict" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>118
-119
-120
-121
-122
-123
-124
-125
+<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>125
 126
 127
 128
 129
-130</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="nd">@classmethod</span>
+130
+131
+132
+133
+134
+135
+136
+137</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">bot</span><span class="p">:</span> <span class="s2">&quot;bots.Bot&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Message&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Parse incoming dict into message.</span>
 
@@ -6831,14 +6928,7 @@
 </div>
 <h3 id="botx.models.messages.SendingMessage.__init__"><code class="codehilite"><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">bot_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sync_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chat_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">recipients</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mentions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bubbles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keyboard</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">notification_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">markup</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code><a class="headerlink" href="#botx.models.messages.SendingMessage.__init__" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>136
-137
-138
-139
-140
-141
-142
-143
+<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>143
 144
 145
 146
@@ -6901,7 +6991,14 @@
 203
 204
 205
-206</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># noqa: WPS211</span>
+206
+207
+208
+209
+210
+211
+212
+213</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># noqa: WPS211</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -7099,14 +7196,7 @@ message.</p>
 </div>
 <h3 id="botx.models.messages.SendingMessage.add_bubble"><code class="codehilite"><span class="n">add_bubble</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">)</span></code><a class="headerlink" href="#botx.models.messages.SendingMessage.add_bubble" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>388
-389
-390
-391
-392
-393
-394
-395
+<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>395
 396
 397
 398
@@ -7115,7 +7205,14 @@ message.</p>
 401
 402
 403
-404</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">add_bubble</span><span class="p">(</span>
+404
+405
+406
+407
+408
+409
+410
+411</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">add_bubble</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -7177,21 +7274,21 @@ message.</p>
 </div>
 <h3 id="botx.models.messages.SendingMessage.add_file"><code class="codehilite"><span class="n">add_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code><a class="headerlink" href="#botx.models.messages.SendingMessage.add_file" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>311
-312
-313
-314
-315
-316
-317
-318
+<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>318
 319
 320
 321
 322
 323
 324
-325</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">add_file</span><span class="p">(</span>
+325
+326
+327
+328
+329
+330
+331
+332</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">add_file</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">TextIO</span><span class="p">,</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">File</span><span class="p">],</span> <span class="n">filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Attach file to message.</span>
@@ -7239,14 +7336,7 @@ message.</p>
 </div>
 <h3 id="botx.models.messages.SendingMessage.add_keyboard_button"><code class="codehilite"><span class="n">add_keyboard_button</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">)</span></code><a class="headerlink" href="#botx.models.messages.SendingMessage.add_keyboard_button" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>406
-407
-408
-409
-410
-411
-412
-413
+<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>413
 414
 415
 416
@@ -7255,7 +7345,14 @@ message.</p>
 419
 420
 421
-422</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">add_keyboard_button</span><span class="p">(</span>
+422
+423
+424
+425
+426
+427
+428
+429</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">add_keyboard_button</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -7317,16 +7414,16 @@ message.</p>
 </div>
 <h3 id="botx.models.messages.SendingMessage.add_recipient"><code class="codehilite"><span class="n">add_recipient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recipient</span><span class="p">)</span></code><a class="headerlink" href="#botx.models.messages.SendingMessage.add_recipient" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>366
-367
-368
-369
-370
-371
-372
-373
+<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>373
 374
-375</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">add_recipient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recipient</span><span class="p">:</span> <span class="n">UUID</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+375
+376
+377
+378
+379
+380
+381
+382</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">add_recipient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recipient</span><span class="p">:</span> <span class="n">UUID</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add new user that will receive message.</span>
 
 <span class="sd">        Arguments:</span>
@@ -7363,16 +7460,16 @@ message.</p>
 </div>
 <h3 id="botx.models.messages.SendingMessage.add_recipients"><code class="codehilite"><span class="n">add_recipients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recipients</span><span class="p">)</span></code><a class="headerlink" href="#botx.models.messages.SendingMessage.add_recipients" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>377
-378
-379
-380
-381
-382
-383
-384
+<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>384
 385
-386</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">add_recipients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recipients</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">UUID</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+386
+387
+388
+389
+390
+391
+392
+393</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">add_recipients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recipients</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">UUID</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add list of recipients that should receive message.</span>
 
 <span class="sd">        Arguments:</span>
@@ -7409,13 +7506,13 @@ message.</p>
 </div>
 <h3 id="botx.models.messages.SendingMessage.force_notification"><code class="codehilite"><span class="n">force_notification</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">)</span></code><a class="headerlink" href="#botx.models.messages.SendingMessage.force_notification" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>432
-433
-434
-435
-436
-437
-438</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">force_notification</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>439
+440
+441
+442
+443
+444
+445</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">force_notification</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Break mute on bot messages.</span>
 
 <span class="sd">        Arguments:</span>
@@ -7449,14 +7546,7 @@ message.</p>
 </div>
 <h3 id="botx.models.messages.SendingMessage.from_message"><code class="codehilite"><span class="n">from_message</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></code> <em>(classmethod)</em><a class="headerlink" href="#botx.models.messages.SendingMessage.from_message" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>208
-209
-210
-211
-212
-213
-214
-215
+<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>215
 216
 217
 218
@@ -7470,7 +7560,14 @@ message.</p>
 226
 227
 228
-229</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="nd">@classmethod</span>
+229
+230
+231
+232
+233
+234
+235
+236</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_message</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">File</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">Message</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SendingMessage&quot;</span><span class="p">:</span>
@@ -7546,19 +7643,19 @@ message.</p>
 </div>
 <h3 id="botx.models.messages.SendingMessage.mention_chat"><code class="codehilite"><span class="n">mention_chat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_chat_id</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code><a class="headerlink" href="#botx.models.messages.SendingMessage.mention_chat" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>352
-353
-354
-355
-356
-357
-358
-359
+<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>359
 360
 361
 362
 363
-364</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">mention_chat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_chat_id</span><span class="p">:</span> <span class="n">UUID</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+364
+365
+366
+367
+368
+369
+370
+371</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">mention_chat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_chat_id</span><span class="p">:</span> <span class="n">UUID</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Mention chat in message.</span>
 
 <span class="sd">        Arguments:</span>
@@ -7604,19 +7701,19 @@ message.</p>
 </div>
 <h3 id="botx.models.messages.SendingMessage.mention_contact"><code class="codehilite"><span class="n">mention_contact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_huid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code><a class="headerlink" href="#botx.models.messages.SendingMessage.mention_contact" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>338
-339
-340
-341
-342
-343
-344
-345
+<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>345
 346
 347
 348
 349
-350</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">mention_contact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_huid</span><span class="p">:</span> <span class="n">UUID</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+350
+351
+352
+353
+354
+355
+356
+357</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">mention_contact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_huid</span><span class="p">:</span> <span class="n">UUID</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Mention contact in message.</span>
 
 <span class="sd">        Arguments:</span>
@@ -7662,16 +7759,16 @@ message.</p>
 </div>
 <h3 id="botx.models.messages.SendingMessage.mention_user"><code class="codehilite"><span class="n">mention_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_huid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code><a class="headerlink" href="#botx.models.messages.SendingMessage.mention_user" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>327
-328
-329
-330
-331
-332
-333
-334
+<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>334
 335
-336</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">mention_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_huid</span><span class="p">:</span> <span class="n">UUID</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+336
+337
+338
+339
+340
+341
+342
+343</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">mention_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_huid</span><span class="p">:</span> <span class="n">UUID</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Mention user in message.</span>
 
 <span class="sd">        Arguments:</span>
@@ -7714,13 +7811,13 @@ message.</p>
 </div>
 <h3 id="botx.models.messages.SendingMessage.show_notification"><code class="codehilite"><span class="n">show_notification</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show</span><span class="p">)</span></code><a class="headerlink" href="#botx.models.messages.SendingMessage.show_notification" title="Permanent link">&para;</a></h3>
 <div class="autodoc">
-<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>424
-425
-426
-427
-428
-429
-430</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">show_notification</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<details class="note"><summary>Show source code in <code>models/messages.py</code></summary><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span>431
+432
+433
+434
+435
+436
+437</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><code>    <span class="k">def</span> <span class="nf">show_notification</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Show notification about message.</span>
 
 <span class="sd">        Arguments:</span>
