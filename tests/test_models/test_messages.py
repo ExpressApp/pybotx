@@ -83,6 +83,36 @@ def incoming_message() -> IncomingMessage:
     )
 
 
+def test_setting_ui_flag_property_for_common_message() -> None:
+    msg = Message.from_dict(
+        {
+            "sync_id": "a465f0f3-1354-491c-8f11-f400164295cb",
+            "command": {"body": "/cmd", "command_type": "user", "data": {"ui": True}},
+            "file": None,
+            "from": {
+                "user_huid": None,
+                "group_chat_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
+                "ad_login": None,
+                "ad_domain": None,
+                "username": None,
+                "chat_type": "group_chat",
+                "host": "cts.ccteam.ru",
+                "is_admin": False,
+                "is_creator": False,
+            },
+            "bot_id": "dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4",
+        },
+        Bot(),
+    )
+
+    assert msg.sent_from_button
+
+
+def test_setting_ui_flag_property_for_system_message(incoming_message) -> None:
+    msg = Message.from_dict(incoming_message.dict(), Bot())
+    assert not msg.sent_from_button
+
+
 @pytest.fixture
 def sending_message() -> SendingMessage:
     return SendingMessage(

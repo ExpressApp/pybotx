@@ -111,6 +111,13 @@ class Message:  # noqa: WPS214
         )
 
     @property
+    def sent_from_button(self) -> bool:
+        """Check if command received from button press."""
+        if isinstance(self.command.data, dict):
+            return self.command.data.get("ui", False)  # noqa: WPS425
+        return False
+
+    @property
     def incoming_message(self) -> IncomingMessage:
         """Incoming message from which this was generated."""
         return self._message.copy(deep=True)
