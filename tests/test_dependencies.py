@@ -6,6 +6,7 @@ from botx import (
     AsyncClient,
     Bot,
     Client,
+    Collector,
     DependencyFailure,
     Depends,
     IncomingMessage,
@@ -128,6 +129,59 @@ async def test_dependency_executed_only_once_per_message(
     await client.send_command(incoming_message)
 
     assert counter == 2
+
+
+@pytest.mark.asyncio
+async def test_global_background_dependency_execution_on_default_handler(
+    bot: Bot, incoming_message: IncomingMessage, client: TestClient
+) -> None:
+    incoming_message.command.body = "some random message"
+
+    entered_into_dependency = False
+
+    def dependency() -> None:
+        nonlocal entered_into_dependency
+        entered_into_dependency = True
+
+    bot.collector = bot.exception_middleware.executor = Collector(
+        dependencies=[Depends(dependency)]
+    )
+
+    @bot.default
+    def default_handler() -> None:
+        ...  # pragma: no cover
+
+    await client.send_command(incoming_message)
+
+    assert entered_into_dependency
+
+
+@pytest.mark.asyncio
+async def test_background_dependency_from_default_handler_included_from_collector(
+    bot: Bot, incoming_message: IncomingMessage, client: TestClient
+) -> None:
+    incoming_message.command.body = "some random message"
+
+    entered_into_dependency = False
+
+    def dependency() -> None:
+        nonlocal entered_into_dependency
+        entered_into_dependency = True
+
+    collector = Collector()
+
+    @collector.default
+    def default_handler() -> None:
+        ...  # pragma: no cover
+
+    bot.collector = bot.exception_middleware.executor = Collector(
+        dependencies=[Depends(dependency)]
+    )
+    bot.include_collector(collector)
+
+    await client.send_command(incoming_message)
+
+    assert entered_into_dependency
 
 
 @pytest.mark.asyncio
