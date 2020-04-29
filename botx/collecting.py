@@ -171,6 +171,30 @@ class Handler:  # noqa: WPS230
         """
         await self.executor(message)
 
+    def __eq__(self, other: object) -> bool:
+        """Compare 2 handlers for equality.
+
+        Arguments:
+            other: handler to compare with.
+
+        Returns:
+            Result of comparing.
+        """
+
+        if not isinstance(other, Handler):
+            return False
+
+        callable_comp = self.handler == other.handler
+        callable_comp = callable_comp and self.dependencies == other.dependencies
+
+        export_comp = self.name == other.name
+        export_comp = export_comp and self.body == other.body
+        export_comp = export_comp and self.description == other.description
+        export_comp = export_comp and self.full_description == other.full_description
+        export_comp = export_comp and self.include_in_status == other.include_in_status
+
+        return callable_comp and export_comp
+
 
 class Collector:  # noqa: WPS214, WPS230
     """Collector for different handlers."""
@@ -207,19 +231,7 @@ class Collector:  # noqa: WPS214, WPS230
         self._add_handlers(handlers)
 
         if default:
-            default_dependencies = list(dependencies or []) + list(
-                default.dependencies or []
-            )
-            self.default_message_handler = Handler(
-                body=default.body,
-                handler=default.handler,
-                name=default.name,
-                description=default.description,
-                full_description=default.full_description,
-                include_in_status=default.include_in_status,
-                dependencies=default_dependencies,
-                dependency_overrides_provider=self.dependency_overrides_provider,
-            )
+            self._add_default_handler(default)
 
     def include_collector(
         self,
@@ -239,7 +251,7 @@ class Collector:  # noqa: WPS214, WPS230
         ), "Only one default handler can be applied"
 
         if collector.default_message_handler:
-            self.default_message_handler = collector.default_message_handler
+            self._add_default_handler(collector.default_message_handler, dependencies)
 
         self._add_handlers(collector.handlers, dependencies)
 
@@ -332,9 +344,7 @@ class Collector:  # noqa: WPS214, WPS230
         dep_override = (
             dependency_overrides_provider or self.dependency_overrides_provider
         )
-        updated_dependencies = utils.optional_sequence_to_list(
-            self.dependencies
-        ) + utils.optional_sequence_to_list(dependencies)
+        updated_dependencies = _combine_dependencies(self.dependencies, dependencies)
         command_handler = Handler(
             body=body,
             handler=handler,
@@ -661,6 +671,33 @@ class Collector:  # noqa: WPS214, WPS230
                 dependencies=handler.dependencies,
             )
             created_handler = self.handler_for(handler.name)
-            created_handler.dependencies = utils.optional_sequence_to_list(
-                dependencies
-            ) + utils.optional_sequence_to_list(created_handler.dependencies)
+            created_handler.dependencies = _combine_dependencies(
+                dependencies, created_handler.dependencies
+            )
+
+    def _add_default_handler(
+        self, default: Handler, dependencies: Optional[Sequence[deps.Depends]] = None
+    ) -> None:
+        default_dependencies = _combine_dependencies(
+            self.dependencies, dependencies, default.dependencies
+        )
+        self.default_message_handler = Handler(
+            body=default.body,
+            handler=default.handler,
+            name=default.name,
+            description=default.description,
+            full_description=default.full_description,
+            include_in_status=default.include_in_status,
+            dependencies=default_dependencies,
+            dependency_overrides_provider=self.dependency_overrides_provider,
+        )
+
+
+def _combine_dependencies(
+    *dependencies: Optional[Sequence[deps.Depends]],
+) -> List[deps.Depends]:
+    result_dependencies = []
+    for deps_sequence in dependencies:
+        result_dependencies.extend(utils.optional_sequence_to_list(deps_sequence))
+
+    return result_dependencies

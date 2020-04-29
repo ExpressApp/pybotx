@@ -52,3 +52,8 @@ class TestHandlerConstruction:
 def test_handler_docstring_stored_as_full_description() -> None:
     handler = Handler(body="/command", handler=handler_function)
     assert handler.full_description == handler_function.__doc__
+
+
+def test_equality_is_false_if_not_handler_passed() -> None:
+    handler = Handler(body="/command", handler=handler_function)
+    assert not handler == ""
