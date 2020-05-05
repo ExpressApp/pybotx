@@ -1,8 +1,11 @@
 """Aliases for complex types from `typing`."""
 
-from typing import Any, Awaitable, Callable, Coroutine, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Coroutine, TypeVar, Union
 
 from botx.models import messages
+
+if TYPE_CHECKING:  # pragma: no cover
+    from botx.bots import Bot  # isort: skip  # noqa: WPS433, F401
 
 ExceptionT = TypeVar("ExceptionT", bound=Exception)
 
@@ -15,3 +18,7 @@ AsyncExceptionHandler = Callable[
 ]
 SyncExceptionHandler = Callable[[ExceptionT, messages.Message], None]
 ExceptionHandler = Union[AsyncExceptionHandler, SyncExceptionHandler]
+
+AsyncLifespanEvent = Callable[["Bot"], Awaitable[None]]
+SyncLifespanEvent = Callable[["Bot"], None]
+BotLifespanEvent = Union[AsyncLifespanEvent, SyncLifespanEvent]

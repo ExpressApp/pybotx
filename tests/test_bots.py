@@ -410,3 +410,21 @@ async def test_bot_iterates_over_sorted_handlers(
     await client.send_command(incoming_message)
 
     assert visited_by_body_v2_handler
+
+
+@pytest.mark.asyncio
+async def test_lifespan_events(bot: Bot) -> None:
+    counter = 0
+
+    async def lifespan_event(_bot: Bot) -> None:
+        nonlocal counter
+        counter += 1
+
+    bot.startup_events = [lifespan_event]
+    bot.shutdown_events = [lifespan_event]
+
+    await bot.start()
+    assert counter == 1
+
+    await bot.shutdown()
+    assert counter == 2
