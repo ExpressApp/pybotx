@@ -1,14 +1,38 @@
 """Definition of base for custom middlewares."""
 
-from typing import Optional
+from typing import Callable, Optional
 
 from botx import concurrency
 from botx.models import messages
-from botx.typing import Executor, MiddlewareDispatcher
+from botx.typing import Executor, MiddlewareDispatcher, SyncExecutor
+
+
+def _default_dispatch(
+    _middleware: "BaseMiddleware", _message: messages.Message, _call_next: SyncExecutor,
+) -> None:
+    raise NotImplementedError
 
 
 class BaseMiddleware:
-    """Base middleware entity."""
+    """Base middleware entity.
+
+    !!! important
+        Middleware should implement `dispatch` method that can be a common function or
+        an asynchronous function.
+
+    Example:
+        class MyAsyncBotXMiddleware(BaseMiddleware):
+            async def dispatch(
+                self, message: Message, call_next: AsyncExecutor,
+            ) -> None:
+                await call_next(message)
+
+        class MySyncBotXMiddleware(BaseMiddleware):
+            def dispatch(self, message: Message, call_next: SyncExecutor) -> None:
+                call_next(message)
+    """
+
+    dispatch: Callable = _default_dispatch
 
     def __init__(
         self, executor: Executor, dispatch: Optional[MiddlewareDispatcher] = None
@@ -29,15 +53,10 @@ class BaseMiddleware:
         Arguments:
             message: incoming message.
         """
-        await concurrency.callable_to_coroutine(
-            self.dispatch_func, message, self.executor
-        )
 
-    async def dispatch(self, message: messages.Message, call_next: Executor) -> None:
-        """Execute middleware logic.
+        executor = self.executor
+        if isinstance(self.executor, BaseMiddleware):
+            if not concurrency.is_awaitable(self.dispatch_func):
+                executor = concurrency.async_to_sync(self.executor)
 
-        Arguments:
-            message: incoming message.
-            call_next: next executor in middleware chain.
-        """
-        raise NotImplementedError()
+        await concurrency.callable_to_coroutine(self.dispatch_func, message, executor)
