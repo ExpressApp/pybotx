@@ -1,5 +1,5 @@
 """Definition for mixin that defines BotX API methods."""
-from typing import Awaitable, Callable, List, Optional
+from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID
 
 from botx import clients
@@ -11,11 +11,15 @@ from botx.models.requests import (
     StealthEnablePayload,
 )
 
+if TYPE_CHECKING:
+    from botx.bots.clients.clients import ClientsMixin  # noqa: WPS433
+
 
 class APIMixin:
+    """Mixin that defines methods for communicating with BotX API."""
+
     known_hosts: List[ExpressServer]
     client: clients.AsyncClient
-    _obtain_token: Callable[[sending.SendingCredentials], Awaitable[None]]
 
     async def update_message(
         self, credentials: sending.SendingCredentials, update: sending.UpdatePayload
@@ -115,7 +119,9 @@ class APIMixin:
             ),
         )
 
-    async def _obtain_token(self, credentials: sending.SendingCredentials) -> None:
+    async def _obtain_token(  # type: ignore
+        self: "ClientsMixin", credentials: sending.SendingCredentials,
+    ) -> None:
         """Get token for bot and fill credentials.
 
         Arguments:

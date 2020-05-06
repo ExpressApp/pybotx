@@ -1,17 +1,21 @@
 """Definition for mixin that defines helpers for sending message."""
-from typing import Awaitable, BinaryIO, Callable, Optional, TextIO, Union
+from typing import TYPE_CHECKING, BinaryIO, Optional, TextIO, Union
 from uuid import UUID
 
 from botx import clients
 from botx.models import files, messages, sending
 
+if TYPE_CHECKING:
+    from botx.bots.clients.clients import ClientsMixin  # noqa: WPS433
+
 
 class SendingMixin:
-    client: clients.AsyncClient
-    _obtain_token: Callable[[sending.SendingCredentials], Awaitable[None]]
+    """Mixin that defines helpers for sending messages."""
 
-    async def send_message(
-        self,
+    client: clients.AsyncClient
+
+    async def send_message(  # type: ignore
+        self: "ClientsMixin",
         text: str,
         credentials: sending.SendingCredentials,
         *,
@@ -45,7 +49,9 @@ class SendingMixin:
 
         return await self.client.send_notification(credentials, payload)
 
-    async def send(self, message: messages.SendingMessage) -> UUID:
+    async def send(  # type: ignore
+        self: "ClientsMixin", message: messages.SendingMessage
+    ) -> UUID:
         """Send message as answer to command or notification to chat and get it id.
 
         Arguments:
@@ -63,8 +69,8 @@ class SendingMixin:
 
         return await self.client.send_notification(message.credentials, message.payload)
 
-    async def answer_message(
-        self,
+    async def answer_message(  # type: ignore
+        self: "ClientsMixin",
         text: str,
         message: messages.Message,
         *,

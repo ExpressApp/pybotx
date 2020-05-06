@@ -17,7 +17,7 @@ from botx.models import datastructures, menu, messages
 from botx.models.credentials import ExpressServer
 
 
-class Bot(BotCollectingMixin, ClientsMixin):
+class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
     """Class that implements bot behaviour."""
 
     def __init__(

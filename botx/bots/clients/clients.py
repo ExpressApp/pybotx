@@ -7,7 +7,9 @@ from botx.exceptions import ServerUnknownError
 from botx.models.credentials import ExpressServer
 
 
-class ClientsMixin(APIMixin, SendingMixin):
+class ClientsMixin(SendingMixin, APIMixin):
+    """Mixin that defines methods that are used for communicating with BotX API."""
+
     known_hosts: List[ExpressServer]
 
     def _get_cts_by_host(self, host: str) -> ExpressServer:

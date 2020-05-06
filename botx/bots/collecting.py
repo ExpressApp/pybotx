@@ -1,4 +1,4 @@
-"""Definition for bot's collecting components.
+"""Definition for bot's collecting component.
 
 All of this methods are just wrappers around inner collector.
 """
@@ -11,6 +11,8 @@ from botx.models import enums
 
 
 class BotCollectingMixin:
+    """Mixin that defines collector-like behaviour."""
+
     collector: Collector
 
     @property
