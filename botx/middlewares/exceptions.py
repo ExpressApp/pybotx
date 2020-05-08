@@ -5,12 +5,13 @@ from typing import Callable, Dict, Optional, Type
 from loguru import logger
 
 from botx import concurrency
+from botx.middlewares.base import BaseMiddleware
 from botx.models import messages
-from botx.typing import Executor
+from botx.typing import AsyncExecutor, Executor
 from botx.utils import LogsShapeBuilder
 
 
-class ExceptionMiddleware:
+class ExceptionMiddleware(BaseMiddleware):
     """Custom middleware that is default and used to handle registered errors."""
 
     def __init__(self, executor: Executor) -> None:
@@ -20,21 +21,22 @@ class ExceptionMiddleware:
             executor: callable object that accept message and will be executed after
                 middleware.
         """
-        self.executor = executor
+        super().__init__(executor)
         self._exception_handlers: Dict[Type[Exception], Callable] = {}
 
-    async def __call__(self, message: messages.Message) -> None:
+    async def dispatch(
+        self, message: messages.Message, call_next: AsyncExecutor
+    ) -> None:
         """Wrap executor for catching exception or log them.
 
         Arguments:
             message: incoming message that will be passed to executor.
+            call_next: next executor that should be called after this.
         """
         try:
-            await concurrency.callable_to_coroutine(self.executor, message)
+            await call_next(message)
         except Exception as exc:
             await self._handle_error_in_handler(exc, message)
-        else:
-            return
 
     def add_exception_handler(
         self, exc_class: Type[Exception], handler: Callable

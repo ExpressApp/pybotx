@@ -7,7 +7,7 @@ from uuid import UUID
 from loguru import logger
 from pydantic import BaseConfig, BaseModel
 
-from botx import bots
+from botx.bots import bots
 from botx.collecting import Collector, Handler
 from botx.concurrency import callable_to_coroutine
 from botx.dependencies import models as deps

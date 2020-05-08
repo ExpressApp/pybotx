@@ -3,7 +3,7 @@
 from typing import BinaryIO, List, Optional, TextIO, Union, cast
 from uuid import UUID
 
-from botx import bots
+from botx.bots import bots
 from botx.models.datastructures import State
 from botx.models.enums import Recipients
 from botx.models.files import File

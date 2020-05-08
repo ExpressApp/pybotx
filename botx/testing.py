@@ -11,8 +11,8 @@ from starlette.responses import JSONResponse, Response
 
 from botx import ChatMention, Mention, MentionTypes, Message, UserMention, concurrency
 from botx.api_helpers import BotXAPI
-from botx.bots import Bot
 from botx.middlewares.exceptions import ExceptionMiddleware
+from botx.bots.bots import Bot
 from botx.models import enums, events, files, receiving, requests, responses
 from botx.models.enums import ChatTypes, EntityTypes
 from botx.models.receiving import Entity

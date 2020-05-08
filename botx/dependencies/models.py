@@ -6,7 +6,7 @@ from typing import Callable, List, Optional, Tuple
 from pydantic import BaseModel, validator
 from pydantic.utils import lenient_issubclass
 
-from botx import bots
+from botx.bots import bots
 from botx.clients import AsyncClient, Client
 from botx.dependencies import inspecting
 from botx.models.messages import Message
