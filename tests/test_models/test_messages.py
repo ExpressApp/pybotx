@@ -13,6 +13,7 @@ from botx import (
     Mention,
     MentionTypes,
     Message,
+    MessageBuilder,
     MessageMarkup,
     MessageOptions,
     NotificationOptions,
@@ -21,7 +22,6 @@ from botx import (
     SendingMessage,
     UserMention,
 )
-from botx.testing import MessageBuilder
 
 
 @pytest.fixture

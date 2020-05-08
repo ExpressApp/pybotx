@@ -8,6 +8,7 @@ from botx import (
     Collector,
     IncomingMessage,
     Message,
+    MessageBuilder,
     TestClient,
     UserKinds,
 )
@@ -17,7 +18,6 @@ from botx.middlewares.ns import (
     register_next_step_handler,
 )
 from botx.models.events import UserInChatCreated
-from botx.testing import MessageBuilder
 
 
 def test_register_ns_middleware_using_functions_dict(bot: Bot) -> None:

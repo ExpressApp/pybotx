@@ -8,9 +8,9 @@ from botx import (
     IncomingMessage,
     Mention,
     MentionTypes,
+    MessageBuilder,
     UserMention,
 )
-from botx.testing import MessageBuilder
 
 
 def test_setting_new_file_from_file() -> None:
