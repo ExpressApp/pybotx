@@ -11,6 +11,35 @@ except ImportError:  # pragma: no cover
     contextvars = None  # type: ignore  # noqa: WPS440
 
 
+def is_awaitable_object(call: Callable) -> bool:
+    """Check if object is an awaitable or an object which __call__ method is awaitable.
+
+    Arguments:
+        call: callable for checking.
+
+    Returns:
+        Result of check.
+    """
+    if is_awaitable(call):
+        return True
+    call = getattr(call, "__call__", None)  # noqa: B004
+    return asyncio.iscoroutinefunction(call)
+
+
+def is_awaitable(call: Callable) -> bool:
+    """Check if function returns awaitable object.
+
+    Arguments:
+        call: function that should be checked.
+
+    Returns:
+        Result of check.
+    """
+    if inspect.isfunction(call) or inspect.ismethod(call):
+        return asyncio.iscoroutinefunction(call)
+    return False
+
+
 async def run_in_threadpool(call: Callable, *args: Any, **kwargs: Any) -> Any:
     """Run regular function (not a coroutine) as awaitable coroutine.
 
@@ -35,21 +64,6 @@ async def run_in_threadpool(call: Callable, *args: Any, **kwargs: Any) -> Any:
     return await loop.run_in_executor(None, call, *args)
 
 
-def is_coroutine_callable(call: Callable) -> bool:
-    """Check if object is a coroutine or an object which __call__ method is coroutine.
-
-    Arguments:
-        call: callable for checking.
-
-    Returns:
-        Result of check.
-    """
-    if inspect.isfunction(call) or inspect.ismethod(call):
-        return asyncio.iscoroutinefunction(call)
-    call = getattr(call, "__call__", None)  # noqa: B004
-    return asyncio.iscoroutinefunction(call)
-
-
 def callable_to_coroutine(func: Callable, *args: Any, **kwargs: Any) -> Coroutine:
     """Transform callable to coroutine.
 
@@ -62,7 +76,38 @@ def callable_to_coroutine(func: Callable, *args: Any, **kwargs: Any) -> Coroutin
     Returns:
         Coroutine object from passed callable.
     """
-    if is_coroutine_callable(func):
+    if is_awaitable_object(func):
         return func(*args, **kwargs)
 
     return run_in_threadpool(func, *args, **kwargs)
+
+
+def run_in_blocking_loop(call: Callable, *args: Any, **kwargs: Any) -> Any:
+    """Run coroutine with loop blocking.
+
+    Arguments:
+        call: function that should be called in loop until complete.
+        args: function arguments.
+        kwargs: function key arguments.
+
+    Returns:
+        Result of function call.
+    """
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+
+    return loop.run_until_complete(callable_to_coroutine(call, *args, **kwargs))
+
+
+def async_to_sync(func: Callable) -> Callable:
+    """Convert asynchronous function to blocking.
+
+    Arguments:
+        func: function that should be converted.
+
+    Returns:
+        Converted function.
+    """
+    return functools.partial(run_in_blocking_loop, func)

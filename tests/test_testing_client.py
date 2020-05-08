@@ -96,3 +96,41 @@ async def test_sending_event_update_to_errored_api(
                 Message.from_dict(incoming_message.dict(), bot).credentials,
                 UpdatePayload(text="some text"),
             )
+
+
+@pytest.mark.asyncio
+async def test_raising_error_for_client(
+    bot: Bot, incoming_message: IncomingMessage
+) -> None:
+    bot.collector.default_message_handler = None
+
+    @bot.default
+    async def default_with_error() -> None:
+        raise RuntimeError
+
+    with TestClient(bot) as client:
+        with pytest.raises(RuntimeError):
+            await client.send_command(incoming_message)
+
+
+@pytest.mark.asyncio
+async def test_handling_error_for_client_if_handler_registered(
+    bot: Bot, incoming_message: IncomingMessage
+) -> None:
+    error_raised = False
+
+    bot.collector.default_message_handler = None
+
+    @bot.default
+    async def default_with_error() -> None:
+        raise RuntimeError
+
+    @bot.exception_handler(RuntimeError)
+    async def runtime_error_handler(_exc: RuntimeError, _message: Message) -> None:
+        nonlocal error_raised
+        error_raised = True
+
+    with TestClient(bot) as client:
+        await client.send_command(incoming_message)
+
+    assert error_raised

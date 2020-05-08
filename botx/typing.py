@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING, Any, Awaitable, Callable, Coroutine, TypeVar, 
 from botx.models import messages
 
 if TYPE_CHECKING:  # pragma: no cover
-    from botx.bots import Bot  # isort: skip  # noqa: WPS433, F401
+    from botx.bots.bots import Bot  # isort: skip  # noqa: WPS433, F401
 
 ExceptionT = TypeVar("ExceptionT", bound=Exception)
 
-AsyncExecutor = Callable[[messages.Message], Coroutine[Any, Any, None]]
+AsyncExecutor = Callable[[messages.Message], Awaitable[None]]
 SyncExecutor = Callable[[messages.Message], None]
 Executor = Union[AsyncExecutor, SyncExecutor]
 MiddlewareDispatcher = Callable[[messages.Message, Executor], Awaitable[None]]
