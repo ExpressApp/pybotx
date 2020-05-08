@@ -33,7 +33,12 @@ from botx.models.sending import (
     UpdatePayload,
 )
 from botx.params import Depends
-from botx.testing import MessageBuilder, TestClient
+from botx.testing.builder import MessageBuilder
+
+try:
+    from botx.testing.client import TestClient
+except ImportError:
+    TestClient = None  # type: ignore
 
 __all__ = (
     "Bot",

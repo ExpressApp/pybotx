@@ -320,7 +320,7 @@ class TestStealthMode:
             expire_in=60,
             disable_web=False,
         )
-        msg = client.messages[-1]
+        msg = client.requests[-1]
         assert msg.group_chat_id == message.group_chat_id
         assert msg.burn_in == 60
         assert msg.expire_in == 60
@@ -339,7 +339,7 @@ class TestStealthMode:
             ),
             chat_id=message.group_chat_id,
         )
-        msg = client.messages[-1]
+        msg = client.requests[-1]
         assert msg.group_chat_id == message.group_chat_id
 
 
@@ -362,7 +362,7 @@ class TestAddRemoveUsers:
             chat_id=message.group_chat_id,
             users_huids=self.users_huids,
         )
-        msg = client.messages[-1]
+        msg = client.requests[-1]
         assert msg.group_chat_id == message.group_chat_id
         assert msg.user_huids == self.users_huids
 
@@ -381,7 +381,7 @@ class TestAddRemoveUsers:
             chat_id=message.group_chat_id,
             users_huids=self.users_huids,
         )
-        msg = client.messages[-1]
+        msg = client.requests[-1]
         assert msg.group_chat_id == message.group_chat_id
         assert msg.user_huids == self.users_huids
 
