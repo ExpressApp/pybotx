@@ -9,9 +9,10 @@ from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-from botx import ChatMention, Mention, MentionTypes, UserMention
+from botx import ChatMention, Mention, MentionTypes, Message, UserMention, concurrency
 from botx.api_helpers import BotXAPI
 from botx.bots.bots import Bot
+from botx.middlewares.exceptions import ExceptionMiddleware
 from botx.models import enums, events, files, receiving, requests, responses
 from botx.models.enums import ChatTypes, EntityTypes
 from botx.models.receiving import Entity
@@ -435,6 +436,16 @@ class MessageBuilder:  # noqa: WPS214
         assert self.file, "file_transfer event should have attached file"
 
 
+class _ExceptionMiddleware(ExceptionMiddleware):
+    async def _handle_error_in_handler(self, exc: Exception, message: Message) -> None:
+        handler = self._lookup_handler_for_exception(exc)
+
+        if handler is None:
+            raise exc
+
+        await concurrency.callable_to_coroutine(handler, exc, message)
+
+
 class TestClient:  # noqa: WPS214
     """Test client for testing bots."""
 
@@ -442,18 +453,23 @@ class TestClient:  # noqa: WPS214
     # Allow to skip test classes from being collected
     __test__ = False
 
-    def __init__(self, bot: Bot, generate_error_api: bool = False) -> None:
+    def __init__(
+        self, bot: Bot, generate_error_api: bool = False, suppress_errors: bool = False
+    ) -> None:
         """Init client with required params.
 
         Arguments:
             bot: bot that should be tested.
             generate_error_api: mocked BotX API will return errored responses.
+            suppress_errors: if True then don't raise raise errors from handlers.
         """
         self.bot: Bot = bot
         """Bot that will be patched for tests."""
         self._original_http_client = bot.client.http_client
+        self._error_middleware: Optional[ExceptionMiddleware] = None
         self._messages: List[APIMessage] = []
         self._generate_error_api = generate_error_api
+        self._suppress_errors = suppress_errors
 
     @property
     def generate_error_api(self) -> bool:
@@ -470,6 +486,18 @@ class TestClient:  # noqa: WPS214
 
     def __enter__(self) -> "TestClient":
         """Mock original HTTP client."""
+        is_error_middleware = isinstance(
+            self.bot.exception_middleware, ExceptionMiddleware
+        )
+        if not self._suppress_errors and is_error_middleware:
+            self._error_middleware = self.bot.exception_middleware
+            self.bot.exception_middleware = _ExceptionMiddleware(
+                self.bot.exception_middleware.executor
+            )
+            self.bot.exception_middleware._exception_handlers = (  # noqa: WPS437
+                self._error_middleware._exception_handlers  # noqa: WPS437
+            )
+
         self.bot.client.http_client = httpx.AsyncClient(
             app=_botx_api_mock(self._messages, self.generate_error_api)
         )
@@ -478,6 +506,9 @@ class TestClient:  # noqa: WPS214
 
     def __exit__(self, *_: Any) -> None:
         """Restore original HTTP client and clear storage."""
+        if self._error_middleware is not None:
+            self.bot.exception_middleware = self._error_middleware
+
         self.bot.client.http_client = self._original_http_client
         self._messages = []
 

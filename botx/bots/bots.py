@@ -165,7 +165,11 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
     async def shutdown(self) -> None:
         """Wait for all running handlers shutdown."""
         if self._tasks:
-            await asyncio.wait(self._tasks, return_when=asyncio.ALL_COMPLETED)
+            tasks, _ = await asyncio.wait(
+                self._tasks, return_when=asyncio.ALL_COMPLETED
+            )
+            for task in tasks:
+                task.result()
 
         self._tasks = set()
 

@@ -120,7 +120,7 @@ def bot(incoming_message: IncomingMessage) -> Bot:
 
 @pytest.fixture
 def client(bot: Bot) -> TestClient:
-    with TestClient(bot) as client:
+    with TestClient(bot, suppress_errors=True) as client:
         yield client
 
 
