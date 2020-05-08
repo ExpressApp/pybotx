@@ -524,7 +524,7 @@ class TestClient:  # noqa: WPS214
         await self.bot.execute_command(message.dict())
 
         if sync:
-            await self.bot.shutdown()
+            await self.bot.wait_current_handlers()
 
     @property
     def messages(self) -> Tuple[APIMessage, ...]:

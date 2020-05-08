@@ -20,12 +20,14 @@ from botx.models.credentials import ExpressServer
 class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
     """Class that implements bot behaviour."""
 
-    def __init__(
+    def __init__(  # noqa: WPS213
         self,
         *,
         handlers: Optional[List[Handler]] = None,
         known_hosts: Optional[Sequence[ExpressServer]] = None,
         dependencies: Optional[Sequence[deps.Depends]] = None,
+        startup_events: Optional[Sequence[typing.BotLifespanEvent]] = None,
+        shutdown_events: Optional[Sequence[typing.BotLifespanEvent]] = None,
     ) -> None:
         """Init bot with required params.
 
@@ -33,6 +35,8 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
             handlers: list of handlers that will be stored in this bot after init.
             known_hosts: list of servers that will be used for handling message.
             dependencies: background dependencies for all handlers of bot.
+            startup_events: functions that should be called on bot startup.
+            shutdown_events: functions that should be called on bot shutdown.
         """
 
         self.collector: Collector = Collector(
@@ -58,6 +62,12 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
 
         self.state: datastructures.State = datastructures.State()
         """state that can be used in bot for storing something."""
+
+        self.startup_events = utils.optional_sequence_to_list(startup_events)
+        """functions that should be called on bot startup."""
+
+        self.shutdown_events = utils.optional_sequence_to_list(shutdown_events)
+        """functions that should be called on bot shutdown."""
 
         self._tasks: Set[asyncio.Future] = set()
 
@@ -162,8 +172,20 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
 
         return decorator
 
+    async def start(self) -> None:
+        """Run all startup events and other initialization stuff."""
+        for event in self.startup_events:
+            await concurrency.callable_to_coroutine(event, self)
+
     async def shutdown(self) -> None:
         """Wait for all running handlers shutdown."""
+        await self.wait_current_handlers()
+
+        for event in self.shutdown_events:
+            await concurrency.callable_to_coroutine(event, self)
+
+    async def wait_current_handlers(self) -> None:
+        """Wait until all current tasks are done."""
         if self._tasks:
             tasks, _ = await asyncio.wait(
                 self._tasks, return_when=asyncio.ALL_COMPLETED
