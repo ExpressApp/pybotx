@@ -6,7 +6,7 @@ from botx.models import messages
 
 ExceptionT = TypeVar("ExceptionT", bound=Exception)
 
-AsyncExecutor = Callable[[messages.Message], Coroutine[Any, Any, None]]
+AsyncExecutor = Callable[[messages.Message], Awaitable[None]]
 SyncExecutor = Callable[[messages.Message], None]
 Executor = Union[AsyncExecutor, SyncExecutor]
 MiddlewareDispatcher = Callable[[messages.Message, Executor], Awaitable[None]]
