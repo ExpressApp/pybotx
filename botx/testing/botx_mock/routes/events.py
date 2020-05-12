@@ -3,10 +3,13 @@
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-from botx.models.requests import EventEdition
+from botx.clients.methods.base import APIResponse
+from botx.clients.methods.v3.events.edit_event import EditEvent
+from botx.testing.botx_mock.binders import bind_implementation_to_method
 from botx.testing.botx_mock.messages import add_message_to_collection
 
 
+@bind_implementation_to_method(EditEvent)
 async def post_edit_event(request: Request) -> Response:
     """Handle edition of event request.
 
@@ -16,6 +19,6 @@ async def post_edit_event(request: Request) -> Response:
     Returns:
         Empty json response.
     """
-    payload = EventEdition.parse_obj(await request.json()).result
+    payload = EditEvent.parse_obj(await request.json())
     add_message_to_collection(request, payload)
-    return JSONResponse({})
+    return JSONResponse(APIResponse[str](result="update_pushed").dict())

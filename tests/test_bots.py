@@ -130,29 +130,6 @@ class TestSendingMessageUsingSend:
             [KeyboardElement(command="/cmd", label="/cmd")]
         ]
 
-    @pytest.mark.asyncio
-    async def test_error_when_sending_command_result_without_payload(
-        self, bot: Bot, incoming_message: IncomingMessage, client: TestClient
-    ) -> None:
-        message = SendingMessage.from_message(
-            message=Message.from_dict(incoming_message.dict(), bot)
-        )
-
-        with pytest.raises(RuntimeError):
-            await bot.send(message)
-
-    @pytest.mark.asyncio
-    async def test_error_when_sending_notification_without_payload(
-        self, bot: Bot, incoming_message: IncomingMessage, client: TestClient
-    ) -> None:
-        message = SendingMessage.from_message(
-            message=Message.from_dict(incoming_message.dict(), bot)
-        )
-        message.sync_id = None
-
-        with pytest.raises(RuntimeError):
-            await bot.send(message)
-
 
 class TestSendingMessageUsingAnswerMessage:
     @pytest.mark.asyncio
@@ -239,32 +216,6 @@ class TestSendingFileUsingSendFile:
 
 
 @pytest.mark.asyncio
-async def test_accessing_token_only_once(
-    bot: Bot, incoming_message: IncomingMessage, client: TestClient
-) -> None:
-    async def fake_token_obtain(*_):
-        raise RuntimeError  # pragma: no cover
-
-    await bot.answer_message(
-        "some text",
-        Message.from_dict(incoming_message.dict(), bot),
-        file=File.from_string("some content", "file.txt"),
-    )
-
-    assert bot._get_cts_by_host(incoming_message.user.host).server_credentials.token
-
-    bot.client.obtain_token = fake_token_obtain
-
-    await bot.answer_message(
-        "some text",
-        Message.from_dict(incoming_message.dict(), bot),
-        file=File.from_string("some content", "file.txt"),
-    )
-
-    assert len(client.messages) == 2
-
-
-@pytest.mark.asyncio
 async def test_exception_when_sending_message_to_unknown_host(
     bot: Bot, incoming_message: IncomingMessage
 ) -> None:
@@ -297,7 +248,7 @@ async def test_updating_message(
         UpdatePayload(text="new text"),
     )
 
-    update = client.message_updates[0]
+    update = client.message_updates[0].result
     assert update.body == "new text"
 
 

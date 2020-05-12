@@ -5,11 +5,15 @@ from typing import Union
 
 from starlette.responses import Response
 
-from botx.models.requests import CommandResult, Notification
-from botx.models.responses import PushResponse, PushResult
+from botx.clients.methods.base import APIResponse
+from botx.clients.methods.v3.command.command_result import CommandResult
+from botx.clients.methods.v3.notification.direct_notification import NotificationDirect
+from botx.models.responses import PushResult
 
 
-def generate_push_response(payload: Union[CommandResult, Notification]) -> Response:
+def generate_push_response(
+    payload: Union[CommandResult, NotificationDirect]
+) -> Response:
     """Generate response as like new message from bot was pushed.
 
     Arguments:
@@ -20,6 +24,6 @@ def generate_push_response(payload: Union[CommandResult, Notification]) -> Respo
     """
     sync_id = payload.event_sync_id or uuid.uuid4()
     return Response(
-        PushResponse(result=PushResult(sync_id=sync_id)).json(),
+        APIResponse[PushResult](result=PushResult(sync_id=sync_id)).json(),
         media_type="application/json",
     )

@@ -12,7 +12,7 @@ class ClientsMixin(SendingMixin, APIMixin):
 
     known_hosts: List[ExpressServer]
 
-    def _get_cts_by_host(self, host: str) -> ExpressServer:
+    def get_cts_by_host(self, host: str) -> ExpressServer:
         """Find CTS in bot registered servers.
 
         Arguments:
@@ -29,3 +29,10 @@ class ClientsMixin(SendingMixin, APIMixin):
                 return cts
 
         raise ServerUnknownError(host=host)
+
+    def get_token_for_cts(self, host: str) -> str:
+        server = self.get_cts_by_host(host)
+        if server.server_credentials is not None:
+            return server.server_credentials.token
+
+        raise ValueError(f"token for cts {host} unfilled")

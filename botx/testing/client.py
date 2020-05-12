@@ -6,10 +6,13 @@ import httpx
 
 from botx import concurrency
 from botx.bots.bots import Bot
+from botx.clients.methods.v3.command.command_result import CommandResult
+from botx.clients.methods.v3.events.edit_event import EditEvent
+from botx.clients.methods.v3.notification.direct_notification import NotificationDirect
+from botx.clients.methods.v3.notification.notification import Notification
 from botx.middlewares.exceptions import ExceptionMiddleware
-from botx.models import receiving, requests
+from botx.models import receiving
 from botx.models.messages import Message
-from botx.models.requests import CommandResult, Notification, UpdatePayload
 from botx.testing.botx_mock.application import get_botx_api
 from botx.testing.typing import APIMessage, APIRequest
 
@@ -133,9 +136,7 @@ class TestClient:  # noqa: WPS214
             Sequence of command results that were sent from bot.
         """
         return tuple(
-            message
-            for message in self.messages
-            if isinstance(message, requests.CommandResult)
+            message for message in self.messages if isinstance(message, CommandResult)
         )
 
     @property
@@ -148,18 +149,16 @@ class TestClient:  # noqa: WPS214
         return tuple(
             message
             for message in self.messages
-            if isinstance(message, requests.Notification)
+            if isinstance(message, (Notification, NotificationDirect))
         )
 
     @property
-    def message_updates(self) -> Tuple[UpdatePayload, ...]:
+    def message_updates(self) -> Tuple[EditEvent, ...]:
         """Return all updates that were sent by bot.
 
         Returns:
             Sequence of updates that were sent by bot.
         """
         return tuple(
-            message
-            for message in self.messages
-            if isinstance(message, requests.UpdatePayload)
+            message for message in self.messages if isinstance(message, EditEvent)
         )

@@ -27,7 +27,7 @@ async def test_disabling_sync_send_for_client(
 ) -> None:
     @bot.handler  # pragma: no cover
     async def background_handler() -> None:
-        await asyncio.sleep(5)
+        await asyncio.sleep(0)
 
     incoming_message.command.body = "/background-handler"
 
@@ -57,7 +57,7 @@ async def test_sending_command_result_when_token_errored(
 async def test_sending_notification_to_errored_api(
     bot: Bot, incoming_message: IncomingMessage
 ) -> None:
-    bot._get_cts_by_host(incoming_message.user.host).server_credentials.token = "token"
+    bot.get_cts_by_host(incoming_message.user.host).server_credentials.token = "token"
     with TestClient(bot, generate_error_api=True):
         with pytest.raises(BotXAPIError):
             sending_msg = SendingMessage.from_message(
@@ -72,7 +72,7 @@ async def test_sending_notification_to_errored_api(
 async def test_sending_command_result_to_errored_api(
     bot: Bot, incoming_message: IncomingMessage
 ) -> None:
-    bot._get_cts_by_host(incoming_message.user.host).server_credentials.token = "token"
+    bot.get_cts_by_host(incoming_message.user.host).server_credentials.token = "token"
 
     with TestClient(bot, generate_error_api=True):
         with pytest.raises(BotXAPIError):
@@ -88,7 +88,7 @@ async def test_sending_command_result_to_errored_api(
 async def test_sending_event_update_to_errored_api(
     bot: Bot, incoming_message: IncomingMessage
 ) -> None:
-    bot._get_cts_by_host(incoming_message.user.host).server_credentials.token = "token"
+    bot.get_cts_by_host(incoming_message.user.host).server_credentials.token = "token"
 
     with TestClient(bot, generate_error_api=True):
         with pytest.raises(BotXAPIError):

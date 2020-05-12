@@ -3,11 +3,13 @@
 from starlette.requests import Request
 from starlette.responses import Response
 
-from botx.models.requests import CommandResult
+from botx.clients.methods.v3.command.command_result import CommandResult
+from botx.testing.botx_mock.binders import bind_implementation_to_method
 from botx.testing.botx_mock.messages import add_message_to_collection
 from botx.testing.botx_mock.responses import generate_push_response
 
 
+@bind_implementation_to_method(CommandResult)
 async def post_command_result(request: Request) -> Response:
     """Handle command result request.
 

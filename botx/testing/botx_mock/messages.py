@@ -4,10 +4,10 @@ import contextlib
 
 from starlette.requests import Request
 
-from botx.testing.typing import APIMessage, APIRequest
+from botx.clients.methods.base import BotXMethod
 
 
-def add_message_to_collection(request: Request, message: APIMessage) -> None:
+def add_message_to_collection(request: Request, message: BotXMethod) -> None:
     """Add new message to messages collection.
 
     Arguments:
@@ -21,7 +21,7 @@ def add_message_to_collection(request: Request, message: APIMessage) -> None:
     add_request_to_collection(request, message)
 
 
-def add_request_to_collection(http_request: Request, api_request: APIRequest) -> None:
+def add_request_to_collection(http_request: Request, api_request: BotXMethod) -> None:
     """Add new API request to requests collection.
 
     Arguments:

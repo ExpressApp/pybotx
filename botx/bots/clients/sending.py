@@ -2,20 +2,17 @@
 from typing import TYPE_CHECKING, BinaryIO, Optional, TextIO, Union
 from uuid import UUID
 
-from botx import clients
 from botx.models import files, messages, sending
 
 if TYPE_CHECKING:
-    from botx.bots.clients.clients import ClientsMixin  # noqa: WPS433
+    from botx.bots.bots import Bot  # noqa: WPS433
 
 
 class SendingMixin:
     """Mixin that defines helpers for sending messages."""
 
-    client: clients.AsyncClient
-
     async def send_message(  # type: ignore
-        self: "ClientsMixin",
+        self: "Bot",
         text: str,
         credentials: sending.SendingCredentials,
         *,
@@ -35,22 +32,16 @@ class SendingMixin:
         Returns:
             `UUID` of sent event.
         """
-        await self._obtain_token(credentials)
-
-        payload = sending.MessagePayload(
-            text=text,
-            file=files.File.from_file(file) if file else None,
-            markup=markup or sending.MessageMarkup(),
-            options=options or sending.MessageOptions(),
+        message = messages.SendingMessage(
+            text=text, markup=markup, options=options, credentials=credentials,
         )
+        if file:
+            message.add_file(file)
 
-        if credentials.sync_id:
-            return await self.client.send_command_result(credentials, payload)
-
-        return await self.client.send_notification(credentials, payload)
+        return await self.send(message)
 
     async def send(  # type: ignore
-        self: "ClientsMixin", message: messages.SendingMessage
+        self: "Bot", message: messages.SendingMessage
     ) -> UUID:
         """Send message as answer to command or notification to chat and get it id.
 
@@ -60,17 +51,13 @@ class SendingMixin:
         Returns:
             `UUID` of sent event.
         """
-        await self._obtain_token(message.credentials)
-
         if message.sync_id:
-            return await self.client.send_command_result(
-                message.credentials, message.payload
-            )
+            return await self.send_command_result(message.credentials, message.payload)
 
-        return await self.client.send_notification(message.credentials, message.payload)
+        return await self.send_direct_notification(message.credentials, message.payload)
 
     async def answer_message(  # type: ignore
-        self: "ClientsMixin",
+        self: "Bot",
         text: str,
         message: messages.Message,
         *,

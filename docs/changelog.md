@@ -80,7 +80,7 @@ not caught.
 
 * Add background dependencies to next step middleware.
 * Next step break handler can be registered as function.
-* Add methods to add/remove users to/from chat using `Bot.add_users()` and `Bot.remove_users()`.
+* Add methods to add/remove users to/from chat using `Bot.add_users_into_chat()` and `Bot.remove_users_from_chat()`.
 
 ### Fixed
 
@@ -104,7 +104,7 @@ not caught.
 
 ### Added
 
-* Stealth mode enable/disable methods `Bot.stealth_enable()` and `Bot.stealth_disable()`.
+* Stealth mode enable/disable methods `Bot.enable_stealth_mode()` and `Bot.disable_stealth_mode()`.
 
 ## 0.13.0 (Jan 20, 2020)
 

@@ -7,7 +7,8 @@ from pydantic import BaseModel, validator
 from pydantic.utils import lenient_issubclass
 
 from botx.bots import bots
-from botx.clients import AsyncClient, Client
+from botx.clients.clients import AsyncClient
+from botx.clients.sync.clients import Client
 from botx.dependencies import inspecting
 from botx.models.messages import Message
 
