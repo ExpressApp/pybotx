@@ -12,10 +12,12 @@ from botx.clients.methods.v3.chats.remove_user import RemoveUser
 from botx.clients.methods.v3.chats.stealth_disable import StealthDisable
 from botx.clients.methods.v3.chats.stealth_set import StealthSet
 from botx.clients.methods.v3.command.command_result import CommandResult
-from botx.clients.methods.v3.events.edit_event import EditEvent
+from botx.clients.methods.v3.events.edit_event import EditEvent, UpdatePayload
 from botx.clients.methods.v3.notification.direct_notification import NotificationDirect
 from botx.clients.methods.v3.notification.notification import Notification
-from botx.models import requests, sending
+from botx.clients.types.options import ResultOptions
+from botx.clients.types.result_payload import ResultPayload
+from botx.models import sending
 
 if TYPE_CHECKING:
     from botx.bots.bots import Bot  # noqa: WPS433
@@ -56,9 +58,10 @@ class APIMixin:
     ) -> UUID:
         return await self.call_method(
             CommandResult(
+                bot_id=cast(UUID, credentials.bot_id),
                 sync_id=cast(UUID, credentials.sync_id),
                 event_sync_id=credentials.message_id,
-                result=requests.ResultPayload(
+                result=ResultPayload(
                     body=payload.text,
                     bubble=payload.markup.bubbles,
                     keyboard=payload.markup.keyboard,
@@ -66,7 +69,7 @@ class APIMixin:
                 ),
                 recipients=payload.options.recipients,
                 file=payload.file,
-                opts=requests.ResultOptions(
+                opts=ResultOptions(
                     notification_opts=payload.options.notifications
                 ),
             ),
@@ -86,8 +89,9 @@ class APIMixin:
 
         return await self.call_method(
             Notification(
+                bot_id=cast(UUID, credentials.bot_id),
                 group_chat_ids=chat_ids,
-                result=requests.ResultPayload(
+                result=ResultPayload(
                     body=payload.text,
                     bubble=payload.markup.bubbles,
                     keyboard=payload.markup.keyboard,
@@ -95,7 +99,7 @@ class APIMixin:
                 ),
                 recipients=payload.options.recipients,
                 file=payload.file,
-                opts=requests.ResultOptions(
+                opts=ResultOptions(
                     notification_opts=payload.options.notifications
                 ),
             ),
@@ -109,9 +113,10 @@ class APIMixin:
     ) -> UUID:
         return await self.call_method(
             NotificationDirect(
+                bot_id=cast(UUID, credentials.bot_id),
                 group_chat_id=credentials.chat_id,
                 event_sync_id=credentials.message_id,
-                result=requests.ResultPayload(
+                result=ResultPayload(
                     body=payload.text,
                     bubble=payload.markup.bubbles,
                     keyboard=payload.markup.keyboard,
@@ -119,7 +124,7 @@ class APIMixin:
                 ),
                 recipients=payload.options.recipients,
                 file=payload.file,
-                opts=requests.ResultOptions(
+                opts=ResultOptions(
                     notification_opts=payload.options.notifications
                 ),
             ),
@@ -141,7 +146,7 @@ class APIMixin:
         return await self.call_method(
             EditEvent(
                 sync_id=credentials.sync_id,
-                result=requests.UpdatePayload(
+                result=UpdatePayload(
                     body=update.text,
                     keyboard=update.keyboard,
                     bubble=update.bubbles,

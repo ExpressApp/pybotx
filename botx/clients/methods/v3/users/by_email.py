@@ -1,22 +1,8 @@
-from typing import List
-from uuid import UUID
-
 from httpx import StatusCode
-from pydantic import BaseModel
 
 from botx.clients.methods.base import AuthorizedBotXMethod
 from botx.clients.methods.errors import user_not_found
-
-
-class UserFromSearch(BaseModel):
-    user_huid: UUID
-    ad_login: str
-    ad_domain: str
-    name: str
-    company: str
-    company_position: str
-    department: str
-    emails: List[str]
+from botx.clients.types.users import UserFromSearch
 
 
 class ByEmail(AuthorizedBotXMethod[UserFromSearch]):

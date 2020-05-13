@@ -8,7 +8,7 @@ from starlette.responses import Response
 from botx.clients.methods.base import APIResponse
 from botx.clients.methods.v3.command.command_result import CommandResult
 from botx.clients.methods.v3.notification.direct_notification import NotificationDirect
-from botx.models.responses import PushResult
+from botx.clients.types.push_response import PushResult
 
 
 def generate_push_response(
