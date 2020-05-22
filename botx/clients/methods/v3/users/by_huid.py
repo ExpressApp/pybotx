@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from httpx import StatusCode
 
 from botx.clients.methods.base import AuthorizedBotXMethod
@@ -11,4 +13,4 @@ class ByHUID(AuthorizedBotXMethod[UserFromSearch]):
     __returning__ = UserFromSearch
     __error_handlers__ = {StatusCode.NOT_FOUND: user_not_found.handle_error}
 
-    user_huid: str
+    user_huid: UUID

@@ -19,8 +19,9 @@ class Token(BotXMethod[str]):
         api_url = self.__url__.format(bot_id=self.bot_id)
         return str(URL(self.base_url).join(api_url))
 
-    def encode(self) -> None:
-        return None
-
+    @property
     def params(self) -> Dict[str, str]:
         return {"signature": self.signature}
+
+    def encode(self) -> None:
+        return None

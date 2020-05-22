@@ -14,6 +14,4 @@ APIMessage = Union[
     CommandResult, Notification, EditEvent,
 ]
 
-APIRequest = Union[
-    APIMessage, StealthDisable, StealthSet, AddUser, RemoveUser
-]
+APIRequest = Union[APIMessage, StealthDisable, StealthSet, AddUser, RemoveUser]

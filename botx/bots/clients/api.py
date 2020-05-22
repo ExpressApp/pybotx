@@ -69,9 +69,7 @@ class APIMixin:
                 ),
                 recipients=payload.options.recipients,
                 file=payload.file,
-                opts=ResultOptions(
-                    notification_opts=payload.options.notifications
-                ),
+                opts=ResultOptions(notification_opts=payload.options.notifications),
             ),
             credentials=credentials,
         )
@@ -99,9 +97,7 @@ class APIMixin:
                 ),
                 recipients=payload.options.recipients,
                 file=payload.file,
-                opts=ResultOptions(
-                    notification_opts=payload.options.notifications
-                ),
+                opts=ResultOptions(notification_opts=payload.options.notifications),
             ),
             credentials=credentials,
         )
@@ -124,9 +120,7 @@ class APIMixin:
                 ),
                 recipients=payload.options.recipients,
                 file=payload.file,
-                opts=ResultOptions(
-                    notification_opts=payload.options.notifications
-                ),
+                opts=ResultOptions(notification_opts=payload.options.notifications),
             ),
             credentials=credentials,
         )

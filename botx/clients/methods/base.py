@@ -2,6 +2,7 @@ import collections
 import contextlib
 from abc import ABC, abstractmethod
 from typing import (
+    Any,
     Awaitable,
     Callable,
     Dict,
@@ -24,9 +25,12 @@ from botx.clients.clients import AsyncClient
 from botx.exceptions import BotXAPIError
 from botx.models.enums import Statuses
 
+PRIMITIVES_FOR_QUERY = (str, int, float, bool, type(None))
+
 ResponseT = TypeVar("ResponseT")
 ErrorHandler = Callable[["BotXMethod", Response], Awaitable[NoReturn]]
 ErrorHandlersInMethod = Union[Sequence[ErrorHandler], ErrorHandler]
+PrimitiveDataType = Union[None, str, int, float, bool]
 
 
 class APIResponse(GenericModel, Generic[ResponseT]):
@@ -121,12 +125,23 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
         return self._extract_result(response)
 
     async def execute(self, client: AsyncClient) -> Response:
+        request_params = self.params
+        request_data = self.encode()
+
+        if self.__method__ == "GET":
+            if request_data:
+                request_data = None
+
+            if not request_params:
+                request_params = _convert_query_to_primitives(self.dict())
+                request_data = None
+
         return await client.http_client.request(
             self.__method__,
             self.url,
             headers=self.headers,
-            params=self.params,
-            data=self.encode(),
+            params=request_params,
+            data=request_data,
         )
 
     def _extract_result(self, response: Response) -> ResponseT:
@@ -156,3 +171,16 @@ class AuthorizedBotXMethod(BotXMethod[ResponseT], ABC):
         headers = super().headers
         headers["Authorization"] = "Bearer {token}".format(token=self.token)
         return headers
+
+
+def _convert_query_to_primitives(
+    query_params: Mapping[str, Any]
+) -> Mapping[str, PrimitiveDataType]:
+    converted_params = {}
+    for param_key, param_value in query_params:
+        if not isinstance(param_value, PRIMITIVES_FOR_QUERY):
+            converted_params[param_key] = str(param_value)
+        else:
+            converted_params[param_key] = param_value
+
+    return converted_params
