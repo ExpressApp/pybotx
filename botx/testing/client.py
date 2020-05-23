@@ -1,11 +1,13 @@
 """Definition of client for testing."""
-
-from typing import Any, List, Optional, Tuple
+from contextlib import contextmanager
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 import httpx
+from pydantic import BaseModel
 
 from botx import concurrency
-from botx.bots.bots import Bot
+from botx.bots.bot import Bot
+from botx.clients.methods.base import BotXMethod
 from botx.clients.methods.v3.command.command_result import CommandResult
 from botx.clients.methods.v3.events.edit_event import EditEvent
 from botx.clients.methods.v3.notification.direct_notification import NotificationDirect
@@ -37,13 +39,16 @@ class TestClient:  # noqa: WPS214
     __test__ = False
 
     def __init__(
-        self, bot: Bot, generate_error_api: bool = False, suppress_errors: bool = False
+        self,
+        bot: Bot,
+        errors: Optional[Dict[Type[BotXMethod], Tuple[int, BaseModel]]] = None,
+        suppress_errors: bool = False,
     ) -> None:
         """Init client with required params.
 
         Arguments:
             bot: bot that should be tested.
-            generate_error_api: mocked BotX API will return errored responses.
+            errors: errors that should be raised from methods calls.
             suppress_errors: if True then don't raise raise errors from handlers.
         """
         self.bot: Bot = bot
@@ -52,21 +57,8 @@ class TestClient:  # noqa: WPS214
         self._error_middleware: Optional[ExceptionMiddleware] = None
         self._messages: List[APIMessage] = []
         self._requests: List[APIRequest] = []
-        self._generate_error_api = generate_error_api
+        self._errors = errors or {}
         self._suppress_errors = suppress_errors
-
-    @property
-    def generate_error_api(self) -> bool:
-        """Regenerate BotX API mock."""
-        return self._generate_error_api
-
-    @generate_error_api.setter
-    def generate_error_api(self, generate_errored: bool) -> None:
-        """Regenerate BotX API mock."""
-        self._generate_error_api = generate_errored
-        self.bot.client.http_client = httpx.AsyncClient(
-            app=get_botx_api(self._messages, self._requests, self.generate_error_api)
-        )
 
     def __enter__(self) -> "TestClient":
         """Mock original HTTP client."""
@@ -83,7 +75,7 @@ class TestClient:  # noqa: WPS214
             )
 
         self.bot.client.http_client = httpx.AsyncClient(
-            app=get_botx_api(self._messages, self._requests, self.generate_error_api)
+            app=get_botx_api(self._messages, self._requests, self._errors)
         )
 
         return self
@@ -95,6 +87,14 @@ class TestClient:  # noqa: WPS214
 
         self.bot.client.http_client = self._original_http_client
         self._messages = []
+
+    @contextmanager
+    def error_client(
+        self, errors: Dict[Type[BotXMethod], Tuple[int, BaseModel]]
+    ) -> "TestClient":
+        override_errors = {**self._errors, **errors}
+        with TestClient(self.bot, override_errors, self._suppress_errors) as client:
+            yield client
 
     async def send_command(
         self, message: receiving.IncomingMessage, sync: bool = True

@@ -66,6 +66,23 @@ class TestSendingMessageUsingSendMessage:
         assert message.file == File.from_string("some content", "file.txt")
 
     @pytest.mark.asyncio
+    async def test_sending_command_result_using_send_message_without_file(
+        self, bot: Bot, incoming_message: IncomingMessage, client: TestClient
+    ) -> None:
+        await bot.send_message(
+            "some text",
+            SendingCredentials(
+                sync_id=incoming_message.sync_id,
+                bot_id=incoming_message.bot_id,
+                host=incoming_message.user.host,
+            ),
+        )
+
+        message = client.command_results[0]
+        assert message.result.body == "some text"
+        assert not message.file
+
+    @pytest.mark.asyncio
     async def test_sending_notification_using_send_message(
         self, bot: Bot, incoming_message: IncomingMessage, client: TestClient
     ) -> None:

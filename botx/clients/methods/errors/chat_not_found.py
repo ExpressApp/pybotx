@@ -19,11 +19,11 @@ class ChatNotFoundData(BaseModel):
 
 
 def handle_error(method: BotXMethod, response: Response) -> NoReturn:
-    error_data = APIErrorResponse[ChatNotFoundData](**response.json())
+    error_data = APIErrorResponse[ChatNotFoundData](**response.json()).error_data
     raise ChatNotFoundError(
         url=method.url,
-        method=method.method,
+        method=method.__method__,
         response_content=response.content,
         status_content=response.status_code,
-        group_chat_id=error_data.error_data.group_chat_id,
+        group_chat_id=error_data.group_chat_id,
     )

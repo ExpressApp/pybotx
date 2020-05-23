@@ -3,7 +3,7 @@
 from typing import BinaryIO, List, Optional, TextIO, Union, cast
 from uuid import UUID
 
-from botx.bots import bots
+from botx.bots import bot
 from botx.models.datastructures import State
 from botx.models.enums import Recipients
 from botx.models.files import File
@@ -22,14 +22,14 @@ from botx.models.typing import AvailableRecipients, BubbleMarkup, KeyboardMarkup
 class Message:  # noqa: WPS214
     """Message that is used in handlers."""
 
-    def __init__(self, message: IncomingMessage, bot: "bots.Bot") -> None:
+    def __init__(self, message: IncomingMessage, bot: "bot.Bot") -> None:
         """Init message with required params.
 
         Arguments:
             message: incoming message.
             bot: bot that handles message.
         """
-        self.bot: bots.Bot = bot
+        self.bot: bot.Bot = bot
         """bot that is used for handling message."""
         self.state: State = State()
         """message state."""
@@ -123,7 +123,7 @@ class Message:  # noqa: WPS214
         return self._message.copy(deep=True)
 
     @classmethod
-    def from_dict(cls, message: dict, bot: "bots.Bot") -> "Message":
+    def from_dict(cls, message: dict, bot: "bot.Bot") -> "Message":
         """Parse incoming dict into message.
 
         Arguments:

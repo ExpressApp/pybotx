@@ -2,23 +2,7 @@ import asyncio
 
 import pytest
 
-from botx import (
-    Bot,
-    BotXAPIError,
-    IncomingMessage,
-    Message,
-    SendingMessage,
-    TestClient,
-    UpdatePayload,
-)
-
-
-def test_regenerating_app_for_errored_views(bot: Bot) -> None:
-    with TestClient(bot) as client:
-        original_mock = client.bot.client.http_client
-        client.generate_error_api = True
-
-        assert original_mock != client.bot.client.http_client
+from botx import Bot, IncomingMessage, Message, TestClient
 
 
 @pytest.mark.asyncio
@@ -37,65 +21,6 @@ async def test_disabling_sync_send_for_client(
         assert bot._tasks
 
     await bot.shutdown()
-
-
-@pytest.mark.asyncio
-async def test_sending_command_result_when_token_errored(
-    bot: Bot, incoming_message: IncomingMessage
-) -> None:
-    with TestClient(bot, generate_error_api=True):
-        with pytest.raises(BotXAPIError):
-            await bot.send(
-                SendingMessage.from_message(
-                    text="some text",
-                    message=Message.from_dict(incoming_message.dict(), bot),
-                )
-            )
-
-
-@pytest.mark.asyncio
-async def test_sending_notification_to_errored_api(
-    bot: Bot, incoming_message: IncomingMessage
-) -> None:
-    bot.get_cts_by_host(incoming_message.user.host).server_credentials.token = "token"
-    with TestClient(bot, generate_error_api=True):
-        with pytest.raises(BotXAPIError):
-            sending_msg = SendingMessage.from_message(
-                text="some text",
-                message=Message.from_dict(incoming_message.dict(), bot),
-            )
-            sending_msg.sync_id = None
-            await bot.send(sending_msg)
-
-
-@pytest.mark.asyncio
-async def test_sending_command_result_to_errored_api(
-    bot: Bot, incoming_message: IncomingMessage
-) -> None:
-    bot.get_cts_by_host(incoming_message.user.host).server_credentials.token = "token"
-
-    with TestClient(bot, generate_error_api=True):
-        with pytest.raises(BotXAPIError):
-            await bot.send(
-                SendingMessage.from_message(
-                    text="some text",
-                    message=Message.from_dict(incoming_message.dict(), bot),
-                )
-            )
-
-
-@pytest.mark.asyncio
-async def test_sending_event_update_to_errored_api(
-    bot: Bot, incoming_message: IncomingMessage
-) -> None:
-    bot.get_cts_by_host(incoming_message.user.host).server_credentials.token = "token"
-
-    with TestClient(bot, generate_error_api=True):
-        with pytest.raises(BotXAPIError):
-            await bot.update_message(
-                Message.from_dict(incoming_message.dict(), bot).credentials,
-                UpdatePayload(text="some text"),
-            )
 
 
 @pytest.mark.asyncio

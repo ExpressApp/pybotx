@@ -13,7 +13,7 @@ class MessagingError(BotXAPIError):
 def handle_error(method: BotXMethod, response: Response) -> NoReturn:
     raise MessagingError(
         url=method.url,
-        method=method.method,
+        method=method.__method__,
         response=response.json(),
         status=response.status_code,
     )

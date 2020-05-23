@@ -7,7 +7,7 @@ from uuid import UUID
 from loguru import logger
 from pydantic import BaseConfig, BaseModel
 
-from botx.bots import bots
+from botx.bots import bot
 from botx.collecting import Collector, Handler
 from botx.concurrency import callable_to_coroutine
 from botx.dependencies import models as deps
@@ -43,7 +43,7 @@ class NextStepMiddleware(BaseMiddleware):
     def __init__(
         self,
         executor: Executor,
-        bot: bots.Bot,
+        bot: bot.Bot,
         functions: Union[Dict[str, Callable], Sequence[Callable]],
         break_handler: Optional[Union[Handler, str, Callable]] = None,
         dependencies: Optional[Sequence[deps.Depends]] = None,
@@ -175,7 +175,7 @@ def get_chain_key_by_message(message: messages.Message) -> Tuple[str, UUID, UUID
 
 
 def register_function_as_ns_handler(
-    bot: bots.Bot, func: Callable, name: Optional[str] = None
+    bot: bot.Bot, func: Callable, name: Optional[str] = None
 ) -> None:
     """Register new function that can be called as next step handler.
 

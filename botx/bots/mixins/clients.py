@@ -1,13 +1,13 @@
 """Define Mixin that combines API and sending mixins and will be used in Bot."""
 from typing import List
 
-from botx.bots.clients.api import APIMixin
-from botx.bots.clients.sending import SendingMixin
+from botx.bots.mixins.requests.mixin import BotXRequestsMixin
+from botx.bots.mixins.sending import SendingMixin
 from botx.exceptions import ServerUnknownError
 from botx.models.credentials import ExpressServer
 
 
-class ClientsMixin(SendingMixin, APIMixin):
+class ClientsMixin(SendingMixin, BotXRequestsMixin):
     """Mixin that defines methods that are used for communicating with BotX API."""
 
     known_hosts: List[ExpressServer]

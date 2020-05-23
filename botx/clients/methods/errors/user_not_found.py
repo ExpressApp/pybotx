@@ -14,7 +14,7 @@ def handle_error(method: BotXMethod, response: Response) -> NoReturn:
     APIErrorResponse[dict](**response.json())  # check that response shape is right
     raise UserNotFoundError(
         url=method.url,
-        method=method.method,
+        method=method.__method__,
         response_content=response.content,
         status_content=response.status_code,
     )

@@ -6,8 +6,8 @@ from typing import Callable, List, Optional, Tuple
 from pydantic import BaseModel, validator
 from pydantic.utils import lenient_issubclass
 
-from botx.bots import bots
-from botx.clients.clients import AsyncClient
+from botx.bots import bot
+from botx.clients.client import AsyncClient
 from botx.clients.sync.clients import Client
 from botx.dependencies import inspecting
 from botx.models.messages import Message
@@ -131,7 +131,7 @@ def add_special_param_to_dependency(
     Returns:
         Result of check.
     """
-    if lenient_issubclass(param.annotation, bots.Bot):
+    if lenient_issubclass(param.annotation, bot.Bot):
         dependant.bot_param_name = param.name
         return True
     elif lenient_issubclass(param.annotation, Message):

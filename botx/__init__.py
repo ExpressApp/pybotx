@@ -2,8 +2,8 @@
 
 from loguru import logger
 
-from botx.bots.bots import Bot
-from botx.clients.clients import AsyncClient
+from botx.bots.bot import Bot
+from botx.clients.client import AsyncClient
 from botx.clients.sync.clients import Client
 from botx.collecting import Collector
 from botx.exceptions import BotXAPIError, DependencyFailure, ServerUnknownError

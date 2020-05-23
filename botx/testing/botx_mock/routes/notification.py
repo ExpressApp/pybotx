@@ -1,14 +1,14 @@
 """Endpoints for notification resource."""
 
 from starlette.requests import Request
-from starlette.responses import JSONResponse, Response
+from starlette.responses import Response
 
 from botx.clients.methods.base import APIResponse
 from botx.clients.methods.v3.notification.direct_notification import NotificationDirect
 from botx.clients.methods.v3.notification.notification import Notification
 from botx.testing.botx_mock.binders import bind_implementation_to_method
 from botx.testing.botx_mock.messages import add_message_to_collection
-from botx.testing.botx_mock.responses import generate_push_response
+from botx.testing.botx_mock.responses import PydanticResponse, generate_push_response
 
 
 @bind_implementation_to_method(Notification)
@@ -23,7 +23,7 @@ async def post_notification(request: Request) -> Response:
     """
     payload = Notification.parse_obj(await request.json())
     add_message_to_collection(request, payload)
-    return JSONResponse(APIResponse[str](result="notification_pushed").dict())
+    return PydanticResponse(APIResponse[str](result="notification_pushed"))
 
 
 @bind_implementation_to_method(NotificationDirect)

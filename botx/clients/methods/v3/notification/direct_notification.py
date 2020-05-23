@@ -6,7 +6,7 @@ from pydantic import Field
 from botx.clients.methods.base import AuthorizedBotXMethod
 from botx.clients.methods.extractors import extract_generated_sync_id
 from botx.clients.types.options import ResultOptions
-from botx.clients.types.push_response import PushResult
+from botx.clients.types.response_results import PushResult
 from botx.clients.types.result_payload import ResultPayload
 from botx.models.enums import Recipients
 from botx.models.files import File

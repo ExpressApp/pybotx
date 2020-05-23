@@ -8,3 +8,10 @@ class PushResult(BaseModel):
 
     sync_id: UUID
     """event id of pushed message."""
+
+
+class ChatCreatedResult(BaseModel):
+    """Entity that contains result from chat creation."""
+
+    chat_id: UUID
+    """id of created chat."""

@@ -21,14 +21,17 @@ from httpx import URL, Response, StatusCode
 from pydantic import BaseConfig, BaseModel, Extra, Field, ValidationError
 from pydantic.generics import GenericModel
 
-from botx.clients.clients import AsyncClient
+from botx import concurrency
+from botx.clients.client import AsyncClient
 from botx.exceptions import BotXAPIError
 from botx.models.enums import Statuses
 
 PRIMITIVES_FOR_QUERY = (str, int, float, bool, type(None))
 
 ResponseT = TypeVar("ResponseT")
-ErrorHandler = Callable[["BotXMethod", Response], Awaitable[NoReturn]]
+SyncErrorHandler = Callable[["BotXMethod", Response], NoReturn]
+AsyncErrorHandler = Callable[["BotXMethod", Response], Awaitable[NoReturn]]
+ErrorHandler = Union[SyncErrorHandler, AsyncClient]
 ErrorHandlersInMethod = Union[Sequence[ErrorHandler], ErrorHandler]
 PrimitiveDataType = Union[None, str, int, float, bool]
 
@@ -49,21 +52,17 @@ class AbstractBotXMethod(ABC, Generic[ResponseT]):
     @property
     @abstractmethod
     def __url__(self) -> str:
-        ...
+        """Path for method in BotX API."""
 
     @property
     @abstractmethod
     def __method__(self) -> str:
-        ...
-
-    @property
-    def api_method(self) -> str:
-        return self.__method__
+        """HTTP method used for method."""
 
     @property
     @abstractmethod
     def __returning__(self) -> Type[ResponseT]:
-        ...
+        """Shape returned from method that can be parsed by pydantic."""
 
 
 class BaseBotXMethod(AbstractBotXMethod[ResponseT], ABC):
@@ -89,7 +88,7 @@ class BaseBotXMethod(AbstractBotXMethod[ResponseT], ABC):
         return {}
 
     @property
-    def __error_handlers__(self,) -> Mapping[int, ErrorHandlersInMethod]:
+    def __errors_handlers__(self,) -> Mapping[int, ErrorHandlersInMethod]:
         return {}
 
     @property
@@ -111,16 +110,16 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
         response = await self.execute(client)
 
         if StatusCode.is_error(response.status_code):
-            error_handlers = self.__error_handlers__.get(response.status_code)
+            error_handlers = self.__errors_handlers__.get(response.status_code)
             if error_handlers is not None:
                 await self._handle_error(error_handlers, response)
-            else:
-                raise BotXAPIError(
-                    url=self.url,
-                    method=self.__method__,
-                    status=response.status_code,
-                    response_content=response.json(),
-                )
+
+            raise BotXAPIError(
+                url=self.url,
+                method=self.__method__,
+                status=response.status_code,
+                response_content=response.json(),
+            )
 
         return self._extract_result(response)
 
@@ -162,7 +161,7 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
 
         for error_handler in error_handlers:
             with contextlib.suppress(ValidationError):
-                await error_handler(self, response)
+                await concurrency.callable_to_coroutine(error_handler, self, response)
 
 
 class AuthorizedBotXMethod(BotXMethod[ResponseT], ABC):
@@ -177,7 +176,7 @@ def _convert_query_to_primitives(
     query_params: Mapping[str, Any]
 ) -> Mapping[str, PrimitiveDataType]:
     converted_params = {}
-    for param_key, param_value in query_params:
+    for param_key, param_value in query_params.items():
         if not isinstance(param_value, PRIMITIVES_FOR_QUERY):
             converted_params[param_key] = str(param_value)
         else:

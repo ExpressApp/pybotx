@@ -5,7 +5,7 @@ from uuid import UUID
 from botx.models import files, messages, sending
 
 if TYPE_CHECKING:
-    from botx.bots.bots import Bot  # noqa: WPS433
+    from botx.bots.bot import Bot  # noqa: WPS433
 
 
 class SendingMixin:
