@@ -11,6 +11,6 @@ class Info(AuthorizedBotXMethod[ChatFromSearch]):
     __url__ = "/api/v3/botx/chats/info"
     __method__ = "GET"
     __returning__ = ChatFromSearch
-    __error_handlers__ = {StatusCode.BAD_REQUEST: messaging.handle_error}
+    __errors_handlers__ = {StatusCode.BAD_REQUEST: messaging.handle_error}
 
     group_chat_id: UUID

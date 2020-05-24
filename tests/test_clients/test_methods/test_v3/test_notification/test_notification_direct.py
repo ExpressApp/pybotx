@@ -14,8 +14,7 @@ async def test_sending_direct_notification(client):
         bot_id=uuid.uuid4(),
         result=ResultPayload(body="test"),
     )
-    method.fill_credentials("example.cts", "")
 
-    assert await method.call(client.bot.client)
+    assert await method.call(client.bot.client, "example.cts")
 
     assert client.requests[0].result.body == method.result.body

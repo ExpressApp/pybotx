@@ -65,8 +65,15 @@ class AbstractBotXMethod(ABC, Generic[ResponseT]):
         """Shape returned from method that can be parsed by pydantic."""
 
 
+CREDENTIALS_FIELDS = ("token", "host", "scheme")
+
+
 class BaseBotXMethod(AbstractBotXMethod[ResponseT], ABC):
-    def fill_credentials(self, host: str, token: str, *, scheme: str = "https") -> None:
+    host: str = ''
+    token: str = ''
+    scheme: str = 'https'
+
+    def configure(self, *, host: str, token: str, scheme: str = "https") -> None:
         self.token = token
         self.host = host
         self.scheme = scheme
@@ -88,7 +95,7 @@ class BaseBotXMethod(AbstractBotXMethod[ResponseT], ABC):
         return {}
 
     @property
-    def __errors_handlers__(self,) -> Mapping[int, ErrorHandlersInMethod]:
+    def __errors_handlers__(self, ) -> Mapping[int, ErrorHandlersInMethod]:
         return {}
 
     @property
@@ -104,9 +111,12 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
         orm_mode = True
 
     def encode(self) -> Optional[str]:
-        return self.json(by_alias=True)
+        return self.json(by_alias=True, exclude=set(CREDENTIALS_FIELDS))
 
-    async def call(self, client: AsyncClient) -> ResponseT:
+    async def call(self, client: AsyncClient, host: Optional[str] = None) -> ResponseT:
+        if host is not None:
+            self.host = host
+
         response = await self.execute(client)
 
         if StatusCode.is_error(response.status_code):
@@ -132,7 +142,9 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
                 request_data = None
 
             if not request_params:
-                request_params = _convert_query_to_primitives(self.dict())
+                request_params = _convert_query_to_primitives(
+                    self.dict(exclude=set(CREDENTIALS_FIELDS))
+                )
                 request_data = None
 
         return await client.http_client.request(
@@ -154,7 +166,7 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
         return result
 
     async def _handle_error(
-        self, error_handlers: ErrorHandlersInMethod, response: Response
+            self, error_handlers: ErrorHandlersInMethod, response: Response
     ) -> None:
         if not isinstance(error_handlers, collections.Sequence):
             error_handlers = [error_handlers]
@@ -173,7 +185,7 @@ class AuthorizedBotXMethod(BotXMethod[ResponseT], ABC):
 
 
 def _convert_query_to_primitives(
-    query_params: Mapping[str, Any]
+        query_params: Mapping[str, Any]
 ) -> Mapping[str, PrimitiveDataType]:
     converted_params = {}
     for param_key, param_value in query_params.items():

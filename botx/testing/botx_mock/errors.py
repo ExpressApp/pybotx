@@ -1,11 +1,12 @@
 """Definition of middleware that will generate BotX API errors depending from flag."""
+import contextlib
 from typing import Tuple, Type
 
 from pydantic import BaseModel
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
-from starlette.routing import Match
+from starlette.routing import Match, NoMatchFound
 
 from botx.clients.methods.base import APIErrorResponse, BotXMethod
 from botx.testing.botx_mock.responses import PydanticResponse

@@ -7,9 +7,8 @@ pytestmark = pytest.mark.asyncio
 
 async def test_search_by_huid(client):
     method = ByLogin(ad_login="test", ad_domain="example.com")
-    method.fill_credentials("example.cts", "")
 
-    user = await method.call(client.bot.client)
+    user = await method.call(client.bot.client, "example.cts")
 
     assert user.ad_login == method.ad_login
     assert user.ad_domain == method.ad_domain

@@ -7,9 +7,8 @@ pytestmark = pytest.mark.asyncio
 
 async def test_search_by_huid(client):
     method = ByEmail(email="test@example.com")
-    method.fill_credentials("example.cts", "")
 
-    user = await method.call(client.bot.client)
+    user = await method.call(client.bot.client, "example.cts")
 
     assert user.emails == [method.email]
 

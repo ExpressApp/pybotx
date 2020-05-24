@@ -41,7 +41,7 @@ class DependencyFailure(BotXException):
 class BotXAPIError(BotXException):
     """Raised if there is an error in requests to BotX API."""
 
-    message_template = "unable to send {method.upper()} {url} to BotX API ({status})"
+    message_template = "unable to send {method} {url} to BotX API ({status})"
     url: str
     method: str
     response_content: Dict[str, Any]

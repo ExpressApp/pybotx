@@ -1,8 +1,7 @@
 """Definition of Starlette application that is mock for BotX API."""
 
-from typing import Dict, List, Sequence, Tuple, Type
+from typing import Any, Dict, List, Sequence, Tuple, Type
 
-from pydantic import BaseModel
 from starlette.applications import Starlette
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.routing import Route
@@ -71,7 +70,7 @@ def _create_starlette_routes() -> Sequence[Route]:
 def get_botx_api(
     messages: List[APIMessage],
     requests: List[APIRequest],
-    errors: Dict[Type[BotXMethod], Tuple[int, BaseModel]],
+    errors: Dict[Type[BotXMethod], Tuple[int, Any]],
 ) -> Starlette:
     """Generate BotX API mock.
 

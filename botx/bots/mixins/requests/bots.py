@@ -14,5 +14,5 @@ class BotsRequestsMixin:
 
     async def get_token(self: "Bot", host: str, bot_id: UUID, signature: str) -> str:
         return await self.call_method(  # noqa: S106
-            Token(bot_id=bot_id, signature=signature), host=host, token="",
+            Token(bot_id=bot_id, signature=signature), host=host,
         )

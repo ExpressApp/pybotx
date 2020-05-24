@@ -12,9 +12,8 @@ async def test_chat_creation(client):
     method = Create(
         name="test name", members=[uuid.uuid4()], chat_type=ChatTypes.group_chat
     )
-    method.fill_credentials("example.cts", "")
 
-    assert await method.call(client.bot.client)
+    assert await method.call(client.bot.client, "example.cts")
 
     assert client.requests[0].name == method.name
     assert client.requests[0].members == method.members

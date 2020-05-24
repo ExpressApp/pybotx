@@ -16,8 +16,6 @@ async def test_raising_bot_is_not_admin(client):
     method = AddUser(
         group_chat_id=uuid.uuid4(), user_huids=[uuid.uuid4() for _ in range(10)]
     )
-    method.fill_credentials("example.cts", "")
-
     errors_to_raise = {
         AddUser: (
             StatusCode.FORBIDDEN,
@@ -27,4 +25,4 @@ async def test_raising_bot_is_not_admin(client):
 
     with pytest.raises(BotIsNotAdminError):
         with client.error_client(errors=errors_to_raise):
-            await method.call(client.bot.client)
+            await method.call(client.bot.client, "example.cts")

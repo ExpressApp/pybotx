@@ -9,9 +9,8 @@ pytestmark = pytest.mark.asyncio
 
 async def test_retrieving_info(client):
     method = Info(group_chat_id=uuid.uuid4())
-    method.fill_credentials("example.cts", "")
 
-    info = await method.call(client.bot.client)
+    info = await method.call(client.bot.client, "example.cts")
     assert info.members
 
     assert client.requests[0].group_chat_id == method.group_chat_id

@@ -3,7 +3,6 @@ from contextlib import contextmanager
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 import httpx
-from pydantic import BaseModel
 
 from botx import concurrency
 from botx.bots.bot import Bot
@@ -41,7 +40,7 @@ class TestClient:  # noqa: WPS214
     def __init__(
         self,
         bot: Bot,
-        errors: Optional[Dict[Type[BotXMethod], Tuple[int, BaseModel]]] = None,
+        errors: Optional[Dict[Type[BotXMethod], Tuple[int, Any]]] = None,
         suppress_errors: bool = False,
     ) -> None:
         """Init client with required params.
@@ -90,7 +89,7 @@ class TestClient:  # noqa: WPS214
 
     @contextmanager
     def error_client(
-        self, errors: Dict[Type[BotXMethod], Tuple[int, BaseModel]]
+        self, errors: Dict[Type[BotXMethod], Tuple[int, Any]]
     ) -> "TestClient":
         override_errors = {**self._errors, **errors}
         with TestClient(self.bot, override_errors, self._suppress_errors) as client:

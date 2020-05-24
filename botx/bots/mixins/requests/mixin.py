@@ -31,9 +31,9 @@ class BotXRequestsMixin(
         credentials: Optional[sending.SendingCredentials] = None,
     ) -> ResponseT:
         if host is not None and token is not None:
-            method.fill_credentials(host, token)
+            method.configure(host=host, token=token)
         elif credentials is not None:
-            method.fill_credentials(
-                credentials.host, self.get_token_for_cts(credentials.host)
+            method.configure(
+                host=credentials.host, token=self.get_token_for_cts(credentials.host)
             )
         return await method.call(self.client)
