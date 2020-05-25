@@ -9,17 +9,17 @@ class ResultSendProtocol(Protocol):
     async def send_command_result(
         self, credentials: sending.SendingCredentials, payload: sending.MessagePayload,
     ) -> UUID:
-        ...
+        """TODO: write normal doc."""
 
     async def send_direct_notification(
         self, credentials: sending.SendingCredentials, payload: sending.MessagePayload,
     ) -> UUID:
-        ...
+        """TODO: write normal doc."""
 
 
 class MessageSendProtocol(Protocol):
     async def send(self, message: messages.SendingMessage) -> UUID:
-        ...
+        """TODO: write normal doc."""
 
 
 class SendingMixin:

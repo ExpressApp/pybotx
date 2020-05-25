@@ -13,4 +13,4 @@ class BotXMethodCallProtocol(Protocol):
         token: Optional[str] = None,
         credentials: Optional[sending.SendingCredentials] = None,
     ) -> Any:
-        ...
+        """TODO: write normal doc."""

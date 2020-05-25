@@ -11,13 +11,13 @@ ResponseT = TypeVar("ResponseT")
 
 class TokenSearchProtocol(Protocol):
     def get_token_for_cts(self, host: str) -> str:
-        ...
+        """TODO: write normal doc."""
 
 
 class ClientOwnerProtocol(Protocol):
     @property
     def client(self) -> AsyncClient:
-        ...
+        """TODO: write normal doc."""
 
 
 # A lot of base classes since it's mixin for all shorthands for BotX API requests
