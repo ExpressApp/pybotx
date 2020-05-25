@@ -19,9 +19,6 @@ jobs:
         with:
           path: ~/.cache/pip
           key: get-poetry-${{ runner.os }}-py-${{ matrix.python-version }}
-          restore-keys: |
-            get-poetry-${{ runner.os }}-py-
-            get-poetry-${{ runner.os }}-
       - name: Install poetry
         if: steps.cache-poetry.outputs.cache-hit != 'true'
         run: |
@@ -32,11 +29,6 @@ jobs:
         with:
           path: .venv
           key: venv-${{ runner.os }}-py-${{ matrix.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-py-${{ matrix.python-version }}-poetry-
-            venv-${{ runner.os }}-py-${{ matrix.python-version }}-
-            venv-${{ runner.os }}-py-
-            venv-${{ runner.os }}-
       - name: Install dependencies
         if: steps.cache-deps-extras.outputs.cache-hit != 'true'
         run: |
