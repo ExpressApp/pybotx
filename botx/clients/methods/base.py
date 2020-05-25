@@ -8,7 +8,6 @@ from typing import (
     Dict,
     Generic,
     List,
-    Literal,
     Mapping,
     NoReturn,
     Optional,
@@ -26,6 +25,12 @@ from botx import concurrency
 from botx.clients.client import AsyncClient
 from botx.exceptions import BotXAPIError
 from botx.models.enums import Statuses
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal  # type: ignore
+
 
 PRIMITIVES_FOR_QUERY = (str, int, float, bool, type(None))
 

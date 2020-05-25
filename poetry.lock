@@ -1,18 +1,4 @@
 [[package]]
-category = "main"
-description = "Asyncio support for PEP-567 contextvars backport."
-marker = "python_version < \"3.7\""
-name = "aiocontextvars"
-optional = false
-python-versions = ">=3.5"
-version = "0.2.2"
-
-[package.dependencies]
-[package.dependencies.contextvars]
-python = "<3.7"
-version = "2.4"
-
-[[package]]
 category = "dev"
 description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 name = "appdirs"
@@ -141,18 +127,6 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "0.4.1"
 
 [[package]]
-category = "main"
-description = "PEP 567 Backport"
-marker = "python_version < \"3.7\""
-name = "contextvars"
-optional = false
-python-versions = "*"
-version = "2.4"
-
-[package.dependencies]
-immutables = ">=0.9"
-
-[[package]]
 category = "dev"
 description = "Code coverage measurement for Python"
 name = "coverage"
@@ -170,15 +144,6 @@ name = "darglint"
 optional = false
 python-versions = ">=3.5,<4.0"
 version = "1.3.0"
-
-[[package]]
-category = "main"
-description = "A backport of the dataclasses module for Python 3.6"
-marker = "python_version < \"3.7\""
-name = "dataclasses"
-optional = false
-python-versions = "*"
-version = "0.6"
 
 [[package]]
 category = "dev"
@@ -588,15 +553,6 @@ version = "2.9"
 
 [[package]]
 category = "main"
-description = "Immutable Collections"
-marker = "python_version < \"3.7\""
-name = "immutables"
-optional = false
-python-versions = ">=3.5"
-version = "0.14"
-
-[[package]]
-category = "main"
 description = "Read metadata from Python packages"
 marker = "python_version < \"3.8\""
 name = "importlib-metadata"
@@ -671,10 +627,6 @@ version = "0.4.1"
 [package.dependencies]
 colorama = ">=0.3.4"
 win32-setctime = ">=1.0.0"
-
-[package.dependencies.aiocontextvars]
-python = "<3.7"
-version = ">=0.2.0"
 
 [package.extras]
 dev = ["codecov (>=2.0.15)", "colorama (>=0.3.4)", "flake8 (>=3.7.7)", "isort (>=4.3.20)", "tox (>=3.9.0)", "tox-travis (>=0.12)", "pytest (>=4.6.2)", "pytest-cov (>=2.7.1)", "Sphinx (>=2.2.1)", "sphinx-autobuild (>=0.7.1)", "sphinx-rtd-theme (>=0.4.3)", "black (>=19.3b0)"]
@@ -935,11 +887,6 @@ optional = false
 python-versions = ">=3.6"
 version = "1.5.1"
 
-[package.dependencies]
-[package.dependencies.dataclasses]
-python = "<3.7"
-version = ">=0.6"
-
 [package.extras]
 dotenv = ["python-dotenv (>=0.10.4)"]
 email = ["email-validator (>=1.0.3)"]
@@ -1122,11 +1069,6 @@ optional = false
 python-versions = ">=3.5"
 version = "1.1.0"
 
-[package.dependencies]
-[package.dependencies.contextvars]
-python = "<3.7"
-version = ">=2.1"
-
 [[package]]
 category = "dev"
 description = "This package provides 26 stemmers for 25 languages generated from Snowball algorithms."
@@ -1208,7 +1150,7 @@ python-versions = "*"
 version = "1.4.1"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Backported and Experimental Type Hints for Python 3.5+"
 name = "typing-extensions"
 optional = false
@@ -1304,14 +1246,10 @@ docs = ["mkdocs", "mkdocs-material", "mkdocstrings", "markdown-include", "fastap
 tests = ["starlette"]
 
 [metadata]
-content-hash = "af416db8ed77d7e340b82435775644286b955acf46ce27edbf19d911a5e052ee"
-python-versions = "^3.6"
+content-hash = "c885413876a7abb5a37f6045a539ab97dde50fd3848e2719cd4daf0db881a2a9"
+python-versions = "^3.7"
 
 [metadata.files]
-aiocontextvars = [
-    {file = "aiocontextvars-0.2.2-py2.py3-none-any.whl", hash = "sha256:885daf8261818767d8f7cbd79f9d4482d118f024b6586ef6e67980236a27bfa3"},
-    {file = "aiocontextvars-0.2.2.tar.gz", hash = "sha256:f027372dc48641f683c559f247bd84962becaacdc9ba711d583c3871fb5652aa"},
-]
 appdirs = [
     {file = "appdirs-1.4.4-py2.py3-none-any.whl", hash = "sha256:a841dacd6b99318a741b166adb07e19ee71a274450e68237b4650ca1055ab128"},
     {file = "appdirs-1.4.4.tar.gz", hash = "sha256:7d5d0167b2b1ba821647616af46a749d1c653740dd0d2415100fe26e27afdf41"},
@@ -1358,9 +1296,6 @@ colorama = [
     {file = "colorama-0.4.1-py2.py3-none-any.whl", hash = "sha256:f8ac84de7840f5b9c4e3347b3c1eaa50f7e49c2b07596221daec5edaabbd7c48"},
     {file = "colorama-0.4.1.tar.gz", hash = "sha256:05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d"},
 ]
-contextvars = [
-    {file = "contextvars-2.4.tar.gz", hash = "sha256:f38c908aaa59c14335eeea12abea5f443646216c4e29380d7bf34d2018e2c39e"},
-]
 coverage = [
     {file = "coverage-5.1-cp27-cp27m-macosx_10_12_x86_64.whl", hash = "sha256:0cb4be7e784dcdc050fc58ef05b71aa8e89b7e6636b99967fadbdba694cf2b65"},
     {file = "coverage-5.1-cp27-cp27m-macosx_10_13_intel.whl", hash = "sha256:c317eaf5ff46a34305b202e73404f55f7389ef834b8dbf4da09b9b9b37f76dd2"},
@@ -1397,10 +1332,6 @@ coverage = [
 darglint = [
     {file = "darglint-1.3.0-py3-none-any.whl", hash = "sha256:bb5b0c7e1b0dd4b16d1c355db61a230b68f5537e483cc9e8a8f4b925314b5fad"},
     {file = "darglint-1.3.0.tar.gz", hash = "sha256:a20546d703c8608a260048c5721dad638e9d439d1aaaff1891ac3bfa6b2e8d96"},
-]
-dataclasses = [
-    {file = "dataclasses-0.6-py3-none-any.whl", hash = "sha256:454a69d788c7fda44efd71e259be79577822f5e3f53f029a22d08004e951dc9f"},
-    {file = "dataclasses-0.6.tar.gz", hash = "sha256:6988bd2b895eef432d562370bb707d540f32f7360ab13da45340101bc2307d84"},
 ]
 docutils = [
     {file = "docutils-0.16-py2.py3-none-any.whl", hash = "sha256:0c5b78adfbf7762415433f5515cd5c9e762339e23369dbe8000d84a4bf4ab3af"},
@@ -1532,20 +1463,6 @@ hyperframe = [
 idna = [
     {file = "idna-2.9-py2.py3-none-any.whl", hash = "sha256:a068a21ceac8a4d63dbfd964670474107f541babbd2250d61922f029858365fa"},
     {file = "idna-2.9.tar.gz", hash = "sha256:7588d1c14ae4c77d74036e8c22ff447b26d0fde8f007354fd48a7814db15b7cb"},
-]
-immutables = [
-    {file = "immutables-0.14-cp35-cp35m-macosx_10_14_x86_64.whl", hash = "sha256:860666fab142401a5535bf65cbd607b46bc5ed25b9d1eb053ca8ed9a1a1a80d6"},
-    {file = "immutables-0.14-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:ce01788878827c3f0331c254a4ad8d9721489a5e65cc43e19c80040b46e0d297"},
-    {file = "immutables-0.14-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:8797eed4042f4626b0bc04d9cf134208918eb0c937a8193a2c66df5041e62d2e"},
-    {file = "immutables-0.14-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:33ce2f977da7b5e0dddd93744862404bdb316ffe5853ec853e53141508fa2e6a"},
-    {file = "immutables-0.14-cp36-cp36m-win_amd64.whl", hash = "sha256:6c8eace4d98988c72bcb37c05e79aae756832738305ae9497670482a82db08bc"},
-    {file = "immutables-0.14-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:ab6c18b7b2b2abc83e0edc57b0a38bf0915b271582a1eb8c7bed1c20398f8040"},
-    {file = "immutables-0.14-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:c099212fd6504513a50e7369fe281007c820cf9d7bb22a336486c63d77d6f0b2"},
-    {file = "immutables-0.14-cp37-cp37m-win_amd64.whl", hash = "sha256:714aedbdeba4439d91cb5e5735cb10631fc47a7a69ea9cc8ecbac90322d50a4a"},
-    {file = "immutables-0.14-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:1c11050c49e193a1ec9dda1747285333f6ba6a30bbeb2929000b9b1192097ec0"},
-    {file = "immutables-0.14-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:c453e12b95e1d6bb4909e8743f88b7f5c0c97b86a8bc0d73507091cb644e3c1e"},
-    {file = "immutables-0.14-cp38-cp38-win_amd64.whl", hash = "sha256:ef9da20ec0f1c5853b5c8f8e3d9e1e15b8d98c259de4b7515d789a606af8745e"},
-    {file = "immutables-0.14.tar.gz", hash = "sha256:a0a1cc238b678455145bae291d8426f732f5255537ed6a5b7645949704c70a78"},
 ]
 importlib-metadata = [
     {file = "importlib_metadata-1.6.0-py2.py3-none-any.whl", hash = "sha256:2a688cbaa90e0cc587f1df48bdc97a6eadccdcd9c35fb3f976a09e3b5016d90f"},

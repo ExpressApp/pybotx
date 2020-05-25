@@ -1,10 +1,16 @@
 """Definition for mixin that defines BotX API methods."""
-from typing import Any, Optional, Protocol, TypeVar, cast
+from typing import Any, Optional, TypeVar, cast
 
 from botx.bots.mixins.requests import bots, chats, command, events, notification, users
 from botx.clients.client import AsyncClient
 from botx.clients.methods.base import BotXMethod
 from botx.models import sending
+
+try:
+    from typing import Protocol
+except ImportError:
+    from typing_extensions import Protocol  # type: ignore
+
 
 ResponseT = TypeVar("ResponseT")
 

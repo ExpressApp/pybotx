@@ -1,8 +1,13 @@
 """Definition for mixin that defines helpers for sending message."""
-from typing import BinaryIO, Optional, Protocol, TextIO, Union
+from typing import BinaryIO, Optional, TextIO, Union
 from uuid import UUID
 
 from botx.models import files, messages, sending
+
+try:
+    from typing import Protocol
+except ImportError:
+    from typing_extensions import Protocol  # type: ignore
 
 
 class ResultSendProtocol(Protocol):

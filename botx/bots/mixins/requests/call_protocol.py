@@ -1,7 +1,12 @@
-from typing import Any, Optional, Protocol
+from typing import Any, Optional
 
 from botx.clients.methods.base import BotXMethod
 from botx.models import sending
+
+try:
+    from typing import Protocol
+except ImportError:
+    from typing_extensions import Protocol  # type: ignore
 
 
 class BotXMethodCallProtocol(Protocol):
