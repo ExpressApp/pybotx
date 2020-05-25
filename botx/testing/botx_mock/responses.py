@@ -1,7 +1,7 @@
 """Common responses for mocks."""
 
 import uuid
-from typing import Mapping, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 from pydantic import BaseModel
 from starlette.background import BackgroundTask
@@ -16,9 +16,9 @@ from botx.clients.types.response_results import PushResult
 class PydanticResponse(Response):
     def __init__(
         self,
-        content: Optional[BaseModel] = None,
+        content: BaseModel,
         status_code: int = 200,
-        headers: Optional[Mapping[str, str]] = None,
+        headers: Optional[Dict[Any, Any]] = None,
         media_type: str = "application/json",
         background: Optional[BackgroundTask] = None,
     ) -> None:

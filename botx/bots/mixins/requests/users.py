@@ -1,10 +1,6 @@
 """Definition for mixin that defines BotX API methods."""
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    pass
+from botx.bots.mixins.requests.mixin import BotXMethodCallProtocol
 
 
-class UsersRequestsMixin:
+class UsersRequestsMixin(BotXMethodCallProtocol):
     """Mixin that defines methods for communicating with BotX API."""

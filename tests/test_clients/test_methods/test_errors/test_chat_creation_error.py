@@ -15,9 +15,7 @@ async def test_raising_chat_creation_error(client):
         name="test name", members=[uuid.uuid4()], chat_type=ChatTypes.group_chat,
     )
 
-    errors_to_raise = {
-        Create: (StatusCode.UNPROCESSABLE_ENTITY, {})
-    }
+    errors_to_raise = {Create: (StatusCode.UNPROCESSABLE_ENTITY, {})}
 
     with pytest.raises(ChatCreationError):
         with client.error_client(errors=errors_to_raise):

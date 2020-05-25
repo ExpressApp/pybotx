@@ -1,18 +1,32 @@
 """Definition for mixin that defines helpers for sending message."""
-from typing import TYPE_CHECKING, BinaryIO, Optional, TextIO, Union
+from typing import BinaryIO, Optional, Protocol, TextIO, Union
 from uuid import UUID
 
 from botx.models import files, messages, sending
 
-if TYPE_CHECKING:
-    from botx.bots.bot import Bot  # noqa: WPS433
+
+class ResultSendProtocol(Protocol):
+    async def send_command_result(
+        self, credentials: sending.SendingCredentials, payload: sending.MessagePayload,
+    ) -> UUID:
+        ...
+
+    async def send_direct_notification(
+        self, credentials: sending.SendingCredentials, payload: sending.MessagePayload,
+    ) -> UUID:
+        ...
+
+
+class MessageSendProtocol(Protocol):
+    async def send(self, message: messages.SendingMessage) -> UUID:
+        ...
 
 
 class SendingMixin:
     """Mixin that defines helpers for sending messages."""
 
-    async def send_message(  # type: ignore
-        self: "Bot",
+    async def send_message(
+        self: MessageSendProtocol,
         text: str,
         credentials: sending.SendingCredentials,
         *,
@@ -40,9 +54,7 @@ class SendingMixin:
 
         return await self.send(message)
 
-    async def send(  # type: ignore
-        self: "Bot", message: messages.SendingMessage
-    ) -> UUID:
+    async def send(self: ResultSendProtocol, message: messages.SendingMessage) -> UUID:
         """Send message as answer to command or notification to chat and get it id.
 
         Arguments:
@@ -56,8 +68,8 @@ class SendingMixin:
 
         return await self.send_direct_notification(message.credentials, message.payload)
 
-    async def answer_message(  # type: ignore
-        self: "Bot",
+    async def answer_message(
+        self: MessageSendProtocol,
         text: str,
         message: messages.Message,
         *,
@@ -90,7 +102,7 @@ class SendingMixin:
         return await self.send(sending_message)
 
     async def send_file(
-        self,
+        self: MessageSendProtocol,
         file: Union[TextIO, BinaryIO, files.File],
         credentials: sending.SendingCredentials,
         filename: Optional[str] = None,

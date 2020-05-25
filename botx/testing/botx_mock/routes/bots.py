@@ -17,6 +17,7 @@ async def get_token(request: Request) -> Response:
     Returns:
         Return request with new token.
     """
-    payload = Token(**request.path_params, **request.query_params)
+    request_data = {**request.path_params, **request.query_params}
+    payload = Token(**request_data)
     add_request_to_collection(request, payload)
     return PydanticResponse(APIResponse[str](result="real token"))

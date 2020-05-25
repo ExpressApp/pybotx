@@ -1,39 +1,66 @@
 """Definition for mixin that defines BotX API methods."""
 
-from typing import TYPE_CHECKING, Optional, TypeVar
+from typing import Any, Optional, Protocol, TypeVar, cast
 
 from botx.bots.mixins.requests import bots, chats, command, events, notification, users
+from botx.clients.client import AsyncClient
 from botx.clients.methods.base import BotXMethod
 from botx.models import sending
-
-if TYPE_CHECKING:
-    from botx.bots.bot import Bot  # noqa: WPS433
 
 ResponseT = TypeVar("ResponseT")
 
 
-class BotXRequestsMixin(
+class BotXMethodCallProtocol(Protocol):
+    async def call_method(
+        self,
+        method: BotXMethod[Any],
+        *,
+        host: Optional[str] = None,
+        token: Optional[str] = None,
+        credentials: Optional[sending.SendingCredentials] = None,
+    ) -> Any:
+        ...
+
+
+class TokenSearchProtocol(Protocol):
+    def get_token_for_cts(self, host: str) -> str:
+        ...
+
+
+class ClientOwnerProtocol(Protocol):
+    @property
+    def client(self) -> AsyncClient:
+        ...
+
+
+# A lot of base classes since it's mixin for all shorthands for BotX API requests
+class BotXRequestsMixin(  # noqa: WPS215
+    # mixins
     bots.BotsRequestsMixin,
     chats.ChatsRequestsMixin,
     command.CommandRequestsMixin,
     events.EventsRequestsMixin,
     notification.NotificationRequestsMixin,
     users.UsersRequestsMixin,
+    # protocols
+    ClientOwnerProtocol,
+    TokenSearchProtocol,
+    BotXMethodCallProtocol,
 ):
     """Mixin that defines methods for communicating with BotX API."""
 
     async def call_method(
-        self: "Bot",
-        method: BotXMethod[ResponseT],
+        self,
+        method: BotXMethod[Any],
         *,
         host: Optional[str] = None,
         token: Optional[str] = None,
         credentials: Optional[sending.SendingCredentials] = None,
-    ) -> ResponseT:
-        if host is not None and token is not None:
-            method.configure(host=host, token=token)
-        elif credentials is not None:
-            method.configure(
-                host=credentials.host, token=self.get_token_for_cts(credentials.host)
-            )
+    ) -> Any:
+        if credentials is not None:
+            host = cast(str, credentials.host)
+            method.configure(host=host, token=self.get_token_for_cts(host))
+        else:
+            method.configure(host=host or method.host, token=token or method.token)
+
         return await method.call(self.client)

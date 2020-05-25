@@ -11,10 +11,10 @@ class UserNotFoundError(BotXAPIError):
 
 
 def handle_error(method: BotXMethod, response: Response) -> NoReturn:
-    APIErrorResponse[dict](**response.json())  # check that response shape is right
+    APIErrorResponse[dict].parse_obj(response.json())
     raise UserNotFoundError(
         url=method.url,
-        method=method.__method__,
+        method=method.http_method,
         response_content=response.content,
         status_content=response.status_code,
     )

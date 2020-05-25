@@ -1,11 +1,11 @@
 """Definition of client for testing."""
 from contextlib import contextmanager
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, Dict, Generator, List, Optional, Tuple, Type, Union
 
 import httpx
 
 from botx import concurrency
-from botx.bots.bot import Bot
+from botx.bots.bots import Bot
 from botx.clients.methods.base import BotXMethod
 from botx.clients.methods.v3.command.command_result import CommandResult
 from botx.clients.methods.v3.events.edit_event import EditEvent
@@ -30,6 +30,9 @@ class _ExceptionMiddleware(ExceptionMiddleware):
         await concurrency.callable_to_coroutine(handler, exc, message)
 
 
+ErrorsOverrides = Dict[Type[BotXMethod], Tuple[int, Any]]
+
+
 class TestClient:  # noqa: WPS214
     """Test client for testing bots."""
 
@@ -40,7 +43,7 @@ class TestClient:  # noqa: WPS214
     def __init__(
         self,
         bot: Bot,
-        errors: Optional[Dict[Type[BotXMethod], Tuple[int, Any]]] = None,
+        errors: Optional[ErrorsOverrides] = None,
         suppress_errors: bool = False,
     ) -> None:
         """Init client with required params.
@@ -90,7 +93,7 @@ class TestClient:  # noqa: WPS214
     @contextmanager
     def error_client(
         self, errors: Dict[Type[BotXMethod], Tuple[int, Any]]
-    ) -> "TestClient":
+    ) -> Generator["TestClient", None, None]:
         override_errors = {**self._errors, **errors}
         with TestClient(self.bot, override_errors, self._suppress_errors) as client:
             yield client
@@ -139,7 +142,7 @@ class TestClient:  # noqa: WPS214
         )
 
     @property
-    def notifications(self) -> Tuple[Notification, ...]:
+    def notifications(self) -> Tuple[Union[Notification, NotificationDirect], ...]:
         """Return all notifications that were sent by bot.
 
         Returns:

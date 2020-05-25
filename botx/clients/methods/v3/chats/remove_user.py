@@ -20,7 +20,7 @@ class RemoveUser(AuthorizedBotXMethod[bool]):
             bot_is_not_admin.handle_error,
             chat_is_not_modifiable.handle_error,
         ),
-        StatusCode.NOT_FOUND: chat_not_found.handle_error,
+        StatusCode.NOT_FOUND: (chat_not_found.handle_error,),
     }
 
     group_chat_id: UUID

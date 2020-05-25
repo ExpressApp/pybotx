@@ -21,10 +21,12 @@ class BotIsNotAdminData(BaseModel):
 
 
 def handle_error(method: BotXMethod, response: Response) -> NoReturn:
-    error_data = APIErrorResponse[BotIsNotAdminData](**response.json()).error_data
+    error_data = (
+        APIErrorResponse[BotIsNotAdminData].parse_obj(response.json()).error_data
+    )
     raise BotIsNotAdminError(
         url=method.url,
-        method=method.__method__,
+        method=method.http_method,
         response_content=response.content,
         status_content=response.status_code,
         bot_id=error_data.sender,

@@ -11,7 +11,7 @@ class StealthDisable(AuthorizedBotXMethod[bool]):
     __method__ = "POST"
     __returning__ = bool
     __errors_handlers__ = {
-        StatusCode.FORBIDDEN: (bot_is_not_admin.handle_error,),
+        StatusCode.FORBIDDEN: bot_is_not_admin.handle_error,
         StatusCode.NOT_FOUND: chat_not_found.handle_error,
     }
 

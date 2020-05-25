@@ -1,13 +1,6 @@
 from pydantic import BaseModel
 
-
-class NotificationOptions(BaseModel):
-    """Configurations for message notifications."""
-
-    send: bool = True
-    """show notification about message."""
-    force_dnd: bool = False
-    """break mute on bot messages."""
+from botx.models.sending import NotificationOptions
 
 
 class ResultOptions(BaseModel):

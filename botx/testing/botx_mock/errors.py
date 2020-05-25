@@ -1,18 +1,17 @@
 """Definition of middleware that will generate BotX API errors depending from flag."""
-import contextlib
 from typing import Tuple, Type
 
 from pydantic import BaseModel
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
-from starlette.routing import Match, NoMatchFound
+from starlette.routing import Match
 
 from botx.clients.methods.base import APIErrorResponse, BotXMethod
 from botx.testing.botx_mock.responses import PydanticResponse
 
 
-def _fill_request_scope(request: Request):
+def _fill_request_scope(request: Request) -> None:
     routes = request.app.router.routes
     for route in routes:
         match, scope = route.matches(request)
@@ -53,10 +52,11 @@ def generate_error_response(request: Request) -> Response:
     Returns:
         Generated response.
     """
-    method, (status_code, error_data) = _get_error_from_request(request)
+    method, response_info = _get_error_from_request(request)
+    status_code, error_data = response_info
 
     return PydanticResponse(
-        APIErrorResponse[type(error_data)](
+        APIErrorResponse[BaseModel](
             errors=["error from mock"], reason="asked_for_error", error_data=error_data
         ),
         status_code=status_code,

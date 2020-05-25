@@ -8,6 +8,7 @@ from typing import (
     Dict,
     Generic,
     List,
+    Literal,
     Mapping,
     NoReturn,
     Optional,
@@ -18,7 +19,7 @@ from typing import (
 )
 
 from httpx import URL, Response, StatusCode
-from pydantic import BaseConfig, BaseModel, Extra, Field, ValidationError
+from pydantic import BaseConfig, BaseModel, Extra, ValidationError
 from pydantic.generics import GenericModel
 
 from botx import concurrency
@@ -31,18 +32,18 @@ PRIMITIVES_FOR_QUERY = (str, int, float, bool, type(None))
 ResponseT = TypeVar("ResponseT")
 SyncErrorHandler = Callable[["BotXMethod", Response], NoReturn]
 AsyncErrorHandler = Callable[["BotXMethod", Response], Awaitable[NoReturn]]
-ErrorHandler = Union[SyncErrorHandler, AsyncClient]
+ErrorHandler = Union[SyncErrorHandler, AsyncErrorHandler]
 ErrorHandlersInMethod = Union[Sequence[ErrorHandler], ErrorHandler]
 PrimitiveDataType = Union[None, str, int, float, bool]
 
 
 class APIResponse(GenericModel, Generic[ResponseT]):
-    status: Statuses = Field(Statuses.ok, const=True)
+    status: Literal[Statuses.ok] = Statuses.ok
     result: ResponseT
 
 
 class APIErrorResponse(GenericModel, Generic[ResponseT]):
-    status: Statuses = Field(Statuses.error, const=True)
+    status: Literal[Statuses.error] = Statuses.error
     reason: str
     errors: List[str]
     error_data: ResponseT
@@ -61,7 +62,7 @@ class AbstractBotXMethod(ABC, Generic[ResponseT]):
 
     @property
     @abstractmethod
-    def __returning__(self) -> Type[ResponseT]:
+    def __returning__(self) -> Type[Any]:
         """Shape returned from method that can be parsed by pydantic."""
 
 
@@ -69,9 +70,9 @@ CREDENTIALS_FIELDS = ("token", "host", "scheme")
 
 
 class BaseBotXMethod(AbstractBotXMethod[ResponseT], ABC):
-    host: str = ''
-    token: str = ''
-    scheme: str = 'https'
+    host: str = ""
+    token: str = ""
+    scheme: str = "https"
 
     def configure(self, *, host: str, token: str, scheme: str = "https") -> None:
         self.token = token
@@ -87,19 +88,25 @@ class BaseBotXMethod(AbstractBotXMethod[ResponseT], ABC):
         return str(URL(self.base_url).join(self.__url__))
 
     @property
+    def http_method(self) -> str:
+        return self.__method__
+
+    @property
     def headers(self) -> Dict[str, str]:
         return {"Content-Type": "application/json"}
 
     @property
-    def params(self) -> Mapping[str, str]:
+    def params(self) -> Mapping[str, PrimitiveDataType]:
         return {}
 
     @property
-    def __errors_handlers__(self, ) -> Mapping[int, ErrorHandlersInMethod]:
+    def __errors_handlers__(self,) -> Mapping[int, ErrorHandlersInMethod]:
         return {}
 
     @property
-    def __result_extractor__(self) -> Optional[Callable[[APIResponse], ResponseT]]:
+    def __result_extractor__(
+        self,
+    ) -> Optional[Callable[["BotXMethod", Any], ResponseT]]:
         return None
 
 
@@ -161,12 +168,13 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
         )
         result = api_response.result
         if self.__result_extractor__ is not None:
-            return self.__result_extractor__(result)
+            # mypy does not understand that self passed here
+            return self.__result_extractor__(result)  # type: ignore
 
         return result
 
     async def _handle_error(
-            self, error_handlers: ErrorHandlersInMethod, response: Response
+        self, error_handlers: ErrorHandlersInMethod, response: Response
     ) -> None:
         if not isinstance(error_handlers, collections.Sequence):
             error_handlers = [error_handlers]
@@ -185,13 +193,13 @@ class AuthorizedBotXMethod(BotXMethod[ResponseT], ABC):
 
 
 def _convert_query_to_primitives(
-        query_params: Mapping[str, Any]
+    query_params: Mapping[str, Any]
 ) -> Mapping[str, PrimitiveDataType]:
     converted_params = {}
     for param_key, param_value in query_params.items():
-        if not isinstance(param_value, PRIMITIVES_FOR_QUERY):
-            converted_params[param_key] = str(param_value)
-        else:
+        if isinstance(param_value, PRIMITIVES_FOR_QUERY):
             converted_params[param_key] = param_value
+        else:
+            converted_params[param_key] = str(param_value)
 
     return converted_params

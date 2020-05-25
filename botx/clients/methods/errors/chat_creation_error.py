@@ -11,10 +11,10 @@ class ChatCreationError(BotXAPIError):
 
 
 def handle_error(method: BotXMethod, response: Response) -> NoReturn:
-    APIErrorResponse[dict](**response.json())
+    APIErrorResponse[dict].parse_obj(response.json())
     raise ChatCreationError(
         url=method.url,
-        method=method.__method__,
+        method=method.http_method,
         response_content=response.content,
         status_content=response.status_code,
     )

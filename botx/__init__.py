@@ -2,7 +2,7 @@
 
 from loguru import logger
 
-from botx.bots.bot import Bot
+from botx.bots.bots import Bot
 from botx.clients.client import AsyncClient
 from botx.clients.sync.clients import Client
 from botx.collecting import Collector
