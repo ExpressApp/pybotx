@@ -4,7 +4,7 @@ from typing import Optional, Sequence, cast
 from uuid import UUID
 
 from botx import utils
-from botx.bots.mixins.requests.mixin import BotXMethodCallProtocol
+from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
 from botx.clients.methods.v3.notification.direct_notification import NotificationDirect
 from botx.clients.methods.v3.notification.notification import Notification
 from botx.clients.types.options import ResultOptions
@@ -12,11 +12,11 @@ from botx.clients.types.result_payload import ResultPayload
 from botx.models import sending
 
 
-class NotificationRequestsMixin(BotXMethodCallProtocol):
+class NotificationRequestsMixin:
     """Mixin that defines methods for communicating with BotX API."""
 
     async def send_notification(
-        self,
+        self: BotXMethodCallProtocol,
         credentials: sending.SendingCredentials,
         payload: sending.MessagePayload,
         group_chat_ids: Optional[Sequence[UUID]] = None,
@@ -44,7 +44,9 @@ class NotificationRequestsMixin(BotXMethodCallProtocol):
         )
 
     async def send_direct_notification(
-        self, credentials: sending.SendingCredentials, payload: sending.MessagePayload,
+        self: BotXMethodCallProtocol,
+        credentials: sending.SendingCredentials,
+        payload: sending.MessagePayload,
     ) -> UUID:
         return await self.call_method(
             NotificationDirect(

@@ -2,16 +2,18 @@
 from typing import cast
 from uuid import UUID
 
-from botx.bots.mixins.requests.mixin import BotXMethodCallProtocol
+from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
 from botx.clients.methods.v3.events.edit_event import EditEvent, UpdatePayload
 from botx.models import sending
 
 
-class EventsRequestsMixin(BotXMethodCallProtocol):
+class EventsRequestsMixin:
     """Mixin that defines methods for communicating with BotX API."""
 
     async def update_message(
-        self, credentials: sending.SendingCredentials, update: sending.UpdatePayload,
+        self: BotXMethodCallProtocol,
+        credentials: sending.SendingCredentials,
+        update: sending.UpdatePayload,
     ) -> None:
         """Change message by it's event id.
 

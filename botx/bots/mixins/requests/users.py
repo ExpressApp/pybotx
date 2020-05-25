@@ -1,6 +1,5 @@
 """Definition for mixin that defines BotX API methods."""
-from botx.bots.mixins.requests.mixin import BotXMethodCallProtocol
 
 
-class UsersRequestsMixin(BotXMethodCallProtocol):
+class UsersRequestsMixin:
     """Mixin that defines methods for communicating with BotX API."""

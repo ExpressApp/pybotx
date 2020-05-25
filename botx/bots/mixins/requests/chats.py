@@ -3,7 +3,7 @@
 from typing import List, Optional
 from uuid import UUID
 
-from botx.bots.mixins.requests.mixin import BotXMethodCallProtocol
+from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
 from botx.clients.methods.v3.chats.add_user import AddUser
 from botx.clients.methods.v3.chats.remove_user import RemoveUser
 from botx.clients.methods.v3.chats.stealth_disable import StealthDisable
@@ -11,11 +11,11 @@ from botx.clients.methods.v3.chats.stealth_set import StealthSet
 from botx.models import sending
 
 
-class ChatsRequestsMixin(BotXMethodCallProtocol):
+class ChatsRequestsMixin:
     """Mixin that defines methods for communicating with BotX API."""
 
     async def stealth_enable(
-        self,
+        self: BotXMethodCallProtocol,
         credentials: sending.SendingCredentials,
         chat_id: UUID,
         disable_web: bool,
@@ -42,7 +42,9 @@ class ChatsRequestsMixin(BotXMethodCallProtocol):
         )
 
     async def stealth_disable(
-        self, credentials: sending.SendingCredentials, chat_id: UUID,
+        self: BotXMethodCallProtocol,
+        credentials: sending.SendingCredentials,
+        chat_id: UUID,
     ) -> None:
         """Disable stealth mode
 
@@ -55,7 +57,7 @@ class ChatsRequestsMixin(BotXMethodCallProtocol):
         )
 
     async def add_users(
-        self,
+        self: BotXMethodCallProtocol,
         credentials: sending.SendingCredentials,
         chat_id: UUID,
         users_huids: List[UUID],
@@ -73,7 +75,7 @@ class ChatsRequestsMixin(BotXMethodCallProtocol):
         )
 
     async def remove_users(
-        self,
+        self: BotXMethodCallProtocol,
         credentials: sending.SendingCredentials,
         chat_id: UUID,
         users_huids: List[UUID],
