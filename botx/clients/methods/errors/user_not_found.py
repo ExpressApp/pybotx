@@ -2,8 +2,8 @@ from typing import NoReturn
 
 from httpx import Response
 
-from botx import BotXAPIError
 from botx.clients.methods.base import APIErrorResponse, BotXMethod
+from botx.exceptions import BotXAPIError
 
 
 class UserNotFoundError(BotXAPIError):

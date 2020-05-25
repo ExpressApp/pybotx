@@ -5,16 +5,38 @@ from uuid import UUID
 
 from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
 from botx.clients.methods.v3.chats.add_user import AddUser
+from botx.clients.methods.v3.chats.create import Create
 from botx.clients.methods.v3.chats.remove_user import RemoveUser
 from botx.clients.methods.v3.chats.stealth_disable import StealthDisable
 from botx.clients.methods.v3.chats.stealth_set import StealthSet
 from botx.models import sending
+from botx.models.enums import ChatTypes
 
 
 class ChatsRequestsMixin:
     """Mixin that defines methods for communicating with BotX API."""
 
-    async def stealth_enable(
+    async def create_chat(
+        self: BotXMethodCallProtocol,
+        credentials: sending.SendingCredentials,
+        name: str,
+        members: List[UUID],
+        chat_type: ChatTypes,
+        description: Optional[str] = None,
+        avatar: Optional[str] = None,
+    ) -> UUID:
+        return await self.call_method(
+            Create(
+                name=name,
+                description=description,
+                members=members,
+                avatar=avatar,
+                chat_type=chat_type,
+            ),
+            credentials=credentials,
+        )
+
+    async def enable_stealth_mode(
         self: BotXMethodCallProtocol,
         credentials: sending.SendingCredentials,
         chat_id: UUID,
@@ -41,7 +63,7 @@ class ChatsRequestsMixin:
             credentials=credentials,
         )
 
-    async def stealth_disable(
+    async def disable_stealth_mode(
         self: BotXMethodCallProtocol,
         credentials: sending.SendingCredentials,
         chat_id: UUID,

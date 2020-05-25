@@ -7,7 +7,7 @@ from botx.clients.methods.errors import bot_is_not_admin, chat_not_found
 
 
 class StealthDisable(AuthorizedBotXMethod[bool]):
-    __url__ = "/api/v3/botx/chats/stealth_disable"
+    __url__ = "/api/v3/botx/chats/disable_stealth_mode"
     __method__ = "POST"
     __returning__ = bool
     __errors_handlers__ = {

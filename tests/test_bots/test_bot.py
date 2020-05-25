@@ -277,7 +277,7 @@ class TestStealthMode:
         message = Message.from_dict(incoming_message.dict(), bot)
 
         sync_id = await bot.answer_message("some text", message,)
-        await bot.stealth_enable(
+        await bot.enable_stealth_mode(
             SendingCredentials(
                 sync_id=sync_id,
                 host=incoming_message.user.host,
@@ -299,7 +299,7 @@ class TestStealthMode:
         message = Message.from_dict(incoming_message.dict(), bot)
 
         sync_id = await bot.answer_message("some text", message,)
-        await bot.stealth_disable(
+        await bot.disable_stealth_mode(
             SendingCredentials(
                 sync_id=sync_id,
                 host=incoming_message.user.host,
