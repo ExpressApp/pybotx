@@ -162,7 +162,7 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
         return await client.http_client.request(
             self.__method__,
             self.url,
-            headers=self.headers,
+            headers=self.headers,  # type: ignore
             params=request_params,
             data=request_data,
         )
