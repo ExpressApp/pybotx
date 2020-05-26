@@ -6,9 +6,8 @@ from loguru import logger
 
 from botx import concurrency
 from botx.middlewares.base import BaseMiddleware
-from botx.models import messages
+from botx.models import files, messages
 from botx.typing import AsyncExecutor, Executor
-from botx.utils import LogsShapeBuilder
 
 
 class ExceptionMiddleware(BaseMiddleware):
@@ -78,8 +77,46 @@ class ExceptionMiddleware(BaseMiddleware):
 
         if handler is None:
             logger.bind(
-                botx_error=True, payload=LogsShapeBuilder.get_message_shape(message)
+                botx_error=True,
+                payload=message.incoming_message.copy(
+                    update={
+                        "body": _convert_text_to_logs_format(message.body),
+                        "file": _convert_file_to_logs_format(message.file),
+                    }
+                ).dict(),
             ).exception("uncaught {0} exception {1}", type(exc).__name__, exc)
             return
 
         await concurrency.callable_to_coroutine(handler, exc, message)
+
+
+def _convert_text_to_logs_format(text: str) -> str:
+    """Convert text into format that is suitable for logs.
+
+    Arguments:
+        text: text that should be formatted.
+
+    Returns:
+        Shape for logging in loguru.
+    """
+    max_log_text_length = 50
+    start_text_index = 15
+    end_text_index = 5
+
+    return (
+        "...".join((text[:start_text_index], text[-end_text_index:]))
+        if len(text) > max_log_text_length
+        else text
+    )
+
+
+def _convert_file_to_logs_format(file: Optional[files.File]) -> Optional[dict]:
+    """Convert file to a new file that will be showed in logs.
+
+    Arguments:
+        file: file that should be converted.
+
+    Returns:
+        New file or nothing.
+    """
+    return file.copy(update={"data": "[file content]"}).dict() if file else None

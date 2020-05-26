@@ -3,7 +3,8 @@
 from loguru import logger
 
 from botx.bots.bots import Bot
-from botx.clients import AsyncClient, Client
+from botx.clients.client import AsyncClient
+from botx.clients.sync.clients import Client
 from botx.collecting import Collector
 from botx.exceptions import BotXAPIError, DependencyFailure, ServerUnknownError
 from botx.models.buttons import BubbleElement, KeyboardElement
@@ -36,9 +37,9 @@ from botx.params import Depends
 from botx.testing.builder import MessageBuilder
 
 try:
-    from botx.testing.client import TestClient
+    from botx.testing.client import TestClient  # noqa: WPS433
 except ImportError:
-    TestClient = None  # type: ignore
+    TestClient = None  # type: ignore  # noqa: WPS440
 
 __all__ = (
     "Bot",

@@ -1,15 +1,35 @@
 """Common responses for mocks."""
 
 import uuid
-from typing import Union
+from typing import Any, Dict, Optional, Union
 
+from pydantic import BaseModel
+from starlette.background import BackgroundTask
 from starlette.responses import Response
 
-from botx.models.requests import CommandResult, Notification
-from botx.models.responses import PushResponse, PushResult
+from botx.clients.methods.base import APIResponse
+from botx.clients.methods.v3.command.command_result import CommandResult
+from botx.clients.methods.v3.notification.direct_notification import NotificationDirect
+from botx.clients.types.response_results import PushResult
 
 
-def generate_push_response(payload: Union[CommandResult, Notification]) -> Response:
+class PydanticResponse(Response):
+    def __init__(
+        self,
+        content: BaseModel,
+        status_code: int = 200,
+        headers: Optional[Dict[Any, Any]] = None,
+        media_type: str = "application/json",
+        background: Optional[BackgroundTask] = None,
+    ) -> None:
+        super().__init__(
+            content.json(by_alias=True), status_code, headers, media_type, background
+        )
+
+
+def generate_push_response(
+    payload: Union[CommandResult, NotificationDirect]
+) -> Response:
     """Generate response as like new message from bot was pushed.
 
     Arguments:
@@ -19,7 +39,6 @@ def generate_push_response(payload: Union[CommandResult, Notification]) -> Respo
         Response with sync_id for new message.
     """
     sync_id = payload.event_sync_id or uuid.uuid4()
-    return Response(
-        PushResponse(result=PushResult(sync_id=sync_id)).json(),
-        media_type="application/json",
+    return PydanticResponse(
+        APIResponse[PushResult](result=PushResult(sync_id=sync_id)),
     )

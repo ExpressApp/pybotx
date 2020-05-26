@@ -5,9 +5,11 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Type
 
 from loguru import logger
 
-from botx import clients, concurrency, exception_handlers, exceptions, typing, utils
-from botx.bots.clients.clients import ClientsMixin
-from botx.bots.collecting import BotCollectingMixin
+from botx import concurrency, exception_handlers, exceptions, typing, utils
+from botx.bots.mixins.clients import ClientsMixin
+from botx.bots.mixins.collecting import BotCollectingMixin
+from botx.clients.client import AsyncClient
+from botx.clients.sync.clients import Client
 from botx.collecting import Collector, Handler
 from botx.dependencies import models as deps
 from botx.exceptions import ServerUnknownError
@@ -46,10 +48,10 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
         )
         """collector for all handlers registered on bot."""
 
-        self.sync_client = clients.Client()
+        self.sync_client = Client()
         self.exception_middleware = ExceptionMiddleware(self.collector)
 
-        self.client: clients.AsyncClient = clients.AsyncClient()
+        self.client: AsyncClient = AsyncClient()
         """BotX API async client."""
 
         self.dependency_overrides: Dict[Callable, Callable] = {}
