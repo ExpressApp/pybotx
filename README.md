@@ -29,7 +29,7 @@
 # Introduction
 
 `pybotx` is a framework for building bots for eXpress providing a mechanism for simple
-integration with your favourite web frameworks.
+integration with your favourite asynchronous web frameworks.
 
 Main features:
 
@@ -39,12 +39,14 @@ Main features:
  * 100% type annotated codebase.
 
 
-**NOTE**: *This library is under active development and its API may be unstable. Please lock the version you are using at the minor update level. For example, like this in `poetry`.*
+!!! warning
+    This library is under active development and its API may be unstable.
+    Please lock the version you are using at the minor update level. For example, like this in `poetry`.
 
-```toml
-[tool.poetry.dependencies]
-botx = "^0.14.0"
-```
+        [tool.poetry.dependencies]
+        ...
+        botx = "^0.14.0"
+        ...
 
 ---
 
@@ -81,31 +83,8 @@ $ pip install fastapi uvicorn
 Let's create a simple echo bot.
 
 * Create a file `main.py` with following content:
-```python3
-from botx import Bot, ExpressServer, IncomingMessage, Message, Status
-from fastapi import FastAPI
-from starlette.status import HTTP_202_ACCEPTED
-
-bot = Bot(known_hosts=[ExpressServer(host="cts.example.com", secret_key="secret")])
-
-
-@bot.default(include_in_status=False)
-async def echo_handler(message: Message) -> None:
-    await bot.answer_message(message.body, message)
-
-
-app = FastAPI()
-app.add_event_handler("shutdown", bot.shutdown)
-
-
-@app.get("/status", response_model=Status)
-async def bot_status() -> Status:
-    return await bot.status()
-
-
-@app.post("/command", status_code=HTTP_202_ACCEPTED)
-async def bot_command(message: IncomingMessage) -> None:
-    await bot.execute_command(message.dict())
+```Python3
+{!./src/index/index0.py!}
 ```
 
 * Deploy a bot on your server using uvicorn and set the url for the webhook in Express.
