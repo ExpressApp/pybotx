@@ -964,14 +964,6 @@ testing = ["fields", "hunter", "process-tests (2.0.2)", "six", "pytest-xdist", "
 
 [[package]]
 category = "dev"
-description = "Pytest plugin to display test reports as a plaintext spec, inspired by Rspec: https://github.com/mattduck/pytest-it."
-name = "pytest-it"
-optional = false
-python-versions = "*"
-version = "0.1.4"
-
-[[package]]
-category = "dev"
 description = "Load Python objects documentation."
 name = "pytkdocs"
 optional = false
@@ -1222,7 +1214,7 @@ testing = ["jaraco.itertools", "func-timeout"]
 tests = ["starlette"]
 
 [metadata]
-content-hash = "5cadfb689a0d7dbb3127957109246c9ce785d587c522e1829cc004302d0d19b8"
+content-hash = "5e386ef5e1e95bc71769c32bca93518521c38daa6ac0b7e60e5d8dd469c34a64"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -1621,9 +1613,6 @@ pytest-clarity = [
 pytest-cov = [
     {file = "pytest-cov-2.9.0.tar.gz", hash = "sha256:b6a814b8ed6247bd81ff47f038511b57fe1ce7f4cc25b9106f1a4b106f1d9322"},
     {file = "pytest_cov-2.9.0-py2.py3-none-any.whl", hash = "sha256:c87dfd8465d865655a8213859f1b4749b43448b5fae465cb981e16d52a811424"},
-]
-pytest-it = [
-    {file = "pytest-it-0.1.4.tar.gz", hash = "sha256:f6bb7c7ec2c2a35338b972805ab036d1bd77b280bf4efe43a78ee8177a33f6c3"},
 ]
 pytkdocs = [
     {file = "pytkdocs-0.4.0-py3-none-any.whl", hash = "sha256:6e3574da390a1b11cfa8b3f1d63028bf01057a4bd331ac35f043b7b7662ca6d7"},
