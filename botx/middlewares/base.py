@@ -57,8 +57,7 @@ class BaseMiddleware:
         """
 
         executor = self.executor
-        if isinstance(self.executor, BaseMiddleware):
-            if not concurrency.is_awaitable(self.dispatch_func):
-                executor = concurrency.async_to_sync(self.executor)
+        if not concurrency.is_awaitable(self.dispatch_func):
+            executor = concurrency.async_to_sync(self.executor)
 
         await concurrency.callable_to_coroutine(self.dispatch_func, message, executor)
