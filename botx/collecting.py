@@ -7,7 +7,7 @@ from typing import Any, Awaitable, Callable, List, Optional, Sequence, Union
 
 from loguru import logger
 
-from botx import concurrency, utils
+from botx import concurrency, converters
 from botx.dependencies import models as deps
 from botx.dependencies.solving import solve_dependencies
 from botx.exceptions import NoMatchFound
@@ -62,10 +62,10 @@ def get_executor(
     return factory
 
 
-class Handler:  # noqa: WPS230
+class Handler:
     """Handler that will store body and callable."""
 
-    def __init__(  # noqa: WPS211, WPS213
+    def __init__(
         self,
         body: str,
         handler: Callable,
@@ -107,10 +107,10 @@ class Handler:  # noqa: WPS230
         """Command body."""
         self.handler: Callable = handler
         """Callable for executing registered logic."""
-        self.name: str = utils.get_name_from_callable(handler) if name is None else name
+        self.name: str = get_name_from_callable(handler) if name is None else name
         """Name of handler."""
 
-        self.dependencies: List[deps.Depends] = utils.optional_sequence_to_list(
+        self.dependencies: List[deps.Depends] = converters.optional_sequence_to_list(
             dependencies,
         )
         """Additional dependencies of handler."""
@@ -196,7 +196,7 @@ class Handler:  # noqa: WPS230
         return callable_comp and export_comp
 
 
-class Collector:  # noqa: WPS214, WPS230
+class Collector:
     """Collector for different handlers."""
 
     def __init__(
@@ -226,7 +226,7 @@ class Collector:  # noqa: WPS214, WPS230
         self.default_message_handler: Optional[Handler] = None
         """Handler that will be used for handling non matched message."""
 
-        handlers = utils.optional_sequence_to_list(handlers)
+        handlers = converters.optional_sequence_to_list(handlers)
 
         self._add_handlers(handlers)
 
@@ -295,7 +295,7 @@ class Collector:  # noqa: WPS214, WPS230
 
         raise NoMatchFound(search_param=name)
 
-    def add_handler(  # noqa: WPS211, WPS210
+    def add_handler(
         self,
         handler: Callable,
         *,
@@ -327,7 +327,7 @@ class Collector:  # noqa: WPS214, WPS230
             dependency_overrides_provider: mock of callable for handler.
         """
         if body is None:
-            name = name or utils.get_name_from_callable(handler)
+            name = name or get_name_from_callable(handler)
             body = get_body_from_name(name)
 
         for registered_handler in self.handlers:
@@ -364,7 +364,7 @@ class Collector:  # noqa: WPS214, WPS230
         self._added_handlers.append(command_handler)
         self._added_handlers.sort(key=lambda handler: len(handler.body), reverse=True)
 
-    def handler(  # noqa: WPS211
+    def handler(
         self,
         handler: Optional[Callable] = None,
         *,
@@ -401,7 +401,7 @@ class Collector:  # noqa: WPS214, WPS230
             Passed in `handler` callable.
         """
         if handler:
-            handler_commands: List[Optional[str]] = utils.optional_sequence_to_list(
+            handler_commands: List[Optional[str]] = converters.optional_sequence_to_list(
                 commands,
             )
 
@@ -436,7 +436,7 @@ class Collector:  # noqa: WPS214, WPS230
             dependency_overrides_provider=dependency_overrides_provider,
         )
 
-    def default(  # noqa: WPS211
+    def default(
         self,
         handler: Optional[Callable] = None,
         *,
@@ -488,7 +488,7 @@ class Collector:  # noqa: WPS214, WPS230
                 dependencies=dependencies,
                 dependency_overrides_provider=dependency_overrides_provider,
             )
-            name = name or utils.get_name_from_callable(registered_handler)
+            name = name or get_name_from_callable(registered_handler)
             self.default_message_handler = self.handler_for(name)
 
             return handler
@@ -505,7 +505,7 @@ class Collector:  # noqa: WPS214, WPS230
             dependency_overrides_provider=dependency_overrides_provider,
         )
 
-    def hidden(  # noqa: WPS211
+    def hidden(
         self,
         handler: Optional[Callable] = None,
         *,
@@ -539,7 +539,7 @@ class Collector:  # noqa: WPS214, WPS230
             dependency_overrides_provider=dependency_overrides_provider,
         )
 
-    def system_event(  # noqa: WPS211
+    def system_event(
         self,
         handler: Optional[Callable] = None,
         *,
@@ -703,6 +703,23 @@ def _combine_dependencies(
 ) -> List[deps.Depends]:
     result_dependencies = []
     for deps_sequence in dependencies:
-        result_dependencies.extend(utils.optional_sequence_to_list(deps_sequence))
+        result_dependencies.extend(converters.optional_sequence_to_list(deps_sequence))
 
     return result_dependencies
+
+
+def get_name_from_callable(handler: Callable) -> str:
+    """Get auto name from given callable object.
+
+    Arguments:
+        handler: callable object that will be used to retrieve auto name for handler.
+
+    Returns:
+        Name obtained from callable.
+    """
+    is_function = inspect.isfunction(handler)
+    is_method = inspect.ismethod(handler)
+    is_class = inspect.isclass(handler)
+    if is_function or is_method or is_class:
+        return handler.__name__
+    return handler.__class__.__name__

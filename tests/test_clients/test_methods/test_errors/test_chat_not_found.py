@@ -21,7 +21,7 @@ async def test_raising_chat_not_found(client, requests_client):
         AddUser: (
             StatusCode.NOT_FOUND,
             ChatNotFoundData(group_chat_id=method.group_chat_id),
-        )
+        ),
     }
 
     with pytest.raises(ChatNotFoundError):

@@ -7,7 +7,7 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel, validator
 
 
-class MentionTypes(str, Enum):  # noqa: WPS600
+class MentionTypes(str, Enum):
     """Enum for available values in mentions."""
 
     user = "user"
@@ -49,7 +49,7 @@ class Mention(BaseModel):
     """payload with data about mention."""
 
     @validator("mention_id", pre=True, always=True)
-    def generate_mention_id(cls, mention_id: Optional[UUID]) -> UUID:  # noqa: N805
+    def generate_mention_id(cls, mention_id: Optional[UUID]) -> UUID:
         """Verify that `mention_id` will be in mention.
 
         Arguments:
@@ -62,7 +62,7 @@ class Mention(BaseModel):
 
     @validator("mention_type", pre=True, always=True)
     def check_that_type_matches_data(
-        cls, mention_type: MentionTypes, values: dict,  # noqa: N805
+        cls, mention_type: MentionTypes, values: dict,
     ) -> MentionTypes:
         """Verify that `mention_type` matches provided `mention_data`.
 

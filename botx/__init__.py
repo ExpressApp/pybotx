@@ -33,13 +33,13 @@ from botx.models.sending import (
     SendingCredentials,
     UpdatePayload,
 )
-from botx.params import Depends
+from botx.dependencies.injection_params import Depends
 from botx.testing.builder import MessageBuilder
 
 try:
-    from botx.testing.client import TestClient  # noqa: WPS433
+    from botx.testing.client import TestClient
 except ImportError:
-    TestClient = None  # type: ignore  # noqa: WPS440
+    TestClient = None
 
 __all__ = (
     "Bot",

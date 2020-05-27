@@ -8,14 +8,14 @@ from loguru import logger
 from pydantic import BaseConfig, BaseModel
 
 from botx.bots import bots
-from botx.collecting import Collector, Handler
+from botx.collecting import Collector, Handler, get_name_from_callable
 from botx.concurrency import callable_to_coroutine
 from botx.dependencies import models as deps
 from botx.exceptions import NoMatchFound
 from botx.middlewares.base import BaseMiddleware
 from botx.models import messages
 from botx.typing import Executor
-from botx.utils import get_name_from_callable, optional_sequence_to_list
+from botx.converters import optional_sequence_to_list
 
 
 class NextStepHandlerState(BaseModel):
@@ -26,7 +26,7 @@ class NextStepHandlerState(BaseModel):
     arguments: Dict[str, Any]
     """arguments that should be set on message for handler."""
 
-    class Config(BaseConfig):  # noqa: D106
+    class Config(BaseConfig):
         arbitrary_types_allowed = True
 
 

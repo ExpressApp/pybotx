@@ -26,7 +26,7 @@ class Button(BaseModel):
 
     @validator("label", always=True)
     def label_as_command_if_none(
-        cls, value: Optional[str], values: dict,  # noqa: N805
+        cls, value: Optional[str], values: dict,
     ) -> str:
         """Return command as label if it is `None`.
 
@@ -40,7 +40,7 @@ class Button(BaseModel):
         return value or values["command"]
 
     @validator("data", always=True)
-    def add_ui_flag_to_data(cls, value: dict) -> dict:  # noqa: N805
+    def add_ui_flag_to_data(cls, value: dict) -> dict:
         """Return command data with set UI flag.
 
         Arguments:
@@ -49,7 +49,7 @@ class Button(BaseModel):
         Returns:
             Passed data with set "ui" flag to True if it wasn't set already.
         """
-        value.setdefault("ui", True)  # noqa: WPS425
+        value.setdefault("ui", True)
         return value
 
 

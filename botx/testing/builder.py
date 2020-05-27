@@ -14,7 +14,7 @@ from botx.models.receiving import Entity
 # Properties are count as normal functions, so disable
 # 1) too many methods (a lot of properties)
 # 2) block variables overlap (setters are counted as replacement for functions)
-class MessageBuilder:  # noqa: WPS214
+class MessageBuilder:
     """Builder for command message for bot."""
 
     def __init__(
@@ -51,7 +51,7 @@ class MessageBuilder:  # noqa: WPS214
         """Id of bot."""
         return self._bot_id
 
-    @bot_id.setter  # noqa: WPS440
+    @bot_id.setter
     def bot_id(self, bot_id: uuid.UUID) -> None:
         """Id of bot."""
         self._bot_id = bot_id
@@ -61,7 +61,7 @@ class MessageBuilder:  # noqa: WPS214
         """Message body."""
         return self._body
 
-    @body.setter  # noqa: WPS440
+    @body.setter
     def body(self, body: str) -> None:
         """Message body."""
         self._check_system_command_properties(
@@ -74,7 +74,7 @@ class MessageBuilder:  # noqa: WPS214
         """Additional command data."""
         return self._command_data
 
-    @command_data.setter  # noqa: WPS440
+    @command_data.setter
     def command_data(self, command_data: dict) -> None:
         """Additional command data."""
         self._command_data = command_data
@@ -84,7 +84,7 @@ class MessageBuilder:  # noqa: WPS214
         """Is command a system event."""
         return self._is_system_command
 
-    @system_command.setter  # noqa: WPS440
+    @system_command.setter
     def system_command(self, is_system_command: bool) -> None:
         """Is command a system event."""
         self._check_system_command_properties(
@@ -97,7 +97,7 @@ class MessageBuilder:  # noqa: WPS214
         """File attached to message."""
         return self._file
 
-    @file.setter  # noqa: WPS440
+    @file.setter
     def file(self, file: Optional[Union[files.File, BinaryIO, TextIO]]) -> None:
         """File that will be attached to message."""
         if isinstance(file, files.File) or file is None:
@@ -111,7 +111,7 @@ class MessageBuilder:  # noqa: WPS214
         """User from which message will be received."""
         return self._user
 
-    @user.setter  # noqa: WPS440
+    @user.setter
     def user(self, user: receiving.User) -> None:
         """User from which message will be received."""
         self._user = user
@@ -121,7 +121,7 @@ class MessageBuilder:  # noqa: WPS214
         """Additional entities in message."""
         return self._entities
 
-    @entities.setter  # noqa: WPS440
+    @entities.setter
     def entities(self, entities: List[Entity]) -> None:
         """Additional entities in message."""
         self._entities = entities

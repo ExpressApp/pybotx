@@ -47,7 +47,7 @@ class File(BaseModel):
     """text under file."""
 
     @validator("file_name", always=True)
-    def check_file_extension(cls, value: str) -> str:  # noqa: N805
+    def check_file_extension(cls, value: str) -> str:
         """Check that file extension can be handled by BotX API.
 
         Arguments:

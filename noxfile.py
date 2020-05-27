@@ -4,7 +4,9 @@ import pathlib
 import nox
 from nox.sessions import Session
 
-TARGETS = ("botx",)
+_EXAMPLES = ("examples/fsm/bot",)
+
+TARGETS = ("botx", "tests", "docs/src/", *_EXAMPLES, "noxfile.py")
 
 
 def _process_add_single_comma_path(session: Session, path: pathlib.Path) -> None:
@@ -87,7 +89,7 @@ def build_docs(session: Session) -> None:
     session.run("mkdocs", "build")
 
 
-@nox.session(python=False, name="server-docs")
+@nox.session(python=False, name="serve-docs")
 def serve_docs(session: Session) -> None:
     """Serve MkDocs pages."""
     session.run("mkdocs", "serve", "--dev-addr", "0.0.0.0:8008")

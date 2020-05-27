@@ -1,7 +1,8 @@
-from botx import Bot, ExpressServer, IncomingMessage, Message, Status
-from botx.middlewares.ns import NextStepMiddleware, register_next_step_handler
 from fastapi import FastAPI
 from starlette.status import HTTP_202_ACCEPTED
+
+from botx import Bot, ExpressServer, IncomingMessage, Message, Status
+from botx.middlewares.ns import NextStepMiddleware, register_next_step_handler
 
 bot = Bot(known_hosts=[ExpressServer(host="cts.example.com", secret_key="secret")])
 
@@ -19,7 +20,7 @@ async def get_age(message: Message) -> None:
         age = int(message.body)
         if age <= 2:
             await bot.answer_message(
-                "Sorry, but it's not true. Say your real age, please!", message
+                "Sorry, but it's not true. Say your real age, please!", message,
             )
             register_next_step_handler(message, get_age)
         else:
@@ -28,7 +29,7 @@ async def get_age(message: Message) -> None:
             register_next_step_handler(message, get_gender)
     except ValueError:
         await bot.answer_message(
-            "No, no, no. Pleas tell me your age in numbers!", message
+            "No, no, no. Pleas tell me your age in numbers!", message,
         )
         register_next_step_handler(message, get_age)
 
@@ -38,7 +39,7 @@ async def get_gender(message: Message) -> None:
     if gender in ["male", "female"]:
         users_data[message.user_huid]["gender"] = gender
         await bot.answer_message(
-            "Ok! Thanks for taking the time to answer my questions.", message
+            "Ok! Thanks for taking the time to answer my questions.", message,
         )
     else:
         await bot.answer_message(
@@ -49,7 +50,7 @@ async def get_gender(message: Message) -> None:
 
 
 bot.add_middleware(
-    NextStepMiddleware, bot=bot, functions={get_age, get_name, get_gender}
+    NextStepMiddleware, bot=bot, functions={get_age, get_name, get_gender},
 )
 
 

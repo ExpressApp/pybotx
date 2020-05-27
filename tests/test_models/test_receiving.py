@@ -20,7 +20,7 @@ from botx.models.receiving import Command, IncomingMessage, User
     ),
 )
 def test_command_splits_right(
-    body: str, command: str, arguments: List[str], single_argument: str
+    body: str, command: str, arguments: List[str], single_argument: str,
 ) -> None:
     command = Command(body=body, command_type=CommandTypes.user)
     assert command.body == body
@@ -31,7 +31,7 @@ def test_command_splits_right(
 
 def test_command_data_as_dict() -> None:
     command = Command(
-        body="/test", command_type=CommandTypes.user, data={"some": "data"}
+        body="/test", command_type=CommandTypes.user, data={"some": "data"},
     )
     assert command.data_dict == command.data == {"some": "data"}
 
@@ -72,7 +72,7 @@ def test_skip_validation_for_file() -> None:
     IncomingMessage.parse_obj(
         {
             "sync_id": "a465f0f3-1354-491c-8f11-f400164295cb",
-            "command": {"body": "/cmd", "command_type": "user", "data": {},},
+            "command": {"body": "/cmd", "command_type": "user", "data": {}},
             "file": file_data,
             "from": {
                 "user_huid": None,
@@ -86,5 +86,5 @@ def test_skip_validation_for_file() -> None:
                 "is_creator": False,
             },
             "bot_id": "dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4",
-        }
+        },
     )

@@ -3,7 +3,7 @@ from botx import Collector
 pytest_plugins = ("tests.test_collecting.fixtures",)
 
 
-def test_generating_body_from_snake_case(handler_as_normal_method,):
+def test_generating_body_from_snake_case(handler_as_normal_method):
     collector = Collector()
     collector.add_handler(handler=handler_as_normal_method)
     handler = collector.handler_for("handler_method_snake_case")

@@ -15,7 +15,7 @@ class State:
             state: initial state.
         """
         state = state or {}
-        super().__setattr__("_state", state)  # noqa: WPS613
+        super().__setattr__("_state", state)
 
     def __setattr__(self, key: Any, value: Any) -> None:
         """Set state attribute.
@@ -27,7 +27,7 @@ class State:
         self._state[key] = value
 
     # this is not module __getattr__
-    def __getattr__(self, key: Any) -> Any:  # noqa: WPS413
+    def __getattr__(self, key: Any) -> Any:
         """Get state attribute.
 
         Arguments:

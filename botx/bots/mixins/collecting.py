@@ -73,7 +73,7 @@ class BotCollectingMixin:
         """
         return self.collector.handler_for(name)
 
-    def add_handler(  # noqa: WPS211
+    def add_handler(
         self,
         handler: Callable,
         *,
@@ -112,7 +112,7 @@ class BotCollectingMixin:
             dependencies=dependencies,
         )
 
-    def handler(  # noqa: WPS211
+    def handler(
         self,
         handler: Optional[Callable] = None,
         *,
@@ -160,7 +160,7 @@ class BotCollectingMixin:
             dependency_overrides_provider=dependency_overrides_provider,
         )
 
-    def default(  # noqa: WPS211
+    def default(
         self,
         handler: Optional[Callable] = None,
         *,
@@ -208,7 +208,7 @@ class BotCollectingMixin:
             dependency_overrides_provider=dependency_overrides_provider,
         )
 
-    def hidden(  # noqa: WPS211
+    def hidden(
         self,
         handler: Optional[Callable] = None,
         *,
@@ -241,7 +241,7 @@ class BotCollectingMixin:
             dependency_overrides_provider=dependency_overrides_provider,
         )
 
-    def system_event(  # noqa: WPS211
+    def system_event(
         self,
         handler: Optional[Callable] = None,
         *,

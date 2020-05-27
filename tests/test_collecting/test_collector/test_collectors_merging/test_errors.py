@@ -8,12 +8,12 @@ pytest_plugins = ("tests.test_collecting.fixtures",)
 def test_error_when_merging_handlers_with_equal_bodies(build_handler):
     collector1 = Collector()
     collector1.add_handler(
-        handler=build_handler("handler1"), body="/body", name="handler1"
+        handler=build_handler("handler1"), body="/body", name="handler1",
     )
 
     collector2 = Collector()
     collector2.add_handler(
-        handler=build_handler("handler2"), body="/body", name="handler2"
+        handler=build_handler("handler2"), body="/body", name="handler2",
     )
 
     with pytest.raises(AssertionError):
@@ -23,12 +23,12 @@ def test_error_when_merging_handlers_with_equal_bodies(build_handler):
 def test_error_when_merging_handlers_with_equal_names(build_handler):
     collector1 = Collector()
     collector1.add_handler(
-        handler=build_handler("handler1"), body="/body1", name="handler"
+        handler=build_handler("handler1"), body="/body1", name="handler",
     )
 
     collector2 = Collector()
     collector2.add_handler(
-        handler=build_handler("handler2"), body="/body2", name="handler"
+        handler=build_handler("handler2"), body="/body2", name="handler",
     )
 
     with pytest.raises(AssertionError):

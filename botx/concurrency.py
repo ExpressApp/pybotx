@@ -6,9 +6,9 @@ import inspect
 from typing import Any, Callable, Coroutine
 
 try:
-    import contextvars  # Python 3.7+ only.  # noqa: WPS440, WPS433
+    import contextvars  # Python 3.7+ only.  WPS440, WPS433
 except ImportError:  # pragma: no cover
-    contextvars = None  # type: ignore  # noqa: WPS440
+    contextvars = None  # type: ignore  WPS440
 
 
 def is_awaitable_object(call: Callable) -> bool:
@@ -22,7 +22,7 @@ def is_awaitable_object(call: Callable) -> bool:
     """
     if is_awaitable(call):
         return True
-    call = getattr(call, "__call__", None)  # noqa: B004
+    call = getattr(call, "__call__", None)
     return asyncio.iscoroutinefunction(call)
 
 

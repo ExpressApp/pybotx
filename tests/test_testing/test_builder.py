@@ -88,7 +88,7 @@ def test_setting_raw_entities():
         Entity(
             type=EntityTypes.mention,
             data=Mention(mention_data=UserMention(user_huid=uuid.uuid4())),
-        )
+        ),
     ]
 
     assert builder.message.entities[0].data.mention_type == MentionTypes.user

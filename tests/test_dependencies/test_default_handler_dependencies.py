@@ -14,7 +14,7 @@ async def test_dependencies_from_bot_on_default_handler(
     event2 = threading.Event()
 
     bot.collector = bot.exception_middleware.executor = Collector(
-        dependencies=[Depends(build_handler(event1))]
+        dependencies=[Depends(build_handler(event1))],
     )
 
     bot.default(build_handler(event2))
@@ -35,7 +35,7 @@ async def test_dependency_saved_after_include_collector(
     collector.default(build_handler(event1))
 
     bot.collector = bot.exception_middleware.executor = Collector(
-        dependencies=[Depends(build_handler(event2))]
+        dependencies=[Depends(build_handler(event2))],
     )
     bot.include_collector(collector)
 

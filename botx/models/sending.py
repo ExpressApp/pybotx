@@ -31,7 +31,7 @@ class SendingCredentials(BaseModel):
 
     @validator("chat_id", always=True)
     def receiver_id_should_be_passed(
-        cls, value: UUID, values: dict,  # noqa: N805
+        cls, value: UUID, values: dict,
     ) -> UUID:
         """Check that `chat_id` or `sync_id` was passed.
 
@@ -144,7 +144,7 @@ class MessageMarkup(BaseModel):
             new_row=new_row,
         )
 
-    def _add_ui_element(  # noqa: WPS211
+    def _add_ui_element(
         self,
         ui_cls: Type[TUIElement],
         ui_array: List[List[TUIElement]],

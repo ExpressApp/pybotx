@@ -14,20 +14,22 @@ DependenciesCache = Dict[CacheKey, Any]
 async def solve_sub_dependency(
     message: Message,
     dependant: Dependant,
-    values: Dict[str, Any],
+    solved_values: Dict[str, Any],
     dependency_overrides_provider: Any,
     dependency_cache: Dict[CacheKey, Any],
 ) -> None:
-    """Solve single sub dependency.
+    """
+    Solve single sub dependency.
 
     Arguments:
         message: incoming message that is used for solving this sub dependency.
         dependant: dependency that is solving while calling this function.
-        values: already filled values that are required for this dependency.
+        solved_values: already filled values that are required for this dependency.
         dependency_overrides_provider: an object with `dependency_overrides` attribute
             that contains overrides for dependencies.
         dependency_cache: cache that contains already solved dependency and result for
             it.
+
     """
     call = cast(Callable, dependant.call)
     use_sub_dependant = dependant
@@ -37,22 +39,22 @@ async def solve_sub_dependency(
         call = overrides.get(dependant.call, dependant.call)
         use_sub_dependant = get_dependant(call=call, name=dependant.name)
 
-    sub_values, sub_dependency_cache = await solve_dependencies(
+    solving_result = await solve_dependencies(
         message=message,
         dependant=use_sub_dependant,
         dependency_overrides_provider=dependency_overrides_provider,
         dependency_cache=dependency_cache,
     )
-    dependency_cache.update(sub_dependency_cache)
+    dependency_cache.update(solving_result[1])
 
     dependant.cache_key = cast(CacheKey, dependant.cache_key)
     if dependant.use_cache and dependant.cache_key in dependency_cache:
         solved = dependency_cache[dependant.cache_key]
     else:
-        solved = await concurrency.callable_to_coroutine(call, **sub_values)
+        solved = await concurrency.callable_to_coroutine(call, **solving_result[0])
 
     if dependant.name is not None:
-        values[dependant.name] = solved
+        solved_values[dependant.name] = solved
     if dependant.cache_key not in dependency_cache:
         dependency_cache[dependant.cache_key] = solved
 
@@ -64,7 +66,8 @@ async def solve_dependencies(
     dependency_overrides_provider: Any = None,
     dependency_cache: Optional[Dict[CacheKey, Any]] = None,
 ) -> Tuple[Dict[str, Any], DependenciesCache]:
-    """Resolve all required dependencies for Dependant using incoming message.
+    """
+    Resolve all required dependencies for Dependant using incoming message.
 
     Arguments:
         message: incoming Message with all necessary data.
@@ -76,24 +79,25 @@ async def solve_dependencies(
 
     Returns:
         Keyword arguments with their vales and cache.
+
     """
-    values: Dict[str, Any] = {}
+    solved_values: Dict[str, Any] = {}
     dependency_cache = dependency_cache or {}
     for sub_dependant in dependant.dependencies:
         await solve_sub_dependency(
             message=message,
             dependant=sub_dependant,
-            values=values,
+            solved_values=solved_values,
             dependency_overrides_provider=dependency_overrides_provider,
             dependency_cache=dependency_cache,
         )
 
     if dependant.message_param_name:
-        values[dependant.message_param_name] = message
+        solved_values[dependant.message_param_name] = message
     if dependant.bot_param_name:
-        values[dependant.bot_param_name] = message.bot
+        solved_values[dependant.bot_param_name] = message.bot
     if dependant.async_client_param_name:
-        values[dependant.async_client_param_name] = message.bot.client
+        solved_values[dependant.async_client_param_name] = message.bot.client
     if dependant.sync_client_param_name:
-        values[dependant.sync_client_param_name] = message.bot.sync_client
-    return values, dependency_cache
+        solved_values[dependant.sync_client_param_name] = message.bot.sync_client
+    return solved_values, dependency_cache

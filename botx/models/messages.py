@@ -19,7 +19,7 @@ from botx.models.sending import (
 from botx.models.typing import AvailableRecipients, BubbleMarkup, KeyboardMarkup
 
 
-class Message:  # noqa: WPS214
+class Message:
     """Message that is used in handlers."""
 
     def __init__(self, message: IncomingMessage, bot: "bots.Bot") -> None:
@@ -114,7 +114,7 @@ class Message:  # noqa: WPS214
     def sent_from_button(self) -> bool:
         """Check if command received from button press."""
         if isinstance(self.command.data, dict):
-            return self.command.data.get("ui", False)  # noqa: WPS425
+            return self.command.data.get("ui", False)
         return False
 
     @property
@@ -137,10 +137,10 @@ class Message:  # noqa: WPS214
         return cls(incoming_msg, bot)
 
 
-class SendingMessage:  # noqa: WPS214, WPS230
+class SendingMessage:
     """Message that will be sent by bot."""
 
-    def __init__(  # noqa: WPS211
+    def __init__(
         self,
         *,
         text: str = "",
@@ -240,7 +240,7 @@ class SendingMessage:  # noqa: WPS214, WPS230
         """Text in message."""
         return self.payload.text
 
-    @text.setter  # noqa: WPS440
+    @text.setter
     def text(self, text: str) -> None:
         """Text in message."""
         self.payload.text = text
@@ -250,7 +250,7 @@ class SendingMessage:  # noqa: WPS214, WPS230
         """File attached to message."""
         return self.payload.file
 
-    @file.setter  # noqa: WPS440
+    @file.setter
     def file(self, file: File) -> None:
         """File attached to message."""
         self.payload.file = file
@@ -260,7 +260,7 @@ class SendingMessage:  # noqa: WPS214, WPS230
         """Message markup."""
         return self.payload.markup
 
-    @markup.setter  # noqa: WPS440
+    @markup.setter
     def markup(self, markup: MessageMarkup) -> None:
         """Message markup."""
         self.payload.markup = markup
@@ -270,7 +270,7 @@ class SendingMessage:  # noqa: WPS214, WPS230
         """Message options."""
         return self.payload.options
 
-    @options.setter  # noqa: WPS440
+    @options.setter
     def options(self, options: MessageOptions) -> None:
         """Message options."""
         self.payload.options = options
@@ -280,7 +280,7 @@ class SendingMessage:  # noqa: WPS214, WPS230
         """Event id on which message should answer."""
         return self.credentials.sync_id
 
-    @sync_id.setter  # noqa: WPS440
+    @sync_id.setter
     def sync_id(self, sync_id: UUID) -> None:
         """Event id on which message should answer."""
         self.credentials.sync_id = sync_id
@@ -290,7 +290,7 @@ class SendingMessage:  # noqa: WPS214, WPS230
         """Chat id in which message should be sent."""
         return self.credentials.chat_id
 
-    @chat_id.setter  # noqa: WPS440
+    @chat_id.setter
     def chat_id(self, chat_id: UUID) -> None:
         """Chat id in which message should be sent."""
         self.credentials.chat_id = chat_id
@@ -300,7 +300,7 @@ class SendingMessage:  # noqa: WPS214, WPS230
         """Bot id that handles message."""
         return cast(UUID, self.credentials.bot_id)
 
-    @bot_id.setter  # noqa: WPS440
+    @bot_id.setter
     def bot_id(self, bot_id: UUID) -> None:
         """Bot id that handles message."""
         self.credentials.bot_id = bot_id
@@ -310,7 +310,7 @@ class SendingMessage:  # noqa: WPS214, WPS230
         """Host where BotX API places."""
         return cast(str, self.credentials.host)
 
-    @host.setter  # noqa: WPS440
+    @host.setter
     def host(self, host: str) -> None:
         """Host where BotX API places."""
         self.credentials.host = host

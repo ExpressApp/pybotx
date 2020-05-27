@@ -12,12 +12,12 @@ ResponseT = TypeVar("ResponseT")
 
 
 def extract_result(method: BotXMethod[ResponseT], response: Response) -> ResponseT:
-    return_shape = method.__returning__  # noqa: WPS609
+    return_shape = method.__returning__
     api_response = APIResponse[return_shape].parse_obj(  # type: ignore
         response.json(),
     )
     result = api_response.result
-    extractor = method.__result_extractor__  # noqa: WPS609
+    extractor = method.__result_extractor__
     if extractor is not None:
         # mypy does not understand that self passed here
         return extractor(result)  # type: ignore

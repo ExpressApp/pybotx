@@ -21,7 +21,7 @@ async def test_raising_chat_is_not_modifiable(client, requests_client):
         AddUser: (
             StatusCode.FORBIDDEN,
             PersonalChatIsNotModifiableData(group_chat_id=method.group_chat_id),
-        )
+        ),
     }
 
     with pytest.raises(PersonalChatIsNotModifiableError):

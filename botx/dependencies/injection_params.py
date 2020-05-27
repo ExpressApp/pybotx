@@ -5,7 +5,7 @@ from typing import Any, Callable
 from botx.dependencies import models
 
 
-def Depends(dependency: Callable, *, use_cache: bool = True) -> Any:  # noqa: N802
+def Depends(dependency: Callable, *, use_cache: bool = True) -> Any:
     """Wrap Depends param for using in handlers.
 
     Arguments:

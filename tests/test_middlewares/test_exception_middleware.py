@@ -46,10 +46,10 @@ async def test_handling_from_nearest_mro_handler(
     handler_event = threading.Event()
 
     bot.add_exception_handler(
-        Exception, build_exception_catcher(exception_catcher_event)
+        Exception, build_exception_catcher(exception_catcher_event),
     )
     bot.add_exception_handler(
-        Exception, build_exception_catcher(value_error_catcher_event)
+        Exception, build_exception_catcher(value_error_catcher_event),
     )
     bot.default(handler=build_failed_handler(exc_for_raising, handler_event))
 

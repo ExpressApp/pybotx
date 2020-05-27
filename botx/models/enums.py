@@ -17,7 +17,7 @@ class SystemEvents(Enum):
     """`file_transfer` message."""
 
 
-class CommandTypes(str, Enum):  # noqa: WPS600
+class CommandTypes(str, Enum):
     """Enum that specify from whom command was received."""
 
     user = "user"
@@ -26,7 +26,7 @@ class CommandTypes(str, Enum):  # noqa: WPS600
     """command received from system."""
 
 
-class ChatTypes(str, Enum):  # noqa: WPS600
+class ChatTypes(str, Enum):
     """Enum for type of chat."""
 
     chat = "chat"
@@ -37,7 +37,7 @@ class ChatTypes(str, Enum):  # noqa: WPS600
     """channel chat."""
 
 
-class UserKinds(str, Enum):  # noqa: WPS600
+class UserKinds(str, Enum):
     """Enum for type of user."""
 
     user = "user"
@@ -48,16 +48,16 @@ class UserKinds(str, Enum):  # noqa: WPS600
     """bot user."""
 
 
-class Recipients(str, Enum):  # noqa: WPS600
+class Recipients(str, Enum):
     """Enum for default recipients value.
 
     - *all*: show message to all users in chat.
     """
 
-    all: str = "all"  # noqa: A003
+    all: str = "all"
 
 
-class Statuses(str, Enum):  # noqa: WPS600
+class Statuses(str, Enum):
     """Enum for status of operation in BotX API."""
 
     ok = "ok"
@@ -66,7 +66,7 @@ class Statuses(str, Enum):  # noqa: WPS600
     """there was an error while processing operation."""
 
 
-class EntityTypes(str, Enum):  # noqa: WPS600
+class EntityTypes(str, Enum):
     """Types for entities that could be received by bot."""
 
     mention = "mention"

@@ -4,7 +4,7 @@ pytest_plugins = ("tests.test_collecting.fixtures",)
 
 
 def test_default_handler_after_including_into_another_collector(
-    default_handler, handler_as_function
+    default_handler, handler_as_function,
 ):
     collector1 = Collector()
     collector2 = Collector(default=default_handler)

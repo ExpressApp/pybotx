@@ -7,7 +7,7 @@ from botx import concurrency
 from botx.clients.clients.processing import extract_result, handle_error
 from botx.clients.methods.base import BotXMethod, ErrorHandlersInMethod
 from botx.exceptions import BotXAPIError
-from botx.utils import optional_sequence_to_list
+from botx.converters import optional_sequence_to_list
 
 ResponseT = TypeVar("ResponseT")
 
@@ -26,7 +26,7 @@ class Client:
         response = self.execute(method)
 
         if StatusCode.is_error(response.status_code):
-            handlers_dict = method.__errors_handlers__  # noqa: WPS609
+            handlers_dict = method.__errors_handlers__
             error_handlers = handlers_dict.get(response.status_code)
             if error_handlers is not None:
                 _handle_error(method, error_handlers, response)

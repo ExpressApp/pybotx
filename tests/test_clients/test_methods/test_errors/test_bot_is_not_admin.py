@@ -16,13 +16,13 @@ pytest_plugins = ("tests.test_clients.fixtures",)
 
 async def test_raising_bot_is_not_admin(client, requests_client):
     method = AddUser(
-        group_chat_id=uuid.uuid4(), user_huids=[uuid.uuid4() for _ in range(10)]
+        group_chat_id=uuid.uuid4(), user_huids=[uuid.uuid4() for _ in range(10)],
     )
     errors_to_raise = {
         AddUser: (
             StatusCode.FORBIDDEN,
             BotIsNotAdminData(sender=uuid.uuid4(), group_chat_id=method.group_chat_id),
-        )
+        ),
     }
 
     with pytest.raises(BotIsNotAdminError):

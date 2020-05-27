@@ -26,7 +26,7 @@ class ClientOwnerProtocol(Protocol):
 
 
 # A lot of base classes since it's mixin for all shorthands for BotX API requests
-class BotXRequestsMixin(  # noqa: WPS215
+class BotXRequestsMixin(
     bots.BotsRequestsMixin,
     chats.ChatsRequestsMixin,
     command.CommandRequestsMixin,

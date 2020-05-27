@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Type
 
 from loguru import logger
 
-from botx import concurrency, exception_handlers, exceptions, typing, utils
+from botx import concurrency, exception_handlers, exceptions, typing, converters
 from botx.bots.mixins.clients import ClientsMixin
 from botx.bots.mixins.collecting import BotCollectingMixin
 from botx.clients.clients.async_client import AsyncClient
@@ -19,10 +19,10 @@ from botx.models import datastructures, menu, messages
 from botx.models.credentials import ExpressServer
 
 
-class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
+class Bot(BotCollectingMixin, ClientsMixin):
     """Class that implements bot behaviour."""
 
-    def __init__(  # noqa: WPS213
+    def __init__(
         self,
         *,
         handlers: Optional[List[Handler]] = None,
@@ -57,7 +57,7 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
         self.dependency_overrides: Dict[Callable, Callable] = {}
         """overrider for dependencies that can be used in tests."""
 
-        self.known_hosts: List[ExpressServer] = utils.optional_sequence_to_list(
+        self.known_hosts: List[ExpressServer] = converters.optional_sequence_to_list(
             known_hosts,
         )
         """list of servers that will be used for handling message."""
@@ -65,10 +65,10 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
         self.state: datastructures.State = datastructures.State()
         """state that can be used in bot for storing something."""
 
-        self.startup_events = utils.optional_sequence_to_list(startup_events)
+        self.startup_events = converters.optional_sequence_to_list(startup_events)
         """functions that should be called on bot startup."""
 
-        self.shutdown_events = utils.optional_sequence_to_list(shutdown_events)
+        self.shutdown_events = converters.optional_sequence_to_list(shutdown_events)
         """functions that should be called on bot shutdown."""
 
         self._tasks: Set[asyncio.Future] = set()
@@ -135,7 +135,7 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
             self.exception_middleware.executor, **kwargs,
         )
 
-    def middleware(self, handler: typing.Executor) -> Callable:  # noqa: D202
+    def middleware(self, handler: typing.Executor) -> Callable:
         """Register callable as middleware for request.
 
         Arguments:
@@ -159,7 +159,7 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
         """
         self.exception_middleware.add_exception_handler(exc_class, handler)
 
-    def exception_handler(self, exc_class: Type[Exception]) -> Callable:  # noqa: D202
+    def exception_handler(self, exc_class: Type[Exception]) -> Callable:
         """Register callable as handler for exception.
 
         Arguments:

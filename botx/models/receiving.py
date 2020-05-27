@@ -105,12 +105,12 @@ class IncomingMessage(BaseModel):
     entities: List[Entity] = []
     """additional entities that can be received by bot."""
 
-    class Config(BaseConfig):  # noqa: WPS431, D106
+    class Config(BaseConfig):
         allow_population_by_field_name = True
 
     @validator("file", always=True, pre=True)
     def skip_file_validation(
-        cls, value: Optional[Union[dict, File]],  # noqa: N805
+        cls, value: Optional[Union[dict, File]],
     ) -> Optional[File]:
         """Skip validation for incoming file since users have not such limits as bot.
 

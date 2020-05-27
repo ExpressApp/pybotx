@@ -21,7 +21,7 @@ async def test_raising_chat_creation_disallowed(client, requests_client):
     )
 
     errors_to_raise = {
-        Create: (StatusCode.FORBIDDEN, ChatCreationDisallowedData(bot_id=uuid.uuid4()))
+        Create: (StatusCode.FORBIDDEN, ChatCreationDisallowedData(bot_id=uuid.uuid4())),
     }
 
     with pytest.raises(ChatCreationDisallowedError):

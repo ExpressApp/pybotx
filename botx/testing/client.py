@@ -33,7 +33,7 @@ class _ExceptionMiddleware(ExceptionMiddleware):
 ErrorsOverrides = Dict[Type[BotXMethod], Tuple[int, Any]]
 
 
-class TestClient:  # noqa: WPS214
+class TestClient:
     """Test client for testing bots."""
 
     # https://docs.pytest.org/en/latest/changelog.html#changes
@@ -73,8 +73,8 @@ class TestClient:  # noqa: WPS214
             self.bot.exception_middleware = _ExceptionMiddleware(
                 self.bot.exception_middleware.executor,
             )
-            self.bot.exception_middleware._exception_handlers = (  # noqa: WPS437
-                self._error_middleware._exception_handlers  # noqa: WPS437
+            self.bot.exception_middleware._exception_handlers = (
+                self._error_middleware._exception_handlers
             )
 
         self.bot.client.http_client = httpx.AsyncClient(

@@ -42,7 +42,7 @@ def test_preserving_order_after_merging(message, handler_as_function, build_depe
 
 
 def test_preserving_order_after_merging_for_default_handler(
-    message, default_handler, build_dependency
+    message, default_handler, build_dependency,
 ):
     message.command.body = "/command"
 
@@ -50,7 +50,7 @@ def test_preserving_order_after_merging_for_default_handler(
 
     collector1 = Collector(dependencies=[Depends(build_dependency(1))])
     collector2 = Collector(
-        dependencies=[Depends(build_dependency(2))], default=default_handler
+        dependencies=[Depends(build_dependency(2))], default=default_handler,
     )
 
     collector1.include_collector(collector2)

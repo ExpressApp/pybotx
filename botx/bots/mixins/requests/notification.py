@@ -3,7 +3,7 @@
 from typing import Optional, Sequence, cast
 from uuid import UUID
 
-from botx import utils
+from botx import converters
 from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
 from botx.clients.methods.v3.notification.direct_notification import NotificationDirect
 from botx.clients.methods.v3.notification.notification import Notification
@@ -22,7 +22,7 @@ class NotificationRequestsMixin:
         group_chat_ids: Optional[Sequence[UUID]] = None,
     ) -> None:
         if group_chat_ids is not None:
-            chat_ids = utils.optional_sequence_to_list(group_chat_ids)
+            chat_ids = converters.optional_sequence_to_list(group_chat_ids)
         else:
             chat_ids = [cast(UUID, credentials.chat_id)]
 
