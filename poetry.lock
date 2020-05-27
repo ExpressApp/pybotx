@@ -459,7 +459,7 @@ description = "Chromium HSTS Preload list as a Python package and updated daily"
 name = "hstspreload"
 optional = false
 python-versions = ">=3.6"
-version = "2020.5.19"
+version = "2020.5.27"
 
 [[package]]
 category = "main"
@@ -467,7 +467,7 @@ description = "A minimal low-level HTTP client."
 name = "httpcore"
 optional = false
 python-versions = ">=3.6"
-version = "0.9.0"
+version = "0.9.1"
 
 [package.dependencies]
 h11 = ">=0.8,<0.10"
@@ -480,7 +480,7 @@ description = "The next generation HTTP client."
 name = "httpx"
 optional = false
 python-versions = ">=3.6"
-version = "0.13.1"
+version = "0.13.2"
 
 [package.dependencies]
 certifi = "*"
@@ -676,7 +676,7 @@ description = "A Material Design theme for MkDocs"
 name = "mkdocs-material"
 optional = false
 python-versions = "*"
-version = "5.2.1"
+version = "5.2.2"
 
 [package.dependencies]
 Pygments = ">=2.4"
@@ -714,7 +714,7 @@ pytkdocs = ">=0.2.0,<0.5.0"
 category = "main"
 description = "A minimal, extensible, fast and productive API framework."
 name = "molten"
-optional = false
+optional = true
 python-versions = ">=3.6"
 version = "1.0.1"
 
@@ -1164,7 +1164,7 @@ version = "3.7.4.2"
 category = "main"
 description = "Runtime inspection utilities for typing module."
 name = "typing-inspect"
-optional = false
+optional = true
 python-versions = "*"
 version = "0.5.0"
 
@@ -1239,10 +1239,10 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [extras]
-tests = ["starlette"]
+tests = ["starlette", "molten"]
 
 [metadata]
-content-hash = "dae7cf1c4340b2ac5942360002dfb2e9af39acf20a3954be54958ecab83770c7"
+content-hash = "2951c5e0b3f4183613d2780200b052d77e818358eefad64e6076add7d098bcec"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -1430,16 +1430,16 @@ hpack = [
     {file = "hpack-3.0.0.tar.gz", hash = "sha256:8eec9c1f4bfae3408a3f30500261f7e6a65912dc138526ea054f9ad98892e9d2"},
 ]
 hstspreload = [
-    {file = "hstspreload-2020.5.19-py3-none-any.whl", hash = "sha256:6f8f617d8e0dc2f8e2851131b1d43de24adea875a1a9238b1baa1c6373f162cc"},
-    {file = "hstspreload-2020.5.19.tar.gz", hash = "sha256:d703d771d47035ad9298c14b84b8293a33fcbbfe6deedeeb35fa7e46dc3c619e"},
+    {file = "hstspreload-2020.5.27-py3-none-any.whl", hash = "sha256:5ff96b5df463afd665db2a6069db8a6ed9f2e791aa186200066f92b8d6989546"},
+    {file = "hstspreload-2020.5.27.tar.gz", hash = "sha256:088884adc70f0efdd3002c86290e2c25c097fa49286feea7120507534f9e8be5"},
 ]
 httpcore = [
-    {file = "httpcore-0.9.0-py3-none-any.whl", hash = "sha256:d6187f7642b1745037253eb5798dee7f17f85c5534a65e2de4daa11627486a0a"},
-    {file = "httpcore-0.9.0.tar.gz", hash = "sha256:f77ea2e5fecd58d2b049a2efd706788b1808b73c2367479a0f4a49f6e391cba7"},
+    {file = "httpcore-0.9.1-py3-none-any.whl", hash = "sha256:9850fe97a166a794d7e920590d5ec49a05488884c9fc8b5dba8561effab0c2a0"},
+    {file = "httpcore-0.9.1.tar.gz", hash = "sha256:ecc5949310d9dae4de64648a4ce529f86df1f232ce23dcfefe737c24d21dfbe9"},
 ]
 httpx = [
-    {file = "httpx-0.13.1-py3-none-any.whl", hash = "sha256:b132a566677c66d436502484bc16376d1de5b32743d2a319f90bbbeda2acbd95"},
-    {file = "httpx-0.13.1.tar.gz", hash = "sha256:d90cc7930bb3be2522c398038a07010b7830a8d9a5d9b91cdcaedea79290e9b9"},
+    {file = "httpx-0.13.2-py3-none-any.whl", hash = "sha256:99055b98fb3dae18c86597d4f5f4315214924a87c609b53d3cb68492fbb45fcf"},
+    {file = "httpx-0.13.2.tar.gz", hash = "sha256:4387a6601839fb71f5aea57042e6b476f24ca118cc05c55f1e52ed8baaf0a45f"},
 ]
 hyperframe = [
     {file = "hyperframe-5.2.0-py2.py3-none-any.whl", hash = "sha256:5187962cb16dcc078f23cb5a4b110098d546c3f41ff2d4038a9896893bbd0b40"},
@@ -1523,8 +1523,8 @@ mkdocs = [
     {file = "mkdocs-1.1.2.tar.gz", hash = "sha256:f0b61e5402b99d7789efa032c7a74c90a20220a9c81749da06dbfbcbd52ffb39"},
 ]
 mkdocs-material = [
-    {file = "mkdocs-material-5.2.1.tar.gz", hash = "sha256:0ddb543f9d3bd429fedf8b6224f1f18a88d3d33b29737bee9a404eba3a31eb4e"},
-    {file = "mkdocs_material-5.2.1-py2.py3-none-any.whl", hash = "sha256:92fd4606442153075f05601d81c8129a43885ca130e3f0c050e4b8467f3cdc16"},
+    {file = "mkdocs-material-5.2.2.tar.gz", hash = "sha256:381d35fe2fc80773c6c94fe18622f29719ed15719f968b14c2a628a41489b9ab"},
+    {file = "mkdocs_material-5.2.2-py2.py3-none-any.whl", hash = "sha256:c896bfb8d7c52caeac423aa5b210828c317aa7a0916ab02ee1ada242edc5c813"},
 ]
 mkdocs-material-extensions = [
     {file = "mkdocs-material-extensions-1.0.tar.gz", hash = "sha256:17d7491e189af75700310b7ec33c6c48a22060b8b445001deca040cb60471cde"},
