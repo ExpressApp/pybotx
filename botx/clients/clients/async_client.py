@@ -44,7 +44,7 @@ class AsyncClient:
         return await self.http_client.request(
             request.method,
             request.url,
-            headers=request.headers,  # type: ignore
+            headers=request.headers,
             params=request.query_params,
             data=request.request_data,
         )
