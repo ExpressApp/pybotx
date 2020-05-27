@@ -25,7 +25,7 @@ jobs:
         run: |
           pip install poetry==1.0
           poetry config virtualenvs.in-project true
-          poetry install
+          poetry install --extras tests
       - name: Build MkDocs for Netlify
         run: |
           source .venv/bin/activate

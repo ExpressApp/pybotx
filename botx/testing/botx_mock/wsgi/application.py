@@ -1,15 +1,13 @@
 """Definition of Starlette application that is mock for BotX API."""
 
-from typing import Any, Dict, List, Sequence, Tuple, Type
+from typing import Any, Callable, Dict, List, Sequence, Tuple, Type
 
-from starlette.applications import Starlette
-from starlette.middleware.base import RequestResponseEndpoint
-from starlette.routing import Route
+from molten import App, JSONParser, Route, Settings, SettingsComponent
 
 from botx.clients.methods.base import BotXMethod
-from botx.testing.botx_mock.errors import ErrorMiddleware
-from botx.testing.botx_mock.routes.bots import get_token
-from botx.testing.botx_mock.routes.chats import (
+from botx.testing.botx_mock.wsgi.errors import error_middleware
+from botx.testing.botx_mock.wsgi.routes.bots import get_token
+from botx.testing.botx_mock.wsgi.routes.chats import (
     get_info,
     post_add_user,
     post_create,
@@ -17,16 +15,20 @@ from botx.testing.botx_mock.routes.chats import (
     post_stealth_disable,
     post_stealth_set,
 )
-from botx.testing.botx_mock.routes.command import post_command_result
-from botx.testing.botx_mock.routes.events import post_edit_event
-from botx.testing.botx_mock.routes.notification import (
+from botx.testing.botx_mock.wsgi.routes.command import post_command_result
+from botx.testing.botx_mock.wsgi.routes.events import post_edit_event
+from botx.testing.botx_mock.wsgi.routes.notification import (
     post_notification,
     post_notification_direct,
 )
-from botx.testing.botx_mock.routes.users import get_by_email, get_by_huid, get_by_login
+from botx.testing.botx_mock.wsgi.routes.users import (
+    get_by_email,
+    get_by_huid,
+    get_by_login,
+)
 from botx.testing.typing import APIMessage, APIRequest
 
-_ENDPOINTS: Tuple[RequestResponseEndpoint, ...] = (
+_ENDPOINTS: Tuple[Callable[..., Any], ...] = (
     # V2
     # bots
     get_token,
@@ -52,7 +54,7 @@ _ENDPOINTS: Tuple[RequestResponseEndpoint, ...] = (
 )
 
 
-def _create_starlette_routes() -> Sequence[Route]:
+def _create_molten_routes() -> Sequence[Route]:
     routes = []
 
     for endpoint in _ENDPOINTS:
@@ -60,18 +62,18 @@ def _create_starlette_routes() -> Sequence[Route]:
             Route(
                 endpoint.method.__url__,  # type: ignore  # noqa: WPS609
                 endpoint,
-                methods=[endpoint.method.__method__],  # type: ignore  # noqa: WPS609
+                method=endpoint.method.__method__,  # type: ignore  # noqa: WPS609
             )
         )
 
     return routes
 
 
-def get_botx_api(
+def get_botx_wsgi_api(
     messages: List[APIMessage],
     requests: List[APIRequest],
     errors: Dict[Type[BotXMethod], Tuple[int, Any]],
-) -> Starlette:
+) -> App:
     """Generate BotX API mock.
 
     Arguments:
@@ -82,10 +84,13 @@ def get_botx_api(
     Returns:
         Generated BotX API mock for using with httpx.
     """
-    botx_app = Starlette(routes=list(_create_starlette_routes()))
-    botx_app.add_middleware(ErrorMiddleware)
-    botx_app.state.messages = messages
-    botx_app.state.requests = requests
-    botx_app.state.errors = errors
-
-    return botx_app
+    return App(
+        components=[
+            SettingsComponent(
+                Settings(messages=messages, requests=requests, errors=errors)
+            )
+        ],
+        routes=list(_create_molten_routes()),
+        middleware=[error_middleware],
+        parsers=[JSONParser()],
+    )

@@ -1,8 +1,7 @@
 """Endpoints for chats resource."""
 import uuid
 
-from starlette.requests import Request
-from starlette.responses import Response
+from molten import Request, RequestData, Response, Settings
 
 from botx import ChatTypes, UserKinds
 from botx.clients.methods.base import APIResponse
@@ -15,13 +14,13 @@ from botx.clients.methods.v3.chats.stealth_set import StealthSet
 from botx.clients.types.chats import ChatFromSearch
 from botx.clients.types.response_results import ChatCreatedResult
 from botx.models.events import UserInChatCreated
-from botx.testing.botx_mock.binders import bind_implementation_to_method
-from botx.testing.botx_mock.messages import add_request_to_collection
-from botx.testing.botx_mock.responses import PydanticResponse
+from botx.testing.botx_mock.wsgi.binders import bind_implementation_to_method
+from botx.testing.botx_mock.wsgi.messages import add_request_to_collection
+from botx.testing.botx_mock.wsgi.responses import PydanticResponse
 
 
 @bind_implementation_to_method(Info)
-async def get_info(request: Request) -> Response:
+def get_info(request: Request, settings: Settings) -> Response:
     """Handle retrieving information of chat request.
 
     Arguments:
@@ -30,8 +29,8 @@ async def get_info(request: Request) -> Response:
     Returns:
         Response with information of chat.
     """
-    payload = Info.parse_obj(request.query_params)
-    add_request_to_collection(request, payload)
+    payload = Info.parse_obj(request.params)
+    add_request_to_collection(settings, payload)
     return PydanticResponse(
         APIResponse[ChatFromSearch](
             result=ChatFromSearch(
@@ -53,7 +52,7 @@ async def get_info(request: Request) -> Response:
 
 
 @bind_implementation_to_method(AddUser)
-async def post_add_user(request: Request) -> Response:
+def post_add_user(request_data: RequestData, settings: Settings) -> Response:
     """Handle adding of user to chat request.
 
     Arguments:
@@ -62,13 +61,13 @@ async def post_add_user(request: Request) -> Response:
     Returns:
         Response with result of adding.
     """
-    payload = AddUser.parse_obj(await request.json())
-    add_request_to_collection(request, payload)
+    payload = AddUser.parse_obj(request_data)
+    add_request_to_collection(settings, payload)
     return PydanticResponse(APIResponse[bool](result=True))
 
 
 @bind_implementation_to_method(RemoveUser)
-async def post_remove_user(request: Request) -> Response:
+def post_remove_user(request_data: RequestData, settings: Settings) -> Response:
     """Handle removing of user to chat request.
 
     Arguments:
@@ -77,13 +76,13 @@ async def post_remove_user(request: Request) -> Response:
     Returns:
         Response with result of removing.
     """
-    payload = RemoveUser.parse_obj(await request.json())
-    add_request_to_collection(request, payload)
+    payload = RemoveUser.parse_obj(request_data)
+    add_request_to_collection(settings, payload)
     return PydanticResponse(APIResponse[bool](result=True))
 
 
 @bind_implementation_to_method(StealthSet)
-async def post_stealth_set(request: Request) -> Response:
+def post_stealth_set(request_data: RequestData, settings: Settings) -> Response:
     """Handle stealth enabling in chat request.
 
     Arguments:
@@ -92,13 +91,13 @@ async def post_stealth_set(request: Request) -> Response:
     Returns:
         Response with result of enabling stealth.
     """
-    payload = StealthSet.parse_obj(await request.json())
-    add_request_to_collection(request, payload)
+    payload = StealthSet.parse_obj(request_data)
+    add_request_to_collection(settings, payload)
     return PydanticResponse(APIResponse[bool](result=True))
 
 
 @bind_implementation_to_method(StealthDisable)
-async def post_stealth_disable(request: Request) -> Response:
+def post_stealth_disable(request_data: RequestData, settings: Settings) -> Response:
     """Handle stealth disabling in chat request.
 
     Arguments:
@@ -107,13 +106,13 @@ async def post_stealth_disable(request: Request) -> Response:
     Returns:
         Response with result of disabling stealth.
     """
-    payload = StealthDisable.parse_obj(await request.json())
-    add_request_to_collection(request, payload)
+    payload = StealthDisable.parse_obj(request_data)
+    add_request_to_collection(settings, payload)
     return PydanticResponse(APIResponse[bool](result=True))
 
 
 @bind_implementation_to_method(Create)
-async def post_create(request: Request) -> Response:
+def post_create(request_data: RequestData, settings: Settings) -> Response:
     """Handle creation of new chat request.
 
     Arguments:
@@ -122,8 +121,8 @@ async def post_create(request: Request) -> Response:
     Returns:
         Response with result of creation.
     """
-    payload = Create.parse_obj(await request.json())
-    add_request_to_collection(request, payload)
+    payload = Create.parse_obj(request_data)
+    add_request_to_collection(settings, payload)
     return PydanticResponse(
         APIResponse[ChatCreatedResult](result=ChatCreatedResult(chat_id=uuid.uuid4()))
     )

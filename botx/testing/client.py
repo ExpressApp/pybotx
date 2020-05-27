@@ -13,7 +13,8 @@ from botx.clients.methods.v3.notification.notification import Notification
 from botx.middlewares.exceptions import ExceptionMiddleware
 from botx.models import receiving
 from botx.models.messages import Message
-from botx.testing.botx_mock.application import get_botx_api
+from botx.testing.botx_mock.asgi.application import get_botx_asgi_api
+from botx.testing.botx_mock.wsgi.application import get_botx_wsgi_api
 from botx.testing.typing import APIMessage, APIRequest
 
 
@@ -55,6 +56,7 @@ class TestClient:  # noqa: WPS214
         self.bot: Bot = bot
         """Bot that will be patched for tests."""
         self._original_http_client = bot.client.http_client
+        self._original_sync_http_client = bot.sync_client.http_client
         self._error_middleware: Optional[ExceptionMiddleware] = None
         self._messages: List[APIMessage] = []
         self._requests: List[APIRequest] = []
@@ -76,7 +78,10 @@ class TestClient:  # noqa: WPS214
             )
 
         self.bot.client.http_client = httpx.AsyncClient(
-            app=get_botx_api(self._messages, self._requests, self._errors)
+            app=get_botx_asgi_api(self._messages, self._requests, self._errors)
+        )
+        self.bot.sync_client.http_client = httpx.Client(
+            app=get_botx_wsgi_api(self._messages, self._requests, self._errors)
         )
 
         return self
@@ -87,6 +92,7 @@ class TestClient:  # noqa: WPS214
             self.bot.exception_middleware = self._error_middleware
 
         self.bot.client.http_client = self._original_http_client
+        self.bot.sync_client.http_client = self._original_sync_http_client
         self._messages = []
 
     @contextmanager

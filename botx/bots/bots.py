@@ -8,8 +8,8 @@ from loguru import logger
 from botx import concurrency, exception_handlers, exceptions, typing, utils
 from botx.bots.mixins.clients import ClientsMixin
 from botx.bots.mixins.collecting import BotCollectingMixin
-from botx.clients.client import AsyncClient
-from botx.clients.sync.clients import Client
+from botx.clients.clients.async_client import AsyncClient
+from botx.clients.clients.sync_client import Client
 from botx.collecting import Collector, Handler
 from botx.dependencies import models as deps
 from botx.exceptions import ServerUnknownError

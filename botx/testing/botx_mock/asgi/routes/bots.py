@@ -5,9 +5,9 @@ from starlette.responses import Response
 
 from botx.clients.methods.base import APIResponse
 from botx.clients.methods.v2.bots.token import Token
-from botx.testing.botx_mock.binders import bind_implementation_to_method
-from botx.testing.botx_mock.messages import add_request_to_collection
-from botx.testing.botx_mock.responses import PydanticResponse
+from botx.testing.botx_mock.asgi.binders import bind_implementation_to_method
+from botx.testing.botx_mock.asgi.messages import add_request_to_collection
+from botx.testing.botx_mock.asgi.responses import PydanticResponse
 
 
 @bind_implementation_to_method(Token)
