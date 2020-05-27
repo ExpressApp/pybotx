@@ -4,7 +4,6 @@ from typing import Any, Dict, Generator, List, Optional, Tuple, Type, Union
 
 import httpx
 
-from botx import concurrency
 from botx.bots.bots import Bot
 from botx.clients.methods.base import BotXMethod
 from botx.clients.methods.v3.command.command_result import CommandResult
@@ -27,7 +26,7 @@ class _ExceptionMiddleware(ExceptionMiddleware):
         if handler is None:
             raise exc
 
-        await concurrency.callable_to_coroutine(handler, exc, message)
+        await super()._handle_error_in_handler(exc, message)
 
 
 ErrorsOverrides = Dict[Type[BotXMethod], Tuple[int, Any]]

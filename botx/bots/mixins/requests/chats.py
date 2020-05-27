@@ -40,9 +40,9 @@ class ChatsRequestsMixin:
         self: BotXMethodCallProtocol,
         credentials: sending.SendingCredentials,
         chat_id: UUID,
-        disable_web: bool,
-        burn_in: Optional[int],
-        expire_in: Optional[int],
+        disable_web: bool = False,
+        burn_in: Optional[int] = None,
+        expire_in: Optional[int] = None,
     ) -> None:
         """Enable stealth mode
 
@@ -82,17 +82,17 @@ class ChatsRequestsMixin:
         self: BotXMethodCallProtocol,
         credentials: sending.SendingCredentials,
         chat_id: UUID,
-        users_huids: List[UUID],
+        user_huids: List[UUID],
     ) -> None:
         """Add users to chat.
 
         Arguments:
             credentials: credentials of chat.
             chat_id: id of chat to add users,
-            users_huids: list of user's huids
+            user_huids: list of user's huids
         """
         return await self.call_method(
-            AddUser(group_chat_id=chat_id, user_huids=users_huids),
+            AddUser(group_chat_id=chat_id, user_huids=user_huids),
             credentials=credentials,
         )
 
@@ -100,16 +100,16 @@ class ChatsRequestsMixin:
         self: BotXMethodCallProtocol,
         credentials: sending.SendingCredentials,
         chat_id: UUID,
-        users_huids: List[UUID],
+        user_huids: List[UUID],
     ) -> None:
         """Remove users from chat.
 
         Arguments:
             credentials: credentials of chat.
             chat_id: id of chat to remove users,
-            users_huids: list of user's huids
+            user_huids: list of user's huids
         """
         return await self.call_method(
-            RemoveUser(group_chat_id=chat_id, user_huids=users_huids),
+            RemoveUser(group_chat_id=chat_id, user_huids=user_huids),
             credentials=credentials,
         )

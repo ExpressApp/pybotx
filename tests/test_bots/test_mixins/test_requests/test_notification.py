@@ -1,12 +1,11 @@
 import pytest
 
-from botx import Message, MessagePayload
+from botx import MessagePayload
 
 pytestmark = pytest.mark.asyncio
 
 
-async def test_filling_with_chat_id_from_credentials(client, incoming_message):
-    message = Message.from_dict(incoming_message.dict(), client.bot)
+async def test_filling_with_chat_id_from_credentials(client, message):
     await client.bot.send_notification(
         credentials=message.credentials, payload=MessagePayload(text="some text")
     )
@@ -14,11 +13,10 @@ async def test_filling_with_chat_id_from_credentials(client, incoming_message):
     assert client.notifications[0].result.body == "some text"
 
 
-async def test_filling_with_ids_if_passed(client, incoming_message):
-    message = Message.from_dict(incoming_message.dict(), client.bot)
+async def test_filling_with_ids_if_passed(client, message):
     await client.bot.send_notification(
         message.credentials,
-        group_chat_ids=[incoming_message.user.group_chat_id],
+        group_chat_ids=[message.user.group_chat_id],
         payload=MessagePayload(text="some text"),
     )
 

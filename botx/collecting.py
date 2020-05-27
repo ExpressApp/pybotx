@@ -295,7 +295,7 @@ class Collector:  # noqa: WPS214, WPS230
 
         raise NoMatchFound(search_param=name)
 
-    def add_handler(  # noqa: WPS211
+    def add_handler(  # noqa: WPS211, WPS210
         self,
         handler: Callable,
         *,
@@ -331,14 +331,19 @@ class Collector:  # noqa: WPS214, WPS230
             body = get_body_from_name(name)
 
         for registered_handler in self.handlers:
+            handler_executor = registered_handler.handler
+            handler_name = registered_handler.name
+
             assert (
                 body.strip(SLASH) != ""
             ), "Handler should not consist only from slashes"
             assert (
                 body != registered_handler.body
             ), f"Handler with body {registered_handler.body} already registered"
-            assert (
-                name != registered_handler.name
+
+            handler_registered = handler == handler_executor and name == handler_name
+            assert name != registered_handler.name or (
+                handler_registered
             ), f"Handler with name {registered_handler.name} already registered"
 
         dep_override = (
