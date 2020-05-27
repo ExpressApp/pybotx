@@ -1,9 +1,14 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Callable, Dict, Final, Optional, Type, Union
+from typing import Callable
+from typing import Dict
+from typing import Final
+from typing import Optional
+from typing import Type
+from typing import Union
 
-from botx import Bot, Message
-from botx.collecting import Collector
+from botx import Bot, Collector
+from botx import Message
 from botx.concurrency import callable_to_coroutine
 from botx.middlewares.base import BaseMiddleware
 from botx.typing import Executor

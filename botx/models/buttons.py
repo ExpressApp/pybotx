@@ -25,9 +25,7 @@ class Button(BaseModel):
     """options for button."""
 
     @validator("label", always=True)
-    def label_as_command_if_none(
-        cls, value: Optional[str], values: dict,
-    ) -> str:
+    def label_as_command_if_none(cls, value: Optional[str], values: dict) -> str:
         """Return command as label if it is `None`.
 
         Arguments:

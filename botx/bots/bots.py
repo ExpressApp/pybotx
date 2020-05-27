@@ -1,21 +1,35 @@
 """Implementation for bot classes."""
 
 import asyncio
-from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Type
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Sequence
+from typing import Set
+from typing import Type
 
 from loguru import logger
 
-from botx import concurrency, exception_handlers, exceptions, typing, converters
+from botx import concurrency
+from botx.collecting import collector
+from botx import converters
+from botx import exception_handlers
+from botx import exceptions
+from botx import typing
 from botx.bots.mixins.clients import ClientsMixin
 from botx.bots.mixins.collecting import BotCollectingMixin
 from botx.clients.clients.async_client import AsyncClient
 from botx.clients.clients.sync_client import Client
-from botx.collecting import Collector, Handler
+from botx.collecting.handler import Handler
 from botx.dependencies import models as deps
 from botx.exceptions import ServerUnknownError
 from botx.middlewares.base import BaseMiddleware
 from botx.middlewares.exceptions import ExceptionMiddleware
-from botx.models import datastructures, menu, messages
+from botx.models import datastructures
+from botx.models import menu
+from botx.models import messages
 from botx.models.credentials import ExpressServer
 
 
@@ -41,7 +55,7 @@ class Bot(BotCollectingMixin, ClientsMixin):
             shutdown_events: functions that should be called on bot shutdown.
         """
 
-        self.collector: Collector = Collector(
+        self.collector: collector.Collector = collector.Collector(
             handlers=handlers,
             dependencies=dependencies,
             dependency_overrides_provider=self,

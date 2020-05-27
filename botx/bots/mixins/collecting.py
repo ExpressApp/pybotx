@@ -3,9 +3,15 @@
 All of this methods are just wrappers around inner collector.
 """
 
-from typing import Any, Callable, List, Optional, Sequence, Union
+from typing import Any
+from typing import Callable
+from typing import List
+from typing import Optional
+from typing import Sequence
+from typing import Union
 
-from botx.collecting import Collector, Handler
+from botx.collecting.collector import Collector
+from botx.collecting.handler import Handler
 from botx.dependencies import models as deps
 from botx.models import enums
 

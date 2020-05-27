@@ -2,7 +2,10 @@ import asyncio
 from dataclasses import dataclass
 from uuid import UUID
 
-from botx import Bot, Collector, DependencyFailure, Depends, Message
+from botx import Bot, Collector
+from botx import DependencyFailure
+from botx import Depends
+from botx import Message
 
 
 @dataclass

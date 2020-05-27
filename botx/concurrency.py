@@ -1,14 +1,10 @@
 """Helpers for execution functions as coroutines."""
 
 import asyncio
+import contextvars
 import functools
 import inspect
 from typing import Any, Callable, Coroutine
-
-try:
-    import contextvars  # Python 3.7+ only.  WPS440, WPS433
-except ImportError:  # pragma: no cover
-    contextvars = None  # type: ignore  WPS440
 
 
 def is_awaitable_object(call: Callable) -> bool:
@@ -22,7 +18,7 @@ def is_awaitable_object(call: Callable) -> bool:
     """
     if is_awaitable(call):
         return True
-    call = getattr(call, "__call__", None)
+    call = getattr(call, "__call__", None)  # noqa: B004
     return asyncio.iscoroutinefunction(call)
 
 

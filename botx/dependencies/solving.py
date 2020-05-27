@@ -1,10 +1,10 @@
 """Functions for solving dependencies."""
 
-from collections import Callable
-from typing import Any, Dict, Optional, Tuple, cast
+from typing import Any, Awaitable, Callable, Dict, Optional, Tuple, cast
 
 from botx import concurrency
 from botx.dependencies.models import Dependant, get_dependant
+from botx.models import messages
 from botx.models.messages import Message
 
 CacheKey = Tuple[Callable, Tuple[str, ...]]
@@ -101,3 +101,33 @@ async def solve_dependencies(
     if dependant.sync_client_param_name:
         solved_values[dependant.sync_client_param_name] = message.bot.sync_client
     return solved_values, dependency_cache
+
+
+def get_executor(
+    dependant: Dependant, dependency_overrides_provider: Any = None,
+) -> Callable[[messages.Message], Awaitable[None]]:
+    """Get an execution callable for passed dependency.
+
+    Arguments:
+        dependant: passed dependency for which execution callable should be generated.
+        dependency_overrides_provider: dependency overrider that will be passed to the
+            execution.
+
+    Returns:
+        Asynchronous executor for handling message.
+
+    Raises:
+        AssertionError: raised if there is no callable in `dependant.call`.
+    """
+    if dependant.call is None:
+        raise AssertionError("dependant.call must be present")
+
+    async def factory(message: messages.Message) -> None:
+        solved_values, _ = await solve_dependencies(
+            message=message,
+            dependant=dependant,
+            dependency_overrides_provider=dependency_overrides_provider,
+        )
+        await concurrency.callable_to_coroutine(dependant.call, **solved_values)
+
+    return factory

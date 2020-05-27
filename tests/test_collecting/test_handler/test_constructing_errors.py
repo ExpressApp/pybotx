@@ -1,6 +1,6 @@
 import pytest
 
-from botx.collecting import Handler
+from botx.collecting.handler import Handler
 
 pytest_plugins = ("tests.test_collecting.fixtures",)
 

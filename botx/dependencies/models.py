@@ -1,35 +1,30 @@
 """Dependant model and transforming functions."""
+from __future__ import annotations
 
 import inspect
-from typing import Callable, List, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple
 
 from pydantic import BaseModel, validator
 from pydantic.utils import lenient_issubclass
 
 from botx.bots import bots
-from botx.clients.clients.async_client import AsyncClient
-from botx.clients.clients.sync_client import Client
+from botx.clients.clients import async_client, sync_client
 from botx.dependencies import inspecting
-from botx.models.messages import Message
+from botx.models import messages
 
 WRONG_PARAM_TYPE_ERROR_TEXT = (
     "Param {0} of {1} can only be a dependency, message, bot or client, got: {2}"
 )
 
 
-class Depends:
+class Depends(BaseModel):
     """Stores dependency callable."""
 
-    def __init__(self, dependency: Callable, *, use_cache: bool = True) -> None:
-        """Store callable for dependency, if None then will be retrieved from signature.
+    #: callable object that will be used in handlers or other dependencies instances.
+    dependency: Callable[..., Any]
 
-        Arguments:
-            dependency: callable object that will be used in handlers or other
-                dependencies instances.
-            use_cache: use cache for dependency.
-        """
-        self.dependency = dependency
-        self.use_cache = use_cache
+    #: use cache for dependency.
+    use_cache: bool = True
 
 
 DependantCache = Tuple[Optional[Callable], Tuple[str, ...]]
@@ -39,7 +34,7 @@ class Dependant(BaseModel):
     """Main model that contains all necessary data for solving dependencies."""
 
     #: list of sub-dependencies for this dependency.
-    dependencies: List["Dependant"] = []
+    dependencies: List[Dependant] = []
 
     #: name of dependency.
     name: Optional[str] = None
@@ -68,7 +63,7 @@ class Dependant(BaseModel):
 
     @validator("cache_key", always=True)
     def init_cache(
-        cls, _: DependantCache, values: dict,
+        cls, _: DependantCache, values: dict,  # noqa: N805, WPS110
     ) -> DependantCache:
         """Init cache for dependency with passed call and empty tuple.
 
@@ -158,13 +153,13 @@ def add_special_param_to_dependency(
     if lenient_issubclass(dependency_param.annotation, bots.Bot):
         dependant.bot_param_name = dependency_param.name
         return True
-    elif lenient_issubclass(dependency_param.annotation, Message):
+    elif lenient_issubclass(dependency_param.annotation, messages.Message):
         dependant.message_param_name = dependency_param.name
         return True
-    elif lenient_issubclass(dependency_param.annotation, AsyncClient):
+    elif lenient_issubclass(dependency_param.annotation, async_client.AsyncClient):
         dependant.async_client_param_name = dependency_param.name
         return True
-    elif lenient_issubclass(dependency_param.annotation, Client):
+    elif lenient_issubclass(dependency_param.annotation, sync_client.Client):
         dependant.sync_client_param_name = dependency_param.name
         return True
 

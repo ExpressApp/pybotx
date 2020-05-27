@@ -1,21 +1,30 @@
 """Definition for middleware that precess next step handlers logic."""
 
 import contextlib
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Sequence
+from typing import Tuple
+from typing import Union
 from uuid import UUID
 
 from loguru import logger
-from pydantic import BaseConfig, BaseModel
+from pydantic import BaseConfig
+from pydantic import BaseModel
 
 from botx.bots import bots
-from botx.collecting import Collector, Handler, get_name_from_callable
+from botx import Collector
+from botx.collecting.handler import Handler, get_name_from_callable
 from botx.concurrency import callable_to_coroutine
+from botx.converters import optional_sequence_to_list
 from botx.dependencies import models as deps
 from botx.exceptions import NoMatchFound
 from botx.middlewares.base import BaseMiddleware
 from botx.models import messages
 from botx.typing import Executor
-from botx.converters import optional_sequence_to_list
 
 
 class NextStepHandlerState(BaseModel):

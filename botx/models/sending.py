@@ -30,9 +30,7 @@ class SendingCredentials(BaseModel):
     """token that is used for bot authorization on requests to BotX API."""
 
     @validator("chat_id", always=True)
-    def receiver_id_should_be_passed(
-        cls, value: UUID, values: dict,
-    ) -> UUID:
+    def receiver_id_should_be_passed(cls, value: UUID, values: dict) -> UUID:
         """Check that `chat_id` or `sync_id` was passed.
 
         Arguments:
