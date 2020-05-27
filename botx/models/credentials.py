@@ -42,5 +42,5 @@ class ExpressServer(BaseModel):
                 key=self.secret_key.encode(),
                 msg=str(bot_id).encode(),
                 digestmod=hashlib.sha256,
-            ).digest()
+            ).digest(),
         ).decode()

@@ -75,7 +75,7 @@ class ChatsRequestsMixin:
             chat_id: id of chat to disable stealth,
         """
         return await self.call_method(
-            StealthDisable(group_chat_id=chat_id), credentials=credentials
+            StealthDisable(group_chat_id=chat_id), credentials=credentials,
         )
 
     async def add_users(

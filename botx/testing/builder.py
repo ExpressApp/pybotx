@@ -65,7 +65,7 @@ class MessageBuilder:  # noqa: WPS214
     def body(self, body: str) -> None:
         """Message body."""
         self._check_system_command_properties(
-            body, self._is_system_command, self._command_data
+            body, self._is_system_command, self._command_data,
         )
         self._body = body
 
@@ -88,7 +88,7 @@ class MessageBuilder:  # noqa: WPS214
     def system_command(self, is_system_command: bool) -> None:
         """Is command a system event."""
         self._check_system_command_properties(
-            self._body, is_system_command, self._command_data
+            self._body, is_system_command, self._command_data,
         )
         self._is_system_command = is_system_command
 
@@ -135,7 +135,7 @@ class MessageBuilder:  # noqa: WPS214
             else enums.CommandTypes.user
         )
         command = receiving.Command(
-            body=self.body, command_type=command_type, data=self.command_data
+            body=self.body, command_type=command_type, data=self.command_data,
         )
         return receiving.IncomingMessage(
             sync_id=uuid.uuid4(),
@@ -159,7 +159,7 @@ class MessageBuilder:  # noqa: WPS214
                     mention_data=UserMention(user_huid=user_huid),
                     mention_type=MentionTypes.contact,
                 ),
-            )
+            ),
         )
 
     def mention_user(self, user_huid: uuid.UUID) -> None:
@@ -172,7 +172,7 @@ class MessageBuilder:  # noqa: WPS214
             Entity(
                 type=EntityTypes.mention,
                 data=Mention(mention_data=UserMention(user_huid=user_huid)),
-            )
+            ),
         )
 
     def mention_chat(self, chat_id: uuid.UUID) -> None:
@@ -188,7 +188,7 @@ class MessageBuilder:  # noqa: WPS214
                     mention_data=ChatMention(group_chat_id=chat_id),
                     mention_type=MentionTypes.chat,
                 ),
-            )
+            ),
         )
 
     @property
@@ -207,7 +207,7 @@ class MessageBuilder:  # noqa: WPS214
         )
 
     def _check_system_command_properties(
-        self, body: str, is_system_command: bool, command_data: dict
+        self, body: str, is_system_command: bool, command_data: dict,
     ) -> None:
         """Check that system event message is valid.
 

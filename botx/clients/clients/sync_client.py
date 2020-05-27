@@ -18,7 +18,7 @@ class Client:
         self.interceptors: List = optional_sequence_to_list(interceptors)
 
     def call(
-        self, method: BotXMethod[ResponseT], host: Optional[str] = None
+        self, method: BotXMethod[ResponseT], host: Optional[str] = None,
     ) -> ResponseT:
         if host is not None:
             method.host = host
@@ -52,6 +52,6 @@ class Client:
 
 
 def _handle_error(
-    method: BotXMethod, error_handlers: ErrorHandlersInMethod, response: Response
+    method: BotXMethod, error_handlers: ErrorHandlersInMethod, response: Response,
 ) -> None:
     concurrency.async_to_sync(handle_error)(method, error_handlers, response)

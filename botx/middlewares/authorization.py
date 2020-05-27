@@ -10,9 +10,11 @@ class AuthorizationMiddleware(BaseMiddleware):
         server = bot.get_cts_by_host(message.host)
         if server.server_credentials is None:
             token = await bot.get_token(
-                message.host, message.bot_id, server.calculate_signature(message.bot_id)
+                message.host,
+                message.bot_id,
+                server.calculate_signature(message.bot_id),
             )
             server.server_credentials = ServerCredentials(
-                bot_id=message.bot_id, token=token
+                bot_id=message.bot_id, token=token,
             )
         await call_next(message)

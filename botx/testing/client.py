@@ -66,22 +66,22 @@ class TestClient:  # noqa: WPS214
     def __enter__(self) -> "TestClient":
         """Mock original HTTP client."""
         is_error_middleware = isinstance(
-            self.bot.exception_middleware, ExceptionMiddleware
+            self.bot.exception_middleware, ExceptionMiddleware,
         )
         if not self._suppress_errors and is_error_middleware:
             self._error_middleware = self.bot.exception_middleware
             self.bot.exception_middleware = _ExceptionMiddleware(
-                self.bot.exception_middleware.executor
+                self.bot.exception_middleware.executor,
             )
             self.bot.exception_middleware._exception_handlers = (  # noqa: WPS437
                 self._error_middleware._exception_handlers  # noqa: WPS437
             )
 
         self.bot.client.http_client = httpx.AsyncClient(
-            app=get_botx_asgi_api(self._messages, self._requests, self._errors)
+            app=get_botx_asgi_api(self._messages, self._requests, self._errors),
         )
         self.bot.sync_client.http_client = httpx.Client(
-            app=get_botx_wsgi_api(self._messages, self._requests, self._errors)
+            app=get_botx_wsgi_api(self._messages, self._requests, self._errors),
         )
 
         return self
@@ -97,7 +97,7 @@ class TestClient:  # noqa: WPS214
 
     @contextmanager
     def error_client(
-        self, errors: Dict[Type[BotXMethod], Tuple[int, Any]]
+        self, errors: Dict[Type[BotXMethod], Tuple[int, Any]],
     ) -> Generator["TestClient", None, None]:
         override_errors = {**self._errors, **errors}
         with TestClient(self.bot, override_errors, self._suppress_errors) as client:

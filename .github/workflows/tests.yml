@@ -40,7 +40,7 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run ./scripts/test --cov-report=xml
+          poetry run nox -s test -- --cov=botx --cov=tests --cov-report=term-missing --cov-report=xml --cov-fail-under=100
 
       - uses: codecov/codecov-action@v1.0.6
         with:

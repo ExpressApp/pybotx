@@ -65,13 +65,13 @@ class NextStepMiddleware(BaseMiddleware):
         super().__init__(executor)
 
         dependencies = optional_sequence_to_list(
-            bot.collector.dependencies
+            bot.collector.dependencies,
         ) + optional_sequence_to_list(dependencies)
         dep_override = (
             dependency_overrides_provider or bot.collector.dependency_overrides_provider
         )
         bot.state.ns_collector = Collector(
-            dependencies=dependencies, dependency_overrides_provider=dep_override
+            dependencies=dependencies, dependency_overrides_provider=dep_override,
         )
         bot.state.ns_store = {}
 
@@ -85,7 +85,7 @@ class NextStepMiddleware(BaseMiddleware):
                 bot.state.ns_break_handler = get_name_from_callable(break_handler)
             else:
                 bot.state.ns_collector.handlers.append(
-                    bot.collector.handler_for(break_handler)
+                    bot.collector.handler_for(break_handler),
                 )
                 bot.state.ns_break_handler = break_handler
 
@@ -107,7 +107,7 @@ class NextStepMiddleware(BaseMiddleware):
         bot = message.bot
         if bot.state.ns_break_handler:
             break_handler = bot.state.ns_collector.handler_for(
-                bot.state.ns_break_handler
+                bot.state.ns_break_handler,
             )
             if break_handler.matches(message):
                 await self.drop_next_step_handlers_chain(message)
@@ -122,7 +122,7 @@ class NextStepMiddleware(BaseMiddleware):
 
         key = get_chain_key_by_message(message)
         logger.bind(botx_ns_middleware=True, payload={"next_step_key": key}).info(
-            "botx: found next step handler"
+            "botx: found next step handler",
         )
 
         for argument, argument_value in state.arguments.items():
@@ -175,7 +175,7 @@ def get_chain_key_by_message(message: messages.Message) -> Tuple[str, UUID, UUID
 
 
 def register_function_as_ns_handler(
-    bot: bots.Bot, func: Callable, name: Optional[str] = None
+    bot: bots.Bot, func: Callable, name: Optional[str] = None,
 ) -> None:
     """Register new function that can be called as next step handler.
 
@@ -205,7 +205,7 @@ def register_function_as_ns_handler(
 
 
 def register_next_step_handler(
-    message: messages.Message, func: Union[str, Callable], **ns_arguments: Any
+    message: messages.Message, func: Union[str, Callable], **ns_arguments: Any,
 ) -> None:
     """Register new next step handler for next message from user.
 
@@ -224,7 +224,7 @@ def register_next_step_handler(
     """
     if message.user_huid is None:
         raise ValueError(
-            "message for which ns handler is registered should include user_huid"
+            "message for which ns handler is registered should include user_huid",
         )
 
     bot = message.bot
@@ -235,7 +235,7 @@ def register_next_step_handler(
         collector.handler_for(name)
     except NoMatchFound:
         raise ValueError(
-            f"bot does not have registered next step handler with name {name}"
+            f"bot does not have registered next step handler with name {name}",
         )
 
     key = get_chain_key_by_message(message)

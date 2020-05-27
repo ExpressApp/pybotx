@@ -63,14 +63,14 @@ class File(BaseModel):
 
         if not any(extensions_check):
             raise ValueError(
-                f"file {value} has an extensions that is not supported by BotX API"
+                f"file {value} has an extensions that is not supported by BotX API",
             )
 
         return value
 
     @classmethod
     def from_file(
-        cls, file: Union[TextIO, BinaryIO], filename: Optional[str] = None
+        cls, file: Union[TextIO, BinaryIO], filename: Optional[str] = None,
     ) -> "File":
         """Convert file-like object into BotX API compatible file.
 

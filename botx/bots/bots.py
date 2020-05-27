@@ -58,7 +58,7 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
         """overrider for dependencies that can be used in tests."""
 
         self.known_hosts: List[ExpressServer] = utils.optional_sequence_to_list(
-            known_hosts
+            known_hosts,
         )
         """list of servers that will be used for handling message."""
 
@@ -78,7 +78,8 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
             exception_handlers.dependency_failure_exception_handler,
         )
         self.add_exception_handler(
-            exceptions.NoMatchFound, exception_handlers.no_match_found_exception_handler
+            exceptions.NoMatchFound,
+            exception_handlers.no_match_found_exception_handler,
         )
 
     async def status(self) -> menu.Status:
@@ -87,7 +88,7 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
         for handler in self.handlers:
             if callable(handler.include_in_status):
                 include_in_status = await concurrency.callable_to_coroutine(
-                    handler.include_in_status
+                    handler.include_in_status,
                 )
             else:
                 include_in_status = handler.include_in_status
@@ -98,7 +99,7 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
                         description=handler.description or "",
                         body=handler.body,
                         name=handler.name,
-                    )
+                    ),
                 )
 
         return status
@@ -122,7 +123,7 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
             raise ServerUnknownError(host=msg.host)
 
     def add_middleware(
-        self, middleware_class: Type[BaseMiddleware], **kwargs: Any
+        self, middleware_class: Type[BaseMiddleware], **kwargs: Any,
     ) -> None:
         """Register new middleware for execution before handler.
 
@@ -131,7 +132,7 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
             kwargs: arguments that are required for middleware initialization.
         """
         self.exception_middleware.executor = middleware_class(
-            self.exception_middleware.executor, **kwargs
+            self.exception_middleware.executor, **kwargs,
         )
 
     def middleware(self, handler: typing.Executor) -> Callable:  # noqa: D202
@@ -148,7 +149,7 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
         return handler
 
     def add_exception_handler(
-        self, exc_class: Type[Exception], handler: typing.ExceptionHandler
+        self, exc_class: Type[Exception], handler: typing.ExceptionHandler,
     ) -> None:
         """Register new handler for exception.
 
@@ -190,7 +191,7 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
         """Wait until all current tasks are done."""
         if self._tasks:
             tasks, _ = await asyncio.wait(
-                self._tasks, return_when=asyncio.ALL_COMPLETED
+                self._tasks, return_when=asyncio.ALL_COMPLETED,
             )
             for task in tasks:
                 task.result()

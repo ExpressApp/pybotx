@@ -37,7 +37,7 @@ class BaseMiddleware:
     dispatch: Callable = _default_dispatch
 
     def __init__(
-        self, executor: Executor, dispatch: Optional[MiddlewareDispatcher] = None
+        self, executor: Executor, dispatch: Optional[MiddlewareDispatcher] = None,
     ) -> None:
         """Init middleware with required params.
 

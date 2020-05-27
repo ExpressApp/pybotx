@@ -81,6 +81,6 @@ async def get_by_login(request: Request) -> Response:
     add_request_to_collection(request, payload)
     return PydanticResponse(
         APIResponse[UserFromSearch](
-            result=_get_test_user(ad=(payload.ad_login, payload.ad_domain))
+            result=_get_test_user(ad=(payload.ad_login, payload.ad_domain)),
         ),
     )

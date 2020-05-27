@@ -44,10 +44,10 @@ def get_info(request: Request, settings: Settings) -> Response:
                         user_kind=UserKinds.user,
                         name="user name",
                         admin=True,
-                    )
+                    ),
                 ],
-            )
-        )
+            ),
+        ),
     )
 
 
@@ -124,5 +124,5 @@ def post_create(request_data: RequestData, settings: Settings) -> Response:
     payload = Create.parse_obj(request_data)
     add_request_to_collection(settings, payload)
     return PydanticResponse(
-        APIResponse[ChatCreatedResult](result=ChatCreatedResult(chat_id=uuid.uuid4()))
+        APIResponse[ChatCreatedResult](result=ChatCreatedResult(chat_id=uuid.uuid4())),
     )

@@ -14,7 +14,7 @@ ResponseT = TypeVar("ResponseT")
 def extract_result(method: BotXMethod[ResponseT], response: Response) -> ResponseT:
     return_shape = method.__returning__  # noqa: WPS609
     api_response = APIResponse[return_shape].parse_obj(  # type: ignore
-        response.json()
+        response.json(),
     )
     result = api_response.result
     extractor = method.__result_extractor__  # noqa: WPS609

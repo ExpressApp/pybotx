@@ -36,7 +36,7 @@ def get_body_from_name(name: str) -> str:
 
 
 def get_executor(
-    dependant: deps.Dependant, dependency_overrides_provider: Any = None
+    dependant: deps.Dependant, dependency_overrides_provider: Any = None,
 ) -> Callable[[messages.Message], Awaitable[None]]:
     """Get an execution callable for passed dependency.
 
@@ -94,7 +94,7 @@ class Handler:  # noqa: WPS230
         """
         if include_in_status:
             assert body.startswith(
-                SLASH
+                SLASH,
             ), "Public commands should start with leading slash"
             assert (
                 body[: -len(body.strip(SLASH))].count(SLASH) == 1
@@ -111,31 +111,31 @@ class Handler:  # noqa: WPS230
         """Name of handler."""
 
         self.dependencies: List[deps.Depends] = utils.optional_sequence_to_list(
-            dependencies
+            dependencies,
         )
         """Additional dependencies of handler."""
         self.description: Optional[str] = description
         """Description that will be used in bot's menu."""
         self.full_description: str = full_description or inspect.cleandoc(
-            handler.__doc__ or ""
+            handler.__doc__ or "",
         )
         """Extra description."""
         self.include_in_status: Union[bool, Callable] = include_in_status
         """Flag or function that will check if command should be showed in menu."""
 
         assert inspect.isfunction(handler) or inspect.ismethod(
-            handler
+            handler,
         ), f"Handler must be a function or method"
         self.dependant: deps.Dependant = deps.get_dependant(call=self.handler)
         """Dependency for passed handler."""
         for index, depends in enumerate(self.dependencies):
             assert callable(
-                depends.dependency
+                depends.dependency,
             ), "A parameter-less dependency must have a callable dependency"
             self.dependant.dependencies.insert(
                 index,
                 deps.get_dependant(
-                    call=depends.dependency, use_cache=depends.use_cache
+                    call=depends.dependency, use_cache=depends.use_cache,
                 ),
             )
         self.dependency_overrides_provider: Any = dependency_overrides_provider
@@ -402,7 +402,7 @@ class Collector:  # noqa: WPS214, WPS230
         """
         if handler:
             handler_commands: List[Optional[str]] = utils.optional_sequence_to_list(
-                commands
+                commands,
             )
 
             if command and commands:
@@ -636,7 +636,7 @@ class Collector:  # noqa: WPS214, WPS230
         for handler in self._added_handlers:
             if handler.matches(message):
                 logger.bind(botx_collector=True).info(
-                    f"botx => {handler.name}: {message.command.command}"
+                    f"botx => {handler.name}: {message.command.command}",
                 )
                 await handler(message)
                 return
@@ -677,14 +677,14 @@ class Collector:  # noqa: WPS214, WPS230
             )
             created_handler = self.handler_for(handler.name)
             created_handler.dependencies = _combine_dependencies(
-                dependencies, created_handler.dependencies
+                dependencies, created_handler.dependencies,
             )
 
     def _add_default_handler(
-        self, default: Handler, dependencies: Optional[Sequence[deps.Depends]] = None
+        self, default: Handler, dependencies: Optional[Sequence[deps.Depends]] = None,
     ) -> None:
         default_dependencies = _combine_dependencies(
-            self.dependencies, dependencies, default.dependencies
+            self.dependencies, dependencies, default.dependencies,
         )
         self.default_message_handler = Handler(
             body=default.body,

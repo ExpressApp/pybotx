@@ -63,7 +63,7 @@ def _create_molten_routes() -> Sequence[Route]:
                 endpoint.method.__url__,  # type: ignore  # noqa: WPS609
                 endpoint,
                 method=endpoint.method.__method__,  # type: ignore  # noqa: WPS609
-            )
+            ),
         )
 
     return routes
@@ -87,8 +87,8 @@ def get_botx_wsgi_api(
     return App(
         components=[
             SettingsComponent(
-                Settings(messages=messages, requests=requests, errors=errors)
-            )
+                Settings(messages=messages, requests=requests, errors=errors),
+            ),
         ],
         routes=list(_create_molten_routes()),
         middleware=[error_middleware],

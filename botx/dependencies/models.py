@@ -57,7 +57,7 @@ class Dependant(BaseModel):  # noqa: WPS230
 
     @validator("cache_key", always=True)
     def init_cache(
-        cls, _: DependantCache, values: dict  # noqa: N805
+        cls, _: DependantCache, values: dict,  # noqa: N805
     ) -> DependantCache:
         """Init cache for dependency with passed call and empty tuple.
 
@@ -90,7 +90,7 @@ def get_param_sub_dependant(*, param: inspect.Parameter) -> Dependant:
 
 
 def get_dependant(
-    *, call: Callable, name: Optional[str] = None, use_cache: bool = True
+    *, call: Callable, name: Optional[str] = None, use_cache: bool = True,
 ) -> Dependant:
     """Get dependant instance from passed callable object.
 
@@ -113,14 +113,14 @@ def get_dependant(
 
         raise ValueError(
             f"Param {param.name} of {call} can only be a "
-            f"dependency, message, bot or client, got: {param.annotation}"
+            f"dependency, message, bot or client, got: {param.annotation}",
         )
 
     return dependant
 
 
 def add_special_param_to_dependency(
-    *, param: inspect.Parameter, dependant: Dependant
+    *, param: inspect.Parameter, dependant: Dependant,
 ) -> bool:
     """Check if param is non field object that should be passed into callable.
 

@@ -19,6 +19,8 @@ starlette = { version = "^0.13.2", optional = true }
 molten = { version="^1.0.1", optional = true }
 
 [tool.poetry.dev-dependencies]
+# tasks
+nox = "^2020.5.24"
 # formatters
 black = "^19.10b0"
 isort = "^4.3"
