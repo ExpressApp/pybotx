@@ -1,7 +1,7 @@
 import pytest
 
 from botx import Bot, Collector
-from botx.collecting.handler import Handler
+from botx.collecting.handlers.handler import Handler
 
 
 class HandlerClass:

@@ -1,35 +1,22 @@
 """Implementation for bot classes."""
 
 import asyncio
-from typing import Any
-from typing import Callable
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Sequence
-from typing import Set
-from typing import Type
+from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Type
 
 from loguru import logger
 
-from botx import concurrency
-from botx.collecting import collector
-from botx import converters
-from botx import exception_handlers
-from botx import exceptions
-from botx import typing
+from botx import concurrency, converters, exception_handlers, exceptions, typing
 from botx.bots.mixins.clients import ClientsMixin
 from botx.bots.mixins.collecting import BotCollectingMixin
 from botx.clients.clients.async_client import AsyncClient
 from botx.clients.clients.sync_client import Client
-from botx.collecting.handler import Handler
+from botx.collecting.collectors import collector
+from botx.collecting.handlers.handler import Handler
 from botx.dependencies import models as deps
 from botx.exceptions import ServerUnknownError
 from botx.middlewares.base import BaseMiddleware
 from botx.middlewares.exceptions import ExceptionMiddleware
-from botx.models import datastructures
-from botx.models import menu
-from botx.models import messages
+from botx.models import datastructures, menu, messages
 from botx.models.credentials import ExpressServer
 
 

@@ -1,10 +1,16 @@
+"""Definition for collector."""
+
 from functools import partial
-from typing import Optional, List, Sequence, Any, Callable, Union
+from typing import Any, Callable, List, Optional, Sequence, Union
 
 from loguru import logger
 
 from botx import converters
-from botx.collecting.handler import Handler, get_body_from_name, get_name_from_callable
+from botx.collecting.handlers.handler import (
+    Handler,
+)
+from botx.collecting.handlers.name_generators import get_body_from_name, \
+    get_name_from_callable
 from botx.dependencies import models as deps
 from botx.exceptions import NoMatchFound
 from botx.models import enums, messages
@@ -14,11 +20,11 @@ class Collector:
     """Collector for different handlers."""
 
     def __init__(
-        self,
-        handlers: Optional[List[Handler]] = None,
-        default: Optional[Handler] = None,
-        dependencies: Optional[Sequence[deps.Depends]] = None,
-        dependency_overrides_provider: Any = None,
+            self,
+            handlers: Optional[List[Handler]] = None,
+            default: Optional[Handler] = None,
+            dependencies: Optional[Sequence[deps.Depends]] = None,
+            dependency_overrides_provider: Any = None,
     ) -> None:
         """Init collector with required params.
 
@@ -48,10 +54,10 @@ class Collector:
             self._add_default_handler(default)
 
     def include_collector(
-        self,
-        collector: "Collector",
-        *,
-        dependencies: Optional[Sequence[deps.Depends]] = None,
+            self,
+            collector: "Collector",
+            *,
+            dependencies: Optional[Sequence[deps.Depends]] = None,
     ) -> None:
         """Include handlers from another collector into this one.
 
@@ -61,7 +67,7 @@ class Collector:
                 collector.
         """
         assert not (
-            self.default_message_handler and collector.default_message_handler
+                self.default_message_handler and collector.default_message_handler
         ), "Only one default handler can be applied"
 
         if collector.default_message_handler:
@@ -110,16 +116,16 @@ class Collector:
         raise NoMatchFound(search_param=name)
 
     def add_handler(
-        self,
-        handler: Callable,
-        *,
-        body: Optional[str] = None,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        full_description: Optional[str] = None,
-        include_in_status: Union[bool, Callable] = True,
-        dependencies: Optional[Sequence[deps.Depends]] = None,
-        dependency_overrides_provider: Any = None,
+            self,
+            handler: Callable,
+            *,
+            body: Optional[str] = None,
+            name: Optional[str] = None,
+            description: Optional[str] = None,
+            full_description: Optional[str] = None,
+            include_in_status: Union[bool, Callable] = True,
+            dependencies: Optional[Sequence[deps.Depends]] = None,
+            dependency_overrides_provider: Any = None,
     ) -> None:
         """Create new handler from passed arguments and store it inside.
 
@@ -148,11 +154,9 @@ class Collector:
             handler_executor = registered_handler.handler
             handler_name = registered_handler.name
 
+            assert body.strip("/") != "", "Handler should not consist only from slashes"
             assert (
-                body.strip('/') != ""
-            ), "Handler should not consist only from slashes"
-            assert (
-                body != registered_handler.body
+                    body != registered_handler.body
             ), f"Handler with body {registered_handler.body} already registered"
 
             handler_registered = handler == handler_executor and name == handler_name
@@ -161,7 +165,7 @@ class Collector:
             ), f"Handler with name {registered_handler.name} already registered"
 
         dep_override = (
-            dependency_overrides_provider or self.dependency_overrides_provider
+                dependency_overrides_provider or self.dependency_overrides_provider
         )
         updated_dependencies = _combine_dependencies(self.dependencies, dependencies)
         command_handler = Handler(
@@ -179,17 +183,17 @@ class Collector:
         self._added_handlers.sort(key=lambda handler: len(handler.body), reverse=True)
 
     def handler(
-        self,
-        handler: Optional[Callable] = None,
-        *,
-        command: Optional[str] = None,
-        commands: Optional[Sequence[str]] = None,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        full_description: Optional[str] = None,
-        include_in_status: Union[bool, Callable] = True,
-        dependencies: Optional[Sequence[deps.Depends]] = None,
-        dependency_overrides_provider: Any = None,
+            self,
+            handler: Optional[Callable] = None,
+            *,
+            command: Optional[str] = None,
+            commands: Optional[Sequence[str]] = None,
+            name: Optional[str] = None,
+            description: Optional[str] = None,
+            full_description: Optional[str] = None,
+            include_in_status: Union[bool, Callable] = True,
+            dependencies: Optional[Sequence[deps.Depends]] = None,
+            dependency_overrides_provider: Any = None,
     ) -> Callable:
         """Add new handler to collector.
 
@@ -251,17 +255,17 @@ class Collector:
         )
 
     def default(
-        self,
-        handler: Optional[Callable] = None,
-        *,
-        command: Optional[str] = None,
-        commands: Optional[Sequence[str]] = None,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        full_description: Optional[str] = None,
-        include_in_status: Union[bool, Callable] = False,
-        dependencies: Optional[Sequence[deps.Depends]] = None,
-        dependency_overrides_provider: Any = None,
+            self,
+            handler: Optional[Callable] = None,
+            *,
+            command: Optional[str] = None,
+            commands: Optional[Sequence[str]] = None,
+            name: Optional[str] = None,
+            description: Optional[str] = None,
+            full_description: Optional[str] = None,
+            include_in_status: Union[bool, Callable] = False,
+            dependencies: Optional[Sequence[deps.Depends]] = None,
+            dependency_overrides_provider: Any = None,
     ) -> Callable:
         """Add new handler to bot and register it as default handler.
 
@@ -320,14 +324,14 @@ class Collector:
         )
 
     def hidden(
-        self,
-        handler: Optional[Callable] = None,
-        *,
-        command: Optional[str] = None,
-        commands: Optional[Sequence[str]] = None,
-        name: Optional[str] = None,
-        dependencies: Optional[Sequence[deps.Depends]] = None,
-        dependency_overrides_provider: Any = None,
+            self,
+            handler: Optional[Callable] = None,
+            *,
+            command: Optional[str] = None,
+            commands: Optional[Sequence[str]] = None,
+            name: Optional[str] = None,
+            dependencies: Optional[Sequence[deps.Depends]] = None,
+            dependency_overrides_provider: Any = None,
     ) -> Callable:
         """Register hidden handler that won't be showed in menu.
 
@@ -354,14 +358,14 @@ class Collector:
         )
 
     def system_event(
-        self,
-        handler: Optional[Callable] = None,
-        *,
-        event: Optional[enums.SystemEvents] = None,
-        events: Optional[Sequence[enums.SystemEvents]] = None,
-        name: Optional[str] = None,
-        dependencies: Optional[Sequence[deps.Depends]] = None,
-        dependency_overrides_provider: Any = None,
+            self,
+            handler: Optional[Callable] = None,
+            *,
+            event: Optional[enums.SystemEvents] = None,
+            events: Optional[Sequence[enums.SystemEvents]] = None,
+            name: Optional[str] = None,
+            dependencies: Optional[Sequence[deps.Depends]] = None,
+            dependency_overrides_provider: Any = None,
     ) -> Callable:
         """Register handler for system event.
 
@@ -390,11 +394,11 @@ class Collector:
         )
 
     def chat_created(
-        self,
-        handler: Optional[Callable] = None,
-        *,
-        dependencies: Optional[Sequence[deps.Depends]] = None,
-        dependency_overrides_provider: Any = None,
+            self,
+            handler: Optional[Callable] = None,
+            *,
+            dependencies: Optional[Sequence[deps.Depends]] = None,
+            dependency_overrides_provider: Any = None,
     ) -> Callable:
         """Register handler for `system:chat_created` event.
 
@@ -416,11 +420,11 @@ class Collector:
         )
 
     def file_transfer(
-        self,
-        handler: Optional[Callable] = None,
-        *,
-        dependencies: Optional[Sequence[deps.Depends]] = None,
-        dependency_overrides_provider: Any = None,
+            self,
+            handler: Optional[Callable] = None,
+            *,
+            dependencies: Optional[Sequence[deps.Depends]] = None,
+            dependency_overrides_provider: Any = None,
     ) -> Callable:
         """Register handler for `file_transfer` event.
 
@@ -469,9 +473,9 @@ class Collector:
         await self.handle_message(message)
 
     def _add_handlers(
-        self,
-        handlers: List[Handler],
-        dependencies: Optional[Sequence[deps.Depends]] = None,
+            self,
+            handlers: List[Handler],
+            dependencies: Optional[Sequence[deps.Depends]] = None,
     ) -> None:
         """Add list of handlers with dependencies to collector.
 
@@ -495,7 +499,8 @@ class Collector:
             )
 
     def _add_default_handler(
-        self, default: Handler, dependencies: Optional[Sequence[deps.Depends]] = None,
+            self, default: Handler,
+            dependencies: Optional[Sequence[deps.Depends]] = None,
     ) -> None:
         default_dependencies = _combine_dependencies(
             self.dependencies, dependencies, default.dependencies,
@@ -513,7 +518,7 @@ class Collector:
 
 
 def _combine_dependencies(
-    *dependencies: Optional[Sequence[deps.Depends]],
+        *dependencies: Optional[Sequence[deps.Depends]],
 ) -> List[deps.Depends]:
     result_dependencies = []
     for deps_sequence in dependencies:

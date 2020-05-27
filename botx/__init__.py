@@ -5,41 +5,35 @@ from loguru import logger
 from botx.bots.bots import Bot
 from botx.clients.clients.async_client import AsyncClient
 from botx.clients.clients.sync_client import Client
-from botx.collecting.collector import Collector
+from botx.collecting.collectors.collector import Collector
 from botx.dependencies.injection_params import Depends
-from botx.exceptions import BotXAPIError
-from botx.exceptions import DependencyFailure
-from botx.exceptions import ServerUnknownError
-from botx.models.buttons import BubbleElement
-from botx.models.buttons import KeyboardElement
-from botx.models.credentials import ExpressServer
-from botx.models.credentials import ServerCredentials
-from botx.models.enums import ChatTypes
-from botx.models.enums import CommandTypes
-from botx.models.enums import EntityTypes
-from botx.models.enums import Recipients
-from botx.models.enums import Statuses
-from botx.models.enums import SystemEvents
-from botx.models.enums import UserKinds
-from botx.models.errors import BotDisabledErrorData
-from botx.models.errors import BotDisabledResponse
+from botx.exceptions import BotXAPIError, DependencyFailure, ServerUnknownError
+from botx.models.buttons import BubbleElement, KeyboardElement
+from botx.models.credentials import ExpressServer, ServerCredentials
+from botx.models.enums import (
+    ChatTypes,
+    CommandTypes,
+    EntityTypes,
+    Recipients,
+    Statuses,
+    SystemEvents,
+    UserKinds,
+)
+from botx.models.errors import BotDisabledErrorData, BotDisabledResponse
 from botx.models.events import ChatCreatedEvent
 from botx.models.files import File
-from botx.models.mentions import ChatMention
-from botx.models.mentions import Mention
-from botx.models.mentions import MentionTypes
-from botx.models.mentions import UserMention
+from botx.models.mentions import ChatMention, Mention, MentionTypes, UserMention
 from botx.models.menu import Status
-from botx.models.messages import Message
-from botx.models.messages import SendingMessage
-from botx.models.receiving import Entity
-from botx.models.receiving import IncomingMessage
-from botx.models.sending import MessageMarkup
-from botx.models.sending import MessageOptions
-from botx.models.sending import MessagePayload
-from botx.models.sending import NotificationOptions
-from botx.models.sending import SendingCredentials
-from botx.models.sending import UpdatePayload
+from botx.models.messages import Message, SendingMessage
+from botx.models.receiving import Entity, IncomingMessage
+from botx.models.sending import (
+    MessageMarkup,
+    MessageOptions,
+    MessagePayload,
+    NotificationOptions,
+    SendingCredentials,
+    UpdatePayload,
+)
 from botx.testing.builder import MessageBuilder
 
 try:
