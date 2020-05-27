@@ -99,7 +99,7 @@ class SendingMixin:
             `UUID` of sent event.
         """
         sending_message = messages.SendingMessage(
-            text=text, credentials=message.credentials, markup=markup, options=options
+            text=text, credentials=message.credentials, markup=markup, options=options,
         )
         if file:
             sending_message.add_file(file)

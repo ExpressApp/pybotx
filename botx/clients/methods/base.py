@@ -99,7 +99,7 @@ class BaseBotXMethod(AbstractBotXMethod[ResponseT], ABC):
         return {}
 
     @property
-    def __errors_handlers__(self,) -> Mapping[int, ErrorHandlersInMethod]:
+    def __errors_handlers__(self) -> Mapping[int, ErrorHandlersInMethod]:
         return {}
 
     @property
@@ -129,7 +129,7 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
 
             if not request_params:
                 request_params = _convert_query_to_primitives(
-                    self.dict(exclude=set(CREDENTIALS_FIELDS))
+                    self.dict(exclude=set(CREDENTIALS_FIELDS)),
                 )
                 request_data = None
 
@@ -151,7 +151,7 @@ class AuthorizedBotXMethod(BotXMethod[ResponseT], ABC):
 
 
 def _convert_query_to_primitives(
-    query_params: Mapping[str, Any]
+    query_params: Mapping[str, Any],
 ) -> Dict[str, PrimitiveDataType]:
     converted_params = {}
     for param_key, param_value in query_params.items():

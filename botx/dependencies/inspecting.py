@@ -30,7 +30,7 @@ def get_typed_signature(call: Callable) -> inspect.Signature:
 
 
 def get_typed_annotation(
-    param: inspect.Parameter, global_namespace: Dict[str, Any]
+    param: inspect.Parameter, global_namespace: Dict[str, Any],
 ) -> Any:
     """Solve forward reference annotation for instance of `inspect.Parameter`.
 

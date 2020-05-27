@@ -39,7 +39,7 @@ jobs:
 
       - name: Build MkDocs for GitHub Pages
         run: |
-          poetry run ./scripts/build-docs
+          poetry run nox -s build-docs
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@releases/v3

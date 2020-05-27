@@ -20,7 +20,7 @@ class ChatCreationDisallowedData(BaseModel):
 
 def handle_error(method: BotXMethod, response: Response) -> NoReturn:
     parsed_response = APIErrorResponse[ChatCreationDisallowedData].parse_obj(
-        response.json()
+        response.json(),
     )
     error_data = parsed_response.error_data
     raise ChatCreationDisallowedError(

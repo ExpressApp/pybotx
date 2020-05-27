@@ -65,7 +65,7 @@ def _create_starlette_routes() -> Sequence[Route]:
                 endpoint.method.__url__,  # type: ignore  # noqa: WPS609
                 endpoint,
                 methods=[endpoint.method.__method__],  # type: ignore  # noqa: WPS609
-            )
+            ),
         )
 
     return routes

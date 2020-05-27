@@ -202,7 +202,7 @@ class SendingMessage:  # noqa: WPS214, WPS230
             text=text,
             file=file,
             markup=self._built_markup(
-                bubbles=bubbles, keyboard=keyboard, markup=markup
+                bubbles=bubbles, keyboard=keyboard, markup=markup,
             ),
             options=self._build_options(
                 recipients=recipients,
@@ -214,7 +214,7 @@ class SendingMessage:  # noqa: WPS214, WPS230
 
     @classmethod
     def from_message(
-        cls, *, text: str = "", file: Optional[File] = None, message: Message
+        cls, *, text: str = "", file: Optional[File] = None, message: Message,
     ) -> "SendingMessage":
         """Build message for sending from incoming message.
 
@@ -316,7 +316,7 @@ class SendingMessage:  # noqa: WPS214, WPS230
         self.credentials.host = host
 
     def add_file(
-        self, file: Union[TextIO, BinaryIO, File], filename: Optional[str] = None
+        self, file: Union[TextIO, BinaryIO, File], filename: Optional[str] = None,
     ) -> None:
         """Attach file to message.
 
@@ -339,7 +339,7 @@ class SendingMessage:  # noqa: WPS214, WPS230
             name: name that will be shown.
         """
         self.payload.options.mentions.append(
-            Mention(mention_data=UserMention(user_huid=user_huid, name=name))
+            Mention(mention_data=UserMention(user_huid=user_huid, name=name)),
         )
 
     def mention_contact(self, user_huid: UUID, name: Optional[str] = None) -> None:
@@ -353,7 +353,7 @@ class SendingMessage:  # noqa: WPS214, WPS230
             Mention(
                 mention_data=UserMention(user_huid=user_huid, name=name),
                 mention_type=MentionTypes.contact,
-            )
+            ),
         )
 
     def mention_chat(self, group_chat_id: UUID, name: Optional[str] = None) -> None:
@@ -367,7 +367,7 @@ class SendingMessage:  # noqa: WPS214, WPS230
             Mention(
                 mention_data=ChatMention(group_chat_id=group_chat_id, name=name),
                 mention_type=MentionTypes.chat,
-            )
+            ),
         )
 
     def add_recipient(self, recipient: UUID) -> None:

@@ -24,12 +24,12 @@ class PydanticResponse(Response):
         headers = headers or {}
         headers["Content-Type"] = "application/json"
         super().__init__(
-            status_code, headers, content.json(by_alias=True), stream, encoding
+            status_code, headers, content.json(by_alias=True), stream, encoding,
         )
 
 
 def generate_push_response(
-    payload: Union[CommandResult, NotificationDirect]
+    payload: Union[CommandResult, NotificationDirect],
 ) -> Response:
     """Generate response as like new message from bot was pushed.
 

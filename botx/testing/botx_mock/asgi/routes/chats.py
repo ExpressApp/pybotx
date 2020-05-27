@@ -45,10 +45,10 @@ async def get_info(request: Request) -> Response:
                         user_kind=UserKinds.user,
                         name="user name",
                         admin=True,
-                    )
+                    ),
                 ],
-            )
-        )
+            ),
+        ),
     )
 
 
@@ -125,5 +125,5 @@ async def post_create(request: Request) -> Response:
     payload = Create.parse_obj(await request.json())
     add_request_to_collection(request, payload)
     return PydanticResponse(
-        APIResponse[ChatCreatedResult](result=ChatCreatedResult(chat_id=uuid.uuid4()))
+        APIResponse[ChatCreatedResult](result=ChatCreatedResult(chat_id=uuid.uuid4())),
     )

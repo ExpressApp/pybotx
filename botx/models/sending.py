@@ -31,7 +31,7 @@ class SendingCredentials(BaseModel):
 
     @validator("chat_id", always=True)
     def receiver_id_should_be_passed(
-        cls, value: UUID, values: dict  # noqa: N805
+        cls, value: UUID, values: dict,  # noqa: N805
     ) -> UUID:
         """Check that `chat_id` or `sync_id` was passed.
 
@@ -41,7 +41,7 @@ class SendingCredentials(BaseModel):
         """
         if not (value or values["sync_id"]):
             raise ValueError(
-                "sync_id, chat_id or chat_ids should be passed to initialization"
+                "sync_id, chat_id or chat_ids should be passed to initialization",
             )
 
         return value
@@ -84,7 +84,7 @@ class MessageMarkup(BaseModel):
         )
 
     def add_bubble_element(
-        self, element: BubbleElement, *, new_row: bool = True
+        self, element: BubbleElement, *, new_row: bool = True,
     ) -> None:
         """Add new button to markup from existing element.
 
@@ -127,7 +127,7 @@ class MessageMarkup(BaseModel):
         )
 
     def add_keyboard_button_element(
-        self, element: KeyboardElement, *, new_row: bool = True
+        self, element: KeyboardElement, *, new_row: bool = True,
     ) -> None:
         """Add new keyboard button to markup from existing element.
 

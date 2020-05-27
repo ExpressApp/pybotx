@@ -47,7 +47,8 @@ class BotXRequestsMixin(  # noqa: WPS215
         if credentials is not None:
             host = cast(str, credentials.host)
             method.configure(
-                host=host, token=cast(TokenSearchProtocol, self).get_token_for_cts(host)
+                host=host,
+                token=cast(TokenSearchProtocol, self).get_token_for_cts(host),
             )
         else:
             method.configure(host=host or method.host, token=token or method.token)

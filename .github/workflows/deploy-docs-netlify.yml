@@ -46,7 +46,7 @@ jobs:
 
       - name: Build MkDocs for Netlify
         run: |
-          poetry run ./scripts/build-docs
+          poetry run nox -s build-docs
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1
