@@ -38,6 +38,10 @@ jobs:
         shell: bash
         run: poetry install --extras tests
 
+      - name: Run tests
+        run: |
+          poetry run ./scripts/test --cov-report=xml
+
       - uses: codecov/codecov-action@v1.0.6
         with:
           file: ./coverage.xml
