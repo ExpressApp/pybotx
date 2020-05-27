@@ -711,6 +711,22 @@ pymdown-extensions = ">=6.3,<8.0"
 pytkdocs = ">=0.2.0,<0.5.0"
 
 [[package]]
+category = "main"
+description = "A minimal, extensible, fast and productive API framework."
+name = "molten"
+optional = false
+python-versions = ">=3.6"
+version = "1.0.1"
+
+[package.dependencies]
+typing-extensions = ">=3.6,<4.0"
+typing-inspect = ">=0.3.1,<0.6"
+
+[package.extras]
+all = ["typing-extensions (>=3.6,<4.0)", "typing-inspect (>=0.3.1,<0.6)"]
+dev = ["typing-extensions (>=3.6,<4.0)", "typing-inspect (>=0.3.1,<0.6)", "alabaster (>0.7)", "sphinx (<1.8)", "sphinxcontrib-napoleon", "flake8", "flake8-bugbear", "flake8-quotes", "isort", "mypy", "bumpversion (>0.5,<0.6)", "dramatiq (>1.3,<2.0)", "gevent (>1.3,<2.0)", "gunicorn (>19.8)", "jinja2 (>=2.10,<3.0)", "msgpack (>0.5,<0.6)", "prometheus-client (>=0.2,<0.3)", "sqlalchemy (>1.2,<2.0)", "toml (>0.9,<0.10)", "wsgicors (>=0.7,<0.8)", "pytest", "pytest-cov"]
+
+[[package]]
 category = "dev"
 description = "More routines for operating on iterables, beyond itertools"
 name = "more-itertools"
@@ -735,7 +751,7 @@ typing-extensions = ">=3.7.4"
 dmypy = ["psutil (>=4.0)"]
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Experimental type system extensions for programs checked with the mypy typechecker."
 name = "mypy-extensions"
 optional = false
@@ -1145,6 +1161,18 @@ python-versions = "*"
 version = "3.7.4.2"
 
 [[package]]
+category = "main"
+description = "Runtime inspection utilities for typing module."
+name = "typing-inspect"
+optional = false
+python-versions = "*"
+version = "0.5.0"
+
+[package.dependencies]
+mypy-extensions = ">=0.3.0"
+typing-extensions = ">=3.7.4"
+
+[[package]]
 category = "dev"
 description = "Measures number of Terminal column cells of wide-character codes"
 name = "wcwidth"
@@ -1214,7 +1242,7 @@ testing = ["jaraco.itertools", "func-timeout"]
 tests = ["starlette"]
 
 [metadata]
-content-hash = "5e386ef5e1e95bc71769c32bca93518521c38daa6ac0b7e60e5d8dd469c34a64"
+content-hash = "dae7cf1c4340b2ac5942360002dfb2e9af39acf20a3954be54958ecab83770c7"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -1506,6 +1534,10 @@ mkdocstrings = [
     {file = "mkdocstrings-0.11.2-py3-none-any.whl", hash = "sha256:239f502efd4b11fe4f18e3f4f725573ec48bbaf319398947fd7e3016f77a4d77"},
     {file = "mkdocstrings-0.11.2.tar.gz", hash = "sha256:fd2254ca8a2517c36032a5704734f70f0d1feb244a56bdff9c7a8ff449041be5"},
 ]
+molten = [
+    {file = "molten-1.0.1-py3-none-any.whl", hash = "sha256:6ee99f2c9848f1afb70ae5fa3e579e5c12047fe614de145838fc06588cfc6a3b"},
+    {file = "molten-1.0.1.tar.gz", hash = "sha256:eade921432c110c62407d2c0c91b2c7b26a544bffaa63d5fefe8e43813bf10da"},
+]
 more-itertools = [
     {file = "more-itertools-8.3.0.tar.gz", hash = "sha256:558bb897a2232f5e4f8e2399089e35aecb746e1f9191b6584a151647e89267be"},
     {file = "more_itertools-8.3.0-py3-none-any.whl", hash = "sha256:7818f596b1e87be009031c7653d01acc46ed422e6656b394b0f765ce66ed4982"},
@@ -1746,6 +1778,11 @@ typing-extensions = [
     {file = "typing_extensions-3.7.4.2-py2-none-any.whl", hash = "sha256:f8d2bd89d25bc39dabe7d23df520442fa1d8969b82544370e03d88b5a591c392"},
     {file = "typing_extensions-3.7.4.2-py3-none-any.whl", hash = "sha256:6e95524d8a547a91e08f404ae485bbb71962de46967e1b71a0cb89af24e761c5"},
     {file = "typing_extensions-3.7.4.2.tar.gz", hash = "sha256:79ee589a3caca649a9bfd2a8de4709837400dfa00b6cc81962a1e6a1815969ae"},
+]
+typing-inspect = [
+    {file = "typing_inspect-0.5.0-py2-none-any.whl", hash = "sha256:75c97b7854426a129f3184c68588db29091ff58e6908ed520add1d52fc44df6e"},
+    {file = "typing_inspect-0.5.0-py3-none-any.whl", hash = "sha256:c6ed1cd34860857c53c146a6704a96da12e1661087828ce350f34addc6e5eee3"},
+    {file = "typing_inspect-0.5.0.tar.gz", hash = "sha256:811b44f92e780b90cfe7bac94249a4fae87cfaa9b40312765489255045231d9c"},
 ]
 wcwidth = [
     {file = "wcwidth-0.1.9-py2.py3-none-any.whl", hash = "sha256:cafe2186b3c009a04067022ce1dcd79cb38d8d65ee4f4791b8888d6599d1bbe1"},

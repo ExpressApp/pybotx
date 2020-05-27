@@ -3,8 +3,8 @@
 from loguru import logger
 
 from botx.bots.bots import Bot
-from botx.clients.client import AsyncClient
-from botx.clients.sync.clients import Client
+from botx.clients.clients.async_client import AsyncClient
+from botx.clients.clients.sync_client import Client
 from botx.collecting import Collector
 from botx.exceptions import BotXAPIError, DependencyFailure, ServerUnknownError
 from botx.models.buttons import BubbleElement, KeyboardElement

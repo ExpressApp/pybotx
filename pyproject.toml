@@ -16,6 +16,7 @@ loguru = "^0.4.0"
 typing-extensions = { version = "^3.7.4", python = "<3.8" }
 # for testing by users
 starlette = { version = "^0.13.2", optional = true }
+molten = { version="^1.0.1", optional = true }
 
 [tool.poetry.dev-dependencies]
 # formatters
@@ -40,7 +41,7 @@ mkdocstrings = "^0.11.0"
 fastapi = "^0.55.1"
 
 [tool.poetry.extras]
-tests = ["starlette"]
+tests = ["starlette", "molten"]
 
 [tool.black]
 target_version = ['py37', 'py38']

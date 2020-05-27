@@ -10,9 +10,9 @@ from botx.clients.methods.v3.users.by_email import ByEmail
 from botx.clients.methods.v3.users.by_huid import ByHUID
 from botx.clients.methods.v3.users.by_login import ByLogin
 from botx.clients.types.users import UserFromSearch
-from botx.testing.botx_mock.binders import bind_implementation_to_method
-from botx.testing.botx_mock.messages import add_request_to_collection
-from botx.testing.botx_mock.responses import PydanticResponse
+from botx.testing.botx_mock.asgi.binders import bind_implementation_to_method
+from botx.testing.botx_mock.asgi.messages import add_request_to_collection
+from botx.testing.botx_mock.asgi.responses import PydanticResponse
 
 
 def _get_test_user(

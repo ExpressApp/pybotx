@@ -2,7 +2,7 @@
 from typing import Any, Optional, TypeVar, cast
 
 from botx.bots.mixins.requests import bots, chats, command, events, notification, users
-from botx.clients.client import AsyncClient
+from botx.clients.clients.async_client import AsyncClient
 from botx.clients.methods.base import BotXMethod
 from botx.models import sending
 
@@ -10,7 +10,6 @@ try:
     from typing import Protocol
 except ImportError:
     from typing_extensions import Protocol  # type: ignore
-
 
 ResponseT = TypeVar("ResponseT")
 
@@ -38,7 +37,7 @@ class BotXRequestsMixin(  # noqa: WPS215
     """Mixin that defines methods for communicating with BotX API."""
 
     async def call_method(
-        self,
+        self: ClientOwnerProtocol,
         method: BotXMethod[Any],
         *,
         host: Optional[str] = None,
@@ -53,4 +52,4 @@ class BotXRequestsMixin(  # noqa: WPS215
         else:
             method.configure(host=host or method.host, token=token or method.token)
 
-        return await method.call(cast(ClientOwnerProtocol, self).client)
+        return await self.client.call(method)

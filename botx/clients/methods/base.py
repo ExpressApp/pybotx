@@ -1,5 +1,3 @@
-import collections
-import contextlib
 from abc import ABC, abstractmethod
 from typing import (
     Any,
@@ -17,20 +15,17 @@ from typing import (
     Union,
 )
 
-from httpx import URL, Response, StatusCode
-from pydantic import BaseConfig, BaseModel, Extra, ValidationError
+from httpx import URL, Response
+from pydantic import BaseConfig, BaseModel, Extra
 from pydantic.generics import GenericModel
 
-from botx import concurrency
-from botx.clients.client import AsyncClient
-from botx.exceptions import BotXAPIError
+from botx.clients.methods.request_wrapper import HTTPRequest, PrimitiveDataType
 from botx.models.enums import Statuses
 
 try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal  # type: ignore
-
 
 PRIMITIVES_FOR_QUERY = (str, int, float, bool, type(None))
 
@@ -39,7 +34,6 @@ SyncErrorHandler = Callable[["BotXMethod", Response], NoReturn]
 AsyncErrorHandler = Callable[["BotXMethod", Response], Awaitable[NoReturn]]
 ErrorHandler = Union[SyncErrorHandler, AsyncErrorHandler]
 ErrorHandlersInMethod = Union[Sequence[ErrorHandler], ErrorHandler]
-PrimitiveDataType = Union[None, str, int, float, bool]
 
 
 class APIResponse(GenericModel, Generic[ResponseT]):
@@ -125,27 +119,7 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
     def encode(self) -> Optional[str]:
         return self.json(by_alias=True, exclude=set(CREDENTIALS_FIELDS))
 
-    async def call(self, client: AsyncClient, host: Optional[str] = None) -> ResponseT:
-        if host is not None:
-            self.host = host
-
-        response = await self.execute(client)
-
-        if StatusCode.is_error(response.status_code):
-            error_handlers = self.__errors_handlers__.get(response.status_code)
-            if error_handlers is not None:
-                await self._handle_error(error_handlers, response)
-
-            raise BotXAPIError(
-                url=self.url,
-                method=self.__method__,
-                status=response.status_code,
-                response_content=response.json(),
-            )
-
-        return self._extract_result(response)
-
-    async def execute(self, client: AsyncClient) -> Response:
+    def build_http_request(self) -> HTTPRequest:
         request_params = self.params
         request_data = self.encode()
 
@@ -159,34 +133,13 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
                 )
                 request_data = None
 
-        return await client.http_client.request(
-            self.__method__,
-            self.url,
-            headers=self.headers,  # type: ignore
-            params=request_params,
-            data=request_data,
+        return HTTPRequest(
+            method=self.__method__,
+            url=self.url,
+            headers=self.headers,
+            query_params=dict(request_params),
+            request_data=request_data,
         )
-
-    def _extract_result(self, response: Response) -> ResponseT:
-        api_response = APIResponse[self.__returning__].parse_obj(  # type: ignore
-            response.json()
-        )
-        result = api_response.result
-        if self.__result_extractor__ is not None:
-            # mypy does not understand that self passed here
-            return self.__result_extractor__(result)  # type: ignore
-
-        return result
-
-    async def _handle_error(
-        self, error_handlers: ErrorHandlersInMethod, response: Response
-    ) -> None:
-        if not isinstance(error_handlers, collections.Sequence):
-            error_handlers = [error_handlers]
-
-        for error_handler in error_handlers:
-            with contextlib.suppress(ValidationError):
-                await concurrency.callable_to_coroutine(error_handler, self, response)
 
 
 class AuthorizedBotXMethod(BotXMethod[ResponseT], ABC):
@@ -199,7 +152,7 @@ class AuthorizedBotXMethod(BotXMethod[ResponseT], ABC):
 
 def _convert_query_to_primitives(
     query_params: Mapping[str, Any]
-) -> Mapping[str, PrimitiveDataType]:
+) -> Dict[str, PrimitiveDataType]:
     converted_params = {}
     for param_key, param_value in query_params.items():
         if isinstance(param_value, PRIMITIVES_FOR_QUERY):

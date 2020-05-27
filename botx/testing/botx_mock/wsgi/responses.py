@@ -1,0 +1,45 @@
+"""Common responses for mocks."""
+
+import uuid
+from typing import Any, BinaryIO, Dict, Optional, Union
+
+from molten import HTTP_200, Response
+from pydantic import BaseModel
+
+from botx.clients.methods.base import APIResponse
+from botx.clients.methods.v3.command.command_result import CommandResult
+from botx.clients.methods.v3.notification.direct_notification import NotificationDirect
+from botx.clients.types.response_results import PushResult
+
+
+class PydanticResponse(Response):
+    def __init__(
+        self,
+        content: BaseModel,
+        status_code: str = HTTP_200,
+        headers: Optional[Dict[Any, Any]] = None,
+        stream: Optional[BinaryIO] = None,
+        encoding: str = "utf-8",
+    ) -> None:
+        headers = headers or {}
+        headers["Content-Type"] = "application/json"
+        super().__init__(
+            status_code, headers, content.json(by_alias=True), stream, encoding
+        )
+
+
+def generate_push_response(
+    payload: Union[CommandResult, NotificationDirect]
+) -> Response:
+    """Generate response as like new message from bot was pushed.
+
+    Arguments:
+        payload: pushed message.
+
+    Returns:
+        Response with sync_id for new message.
+    """
+    sync_id = payload.event_sync_id or uuid.uuid4()
+    return PydanticResponse(
+        APIResponse[PushResult](result=PushResult(sync_id=sync_id)),
+    )

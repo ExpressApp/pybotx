@@ -8,11 +8,13 @@ from botx.clients.methods.errors.chat_not_found import (
     ChatNotFoundError,
 )
 from botx.clients.methods.v3.chats.add_user import AddUser
+from botx.concurrency import callable_to_coroutine
 
 pytestmark = pytest.mark.asyncio
+pytest_plugins = ("tests.test_clients.fixtures",)
 
 
-async def test_raising_chat_not_found(client):
+async def test_raising_chat_not_found(client, requests_client):
     method = AddUser(group_chat_id=uuid.uuid4(), user_huids=[uuid.uuid4()])
 
     errors_to_raise = {
@@ -24,4 +26,4 @@ async def test_raising_chat_not_found(client):
 
     with pytest.raises(ChatNotFoundError):
         with client.error_client(errors=errors_to_raise):
-            await method.call(client.bot.client, "example.cts")
+            await callable_to_coroutine(requests_client.call, method, "example.cts")

@@ -8,7 +8,7 @@ from starlette.responses import Response
 from starlette.routing import Match
 
 from botx.clients.methods.base import APIErrorResponse, BotXMethod
-from botx.testing.botx_mock.responses import PydanticResponse
+from botx.testing.botx_mock.asgi.responses import PydanticResponse
 
 
 def _fill_request_scope(request: Request) -> None:
