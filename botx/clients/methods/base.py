@@ -95,18 +95,30 @@ class BaseBotXMethod(AbstractBotXMethod[ResponseT], ABC):
         return {"Content-Type": "application/json"}
 
     @property
-    def params(self) -> Mapping[str, PrimitiveDataType]:
+    def params(self) -> Dict[str, PrimitiveDataType]:
         return {}
 
     @property
-    def __errors_handlers__(self) -> Mapping[int, ErrorHandlersInMethod]:
+    def __errors_handlers__(self) -> Dict[int, ErrorHandlersInMethod]:
         return {}
+
+    @property
+    def error_handlers(self) -> Dict[int, ErrorHandlersInMethod]:
+        return self.__errors_handlers__
 
     @property
     def __result_extractor__(
         self,
     ) -> Optional[Callable[["BotXMethod", Any], ResponseT]]:
         return None
+
+    @property
+    def result_extractor(self) -> Optional[Callable[["BotXMethod", Any], ResponseT]]:
+        return self.__result_extractor__
+
+    @property
+    def returning(self) -> Type[Any]:
+        return self.__returning__
 
 
 class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):

@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 import inspect
+from dataclasses import field
 from typing import Any, Callable, List, Optional, Tuple
 
-from pydantic import BaseModel, validator
+from pydantic import validator
+from pydantic.dataclasses import dataclass
 from pydantic.utils import lenient_issubclass
 
 from botx.bots import bots
@@ -17,7 +19,8 @@ WRONG_PARAM_TYPE_ERROR_TEXT = (
 )
 
 
-class Depends(BaseModel):
+@dataclass
+class Depends:
     """Stores dependency callable."""
 
     #: callable object that will be used in handlers or other dependencies instances.
@@ -30,11 +33,12 @@ class Depends(BaseModel):
 DependantCache = Tuple[Optional[Callable], Tuple[str, ...]]
 
 
-class Dependant(BaseModel):
+@dataclass
+class Dependant:
     """Main model that contains all necessary data for solving dependencies."""
 
     #: list of sub-dependencies for this dependency.
-    dependencies: List[Dependant] = []
+    dependencies: List[Dependant] = field(default_factory=list)
 
     #: name of dependency.
     name: Optional[str] = None
@@ -59,7 +63,7 @@ class Dependant(BaseModel):
 
     # Save the cache key at creation to optimize performance
     #: storage for cache.
-    cache_key: DependantCache = (None, ())
+    cache_key: DependantCache = field(default=(None, ()))
 
     @validator("cache_key", always=True)
     def init_cache(
