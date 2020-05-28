@@ -10,7 +10,7 @@ class BotXException(Exception):
     """template that should be rendered on __str__ call."""
 
     def __init__(self, **kwargs: Any) -> None:
-        """Init exception with passed params.
+        """Init exception with passed query_params.
 
         Arguments:
             kwargs: key-arguments that will be stored in instance.

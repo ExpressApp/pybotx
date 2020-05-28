@@ -23,7 +23,7 @@ class MessageBuilder:
         bot_id: Optional[uuid.UUID] = None,
         user: Optional[receiving.User] = None,
     ) -> None:
-        """Init builder with required params.
+        """Init builder with required query_params.
 
         Arguments:
             body: command body.

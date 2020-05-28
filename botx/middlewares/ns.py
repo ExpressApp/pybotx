@@ -51,7 +51,7 @@ class NextStepMiddleware(BaseMiddleware):
         dependencies: Optional[Sequence[deps.Depends]] = None,
         dependency_overrides_provider: Any = None,
     ) -> None:
-        """Init middleware with required params.
+        """Init middleware with required query_params.
 
         Arguments:
             executor: next callable that should be executed.

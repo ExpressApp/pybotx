@@ -46,7 +46,7 @@ class TestClient:
         errors: Optional[ErrorsOverrides] = None,
         suppress_errors: bool = False,
     ) -> None:
-        """Init client with required params.
+        """Init client with required query_params.
 
         Arguments:
             bot: bot that should be tested.

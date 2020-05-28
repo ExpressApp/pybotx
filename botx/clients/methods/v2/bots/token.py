@@ -20,7 +20,7 @@ class Token(BotXMethod[str]):
         return str(URL(self.base_url).join(api_url))
 
     @property
-    def params(self) -> Dict[str, str]:
+    def query_params(self) -> Dict[str, str]:
         return {"signature": self.signature}
 
     def encode(self) -> None:

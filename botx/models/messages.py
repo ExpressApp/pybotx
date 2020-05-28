@@ -23,7 +23,7 @@ class Message:
     """Message that is used in handlers."""
 
     def __init__(self, message: IncomingMessage, bot: "bots.Bot") -> None:
-        """Init message with required params.
+        """Init message with required query_params.
 
         Arguments:
             message: incoming message.

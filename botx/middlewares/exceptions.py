@@ -14,7 +14,7 @@ class ExceptionMiddleware(BaseMiddleware):
     """Custom middleware that is default and used to handle registered errors."""
 
     def __init__(self, executor: Executor) -> None:
-        """Init middleware with required params.
+        """Init middleware with required query_params.
 
         Arguments:
             executor: callable object that accept message and will be executed after

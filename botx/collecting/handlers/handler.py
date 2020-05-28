@@ -91,7 +91,7 @@ class Handler:
         return bool(re.compile(self.body).match(message.body))
 
     def command_for(self, *args: Any) -> str:
-        """Build a command string using passed body params.
+        """Build a command string using passed body query_params.
 
         Arguments:
             args: sequence of elements that are arguments for command.

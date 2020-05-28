@@ -9,7 +9,7 @@ class State:
     _state: dict
 
     def __init__(self, state: Optional[dict] = None):
-        """Init state with required params.
+        """Init state with required query_params.
 
         Arguments:
             state: initial state.

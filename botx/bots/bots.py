@@ -32,7 +32,7 @@ class Bot(BotCollectingMixin, ClientsMixin):
         startup_events: Optional[Sequence[typing.BotLifespanEvent]] = None,
         shutdown_events: Optional[Sequence[typing.BotLifespanEvent]] = None,
     ) -> None:
-        """Init bot with required params.
+        """Init bot with required query_params.
 
         Arguments:
             handlers: list of handlers that will be stored in this bot after init.

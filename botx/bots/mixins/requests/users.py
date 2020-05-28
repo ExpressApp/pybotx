@@ -7,8 +7,8 @@ from botx.clients.methods.base import BotXMethod
 from botx.clients.methods.v3.users.by_email import ByEmail
 from botx.clients.methods.v3.users.by_huid import ByHUID
 from botx.clients.methods.v3.users.by_login import ByLogin
-from botx.models.users import UserFromSearch
 from botx.models.sending import SendingCredentials
+from botx.models.users import UserFromSearch
 
 
 class UsersRequestsMixin:
@@ -28,6 +28,6 @@ class UsersRequestsMixin:
         elif ad is not None:
             method = ByLogin(ad_login=ad[0], ad_domain=ad[1])
         else:
-            raise ValueError("one of user_huid, email or ad params should be filled")
+            raise ValueError("one of user_huid, email or ad query_params should be filled")
 
         return await self.call_method(method, credentials=credentials)

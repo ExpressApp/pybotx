@@ -44,7 +44,7 @@ class BotCollectingMixin:
         self.collector.include_collector(collector, dependencies=dependencies)
 
     def command_for(self, *args: Any) -> str:
-        """Find handler and build a command string using passed body params.
+        """Find handler and build a command string using passed body query_params.
 
         Arguments:
             args: sequence of elements where first element should be name of handler.

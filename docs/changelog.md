@@ -192,7 +192,7 @@ depending on different conditions defined in the handlers (to be added to future
 * Added mechanism for catching exceptions.
 * Add ability to use sync and async functions to send data from `Bot`.
 * Added dependency injection system
-* Added parsing command params into handler arguments.
+* Added parsing command query_params into handler arguments.
 
 ### Removed
 
