@@ -1,32 +1,32 @@
 """Definition for mixin that defines BotX API methods."""
-from typing import Any, Optional, TypeVar, cast
+from typing import Optional, TypeVar, cast
 
 from botx.bots.mixins.requests import bots, chats, command, events, notification, users
 from botx.clients.clients.async_client import AsyncClient
 from botx.clients.methods.base import BotXMethod
 from botx.models import sending
-
-try:
-    from typing import Protocol
-except ImportError:
-    from typing_extensions import Protocol  # type: ignore
+from botx.typing import Protocol
 
 ResponseT = TypeVar("ResponseT")
 
 
 class TokenSearchProtocol(Protocol):
+    """Protocol for search token in local credentials."""
+
     def get_token_for_cts(self, host: str) -> str:
-        """TODO: write normal doc."""
+        """Search token in local credentials."""
 
 
 class ClientOwnerProtocol(Protocol):
+    """Protocol for object that owns async client for requests to BotX API."""
+
     @property
     def client(self) -> AsyncClient:
-        """TODO: write normal doc."""
+        """Async client for requests to BotX API."""
 
 
 # A lot of base classes since it's mixin for all shorthands for BotX API requests
-class BotXRequestsMixin(
+class BotXRequestsMixin(  # noqa: WPS215
     bots.BotsRequestsMixin,
     chats.ChatsRequestsMixin,
     command.CommandRequestsMixin,
@@ -38,12 +38,23 @@ class BotXRequestsMixin(
 
     async def call_method(
         self: ClientOwnerProtocol,
-        method: BotXMethod[Any],
+        method: BotXMethod[ResponseT],
         *,
         host: Optional[str] = None,
         token: Optional[str] = None,
         credentials: Optional[sending.SendingCredentials] = None,
-    ) -> Any:
+    ) -> ResponseT:
+        """Call method with async client.
+
+        Arguments:
+            method: method that should be user for request.
+            host: host where request should be sent.
+            token: token for method.
+            credentials: credentials for making request.
+
+        Returns:
+            Response for method.
+        """
         if credentials is not None:
             host = cast(str, credentials.host)
             method.configure(

@@ -4,11 +4,7 @@ from typing import Any, Callable, List, Optional, Sequence, Union
 
 from botx import converters
 from botx.dependencies.models import Depends
-
-try:
-    from typing import Protocol  # noqa: WPS433
-except ImportError:
-    from typing_extensions import Protocol  # noqa: WPS433, WPS440
+from botx.typing import Protocol
 
 
 class AddHandlerProtocol(Protocol):

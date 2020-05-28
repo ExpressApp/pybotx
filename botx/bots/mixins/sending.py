@@ -1,36 +1,37 @@
 """Definition for mixin that defines helpers for sending message."""
+
 from typing import BinaryIO, Optional, TextIO, Union
 from uuid import UUID
 
 from botx.models import files, messages, sending
-
-try:
-    from typing import Protocol
-except ImportError:
-    from typing_extensions import Protocol  # type: ignore
+from botx.typing import Protocol
 
 
 class ResultSendProtocol(Protocol):
+    """Protocol for object that can send command result and notification."""
+
     async def send_command_result(
         self, credentials: sending.SendingCredentials, payload: sending.MessagePayload,
     ) -> UUID:
-        """TODO: write normal doc."""
+        """Send command result."""
 
     async def send_direct_notification(
         self, credentials: sending.SendingCredentials, payload: sending.MessagePayload,
     ) -> UUID:
-        """TODO: write normal doc."""
+        """Send notification."""
 
 
 class MessageSendProtocol(Protocol):
+    """Protocol for object that can send complex message."""
+
     async def send(self, message: messages.SendingMessage) -> UUID:
-        """TODO: write normal doc."""
+        """Send message."""
 
 
 class SendingMixin:
     """Mixin that defines helpers for sending messages."""
 
-    async def send_message(
+    async def send_message(  # noqa: WPS211
         self: MessageSendProtocol,
         text: str,
         credentials: sending.SendingCredentials,
@@ -73,7 +74,7 @@ class SendingMixin:
 
         return await self.send_direct_notification(message.credentials, message.payload)
 
-    async def answer_message(
+    async def answer_message(  # noqa: WPS211
         self: MessageSendProtocol,
         text: str,
         message: messages.Message,
@@ -106,7 +107,7 @@ class SendingMixin:
 
         return await self.send(sending_message)
 
-    async def send_file(
+    async def send_file(  # noqa: WPS211
         self: MessageSendProtocol,
         file: Union[TextIO, BinaryIO, files.File],
         credentials: sending.SendingCredentials,

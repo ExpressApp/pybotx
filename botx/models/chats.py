@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from botx import ChatTypes
+from botx.models.enums import ChatTypes
 from botx.models.events import UserInChatCreated
 
 

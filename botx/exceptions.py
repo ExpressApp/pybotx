@@ -7,7 +7,6 @@ class BotXException(Exception):
 
     #: template that should be rendered on __str__ call.
     message_template: str = ""
-    """template that should be rendered on __str__ call."""
 
     def __init__(self, **kwargs: Any) -> None:
         """Init exception with passed query_params.

@@ -1,15 +1,14 @@
+"""Protocol for using in mixins to make mypy and typing happy."""
 from typing import Any, Optional
 
 from botx.clients.methods.base import BotXMethod
 from botx.models import sending
-
-try:
-    from typing import Protocol
-except ImportError:
-    from typing_extensions import Protocol  # type: ignore
+from botx.typing import Protocol
 
 
 class BotXMethodCallProtocol(Protocol):
+    """Protocol for using in mixins to make mypy and typing happy."""
+
     async def call_method(
         self,
         method: BotXMethod[Any],
@@ -18,4 +17,4 @@ class BotXMethodCallProtocol(Protocol):
         token: Optional[str] = None,
         credentials: Optional[sending.SendingCredentials] = None,
     ) -> Any:
-        """TODO: write normal doc."""
+        """Send request to BotX API through bot's async client."""

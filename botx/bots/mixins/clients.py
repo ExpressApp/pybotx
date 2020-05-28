@@ -31,8 +31,19 @@ class ClientsMixin(SendingMixin, BotXRequestsMixin):
         raise ServerUnknownError(host=host)
 
     def get_token_for_cts(self, host: str) -> str:
+        """Search token in bot saved tokens.
+
+        Arguments:
+            host: host for which token should be searched.
+
+        Returns:
+            Found token.
+
+        Raises:
+            ValueError: raised of there is not token for host.
+        """
         server = self.get_cts_by_host(host)
         if server.server_credentials is not None:
             return server.server_credentials.token
 
-        raise ValueError(f"token for cts {host} unfilled")
+        raise ValueError("token for cts {0} unfilled".format(host))

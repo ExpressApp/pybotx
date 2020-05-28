@@ -6,11 +6,7 @@ from botx.collecting.collectors.mixins.handler import HandlerDecoratorProtocol
 from botx.collecting.handlers.handler import Handler
 from botx.collecting.handlers.name_generators import get_name_from_callable
 from botx.dependencies.models import Depends
-
-try:
-    from typing import Protocol  # noqa: WPS433
-except ImportError:
-    from typing_extensions import Protocol  # noqa: WPS433, WPS440
+from botx.typing import Protocol
 
 
 class HandlerSearchProtocol(Protocol):

@@ -4,9 +4,7 @@ import pathlib
 import nox
 from nox.sessions import Session
 
-_EXAMPLES = ("examples/fsm/bot",)
-
-TARGETS = ("botx", "tests", "docs/src/", *_EXAMPLES, "noxfile.py")
+TARGETS = ("botx", "tests", "noxfile.py")
 
 
 def _process_add_single_comma_path(session: Session, path: pathlib.Path) -> None:

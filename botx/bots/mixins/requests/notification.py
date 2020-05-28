@@ -1,4 +1,4 @@
-"""Definition for mixin that defines BotX API methods."""
+"""Mixin for shortcut for notification resource requests."""
 
 from typing import Optional, Sequence, cast
 from uuid import UUID
@@ -13,7 +13,7 @@ from botx.models import sending
 
 
 class NotificationRequestsMixin:
-    """Mixin that defines methods for communicating with BotX API."""
+    """Mixin for shortcut for notification resource requests."""
 
     async def send_notification(
         self: BotXMethodCallProtocol,
@@ -21,14 +21,20 @@ class NotificationRequestsMixin:
         payload: sending.MessagePayload,
         group_chat_ids: Optional[Sequence[UUID]] = None,
     ) -> None:
+        """Send notifications into chat.
+
+        Arguments:
+            credentials: credentials for making request.
+            payload: payload for notification.
+            group_chat_ids: IDS of chats into which message should be sent.
+        """
         if group_chat_ids is not None:
             chat_ids = converters.optional_sequence_to_list(group_chat_ids)
         else:
             chat_ids = [cast(UUID, credentials.chat_id)]
 
-        return await self.call_method(
+        await self.call_method(
             Notification(
-                bot_id=cast(UUID, credentials.bot_id),
                 group_chat_ids=chat_ids,
                 result=ResultPayload(
                     body=payload.text,
@@ -48,9 +54,17 @@ class NotificationRequestsMixin:
         credentials: sending.SendingCredentials,
         payload: sending.MessagePayload,
     ) -> UUID:
+        """Send notification into chat.
+
+        Arguments:
+            credentials: credentials for making request.
+            payload: payload for notification.
+
+        Returns:
+             ID sent message.
+        """
         return await self.call_method(
             NotificationDirect(
-                bot_id=cast(UUID, credentials.bot_id),
                 group_chat_id=cast(UUID, credentials.chat_id),
                 event_sync_id=credentials.message_id,
                 result=ResultPayload(

@@ -10,11 +10,7 @@ from pydantic.generics import GenericModel
 
 from botx.clients.methods.request_wrapper import HTTPRequest, PrimitiveDataType
 from botx.models.enums import Statuses
-
-try:
-    from typing import Literal  # noqa: WPS433
-except ImportError:
-    from typing_extensions import Literal  # noqa: WPS433, WPS440
+from botx.typing import Literal
 
 PRIMITIVES_FOR_QUERY = (str, int, float, bool, type(None))
 

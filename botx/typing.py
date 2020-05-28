@@ -5,7 +5,16 @@ from typing import TYPE_CHECKING, Awaitable, Callable, TypeVar, Union
 from botx.models import messages
 
 if TYPE_CHECKING:  # pragma: no cover
-    from botx.bots.bots import Bot  # isort: skip  WPS433, F401
+    from botx.bots.bots import Bot  # isort: skip  # noqa: WPS433, F401
+
+try:
+    from typing import Protocol, Literal  # noqa: WPS433
+except ImportError:
+    from typing_extensions import (  # type: ignore  # noqa: WPS433, WPS440, F401
+        Protocol,
+        Literal,
+    )
+
 
 ExceptionT = TypeVar("ExceptionT", bound=Exception)
 

@@ -3,7 +3,7 @@
 from pydantic import BaseConfig
 
 
-class ClientConfig(BaseConfig):
+class BotXDataclassConfig(BaseConfig):
     """Config for pydantic dataclasses that allows custom types."""
 
     arbitrary_types_allowed = True
