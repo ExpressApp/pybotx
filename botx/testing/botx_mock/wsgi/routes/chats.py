@@ -11,7 +11,7 @@ from botx.clients.methods.v3.chats.info import Info
 from botx.clients.methods.v3.chats.remove_user import RemoveUser
 from botx.clients.methods.v3.chats.stealth_disable import StealthDisable
 from botx.clients.methods.v3.chats.stealth_set import StealthSet
-from botx.clients.types.chats import ChatFromSearch
+from botx.models.chats import ChatFromSearch
 from botx.clients.types.response_results import ChatCreatedResult
 from botx.models.events import UserInChatCreated
 from botx.testing.botx_mock.wsgi.binders import bind_implementation_to_method

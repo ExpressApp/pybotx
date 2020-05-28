@@ -1,3 +1,4 @@
+"""Special options for messages from bot."""
 from pydantic import BaseModel
 
 from botx.models.sending import NotificationOptions
@@ -6,7 +7,8 @@ from botx.models.sending import NotificationOptions
 class ResultOptions(BaseModel):
     """Configuration for command result or notification that is send to BotX API."""
 
+    #: send message only when stealth mode is enabled.
     stealth_mode: bool = False
-    """send message only when stealth mode is enabled"""
+
+    #: message options for configuring notifications.
     notification_opts: NotificationOptions = NotificationOptions()
-    """message options for configuring notifications."""

@@ -1,4 +1,5 @@
-from typing import List
+"""Shape that is used for new messages from bot."""
+from typing import List, Literal
 
 from pydantic import BaseModel, Field
 
@@ -11,13 +12,17 @@ from botx.models.typing import BubbleMarkup, KeyboardMarkup
 class ResultPayload(BaseModel):
     """Data that is sent when bot answers on command or send notification."""
 
-    status: Statuses = Field(Statuses.ok, const=True)
-    """status of operation. *Not used for now*."""
+    #: status of operation.
+    status: Literal[Statuses.ok] = Statuses.ok
+
+    #: body for new message from bot.
     body: str = Field("", max_length=MAXIMUM_TEXT_LENGTH)
-    """body for new message from bot."""
+
+    #: keyboard that will be used for new message.
     keyboard: KeyboardMarkup = []
-    """keyboard that will be used for new message."""
+
+    #: bubble elements that will be showed under new message.
     bubble: BubbleMarkup = []
-    """bubble elements that will be showed under new message."""
+
+    #: mentions that BotX API will append before new message text.
     mentions: List[Mention] = []
-    """mentions that BotX API will append before new message text."""

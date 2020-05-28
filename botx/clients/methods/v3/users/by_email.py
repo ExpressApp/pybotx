@@ -2,7 +2,7 @@ from httpx import StatusCode
 
 from botx.clients.methods.base import AuthorizedBotXMethod
 from botx.clients.methods.errors import user_not_found
-from botx.clients.types.users import UserFromSearch
+from botx.models.users import UserFromSearch
 
 
 class ByEmail(AuthorizedBotXMethod[UserFromSearch]):

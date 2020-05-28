@@ -7,7 +7,7 @@ from botx.clients.methods.base import BotXMethod
 from botx.clients.methods.v3.users.by_email import ByEmail
 from botx.clients.methods.v3.users.by_huid import ByHUID
 from botx.clients.methods.v3.users.by_login import ByLogin
-from botx.clients.types.users import UserFromSearch
+from botx.models.users import UserFromSearch
 from botx.models.sending import SendingCredentials
 
 

@@ -82,7 +82,7 @@ class Dependant:
         return values["call"], tuple((set()))
 
 
-Dependant.update_forward_refs()
+Dependant.__pydantic_model__.update_forward_refs()  # noqa: WPS609
 
 
 def get_param_sub_dependant(*, dependency_param: inspect.Parameter) -> Dependant:

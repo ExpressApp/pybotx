@@ -4,7 +4,7 @@ from httpx import StatusCode
 
 from botx.clients.methods.base import AuthorizedBotXMethod
 from botx.clients.methods.errors import messaging
-from botx.clients.types.chats import ChatFromSearch
+from botx.models.chats import ChatFromSearch
 
 
 class Info(AuthorizedBotXMethod[ChatFromSearch]):
