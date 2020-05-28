@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 import re
+from dataclasses import field
 from typing import Any, Callable, List, Optional, Union
 
-from pydantic import BaseModel, Field, validator
+from pydantic import validator
+from pydantic.dataclasses import dataclass
 
 from botx.collecting.handlers.validators import (
     check_handler_is_function,
     retrieve_dependant,
-    retrieve_dependencies,
     retrieve_executor,
     retrieve_full_description_for_handler,
     retrieve_name_for_handler,
@@ -20,17 +21,18 @@ from botx.dependencies import models as deps
 from botx.models import messages
 
 
-class Handler(BaseModel):
+@dataclass
+class Handler:
     """Handler that will store body and callable."""
 
     #: callable for executing registered logic.
-    handler: Callable = Field(None)
+    handler: Callable
 
     #: command body.
-    body: str = ""
+    body: str
 
     #: name of handler.
-    name: str = Field(None)
+    name: str = ""
 
     #: description that will be shown in bot's menu.
     description: Optional[str] = None
@@ -42,36 +44,20 @@ class Handler(BaseModel):
     include_in_status: Union[bool, Callable] = True
 
     #: wrapper around handler that will be executed.
-    dependant: deps.Dependant = Field(None)
+    dependant: deps.Dependant = field(init=False)
 
     #: background dependencies for handler.
-    dependencies: List[deps.Depends] = []
+    dependencies: List[deps.Depends] = field(default_factory=list)
 
     #: custom object that will override dependencies for handler.
     dependency_overrides_provider: Optional[Any] = None
 
-    #: function that will be used for incoming handling message
-    executor: Callable = Field(None)
+    #: function that will be used for handling incoming message
+    executor: Callable = field(init=False)
 
     _body_validator = validator("executor", always=True)(validate_body_for_status)
     _handler_is_function_validator = validator("handler", pre=True, always=True)(
         check_handler_is_function,
-    )
-
-    _name_validator = validator("name", pre=True, always=True)(
-        retrieve_name_for_handler,
-    )
-    _full_description_validator = validator("full_description", pre=True, always=True)(
-        retrieve_full_description_for_handler,
-    )
-    _dependant_validator = validator("dependant", pre=True, always=True)(
-        retrieve_dependant,
-    )
-    _dependencies_validator = validator("dependencies", pre=True, always=True)(
-        retrieve_dependencies,
-    )
-    _executor_validator = validator("executor", pre=True, always=True)(
-        retrieve_executor,
     )
 
     async def __call__(self, message: messages.Message) -> None:
@@ -81,6 +67,17 @@ class Handler(BaseModel):
             message: message that will be handled by handler.
         """
         await self.executor(message)
+
+    def __post_init__(self) -> None:
+        """Initialize or update special fields."""
+        self.name = retrieve_name_for_handler(self.name, self.handler)
+        self.full_description = retrieve_full_description_for_handler(
+            self.full_description, self.handler,
+        )
+        self.dependant = retrieve_dependant(self.handler, self.dependencies)
+        self.executor = retrieve_executor(
+            self.dependant, self.dependency_overrides_provider,
+        )
 
     def matches(self, message: messages.Message) -> bool:
         """Check if message body matched to handler's body.

@@ -62,9 +62,7 @@ def _create_starlette_routes() -> Sequence[Route]:
     for endpoint in _ENDPOINTS:
         routes.append(
             Route(
-                endpoint.method.__url__,  # type: ignore  WPS609
-                endpoint,
-                methods=[endpoint.method.__method__],  # type: ignore  WPS609
+                endpoint.method.__url__, endpoint, methods=[endpoint.method.__method__],
             ),
         )
 

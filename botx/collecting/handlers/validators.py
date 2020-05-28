@@ -1,4 +1,4 @@
-"""Validator for Handler."""
+"""Validators and extractors for Handler fields."""
 import inspect
 from typing import Callable, List, Optional
 
@@ -40,32 +40,32 @@ def validate_body_for_status(executor: Callable, values: dict) -> Callable:
     return executor
 
 
-def retrieve_name_for_handler(name: Optional[str], values: dict) -> str:
+def retrieve_name_for_handler(name: Optional[str], handler: Callable) -> str:
     """Retrieve name for handler.
 
     Arguments:
         name: passed name for handler.
-        values: already checked values.
+        handler: handler that will be used to generate name.
 
     Returns:
         Name for handler.
     """
-    return name or get_name_from_callable(get_value("handler", values))
+    return name or get_name_from_callable(handler)
 
 
-def retrieve_full_description_for_handler(full_description: str, values: dict) -> str:
+def retrieve_full_description_for_handler(
+    full_description: Optional[str], handler: Callable,
+) -> str:
     """Retrieve full description for handler.
 
     Arguments:
         full_description: passed name for handler.
-        values: already checked values.
+        handler: handler from which docstring will be used.
 
     Returns:
         Full description for handler.
     """
-    return full_description or inspect.cleandoc(
-        get_value("handler", values).__doc__ or "",
-    )
+    return full_description or inspect.cleandoc(handler.__doc__ or "")
 
 
 def check_handler_is_function(handler: Callable) -> Callable:
@@ -88,33 +88,20 @@ def check_handler_is_function(handler: Callable) -> Callable:
     return handler
 
 
-def retrieve_dependant(_dependant: None, values: dict) -> Dependant:
+def retrieve_dependant(handler: Callable, dependencies: List[Depends]) -> Dependant:
     """Retrieve dependant for handler.
 
     Arguments:
-        _dependant: default dependant that is always `None`.
-        values: already validated values.
+        handler: handler for which dependant should be created.
+        dependencies: passed background dependencies.
 
     Returns:
         Generated dependant object.
-    """
-    return get_dependant(call=get_value("handler", values))
-
-
-def retrieve_dependencies(dependencies: List[Depends], values: dict) -> List[Depends]:
-    """Retrieve dependencies for handler.
-
-    Arguments:
-        dependencies: passed dependencies.
-        values: already validated values.
-
-    Returns:
-        Passed dependencies.
 
     Raises:
         ValueError: raised if dependency `call` attribute is not callable.
     """
-    dependant = get_value("dependant", values)
+    dependant = get_dependant(call=handler)
     for index, depends in enumerate(dependencies):
         if not callable(depends.dependency):
             raise ValueError("a parameter-less dependency must have a callable")
@@ -122,22 +109,21 @@ def retrieve_dependencies(dependencies: List[Depends], values: dict) -> List[Dep
         dependant.dependencies.insert(
             index, get_dependant(call=depends.dependency, use_cache=depends.use_cache),
         )
-    return dependencies
+
+    return dependant
 
 
-def retrieve_executor(_executor: None, values: dict) -> Callable:
+def retrieve_executor(dependant: Dependant, dependency_overrides_provider) -> Callable:
     """Retrieve executor for handler.
 
     Arguments:
-        _executor: default executor that is always `None`.
-        values: already validated values.
+        dependant: dependant that will be used to generate executor.
+        dependency_overrides_provider: overrider for dependencies.
 
     Returns:
-        Passed executor.
+        Generated executor.
     """
     return get_executor(
-        dependant=get_value("dependant", values),
-        dependency_overrides_provider=get_value(
-            "dependency_overrides_provider", values,
-        ),
+        dependant=dependant,
+        dependency_overrides_provider=dependency_overrides_provider,
     )

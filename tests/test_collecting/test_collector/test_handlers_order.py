@@ -16,7 +16,7 @@ def collector_with_handlers(handler_as_function):
 
 
 def test_sorting_handlers_in_collector_by_body_length(collector_with_handlers):
-    added_handlers = collector_with_handlers._added_handlers
+    added_handlers = collector_with_handlers.sorted_handlers
     assert added_handlers == sorted(
         added_handlers, key=lambda handler: len(handler.body), reverse=True,
     )
@@ -30,5 +30,5 @@ def test_preserve_length_sort_when_merging_collectors(
 
     collector_with_handlers.include_collector(collector)
 
-    added_handlers = collector_with_handlers._added_handlers
+    added_handlers = collector_with_handlers.sorted_handlers
     assert added_handlers[0] == collector.handlers[0]
