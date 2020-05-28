@@ -24,7 +24,7 @@ class ExceptionMiddleware(BaseMiddleware):
         self._exception_handlers: Dict[Type[Exception], Callable] = {}
 
     async def dispatch(
-        self, message: messages.Message, call_next: AsyncExecutor
+        self, message: messages.Message, call_next: AsyncExecutor,
     ) -> None:
         """Wrap executor for catching exception or log them.
 
@@ -65,7 +65,7 @@ class ExceptionMiddleware(BaseMiddleware):
         return None
 
     async def _handle_error_in_handler(
-        self, exc: Exception, message: messages.Message
+        self, exc: Exception, message: messages.Message,
     ) -> None:
         """Pass error back to handler if there is one or log error.
 
