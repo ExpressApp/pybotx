@@ -55,7 +55,6 @@ class BaseMiddleware:
         Arguments:
             message: incoming message.
         """
-
         executor = self.executor
         if not concurrency.is_awaitable(self.dispatch_func):
             executor = concurrency.async_to_sync(self.executor)

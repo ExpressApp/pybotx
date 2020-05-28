@@ -5,8 +5,8 @@ from uuid import UUID
 
 from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
 from botx.clients.methods.v3.command.command_result import CommandResult
+from botx.clients.types.message_payload import ResultPayload
 from botx.clients.types.options import ResultOptions
-from botx.clients.types.result_payload import ResultPayload
 from botx.models import sending
 
 

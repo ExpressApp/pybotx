@@ -3,7 +3,7 @@ import uuid
 import pytest
 
 from botx.clients.methods.v3.notification.notification import Notification
-from botx.clients.types.result_payload import ResultPayload
+from botx.clients.types.message_payload import ResultPayload
 from botx.concurrency import callable_to_coroutine
 
 pytestmark = pytest.mark.asyncio

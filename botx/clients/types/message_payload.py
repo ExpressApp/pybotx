@@ -1,5 +1,5 @@
-"""Shape that is used for new messages from bot."""
-from typing import List, Literal
+"""Shape that is used for messages from bot."""
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -26,3 +26,22 @@ class ResultPayload(BaseModel):
 
     #: mentions that BotX API will append before new message text.
     mentions: List[Mention] = []
+
+
+class UpdatePayload(BaseModel):
+    """Data that is sent when bot updates message."""
+
+    #: status of operation.
+    status: Literal[Statuses.ok] = Statuses.ok
+
+    #: new body in message.
+    body: Optional[str] = Field(None, max_length=MAXIMUM_TEXT_LENGTH)
+
+    #: new keyboard that will be used for new message.
+    keyboard: Optional[KeyboardMarkup] = None
+
+    #: new bubble elements that will be showed under new message.
+    bubble: Optional[BubbleMarkup] = None
+
+    #: new mentions that BotX API will append before new message text.
+    mentions: Optional[List[Mention]] = None

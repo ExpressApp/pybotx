@@ -1,3 +1,5 @@
+"""Method for creating new chat."""
+
 from typing import List, Optional
 from uuid import UUID
 
@@ -11,6 +13,8 @@ from botx.models.enums import ChatTypes
 
 
 class Create(AuthorizedBotXMethod[UUID]):
+    """Method for creating new chat."""
+
     __url__ = "/api/v3/botx/chats/create"
     __method__ = "POST"
     __returning__ = ChatCreatedResult
@@ -20,8 +24,17 @@ class Create(AuthorizedBotXMethod[UUID]):
         StatusCode.UNPROCESSABLE_ENTITY: chat_creation_error.handle_error,
     }
 
+    #: name of chat that should be created.
     name: str
+
+    #: description of new chat.
     description: Optional[str] = None
+
+    #: HUIDs of users that should be added into chat.
     members: List[UUID]
+
+    #: logo image of chat.
     avatar: Optional[str] = None
+
+    #: chat type.
     chat_type: ChatTypes

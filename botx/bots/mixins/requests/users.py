@@ -28,6 +28,8 @@ class UsersRequestsMixin:
         elif ad is not None:
             method = ByLogin(ad_login=ad[0], ad_domain=ad[1])
         else:
-            raise ValueError("one of user_huid, email or ad query_params should be filled")
+            raise ValueError(
+                "one of user_huid, email or ad query_params should be filled",
+            )
 
         return await self.call_method(method, credentials=credentials)

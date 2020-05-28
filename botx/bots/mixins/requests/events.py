@@ -3,7 +3,8 @@ from typing import cast
 from uuid import UUID
 
 from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
-from botx.clients.methods.v3.events.edit_event import EditEvent, UpdatePayload
+from botx.clients.methods.v3.events.edit_event import EditEvent
+from botx.clients.types.message_payload import UpdatePayload
 from botx.models import sending
 
 
