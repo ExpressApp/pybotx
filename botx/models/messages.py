@@ -479,7 +479,9 @@ class SendingMessage:
                 message_id=message_id,
             )
 
-        assert credentials, "MessageCredentials or manual validated_values should be passed"
+        assert (
+            credentials
+        ), "MessageCredentials or manual validated_values should be passed"
 
         if credentials.message_id is None:
             credentials.message_id = message_id

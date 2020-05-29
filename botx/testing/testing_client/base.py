@@ -1,18 +1,15 @@
-"""Definition of client for testing."""
+"""Base for testing client for bots."""
+from __future__ import annotations
+
 from contextlib import contextmanager
-from typing import Any, Dict, Generator, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, Generator, List, Optional, Tuple, Type
 
 import httpx
 
 from botx.bots.bots import Bot
 from botx.clients.methods.base import BotXMethod
-from botx.clients.methods.v3.command.command_result import CommandResult
-from botx.clients.methods.v3.events.edit_event import EditEvent
-from botx.clients.methods.v3.notification.direct_notification import NotificationDirect
-from botx.clients.methods.v3.notification.notification import Notification
 from botx.middlewares.exceptions import ExceptionMiddleware
-from botx.models import receiving
-from botx.models.messages import Message
+from botx.models import messages, receiving
 from botx.testing.botx_mock.asgi.application import get_botx_asgi_api
 from botx.testing.botx_mock.wsgi.application import get_botx_wsgi_api
 from botx.testing.typing import APIMessage, APIRequest
@@ -21,7 +18,9 @@ from botx.testing.typing import APIMessage, APIRequest
 class _ExceptionMiddleware(ExceptionMiddleware):
     """Replacement of built-in ExceptionMiddleware that will raise errors."""
 
-    async def _handle_error_in_handler(self, exc: Exception, message: Message) -> None:
+    async def _handle_error_in_handler(
+        self, exc: Exception, message: messages.Message,
+    ) -> None:
         handler = self._lookup_handler_for_exception(exc)
 
         if handler is None:
@@ -33,12 +32,8 @@ class _ExceptionMiddleware(ExceptionMiddleware):
 ErrorsOverrides = Dict[Type[BotXMethod], Tuple[int, Any]]
 
 
-class TestClient:
-    """Test client for testing bots."""
-
-    # https://docs.pytest.org/en/latest/changelog.html#changes
-    # Allow to skip test classes from being collected
-    __test__ = False
+class BaseTestClient:
+    """Base for testing client for bots."""
 
     def __init__(
         self,
@@ -54,7 +49,6 @@ class TestClient:
             suppress_errors: if True then don't raise raise errors from handlers.
         """
         self.bot: Bot = bot
-        """Bot that will be patched for tests."""
         self._original_http_client = bot.client.http_client
         self._original_sync_http_client = bot.sync_client.http_client
         self._error_middleware: Optional[ExceptionMiddleware] = None
@@ -63,8 +57,8 @@ class TestClient:
         self._errors = errors or {}
         self._suppress_errors = suppress_errors
 
-    def __enter__(self) -> "TestClient":
-        """Mock original HTTP client."""
+    def __enter__(self) -> BaseTestClient:
+        """Mock original HTTP clients."""
         is_error_middleware = isinstance(
             self.bot.exception_middleware, ExceptionMiddleware,
         )
@@ -73,8 +67,8 @@ class TestClient:
             self.bot.exception_middleware = _ExceptionMiddleware(
                 self.bot.exception_middleware.executor,
             )
-            self.bot.exception_middleware._exception_handlers = (
-                self._error_middleware._exception_handlers
+            self.bot.exception_middleware._exception_handlers = (  # noqa: WPS437
+                self._error_middleware._exception_handlers  # noqa: WPS437
             )
 
         self.bot.client.http_client = httpx.AsyncClient(
@@ -98,13 +92,21 @@ class TestClient:
     @contextmanager
     def error_client(
         self, errors: Dict[Type[BotXMethod], Tuple[int, Any]],
-    ) -> Generator["TestClient", None, None]:
+    ) -> Generator[BaseTestClient, None, None]:
+        """Enter into new test client that adds error responses to mocks.
+
+        Arguments:
+            errors: overrides for errors in context.
+
+        Yields:
+            New client with overridden errors.
+        """
         override_errors = {**self._errors, **errors}
-        with TestClient(self.bot, override_errors, self._suppress_errors) as client:
+        with self.__class__(self.bot, override_errors, self._suppress_errors) as client:
             yield client
 
     async def send_command(
-        self, message: receiving.IncomingMessage, sync: bool = True
+        self, message: receiving.IncomingMessage, sync: bool = True,
     ) -> None:
         """Send command message to bot.
 
@@ -116,56 +118,3 @@ class TestClient:
 
         if sync:
             await self.bot.wait_current_handlers()
-
-    @property
-    def requests(self) -> Tuple[APIRequest, ...]:
-        """Return all requests that were sent by bot.
-
-        Returns:
-            Sequence of requests that were sent from bot.
-        """
-        return tuple(request.copy(deep=True) for request in self._requests)
-
-    @property
-    def messages(self) -> Tuple[APIMessage, ...]:
-        """Return all entities that were sent by bot.
-
-        Returns:
-            Sequence of messages that were sent from bot.
-        """
-        return tuple(message.copy(deep=True) for message in self._messages)
-
-    @property
-    def command_results(self) -> Tuple[CommandResult, ...]:
-        """Return all command results that were sent by bot.
-
-        Returns:
-            Sequence of command results that were sent from bot.
-        """
-        return tuple(
-            message for message in self.messages if isinstance(message, CommandResult)
-        )
-
-    @property
-    def notifications(self) -> Tuple[Union[Notification, NotificationDirect], ...]:
-        """Return all notifications that were sent by bot.
-
-        Returns:
-            Sequence of notifications that were sent by bot.
-        """
-        return tuple(
-            message
-            for message in self.messages
-            if isinstance(message, (Notification, NotificationDirect))
-        )
-
-    @property
-    def message_updates(self) -> Tuple[EditEvent, ...]:
-        """Return all updates that were sent by bot.
-
-        Returns:
-            Sequence of updates that were sent by bot.
-        """
-        return tuple(
-            message for message in self.messages if isinstance(message, EditEvent)
-        )

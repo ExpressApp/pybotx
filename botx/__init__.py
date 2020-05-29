@@ -37,7 +37,7 @@ from botx.models.sending import (
 from botx.testing.building.builder import MessageBuilder
 
 try:
-    from botx.testing.client import TestClient
+    from botx.testing.testing_client.client import TestClient
 except ImportError:
     TestClient = None
 
