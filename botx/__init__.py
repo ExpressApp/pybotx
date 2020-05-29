@@ -34,7 +34,7 @@ from botx.models.sending import (
     SendingCredentials,
     UpdatePayload,
 )
-from botx.testing.builder import MessageBuilder
+from botx.testing.building.builder import MessageBuilder
 
 try:
     from botx.testing.client import TestClient

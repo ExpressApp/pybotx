@@ -13,7 +13,7 @@ def validate_body_for_status(executor: Callable, values: dict) -> Callable:
 
     Arguments:
         executor: executor that will be just returned from validator.
-        values: already checked values.
+        values: already checked validated_values.
 
     Returns:
         Passed executor.

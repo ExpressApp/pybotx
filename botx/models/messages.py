@@ -469,7 +469,7 @@ class SendingMessage:
         if bot_id and host:
             assert (
                 not credentials
-            ), "MessageCredentials can not be passed along with manual values for it"
+            ), "MessageCredentials can not be passed along with manual validated_values for it"
 
             return SendingCredentials(
                 bot_id=bot_id,
@@ -479,7 +479,7 @@ class SendingMessage:
                 message_id=message_id,
             )
 
-        assert credentials, "MessageCredentials or manual values should be passed"
+        assert credentials, "MessageCredentials or manual validated_values should be passed"
 
         if credentials.message_id is None:
             credentials.message_id = message_id
@@ -531,7 +531,7 @@ class SendingMessage:
         if mentions or recipients or notification_options:
             assert (
                 not options
-            ), "MessageOptions can not be passed along with manual values for it"
+            ), "MessageOptions can not be passed along with manual validated_values for it"
             return MessageOptions(
                 recipients=recipients or Recipients.all,
                 mentions=mentions or [],

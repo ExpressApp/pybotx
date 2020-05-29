@@ -74,7 +74,7 @@ class Dependant:
         Arguments:
             cls: this class.
             _: init value for cache. Mainly won't be used in initialization.
-            values: already validated values.
+            values: already validated validated_values.
 
         Returns:
             Cache for callable.

@@ -8,7 +8,7 @@ from pydantic import BaseModel, validator
 
 
 class MentionTypes(str, Enum):
-    """Enum for available values in mentions."""
+    """Enum for available validated_values in mentions."""
 
     user = "user"
     """mention single user from chat in message."""

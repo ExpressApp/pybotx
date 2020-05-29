@@ -30,7 +30,7 @@ class Button(BaseModel):
 
         Arguments:
             value: value that should be checked.
-            values: all other values checked before.
+            values: all other validated_values checked before.
 
         Returns:
             Label for button.

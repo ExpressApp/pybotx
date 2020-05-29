@@ -24,7 +24,7 @@ async def solve_sub_dependency(
     Arguments:
         message: incoming message that is used for solving this sub dependency.
         dependant: dependency that is solving while calling this function.
-        solved_values: already filled values that are required for this dependency.
+        solved_values: already filled validated_values that are required for this dependency.
         dependency_overrides_provider: an object with `dependency_overrides` attribute
             that contains overrides for dependencies.
         dependency_cache: cache that contains already solved dependency and result for

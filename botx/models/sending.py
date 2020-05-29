@@ -35,7 +35,7 @@ class SendingCredentials(BaseModel):
 
         Arguments:
             value: value that should be checked.
-            values: all other values checked before.
+            values: all other validated_values checked before.
         """
         if not (value or values["sync_id"]):
             raise ValueError(
