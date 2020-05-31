@@ -9,7 +9,6 @@ from botx.clients.methods.extractors import extract_generated_sync_id
 from botx.clients.types.message_payload import ResultPayload
 from botx.clients.types.options import ResultOptions
 from botx.clients.types.response_results import PushResult
-from botx.models.enums import Recipients
 from botx.models.files import File
 from botx.models.typing import AvailableRecipients
 
@@ -29,7 +28,7 @@ class NotificationDirect(AuthorizedBotXMethod[UUID]):
     event_sync_id: Optional[UUID] = None
 
     #: HUIDs of users that should receive notifications.
-    recipients: AvailableRecipients = Recipients.all
+    recipients: AvailableRecipients = "all"
 
     #: data for build message: body, markup, mentions.
     result: ResultPayload = Field(..., alias="notification")

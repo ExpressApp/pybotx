@@ -7,7 +7,6 @@ from pydantic import Field
 from botx.clients.methods.base import AuthorizedBotXMethod
 from botx.clients.types.message_payload import ResultPayload
 from botx.clients.types.options import ResultOptions
-from botx.models.enums import Recipients
 from botx.models.files import File
 from botx.models.typing import AvailableRecipients
 
@@ -23,7 +22,7 @@ class Notification(AuthorizedBotXMethod[str]):
     group_chat_ids: List[UUID] = []
 
     #: HUIDs of users that should receive notifications.
-    recipients: AvailableRecipients = Recipients.all
+    recipients: AvailableRecipients = "all"
 
     #: data for build message: body, markup, mentions.
     result: ResultPayload = Field(..., alias="notification")

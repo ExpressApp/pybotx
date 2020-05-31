@@ -1,3 +1,5 @@
+"""Special options for message."""
+
 from typing import List
 
 from pydantic import BaseModel
@@ -9,18 +11,21 @@ from botx.models.typing import AvailableRecipients
 class NotificationOptions(BaseModel):
     """Configurations for message notifications."""
 
+    #: show notification about message.
     send: bool = True
-    """show notification about message."""
+
+    #: break mute on bot messages.
     force_dnd: bool = False
-    """break mute on bot messages."""
 
 
 class MessageOptions(BaseModel):
     """Message options configuration."""
 
+    #: users that should receive message.
     recipients: AvailableRecipients = "all"
-    """users that should receive message."""
+
+    #: attached to message mentions.
     mentions: List[Mention] = []
-    """attached to message mentions."""
+
+    #: notification configuration.
     notifications: NotificationOptions = NotificationOptions()
-    """notification configuration."""

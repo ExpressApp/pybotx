@@ -54,13 +54,6 @@ class UserKinds(str, Enum):
     bot = "botx"
 
 
-class Recipients(str, Enum):
-    """Enum for default recipients value."""
-
-    #: show message to all users in chat.
-    all: str = "all"
-
-
 class Statuses(str, Enum):
     """Enum for status of operation in BotX API."""
 

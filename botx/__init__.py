@@ -16,7 +16,6 @@ from botx.models.enums import (
     CommandTypes,
     EntityTypes,
     MentionTypes,
-    Recipients,
     Statuses,
     SystemEvents,
     UserKinds,
@@ -64,7 +63,6 @@ __all__ = (
     "ServerCredentials",
     # enums
     "Statuses",
-    "Recipients",
     "UserKinds",
     "ChatTypes",
     "CommandTypes",

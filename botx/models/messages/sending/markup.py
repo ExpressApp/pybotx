@@ -1,3 +1,5 @@
+"""Definition for markup attached to sent message."""
+
 from typing import List, Optional, Type, TypeVar
 
 from pydantic import BaseModel
@@ -10,16 +12,17 @@ TUIElement = TypeVar("TUIElement", bound=Button)
 class MessageMarkup(BaseModel):
     """Collection for bubbles and keyboard with some helper methods."""
 
+    #: bubbles that will be attached to message.
     bubbles: List[List[BubbleElement]] = []
-    """bubbles that will be attached to message."""
+
+    #: keyboard elements that will be attached to message.
     keyboard: List[List[KeyboardElement]] = []
-    """keyboard elements that will be attached to message."""
 
     def add_bubble(
         self,
         command: str,
         label: Optional[str] = None,
-        data: Optional[dict] = None,
+        data: Optional[dict] = None,  # noqa: WPS110
         *,
         new_row: bool = True,
     ) -> None:
@@ -62,7 +65,7 @@ class MessageMarkup(BaseModel):
         self,
         command: str,
         label: Optional[str] = None,
-        data: Optional[dict] = None,
+        data: Optional[dict] = None,  # noqa: WPS110
         *,
         new_row: bool = True,
     ) -> None:
@@ -101,13 +104,13 @@ class MessageMarkup(BaseModel):
             new_row=new_row,
         )
 
-    def _add_ui_element(
+    def _add_ui_element(  # noqa: WPS211
         self,
         ui_cls: Type[TUIElement],
         ui_array: List[List[TUIElement]],
         command: str,
         label: Optional[str] = None,
-        data: Optional[dict] = None,
+        data: Optional[dict] = None,  # noqa: WPS110
         new_row: bool = True,
     ) -> None:
         """Add new button to bubble or keyboard arrays.

@@ -17,7 +17,6 @@ from botx import (
     MessageMarkup,
     MessageOptions,
     NotificationOptions,
-    Recipients,
     SendingCredentials,
     SendingMessage,
     UserMention,
@@ -413,7 +412,7 @@ class TestSendingMessageProperties:
             self, sending_message: SendingMessage,
         ) -> None:
             users = [uuid.uuid4(), uuid.uuid4()]
-            sending_message.payload.options.recipients = Recipients.all
+            sending_message.payload.options.recipients = "all"
 
             sending_message.add_recipient(users[0])
             assert sending_message.options.recipients == [users[0]]
@@ -425,7 +424,7 @@ class TestSendingMessageProperties:
             self, sending_message: SendingMessage,
         ) -> None:
             users = [uuid.uuid4(), uuid.uuid4()]
-            sending_message.payload.options.recipients = Recipients.all
+            sending_message.payload.options.recipients = "all"
 
             sending_message.add_recipients(users[:1])
             assert sending_message.options.recipients == users[:1]

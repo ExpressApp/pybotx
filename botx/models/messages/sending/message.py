@@ -1,7 +1,8 @@
+"""Message that is sent from bot."""
 from typing import BinaryIO, List, Optional, TextIO, Union, cast
 from uuid import UUID
 
-from botx.models.enums import MentionTypes, Recipients
+from botx.models.enums import MentionTypes
 from botx.models.files import File
 from botx.models.mentions import ChatMention, Mention, UserMention
 from botx.models.messages.message import Message
@@ -10,6 +11,10 @@ from botx.models.messages.sending.markup import MessageMarkup
 from botx.models.messages.sending.options import MessageOptions, NotificationOptions
 from botx.models.messages.sending.payload import MessagePayload
 from botx.models.typing import AvailableRecipients, BubbleMarkup, KeyboardMarkup
+
+ARGUMENTS_DUPLICATION_ERROR = (
+    "{0} can not be passed along with manual validated_values for it"
+)
 
 
 class SendingMessage:
@@ -251,7 +256,7 @@ class SendingMessage:
         Arguments:
             recipient: recipient for message.
         """
-        if self.payload.options.recipients == Recipients.all:
+        if self.payload.options.recipients == "all":
             self.payload.options.recipients = []
 
         cast(List[UUID], self.payload.options.recipients).append(recipient)
@@ -262,7 +267,7 @@ class SendingMessage:
         Arguments:
             recipients: recipients for message.
         """
-        if self.payload.options.recipients == Recipients.all:
+        if self.payload.options.recipients == "all":
             self.payload.options.recipients = []
 
         cast(List[UUID], self.payload.options.recipients).extend(recipients)
@@ -342,9 +347,9 @@ class SendingMessage:
             Credentials for message.
         """
         if bot_id and host:
-            assert (
-                not credentials
-            ), "MessageCredentials can not be passed along with manual validated_values for it"
+            assert not credentials, ARGUMENTS_DUPLICATION_ERROR.format(
+                "MessageCredentials",
+            )
 
             return SendingCredentials(
                 bot_id=bot_id,
@@ -406,11 +411,9 @@ class SendingMessage:
             Options for message.
         """
         if mentions or recipients or notification_options:
-            assert (
-                not options
-            ), "MessageOptions can not be passed along with manual validated_values for it"
+            assert not options, ARGUMENTS_DUPLICATION_ERROR.format("MessageOptions")
             return MessageOptions(
-                recipients=recipients or Recipients.all,
+                recipients=recipients or "all",
                 mentions=mentions or [],
                 notifications=notification_options or NotificationOptions(),
             )

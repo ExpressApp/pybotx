@@ -1,4 +1,4 @@
-"""Entities that are used in sending operations."""
+"""Payload for messages."""
 
 from typing import List, Optional
 
@@ -15,29 +15,36 @@ from botx.models.typing import BubbleMarkup, KeyboardMarkup
 class MessagePayload(BaseModel):
     """Message payload configuration."""
 
+    #: message text.
     text: str = Field("", max_length=MAXIMUM_TEXT_LENGTH)
-    """message text."""
+
+    #: attached to message file.
     file: Optional[File] = None
-    """attached to message file."""
+
+    #: message markup.
     markup: MessageMarkup = MessageMarkup()
-    """message markup."""
+
+    #: message configuration.
     options: MessageOptions = MessageOptions()
-    """message configuration."""
 
 
 class UpdatePayload(BaseModel):
     """Payload for message edition."""
 
+    #: new message text.
     text: Optional[str] = Field(None, max_length=MAXIMUM_TEXT_LENGTH)
-    """new message text."""
+
+    #: new message bubbles.
     keyboard: Optional[KeyboardMarkup] = None
-    """new message bubbles."""
+
+    #: new message keyboard.
     bubbles: Optional[BubbleMarkup] = None
-    """new message keyboard."""
+
+    #: new message mentions.
     mentions: Optional[List[Mention]] = None
-    """new message mentions."""
+
+    #: new message options.
     opts: Optional[NotificationOptions] = None
-    """new message options."""
 
     @property
     def markup(self) -> MessageMarkup:
