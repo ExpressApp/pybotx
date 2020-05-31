@@ -4,8 +4,7 @@ from typing import Any, Awaitable, Callable, Dict, Optional, Tuple, cast
 
 from botx import concurrency
 from botx.dependencies.models import Dependant, get_dependant
-from botx.models import messages
-from botx.models.messages import Message
+from botx.models.messages.message import Message
 
 CacheKey = Tuple[Callable, Tuple[str, ...]]
 DependenciesCache = Dict[CacheKey, Any]
@@ -24,7 +23,8 @@ async def solve_sub_dependency(
     Arguments:
         message: incoming message that is used for solving this sub dependency.
         dependant: dependency that is solving while calling this function.
-        solved_values: already filled validated_values that are required for this dependency.
+        solved_values: already filled validated_values that are required for this
+            dependency.
         dependency_overrides_provider: an object with `dependency_overrides` attribute
             that contains overrides for dependencies.
         dependency_cache: cache that contains already solved dependency and result for
@@ -105,7 +105,7 @@ async def solve_dependencies(
 
 def get_executor(
     dependant: Dependant, dependency_overrides_provider: Any = None,
-) -> Callable[[messages.Message], Awaitable[None]]:
+) -> Callable[[Message], Awaitable[None]]:
     """Get an execution callable for passed dependency.
 
     Arguments:
@@ -122,7 +122,7 @@ def get_executor(
     if dependant.call is None:
         raise AssertionError("dependant.call must be present")
 
-    async def factory(message: messages.Message) -> None:
+    async def factory(message: Message) -> None:
         solved_values, _ = await solve_dependencies(
             message=message,
             dependant=dependant,

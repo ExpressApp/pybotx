@@ -1,10 +1,9 @@
 """Common responses for mocks."""
 
 import uuid
-from typing import Any, Dict, Optional, Union
+from typing import Union
 
 from pydantic import BaseModel
-from starlette.background import BackgroundTask
 from starlette.responses import Response
 
 from botx.clients.methods.base import APIResponse
@@ -14,16 +13,25 @@ from botx.clients.types.response_results import PushResult
 
 
 class PydanticResponse(Response):
+    """Custom response to encode pydantic model from route."""
+
     def __init__(
         self,
-        content: BaseModel,
+        model: BaseModel,
         status_code: int = 200,
-        headers: Optional[Dict[Any, Any]] = None,
         media_type: str = "application/json",
-        background: Optional[BackgroundTask] = None,
+        **kwargs,
     ) -> None:
+        """Init custom response.
+
+        Arguments:
+            model: pydantic model that should be encoded.
+            status_code: response HTTP status code.
+            media_type: content type of response.
+            kwargs: other arguments to response constructor from starlette.
+        """
         super().__init__(
-            content.json(by_alias=True), status_code, headers, media_type, background,
+            model.json(by_alias=True), status_code, media_type=media_type, **kwargs,
         )
 
 

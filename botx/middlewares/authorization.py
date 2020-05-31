@@ -2,7 +2,7 @@
 
 from botx.middlewares.base import BaseMiddleware
 from botx.models.credentials import ServerCredentials
-from botx.models.messages import Message
+from botx.models.messages.message import Message
 from botx.typing import AsyncExecutor
 
 

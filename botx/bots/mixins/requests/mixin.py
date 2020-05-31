@@ -4,7 +4,7 @@ from typing import Optional, TypeVar, cast
 from botx.bots.mixins.requests import bots, chats, command, events, notification, users
 from botx.clients.clients.async_client import AsyncClient
 from botx.clients.methods.base import BotXMethod
-from botx.models import sending
+from botx.models.messages.sending.credentials import SendingCredentials
 from botx.typing import Protocol
 
 ResponseT = TypeVar("ResponseT")
@@ -20,9 +20,7 @@ class TokenSearchProtocol(Protocol):
 class ClientOwnerProtocol(Protocol):
     """Protocol for object that owns async client for requests to BotX API."""
 
-    @property
-    def client(self) -> AsyncClient:
-        """Async client for requests to BotX API."""
+    client: AsyncClient
 
 
 # A lot of base classes since it's mixin for all shorthands for BotX API requests
@@ -42,7 +40,7 @@ class BotXRequestsMixin(  # noqa: WPS215
         *,
         host: Optional[str] = None,
         token: Optional[str] = None,
-        credentials: Optional[sending.SendingCredentials] = None,
+        credentials: Optional[SendingCredentials] = None,
     ) -> ResponseT:
         """Call method with async client.
 

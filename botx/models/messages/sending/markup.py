@@ -1,49 +1,8 @@
-"""Entities that are used in sending operations."""
+from typing import List, Optional, Type, TypeVar
 
-from typing import List, Optional, Type, TypeVar, Union
-from uuid import UUID
-
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel
 
 from botx.models.buttons import BubbleElement, Button, KeyboardElement
-from botx.models.constants import MAXIMUM_TEXT_LENGTH
-from botx.models.enums import Recipients
-from botx.models.files import File
-from botx.models.mentions import Mention
-from botx.models.typing import BubbleMarkup, KeyboardMarkup
-
-
-class SendingCredentials(BaseModel):
-    """Credentials that are required to send command or notification result."""
-
-    sync_id: Optional[UUID] = None
-    """message event id."""
-    message_id: Optional[UUID] = None
-    """id of message that will be sent."""
-    chat_id: Optional[UUID] = None
-    """chat id in which bot should send message."""
-    bot_id: Optional[UUID] = None
-    """bot that handles message."""
-    host: Optional[str] = None
-    """host on which bot answers."""
-    token: Optional[str] = None
-    """token that is used for bot authorization on requests to BotX API."""
-
-    @validator("chat_id", always=True)
-    def receiver_id_should_be_passed(cls, value: UUID, values: dict) -> UUID:
-        """Check that `chat_id` or `sync_id` was passed.
-
-        Arguments:
-            value: value that should be checked.
-            values: all other validated_values checked before.
-        """
-        if not (value or values["sync_id"]):
-            raise ValueError(
-                "sync_id, chat_id or chat_ids should be passed to initialization",
-            )
-
-        return value
-
 
 TUIElement = TypeVar("TUIElement", bound=Button)
 
@@ -171,65 +130,3 @@ class MessageMarkup(BaseModel):
             ui_array.append([])
 
         ui_array[-1].append(element)
-
-
-class NotificationOptions(BaseModel):
-    """Configurations for message notifications."""
-
-    send: bool = True
-    """show notification about message."""
-    force_dnd: bool = False
-    """break mute on bot messages."""
-
-
-class MessageOptions(BaseModel):
-    """Message options configuration."""
-
-    recipients: Union[List[UUID], Recipients] = Recipients.all
-    """users that should receive message."""
-    mentions: List[Mention] = []
-    """attached to message mentions."""
-    notifications: NotificationOptions = NotificationOptions()
-    """notification configuration."""
-
-
-class MessagePayload(BaseModel):
-    """Message payload configuration."""
-
-    text: str = Field("", max_length=MAXIMUM_TEXT_LENGTH)
-    """message text."""
-    file: Optional[File] = None
-    """attached to message file."""
-    markup: MessageMarkup = MessageMarkup()
-    """message markup."""
-    options: MessageOptions = MessageOptions()
-    """message configuration."""
-
-
-class UpdatePayload(BaseModel):
-    """Payload for message edition."""
-
-    text: Optional[str] = Field(None, max_length=MAXIMUM_TEXT_LENGTH)
-    """new message text."""
-    keyboard: Optional[KeyboardMarkup] = None
-    """new message bubbles."""
-    bubbles: Optional[BubbleMarkup] = None
-    """new message keyboard."""
-    mentions: Optional[List[Mention]] = None
-    """new message mentions."""
-    opts: Optional[NotificationOptions] = None
-    """new message options."""
-
-    @property
-    def markup(self) -> MessageMarkup:
-        """Markup for edited message."""
-        return MessageMarkup(bubbles=self.bubbles or [], keyboard=self.keyboard or [])
-
-    def set_markup(self, markup: MessageMarkup) -> None:
-        """Markup for edited message.
-
-        Arguments:
-            markup: markup that should be applied to payload.
-        """
-        self.bubbles = markup.bubbles
-        self.keyboard = markup.keyboard

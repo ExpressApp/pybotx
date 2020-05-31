@@ -5,10 +5,8 @@ from uuid import UUID
 from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
 from botx.clients.methods.v3.events.edit_event import EditEvent
 from botx.clients.types.message_payload import UpdatePayload
-from botx.models.sending import (
-    SendingCredentials,
-    UpdatePayload as SendingUpdatePayload,
-)
+from botx.models.messages.sending.credentials import SendingCredentials
+from botx.models.messages.sending.payload import UpdatePayload as SendingUpdatePayload
 
 
 class EventsRequestsMixin:

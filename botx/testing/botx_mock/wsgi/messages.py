@@ -9,8 +9,8 @@ def add_message_to_collection(settings: Settings, message: BotXMethod) -> None:
     """Add new message to messages collection.
 
     Arguments:
-          request: request from Starlette endpoint.
-          message: message that should be added.
+        settings: application settings with storage.
+        message: message that should be added.
     """
     messages = settings["messages"]
     messages.append(message)
@@ -21,8 +21,8 @@ def add_request_to_collection(settings: Settings, api_request: BotXMethod) -> No
     """Add new API request to requests collection.
 
     Arguments:
-          http_request: request from Starlette endpoint.
-          api_request: API request that should be added.
+        settings: application settings with storage.
+        api_request: API request that should be added.
     """
     requests = settings["requests"]
     requests.append(api_request)

@@ -12,7 +12,7 @@ from botx.clients.methods.v3.chats.stealth_disable import StealthDisable
 from botx.clients.methods.v3.chats.stealth_set import StealthSet
 from botx.models.chats import ChatFromSearch
 from botx.models.enums import ChatTypes
-from botx.models.sending import SendingCredentials
+from botx.models.messages.sending.credentials import SendingCredentials
 
 
 class ChatsRequestsMixin:

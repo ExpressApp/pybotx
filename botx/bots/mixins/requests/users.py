@@ -7,7 +7,7 @@ from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
 from botx.clients.methods.v3.users.by_email import ByEmail
 from botx.clients.methods.v3.users.by_huid import ByHUID
 from botx.clients.methods.v3.users.by_login import ByLogin
-from botx.models.sending import SendingCredentials
+from botx.models.messages.sending.credentials import SendingCredentials
 from botx.models.users import UserFromSearch
 
 

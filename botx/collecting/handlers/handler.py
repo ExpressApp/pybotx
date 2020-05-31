@@ -18,7 +18,7 @@ from botx.collecting.handlers.validators import (
     validate_body_for_status,
 )
 from botx.dependencies import models as deps
-from botx.models import messages
+from botx.models.messages.message import Message
 
 
 @dataclass
@@ -60,7 +60,7 @@ class Handler:
         check_handler_is_function,
     )
 
-    async def __call__(self, message: messages.Message) -> None:
+    async def __call__(self, message: Message) -> None:
         """Execute handler using incoming message.
 
         Arguments:
@@ -79,7 +79,7 @@ class Handler:
             self.dependant, self.dependency_overrides_provider,
         )
 
-    def matches(self, message: messages.Message) -> bool:
+    def matches(self, message: Message) -> bool:
         """Check if message body matched to handler's body.
 
         Arguments:

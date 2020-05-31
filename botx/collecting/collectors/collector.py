@@ -11,7 +11,7 @@ from botx.collecting.collectors.mixins.hidden import HiddenHandlerMixin
 from botx.collecting.collectors.mixins.system_events import SystemEventsHandlerMixin
 from botx.dependencies.models import Depends
 from botx.exceptions import NoMatchFound
-from botx.models.messages import Message
+from botx.models.messages.message import Message
 
 
 @dataclass

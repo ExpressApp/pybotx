@@ -8,9 +8,14 @@ from pydantic import BaseConfig, validator
 from pydantic.dataclasses import dataclass
 
 from botx import ChatMention, Mention, MentionTypes, UserMention
-from botx.models import enums, receiving
+from botx.models import enums
 from botx.models.enums import ChatTypes, EntityTypes
-from botx.models.receiving import Entity
+from botx.models.messages.incoming_message import (
+    Command,
+    Entity,
+    IncomingMessage,
+    Sender,
+)
 from botx.testing.building.validators import (
     convert_to_acceptable_file,
     validate_body_corresponds_command,
@@ -18,8 +23,8 @@ from botx.testing.building.validators import (
 )
 
 
-def _build_default_user() -> receiving.User:
-    return receiving.User(
+def _build_default_user() -> Sender:
+    return Sender(
         user_huid=uuid.uuid4(),
         group_chat_id=uuid.uuid4(),
         chat_type=ChatTypes.chat,
@@ -47,7 +52,7 @@ class MessageBuilder:
     command_data: dict = field(default_factory=dict)
     system_command: bool = field(default=False)
     file: Optional[Any] = field(default=None)
-    user: receiving.User = field(default_factory=_build_default_user)
+    user: Sender = field(default_factory=_build_default_user)
     entities: List[Entity] = field(default_factory=list)
     body: str = field(default="")
 
@@ -60,17 +65,17 @@ class MessageBuilder:
     _file_converter = validator("file", always=True)(convert_to_acceptable_file)
 
     @property
-    def message(self) -> receiving.IncomingMessage:
+    def message(self) -> IncomingMessage:
         """Message that was built by builder."""
         command_type = (
             enums.CommandTypes.system
             if self.system_command
             else enums.CommandTypes.user
         )
-        command = receiving.Command(
+        command = Command(
             body=self.body, command_type=command_type, data=self.command_data,
         )
-        return receiving.IncomingMessage(
+        return IncomingMessage(
             sync_id=uuid.uuid4(),
             command=command,
             file=self.file,

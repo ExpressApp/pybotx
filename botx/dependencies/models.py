@@ -12,7 +12,7 @@ from pydantic.utils import lenient_issubclass
 from botx.bots import bots
 from botx.clients.clients import async_client, sync_client
 from botx.dependencies import inspecting
-from botx.models import messages
+from botx.models.messages.message import Message
 
 WRONG_PARAM_TYPE_ERROR_TEXT = (
     "Param {0} of {1} can only be a dependency, message, bot or client, got: {2}"
@@ -80,9 +80,6 @@ class Dependant:
             Cache for callable.
         """
         return values["call"], tuple((set()))
-
-
-Dependant.__pydantic_model__.update_forward_refs()  # noqa: WPS609
 
 
 def get_param_sub_dependant(*, dependency_param: inspect.Parameter) -> Dependant:
@@ -157,7 +154,7 @@ def add_special_param_to_dependency(
     if lenient_issubclass(dependency_param.annotation, bots.Bot):
         dependant.bot_param_name = dependency_param.name
         return True
-    elif lenient_issubclass(dependency_param.annotation, messages.Message):
+    elif lenient_issubclass(dependency_param.annotation, Message):
         dependant.message_param_name = dependency_param.name
         return True
     elif lenient_issubclass(dependency_param.annotation, async_client.AsyncClient):

@@ -24,8 +24,9 @@ def should_generate_error_response(
     """Check if mocked API should generate error response.
 
     Arguments:
-        request: request from Starlette route that contains application with required
-            state.
+        request: request from molten route.
+        app: molten app that serves request.
+        settings: application settings with storage.
 
     Returns:
         Result of check.
@@ -40,8 +41,9 @@ def generate_error_response(
     """Generate error response for mocked BotX API.
 
     Arguments:
-        request: request from Starlette route that contains application with required
-            state.
+        request: request from molten route.
+        app: molten app that serves request.
+        settings: application settings with storage.
 
     Returns:
         Generated response.
@@ -60,6 +62,15 @@ def generate_error_response(
 
 
 def error_middleware(handler: Callable[..., Any]) -> Callable[..., Any]:
+    """Middleware that will generate error response.
+
+    Arguments:
+        handler: next handler for request for molten.
+
+    Returns:
+        Created handler for request.
+    """
+
     def decorator(request: Request, app: BaseApp, settings: Settings) -> Any:
         if should_generate_error_response(request, app, settings):
             return generate_error_response(request, app, settings)

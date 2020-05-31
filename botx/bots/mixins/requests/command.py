@@ -7,7 +7,8 @@ from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
 from botx.clients.methods.v3.command.command_result import CommandResult
 from botx.clients.types.message_payload import ResultPayload
 from botx.clients.types.options import ResultOptions
-from botx.models.sending import MessagePayload, SendingCredentials
+from botx.models.messages.sending.credentials import SendingCredentials
+from botx.models.messages.sending.payload import MessagePayload
 
 
 class CommandRequestsMixin:

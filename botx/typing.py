@@ -1,11 +1,9 @@
 """Aliases for complex types from `typing`."""
 
-from typing import TYPE_CHECKING, Awaitable, Callable, TypeVar, Union
+from typing import Awaitable, Callable, TypeVar, Union
 
-from botx.models import messages
-
-if TYPE_CHECKING:  # pragma: no cover
-    from botx.bots.bots import Bot  # isort: skip  # noqa: WPS433, F401
+from botx.bots import bots
+from botx.models.messages import message
 
 try:
     from typing import Protocol, Literal  # noqa: WPS433
@@ -19,21 +17,21 @@ except ImportError:
 ExceptionT = TypeVar("ExceptionT", bound=Exception)
 
 # Something that can handle new message
-AsyncExecutor = Callable[[messages.Message], Awaitable[None]]
-SyncExecutor = Callable[[messages.Message], None]
+AsyncExecutor = Callable[[message.Message], Awaitable[None]]
+SyncExecutor = Callable[[message.Message], None]
 Executor = Union[AsyncExecutor, SyncExecutor]
 
 # Middlware dispatchers
-AsyncMiddlewareDispatcher = Callable[[messages.Message, AsyncExecutor], Awaitable[None]]
-SyncMiddlewareDispatcher = Callable[[messages.Message, SyncExecutor], None]
+AsyncMiddlewareDispatcher = Callable[[message.Message, AsyncExecutor], Awaitable[None]]
+SyncMiddlewareDispatcher = Callable[[message.Message, SyncExecutor], None]
 MiddlewareDispatcher = Union[AsyncMiddlewareDispatcher, SyncMiddlewareDispatcher]
 
 # Exception handlers
-AsyncExceptionHandler = Callable[[ExceptionT, messages.Message], Awaitable[None]]
-SyncExceptionHandler = Callable[[ExceptionT, messages.Message], None]
+AsyncExceptionHandler = Callable[[ExceptionT, message.Message], Awaitable[None]]
+SyncExceptionHandler = Callable[[ExceptionT, message.Message], None]
 ExceptionHandler = Union[AsyncExceptionHandler, SyncExceptionHandler]
 
 # Startup and shutdown events
-AsyncLifespanEvent = Callable[["Bot"], Awaitable[None]]
-SyncLifespanEvent = Callable[["Bot"], None]
+AsyncLifespanEvent = Callable[["bots.Bot"], Awaitable[None]]
+SyncLifespanEvent = Callable[["bots.Bot"], None]
 BotLifespanEvent = Union[AsyncLifespanEvent, SyncLifespanEvent]

@@ -3,7 +3,13 @@
 from typing import BinaryIO, Optional, TextIO, Union
 from uuid import UUID
 
-from botx.models import files, messages, sending
+from botx.models.files import File
+from botx.models.messages.message import Message
+from botx.models.messages.sending.credentials import SendingCredentials
+from botx.models.messages.sending.markup import MessageMarkup
+from botx.models.messages.sending.message import SendingMessage
+from botx.models.messages.sending.options import MessageOptions
+from botx.models.messages.sending.payload import MessagePayload
 from botx.typing import Protocol
 
 
@@ -11,12 +17,12 @@ class ResultSendProtocol(Protocol):
     """Protocol for object that can send command result and notification."""
 
     async def send_command_result(
-        self, credentials: sending.SendingCredentials, payload: sending.MessagePayload,
+        self, credentials: SendingCredentials, payload: MessagePayload,
     ) -> UUID:
         """Send command result."""
 
     async def send_direct_notification(
-        self, credentials: sending.SendingCredentials, payload: sending.MessagePayload,
+        self, credentials: SendingCredentials, payload: MessagePayload,
     ) -> UUID:
         """Send notification."""
 
@@ -24,7 +30,7 @@ class ResultSendProtocol(Protocol):
 class MessageSendProtocol(Protocol):
     """Protocol for object that can send complex message."""
 
-    async def send(self, message: messages.SendingMessage) -> UUID:
+    async def send(self, message: SendingMessage) -> UUID:
         """Send message."""
 
 
@@ -34,11 +40,11 @@ class SendingMixin:
     async def send_message(  # noqa: WPS211
         self: MessageSendProtocol,
         text: str,
-        credentials: sending.SendingCredentials,
+        credentials: SendingCredentials,
         *,
         file: Optional[Union[BinaryIO, TextIO]] = None,
-        markup: Optional[sending.MessageMarkup] = None,
-        options: Optional[sending.MessageOptions] = None,
+        markup: Optional[MessageMarkup] = None,
+        options: Optional[MessageOptions] = None,
     ) -> UUID:
         """Send message as answer to command or notification to chat and get it id.
 
@@ -52,7 +58,7 @@ class SendingMixin:
         Returns:
             `UUID` of sent event.
         """
-        message = messages.SendingMessage(
+        message = SendingMessage(
             text=text, markup=markup, options=options, credentials=credentials,
         )
         if file:
@@ -60,7 +66,7 @@ class SendingMixin:
 
         return await self.send(message)
 
-    async def send(self: ResultSendProtocol, message: messages.SendingMessage) -> UUID:
+    async def send(self: ResultSendProtocol, message: SendingMessage) -> UUID:
         """Send message as answer to command or notification to chat and get it id.
 
         Arguments:
@@ -77,11 +83,11 @@ class SendingMixin:
     async def answer_message(  # noqa: WPS211
         self: MessageSendProtocol,
         text: str,
-        message: messages.Message,
+        message: Message,
         *,
-        file: Optional[Union[BinaryIO, TextIO, files.File]] = None,
-        markup: Optional[sending.MessageMarkup] = None,
-        options: Optional[sending.MessageOptions] = None,
+        file: Optional[Union[BinaryIO, TextIO, File]] = None,
+        markup: Optional[MessageMarkup] = None,
+        options: Optional[MessageOptions] = None,
     ) -> UUID:
         """Answer on incoming message and return id of new message..
 
@@ -99,7 +105,7 @@ class SendingMixin:
         Returns:
             `UUID` of sent event.
         """
-        sending_message = messages.SendingMessage(
+        sending_message = SendingMessage(
             text=text, credentials=message.credentials, markup=markup, options=options,
         )
         if file:
@@ -109,8 +115,8 @@ class SendingMixin:
 
     async def send_file(  # noqa: WPS211
         self: MessageSendProtocol,
-        file: Union[TextIO, BinaryIO, files.File],
-        credentials: sending.SendingCredentials,
+        file: Union[TextIO, BinaryIO, File],
+        credentials: SendingCredentials,
         filename: Optional[str] = None,
     ) -> UUID:
         """Send file in chat and return id of message.
@@ -124,6 +130,6 @@ class SendingMixin:
         Returns:
             `UUID` of sent event.
         """
-        message = messages.SendingMessage(credentials=credentials)
+        message = SendingMessage(credentials=credentials)
         message.add_file(file, filename)
         return await self.send(message)

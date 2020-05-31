@@ -1,7 +1,7 @@
 """Special options for messages from bot."""
 from pydantic import BaseModel
 
-from botx.models.sending import NotificationOptions
+from botx.models.messages.sending.options import NotificationOptions
 
 
 class ResultOptions(BaseModel):

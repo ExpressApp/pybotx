@@ -2,7 +2,8 @@
 
 from typing import BinaryIO, Optional, TextIO, Union
 
-from botx.models import events, files, receiving
+from botx.models import events, files
+from botx.models.messages.incoming_message import Sender
 
 
 def validate_body_corresponds_command(body: str, values: dict) -> str:  # noqa: WPS110
@@ -71,7 +72,7 @@ def _check_system_command_properties(
         _event_checkers[event](**validated_values)
 
 
-def _check_chat_created_event(user: receiving.User, **_kwargs) -> None:
+def _check_chat_created_event(user: Sender, **_kwargs) -> None:
     error_field = ""
     if user.user_huid is not None:
         error_field = "user_huid"

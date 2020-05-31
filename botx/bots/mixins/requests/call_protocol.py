@@ -2,7 +2,7 @@
 from typing import Any, Optional
 
 from botx.clients.methods.base import BotXMethod
-from botx.models import sending
+from botx.models.messages.sending.credentials import SendingCredentials
 from botx.typing import Protocol
 
 
@@ -15,6 +15,6 @@ class BotXMethodCallProtocol(Protocol):
         *,
         host: Optional[str] = None,
         token: Optional[str] = None,
-        credentials: Optional[sending.SendingCredentials] = None,
+        credentials: Optional[SendingCredentials] = None,
     ) -> Any:
         """Send request to BotX API through bot's async client."""

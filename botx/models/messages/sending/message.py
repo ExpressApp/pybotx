@@ -1,140 +1,15 @@
-"""Definition of message object that is used in all bot handlers."""
-
 from typing import BinaryIO, List, Optional, TextIO, Union, cast
 from uuid import UUID
 
-from botx.bots import bots
-from botx.models.datastructures import State
-from botx.models.enums import Recipients
+from botx.models.enums import MentionTypes, Recipients
 from botx.models.files import File
-from botx.models.mentions import ChatMention, Mention, MentionTypes, UserMention
-from botx.models.receiving import Command, Entity, IncomingMessage, User
-from botx.models.sending import (
-    MessageMarkup,
-    MessageOptions,
-    MessagePayload,
-    NotificationOptions,
-    SendingCredentials,
-)
+from botx.models.mentions import ChatMention, Mention, UserMention
+from botx.models.messages.message import Message
+from botx.models.messages.sending.credentials import SendingCredentials
+from botx.models.messages.sending.markup import MessageMarkup
+from botx.models.messages.sending.options import MessageOptions, NotificationOptions
+from botx.models.messages.sending.payload import MessagePayload
 from botx.models.typing import AvailableRecipients, BubbleMarkup, KeyboardMarkup
-
-
-class Message:
-    """Message that is used in handlers."""
-
-    def __init__(self, message: IncomingMessage, bot: "bots.Bot") -> None:
-        """Init message with required query_params.
-
-        Arguments:
-            message: incoming message.
-            bot: bot that handles message.
-        """
-        self.bot: bots.Bot = bot
-        """bot that is used for handling message."""
-        self.state: State = State()
-        """message state."""
-        self._message = message
-
-    @property
-    def sync_id(self) -> UUID:
-        """Event id of message."""
-        return self._message.sync_id
-
-    @property
-    def command(self) -> Command:
-        """Command for bot."""
-        return self._message.command
-
-    @property
-    def file(self) -> Optional[File]:
-        """File attached to message."""
-        return self._message.file
-
-    @property
-    def user(self) -> User:
-        """Information about user that sent message."""
-        return self._message.user
-
-    @property
-    def bot_id(self) -> UUID:
-        """Id of bot that should handle message."""
-        return self._message.bot_id
-
-    @property
-    def body(self) -> str:
-        """Command body."""
-        return self.command.body
-
-    @property
-    def data(self) -> dict:
-        """Command payload."""
-        return self.command.data_dict
-
-    @property
-    def user_huid(self) -> Optional[UUID]:
-        """User huid."""
-        return self.user.user_huid
-
-    @property
-    def ad_login(self) -> Optional[str]:
-        """User AD login."""
-        return self.user.ad_login
-
-    @property
-    def group_chat_id(self) -> UUID:
-        """Chat from which message was received."""
-        return self.user.group_chat_id
-
-    @property
-    def chat_type(self) -> str:
-        """Type of chat."""
-        return self.user.chat_type.value
-
-    @property
-    def host(self) -> str:
-        """Host from which message was received."""
-        return self.user.host
-
-    @property
-    def entities(self) -> List[Entity]:
-        """Entities passed with message."""
-        return self._message.entities
-
-    @property
-    def credentials(self) -> SendingCredentials:
-        """Reply credentials for this message."""
-        return SendingCredentials(
-            sync_id=self.sync_id,
-            bot_id=self.bot_id,
-            host=self.host,
-            chat_id=self.group_chat_id,
-        )
-
-    @property
-    def sent_from_button(self) -> bool:
-        """Check if command received from button press."""
-        if isinstance(self.command.data, dict):
-            return self.command.data.get("ui", False)
-        return False
-
-    @property
-    def incoming_message(self) -> IncomingMessage:
-        """Incoming message from which this was generated."""
-        return self._message.copy(deep=True)
-
-    @classmethod
-    def from_dict(cls, message: dict, bot: "bots.Bot") -> "Message":
-        """Parse incoming dict into message.
-
-        Arguments:
-            message: incoming message to bot as dictionary.
-            bot: bot that handles message.
-
-        Returns:
-            Parsed message.
-        """
-        incoming_msg = IncomingMessage(**message)
-        return cls(incoming_msg, bot)
 
 
 class SendingMessage:
@@ -149,7 +24,7 @@ class SendingMessage:
         sync_id: Optional[UUID] = None,
         chat_id: Optional[UUID] = None,
         message_id: Optional[UUID] = None,
-        recipients: Optional[Union[List[UUID], Recipients]] = None,
+        recipients: Optional[AvailableRecipients] = None,
         mentions: Optional[List[Mention]] = None,
         bubbles: Optional[BubbleMarkup] = None,
         keyboard: Optional[KeyboardMarkup] = None,

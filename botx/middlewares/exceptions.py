@@ -6,7 +6,8 @@ from loguru import logger
 
 from botx import concurrency
 from botx.middlewares.base import BaseMiddleware
-from botx.models import files, messages
+from botx.models import files
+from botx.models.messages.message import Message
 from botx.typing import AsyncExecutor, Executor
 
 
@@ -23,9 +24,7 @@ class ExceptionMiddleware(BaseMiddleware):
         super().__init__(executor)
         self._exception_handlers: Dict[Type[Exception], Callable] = {}
 
-    async def dispatch(
-        self, message: messages.Message, call_next: AsyncExecutor,
-    ) -> None:
+    async def dispatch(self, message: Message, call_next: AsyncExecutor) -> None:
         """Wrap executor for catching exception or log them.
 
         Arguments:
@@ -64,9 +63,7 @@ class ExceptionMiddleware(BaseMiddleware):
 
         return None
 
-    async def _handle_error_in_handler(
-        self, exc: Exception, message: messages.Message,
-    ) -> None:
+    async def _handle_error_in_handler(self, exc: Exception, message: Message) -> None:
         """Pass error back to handler if there is one or log error.
 
         Arguments:

@@ -11,7 +11,7 @@ from botx import Bot, Collector, Depends, concurrency, converters, exceptions
 from botx.collecting.handlers.handler import Handler
 from botx.collecting.handlers.name_generators import get_name_from_callable
 from botx.middlewares.base import BaseMiddleware
-from botx.models import messages
+from botx.models.messages.message import Message
 from botx.typing import Executor
 
 
@@ -95,7 +95,7 @@ class NextStepMiddleware(BaseMiddleware):
         for name, function in functions_dict.items():
             register_function_as_ns_handler(bot, function, name)
 
-    async def dispatch(self, message: messages.Message, call_next: Executor) -> None:
+    async def dispatch(self, message: Message, call_next: Executor) -> None:
         """Execute middleware logic.
 
         Arguments:
@@ -127,7 +127,7 @@ class NextStepMiddleware(BaseMiddleware):
         await next_handler(message)
 
     async def lookup_next_handler_for_message(
-        self, message: messages.Message,
+        self, message: Message,
     ) -> Tuple[Handler, NextStepHandlerState]:
         """Find handler in bot storage or in handlers.
 
@@ -146,7 +146,7 @@ class NextStepMiddleware(BaseMiddleware):
             handler_state,
         )
 
-    async def drop_next_step_handlers_chain(self, message: messages.Message) -> None:
+    async def drop_next_step_handlers_chain(self, message: Message) -> None:
         """Drop registered chain for message.
 
         Arguments:
@@ -156,7 +156,7 @@ class NextStepMiddleware(BaseMiddleware):
             message.bot.state.ns_store.pop(get_chain_key_by_message(message))
 
 
-def get_chain_key_by_message(message: messages.Message) -> Tuple[str, UUID, UUID, UUID]:
+def get_chain_key_by_message(message: Message) -> Tuple[str, UUID, UUID, UUID]:
     """Generate key for next step handlers chain from message.
 
     Arguments:
@@ -208,7 +208,7 @@ def register_function_as_ns_handler(
 
 
 def register_next_step_handler(
-    message: messages.Message, func: Union[str, Callable], **ns_arguments: Any,
+    message: Message, func: Union[str, Callable], **ns_arguments: Any,
 ) -> None:
     """Register new next step handler for next message from user.
 

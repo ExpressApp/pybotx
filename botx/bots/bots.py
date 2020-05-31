@@ -19,7 +19,8 @@ from botx.clients.clients import async_client, sync_client as synchronous_client
 from botx.collecting.collectors.collector import Collector
 from botx.dependencies.models import Depends
 from botx.middlewares.exceptions import ExceptionMiddleware
-from botx.models import credentials, datastructures, menu, messages
+from botx.models import credentials, datastructures, menu
+from botx.models.messages.message import Message
 
 
 @dataclass(config=dataclasses_config.BotXDataclassConfig)
@@ -48,7 +49,7 @@ class Bot(  # noqa: WPS215
 
     tasks: Set[asyncio.Future] = field(init=False, default_factory=set)
 
-    async def __call__(self, message: messages.Message) -> None:
+    async def __call__(self, message: Message) -> None:
         """Iterate through collector, find handler and execute it, running middlewares.
 
         Arguments:
@@ -111,7 +112,7 @@ class Bot(  # noqa: WPS215
             ServerUnknownError: raised if message was received from unregistered host.
         """
         logger.bind(botx_bot=True, payload=message).debug("process incoming message")
-        msg = messages.Message.from_dict(message, self)
+        msg = Message.from_dict(message, self)
         for server in self.known_hosts:
             if server.host == msg.host:
                 await self(msg)

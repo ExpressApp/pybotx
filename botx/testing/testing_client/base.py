@@ -9,7 +9,8 @@ import httpx
 from botx.bots.bots import Bot
 from botx.clients.methods.base import BotXMethod
 from botx.middlewares.exceptions import ExceptionMiddleware
-from botx.models import messages, receiving
+from botx.models.messages.incoming_message import IncomingMessage
+from botx.models.messages.message import Message
 from botx.testing.botx_mock.asgi.application import get_botx_asgi_api
 from botx.testing.botx_mock.wsgi.application import get_botx_wsgi_api
 from botx.testing.typing import APIMessage, APIRequest
@@ -18,9 +19,7 @@ from botx.testing.typing import APIMessage, APIRequest
 class _ExceptionMiddleware(ExceptionMiddleware):
     """Replacement of built-in ExceptionMiddleware that will raise errors."""
 
-    async def _handle_error_in_handler(
-        self, exc: Exception, message: messages.Message,
-    ) -> None:
+    async def _handle_error_in_handler(self, exc: Exception, message: Message) -> None:
         handler = self._lookup_handler_for_exception(exc)
 
         if handler is None:
@@ -105,9 +104,7 @@ class BaseTestClient:
         with self.__class__(self.bot, override_errors, self._suppress_errors) as client:
             yield client
 
-    async def send_command(
-        self, message: receiving.IncomingMessage, sync: bool = True,
-    ) -> None:
+    async def send_command(self, message: IncomingMessage, sync: bool = True) -> None:
         """Send command message to bot.
 
         Arguments:

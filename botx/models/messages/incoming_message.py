@@ -16,12 +16,14 @@ CommandDataType = Union[ChatCreatedEvent, Dict[str, Any]]
 class Command(BaseModel):
     """Command that should be proceed by bot."""
 
+    #: incoming text message.
     body: str
-    """incoming text message."""
+
+    #: was command received from user or this is system event.
     command_type: CommandTypes
-    """was command received from user or this is system event."""
-    data: CommandDataType = {}
-    """command payload."""
+
+    #: command payload.
+    data: CommandDataType = {}  # noqa: WPS110
 
     @property
     def command(self) -> str:
@@ -39,7 +41,8 @@ class Command(BaseModel):
     @property
     def single_argument(self) -> str:
         """Line that passed after command."""
-        return self.body[len(self.command) :].strip()
+        body_len = len(self.command)
+        return self.body[body_len:].strip()
 
     @property
     def data_dict(self) -> dict:
@@ -49,33 +52,41 @@ class Command(BaseModel):
         return self.data.dict()
 
 
-class User(BaseModel):
+class Sender(BaseModel):
     """User that sent message to bot."""
 
+    #: user id.
     user_huid: Optional[UUID]
-    """user id."""
+
+    #: chat id.
     group_chat_id: UUID
-    """chat id."""
+
+    #: type of chat.
     chat_type: ChatTypes
-    """type of chat."""
+
+    #: AD login of user.
     ad_login: Optional[str]
-    """AD login of user."""
+
+    #: AD domain of user.
     ad_domain: Optional[str]
-    """AD domain of user."""
+
+    #: username of user.
     username: Optional[str]
-    """username of user."""
-    is_admin: bool
-    """is user admin of chat."""
-    is_creator: bool
-    """is user creator of chat."""
+
+    #: is user admin of chat.
+    is_admin: Optional[bool]
+
+    #: is user creator of chat.
+    is_creator: Optional[bool]
+
+    #: host from which user sent message.
     host: str
-    """host from which user sent message."""
 
     @property
     def email(self) -> Optional[str]:
         """User email."""
         if self.ad_login and self.ad_domain:
-            return f"{self.ad_login}@{self.ad_domain}"
+            return "{0}@{1}".format(self.ad_login, self.ad_domain)
 
         return None
 
@@ -83,46 +94,53 @@ class User(BaseModel):
 class Entity(BaseModel):
     """Additional entity that can be received by bot."""
 
-    type: EntityTypes
-    """entity type."""
-    data: Union[Mention]
-    """entity data."""
+    #: entity type.
+    type: EntityTypes  # noqa: WPS: 125
+
+    #: entity data.
+    data: Union[Mention]  # noqa: WPS: 110
 
 
 class IncomingMessage(BaseModel):
     """Message that was received by bot and should be handled."""
 
+    #: message event id on which bot should answer.
     sync_id: UUID
-    """message event id on which bot should answer."""
+
+    #: command for bot.
     command: Command
-    """command for bot."""
+
+    #: file attached to message.
     file: Optional[File] = None
-    """file attached to message."""
-    user: User = Field(..., alias="from")
-    """information about user from which message was received."""
+
+    #: information about user from which message was received.
+    user: Sender = Field(..., alias="from")
+
+    #: id of bot that should handle message.
     bot_id: UUID
-    """id of bot that should handle message."""
+
+    #: additional entities that can be received by bot.
     entities: List[Entity] = []
-    """additional entities that can be received by bot."""
 
     class Config(BaseConfig):
         allow_population_by_field_name = True
 
     @validator("file", always=True, pre=True)
     def skip_file_validation(
-        cls, value: Optional[Union[dict, File]],
+        cls, file: Optional[Union[dict, File]],  # noqa: N805
     ) -> Optional[File]:
         """Skip validation for incoming file since users have not such limits as bot.
 
         Arguments:
-            value: file data that should be used for building file instance.
+            cls: this class.
+            file: file data that should be used for building file instance.
 
         Returns:
             Constructed file.
         """
-        if isinstance(value, File):
-            return value
-        elif value is not None:
-            return File.construct(**value)
+        if isinstance(file, File):
+            return file
+        elif file is not None:
+            return File.construct(**file)
 
         return None

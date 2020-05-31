@@ -4,7 +4,7 @@ from typing import Any
 
 from loguru import logger
 
-from botx.models import messages
+from botx.models.messages import message as messages
 
 
 async def dependency_failure_exception_handler(*_: Any) -> None:

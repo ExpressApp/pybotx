@@ -1,7 +1,7 @@
 """Common responses for mocks."""
 
 import uuid
-from typing import Any, BinaryIO, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 from molten import HTTP_200, Response
 from pydantic import BaseModel
@@ -13,18 +13,25 @@ from botx.clients.types.response_results import PushResult
 
 
 class PydanticResponse(Response):
+    """Custom response to encode pydantic model from route."""
+
     def __init__(
         self,
-        content: BaseModel,
+        model: BaseModel,
         status_code: str = HTTP_200,
         headers: Optional[Dict[Any, Any]] = None,
-        stream: Optional[BinaryIO] = None,
-        encoding: str = "utf-8",
     ) -> None:
+        """Init custom response.
+
+        Arguments:
+            model: pydantic model that should be encoded.
+            status_code: response HTTP status code.
+            headers: headers for response.
+        """
         headers = headers or {}
         headers["Content-Type"] = "application/json"
         super().__init__(
-            status_code, headers, content.json(by_alias=True), stream, encoding,
+            status_code, headers, model.json(by_alias=True),
         )
 
 

@@ -4,7 +4,7 @@ from typing import List
 import pytest
 
 from botx import ChatTypes, CommandTypes
-from botx.models.receiving import Command, IncomingMessage, User
+from botx.models.messages.incoming_message import Command, IncomingMessage, Sender
 
 
 @pytest.mark.parametrize(
@@ -38,7 +38,7 @@ def test_command_data_as_dict() -> None:
 
 def test_user_email_when_credentials_passed() -> None:
     assert (
-        User(
+        Sender(
             user_huid=uuid.uuid4(),
             group_chat_id=uuid.uuid4(),
             chat_type=ChatTypes.chat,
@@ -55,7 +55,7 @@ def test_user_email_when_credentials_passed() -> None:
 
 def test_user_email_when_credentials_missed() -> None:
     assert (
-        User(
+        Sender(
             group_chat_id=uuid.uuid4(),
             chat_type=ChatTypes.chat,
             is_admin=False,

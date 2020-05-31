@@ -8,51 +8,39 @@ from starlette.routing import Route
 
 from botx.clients.methods.base import BotXMethod
 from botx.testing.botx_mock.asgi.errors import ErrorMiddleware
-from botx.testing.botx_mock.asgi.routes.bots import get_token
-from botx.testing.botx_mock.asgi.routes.chats import (
-    get_info,
-    post_add_user,
-    post_create,
-    post_remove_user,
-    post_stealth_disable,
-    post_stealth_set,
-)
-from botx.testing.botx_mock.asgi.routes.command import post_command_result
-from botx.testing.botx_mock.asgi.routes.events import post_edit_event
-from botx.testing.botx_mock.asgi.routes.notification import (
-    post_notification,
-    post_notification_direct,
-)
-from botx.testing.botx_mock.asgi.routes.users import (
-    get_by_email,
-    get_by_huid,
-    get_by_login,
+from botx.testing.botx_mock.asgi.routes import (
+    bots,
+    chats,
+    command,
+    events,
+    notification,
+    users,
 )
 from botx.testing.typing import APIMessage, APIRequest
 
 _ENDPOINTS: Tuple[RequestResponseEndpoint, ...] = (
     # V2
     # bots
-    get_token,
+    bots.get_token,
     # V3
     # chats
-    get_info,
-    post_add_user,
-    post_remove_user,
-    post_stealth_set,
-    post_stealth_disable,
-    post_create,
+    chats.get_info,
+    chats.post_add_user,
+    chats.post_remove_user,
+    chats.post_stealth_set,
+    chats.post_stealth_disable,
+    chats.post_create,
     # command
-    post_command_result,
+    command.post_command_result,
     # events
-    post_edit_event,
+    events.post_edit_event,
     # notification
-    post_notification,
-    post_notification_direct,
+    notification.post_notification,
+    notification.post_notification_direct,
     # users
-    get_by_huid,
-    get_by_email,
-    get_by_login,
+    users.get_by_huid,
+    users.get_by_email,
+    users.get_by_login,
 )
 
 
@@ -60,11 +48,9 @@ def _create_starlette_routes() -> Sequence[Route]:
     routes = []
 
     for endpoint in _ENDPOINTS:
-        routes.append(
-            Route(
-                endpoint.method.__url__, endpoint, methods=[endpoint.method.__method__],
-            ),
-        )
+        url = endpoint.method.__url__  # noqa: WPS609
+        method = endpoint.method.__method__  # noqa: WPS609
+        routes.append(Route(url, endpoint, methods=[method]))
 
     return routes
 

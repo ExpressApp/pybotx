@@ -9,7 +9,8 @@ from botx.clients.methods.v3.notification.direct_notification import Notificatio
 from botx.clients.methods.v3.notification.notification import Notification
 from botx.clients.types.message_payload import ResultPayload
 from botx.clients.types.options import ResultOptions
-from botx.models import sending
+from botx.models.messages.sending.credentials import SendingCredentials
+from botx.models.messages.sending.payload import MessagePayload
 
 
 class NotificationRequestsMixin:
@@ -17,8 +18,8 @@ class NotificationRequestsMixin:
 
     async def send_notification(
         self: BotXMethodCallProtocol,
-        credentials: sending.SendingCredentials,
-        payload: sending.MessagePayload,
+        credentials: SendingCredentials,
+        payload: MessagePayload,
         group_chat_ids: Optional[Sequence[UUID]] = None,
     ) -> None:
         """Send notifications into chat.
@@ -51,8 +52,8 @@ class NotificationRequestsMixin:
 
     async def send_direct_notification(
         self: BotXMethodCallProtocol,
-        credentials: sending.SendingCredentials,
-        payload: sending.MessagePayload,
+        credentials: SendingCredentials,
+        payload: MessagePayload,
     ) -> UUID:
         """Send notification into chat.
 
