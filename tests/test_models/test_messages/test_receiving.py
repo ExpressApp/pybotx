@@ -8,16 +8,16 @@ from botx.models.messages.incoming_message import Command, IncomingMessage, Send
 
 
 @pytest.mark.parametrize(
-    "body, command, arguments, single_argument",
-    (
-        ("/command", "/command", tuple(), ""),
-        ("/command ", "/command", tuple(), ""),
+    ("body", "command", "arguments", "single_argument"),
+    [
+        ("/command", "/command", (), ""),
+        ("/command ", "/command", (), ""),
         ("/command arg", "/command", ("arg",), "arg"),
         ("/command arg ", "/command", ("arg",), "arg"),
         ("/command  \t\t arg ", "/command", ("arg",), "arg"),
         ("/command arg arg", "/command", ("arg", "arg"), "arg arg"),
         ("/command     arg arg    ", "/command", ("arg", "arg"), "arg arg"),
-    ),
+    ],
 )
 def test_command_splits_right(
     body: str, command: str, arguments: List[str], single_argument: str,
@@ -37,20 +37,18 @@ def test_command_data_as_dict() -> None:
 
 
 def test_user_email_when_credentials_passed() -> None:
-    assert (
-        Sender(
-            user_huid=uuid.uuid4(),
-            group_chat_id=uuid.uuid4(),
-            chat_type=ChatTypes.chat,
-            ad_login="user",
-            ad_domain="example.com",
-            username="test user",
-            is_admin=False,
-            is_creator=True,
-            host="cts.example.com",
-        ).email
-        == "user@example.com"
+    sender = Sender(
+        user_huid=uuid.uuid4(),
+        group_chat_id=uuid.uuid4(),
+        chat_type=ChatTypes.chat,
+        ad_login="user",
+        ad_domain="example.com",
+        username="test user",
+        is_admin=False,
+        is_creator=True,
+        host="cts.example.com",
     )
+    assert sender.email == "user@example.com"
 
 
 def test_user_email_when_credentials_missed() -> None:

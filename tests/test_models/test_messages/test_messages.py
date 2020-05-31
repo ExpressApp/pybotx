@@ -23,7 +23,7 @@ from botx import (
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def incoming_message() -> IncomingMessage:
     return IncomingMessage.parse_obj(
         {
@@ -112,7 +112,7 @@ def test_setting_ui_flag_property_for_system_message(incoming_message) -> None:
     assert not msg.sent_from_button
 
 
-@pytest.fixture
+@pytest.fixture()
 def sending_message() -> SendingMessage:
     return SendingMessage(
         text="text",

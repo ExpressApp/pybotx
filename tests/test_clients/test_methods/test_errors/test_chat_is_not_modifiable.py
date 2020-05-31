@@ -24,6 +24,6 @@ async def test_raising_chat_is_not_modifiable(client, requests_client):
         ),
     }
 
-    with pytest.raises(PersonalChatIsNotModifiableError):
-        with client.error_client(errors=errors_to_raise):
+    with client.error_client(errors=errors_to_raise):
+        with pytest.raises(PersonalChatIsNotModifiableError):
             await callable_to_coroutine(requests_client.call, method, "example.cts")

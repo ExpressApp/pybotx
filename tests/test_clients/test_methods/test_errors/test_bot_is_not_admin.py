@@ -25,6 +25,6 @@ async def test_raising_bot_is_not_admin(client, requests_client):
         ),
     }
 
-    with pytest.raises(BotIsNotAdminError):
-        with client.error_client(errors=errors_to_raise):
+    with client.error_client(errors=errors_to_raise):
+        with pytest.raises(BotIsNotAdminError):
             await callable_to_coroutine(requests_client.call, method, "example.cts")

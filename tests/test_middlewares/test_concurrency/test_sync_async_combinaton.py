@@ -8,7 +8,7 @@ pytest_plugins = ("tests.test_middlewares.test_concurrency.fixtures",)
 
 @pytest.mark.parametrize(
     "order",
-    (("sync", "sync"), ("sync", "async"), ("async", "sync"), ("async", "async")),
+    [("sync", "sync"), ("sync", "async"), ("async", "sync"), ("async", "async")],
 )
 async def test_that_both_async_and_sync_middlewares_will_work(
     bot,

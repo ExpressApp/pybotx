@@ -14,7 +14,7 @@ def handler_with_dependency(storage):
 
 
 async def test_passing_async_client_as_dependency(
-    bot, client, incoming_message, handler_with_dependency, storage
+    bot, client, incoming_message, handler_with_dependency, storage,
 ):
     bot.default(handler_with_dependency)
     await client.send_command(incoming_message)

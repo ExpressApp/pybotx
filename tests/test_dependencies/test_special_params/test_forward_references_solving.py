@@ -14,7 +14,7 @@ def handler_with_dependency(storage):
 
 
 async def test_solving_forward_references_for_special_dependencies(
-    bot, client, incoming_message, handler_with_dependency, storage
+    bot, client, incoming_message, handler_with_dependency, storage,
 ):
     bot.default(handler_with_dependency)
 

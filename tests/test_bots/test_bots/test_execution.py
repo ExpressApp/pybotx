@@ -6,7 +6,7 @@ pytestmark = pytest.mark.asyncio
 
 
 async def test_bot_process_message_by_sorted_handlers(
-    bot, client, incoming_message, build_handler
+    bot, client, incoming_message, build_handler,
 ):
     event1 = threading.Event()
     event2 = threading.Event()

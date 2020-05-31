@@ -63,7 +63,7 @@ async def test_handling_from_nearest_mro_handler(
 
 
 async def test_logging_exception_if_was_not_found(
-    bot, incoming_message, loguru_caplog, build_failed_handler
+    bot, incoming_message, loguru_caplog, build_failed_handler,
 ) -> None:
     event = threading.Event()
     bot.default(build_failed_handler(ValueError, event))

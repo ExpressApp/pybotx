@@ -8,4 +8,5 @@ def test_defining_handler_in_collector_as_decorator(
 ):
     collector = Collector()
     collector.handler()(handler_as_function)
-    assert [collector.handler_for("handler_function")]
+    handlers = [collector.handler_for("handler_function")]
+    assert handlers

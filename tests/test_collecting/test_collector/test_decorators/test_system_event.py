@@ -11,4 +11,5 @@ def test_registration_handler_for_several_system_events(
     collector.system_event(
         handler=handler_as_function, events=list(system_events),
     )
-    assert [SystemEvents(handler.body) for handler in collector.handlers]
+    handlers = [SystemEvents(handler.body) for handler in collector.handlers]
+    assert handlers

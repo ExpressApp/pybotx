@@ -9,7 +9,7 @@ pytest_plugins = ("tests.test_middlewares.test_ns_middleware.fixtures",)
 
 
 async def test_executing_ns_handlers(
-    bot, incoming_message, client, build_handler_to_start_chain
+    bot, incoming_message, client, build_handler_to_start_chain,
 ) -> None:
     chain_start_event = threading.Event()
     ns_handler_event = threading.Event()
@@ -31,7 +31,7 @@ async def test_executing_ns_handlers(
 
 
 async def test_breaking_chain(
-    bot, incoming_message, client, build_handler_to_start_chain
+    bot, incoming_message, client, build_handler_to_start_chain,
 ):
     break_handler_event = threading.Event()
     chain_start_event = threading.Event()

@@ -18,14 +18,14 @@ def test_error_from_callable(handler_as_callable_object):
 
 def test_slash_in_command_for_public_command(handler_as_function):
     with pytest.raises(ValidationError):
-        _ = Handler(body="command", handler=handler_as_function)
+        Handler(body="command", handler=handler_as_function)
 
 
 def test_only_one_slash_in_public_command(handler_as_function):
     with pytest.raises(ValidationError):
-        _ = Handler(body="//command", handler=handler_as_function)
+        Handler(body="//command", handler=handler_as_function)
 
 
 def test_that_menu_command_contain_only_single_word(handler_as_function):
     with pytest.raises(ValidationError):
-        _ = Handler(body="/many words handler", handler=handler_as_function)
+        Handler(body="/many words handler", handler=handler_as_function)

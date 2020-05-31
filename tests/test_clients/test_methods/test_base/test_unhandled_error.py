@@ -23,8 +23,8 @@ async def test_raising_base_api_error_if_empty_handlers(client, requests_client)
         ),
     }
 
-    with pytest.raises(BotXAPIError):
-        with client.error_client(errors=errors_to_raise):
+    with client.error_client(errors=errors_to_raise):
+        with pytest.raises(BotXAPIError):
             await callable_to_coroutine(requests_client.call, method, "example.cts")
 
 
@@ -42,6 +42,6 @@ async def test_raising_base_api_error_if_unhandled(client, requests_client):
         ),
     }
 
-    with pytest.raises(BotXAPIError):
-        with client.error_client(errors=errors_to_raise):
+    with client.error_client(errors=errors_to_raise):
+        with pytest.raises(BotXAPIError):
             await callable_to_coroutine(requests_client.call, method, "example.cts")

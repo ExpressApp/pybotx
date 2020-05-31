@@ -7,7 +7,7 @@ pytest_plugins = ("tests.test_middlewares.test_concurrency.fixtures",)
 
 
 async def test_sync_middleware_receives_sync_executor(
-    bot, client, incoming_message, build_handler, sync_middleware_class
+    bot, client, incoming_message, build_handler, sync_middleware_class,
 ):
     bot.add_middleware(sync_middleware_class)
 

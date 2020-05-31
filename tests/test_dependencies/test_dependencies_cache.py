@@ -21,7 +21,7 @@ def build_dependency():
 
 
 async def test_dependency_executed_only_once_per_message(
-    bot, client, incoming_message, build_dependency, build_handler
+    bot, client, incoming_message, build_dependency, build_handler,
 ):
     event = threading.Event()
     lock = threading.Lock()

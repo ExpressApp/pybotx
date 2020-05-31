@@ -8,10 +8,10 @@ class HandlerClass:
     def handler_method_snake_case(self) -> None:
         """Handler with name in snake case."""
 
-    def handlerMethodCamelCase(self) -> None:
+    def handlerMethodCamelCase(self) -> None:  # noqa: N802
         """Handler with name in camel case."""
 
-    def HandlerMethodPascalCase(self) -> None:
+    def HandlerMethodPascalCase(self) -> None:  # noqa: N802
         """Handler with name in pascal case."""
 
     def __call__(self) -> None:
