@@ -5,9 +5,9 @@ from starlette.responses import Response
 
 from botx.clients.methods.base import APIResponse
 from botx.clients.methods.v3.events.edit_event import EditEvent
-from botx.testing.botx_mock.asgi.binders import bind_implementation_to_method
 from botx.testing.botx_mock.asgi.messages import add_message_to_collection
 from botx.testing.botx_mock.asgi.responses import PydanticResponse
+from botx.testing.botx_mock.binders import bind_implementation_to_method
 
 
 @bind_implementation_to_method(EditEvent)

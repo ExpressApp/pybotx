@@ -182,6 +182,17 @@ toml = ["toml"]
 
 [[package]]
 category = "dev"
+description = "Conditional coverage based on any rules you define!"
+name = "coverage-conditional-plugin"
+optional = false
+python-versions = ">=3.6,<4.0"
+version = "0.2.0"
+
+[package.dependencies]
+coverage = ">=5.0,<6.0"
+
+[[package]]
+category = "dev"
 description = "A utility for ensuring Google-style docstrings stay up to date with the source code."
 name = "darglint"
 optional = false
@@ -1328,7 +1339,7 @@ testing = ["jaraco.itertools", "func-timeout"]
 tests = ["starlette", "molten"]
 
 [metadata]
-content-hash = "5d935c8e060beb9a9adefe56fc4b229d87578e08c37f3729bb772a3950427133"
+content-hash = "ce391b6fbc47318be7a0bd3422f46d44029815b8f2da2db06c9785b19b3e9a8b"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -1424,6 +1435,10 @@ coverage = [
     {file = "coverage-5.1-cp39-cp39-win32.whl", hash = "sha256:a82b92b04a23d3c8a581fc049228bafde988abacba397d57ce95fe95e0338ab4"},
     {file = "coverage-5.1-cp39-cp39-win_amd64.whl", hash = "sha256:bb28a7245de68bf29f6fb199545d072d1036a1917dca17a1e75bbb919e14ee8e"},
     {file = "coverage-5.1.tar.gz", hash = "sha256:f90bfc4ad18450c80b024036eaf91e4a246ae287701aaa88eaebebf150868052"},
+]
+coverage-conditional-plugin = [
+    {file = "coverage-conditional-plugin-0.2.0.tar.gz", hash = "sha256:17f24134b1f7d03f4b3b1b8a0a56c2ff575a98066677150a9f7216f3c1ce7bb8"},
+    {file = "coverage_conditional_plugin-0.2.0-py3-none-any.whl", hash = "sha256:beddd4364bdfc18cb0ab15c217566f7d19942e7f1c81b385adc21e9fa31fd395"},
 ]
 darglint = [
     {file = "darglint-1.3.0-py3-none-any.whl", hash = "sha256:bb5b0c7e1b0dd4b16d1c355db61a230b68f5537e483cc9e8a8f4b925314b5fad"},

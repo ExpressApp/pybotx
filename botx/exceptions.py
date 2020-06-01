@@ -1,17 +1,15 @@
 """Exceptions that are used in this library."""
 from typing import Any, Dict
 
-# All inits here are required for auto docs
-
 
 class BotXException(Exception):
     """Base error for exception in this library."""
 
+    #: template that should be rendered on __str__ call.
     message_template: str = ""
-    """template that should be rendered on __str__ call."""
 
     def __init__(self, **kwargs: Any) -> None:
-        """Init exception with passed params.
+        """Init exception with passed query_params.
 
         Arguments:
             kwargs: key-arguments that will be stored in instance.
@@ -31,6 +29,8 @@ class NoMatchFound(BotXException):
     """Raised by collector if no matching handler exists."""
 
     message_template = "handler for {search_param} not found"
+
+    #: body for which handler was not found.
     search_param: str
 
 
@@ -42,9 +42,17 @@ class BotXAPIError(BotXException):
     """Raised if there is an error in requests to BotX API."""
 
     message_template = "unable to send {method} {url} to BotX API ({status})"
+
+    #: URL from request.
     url: str
+
+    #: HTTP method.
     method: str
+
+    #: response from API.
     response_content: Dict[str, Any]
+
+    # HTTP status code.
     status: int
 
 
@@ -52,4 +60,6 @@ class ServerUnknownError(BotXException):
     """Raised if bot does not know host."""
 
     message_template = "unknown server {host}"
+
+    #: host that is unregistered.
     host: str

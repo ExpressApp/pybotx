@@ -4,7 +4,13 @@ from typing import List, Union
 from uuid import UUID
 
 from botx.models.buttons import BubbleElement, KeyboardElement
-from botx.models.enums import Recipients
+
+try:
+    from typing import Literal  # noqa: WPS433
+except ImportError:
+    from typing_extensions import (  # type: ignore  # noqa: WPS433, WPS440, F401
+        Literal,
+    )
 
 BubblesRow = List[BubbleElement]
 BubbleMarkup = List[BubblesRow]
@@ -12,4 +18,4 @@ BubbleMarkup = List[BubblesRow]
 KeyboardRow = List[KeyboardElement]
 KeyboardMarkup = List[KeyboardRow]
 
-AvailableRecipients = Union[List[UUID], Recipients]
+AvailableRecipients = Union[List[UUID], Literal["all"]]

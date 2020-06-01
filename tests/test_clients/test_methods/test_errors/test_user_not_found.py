@@ -16,6 +16,6 @@ async def test_raising_user_not_found(client, requests_client):
 
     errors_to_raise = {ByHUID: (StatusCode.NOT_FOUND, {})}
 
-    with pytest.raises(UserNotFoundError):
-        with client.error_client(errors=errors_to_raise):
+    with client.error_client(errors=errors_to_raise):
+        with pytest.raises(UserNotFoundError):
             await callable_to_coroutine(requests_client.call, method, "example.cts")

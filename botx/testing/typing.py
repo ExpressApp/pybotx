@@ -2,46 +2,48 @@
 
 from typing import Union
 
-from botx.clients.methods.v2.bots.token import Token
-from botx.clients.methods.v3.chats.add_user import AddUser
-from botx.clients.methods.v3.chats.create import Create
-from botx.clients.methods.v3.chats.info import Info
-from botx.clients.methods.v3.chats.remove_user import RemoveUser
-from botx.clients.methods.v3.chats.stealth_disable import StealthDisable
-from botx.clients.methods.v3.chats.stealth_set import StealthSet
-from botx.clients.methods.v3.command.command_result import CommandResult
-from botx.clients.methods.v3.events.edit_event import EditEvent
-from botx.clients.methods.v3.notification.direct_notification import NotificationDirect
-from botx.clients.methods.v3.notification.notification import Notification
-from botx.clients.methods.v3.users.by_email import ByEmail
-from botx.clients.methods.v3.users.by_huid import ByHUID
-from botx.clients.methods.v3.users.by_login import ByLogin
+from botx.clients.methods.v2.bots import token
+from botx.clients.methods.v3.chats import (
+    add_user,
+    create,
+    info,
+    remove_user,
+    stealth_disable,
+    stealth_set,
+)
+from botx.clients.methods.v3.command import command_result
+from botx.clients.methods.v3.events import edit_event
+from botx.clients.methods.v3.notification import direct_notification, notification
+from botx.clients.methods.v3.users import by_email, by_huid, by_login
 
 APIMessage = Union[
-    CommandResult, Notification, NotificationDirect, EditEvent,
+    command_result.CommandResult,
+    notification.Notification,
+    direct_notification.NotificationDirect,
+    edit_event.EditEvent,
 ]
 
 APIRequest = Union[
     # V2
     # bots
-    Token,
+    token.Token,
     # V3
     # chats
-    AddUser,
-    Info,
-    RemoveUser,
-    StealthDisable,
-    StealthSet,
-    Create,
+    add_user.AddUser,
+    info.Info,
+    remove_user.RemoveUser,
+    stealth_disable.StealthDisable,
+    stealth_set.StealthSet,
+    create.Create,
     # command
-    CommandResult,
+    command_result.CommandResult,
     # notification
-    Notification,
-    NotificationDirect,
+    notification.Notification,
+    direct_notification.NotificationDirect,
     # events
-    EditEvent,
+    edit_event.EditEvent,
     # users
-    ByHUID,
-    ByEmail,
-    ByLogin,
+    by_huid.ByHUID,
+    by_email.ByEmail,
+    by_login.ByLogin,
 ]

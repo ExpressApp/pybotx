@@ -1,6 +1,9 @@
 import uuid
 from io import StringIO
 
+import pytest
+from pydantic import ValidationError
+
 from botx import (
     Entity,
     EntityTypes,
@@ -88,7 +91,36 @@ def test_setting_raw_entities():
         Entity(
             type=EntityTypes.mention,
             data=Mention(mention_data=UserMention(user_huid=uuid.uuid4())),
-        )
+        ),
     ]
 
     assert builder.message.entities[0].data.mention_type == MentionTypes.user
+
+
+@pytest.mark.parametrize(
+    "include_param", ["user_huid", "ad_login", "ad_domain", "username"],
+)
+def test_error_when_chat_validation_not_passed(include_param):
+    user_params = {"user_huid", "ad_login", "ad_domain", "username"}
+    builder = MessageBuilder()
+
+    builder.body = "system:chat_created"
+    builder.user = builder.user.copy(
+        update={param: None for param in user_params - {include_param}},
+    )
+    builder.command_data = {
+        "group_chat_id": uuid.uuid4(),
+        "chat_type": "group_chat",
+        "name": "",
+        "creator": uuid.uuid4(),
+        "members": [],
+    }
+    with pytest.raises(ValidationError):
+        builder.system_command = True
+
+
+def test_error_when_file_validation_not_passed():
+    builder = MessageBuilder()
+    builder.body = "file_transfer"
+    with pytest.raises(ValidationError):
+        builder.system_command = True

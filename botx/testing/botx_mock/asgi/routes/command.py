@@ -4,9 +4,9 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from botx.clients.methods.v3.command.command_result import CommandResult
-from botx.testing.botx_mock.asgi.binders import bind_implementation_to_method
 from botx.testing.botx_mock.asgi.messages import add_message_to_collection
 from botx.testing.botx_mock.asgi.responses import generate_push_response
+from botx.testing.botx_mock.binders import bind_implementation_to_method
 
 
 @bind_implementation_to_method(CommandResult)

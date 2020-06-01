@@ -67,7 +67,7 @@ class ErrorMiddleware(BaseHTTPMiddleware):
     """Middleware that will generate error response."""
 
     async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint
+        self, request: Request, call_next: RequestResponseEndpoint,
     ) -> Response:
         """Generate error response for API call or pass request to mocked endpoint.
 

@@ -1,4 +1,4 @@
-from botx.collecting import Handler
+from botx.collecting.handlers.handler import Handler
 
 pytest_plugins = ("tests.test_collecting.fixtures",)
 

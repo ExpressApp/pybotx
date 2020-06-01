@@ -23,6 +23,7 @@ nav:
       - Bots: 'reference/bots.md'
       - Clients: 'reference/clients.md'
       - Collecting: 'reference/collecting.md'
+      - Collecting: 'reference/tmp.md'
       - Exceptions: 'reference/exceptions.md'
       - Testing: 'reference/testing.md'
       - Models: 'reference/models.md'

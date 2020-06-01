@@ -1,77 +1,75 @@
 """Implementation for bot classes."""
 
 import asyncio
-from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Type
+from dataclasses import InitVar, field
+from typing import Callable, Dict, List, Set
 
 from loguru import logger
+from pydantic.dataclasses import dataclass
 
-from botx import concurrency, exception_handlers, exceptions, typing, utils
-from botx.bots.mixins.clients import ClientsMixin
-from botx.bots.mixins.collecting import BotCollectingMixin
-from botx.clients.clients.async_client import AsyncClient
-from botx.clients.clients.sync_client import Client
-from botx.collecting import Collector, Handler
-from botx.dependencies import models as deps
-from botx.exceptions import ServerUnknownError
-from botx.middlewares.base import BaseMiddleware
+from botx import concurrency, dataclasses_config, exception_handlers, exceptions, typing
+from botx.bots.mixins import (
+    clients,
+    collectors,
+    exceptions as exception_mixin,
+    lifespan,
+    middlewares,
+)
+from botx.clients.clients import async_client, sync_client as synchronous_client
+from botx.collecting.collectors.collector import Collector
+from botx.dependencies.models import Depends
 from botx.middlewares.exceptions import ExceptionMiddleware
-from botx.models import datastructures, menu, messages
-from botx.models.credentials import ExpressServer
+from botx.models import credentials, datastructures, menu
+from botx.models.messages.message import Message
 
 
-class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
+@dataclass(config=dataclasses_config.BotXDataclassConfig)
+class Bot(  # noqa: WPS215
+    collectors.BotCollectingMixin,
+    clients.ClientsMixin,
+    lifespan.LifespanMixin,
+    middlewares.MiddlewareMixin,
+    exception_mixin.ExceptionHandlersMixin,
+):
     """Class that implements bot behaviour."""
 
-    def __init__(  # noqa: WPS213
-        self,
-        *,
-        handlers: Optional[List[Handler]] = None,
-        known_hosts: Optional[Sequence[ExpressServer]] = None,
-        dependencies: Optional[Sequence[deps.Depends]] = None,
-        startup_events: Optional[Sequence[typing.BotLifespanEvent]] = None,
-        shutdown_events: Optional[Sequence[typing.BotLifespanEvent]] = None,
-    ) -> None:
-        """Init bot with required params.
+    dependencies: InitVar[List[Depends]] = field(default=None)
+    known_hosts: List[credentials.ExpressServer] = field(default_factory=list)
+    startup_events: List[typing.BotLifespanEvent] = field(default_factory=list)
+    shutdown_events: List[typing.BotLifespanEvent] = field(default_factory=list)
+
+    client: async_client.AsyncClient = field(init=False)
+    sync_client: synchronous_client.Client = field(init=False)
+    collector: Collector = field(init=False)
+    exception_middleware: ExceptionMiddleware = field(init=False)
+    state: datastructures.State = field(init=False)
+    dependency_overrides: Dict[Callable, Callable] = field(
+        init=False, default_factory=dict,
+    )
+
+    tasks: Set[asyncio.Future] = field(init=False, default_factory=set)
+
+    async def __call__(self, message: Message) -> None:
+        """Iterate through collector, find handler and execute it, running middlewares.
 
         Arguments:
-            handlers: list of handlers that will be stored in this bot after init.
-            known_hosts: list of servers that will be used for handling message.
-            dependencies: background dependencies for all handlers of bot.
-            startup_events: functions that should be called on bot startup.
-            shutdown_events: functions that should be called on bot shutdown.
+            message: message that will be proceed by handler.
         """
+        self.tasks.add(asyncio.ensure_future(self.exception_middleware(message)))
 
-        self.collector: Collector = Collector(
-            handlers=handlers,
-            dependencies=dependencies,
-            dependency_overrides_provider=self,
+    def __post_init__(self, dependencies: List[Depends]) -> None:
+        """Initialize special fields.
+
+        Arguments:
+            dependencies: initial background dependencies for inner collector.
+        """
+        self.state = datastructures.State()
+        self.client = async_client.AsyncClient()
+        self.sync_client = synchronous_client.Client()
+        self.collector = Collector(
+            dependencies=dependencies, dependency_overrides_provider=self,
         )
-        """collector for all handlers registered on bot."""
-
-        self.sync_client = Client()
         self.exception_middleware = ExceptionMiddleware(self.collector)
-
-        self.client: AsyncClient = AsyncClient()
-        """BotX API async client."""
-
-        self.dependency_overrides: Dict[Callable, Callable] = {}
-        """overrider for dependencies that can be used in tests."""
-
-        self.known_hosts: List[ExpressServer] = utils.optional_sequence_to_list(
-            known_hosts,
-        )
-        """list of servers that will be used for handling message."""
-
-        self.state: datastructures.State = datastructures.State()
-        """state that can be used in bot for storing something."""
-
-        self.startup_events = utils.optional_sequence_to_list(startup_events)
-        """functions that should be called on bot startup."""
-
-        self.shutdown_events = utils.optional_sequence_to_list(shutdown_events)
-        """functions that should be called on bot shutdown."""
-
-        self._tasks: Set[asyncio.Future] = set()
 
         self.add_exception_handler(
             exceptions.DependencyFailure,
@@ -114,94 +112,10 @@ class Bot(BotCollectingMixin, ClientsMixin):  # noqa: WPS230
             ServerUnknownError: raised if message was received from unregistered host.
         """
         logger.bind(botx_bot=True, payload=message).debug("process incoming message")
-        msg = messages.Message.from_dict(message, self)
+        msg = Message.from_dict(message, self)
         for server in self.known_hosts:
             if server.host == msg.host:
                 await self(msg)
                 break
         else:
-            raise ServerUnknownError(host=msg.host)
-
-    def add_middleware(
-        self, middleware_class: Type[BaseMiddleware], **kwargs: Any,
-    ) -> None:
-        """Register new middleware for execution before handler.
-
-        Arguments:
-            middleware_class: middleware that should be registered.
-            kwargs: arguments that are required for middleware initialization.
-        """
-        self.exception_middleware.executor = middleware_class(
-            self.exception_middleware.executor, **kwargs,
-        )
-
-    def middleware(self, handler: typing.Executor) -> Callable:  # noqa: D202
-        """Register callable as middleware for request.
-
-        Arguments:
-            handler: handler for middleware logic.
-
-        Returns:
-            Passed `handler` callable.
-        """
-
-        self.add_middleware(BaseMiddleware, dispatch=handler)
-        return handler
-
-    def add_exception_handler(
-        self, exc_class: Type[Exception], handler: typing.ExceptionHandler,
-    ) -> None:
-        """Register new handler for exception.
-
-        Arguments:
-            exc_class: exception type that should be handled.
-            handler: handler for exception.
-        """
-        self.exception_middleware.add_exception_handler(exc_class, handler)
-
-    def exception_handler(self, exc_class: Type[Exception]) -> Callable:  # noqa: D202
-        """Register callable as handler for exception.
-
-        Arguments:
-            exc_class: exception type that should be handled.
-
-        Returns:
-            Decorator that will register exception and return passed function.
-        """
-
-        def decorator(handler: typing.ExceptionHandler) -> Callable:
-            self.add_exception_handler(exc_class, handler)
-            return handler
-
-        return decorator
-
-    async def start(self) -> None:
-        """Run all startup events and other initialization stuff."""
-        for event in self.startup_events:
-            await concurrency.callable_to_coroutine(event, self)
-
-    async def shutdown(self) -> None:
-        """Wait for all running handlers shutdown."""
-        await self.wait_current_handlers()
-
-        for event in self.shutdown_events:
-            await concurrency.callable_to_coroutine(event, self)
-
-    async def wait_current_handlers(self) -> None:
-        """Wait until all current tasks are done."""
-        if self._tasks:
-            tasks, _ = await asyncio.wait(
-                self._tasks, return_when=asyncio.ALL_COMPLETED,
-            )
-            for task in tasks:
-                task.result()
-
-        self._tasks = set()
-
-    async def __call__(self, message: messages.Message) -> None:
-        """Iterate through collector, find handler and execute it, running middlewares.
-
-        Arguments:
-            message: message that will be proceed by handler.
-        """
-        self._tasks.add(asyncio.ensure_future(self.exception_middleware(message)))
+            raise exceptions.ServerUnknownError(host=msg.host)

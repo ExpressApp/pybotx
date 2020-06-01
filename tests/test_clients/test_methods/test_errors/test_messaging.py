@@ -16,6 +16,6 @@ async def test_raising_messaging_error(client, requests_client):
 
     errors_to_raise = {Info: (StatusCode.BAD_REQUEST, {})}
 
-    with pytest.raises(MessagingError):
-        with client.error_client(errors=errors_to_raise):
+    with client.error_client(errors=errors_to_raise):
+        with pytest.raises(MessagingError):
             await callable_to_coroutine(requests_client.call, method, "example.cts")

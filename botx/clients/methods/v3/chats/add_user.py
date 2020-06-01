@@ -1,3 +1,4 @@
+"""Method for adding new users into chat."""
 from typing import List
 from uuid import UUID
 
@@ -12,6 +13,8 @@ from botx.clients.methods.errors import (
 
 
 class AddUser(AuthorizedBotXMethod[bool]):
+    """Method for adding new users into chat."""
+
     __url__ = "/api/v3/botx/chats/add_user"
     __method__ = "POST"
     __returning__ = bool
@@ -23,5 +26,8 @@ class AddUser(AuthorizedBotXMethod[bool]):
         StatusCode.NOT_FOUND: (chat_not_found.handle_error,),
     }
 
+    #: ID of chat into which users should be added.
     group_chat_id: UUID
+
+    #: IDs of users that should be added into chat.
     user_huids: List[UUID]

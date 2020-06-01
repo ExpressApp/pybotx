@@ -13,8 +13,8 @@ async def test_disabling_sync_send_for_client(bot, incoming_message, build_handl
     with TestClient(bot) as client:
         await client.send_command(incoming_message, False)
 
-        assert bot._tasks
+        assert bot.tasks
 
     await bot.shutdown()
 
-    assert not bot._tasks
+    assert not bot.tasks

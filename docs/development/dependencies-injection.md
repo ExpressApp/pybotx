@@ -30,6 +30,6 @@ It can be useful if you write something like authentication dependency:
 [DependencyFailure][botx.exceptions.DependencyFailure] exception is used for preventing execution
 of dependencies after one that failed.
 
-Also, if you define a list of [dependencies][botx.params.Depends] objects in the initialization of [collector][botx.collecting.Collector] or [bot][botx.bots.Bot] or in [`.handler`][botx.collecting.Collector.handler] decorator or others,
+Also, if you define a list of [dependencies][botx.query_params.Depends] objects in the initialization of [collector][botx.collecting.Collector] or [bot][botx.bots.Bot] or in [`.handler`][botx.collecting.Collector.handler] decorator or others,
 then these dependencies will be processed as background dependencies. 
 They will be executed before the handler and its' dependencies:

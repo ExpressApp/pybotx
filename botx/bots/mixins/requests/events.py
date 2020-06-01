@@ -1,10 +1,12 @@
-"""Definition for mixin that defines BotX API methods."""
+"""Mixin for shortcut for events resource requests."""
 from typing import cast
 from uuid import UUID
 
 from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
-from botx.clients.methods.v3.events.edit_event import EditEvent, UpdatePayload
-from botx.models import sending
+from botx.clients.methods.v3.events.edit_event import EditEvent
+from botx.clients.types.message_payload import UpdatePayload
+from botx.models.messages.sending.credentials import SendingCredentials
+from botx.models.messages.sending.payload import UpdatePayload as SendingUpdatePayload
 
 
 class EventsRequestsMixin:
@@ -12,8 +14,8 @@ class EventsRequestsMixin:
 
     async def update_message(
         self: BotXMethodCallProtocol,
-        credentials: sending.SendingCredentials,
-        update: sending.UpdatePayload,
+        credentials: SendingCredentials,
+        update: SendingUpdatePayload,
     ) -> None:
         """Change message by it's event id.
 
@@ -22,7 +24,7 @@ class EventsRequestsMixin:
                 required for credentials.
             update: update of message content.
         """
-        return await self.call_method(
+        await self.call_method(
             EditEvent(
                 sync_id=cast(UUID, credentials.sync_id),
                 result=UpdatePayload(

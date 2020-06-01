@@ -1,4 +1,4 @@
-from botx.collecting import Collector
+from botx import Collector
 
 pytest_plugins = ("tests.test_collecting.fixtures",)
 

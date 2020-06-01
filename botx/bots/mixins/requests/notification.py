@@ -1,34 +1,41 @@
-"""Definition for mixin that defines BotX API methods."""
+"""Mixin for shortcut for notification resource requests."""
 
 from typing import Optional, Sequence, cast
 from uuid import UUID
 
-from botx import utils
+from botx import converters
 from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
 from botx.clients.methods.v3.notification.direct_notification import NotificationDirect
 from botx.clients.methods.v3.notification.notification import Notification
+from botx.clients.types.message_payload import ResultPayload
 from botx.clients.types.options import ResultOptions
-from botx.clients.types.result_payload import ResultPayload
-from botx.models import sending
+from botx.models.messages.sending.credentials import SendingCredentials
+from botx.models.messages.sending.payload import MessagePayload
 
 
 class NotificationRequestsMixin:
-    """Mixin that defines methods for communicating with BotX API."""
+    """Mixin for shortcut for notification resource requests."""
 
     async def send_notification(
         self: BotXMethodCallProtocol,
-        credentials: sending.SendingCredentials,
-        payload: sending.MessagePayload,
+        credentials: SendingCredentials,
+        payload: MessagePayload,
         group_chat_ids: Optional[Sequence[UUID]] = None,
     ) -> None:
+        """Send notifications into chat.
+
+        Arguments:
+            credentials: credentials for making request.
+            payload: payload for notification.
+            group_chat_ids: IDS of chats into which message should be sent.
+        """
         if group_chat_ids is not None:
-            chat_ids = utils.optional_sequence_to_list(group_chat_ids)
+            chat_ids = converters.optional_sequence_to_list(group_chat_ids)
         else:
             chat_ids = [cast(UUID, credentials.chat_id)]
 
-        return await self.call_method(
+        await self.call_method(
             Notification(
-                bot_id=cast(UUID, credentials.bot_id),
                 group_chat_ids=chat_ids,
                 result=ResultPayload(
                     body=payload.text,
@@ -45,12 +52,20 @@ class NotificationRequestsMixin:
 
     async def send_direct_notification(
         self: BotXMethodCallProtocol,
-        credentials: sending.SendingCredentials,
-        payload: sending.MessagePayload,
+        credentials: SendingCredentials,
+        payload: MessagePayload,
     ) -> UUID:
+        """Send notification into chat.
+
+        Arguments:
+            credentials: credentials for making request.
+            payload: payload for notification.
+
+        Returns:
+             ID sent message.
+        """
         return await self.call_method(
             NotificationDirect(
-                bot_id=cast(UUID, credentials.bot_id),
                 group_chat_id=cast(UUID, credentials.chat_id),
                 event_sync_id=credentials.message_id,
                 result=ResultPayload(

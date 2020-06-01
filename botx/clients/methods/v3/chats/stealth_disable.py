@@ -1,3 +1,4 @@
+"""Method for disabling stealth in chat."""
 from uuid import UUID
 
 from httpx import StatusCode
@@ -7,6 +8,8 @@ from botx.clients.methods.errors import bot_is_not_admin, chat_not_found
 
 
 class StealthDisable(AuthorizedBotXMethod[bool]):
+    """Method for disabling stealth in chat."""
+
     __url__ = "/api/v3/botx/chats/disable_stealth_mode"
     __method__ = "POST"
     __returning__ = bool
@@ -15,4 +18,5 @@ class StealthDisable(AuthorizedBotXMethod[bool]):
         StatusCode.NOT_FOUND: chat_not_found.handle_error,
     }
 
+    #: ID of chat where stealth should be disabled.
     group_chat_id: UUID

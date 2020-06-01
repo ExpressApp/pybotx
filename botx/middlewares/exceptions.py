@@ -6,7 +6,8 @@ from loguru import logger
 
 from botx import concurrency
 from botx.middlewares.base import BaseMiddleware
-from botx.models import files, messages
+from botx.models import files
+from botx.models.messages.message import Message
 from botx.typing import AsyncExecutor, Executor
 
 
@@ -14,7 +15,7 @@ class ExceptionMiddleware(BaseMiddleware):
     """Custom middleware that is default and used to handle registered errors."""
 
     def __init__(self, executor: Executor) -> None:
-        """Init middleware with required params.
+        """Init middleware with required query_params.
 
         Arguments:
             executor: callable object that accept message and will be executed after
@@ -23,9 +24,7 @@ class ExceptionMiddleware(BaseMiddleware):
         super().__init__(executor)
         self._exception_handlers: Dict[Type[Exception], Callable] = {}
 
-    async def dispatch(
-        self, message: messages.Message, call_next: AsyncExecutor
-    ) -> None:
+    async def dispatch(self, message: Message, call_next: AsyncExecutor) -> None:
         """Wrap executor for catching exception or log them.
 
         Arguments:
@@ -64,9 +63,7 @@ class ExceptionMiddleware(BaseMiddleware):
 
         return None
 
-    async def _handle_error_in_handler(
-        self, exc: Exception, message: messages.Message
-    ) -> None:
+    async def _handle_error_in_handler(self, exc: Exception, message: Message) -> None:
         """Pass error back to handler if there is one or log error.
 
         Arguments:

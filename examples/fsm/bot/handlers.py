@@ -4,9 +4,8 @@ from enum import Enum, auto
 from typing import DefaultDict, Dict
 from uuid import UUID
 
-from botx import Message
-
 from bot.middleware import FSM, FlowError
+from botx import Message
 
 
 class FSMStates(Enum):

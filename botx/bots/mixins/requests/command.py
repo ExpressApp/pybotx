@@ -1,26 +1,35 @@
-"""Definition for mixin that defines BotX API methods."""
+"""Mixin for shortcut for command resource requests."""
 
 from typing import cast
 from uuid import UUID
 
 from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
 from botx.clients.methods.v3.command.command_result import CommandResult
+from botx.clients.types.message_payload import ResultPayload
 from botx.clients.types.options import ResultOptions
-from botx.clients.types.result_payload import ResultPayload
-from botx.models import sending
+from botx.models.messages.sending.credentials import SendingCredentials
+from botx.models.messages.sending.payload import MessagePayload
 
 
 class CommandRequestsMixin:
-    """Mixin that defines methods for communicating with BotX API."""
+    """Mixin for shortcut for command resource requests."""
 
     async def send_command_result(
         self: BotXMethodCallProtocol,
-        credentials: sending.SendingCredentials,
-        payload: sending.MessagePayload,
+        credentials: SendingCredentials,
+        payload: MessagePayload,
     ) -> UUID:
+        """Send command result into chat.
+
+        Arguments:
+            credentials: credentials for making request.
+            payload: payload for command result.
+
+        Returns:
+             ID sent message.
+        """
         return await self.call_method(
             CommandResult(
-                bot_id=cast(UUID, credentials.bot_id),
                 sync_id=cast(UUID, credentials.sync_id),
                 event_sync_id=credentials.message_id,
                 result=ResultPayload(

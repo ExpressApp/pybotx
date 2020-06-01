@@ -1,3 +1,4 @@
+"""Logic for handling response from BotX API for real HTTP responses."""
 import collections
 import contextlib
 from typing import TypeVar
@@ -12,22 +13,36 @@ ResponseT = TypeVar("ResponseT")
 
 
 def extract_result(method: BotXMethod[ResponseT], response: Response) -> ResponseT:
-    return_shape = method.__returning__  # noqa: WPS609
-    api_response = APIResponse[return_shape].parse_obj(  # type: ignore
-        response.json(),
-    )
-    result = api_response.result
-    extractor = method.__result_extractor__  # noqa: WPS609
+    """Extract result from successful response and convert it to right shape.
+
+    Arguments:
+        method: method to BotX API that was called.
+        response: HTTP response from BotX API.
+
+    Returns:
+        Converted shape from BotX API.
+    """
+    return_shape = method.returning
+    api_response = APIResponse[return_shape].parse_obj(response.json())  # type: ignore
+    response_result = api_response.result
+    extractor = method.result_extractor
     if extractor is not None:
         # mypy does not understand that self passed here
-        return extractor(result)  # type: ignore
+        return extractor(response_result)  # type: ignore
 
-    return result
+    return response_result
 
 
 async def handle_error(
-    method: BotXMethod, error_handlers: ErrorHandlersInMethod, response: Response
+    method: BotXMethod, error_handlers: ErrorHandlersInMethod, response: Response,
 ) -> None:
+    """Handle error status code from BotX API.
+
+    Arguments:
+        method: method to BotX API that was called.
+        error_handlers: registered on method handlers for different responses.
+        response: HTTP response from BotX API.
+    """
     if not isinstance(error_handlers, collections.Sequence):
         error_handlers = [error_handlers]
 

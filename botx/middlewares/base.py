@@ -21,12 +21,12 @@ Example:
 from typing import Callable, Optional
 
 from botx import concurrency
-from botx.models import messages
+from botx.models.messages.message import Message
 from botx.typing import Executor, MiddlewareDispatcher, SyncExecutor
 
 
 def _default_dispatch(
-    _middleware: "BaseMiddleware", _message: messages.Message, _call_next: SyncExecutor,
+    _middleware: "BaseMiddleware", _message: Message, _call_next: SyncExecutor,
 ) -> None:
     raise NotImplementedError
 
@@ -39,7 +39,7 @@ class BaseMiddleware:
     def __init__(
         self, executor: Executor, dispatch: Optional[MiddlewareDispatcher] = None,
     ) -> None:
-        """Init middleware with required params.
+        """Init middleware with required query_params.
 
         Arguments:
             executor: callable object that accept message and will be executed after
@@ -49,13 +49,12 @@ class BaseMiddleware:
         self.executor = executor
         self.dispatch_func = dispatch or self.dispatch
 
-    async def __call__(self, message: messages.Message) -> None:
+    async def __call__(self, message: Message) -> None:
         """Call middleware dispatcher as normal handler executor.
 
         Arguments:
             message: incoming message.
         """
-
         executor = self.executor
         if not concurrency.is_awaitable(self.dispatch_func):
             executor = concurrency.async_to_sync(self.executor)

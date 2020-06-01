@@ -20,7 +20,7 @@ async def test_creating_chat(client, message):
 
 async def test_enable_stealth_mode(bot, client, message):
     await bot.enable_stealth_mode(
-        message.credentials, chat_id=message.group_chat_id, burn_in=60
+        message.credentials, chat_id=message.group_chat_id, burn_in=60,
     )
     assert client.requests[0].burn_in == 60
 
@@ -50,3 +50,9 @@ async def test_remove_user(bot, client, message):
     request = client.requests[0]
     assert request.group_chat_id == message.group_chat_id
     assert request.user_huids == users
+
+
+async def test_retrieving_chat_info(bot, client, message):
+    chat_id = uuid.uuid4()
+    info = await bot.get_chat_info(message.credentials, chat_id=chat_id)
+    assert info.group_chat_id == chat_id

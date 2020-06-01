@@ -7,7 +7,7 @@ pytestmark = pytest.mark.asyncio
 
 async def test_filling_with_chat_id_from_credentials(client, message):
     await client.bot.send_notification(
-        credentials=message.credentials, payload=MessagePayload(text="some text")
+        credentials=message.credentials, payload=MessagePayload(text="some text"),
     )
 
     assert client.notifications[0].result.body == "some text"

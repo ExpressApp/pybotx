@@ -45,26 +45,26 @@ def collector_with_handlers(build_handler_for_collector):
     )
     collector.handler(
         build_handler_for_collector(
-            "regular_handler_that_excluded_from_status_and_auto_body"
+            "regular_handler_that_excluded_from_status_and_auto_body",
         ),
         include_in_status=False,
     )
     collector.handler(
         build_handler_for_collector(
-            "regular_handler_that_excluded_from_status_and_passed_body"
+            "regular_handler_that_excluded_from_status_and_passed_body",
         ),
         command="regular-handler-with-excluding-from-status",
         include_in_status=False,
     )
     collector.handler(
         build_handler_for_collector(
-            "regular_handler_that_included_in_status_by_callable_function"
+            "regular_handler_that_included_in_status_by_callable_function",
         ),
         include_in_status=lambda *_: True,
     )
     collector.handler(
         build_handler_for_collector(
-            "regular_handler_that_excluded_from_status_by_callable_function"
+            "regular_handler_that_excluded_from_status_by_callable_function",
         ),
         include_in_status=lambda *_: False,
     )
