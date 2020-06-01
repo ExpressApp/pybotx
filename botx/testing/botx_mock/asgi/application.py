@@ -48,8 +48,8 @@ def _create_starlette_routes() -> Sequence[Route]:
     routes = []
 
     for endpoint in _ENDPOINTS:
-        url = endpoint.method.__url__  # noqa: WPS609
-        method = endpoint.method.__method__  # noqa: WPS609
+        url = endpoint.method.__url__  # type: ignore  # noqa: WPS609
+        method = endpoint.method.__method__  # type: ignore  # noqa: WPS609
         routes.append(Route(url, endpoint, methods=[method]))
 
     return routes

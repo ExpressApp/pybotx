@@ -6,7 +6,6 @@ All of this methods are just wrappers around inner collector.
 from typing import Any, List, Optional, Sequence
 
 from botx.bots.mixins.collecting.add_handler import AddHandlerMixin
-from botx.bots.mixins.collecting.collector_owner import CollectorOwnerProtocol
 from botx.bots.mixins.collecting.default import DefaultHandlerMixin
 from botx.bots.mixins.collecting.handler import HandlerMixin
 from botx.bots.mixins.collecting.hidden import HiddenHandlerMixin
@@ -25,8 +24,10 @@ class BotCollectingMixin(  # noqa: WPS215
 ):
     """Mixin that defines collector-like behaviour."""
 
+    collector: Collector
+
     @property
-    def handlers(self: CollectorOwnerProtocol) -> List[Handler]:
+    def handlers(self) -> List[Handler]:
         """Get handlers registered on this bot.
 
         Returns:
@@ -35,7 +36,7 @@ class BotCollectingMixin(  # noqa: WPS215
         return self.collector.handlers
 
     def include_collector(
-        self: CollectorOwnerProtocol,
+        self,
         collector: Collector,
         *,
         dependencies: Optional[Sequence[deps.Depends]] = None,
@@ -49,7 +50,7 @@ class BotCollectingMixin(  # noqa: WPS215
         """
         self.collector.include_collector(collector, dependencies=dependencies)
 
-    def command_for(self: CollectorOwnerProtocol, *args: Any) -> str:
+    def command_for(self, *args: Any) -> str:
         """Find handler and build a command string using passed body query_params.
 
         Arguments:
@@ -60,7 +61,7 @@ class BotCollectingMixin(  # noqa: WPS215
         """
         return self.collector.command_for(*args)
 
-    def handler_for(self: CollectorOwnerProtocol, name: str) -> Handler:
+    def handler_for(self, name: str) -> Handler:
         """Find handler in handlers of this bot.
 
         Find registered handler using using [botx.collector.Collector.handler_for] of

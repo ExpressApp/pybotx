@@ -1,12 +1,18 @@
 """Definition for mixin with default decorator."""
 from functools import partial
-from typing import Any, Callable, Optional, Sequence, Union
+from typing import Any, Callable, Optional, Sequence, Union, cast
 
 from botx.collecting.collectors.mixins.handler import HandlerDecoratorProtocol
 from botx.collecting.handlers.handler import Handler
 from botx.collecting.handlers.name_generators import get_name_from_callable
 from botx.dependencies.models import Depends
-from botx.typing import Protocol
+
+try:
+    from typing import Protocol  # noqa: WPS433
+except ImportError:
+    from typing_extensions import (  # type: ignore  # noqa: WPS433, WPS440, F401
+        Protocol,
+    )
 
 
 class HandlerSearchProtocol(Protocol):
@@ -16,32 +22,13 @@ class HandlerSearchProtocol(Protocol):
         """Find handler in handlers of this bot."""
 
 
-class DefaultDecoratorProtocol(HandlerSearchProtocol, HandlerDecoratorProtocol):
-    """Protocol for definition default handler decorator."""
+class DefaultHandlerMixin:
+    """Mixin that defines default handler decorator."""
 
     default_message_handler: Optional[Handler]
 
     def default(  # noqa: WPS211
-        self: HandlerDecoratorProtocol,
-        handler: Optional[Callable] = None,
-        *,
-        command: Optional[str] = None,
-        commands: Optional[Sequence[str]] = None,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        full_description: Optional[str] = None,
-        include_in_status: Union[bool, Callable] = False,
-        dependencies: Optional[Sequence[Depends]] = None,
-        dependency_overrides_provider: Any = None,
-    ) -> Callable:
-        """Add new handler to bot and register it as default handler."""
-
-
-class DefaultHandlerMixin:
-    """Mixin that defines default handler decorator."""
-
-    def default(  # noqa: WPS211
-        self: DefaultDecoratorProtocol,
+        self,
         handler: Optional[Callable] = None,
         *,
         command: Optional[str] = None,
@@ -85,7 +72,7 @@ class DefaultHandlerMixin:
             )
 
         if handler:
-            registered_handler = self.handler(
+            registered_handler = cast(HandlerDecoratorProtocol, self).handler(
                 handler=handler,
                 command=command,
                 commands=commands,
@@ -97,7 +84,9 @@ class DefaultHandlerMixin:
                 dependency_overrides_provider=dependency_overrides_provider,
             )
             name = name or get_name_from_callable(registered_handler)
-            self.default_message_handler = self.handler_for(name)
+            self.default_message_handler = cast(
+                HandlerSearchProtocol, self,
+            ).handler_for(name)
 
             return handler
 

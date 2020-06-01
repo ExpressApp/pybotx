@@ -5,9 +5,15 @@ from botx.bots.mixins.requests import bots, chats, command, events, notification
 from botx.clients.clients.async_client import AsyncClient
 from botx.clients.methods.base import BotXMethod
 from botx.models.messages.sending.credentials import SendingCredentials
-from botx.typing import Protocol
 
 ResponseT = TypeVar("ResponseT")
+
+try:
+    from typing import Protocol  # noqa: WPS433
+except ImportError:
+    from typing_extensions import (  # type: ignore  # noqa: WPS433, WPS440, F401
+        Protocol,
+    )
 
 
 class TokenSearchProtocol(Protocol):
@@ -15,12 +21,6 @@ class TokenSearchProtocol(Protocol):
 
     def get_token_for_cts(self, host: str) -> str:
         """Search token in local credentials."""
-
-
-class ClientOwnerProtocol(Protocol):
-    """Protocol for object that owns async client for requests to BotX API."""
-
-    client: AsyncClient
 
 
 # A lot of base classes since it's mixin for all shorthands for BotX API requests
@@ -34,8 +34,10 @@ class BotXRequestsMixin(  # noqa: WPS215
 ):
     """Mixin that defines methods for communicating with BotX API."""
 
+    client: AsyncClient
+
     async def call_method(
-        self: ClientOwnerProtocol,
+        self,
         method: BotXMethod[ResponseT],
         *,
         host: Optional[str] = None,

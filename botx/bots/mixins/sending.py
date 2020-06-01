@@ -10,7 +10,13 @@ from botx.models.messages.sending.markup import MessageMarkup
 from botx.models.messages.sending.message import SendingMessage
 from botx.models.messages.sending.options import MessageOptions
 from botx.models.messages.sending.payload import MessagePayload
-from botx.typing import Protocol
+
+try:
+    from typing import Protocol  # noqa: WPS433
+except ImportError:
+    from typing_extensions import (  # type: ignore  # noqa: WPS433, WPS440, F401
+        Protocol,
+    )
 
 
 class ResultSendProtocol(Protocol):

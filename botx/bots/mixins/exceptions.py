@@ -4,24 +4,22 @@ from typing import Callable, Type
 
 from botx import typing
 from botx.middlewares.exceptions import ExceptionMiddleware
-from botx.typing import Protocol
 
-
-class ExceptionMiddlewareOwnerProtocol(Protocol):
-    """Protocol for owner of core exception middleware."""
-
-    @property
-    def exception_middleware(self) -> ExceptionMiddleware:
-        """Exception middleware."""
+try:
+    from typing import Protocol  # noqa: WPS433
+except ImportError:
+    from typing_extensions import (  # type: ignore  # noqa: WPS433, WPS440, F401
+        Protocol,
+    )
 
 
 class ExceptionHandlersMixin:
     """Mixin that defines functions for exception handlers registration."""
 
+    exception_middleware: ExceptionMiddleware
+
     def add_exception_handler(
-        self: ExceptionMiddlewareOwnerProtocol,
-        exc_class: Type[Exception],
-        handler: typing.ExceptionHandler,
+        self, exc_class: Type[Exception], handler: typing.ExceptionHandler,
     ) -> None:
         """Register new handler for exception.
 

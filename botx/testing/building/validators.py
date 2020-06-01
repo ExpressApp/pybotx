@@ -1,8 +1,8 @@
 """Validators and converters for fields in builder."""
 
-from typing import BinaryIO, Optional, TextIO, Union
+from typing import Any, BinaryIO, Optional, TextIO, Union
 
-from botx.models import events, files
+from botx.models import enums, events, files
 from botx.models.messages.incoming_message import Sender
 
 
@@ -65,14 +65,14 @@ def _check_system_command_properties(
     body: str, is_system_command: bool, command_data: dict, validated_values: dict,
 ) -> None:
     if is_system_command:
-        event = events.SystemEvents(body)  # check that is real system event
+        event = enums.SystemEvents(body)  # check that is real system event
         event_shape = events.EVENTS_SHAPE_MAP.get(event)
         if event_shape is not None:
             event_shape.parse_obj(command_data)  # check event data
-        _event_checkers[event](**validated_values)
+        _event_checkers[event](**validated_values)  # type: ignore
 
 
-def _check_chat_created_event(user: Sender, **_kwargs) -> None:
+def _check_chat_created_event(user: Sender, **_kwargs: Any) -> None:
     error_field = ""
     if user.user_huid is not None:
         error_field = "user_huid"
@@ -89,12 +89,12 @@ def _check_chat_created_event(user: Sender, **_kwargs) -> None:
         )
 
 
-def _check_file_transfer_event(file: Optional[files.File], **_kwargs) -> None:
+def _check_file_transfer_event(file: Optional[files.File], **_kwargs: Any) -> None:
     if file is None:
         raise ValueError("file_transfer event should have attached file")
 
 
 _event_checkers = {
-    events.SystemEvents.chat_created: _check_chat_created_event,
-    events.SystemEvents.file_transfer: _check_file_transfer_event,
+    enums.SystemEvents.chat_created: _check_chat_created_event,
+    enums.SystemEvents.file_transfer: _check_file_transfer_event,
 }

@@ -31,7 +31,7 @@ def _combine_dependencies(
 
 
 def _check_new_handler_restrictions(
-    body: str, name: str, handler: Callable, existed_handler: Handler,
+    body: str, name: Optional[str], handler: Callable, existed_handler: Handler,
 ) -> None:
     handler_executor = existed_handler.handler
     handler_name = existed_handler.name
@@ -48,10 +48,10 @@ def _check_new_handler_restrictions(
 class BaseCollector:
     """Base collector."""
 
-    default: InitVar[Callable] = None
+    default: InitVar[Handler] = None
 
     #: registered handlers on this collector handlers in order of adding.
-    handlers: List[Handler] = field(default=None)
+    handlers: List[Handler] = field(default_factory=list)
 
     #: handler that will be used for handling non matched message.
     default_message_handler: Optional[Handler] = None
@@ -71,7 +71,7 @@ class BaseCollector:
         """
         return _get_sorted_handlers(self.handlers)
 
-    def __post_init__(self, default: Optional[Callable]) -> None:
+    def __post_init__(self, default: Optional[Handler]) -> None:
         """Initialize or update special fields.
 
         Arguments:
@@ -146,9 +146,9 @@ class BaseCollector:
         command_handler = Handler(
             body=body,
             handler=handler,
-            name=name,
+            name=name,  # type: ignore
             description=description,
-            full_description=full_description,
+            full_description=full_description,  # type: ignore
             include_in_status=include_in_status,
             dependencies=_combine_dependencies(self.dependencies, dependencies),
             dependency_overrides_provider=dep_override,

@@ -10,7 +10,13 @@ from pydantic.generics import GenericModel
 
 from botx.clients.methods.request_wrapper import HTTPRequest, PrimitiveDataType
 from botx.models.enums import Statuses
-from botx.typing import Literal
+
+try:
+    from typing import Literal  # noqa: WPS433
+except ImportError:
+    from typing_extensions import (  # type: ignore  # noqa: WPS433, WPS440, F401
+        Literal,
+    )
 
 PRIMITIVES_FOR_QUERY = (str, int, float, bool, type(None))
 
@@ -81,9 +87,9 @@ class AbstractBotXMethod(ABC, typing.Generic[ResponseT]):
         """Shape returned from method that can be parsed by pydantic."""
 
     @property
-    def __errors_handlers__(self) -> typing.Dict[int, ErrorHandlersInMethod]:
+    def __errors_handlers__(self) -> typing.Mapping[int, ErrorHandlersInMethod]:
         """Error handlers for responses from BotX API by status code and handler."""
-        return {}
+        return typing.cast(typing.Mapping[int, ErrorHandlersInMethod], {})
 
     @property
     def __result_extractor__(
@@ -135,7 +141,7 @@ class BaseBotXMethod(AbstractBotXMethod[ResponseT], ABC):
         return self.__returning__
 
     @property
-    def error_handlers(self) -> typing.Dict[int, ErrorHandlersInMethod]:
+    def error_handlers(self) -> typing.Mapping[int, ErrorHandlersInMethod]:
         """Error handlers for responses from BotX API by status code and handler."""
         return self.__errors_handlers__
 

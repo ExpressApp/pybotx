@@ -1,7 +1,7 @@
 """Common responses for mocks."""
 
 import uuid
-from typing import Union
+from typing import Any, Union
 
 from pydantic import BaseModel
 from starlette.responses import Response
@@ -20,7 +20,7 @@ class PydanticResponse(Response):
         model: BaseModel,
         status_code: int = 200,
         media_type: str = "application/json",
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """Init custom response.
 

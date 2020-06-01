@@ -258,7 +258,7 @@ class SendingMessage:  # noqa: WPS214
         if self.payload.options.recipients == "all":
             self.payload.options.recipients = []
 
-        cast(List[UUID], self.payload.options.recipients).append(recipient)
+        self.payload.options.recipients.append(recipient)
 
     def add_recipients(self, recipients: List[UUID]) -> None:
         """Add list of recipients that should receive message.
@@ -269,7 +269,7 @@ class SendingMessage:  # noqa: WPS214
         if self.payload.options.recipients == "all":
             self.payload.options.recipients = []
 
-        cast(List[UUID], self.payload.options.recipients).extend(recipients)
+        self.payload.options.recipients.extend(recipients)
 
     def add_bubble(
         self,

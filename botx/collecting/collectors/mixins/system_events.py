@@ -1,16 +1,23 @@
 """Definition for mixin with system events decorator."""
-from typing import Any, Callable, Optional, Sequence
+from typing import Any, Callable, Optional, Sequence, cast
 
 from botx.collecting.collectors.mixins.handler import HandlerDecoratorProtocol
 from botx.dependencies.models import Depends
 from botx.models.enums import SystemEvents
+
+try:
+    from typing import Protocol  # noqa: WPS433
+except ImportError:
+    from typing_extensions import (  # type: ignore  # noqa: WPS433, WPS440, F401
+        Protocol,
+    )
 
 
 class SystemEventsHandlerMixin:
     """Mixin that defines system events handler decorator."""
 
     def system_event(  # noqa: WPS211
-        self: HandlerDecoratorProtocol,
+        self,
         handler: Optional[Callable] = None,
         *,
         event: Optional[SystemEvents] = None,
@@ -39,7 +46,7 @@ class SystemEventsHandlerMixin:
         if not (event or events):
             raise AssertionError("at least one event should be passed")
 
-        return self.handler(
+        return cast(HandlerDecoratorProtocol, self).handler(
             handler=handler,
             command=event.value if event else None,
             commands=[event.value for event in events] if events else None,

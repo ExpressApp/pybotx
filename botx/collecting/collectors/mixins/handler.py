@@ -1,10 +1,16 @@
 """Definition for mixin with handler decorator."""
 from functools import partial
-from typing import Any, Callable, List, Optional, Sequence, Union
+from typing import Any, Callable, List, Optional, Sequence, Union, cast
 
 from botx import converters
 from botx.dependencies.models import Depends
-from botx.typing import Protocol
+
+try:
+    from typing import Protocol  # noqa: WPS433
+except ImportError:
+    from typing_extensions import (  # type: ignore  # noqa: WPS433, WPS440, F401
+        Protocol,
+    )
 
 
 class AddHandlerProtocol(Protocol):
@@ -25,7 +31,7 @@ class AddHandlerProtocol(Protocol):
         """Create new handler from passed arguments and store it inside."""
 
 
-class HandlerDecoratorProtocol(AddHandlerProtocol):
+class HandlerDecoratorProtocol(Protocol):
     """Protocol for definition handler decorator."""
 
     def handler(  # noqa: WPS211
@@ -48,7 +54,7 @@ class HandlerMixin:
     """Mixin that defines handler decorator."""
 
     def handler(  # noqa: WPS211
-        self: HandlerDecoratorProtocol,
+        self: AddHandlerProtocol,
         handler: Optional[Callable] = None,
         *,
         command: Optional[str] = None,
@@ -108,7 +114,7 @@ class HandlerMixin:
             return handler
 
         return partial(
-            self.handler,
+            cast(HandlerDecoratorProtocol, self).handler,
             command=command,
             commands=commands,
             name=name,

@@ -128,6 +128,8 @@ def get_executor(
             dependant=dependant,
             dependency_overrides_provider=dependency_overrides_provider,
         )
-        await concurrency.callable_to_coroutine(dependant.call, **solved_values)
+        await concurrency.callable_to_coroutine(
+            cast(Callable, dependant.call), **solved_values,
+        )
 
     return factory

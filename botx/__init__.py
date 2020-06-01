@@ -27,8 +27,9 @@ from botx.models.mentions import ChatMention, Mention, UserMention
 from botx.models.menu import Status
 from botx.models.messages.incoming_message import Entity, IncomingMessage
 from botx.models.messages.message import Message
+from botx.models.messages.sending.credentials import SendingCredentials
 from botx.models.messages.sending.markup import MessageMarkup
-from botx.models.messages.sending.message import SendingCredentials, SendingMessage
+from botx.models.messages.sending.message import SendingMessage
 from botx.models.messages.sending.options import MessageOptions, NotificationOptions
 from botx.models.messages.sending.payload import MessagePayload, UpdatePayload
 from botx.testing.building.builder import MessageBuilder
@@ -36,9 +37,9 @@ from botx.testing.building.builder import MessageBuilder
 try:
     from botx.testing.testing_client.client import TestClient  # noqa: WPS433
 except ImportError:
-    TestClient = None  # noqa: WPS440
+    TestClient = None  # type: ignore  # noqa: WPS440
 
-Dependant.__pydantic_model__.update_forward_refs()  # noqa: WPS609
+Dependant.__pydantic_model__.update_forward_refs()  # type: ignore  # noqa: WPS609
 
 __all__ = (
     # bots

@@ -7,9 +7,10 @@ from uuid import UUID
 from loguru import logger
 from pydantic import BaseConfig, BaseModel
 
-from botx import Bot, Collector, Depends, concurrency, converters, exceptions
+from botx import Bot, Collector, concurrency, converters, exceptions
 from botx.collecting.handlers.handler import Handler
 from botx.collecting.handlers.name_generators import get_name_from_callable
+from botx.dependencies.models import Depends
 from botx.middlewares.base import BaseMiddleware
 from botx.models.messages.message import Message
 from botx.typing import Executor

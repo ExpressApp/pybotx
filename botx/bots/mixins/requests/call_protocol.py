@@ -3,7 +3,13 @@ from typing import Any, Optional
 
 from botx.clients.methods.base import BotXMethod
 from botx.models.messages.sending.credentials import SendingCredentials
-from botx.typing import Protocol
+
+try:
+    from typing import Protocol  # noqa: WPS433
+except ImportError:
+    from typing_extensions import (  # type: ignore  # noqa: WPS433, WPS440, F401
+        Protocol,
+    )
 
 
 class BotXMethodCallProtocol(Protocol):

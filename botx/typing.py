@@ -1,9 +1,11 @@
 """Aliases for complex types from `typing`."""
 
-from typing import Awaitable, Callable, TypeVar, Union
+from typing import TYPE_CHECKING, Awaitable, Callable, TypeVar, Union
 
-from botx.bots import bots
 from botx.models.messages import message
+
+if TYPE_CHECKING:
+    from botx.bots.bots import Bot  # noqa: WPS433
 
 try:
     from typing import Protocol, Literal  # noqa: WPS433
@@ -12,7 +14,6 @@ except ImportError:
         Protocol,
         Literal,
     )
-
 
 ExceptionT = TypeVar("ExceptionT", bound=Exception)
 
@@ -32,6 +33,6 @@ SyncExceptionHandler = Callable[[ExceptionT, message.Message], None]
 ExceptionHandler = Union[AsyncExceptionHandler, SyncExceptionHandler]
 
 # Startup and shutdown events
-AsyncLifespanEvent = Callable[["bots.Bot"], Awaitable[None]]
-SyncLifespanEvent = Callable[["bots.Bot"], None]
+AsyncLifespanEvent = Callable[["Bot"], Awaitable[None]]
+SyncLifespanEvent = Callable[["Bot"], None]
 BotLifespanEvent = Union[AsyncLifespanEvent, SyncLifespanEvent]

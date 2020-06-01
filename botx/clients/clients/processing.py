@@ -1,7 +1,7 @@
 """Logic for handling response from BotX API for real HTTP responses."""
 import collections
 import contextlib
-from typing import NoReturn, TypeVar
+from typing import TypeVar
 
 from httpx import Response
 from pydantic import ValidationError
@@ -23,19 +23,19 @@ def extract_result(method: BotXMethod[ResponseT], response: Response) -> Respons
         Converted shape from BotX API.
     """
     return_shape = method.returning
-    api_response = APIResponse[return_shape].parse_obj(response.json())
+    api_response = APIResponse[return_shape].parse_obj(response.json())  # type: ignore
     response_result = api_response.result
     extractor = method.result_extractor
     if extractor is not None:
         # mypy does not understand that self passed here
-        return extractor(response_result)
+        return extractor(response_result)  # type: ignore
 
     return response_result
 
 
 async def handle_error(
     method: BotXMethod, error_handlers: ErrorHandlersInMethod, response: Response,
-) -> NoReturn:
+) -> None:
     """Handle error status code from BotX API.
 
     Arguments:

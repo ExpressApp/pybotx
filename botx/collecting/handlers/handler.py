@@ -75,7 +75,7 @@ class Handler:
             self.full_description, self.handler,
         )
         self.dependant = retrieve_dependant(self.handler, self.dependencies)
-        self.executor = retrieve_executor(
+        self.executor = retrieve_executor(  # type: ignore
             self.dependant, self.dependency_overrides_provider,
         )
 

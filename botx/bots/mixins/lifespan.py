@@ -4,35 +4,34 @@ import asyncio
 from typing import List, Set
 
 from botx.concurrency import callable_to_coroutine
-from botx.typing import BotLifespanEvent, Protocol
+from botx.typing import BotLifespanEvent
 
-
-class LifespanEventsOwnerProtocol(Protocol):
-    """Protocol for owner of lifespan events."""
-
-    @property
-    def startup_events(self) -> List[BotLifespanEvent]:
-        """Startup events."""
-
-    @property
-    def shutdown_events(self) -> List[BotLifespanEvent]:
-        """Shutdown events."""
-
-    async def wait_current_handlers(self):
-        """Wait for handlers shutdown."""
+try:
+    from typing import Protocol  # noqa: WPS433
+except ImportError:
+    from typing_extensions import (  # type: ignore  # noqa: WPS433, WPS440, F401
+        Protocol,
+    )
 
 
 class LifespanMixin:
     """Lifespan events mixin for bot."""
 
+    #: currently running tasks.
     tasks: Set[asyncio.Future]
 
-    async def start(self: LifespanEventsOwnerProtocol) -> None:
+    #: startup events.
+    startup_events: List[BotLifespanEvent]
+
+    #: shutdown events.
+    shutdown_events: List[BotLifespanEvent]
+
+    async def start(self) -> None:
         """Run all startup events and other initialization stuff."""
         for event in self.startup_events:
             await callable_to_coroutine(event, self)
 
-    async def shutdown(self: LifespanEventsOwnerProtocol) -> None:
+    async def shutdown(self) -> None:
         """Wait for all running handlers shutdown."""
         await self.wait_current_handlers()
 

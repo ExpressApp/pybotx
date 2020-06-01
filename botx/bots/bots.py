@@ -38,8 +38,8 @@ class Bot(  # noqa: WPS215
     startup_events: List[typing.BotLifespanEvent] = field(default_factory=list)
     shutdown_events: List[typing.BotLifespanEvent] = field(default_factory=list)
 
-    client: async_client.AsyncClient = field(default=None, init=False)
-    sync_client: synchronous_client.Client = field(default=None, init=False)
+    client: async_client.AsyncClient = field(init=False)
+    sync_client: synchronous_client.Client = field(init=False)
     collector: Collector = field(init=False)
     exception_middleware: ExceptionMiddleware = field(init=False)
     state: datastructures.State = field(init=False)

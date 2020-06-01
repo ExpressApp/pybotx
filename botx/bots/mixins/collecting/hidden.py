@@ -2,15 +2,17 @@
 
 from typing import Any, Callable, Optional, Sequence
 
-from botx.bots.mixins.collecting.collector_owner import CollectorOwnerProtocol
+from botx.collecting.collectors.collector import Collector
 from botx.dependencies.models import Depends
 
 
 class HiddenHandlerMixin:
     """Mixin that defines handler decorator."""
 
+    collector: Collector
+
     def hidden(  # noqa: WPS211
-        self: CollectorOwnerProtocol,
+        self,
         handler: Optional[Callable] = None,
         *,
         command: Optional[str] = None,

@@ -48,15 +48,10 @@ async def run_in_threadpool(call: Callable, *args: Any, **kwargs: Any) -> Any:
         Result of function call.
     """
     loop = asyncio.get_event_loop()
-    if contextvars is not None:  # pragma: no cover
-        # Ensure we run in the same context
-        child = functools.partial(call, *args, **kwargs)
-        context = contextvars.copy_context()
-        call = context.run
-        args = (child,)
-    elif kwargs:  # pragma: no cover
-        # loop.run_in_executor doesn't accept 'kwargs', so bind them in here
-        call = functools.partial(call, **kwargs)
+    child = functools.partial(call, *args, **kwargs)
+    context = contextvars.copy_context()
+    call = context.run
+    args = (child,)
     return await loop.run_in_executor(None, call, *args)
 
 

@@ -20,7 +20,7 @@ class AsyncClient:
     """Async client for BotX API."""
 
     http_client: httpx.AsyncClient = field(init=False)
-    interceptors: List[Any] = field(default=None)
+    interceptors: List[Any] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         """Init or update special fields."""

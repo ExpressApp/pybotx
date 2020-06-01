@@ -1,6 +1,6 @@
 """Validators and extractors for Handler fields."""
 import inspect
-from typing import Callable, List, Optional
+from typing import Any, Callable, List, Optional
 
 from botx.collecting.handlers.name_generators import get_name_from_callable
 from botx.collecting.handlers.value_extractor import get_value
@@ -113,7 +113,9 @@ def retrieve_dependant(handler: Callable, dependencies: List[Depends]) -> Depend
     return dependant
 
 
-def retrieve_executor(dependant: Dependant, dependency_overrides_provider) -> Callable:
+def retrieve_executor(
+    dependant: Dependant, dependency_overrides_provider: Any,
+) -> Callable:
     """Retrieve executor for handler.
 
     Arguments:

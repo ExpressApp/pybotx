@@ -3,17 +3,17 @@
 from typing import Any, Callable, Type
 
 from botx import typing
-from botx.bots.mixins.exceptions import ExceptionMiddlewareOwnerProtocol
 from botx.middlewares.base import BaseMiddleware
+from botx.middlewares.exceptions import ExceptionMiddleware
 
 
 class MiddlewareMixin:
     """Middleware mixin for bot."""
 
+    exception_middleware: ExceptionMiddleware
+
     def add_middleware(
-        self: ExceptionMiddlewareOwnerProtocol,
-        middleware_class: Type[BaseMiddleware],
-        **kwargs: Any,
+        self, middleware_class: Type[BaseMiddleware], **kwargs: Any,
     ) -> None:
         """Register new middleware for execution before handler.
 

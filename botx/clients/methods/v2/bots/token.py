@@ -4,7 +4,7 @@ from uuid import UUID
 
 from httpx import URL
 
-from botx.clients.methods.base import BotXMethod
+from botx.clients.methods.base import BotXMethod, PrimitiveDataType
 
 
 class Token(BotXMethod[str]):
@@ -28,7 +28,7 @@ class Token(BotXMethod[str]):
         return str(super_url.join(api_url))
 
     @property
-    def query_params(self) -> Dict[str, str]:
+    def query_params(self) -> Dict[str, PrimitiveDataType]:
         """Query string query_params for request with signature key."""
         return {"signature": self.signature}
 
