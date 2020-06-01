@@ -468,3 +468,8 @@ class TestSendingMessageProperties:
     def test_setting_dnd(self, sending_message: SendingMessage) -> None:
         sending_message.force_notification(True)
         assert sending_message.options.notifications.force_dnd
+
+
+def test_credentials_or_parameters_required_for_message_creation():
+    with pytest.raises(AssertionError):
+        SendingMessage()

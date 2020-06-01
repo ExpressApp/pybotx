@@ -3,7 +3,6 @@ import inspect
 from typing import Any, Callable, List, Optional
 
 from botx.collecting.handlers.name_generators import get_name_from_callable
-from botx.collecting.handlers.value_extractor import get_value
 from botx.dependencies.models import Dependant, Depends, get_dependant
 from botx.dependencies.solving import get_executor
 
@@ -21,11 +20,11 @@ def validate_body_for_status(executor: Callable, values: dict) -> Callable:
     Raises:
         ValueError: raised if body is not acceptable for status.
     """
-    include_in_status = get_value("include_in_status", values)
+    include_in_status = values["include_in_status"]
     if not include_in_status:
         return executor
 
-    body = get_value("body", values)
+    body = values["body"]
 
     if not body.startswith("/"):
         raise ValueError("public commands should start with leading slash")
@@ -97,15 +96,9 @@ def retrieve_dependant(handler: Callable, dependencies: List[Depends]) -> Depend
 
     Returns:
         Generated dependant object.
-
-    Raises:
-        ValueError: raised if dependency `call` attribute is not callable.
     """
     dependant = get_dependant(call=handler)
     for index, depends in enumerate(dependencies):
-        if not callable(depends.dependency):
-            raise ValueError("a parameter-less dependency must have a callable")
-
         dependant.dependencies.insert(
             index, get_dependant(call=depends.dependency, use_cache=depends.use_cache),
         )

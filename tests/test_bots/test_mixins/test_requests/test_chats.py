@@ -50,3 +50,9 @@ async def test_remove_user(bot, client, message):
     request = client.requests[0]
     assert request.group_chat_id == message.group_chat_id
     assert request.user_huids == users
+
+
+async def test_retrieving_chat_info(bot, client, message):
+    chat_id = uuid.uuid4()
+    info = await bot.get_chat_info(message.credentials, chat_id=chat_id)
+    assert info.group_chat_id == chat_id
