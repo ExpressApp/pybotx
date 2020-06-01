@@ -4,7 +4,7 @@ from botx.models.datastructures import State
 
 
 def test_passed_state_applied():
-    state = State({"a": 1})
+    state = State({"arg": 1})
     assert state.arg == 1
 
 

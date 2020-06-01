@@ -17,10 +17,11 @@ ARGUMENTS_DUPLICATION_ERROR = (
 )
 
 
-class SendingMessage:
+# currently I have no idea how to clean this.
+class SendingMessage:  # noqa: WPS214
     """Message that will be sent by bot."""
 
-    def __init__(
+    def __init__(  # noqa: WPS211
         self,
         *,
         text: str = "",
@@ -69,7 +70,7 @@ class SendingMessage:
             notification_options: configuration for notifications for message.
             options: message options.
         """
-        self.credentials: SendingCredentials = self._built_credentials(
+        self.credentials: SendingCredentials = _built_credentials(
             bot_id=bot_id,
             host=host,
             sync_id=sync_id,
@@ -81,10 +82,8 @@ class SendingMessage:
         self.payload: MessagePayload = MessagePayload(
             text=text,
             file=file,
-            markup=self._built_markup(
-                bubbles=bubbles, keyboard=keyboard, markup=markup,
-            ),
-            options=self._build_options(
+            markup=_built_markup(bubbles=bubbles, keyboard=keyboard, markup=markup),
+            options=_build_options(
                 recipients=recipients,
                 mentions=mentions,
                 notification_options=notification_options,
@@ -276,7 +275,7 @@ class SendingMessage:
         self,
         command: str,
         label: Optional[str] = None,
-        data: Optional[dict] = None,
+        data: Optional[dict] = None,  # noqa: WPS110
         *,
         new_row: bool = True,
     ) -> None:
@@ -294,7 +293,7 @@ class SendingMessage:
         self,
         command: str,
         label: Optional[str] = None,
-        data: Optional[dict] = None,
+        data: Optional[dict] = None,  # noqa: WPS110
         *,
         new_row: bool = True,
     ) -> None:
@@ -324,98 +323,111 @@ class SendingMessage:
         """
         self.payload.options.notifications.force_dnd = force
 
-    def _built_credentials(
-        self,
-        bot_id: Optional[UUID] = None,
-        host: Optional[str] = None,
-        sync_id: Optional[UUID] = None,
-        message_id: Optional[UUID] = None,
-        chat_id: Optional[UUID] = None,
-        credentials: Optional[SendingCredentials] = None,
-    ) -> SendingCredentials:
-        """Build credentials for message.
 
-        Arguments:
-            bot_id: bot id.
-            host: host for message.
-            sync_id: message event id.
-            message_id: id of new message.
-            chat_id: chat id.
-            credentials: message credentials.
+def _built_credentials(  # noqa: WPS211
+    bot_id: Optional[UUID] = None,
+    host: Optional[str] = None,
+    sync_id: Optional[UUID] = None,
+    message_id: Optional[UUID] = None,
+    chat_id: Optional[UUID] = None,
+    credentials: Optional[SendingCredentials] = None,
+) -> SendingCredentials:
+    """Build credentials for message.
 
-        Returns:
-            Credentials for message.
-        """
-        if bot_id and host:
-            assert not credentials, ARGUMENTS_DUPLICATION_ERROR.format(
-                "MessageCredentials",
+    Arguments:
+        bot_id: bot id.
+        host: host for message.
+        sync_id: message event id.
+        message_id: id of new message.
+        chat_id: chat id.
+        credentials: message credentials.
+
+    Returns:
+        Credentials for message.
+
+    Raises:
+        AssertionError: raised if credentials were passed with separate parameters.
+    """
+    if bot_id and host:
+        if credentials is not None:
+            raise AssertionError(
+                ARGUMENTS_DUPLICATION_ERROR.format("MessageCredentials"),
             )
 
-            return SendingCredentials(
-                bot_id=bot_id,
-                host=host,
-                sync_id=sync_id,
-                chat_id=chat_id,
-                message_id=message_id,
+        return SendingCredentials(
+            bot_id=bot_id,
+            host=host,
+            sync_id=sync_id,
+            chat_id=chat_id,
+            message_id=message_id,
+        )
+
+    if credentials is None:
+        raise AssertionError(
+            "MessageCredentials or manual validated_values should be passed",
+        )
+
+    if credentials.message_id is None:
+        credentials.message_id = message_id
+
+    return credentials
+
+
+def _built_markup(
+    bubbles: Optional[BubbleMarkup] = None,
+    keyboard: Optional[KeyboardMarkup] = None,
+    markup: Optional[MessageMarkup] = None,
+) -> MessageMarkup:
+    """Build markup for message.
+
+    Arguments:
+        bubbles: bubbles that will be attached to message.
+        keyboard: keyboard elements that will be attached to message.
+        markup: message markup.
+
+    Returns:
+        Markup for message.
+
+    Raises:
+        AssertionError: raised if markup were passed with separate parameters.
+    """
+    if bubbles is not None or keyboard is not None:
+        if markup is not None:
+            raise AssertionError(
+                "Markup can not be passed along with bubbles or keyboard elements",
             )
+        return MessageMarkup(bubbles=bubbles or [], keyboard=keyboard or [])
 
-        assert (
-            credentials
-        ), "MessageCredentials or manual validated_values should be passed"
+    return markup or MessageMarkup()
 
-        if credentials.message_id is None:
-            credentials.message_id = message_id
 
-        return credentials
+def _build_options(
+    recipients: Optional[AvailableRecipients] = None,
+    mentions: Optional[List[Mention]] = None,
+    notification_options: Optional[NotificationOptions] = None,
+    options: Optional[MessageOptions] = None,
+) -> MessageOptions:
+    """Built options for message.
 
-    def _built_markup(
-        self,
-        bubbles: Optional[BubbleMarkup] = None,
-        keyboard: Optional[KeyboardMarkup] = None,
-        markup: Optional[MessageMarkup] = None,
-    ) -> MessageMarkup:
-        """Build markup for message.
+    Arguments:
+        recipients: recipients for message.
+        mentions: mentions that will be attached to message.
+        notification_options: configuration for notifications for message.
+        options: message options.
 
-        Arguments:
-            bubbles: bubbles that will be attached to message.
-            keyboard: keyboard elements that will be attached to message.
-            markup: message markup.
+    Returns:
+        Options for message.
 
-        Returns:
-            Markup for message.
-        """
-        if bubbles is not None or keyboard is not None:
-            assert (
-                not markup
-            ), "Markup can not be passed along with bubbles or keyboard elements"
-            return MessageMarkup(bubbles=bubbles or [], keyboard=keyboard or [])
+    Raises:
+        AssertionError: raised if options were passed with separate parameters.
+    """
+    if mentions or recipients or notification_options:
+        if options is not None:
+            raise AssertionError(ARGUMENTS_DUPLICATION_ERROR.format("MessageOptions"))
+        return MessageOptions(
+            recipients=recipients or "all",
+            mentions=mentions or [],
+            notifications=notification_options or NotificationOptions(),
+        )
 
-        return markup or MessageMarkup()
-
-    def _build_options(
-        self,
-        recipients: Optional[AvailableRecipients] = None,
-        mentions: Optional[List[Mention]] = None,
-        notification_options: Optional[NotificationOptions] = None,
-        options: Optional[MessageOptions] = None,
-    ) -> MessageOptions:
-        """Built options for message.
-
-        Arguments:
-            recipients: recipients for message.
-            mentions: mentions that will be attached to message.
-            notification_options: configuration for notifications for message.
-            options: message options.
-
-        Returns:
-            Options for message.
-        """
-        if mentions or recipients or notification_options:
-            assert not options, ARGUMENTS_DUPLICATION_ERROR.format("MessageOptions")
-            return MessageOptions(
-                recipients=recipients or "all",
-                mentions=mentions or [],
-                notifications=notification_options or NotificationOptions(),
-            )
-
-        return options or MessageOptions()
+    return options or MessageOptions()
