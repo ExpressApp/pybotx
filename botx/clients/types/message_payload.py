@@ -1,5 +1,5 @@
 """Shape that is used for messages from bot."""
-from typing import List, Literal, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -7,6 +7,13 @@ from botx.models.constants import MAXIMUM_TEXT_LENGTH
 from botx.models.enums import Statuses
 from botx.models.mentions import Mention
 from botx.models.typing import BubbleMarkup, KeyboardMarkup
+
+try:
+    from typing import Literal  # noqa: WPS433
+except ImportError:
+    from typing_extensions import (  # type: ignore  # noqa: WPS433, WPS440, F401
+        Literal,
+    )
 
 
 class ResultPayload(BaseModel):
