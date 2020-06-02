@@ -6,23 +6,8 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from botx.models.enums import ChatTypes, SystemEvents, UserKinds
-
-
-class UserInChatCreated(BaseModel):
-    """User that can be included in data in `system:chat_created` event."""
-
-    #: user HUID.
-    huid: UUID
-
-    #: type of user.
-    user_kind: UserKinds
-
-    #: user username.
-    name: str
-
-    #: is user administrator in chat.
-    admin: bool
+from botx.models.enums import ChatTypes, SystemEvents
+from botx.models.users import UserInChatCreated
 
 
 class ChatCreatedEvent(BaseModel):
