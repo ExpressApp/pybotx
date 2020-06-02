@@ -13,7 +13,7 @@ from botx.clients.methods.v3.chats import (
     stealth_set,
 )
 from botx.clients.types.response_results import ChatCreatedResult
-from botx.models import chats, enums, events
+from botx.models import chats, enums, users
 from botx.testing.botx_mock.binders import bind_implementation_to_method
 from botx.testing.botx_mock.wsgi.messages import add_request_to_collection
 from botx.testing.botx_mock.wsgi.responses import PydanticResponse
@@ -40,10 +40,9 @@ def get_info(request: Request, settings: Settings) -> Response:
                 creator=uuid.uuid4(),
                 group_chat_id=payload.group_chat_id,
                 members=[
-                    events.UserInChatCreated(
-                        huid=uuid.uuid4(),
+                    users.UserFromChatSearch(
+                        user_huid=uuid.uuid4(),
                         user_kind=enums.UserKinds.user,
-                        name="user name",
                         admin=True,
                     ),
                 ],

@@ -6,7 +6,7 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from botx.models.enums import ChatTypes
-from botx.models.events import UserInChatCreated
+from botx.models.users import UserFromChatSearch
 
 
 class ChatFromSearch(BaseModel):
@@ -16,7 +16,7 @@ class ChatFromSearch(BaseModel):
     name: str
 
     #: description of chat
-    description: Optional[UUID]
+    description: Optional[str]
 
     #: type of chat.
     chat_type: ChatTypes
@@ -28,4 +28,4 @@ class ChatFromSearch(BaseModel):
     group_chat_id: UUID
 
     #: users in chat.
-    members: List[UserInChatCreated]
+    members: List[UserFromChatSearch]

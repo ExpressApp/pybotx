@@ -180,7 +180,9 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
         Returns:
             Encoded data for request.
         """
-        return self.json(by_alias=True, exclude=set(CREDENTIALS_FIELDS))
+        return self.json(
+            by_alias=True, exclude=set(CREDENTIALS_FIELDS), exclude_none=True,
+        )
 
     def build_http_request(self) -> HTTPRequest:
         """Build HTTP request that can be used by clients for making real requests.
