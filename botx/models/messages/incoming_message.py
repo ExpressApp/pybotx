@@ -8,6 +8,7 @@ from pydantic import BaseConfig, BaseModel, Field, validator
 from botx.models import events
 from botx.models.enums import ChatTypes, CommandTypes, EntityTypes
 from botx.models.files import File
+from botx.models.forwards import Forward
 from botx.models.mentions import Mention
 
 CommandDataType = Union[
@@ -100,7 +101,7 @@ class Entity(BaseModel):
     type: EntityTypes  # noqa: WPS: 125
 
     #: entity data.
-    data: Union[Mention]  # noqa: WPS: 110
+    data: Union[Mention, Forward]  # noqa: WPS: 110
 
 
 class IncomingMessage(BaseModel):

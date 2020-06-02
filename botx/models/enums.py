@@ -73,6 +73,9 @@ class EntityTypes(str, Enum):
     #: mention entity.
     mention = "mention"
 
+    #: forward entity.
+    forward = "forward"
+
 
 class MentionTypes(str, Enum):
     """Enum for available validated_values in mentions."""

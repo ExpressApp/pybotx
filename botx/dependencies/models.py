@@ -82,6 +82,9 @@ class Dependant:
         return values["call"], tuple((set()))
 
 
+Dependant.__pydantic_model__.update_forward_refs()  # type: ignore  # noqa: WPS609
+
+
 def get_param_sub_dependant(*, dependency_param: inspect.Parameter) -> Dependant:
     """Parse instance of parameter to get it as dependency.
 
