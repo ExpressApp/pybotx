@@ -94,11 +94,11 @@ class SystemEventsHandlerMixin:
         )
 
     def added_to_chat(
-            self,
-            handler: Optional[Callable] = None,
-            *,
-            dependencies: Optional[Sequence[Depends]] = None,
-            dependency_overrides_provider: Any = None,
+        self,
+        handler: Optional[Callable] = None,
+        *,
+        dependencies: Optional[Sequence[Depends]] = None,
+        dependency_overrides_provider: Any = None,
     ) -> Callable:
         """Register handler for `added_to_chat` event.
 
@@ -118,4 +118,3 @@ class SystemEventsHandlerMixin:
             dependencies=dependencies,
             dependency_overrides_provider=dependency_overrides_provider,
         )
-
