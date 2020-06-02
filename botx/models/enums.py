@@ -14,6 +14,9 @@ class SystemEvents(Enum):
     #: `system:chat_created` event.
     chat_created = "system:chat_created"
 
+    #: `system:added_to_chat` event.
+    added_to_chat = "system:added_to_chat"
+
     #: `file_transfer` message.
     file_transfer = "file_transfer"
 

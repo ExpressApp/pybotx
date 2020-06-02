@@ -5,12 +5,13 @@ from uuid import UUID
 
 from pydantic import BaseConfig, BaseModel, Field, validator
 
+from botx.models import events
 from botx.models.enums import ChatTypes, CommandTypes, EntityTypes
-from botx.models.events import ChatCreatedEvent
 from botx.models.files import File
 from botx.models.mentions import Mention
 
-CommandDataType = Union[ChatCreatedEvent, Dict[str, Any]]
+CommandDataType = Union[
+    events.ChatCreatedEvent, events.AddedToChatEvent, Dict[str, Any]]
 
 
 class Command(BaseModel):
@@ -127,7 +128,7 @@ class IncomingMessage(BaseModel):
 
     @validator("file", always=True, pre=True)
     def skip_file_validation(
-        cls, file: Optional[Union[dict, File]],  # noqa: N805
+            cls, file: Optional[Union[dict, File]],  # noqa: N805
     ) -> Optional[File]:
         """Skip validation for incoming file since users have not such limits as bot.
 

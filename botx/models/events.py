@@ -44,5 +44,13 @@ class ChatCreatedEvent(BaseModel):
     members: List[UserInChatCreated]
 
 
+class AddedToChatEvent(BaseModel):
+    """Shape for `system:added_to_chat` event data."""
+
+    #: members added to chat.
+    added_members: List[UUID]
+
+
 # dict for validating shape for different events
-EVENTS_SHAPE_MAP = MappingProxyType({SystemEvents.chat_created: ChatCreatedEvent})
+EVENTS_SHAPE_MAP = MappingProxyType({SystemEvents.chat_created: ChatCreatedEvent,
+                                     SystemEvents.added_to_chat: AddedToChatEvent})
