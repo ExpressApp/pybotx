@@ -13,7 +13,7 @@ from botx.clients.methods.v3.chats import (
     stealth_set,
 )
 from botx.clients.types.response_results import ChatCreatedResult
-from botx.models import chats, enums, events, users
+from botx.models import chats, enums, users
 from botx.testing.botx_mock.asgi.messages import add_request_to_collection
 from botx.testing.botx_mock.asgi.responses import PydanticResponse
 from botx.testing.botx_mock.binders import bind_implementation_to_method
