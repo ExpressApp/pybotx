@@ -2,7 +2,7 @@
 
 import asyncio
 from dataclasses import InitVar, field
-from typing import Callable, Dict, List, Set
+from typing import Any, Callable, Dict, List, Set
 
 from loguru import logger
 from pydantic.dataclasses import dataclass
@@ -80,13 +80,23 @@ class Bot(  # noqa: WPS215
             exception_handlers.no_match_found_exception_handler,
         )
 
-    async def status(self) -> menu.Status:
-        """Generate status object that could be return to BotX API on `/status`."""
+    async def status(self, *args: Any, **kwargs: Any) -> menu.Status:
+        """Generate status object that could be return to BotX API on `/status`.
+
+        Arguments:
+            args: additional positional arguments that will be passed to callable
+                status function.
+            kwargs: additional key arguments that will be passed to callable
+                status function.
+
+        Returns:
+            Built status for returning to BotX API.
+        """
         status = menu.Status()
         for handler in self.handlers:
             if callable(handler.include_in_status):
                 include_in_status = await concurrency.callable_to_coroutine(
-                    handler.include_in_status,
+                    handler.include_in_status, *args, **kwargs,
                 )
             else:
                 include_in_status = handler.include_in_status
