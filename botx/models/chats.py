@@ -16,7 +16,7 @@ class ChatFromSearch(BaseModel):
     name: str
 
     #: description of chat
-    description: Optional[UUID]
+    description: Optional[str]
 
     #: type of chat.
     chat_type: ChatTypes
