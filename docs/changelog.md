@@ -1,3 +1,29 @@
+## 0.15.0 (Unreleased)
+
+### Added
+
+* Added startup and shutdown lifespan events.
+* Added support for synchronous requests (now `molten` is required for tests).
+* Added support for `system:added_to_chat` event.
+* Added support for forwarded messages.
+* Added support for passing additional arguments to `Bot.status()`.
+* Added methods for:
+    * chat creation;
+    * information about chat retrieving;
+    * search user by email, user HUID or AD login/domain;
+
+### Fixed
+
+* Fix information about sender for `system:chat_created` event.
+
+### Changed
+
+* Simplify middlewares. Now sync middlewares will receive sync `call_next` and asynchronous
+async `call_next`.
+* `TestClient` will now propagate unhandled errors.
+* Rewrite inner clients. They now work with `methods` classes.
+* Update `httpx` to `^0.13.0`
+
 ## 0.14.1 (Apr 29, 2020)
 
 ### Added
