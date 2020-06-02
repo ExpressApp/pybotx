@@ -4,17 +4,17 @@ Important:
     Middleware should implement `dispatch` method that can be a common function or
     an asynchronous function.
 
-Example:
+```python
+class MyAsyncBotXMiddleware(BaseMiddleware):
+    async def dispatch(
+        self, message: Message, call_next: AsyncExecutor,
+    ) -> None:
+        await call_next(message)
 
-    class MyAsyncBotXMiddleware(BaseMiddleware):
-        async def dispatch(
-            self, message: Message, call_next: AsyncExecutor,
-        ) -> None:
-            await call_next(message)
-
-    class MySyncBotXMiddleware(BaseMiddleware):
-        def dispatch(self, message: Message, call_next: SyncExecutor) -> None:
-            call_next(message)
+class MySyncBotXMiddleware(BaseMiddleware):
+    def dispatch(self, message: Message, call_next: SyncExecutor) -> None:
+        call_next(message)
+```
 """
 
 from typing import Callable, Optional
