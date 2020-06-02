@@ -7,7 +7,6 @@ from botx.clients.clients.async_client import AsyncClient
 from botx.clients.clients.sync_client import Client
 from botx.collecting.collectors.collector import Collector
 from botx.dependencies.injection_params import Depends
-from botx.dependencies.models import Dependant
 from botx.exceptions import BotXAPIError, DependencyFailure, ServerUnknownError
 from botx.models.buttons import BubbleElement, KeyboardElement
 from botx.models.credentials import ExpressServer, ServerCredentials
@@ -23,6 +22,7 @@ from botx.models.enums import (
 from botx.models.errors import BotDisabledErrorData, BotDisabledResponse
 from botx.models.events import ChatCreatedEvent
 from botx.models.files import File
+from botx.models.forwards import Forward
 from botx.models.mentions import ChatMention, Mention, UserMention
 from botx.models.menu import Status
 from botx.models.messages.incoming_message import Entity, IncomingMessage
@@ -38,8 +38,6 @@ try:
     from botx.testing.testing_client.client import TestClient  # noqa: WPS433
 except ImportError:
     TestClient = None  # type: ignore  # noqa: WPS440
-
-Dependant.__pydantic_model__.update_forward_refs()  # type: ignore  # noqa: WPS609
 
 __all__ = (
     # bots
@@ -89,6 +87,7 @@ __all__ = (
     # incoming
     "IncomingMessage",
     "Entity",
+    "Forward",
     # sending
     "SendingCredentials",
     "SendingMessage",
