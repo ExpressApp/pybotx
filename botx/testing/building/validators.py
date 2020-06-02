@@ -72,7 +72,7 @@ def _check_system_command_properties(
         _event_checkers[event](**validated_values)  # type: ignore
 
 
-def _check_chat_created_event(user: Sender, **_kwargs: Any) -> None:
+def _check_common_system_event(user: Sender, **_kwargs: Any) -> None:
     error_field = ""
     if user.user_huid is not None:
         error_field = "user_huid"
@@ -95,6 +95,7 @@ def _check_file_transfer_event(file: Optional[files.File], **_kwargs: Any) -> No
 
 
 _event_checkers = {
-    enums.SystemEvents.chat_created: _check_chat_created_event,
+    enums.SystemEvents.chat_created: _check_common_system_event,
+    enums.SystemEvents.added_to_chat: _check_common_system_event,
     enums.SystemEvents.file_transfer: _check_file_transfer_event,
 }

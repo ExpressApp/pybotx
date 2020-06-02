@@ -5,12 +5,14 @@ from uuid import UUID
 
 from pydantic import BaseConfig, BaseModel, Field, validator
 
+from botx.models import events
 from botx.models.enums import ChatTypes, CommandTypes, EntityTypes
-from botx.models.events import ChatCreatedEvent
 from botx.models.files import File
 from botx.models.mentions import Mention
 
-CommandDataType = Union[ChatCreatedEvent, Dict[str, Any]]
+CommandDataType = Union[
+    events.ChatCreatedEvent, events.AddedToChatEvent, Dict[str, Any],
+]
 
 
 class Command(BaseModel):

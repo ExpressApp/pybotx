@@ -1,7 +1,7 @@
 """Definition of different schemas for system events."""
 
 from types import MappingProxyType
-from typing import List
+from typing import List, Mapping, Type
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -44,5 +44,17 @@ class ChatCreatedEvent(BaseModel):
     members: List[UserInChatCreated]
 
 
+class AddedToChatEvent(BaseModel):
+    """Shape for `system:added_to_chat` event data."""
+
+    #: members added to chat.
+    added_members: List[UUID]
+
+
 # dict for validating shape for different events
-EVENTS_SHAPE_MAP = MappingProxyType({SystemEvents.chat_created: ChatCreatedEvent})
+EVENTS_SHAPE_MAP: Mapping[SystemEvents, Type[BaseModel]] = MappingProxyType(
+    {
+        SystemEvents.chat_created: ChatCreatedEvent,
+        SystemEvents.added_to_chat: AddedToChatEvent,
+    },
+)
