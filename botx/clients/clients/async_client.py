@@ -4,6 +4,7 @@ from typing import Any, List, Optional, TypeVar
 
 import httpx
 from httpx import Response, StatusCode
+from loguru import logger
 from pydantic.dataclasses import dataclass
 
 from botx.clients.clients.processing import extract_result, handle_error
@@ -72,6 +73,8 @@ class AsyncClient:
             HTTP response from API.
         """
         request = method.build_http_request()
+        method_name = method.__repr_name__()  # noqa: WPS609
+        logger.bind(payload=request.to_dict()).debug("send {0} request", method_name)
         return await self.http_client.request(
             request.method,
             request.url,

@@ -24,3 +24,17 @@ class HTTPRequest:
 
     #: request body.
     request_data: Optional[Union[str, bytes]]
+
+    def to_dict(self) -> dict:
+        """Convert request to dictionary.
+
+        Returns:
+            Built dictionary.
+        """
+        return {
+            "method": self.method,
+            "url": self.url,
+            "headers": self.headers,
+            "query_params": self.query_params,
+            "request_data": self.request_data,
+        }
