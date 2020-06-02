@@ -18,13 +18,13 @@ Right now we have the following code:
 {!./src/development/first_steps/first_steps0.py!}
 ```
 
-* [Bot][botx.bots.Bot] is a class that provides all the core functionality to your bots.
-* [Message][botx.models.messages.Message] provides data to your handlers for commands.
-* [Status][botx.models.menu.Status] is used here only to document the `FastAPI` route,
+* `Bot` is a class that provides all the core functionality to your bots.
+* `Message` provides data to your handlers for commands.
+* `Status` is used here only to document the `FastAPI` route,
 but in fact it stores information about public commands that user of your bot should see in menu.
-* [ExpressServer][botx.models.credentials.ExpressServer] is used for storing information
+* `ExpressServer` is used for storing information
 about servers with which your bot is able to communicate.
-* [IncomingMessage][botx.models.receiving.IncomingMessage] is a pydantic model that is used
+* `IncomingMessage` is a pydantic model that is used
 for base validating of data, that was received on your bot's webhook.
 
 ### Step 2: initialize your `Bot`
@@ -52,10 +52,9 @@ complain about "wrong" body generated for it automatically.
 {!./src/development/first_steps/first_steps0.py!}
 ```
 
-[`.answer_message`][botx.bots.Bot.answer_message] will send text to the user by using
-[sync_id][botx.models.messages.Message.sync_id], [bot_id][botx.models.messages.Message.bot_id]
-and [host][botx.models.messages.Message.host] data from the [Message][botx.models.messages.Message] instance.
-This is a simple wrapper for the [`.send`][botx.bots.Bot.send] method, which is used to
+[`.answer_message`][botx.bots.mixins.sending.SendingMixin.answer_message] will send text to the user by using
+`sync_id`, `bot_id` and `host` data from the `Message` instance.
+This is a simple wrapper for the [`.send`][botx.bots.mixins.sending.SendingMixin.send] method, which is used to
 gain more control over sending messages process, allowing you to specify a different
 host, bot_id, sync_id, group_chat_id or a list of them.
 
@@ -65,7 +64,7 @@ host, bot_id, sync_id, group_chat_id or a list of them.
 {!./src/development/first_steps/first_steps0.py!}
 ```
 
-The [`.shutdown`][botx.bots.Bot.shutdown] method is used to stop pending handler.
+The `.shutdown` method is used to stop pending handler.
 You must call them to be sure that the bot will work properly.
 
 ### Step 6: define webhooks for bot
@@ -81,7 +80,7 @@ Here we define 2 `FastAPI` routes:
 
 !!! info
 
-    If [`.execute_command`][botx.bots.Bot.execute_command] did not find a handler for
+    If `.execute_command` did not find a handler for
     the command in the message, it will raise an `NoMatch` error in background,
     which you probably want to [handle](./handling-errors.md). You can register default handler to process all commands that do not have their own handler.
 
@@ -106,7 +105,7 @@ We'll use the `/fill-info` command to start the chain:
 {!./src/development/first_steps/first_steps2.py!}
 ```
 
-Here we define a new handler for `/fill-info` command using [`.handler`][botx.bots.Bot.handler] decorator.
+Here we define a new handler for `/fill-info` command using `.handler` decorator.
 This decorator will generate for us body for our command and register it doing it available to handle.
 We also defined a `users_data` dictionary to store information from our users.
 
@@ -120,7 +119,7 @@ Now let's define another 2 handlers for the commands that were mentioned in the 
 {!./src/development/first_steps/first_steps3.py!}
 ```
 
-Take a look at highlighted lines. [`.handler`][botx.bots.Bot.handler] method takes a
+Take a look at highlighted lines. `.handler` method takes a
 different number of arguments. The most commonly used arguments are `command` and `commands`.
 `command` is a single string that defines a command for a handler.
 `commands` is a list of strings that can be used to define a variety of aliases for a handler.
@@ -169,9 +168,9 @@ register handler for next message from user.
 What's going on here? We added one line to our `/fill-info` command to start a chain of
 questions for our user. We also defined 3 functions, whose signature is similar to the
 usual handler signature, but instead of registration them using the
-[`.handler`][botx.bots.Bot.handler] decorator, we do this while registering out
+`.handler` decorator, we do this while registering out
 [`Next Step Middleware`][botx.middlewares.ns.NextStepMiddleware] for bot. We change message
 handling flow using the [register_next_step_handler][botx.middlewares.ns.register_next_step_handler] function.
 We pass into function our message as the first argument and the handler that will be
 executed for the next user message as the second. We also can pass key arguments if we need them
-and get them in our handler using [`Message state`][botx.models.datastructures.State] then, but this not our case now.
+and get them in our handler using message state then, but this not our case now.

@@ -5,7 +5,7 @@ Important:
     an asynchronous function.
 
 Example:
-    ```python3
+
     class MyAsyncBotXMiddleware(BaseMiddleware):
         async def dispatch(
             self, message: Message, call_next: AsyncExecutor,
@@ -15,7 +15,6 @@ Example:
     class MySyncBotXMiddleware(BaseMiddleware):
         def dispatch(self, message: Message, call_next: SyncExecutor) -> None:
             call_next(message)
-    ```
 """
 
 from typing import Callable, Optional

@@ -16,14 +16,14 @@ Let's divide these commands in a following way:
 
 ### Collector
 
-[Collector][botx.collecting.Collector] is a class that can collect registered handlers 
+[Collector][botx.collecting.collectors.collector.Collector] is a class that can collect registered handlers 
 inside itself and then transfer them to bot.
 
-Using [Collector][botx.collecting.Collector] is quite simple:
+Using [Collector][botx.collecting.collectors.collector.Collector] is quite simple:
 
  1. Create an instance of the collector.
  2. Register your handlers, just like you do it for your bot.
- 3. Include registered handlers in your [Bot][botx.bots.Bot] instance using the [`.include_collector`][botx.bots.Bot.include_collector] method.
+ 3. Include registered handlers in your [Bot][botx.bots.bots.Bot] instance using the [`.include_collector`][botx.bots.mixins.collectors.BotCollectingMixin.include_collector] method.
 
 Here is an example.
 
@@ -45,11 +45,11 @@ And here is the `bot.py` file:
 
 ### Advanced handlers registration
 
-There are different methods for handlers registration available on [Collector][botx.collecting.Collector] and [Bot][botx.bots.Bot] instances.
+There are different methods for handlers registration available on [Collector][botx.collecting.collectors.collector.Collector] and [Bot][botx.bots.bots.Bot] instances.
 You can register:
 
-* regular handlers using [`.handler`][botx.collecting.Collector.handler] decorator.
-* default handlers, that will be used if matching handler was not found using [`.default`][botx.collecting.Collector.default] decorator.
-* hidden handlers, that won't be showed in bot's menu using [`.hidden`][botx.collecting.Collector.hidden] decorator.
-* system event handlers, that will be used for handling special events from BotX API using [`.system_event`][botx.collecting.Collector.system_event] decorator.
+* regular handlers using [`.handler`][botx.collecting.collectors.mixins.handler.HandlerMixin.handler] decorator.
+* default handlers, that will be used if matching handler was not found using [`.default`][botx.collecting.collectors.mixins.default.DefaultHandlerMixin.default] decorator.
+* hidden handlers, that won't be showed in bot's menu using [`.hidden`][botx.collecting.collectors.mixins.hidden.HiddenHandlerMixin.hidden] decorator.
+* system event handlers, that will be used for handling special events from BotX API using [`.system_event`][botx.collecting.collectors.mixins.system_events.SystemEventsHandlerMixin.system_event] decorator.
 * and some other type of handlers. See API reference for bot or collector for more information.

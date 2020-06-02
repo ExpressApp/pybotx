@@ -19,7 +19,7 @@ Each of your dependencies function can contain parameters with other dependencie
 
 ## Special dependencies: Bot and Message
 
-[Bot][botx.bots.Bot] and [Message][botx.models.messages.Message] objects and special case of dependencies. 
+[Bot][botx.bots.bots.Bot] and `Message` objects and special case of dependencies. 
 If you put an annotation for them into your function then this objects will be passed inside. 
 It can be useful if you write something like authentication dependency:
 
@@ -30,6 +30,6 @@ It can be useful if you write something like authentication dependency:
 [DependencyFailure][botx.exceptions.DependencyFailure] exception is used for preventing execution
 of dependencies after one that failed.
 
-Also, if you define a list of [dependencies][botx.query_params.Depends] objects in the initialization of [collector][botx.collecting.Collector] or [bot][botx.bots.Bot] or in [`.handler`][botx.collecting.Collector.handler] decorator or others,
+Also, if you define a list of dependencies objects in the initialization of [collector][botx.collecting.collectors.collector.Collector] or [bot][botx.bots.bots.Bot] or in `.handler` decorator or others,
 then these dependencies will be processed as background dependencies. 
 They will be executed before the handler and its' dependencies:
