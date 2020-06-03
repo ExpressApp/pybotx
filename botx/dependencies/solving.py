@@ -34,7 +34,13 @@ async def solve_sub_dependency(
     call = cast(Callable, dependant.call)
     use_sub_dependant = dependant
 
-    overrides = getattr(dependency_overrides_provider, "dependency_overrides", {})
+    overrides = getattr(
+        dependency_overrides_provider
+        if dependency_overrides_provider is not None
+        else message.bot,
+        "dependency_overrides",
+        {},
+    )
     if overrides:
         call = overrides.get(dependant.call, dependant.call)
         use_sub_dependant = get_dependant(call=call, name=dependant.name)

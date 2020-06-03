@@ -141,7 +141,9 @@ class BaseCollector:
             _check_new_handler_restrictions(body, name, handler, registered_handler)
 
         dep_override = (
-            dependency_overrides_provider or self.dependency_overrides_provider
+            dependency_overrides_provider
+            if dependency_overrides_provider is not None
+            else self.dependency_overrides_provider
         )
         command_handler = Handler(
             body=body,
