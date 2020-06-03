@@ -74,7 +74,9 @@ class AsyncClient:
         """
         request = method.build_http_request()
         method_name = method.__repr_name__()  # noqa: WPS609
-        logger.bind(payload=request.to_dict()).debug("send {0} request", method_name)
+        logger.bind(botx_client=True, payload=request.to_dict()).debug(
+            "send {0} request", method_name,
+        )
         return await self.http_client.request(
             request.method,
             request.url,
