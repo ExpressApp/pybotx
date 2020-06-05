@@ -3,11 +3,13 @@
 from typing import Any, Awaitable, Callable, Dict, Optional, Tuple, cast
 
 from botx import concurrency
-from botx.dependencies.models import Dependant, get_dependant
+from botx.dependencies.models import (
+    CacheKey,
+    Dependant,
+    DependenciesCache,
+    get_dependant,
+)
 from botx.models.messages.message import Message
-
-CacheKey = Tuple[Callable, Tuple[str, ...]]
-DependenciesCache = Dict[CacheKey, Any]
 
 
 async def solve_sub_dependency(
@@ -53,7 +55,7 @@ async def solve_sub_dependency(
     )
     dependency_cache.update(solving_result[1])
 
-    dependant.cache_key = cast(CacheKey, dependant.cache_key)
+    dependant.cache_key = dependant.cache_key
     if dependant.use_cache and dependant.cache_key in dependency_cache:
         solved = dependency_cache[dependant.cache_key]
     else:

@@ -3,9 +3,8 @@ from __future__ import annotations
 
 import inspect
 from dataclasses import field
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional
 
-from pydantic import validator
 from pydantic.dataclasses import dataclass
 from pydantic.utils import lenient_issubclass
 
@@ -18,6 +17,9 @@ WRONG_PARAM_TYPE_ERROR_TEXT = (
     "Param {0} of {1} can only be a dependency, message, bot or client, got: {2}"
 )
 
+CacheKey = Optional[Callable]
+DependenciesCache = Dict[CacheKey, Any]
+
 
 @dataclass
 class Depends:
@@ -28,9 +30,6 @@ class Depends:
 
     #: use cache for dependency.
     use_cache: bool = True
-
-
-DependantCache = Tuple[Optional[Callable], Tuple[str, ...]]
 
 
 @dataclass
@@ -63,23 +62,11 @@ class Dependant:
 
     # Save the cache key at creation to optimize performance
     #: storage for cache.
-    cache_key: DependantCache = field(default=(None, ()))
+    cache_key: CacheKey = field(init=False)
 
-    @validator("cache_key", always=True)
-    def init_cache(
-        cls, _: DependantCache, values: dict,  # noqa: N805, WPS110
-    ) -> DependantCache:
-        """Init cache for dependency with passed call and empty tuple.
-
-        Arguments:
-            cls: this class.
-            _: init value for cache. Mainly won't be used in initialization.
-            values: already validated validated_values.
-
-        Returns:
-            Cache for callable.
-        """
-        return values["call"], tuple((set()))
+    def __post_init__(self) -> None:
+        """Init special fields."""
+        self.cache_key = self.call
 
 
 Dependant.__pydantic_model__.update_forward_refs()  # type: ignore  # noqa: WPS609
