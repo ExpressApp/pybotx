@@ -9,7 +9,7 @@ from botx.models.messages.sending.credentials import SendingCredentials
 from botx.models.messages.sending.markup import MessageMarkup
 from botx.models.messages.sending.message import SendingMessage
 from botx.models.messages.sending.options import MessageOptions
-from botx.models.messages.sending.payload import MessagePayload
+from botx.models.messages.sending.payload import MessagePayload, UpdatePayload
 
 try:
     from typing import Protocol  # noqa: WPS433
@@ -20,7 +20,7 @@ except ImportError:
 
 
 class ResultSendProtocol(Protocol):
-    """Protocol for object that can send command result and notification."""
+    """Protocol for object that can create new or update message."""
 
     async def send_command_result(
         self, credentials: SendingCredentials, payload: MessagePayload,
@@ -31,6 +31,11 @@ class ResultSendProtocol(Protocol):
         self, credentials: SendingCredentials, payload: MessagePayload,
     ) -> UUID:
         """Send notification."""
+
+    async def update_message(
+        self, credentials: SendingCredentials, update: UpdatePayload,
+    ) -> None:
+        """Update existing message."""
 
 
 class MessageSendProtocol(Protocol):
@@ -72,15 +77,28 @@ class SendingMixin:
 
         return await self.send(message)
 
-    async def send(self: ResultSendProtocol, message: SendingMessage) -> UUID:
+    async def send(
+        self: ResultSendProtocol, message: SendingMessage, *, update: bool = False,
+    ) -> UUID:
         """Send message as answer to command or notification to chat and get it id.
 
         Arguments:
             message: message that should be sent to chat.
+            update: if True then check, that `message_id` was set in credentials and
+                update existing message with this ID.
 
         Returns:
             `UUID` of sent event.
         """
+        if message.credentials.message_id is not None and update:
+            await self.update_message(
+                message.credentials.copy(
+                    update={"sync_id": message.credentials.message_id},
+                ),
+                UpdatePayload.from_sending_payload(message.payload),
+            )
+            return message.credentials.message_id
+
         if message.sync_id:
             return await self.send_command_result(message.credentials, message.payload)
 
