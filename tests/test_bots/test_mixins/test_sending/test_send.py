@@ -36,6 +36,14 @@ async def test_sending_notification_using_send(bot, client, sending_message):
     assert client.notifications[0]
 
 
+async def test_sending_update_using_send(bot, client, sending_message):
+    sending_message.credentials.message_id = uuid.uuid4()
+
+    await bot.send(sending_message, update=True)
+
+    assert client.message_updates[0].sync_id == sending_message.credentials.message_id
+
+
 async def test_returning_event_id_from_notification(bot, client, sending_message):
     sending_message.credentials.sync_id = None
     assert await bot.send(sending_message)

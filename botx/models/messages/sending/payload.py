@@ -1,4 +1,5 @@
 """Payload for messages."""
+from __future__ import annotations
 
 from typing import List, Optional
 
@@ -59,3 +60,19 @@ class UpdatePayload(BaseModel):
         """
         self.bubbles = markup.bubbles
         self.keyboard = markup.keyboard
+
+    @classmethod
+    def from_sending_payload(cls, payload: MessagePayload) -> UpdatePayload:
+        """Create new update payload from existing payload for new message.
+
+        Arguments:
+            payload: payload that can be used for sending new message.
+
+        Returns:
+            Created payload for update.
+        """
+        update = cls()
+        update.text = payload.text or None
+        update.set_markup(payload.markup)
+        update.mentions = payload.options.mentions
+        return update
