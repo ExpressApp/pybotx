@@ -1,5 +1,5 @@
 """Message that is sent from bot."""
-from typing import BinaryIO, List, Optional, TextIO, Union, cast
+from typing import Any, BinaryIO, Dict, List, Optional, TextIO, Union, cast
 from uuid import UUID
 
 from botx.models.enums import MentionTypes
@@ -39,6 +39,7 @@ class SendingMessage:  # noqa: WPS214
         credentials: Optional[SendingCredentials] = None,
         options: Optional[MessageOptions] = None,
         markup: Optional[MessageMarkup] = None,
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Init message with required attributes.
 
@@ -69,6 +70,7 @@ class SendingMessage:  # noqa: WPS214
             mentions: mentions that will be attached to message.
             notification_options: configuration for notifications for message.
             options: message options.
+            metadata: message metadata.
         """
         self.credentials: SendingCredentials = _built_credentials(
             bot_id=bot_id,
@@ -81,6 +83,7 @@ class SendingMessage:  # noqa: WPS214
 
         self.payload: MessagePayload = MessagePayload(
             text=text,
+            metadata=metadata or {},
             file=file,
             markup=_built_markup(bubbles=bubbles, keyboard=keyboard, markup=markup),
             options=_build_options(
@@ -123,6 +126,15 @@ class SendingMessage:  # noqa: WPS214
     def text(self, text: str) -> None:
         """Text in message."""
         self.payload.text = text
+
+    @property
+    def metadata(self) -> Dict[str, Any]:
+        """Metadata in message."""
+        return self.payload.metadata
+
+    @metadata.setter
+    def metadata(self, metadata: Dict[str, Any]) -> None:
+        self.payload.metadata = metadata
 
     @property
     def file(self) -> Optional[File]:

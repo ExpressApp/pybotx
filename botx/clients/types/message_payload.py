@@ -1,5 +1,5 @@
 """Shape that is used for messages from bot."""
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -24,6 +24,9 @@ class ResultPayload(BaseModel):
 
     #: body for new message from bot.
     body: str = Field("", max_length=MAXIMUM_TEXT_LENGTH)
+
+    #: message metadata.
+    metadata: Dict[str, Any] = {}
 
     #: keyboard that will be used for new message.
     keyboard: KeyboardMarkup = []

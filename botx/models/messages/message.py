@@ -62,8 +62,10 @@ class Message:
     command: Command = _message_proxy_property()
     #: command body.
     body: str = _message_proxy_property("command")
-    #: command data
+    #: command data.
     data: dict = _message_proxy_property("command")  # noqa: WPS110
+    #: command metadata.
+    metadata: dict = _message_proxy_property("command")
 
     #: file from message.
     file: Optional[File] = _message_proxy_property()

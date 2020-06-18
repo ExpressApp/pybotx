@@ -28,6 +28,9 @@ class Command(BaseModel):
     #: command payload.
     data: CommandDataType = {}  # noqa: WPS110
 
+    #: command metadata.
+    metadata: Dict[str, Any] = {}
+
     @property
     def command(self) -> str:
         """First word of body that was sent to bot."""
