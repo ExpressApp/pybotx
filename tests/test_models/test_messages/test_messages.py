@@ -51,6 +51,7 @@ def incoming_message() -> IncomingMessage:
                         },
                     ],
                 },
+                "metadata": {"account_id": 94},
             },
             "file": None,
             "from": {
@@ -86,7 +87,12 @@ def test_setting_ui_flag_property_for_common_message() -> None:
     msg = Message.from_dict(
         {
             "sync_id": "a465f0f3-1354-491c-8f11-f400164295cb",
-            "command": {"body": "/cmd", "command_type": "user", "data": {"ui": True}},
+            "command": {
+                "body": "/cmd",
+                "command_type": "user",
+                "data": {"ui": True},
+                "metadata": {"account_id": 94},
+            },
             "file": None,
             "from": {
                 "user_huid": None,
@@ -151,6 +157,7 @@ def test_message_is_proxy_to_incoming_message(incoming_message) -> None:
     assert msg.bot_id == incoming_message.bot_id
     assert msg.body == incoming_message.command.body
     assert msg.data == incoming_message.command.data_dict
+    assert msg.metadata == incoming_message.command.metadata
     assert msg.user_huid == incoming_message.user.user_huid
     assert msg.ad_login == incoming_message.user.ad_login
     assert msg.group_chat_id == incoming_message.user.group_chat_id
@@ -321,6 +328,12 @@ class TestSendingMessageProperties:
     def test_message_text(self, sending_message: SendingMessage) -> None:
         sending_message.text = "test"
         assert sending_message.text == "test"
+
+    def test_metadata(self, sending_message: SendingMessage) -> None:
+        value = {"account_id", 94}
+
+        sending_message.metadata = value
+        assert sending_message.metadata == value
 
     class TestMessageFile:
         def test_message_file(self, sending_message: SendingMessage) -> None:

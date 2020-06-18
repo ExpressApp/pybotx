@@ -13,12 +13,18 @@ def sending_file():
 
 
 @pytest.fixture()
-def sending_message(message, sending_file):
+def metadata():
+    return {"account_id": 94}
+
+
+@pytest.fixture()
+def sending_message(message, metadata, sending_file):
     sending_message = SendingMessage.from_message(
         text="some text", file=sending_file, message=message,
     )
     sending_message.add_keyboard_button(command="/command", label="keyboard")
     sending_message.add_bubble(command="/command", label="bubble")
+    sending_message.metadata = metadata
     return sending_message
 
 
@@ -28,12 +34,15 @@ async def test_using_command_result_route(bot, client, sending_message):
     assert client.command_results[0]
 
 
-async def test_sending_notification_using_send(bot, client, sending_message):
+async def test_sending_notification_using_send(bot, client, sending_message, metadata):
     sending_message.credentials.sync_id = None
 
     await bot.send(sending_message)
 
-    assert client.notifications[0]
+    assert len(client.notifications)
+    notification = client.notifications[0]
+
+    assert notification.result.metadata == metadata
 
 
 async def test_sending_update_using_send(bot, client, sending_message):

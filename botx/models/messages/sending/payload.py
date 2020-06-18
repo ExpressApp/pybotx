@@ -1,7 +1,7 @@
 """Payload for messages."""
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -18,6 +18,9 @@ class MessagePayload(BaseModel):
 
     #: message text.
     text: str = Field("", max_length=MAXIMUM_TEXT_LENGTH)
+
+    #: message metadat
+    metadata: Dict[str, Any] = {}
 
     #: attached to message file.
     file: Optional[File] = None

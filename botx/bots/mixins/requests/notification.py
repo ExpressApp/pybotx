@@ -39,6 +39,7 @@ class NotificationRequestsMixin:
                 group_chat_ids=chat_ids,
                 result=ResultPayload(
                     body=payload.text,
+                    metadata=payload.metadata,
                     bubble=payload.markup.bubbles,
                     keyboard=payload.markup.keyboard,
                     mentions=payload.options.mentions,
@@ -70,6 +71,7 @@ class NotificationRequestsMixin:
                 event_sync_id=credentials.message_id,
                 result=ResultPayload(
                     body=payload.text,
+                    metadata=payload.metadata,
                     bubble=payload.markup.bubbles,
                     keyboard=payload.markup.keyboard,
                     mentions=payload.options.mentions,

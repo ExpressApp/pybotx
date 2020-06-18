@@ -34,6 +34,7 @@ class CommandRequestsMixin:
                 event_sync_id=credentials.message_id,
                 result=ResultPayload(
                     body=payload.text,
+                    metadata=payload.metadata,
                     bubble=payload.markup.bubbles,
                     keyboard=payload.markup.keyboard,
                     mentions=payload.options.mentions,
