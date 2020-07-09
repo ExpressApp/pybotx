@@ -1,9 +1,10 @@
 import uuid
+from datetime import datetime as dt, timezone as tz
 from typing import List
 
 import pytest
 
-from botx import ChatTypes, CommandTypes
+from botx import ChatTypes, CommandTypes, EntityTypes
 from botx.models.messages.incoming_message import Command, IncomingMessage, Sender
 
 
@@ -84,5 +85,47 @@ def test_skip_validation_for_file() -> None:
                 "is_creator": False,
             },
             "bot_id": "dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4",
+        },
+    )
+
+
+def test_parse_message_forward() -> None:
+    inserted_at = dt(2020, 7, 10, 10, 12, 58, 420000, tzinfo=tz.utc)
+
+    IncomingMessage.parse_obj(
+        {
+            "bot_id": "f6615a30-9d3d-5770-b453-749ea562a974",
+            "command": {
+                "body": "Message body",
+                "command_type": CommandTypes.user,
+                "data": {},
+                "metadata": {},
+            },
+            "entities": [
+                {
+                    "data": {
+                        "forward_type": ChatTypes.chat,
+                        "group_chat_id": "b51df4c1-3834-0949-1066-614ec424d28a",
+                        "sender_huid": "4471289e-5b52-5c1b-8eab-a22c548fef9b",
+                        "source_chat_name": "MessageAuthor Name",
+                        "source_inserted_at": inserted_at,
+                        "source_sync_id": "80d2c3a9-0031-50a8-aeed-32bb5d285758",
+                    },
+                    "type": EntityTypes.forward,
+                },
+            ],
+            "file": None,
+            "sync_id": "eeb8eeca-3f31-5037-8b41-84de63909a31",
+            "user": {
+                "ad_domain": "ccsteam.ru",
+                "ad_login": "message.forwarder",
+                "chat_type": ChatTypes.chat,
+                "group_chat_id": "070d866f-fe5b-0222-2a9e-b7fc35c99465",
+                "host": "cts.ccsteam.ru",
+                "is_admin": True,
+                "is_creator": True,
+                "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
+                "username": "MessageForwarder Name",
+            },
         },
     )
