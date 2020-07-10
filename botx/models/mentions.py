@@ -70,7 +70,10 @@ class Mention(BaseModel):
         Raises:
             ValueError: raised if mention_type does not corresponds with data.
         """
-        mention_data = values["mention_data"]
+        mention_data = values.get("mention_data")
+        if mention_data is None:
+            raise ValueError("no `mention_data`, perhaps this entity isn't a mention")
+
         user_mention_types = {MentionTypes.user, MentionTypes.contact}
         chat_mention_types = {MentionTypes.chat, MentionTypes.channel}
 

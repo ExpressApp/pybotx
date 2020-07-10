@@ -14,6 +14,11 @@ def test_mention_id_will_be_generated_if_missed(mention_id):
     assert mention.mention_id is not None
 
 
+def test_error_when_no_mention_data():
+    with pytest.raises(ValidationError):
+        Mention(mention_type=MentionTypes.user)
+
+
 @pytest.mark.parametrize(
     ("mention_data", "mention_type"),
     [

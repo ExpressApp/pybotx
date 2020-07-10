@@ -104,7 +104,7 @@ class Entity(BaseModel):
     type: EntityTypes  # noqa: WPS: 125
 
     #: entity data.
-    data: Union[Mention, Forward]  # noqa: WPS: 110
+    data: Union[Forward, Mention]  # noqa: WPS110
 
 
 class IncomingMessage(BaseModel):
