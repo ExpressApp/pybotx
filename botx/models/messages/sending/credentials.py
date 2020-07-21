@@ -3,7 +3,7 @@
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel
 
 
 class SendingCredentials(BaseModel):
@@ -26,27 +26,3 @@ class SendingCredentials(BaseModel):
 
     #: token that is used for bot authorization on requests to BotX API.
     token: Optional[str] = None
-
-    @validator("chat_id", always=True)
-    def receiver_id_should_be_passed(
-        cls, chat_id: Optional[UUID], values: dict,  # noqa: N805, WPS110
-    ) -> Optional[UUID]:
-        """Check that `chat_id` or `sync_id` was passed.
-
-        Arguments:
-            cls: this class.
-            chat_id: value that should be checked.
-            values: all other validated_values checked before.
-
-        Raises:
-            ValueError: raised if no value that can be used as received ID was passed.
-
-        Returns:
-            ID of chat if passed.
-        """
-        if not (chat_id or values["sync_id"]):
-            raise ValueError(
-                "sync_id, chat_id or chat_ids should be passed to initialization",
-            )
-
-        return chat_id

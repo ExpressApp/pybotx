@@ -1,6 +1,4 @@
 """Mixin for shortcut for events resource requests."""
-from typing import cast
-from uuid import UUID
 
 from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
 from botx.clients.methods.v3.events.edit_event import EditEvent
@@ -23,10 +21,16 @@ class EventsRequestsMixin:
             credentials: credentials that are used for sending message. *sync_id* is
                 required for credentials.
             update: update of message content.
+
+        Raises:
+            ValueError: raised if sync_id wasn't provided
         """
+        if not credentials.sync_id:
+            raise ValueError("sync_id is required for message update")
+
         await self.call_method(
             EditEvent(
-                sync_id=cast(UUID, credentials.sync_id),
+                sync_id=credentials.sync_id,
                 result=UpdatePayload(
                     body=update.text,
                     keyboard=update.keyboard,
