@@ -1,4 +1,4 @@
-## 0.15.0 (Unreleased)
+## 0.15.0 (Jul 23, 2020)
 
 ### Added
 
@@ -10,19 +10,27 @@
 * Added methods for:
     * chat creation;
     * information about chat retrieving;
-    * search user by email, user HUID or AD login/domain;
+    * search user by email, user HUID or AD login/domain.
+* Add client flag for logger.
+* Allow to update message through `.send()` from bot.
+* Add `metadata` property to message.
 
 ### Fixed
 
 * Fix information about sender for `system:chat_created` event.
+* Fix crash when forwarding message to bot.
+* Fix error on creating empty credentials.
 
 ### Changed
 
-* Simplify middlewares. Now sync middlewares will receive sync `call_next` and asynchronous
-async `call_next`.
+* Simplify middlewares. Now sync middlewares will receive sync `call_next` and
+asynchronous async `call_next`.
 * `TestClient` will now propagate unhandled errors.
 * Rewrite inner clients. They now work with `methods` classes.
 * Update `httpx` to `^0.13.0`
+* Use bot as default dependency overrides provider.
+* Simplify cache key.
+
 
 ## 0.14.1 (Apr 29, 2020)
 
