@@ -8,44 +8,40 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.7, 3.8]
     steps:
       - uses: actions/checkout@master
+
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/cache@v1
-        id: cache-poetry
-        with:
-          path: ~/.cache/pip
-          key: get-poetry-${{ runner.os }}-py-${{ matrix.python-version }}
-          restore-keys: |
-            get-poetry-${{ runner.os }}-py-
-            get-poetry-${{ runner.os }}-
+
       - name: Install poetry
-        if: steps.cache-poetry.outputs.cache-hit != 'true'
         run: |
           pip install poetry==1.0
           poetry config virtualenvs.in-project true
-      - uses: actions/cache@v1
-        id: cache-deps
+
+      - name: Set up cache
+        uses: actions/cache@v1
+        id: cache
         with:
           path: .venv
           key: venv-${{ runner.os }}-py-${{ matrix.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-py-${{ matrix.python-version }}-poetry-
-            venv-${{ runner.os }}-py-${{ matrix.python-version }}-
-            venv-${{ runner.os }}-py-
-            venv-${{ runner.os }}-
+
+      - name: Ensure cache is healthy
+        if: steps.cache.outputs.cache-hit == 'true'
+        shell: bash
+        run: poetry run pip --version >/dev/null 2>&1 || rm -rf .venv
+
       - name: Install dependencies
-        if: steps.cache-deps.outputs.cache-hit != 'true'
-        run: |
-          poetry install --extras tests
+        shell: bash
+        run: poetry install --extras tests
+
       - name: Run tests
         run: |
-          source .venv/bin/activate
-          ./scripts/test --cov-report=xml
+          poetry run nox -s test
+
       - uses: codecov/codecov-action@v1.0.6
         with:
           file: ./coverage.xml

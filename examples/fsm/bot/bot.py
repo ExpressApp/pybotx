@@ -1,10 +1,9 @@
 from typing import Any
 
-from botx import Bot, ExpressServer, Message
-
 from bot.config import BOT_SECRET, CTS_HOST
 from bot.handlers import FSMStates, fsm
 from bot.middleware import FlowError, FSMMiddleware, change_state
+from botx import Bot, ExpressServer, Message
 
 bot = Bot(known_hosts=[ExpressServer(host=CTS_HOST, secret_key=str(BOT_SECRET))])
 bot.add_middleware(FSMMiddleware, bot=bot, fsm=fsm)

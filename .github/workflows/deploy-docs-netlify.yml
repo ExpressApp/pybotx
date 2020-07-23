@@ -17,43 +17,39 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-      - uses: actions/cache@v1
-        id: cache-poetry
-        with:
-          path: ~/.cache/pip
-          key: get-poetry-${{ runner.os }}-py-${{ matrix.python-version }}
-          restore-keys: |
-            get-poetry-${{ runner.os }}-py-
-            get-poetry-${{ runner.os }}-
+
       - name: Install poetry
-        if: steps.cache-poetry.outputs.cache-hit != 'true'
         run: |
           pip install poetry==1.0
           poetry config virtualenvs.in-project true
-      - uses: actions/cache@v1
-        id: cache-deps-extras
+
+      - name: Set up cache
+        uses: actions/cache@v1
+        id: cache
         with:
           path: .venv
           key: venv-${{ runner.os }}-py-${{ matrix.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-py-${{ matrix.python-version }}-poetry-
-            venv-${{ runner.os }}-py-${{ matrix.python-version }}-
-            venv-${{ runner.os }}-py-
-            venv-${{ runner.os }}-
+
+      - name: Ensure cache is healthy
+        if: steps.cache.outputs.cache-hit == 'true'
+        shell: bash
+        run: poetry run pip --version >/dev/null 2>&1 || rm -rf .venv
+
       - name: Install dependencies
-        if: steps.cache-deps-extras.outputs.cache-hit != 'true'
-        run: |
-          poetry install --extras docs
+        shell: bash
+        run: poetry install --extras tests
+
       - name: Build MkDocs for Netlify
         run: |
-          source .venv/bin/activate
-          ./scripts/build-docs
+          poetry run nox -s build-docs
+
       - name: Deploy to Netlify
-        uses: nwtgck/actions-netlify@v1.0.3
+        uses: nwtgck/actions-netlify@v1
         with:
           publish-dir: './site'
           production-branch: master

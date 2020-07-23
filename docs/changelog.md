@@ -1,3 +1,37 @@
+## 0.15.0 (Jul 23, 2020)
+
+### Added
+
+* Added startup and shutdown lifespan events.
+* Added support for synchronous requests (now `molten` is required for tests).
+* Added support for `system:added_to_chat` event.
+* Added support for forwarded messages.
+* Added support for passing additional arguments to `Bot.status()`.
+* Added methods for:
+    * chat creation;
+    * information about chat retrieving;
+    * search user by email, user HUID or AD login/domain.
+* Add client flag for logger.
+* Allow to update message through `.send()` from bot.
+* Add `metadata` property to message.
+
+### Fixed
+
+* Fix information about sender for `system:chat_created` event.
+* Fix crash when forwarding message to bot.
+* Fix error on creating empty credentials.
+
+### Changed
+
+* Simplify middlewares. Now sync middlewares will receive sync `call_next` and
+asynchronous async `call_next`.
+* `TestClient` will now propagate unhandled errors.
+* Rewrite inner clients. They now work with `methods` classes.
+* Update `httpx` to `^0.13.0`
+* Use bot as default dependency overrides provider.
+* Simplify cache key.
+
+
 ## 0.14.1 (Apr 29, 2020)
 
 ### Added
@@ -80,7 +114,7 @@ not caught.
 
 * Add background dependencies to next step middleware.
 * Next step break handler can be registered as function.
-* Add methods to add/remove users to/from chat using `Bot.add_users()` and `Bot.remove_users()`.
+* Add methods to add/remove users to/from chat using `Bot.add_users_into_chat()` and `Bot.remove_users_from_chat()`.
 
 ### Fixed
 
@@ -104,7 +138,7 @@ not caught.
 
 ### Added
 
-* Stealth mode enable/disable methods `Bot.stealth_enable()` and `Bot.stealth_disable()`.
+* Stealth mode enable/disable methods `Bot.enable_stealth_mode()` and `Bot.disable_stealth_mode()`.
 
 ## 0.13.0 (Jan 20, 2020)
 
@@ -192,7 +226,7 @@ depending on different conditions defined in the handlers (to be added to future
 * Added mechanism for catching exceptions.
 * Add ability to use sync and async functions to send data from `Bot`.
 * Added dependency injection system
-* Added parsing command params into handler arguments.
+* Added parsing command query_params into handler arguments.
 
 ### Removed
 
