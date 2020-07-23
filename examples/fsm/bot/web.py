@@ -1,7 +1,7 @@
+from botx import Status
 from fastapi import FastAPI
 
 from bot.bot import bot
-from botx import Status
 
 app = FastAPI()
 

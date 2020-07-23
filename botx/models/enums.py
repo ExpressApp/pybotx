@@ -11,83 +11,63 @@ class SystemEvents(Enum):
         this enum.
     """
 
-    #: `system:chat_created` event.
     chat_created = "system:chat_created"
-
-    #: `system:added_to_chat` event.
-    added_to_chat = "system:added_to_chat"
-
-    #: `file_transfer` message.
+    """`system:chat_created` event."""
     file_transfer = "file_transfer"
+    """`file_transfer` message."""
 
 
-class CommandTypes(str, Enum):
+class CommandTypes(str, Enum):  # noqa: WPS600
     """Enum that specify from whom command was received."""
 
-    #: command received from user.
     user = "user"
-
-    #: command received from system.
+    """command received from user."""
     system = "system"
+    """command received from system."""
 
 
-class ChatTypes(str, Enum):
+class ChatTypes(str, Enum):  # noqa: WPS600
     """Enum for type of chat."""
 
-    #: private chat for user with bot.
     chat = "chat"
-
-    #: chat with several users.
+    """private chat for user with bot."""
     group_chat = "group_chat"
-
-    #: channel chat.
+    """chat with several users."""
     channel = "channel"
+    """channel chat."""
 
 
-class UserKinds(str, Enum):
+class UserKinds(str, Enum):  # noqa: WPS600
     """Enum for type of user."""
 
-    #: normal user.
     user = "user"
-
-    #: normal user, but will present if all users in chat are from the same CTS.
+    """normal user."""
     cts_user = "cts_user"
-
-    #: bot user.
+    """normal user, but will present if all users in chat are from the same CTS."""
     bot = "botx"
+    """bot user."""
 
 
-class Statuses(str, Enum):
+class Recipients(str, Enum):  # noqa: WPS600
+    """Enum for default recipients value.
+
+    - *all*: show message to all users in chat.
+    """
+
+    all: str = "all"  # noqa: A003
+
+
+class Statuses(str, Enum):  # noqa: WPS600
     """Enum for status of operation in BotX API."""
 
-    #: operation was successfully proceed.
     ok = "ok"
-
-    #: there was an error while processing operation.
+    """operation was successfully proceed."""
     error = "error"
+    """there was an error while processing operation."""
 
 
-class EntityTypes(str, Enum):
+class EntityTypes(str, Enum):  # noqa: WPS600
     """Types for entities that could be received by bot."""
 
-    #: mention entity.
     mention = "mention"
-
-    #: forward entity.
-    forward = "forward"
-
-
-class MentionTypes(str, Enum):
-    """Enum for available validated_values in mentions."""
-
-    #: mention single user from chat in message.
-    user = "user"
-
-    #: mention user by user_huid.
-    contact = "contact"
-
-    #: mention chat in message.
-    chat = "chat"
-
-    #: mention channel in message.
-    channel = "channel"
+    """mention entity."""

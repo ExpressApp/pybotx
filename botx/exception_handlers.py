@@ -4,19 +4,15 @@ from typing import Any
 
 from loguru import logger
 
-from botx.models.messages import message as messages
+from botx.models import messages
 
 
 async def dependency_failure_exception_handler(*_: Any) -> None:
-    """Just do nothing if there is this error, since it's just a signal for stop.
-
-    Arguments:
-        _: default arguments passed to exception handler.
-    """
+    """Just do nothing if there is this error, since it's just a signal for stop."""
 
 
 async def no_match_found_exception_handler(
-    _: Exception, message: messages.Message,
+    _: Exception, message: messages.Message
 ) -> None:
     """Log that handler was not found.
 

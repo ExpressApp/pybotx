@@ -7,26 +7,27 @@ from uuid import UUID
 from loguru import logger
 from pydantic import BaseConfig, BaseModel
 
-from botx import Bot, Collector, concurrency, converters, exceptions
-from botx.collecting.handlers.handler import Handler
-from botx.collecting.handlers.name_generators import get_name_from_callable
-from botx.dependencies.models import Depends
+from botx import bots
+from botx.collecting import Collector, Handler
+from botx.concurrency import callable_to_coroutine
+from botx.dependencies import models as deps
+from botx.exceptions import NoMatchFound
 from botx.middlewares.base import BaseMiddleware
-from botx.models.messages.message import Message
+from botx.models import messages
 from botx.typing import Executor
+from botx.utils import get_name_from_callable, optional_sequence_to_list
 
 
 class NextStepHandlerState(BaseModel):
     """Information about next step handler."""
 
-    class Config(BaseConfig):
-        arbitrary_types_allowed = True
-
-    #: name of handler that should be called.
     name: str
-
-    #: arguments that should be set on message for handler.
+    """name of handler that should be called."""
     arguments: Dict[str, Any]
+    """arguments that should be set on message for handler."""
+
+    class Config(BaseConfig):  # noqa: D106
+        arbitrary_types_allowed = True
 
 
 class NextStepMiddleware(BaseMiddleware):
@@ -36,18 +37,19 @@ class NextStepMiddleware(BaseMiddleware):
     Important:
         This middleware should be the last included into bot, since it will break
         execution if right handler will be found.
+
     """
 
-    def __init__(  # noqa: WPS211
+    def __init__(
         self,
         executor: Executor,
-        bot: Bot,
+        bot: bots.Bot,
         functions: Union[Dict[str, Callable], Sequence[Callable]],
         break_handler: Optional[Union[Handler, str, Callable]] = None,
-        dependencies: Optional[Sequence[Depends]] = None,
+        dependencies: Optional[Sequence[deps.Depends]] = None,
         dependency_overrides_provider: Any = None,
     ) -> None:
-        """Init middleware with required query_params.
+        """Init middleware with required params.
 
         Arguments:
             executor: next callable that should be executed.
@@ -57,20 +59,19 @@ class NextStepMiddleware(BaseMiddleware):
                 their names.
             break_handler: handler instance or name of handler that will break next step
                 handlers chain.
-            dependencies: background dependencies that should be applied to handlers.
             dependency_overrides_provider: object that will override dependencies for
                 this handler.
         """
         super().__init__(executor)
 
-        dependencies = converters.optional_sequence_to_list(
-            bot.collector.dependencies,
-        ) + converters.optional_sequence_to_list(dependencies)
+        dependencies = optional_sequence_to_list(
+            bot.collector.dependencies
+        ) + optional_sequence_to_list(dependencies)
         dep_override = (
             dependency_overrides_provider or bot.collector.dependency_overrides_provider
         )
         bot.state.ns_collector = Collector(
-            dependencies=dependencies, dependency_overrides_provider=dep_override,
+            dependencies=dependencies, dependency_overrides_provider=dep_override
         )
         bot.state.ns_store = {}
 
@@ -84,7 +85,7 @@ class NextStepMiddleware(BaseMiddleware):
                 bot.state.ns_break_handler = get_name_from_callable(break_handler)
             else:
                 bot.state.ns_collector.handlers.append(
-                    bot.collector.handler_for(break_handler),
+                    bot.collector.handler_for(break_handler)
                 )
                 bot.state.ns_break_handler = break_handler
 
@@ -96,16 +97,17 @@ class NextStepMiddleware(BaseMiddleware):
         for name, function in functions_dict.items():
             register_function_as_ns_handler(bot, function, name)
 
-    async def dispatch(self, message: Message, call_next: Executor) -> None:
+    async def dispatch(self, message: messages.Message, call_next: Executor) -> None:
         """Execute middleware logic.
 
         Arguments:
             message: incoming message.
             call_next: next executor in middleware chain.
         """
-        if message.bot.state.ns_break_handler:
-            break_handler = message.bot.state.ns_collector.handler_for(
-                message.bot.state.ns_break_handler,
+        bot = message.bot
+        if bot.state.ns_break_handler:
+            break_handler = bot.state.ns_collector.handler_for(
+                bot.state.ns_break_handler
             )
             if break_handler.matches(message):
                 await self.drop_next_step_handlers_chain(message)
@@ -114,21 +116,21 @@ class NextStepMiddleware(BaseMiddleware):
 
         try:
             next_handler, state = await self.lookup_next_handler_for_message(message)
-        except (exceptions.NoMatchFound, IndexError, KeyError, RuntimeError):
-            await concurrency.callable_to_coroutine(call_next, message)
+        except (NoMatchFound, IndexError, KeyError, RuntimeError):
+            await callable_to_coroutine(call_next, message)
             return
 
         key = get_chain_key_by_message(message)
         logger.bind(botx_ns_middleware=True, payload={"next_step_key": key}).info(
-            "botx: found next step handler",
+            "botx: found next step handler"
         )
 
-        for state_argument in state.arguments.items():
-            setattr(message.state, state_argument[0], state_argument[1])
+        for argument, argument_value in state.arguments.items():
+            setattr(message.state, argument, argument_value)
         await next_handler(message)
 
     async def lookup_next_handler_for_message(
-        self, message: Message,
+        self, message: messages.Message
     ) -> Tuple[Handler, NextStepHandlerState]:
         """Find handler in bot storage or in handlers.
 
@@ -147,7 +149,7 @@ class NextStepMiddleware(BaseMiddleware):
             handler_state,
         )
 
-    async def drop_next_step_handlers_chain(self, message: Message) -> None:
+    async def drop_next_step_handlers_chain(self, message: messages.Message) -> None:
         """Drop registered chain for message.
 
         Arguments:
@@ -157,7 +159,7 @@ class NextStepMiddleware(BaseMiddleware):
             message.bot.state.ns_store.pop(get_chain_key_by_message(message))
 
 
-def get_chain_key_by_message(message: Message) -> Tuple[str, UUID, UUID, UUID]:
+def get_chain_key_by_message(message: messages.Message) -> Tuple[str, UUID, UUID, UUID]:
     """Generate key for next step handlers chain from message.
 
     Arguments:
@@ -165,18 +167,15 @@ def get_chain_key_by_message(message: Message) -> Tuple[str, UUID, UUID, UUID]:
 
     Returns:
         Key using which handler should be found.
-
-    Raises:
-        RuntimeError: raised if key for chain can not be built.
     """
     # key is a tuple of (host, bot_id, chat_id, user_huid)
     if message.user_huid is None:
-        raise RuntimeError("key for chain can be obtained only for messages from users")
+        raise RuntimeError("Key for chain can be obtained only for messages from users")
     return message.host, message.bot_id, message.group_chat_id, message.user_huid
 
 
 def register_function_as_ns_handler(
-    bot: Bot, func: Callable, name: Optional[str] = None,
+    bot: bots.Bot, func: Callable, name: Optional[str] = None
 ) -> None:
     """Register new function that can be called as next step handler.
 
@@ -189,9 +188,6 @@ def register_function_as_ns_handler(
         func: functions that will be called as ns handler. Will be transformed to
             coroutine if it is not already.
         name: name for new function. Will be generated from `func` if not passed.
-
-    Raises:
-        ValueError: raised if there is error to register handler.
     """
     name = name or get_name_from_callable(func)
     collector: Collector = bot.state.ns_collector
@@ -209,7 +205,7 @@ def register_function_as_ns_handler(
 
 
 def register_next_step_handler(
-    message: Message, func: Union[str, Callable], **ns_arguments: Any,
+    message: messages.Message, func: Union[str, Callable], **ns_arguments: Any
 ) -> None:
     """Register new next step handler for next message from user.
 
@@ -225,14 +221,10 @@ def register_next_step_handler(
             handler.
         ns_arguments: arguments that will be stored in message state while executing
             handler with next message.
-
-    Raises:
-        ValueError: raised if passed message does not include user_huid or if handler
-            that should be registered as next step does not exists.
     """
     if message.user_huid is None:
         raise ValueError(
-            "message for which ns handler is registered should include user_huid",
+            "message for which ns handler is registered should include user_huid"
         )
 
     bot = message.bot
@@ -241,9 +233,9 @@ def register_next_step_handler(
 
     try:
         collector.handler_for(name)
-    except exceptions.NoMatchFound:
+    except NoMatchFound:
         raise ValueError(
-            "bot does not have registered next step handler with name {0}".format(name),
+            f"bot does not have registered next step handler with name {name}"
         )
 
     key = get_chain_key_by_message(message)
