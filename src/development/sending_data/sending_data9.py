@@ -10,7 +10,7 @@ USER_FOR_MENTION = UUID("cbf4b952-77d5-4484-aea0-f05fb622e089")
 @bot.handler
 async def my_handler_with_user_mention(message: Message) -> None:
     reply = SendingMessage.from_message(
-        text="Hi! There is a notification with mention for you", message=message
+        text="Hi! There is a notification with mention for you", message=message,
     )
     reply.mention_user(message.user_huid)
 
@@ -27,7 +27,7 @@ async def my_handler_with_chat_mention(message: Message) -> None:
 @bot.handler
 async def my_handler_with_contact_mention(message: Message) -> None:
     reply = SendingMessage.from_message(
-        text="You should request access!", message=message
+        text="You should request access!", message=message,
     )
     reply.mention_chat(USER_FOR_MENTION, name="Administrator")
     await bot.send(reply)

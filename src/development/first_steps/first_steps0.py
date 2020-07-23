@@ -1,6 +1,7 @@
-from botx import Bot, ExpressServer, IncomingMessage, Message, Status
 from fastapi import FastAPI
 from starlette.status import HTTP_202_ACCEPTED
+
+from botx import Bot, ExpressServer, IncomingMessage, Message, Status
 
 bot = Bot(known_hosts=[ExpressServer(host="cts.example.com", secret_key="secret")])
 

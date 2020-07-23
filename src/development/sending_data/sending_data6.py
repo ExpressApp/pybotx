@@ -15,6 +15,6 @@ async def my_handler_with_direct_bubbles_definition(message: Message) -> None:
                     BubbleElement(label="bubble 2", command=""),
                     BubbleElement(label="bubble 3", command=""),
                 ],
-            ]
+            ],
         ),
     )
