@@ -8,28 +8,24 @@ from typing import AnyStr, BinaryIO, Optional, TextIO, Union
 
 from pydantic import BaseModel, validator
 
-#: file extensions that can be proceed by BotX API.
+"""File extensions that can be proceed by BotX API."""
 BOTX_API_ACCEPTED_EXTENSIONS = (
-    # documents
     ".doc",
     ".docx",
     ".xls",
     ".xlsx",
     ".ppt",
     ".pptx",
-    # custom
     ".json",
     ".txt",
     ".pdf",
     ".html",
-    # media
     ".jpg",
     ".jpeg",
     ".gif",
     ".png",
     ".mp3",
     ".mp4",
-    # archives
     ".rar",
     ".zip",
     ".7z",
@@ -43,46 +39,38 @@ BOTX_API_ACCEPTED_EXTENSIONS = (
 class File(BaseModel):
     """Object that represents file in RFC 2397 format."""
 
-    #: name of file.
     file_name: str
-
-    #: file content in RFC 2397 format.
-    data: str  # noqa: WPS110
-
-    #: text under file.
+    """name of file."""
+    data: str
+    """file content in RFC 2397 format."""
     caption: Optional[str] = None
+    """text under file."""
 
     @validator("file_name", always=True)
-    def check_file_extension(cls, name: str) -> str:  # noqa: N805
+    def check_file_extension(cls, value: str) -> str:  # noqa: N805
         """Check that file extension can be handled by BotX API.
 
         Arguments:
-            cls: this class.
-            name: file name which will be checked for matching extensions.
+            value: file name which will be checked for matching extensions.
 
         Returns:
             Passed name if matching was successful.
-
-        Raises:
-            ValueError: raised if extension is not supported.
         """
         extensions_check = (
-            name.lower().endswith(extension)
+            value.lower().endswith(extension)
             for extension in BOTX_API_ACCEPTED_EXTENSIONS
         )
 
         if not any(extensions_check):
             raise ValueError(
-                "file {0} has an extensions that is not supported by BotX API".format(
-                    name,
-                ),
+                f"file {value} has an extensions that is not supported by BotX API"
             )
 
-        return name
+        return value
 
     @classmethod
     def from_file(
-        cls, file: Union[TextIO, BinaryIO], filename: Optional[str] = None,
+        cls, file: Union[TextIO, BinaryIO], filename: Optional[str] = None
     ) -> "File":
         """Convert file-like object into BotX API compatible file.
 
@@ -100,28 +88,25 @@ class File(BaseModel):
         if isinstance(file_data, str):
             file_data = file_data.encode()
 
-        encoded_data = base64.b64encode(file_data).decode()
+        data = base64.b64encode(file_data).decode()
         media_type = mimetypes.guess_type(filename)[0] or "text/plain"
-        return cls(
-            file_name=filename,
-            data="data:{0};base64,{1}".format(media_type, encoded_data),
-        )
+        return cls(file_name=filename, data=f"data:{media_type};base64,{data}")
 
     @classmethod
-    def from_string(cls, data_of_file: AnyStr, filename: str) -> "File":
+    def from_string(cls, data: AnyStr, filename: str) -> "File":
         """Build file from bytes or string passed to method in `data` with `filename` as name.
 
         Arguments:
-            data_of_file: string or bytes that will be used for creating file.
+            data: string or bytes that will be used for creating file.
             filename: name for new file.
 
         Returns:
             Built file object.
         """
-        if isinstance(data_of_file, str):
-            file_data = data_of_file.encode()
+        if isinstance(data, str):
+            file_data = data.encode()
         else:
-            file_data = data_of_file
+            file_data = data
         file = BytesIO(file_data)
         file.name = filename
         return cls.from_file(file)

@@ -11,33 +11,38 @@ jobs:
         python-version: [3.8]
     steps:
       - uses: actions/checkout@v1
-
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
-
+      - uses: actions/cache@v1
+        id: cache-poetry
+        with:
+          path: ~/.cache/pip
+          key: get-poetry-${{ runner.os }}-py-${{ matrix.python-version }}
+          restore-keys: |
+            get-poetry-${{ runner.os }}-py-
+            get-poetry-${{ runner.os }}-
       - name: Install poetry
+        if: steps.cache-poetry.outputs.cache-hit != 'true'
         run: |
           pip install poetry==1.0
           poetry config virtualenvs.in-project true
-
-      - name: Set up cache
-        uses: actions/cache@v1
-        id: cache
+      - uses: actions/cache@v1
+        id: cache-deps
         with:
           path: .venv
           key: venv-${{ runner.os }}-py-${{ matrix.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
-
-      - name: Ensure cache is healthy
-        if: steps.cache.outputs.cache-hit == 'true'
-        shell: bash
-        run: poetry run pip --version >/dev/null 2>&1 || rm -rf .venv
-
+          restore-keys: |
+            venv-${{ runner.os }}-py-${{ matrix.python-version }}-poetry-
+            venv-${{ runner.os }}-py-${{ matrix.python-version }}-
+            venv-${{ runner.os }}-py-
+            venv-${{ runner.os }}-
       - name: Install dependencies
-        shell: bash
-        run: poetry install --extras tests
-
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: |
+          poetry install --extras tests
       - name: Run linters
         run: |
-          poetry run nox -s lint
+          source .venv/bin/activate
+          ./scripts/lint

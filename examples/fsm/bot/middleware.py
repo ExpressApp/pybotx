@@ -2,7 +2,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Callable, Dict, Final, Optional, Type, Union
 
-from botx import Bot, Collector, Message
+from botx import Bot, Message
+from botx.collecting import Collector
 from botx.concurrency import callable_to_coroutine
 from botx.middlewares.base import BaseMiddleware
 from botx.typing import Executor
@@ -34,13 +35,10 @@ class FSM:
     ) -> Callable:
         def decorator(handler: Callable) -> Callable:
             self.collector.add_handler(
-                handler,
-                body=on_state.name,
-                name=on_state.name,
-                include_in_status=False,
+                handler, body=on_state.name, name=on_state.name, include_in_status=False
             )
             self.transitions[on_state] = Transition(
-                on_success=next_state, on_failure=on_failure,
+                on_success=next_state, on_failure=on_failure
             )
 
             return handler
@@ -70,7 +68,7 @@ class FSMMiddleware(BaseMiddleware):
 
     async def dispatch(self, message: Message, call_next: Executor) -> None:
         current_state: Enum = message.bot.state.fsm_state.setdefault(
-            (message.user_huid, message.group_chat_id), self.initial_state,
+            (message.user_huid, message.group_chat_id), self.initial_state
         )
         if current_state is not None:
             transition = self.fsm.transitions[current_state]

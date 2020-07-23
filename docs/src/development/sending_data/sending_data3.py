@@ -7,7 +7,7 @@ bot = Bot()
 async def my_handler(message: Message) -> None:
     with open("my_file.txt") as f:
         notification = SendingMessage(
-            file=File.from_file(f), credentials=message.credentials,
+            file=File.from_file(f), credentials=message.credentials
         )
 
     await bot.send(notification)

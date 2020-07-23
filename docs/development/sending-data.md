@@ -1,10 +1,10 @@
-`Bot` from `pybotx` provide you 3 methods for sending message to the user (with some additional data) and 1 for sending the file:
+[Bot][botx.bots.Bot] from `pybotx` provide you 3 methods for sending message to the user (with some additional data) and 1 for sending the file:
 
-* `.send` - send a message by passing a `SendingMessage`.
-* `.answer_message` - send a message by passing text and the original `message` that was passed to the command handler.
-* `.send_message` - send message by passing text, `sync_id`, `group_chat_id` or list of them, `bot_id` and `host`. 
-At most cases you'll prefer `.send` method over this one.
-* `.send_file` - send file using file-like object.
+* [`.send`][botx.bots.Bot.send] - send a message by passing a [SendingMessage][botx.models.messages.SendingMessage].
+* [`.answer_message`][botx.bots.Bot.answer_message] - send a message by passing text and the original [message][botx.models.messages.Message] that was passed to the command handler.
+* [`.send_message`][botx.bots.Bot.send_message] - send message by passing text, `sync_id`, `group_chat_id` or list of them, `bot_id` and `host`. 
+At most cases you'll prefer [`.send`][botx.bots.Bot.send] method over this one.
+* [`.send_file`][botx.bots.Bot.send_file] - send file using file-like object.
 
 !!! info
     Note about using different values to send messages
@@ -18,7 +18,7 @@ At most cases you'll prefer `.send` method over this one.
 
 ### Using `.send`
 
-`.send` is used to send a message. 
+[`.send`][botx.bots.Bot.send] is used to send a message. 
 
 Here is an example of using this method outside from handler:
 
@@ -34,7 +34,7 @@ or inside command handler:
 
 ### Using `.answer_message`
 
-`.answer_message` is very useful for replying to command.
+[`.answer_message`][botx.bots.Bot.answer_message] is very useful for replying to command.
 
 ```Python3
 {!./src/development/sending_data/sending_data2.py!}
@@ -44,9 +44,9 @@ or inside command handler:
 
 There are several ways to send a file from bot:
 
-* Attach file to an instance of `SendingMessage`.
-* Pass file to `file` argument into `.answer_message` or `.send_message` methods.
-* Use `.send_file`.
+* [Attach file][botx.models.messages.SendingMessage.add_file] to an instance of [SendingMessage][botx.models.messages.SendingMessage].
+* Pass file to `file` argument into [`.answer_message`][botx.bots.Bot.answer_message] or [`.send_message`][botx.bots.Bot.send_message] methods.
+* Use [`.send_file`][botx.bots.Bot.send_file].
 
 #### Attach file to already built message or during initialization
 
@@ -69,9 +69,9 @@ There are several ways to send a file from bot:
 ### Attach interactive buttons to your message
 
 You can attach bubbles or keyboard buttons to your message. This can be done using 
-`MessageMarkup` class.
-A `Bubble` is a button that is stuck to your message. 
-A `Keyboard` is a panel that will be displayed when 
+[MessageMarkup][botx.models.sending.MessageMarkup] class.
+A [Bubble][botx.models.buttons.ButtonElement] is a button that is stuck to your message. 
+A [Keyboard][botx.models.buttons.KeyboardElement] is a panel that will be displayed when 
 you click on the messege with the icon.
 
 An attached collection of bubbles or keyboard buttons is a matrix of buttons.
@@ -91,7 +91,7 @@ Or like this:
 ```
 
 
-Also you can attach buttons to `SendingMessage` passing it
+Also you can attach buttons to [SendingMessage][botx.models.message.SendingMessage] passing it
 into `__init__` or after:
 
 ```Python3

@@ -8,54 +8,49 @@ from pydantic import BaseModel, validator
 class ButtonOptions(BaseModel):
     """Extra options for buttons, like disabling output by tap."""
 
-    #: if True then text won't shown for user in messenger.
     silent: bool = True
+    """if True then text won't shown for user in messenger."""
 
 
 class Button(BaseModel):
     """Base class for ui element like bubble or keyboard button."""
 
-    #: command that will be triggered by click on the element.
     command: str
-
-    #: text that will be shown on the element.
+    """command that will be triggered by click on the element."""
     label: Optional[str] = None
-
-    #: extra payload that will be stored in button and then received in new message.
-    data: dict = {}  # noqa: WPS110
-
-    #: options for button.
+    """text that will be shown on the element."""
+    data: dict = {}
+    """extra payload that will be stored in button and then received in new message."""
     opts: ButtonOptions = ButtonOptions()
+    """options for button."""
 
     @validator("label", always=True)
     def label_as_command_if_none(
-        cls, label: Optional[str], values: dict,  # noqa: N805, WPS110
+        cls, value: Optional[str], values: dict  # noqa: N805
     ) -> str:
         """Return command as label if it is `None`.
 
         Arguments:
-            cls: passed button class.
-            label: value that should be checked.
-            values: all other validated_values checked before.
+            value: value that should be checked.
+            values: all other values checked before.
 
         Returns:
             Label for button.
         """
-        return label or values["command"]
+        return value or values["command"]
 
     @validator("data", always=True)
-    def add_ui_flag_to_data(cls, button_data: dict) -> dict:  # noqa: N805
+    def add_ui_flag_to_data(cls, value: dict) -> dict:  # noqa: N805
         """Return command data with set UI flag.
 
         Arguments:
-            cls: passed button class.
-            button_data: data passed to bot.
+            value: data passed to bot.
 
         Returns:
             Passed data with set "ui" flag to True if it wasn't set already.
         """
-        button_data.setdefault("ui", True)
-        return button_data
+        value.setdefault("ui", True)  # noqa: WPS425
+        return value
 
 
 class BubbleElement(Button):
