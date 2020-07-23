@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-set -e
-set -x
-
-pytest --cov=botx --cov=tests --cov-report=term-missing --cov-fail-under=100 ${@}

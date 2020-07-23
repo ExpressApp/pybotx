@@ -21,13 +21,20 @@ nav:
       - Testing: 'development/tests.md'
   - API Reference:
       - Bots: 'reference/bots.md'
-      - Clients: 'reference/clients.md'
       - Collecting: 'reference/collecting.md'
+      - Middlewares:
+          - Base: 'reference/middlewares/base.md'
+          - Next Step: 'reference/middlewares/ns.md'
+          - Authorization: 'reference/middlewares/authorization.md'
+      - Clients:
+          - Methods: 'reference/clients/methods.md'
+          - Async Client: 'reference/clients/async-client.md'
+          - Synchronous Client: 'reference/clients/sync-client.md'
+      - Testing:
+          Client: 'reference/testing/test-client.md'
+          Message Builder: 'reference/testing/message-builder.md'
       - Exceptions: 'reference/exceptions.md'
-      - Testing: 'reference/testing.md'
-      - Models: 'reference/models.md'
-      - Dependencies: 'reference/dependencies.md'
-      - Middlewares: 'reference/middlewares.md'
+
   - Changelog: 'changelog.md'
 
 markdown_extensions:

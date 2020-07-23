@@ -9,7 +9,7 @@ class State:
     _state: dict
 
     def __init__(self, state: Optional[dict] = None):
-        """Init state with required params.
+        """Init state with required query_params.
 
         Arguments:
             state: initial state.
@@ -17,17 +17,16 @@ class State:
         state = state or {}
         super().__setattr__("_state", state)  # noqa: WPS613
 
-    def __setattr__(self, key: Any, value: Any) -> None:
+    def __setattr__(self, key: Any, new_value: Any) -> None:
         """Set state attribute.
 
         Arguments:
             key: key to set attribute.
-            value: value of attribute.
+            new_value: value of attribute.
         """
-        self._state[key] = value
+        self._state[key] = new_value
 
-    # this is not module __getattr__
-    def __getattr__(self, key: Any) -> Any:  # noqa: WPS413
+    def __getattr__(self, key: Any) -> Any:
         """Get state attribute.
 
         Arguments:
@@ -35,8 +34,11 @@ class State:
 
         Returns:
             Stored value.
+
+        Raises:
+            AttributeError: raised if attribute was not found in state.
         """
         try:
             return self._state[key]
         except KeyError:
-            raise AttributeError(f"State has no attribute '{key}'")
+            raise AttributeError("state has no attribute '{0}'".format(key))
