@@ -1,8 +1,3 @@
-from fastapi import FastAPI
-from starlette.requests import Request
-from starlette.responses import JSONResponse, Response
-from starlette.status import HTTP_202_ACCEPTED, HTTP_503_SERVICE_UNAVAILABLE
-
 from botx import (
     Bot,
     BotDisabledErrorData,
@@ -13,6 +8,10 @@ from botx import (
     ServerUnknownError,
     Status,
 )
+from fastapi import FastAPI
+from starlette.requests import Request
+from starlette.responses import JSONResponse, Response
+from starlette.status import HTTP_202_ACCEPTED, HTTP_503_SERVICE_UNAVAILABLE
 
 bot = Bot(known_hosts=[ExpressServer(host="cts.example.com", secret_key="secret")])
 
@@ -46,7 +45,7 @@ async def message_from_unknown_server_hanlder(
             error_data=BotDisabledErrorData(
                 status_message=(
                     f"Sorry, bot can not communicate with user from {exc.host} CTS"
-                ),
-            ),
+                )
+            )
         ).dict(),
     )

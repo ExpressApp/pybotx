@@ -10,9 +10,6 @@ CTS_HOST = "my-cts.example.com"
 
 async def some_function() -> None:
     message = SendingMessage(
-        text="You were chosen by random.",
-        bot_id=BOT_ID,
-        host=CTS_HOST,
-        chat_id=CHAT_ID,
+        text="You were chosen by random.", bot_id=BOT_ID, host=CTS_HOST, chat_id=CHAT_ID
     )
     await bot.send(message)

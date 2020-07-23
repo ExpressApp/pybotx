@@ -36,43 +36,31 @@
      <lastmod>2020-07-23</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
+     <loc>https://expressapp.github.io/pybotx/reference/clients/</loc>
+     <lastmod>2020-07-23</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
      <loc>https://expressapp.github.io/pybotx/reference/collecting/</loc>
      <lastmod>2020-07-23</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
-     <loc>https://expressapp.github.io/pybotx/reference/middlewares/base/</loc>
-     <lastmod>2020-07-23</lastmod>
-     <changefreq>daily</changefreq>
-    </url><url>
-     <loc>https://expressapp.github.io/pybotx/reference/middlewares/ns/</loc>
-     <lastmod>2020-07-23</lastmod>
-     <changefreq>daily</changefreq>
-    </url><url>
-     <loc>https://expressapp.github.io/pybotx/reference/middlewares/authorization/</loc>
-     <lastmod>2020-07-23</lastmod>
-     <changefreq>daily</changefreq>
-    </url><url>
-     <loc>https://expressapp.github.io/pybotx/reference/clients/methods/</loc>
-     <lastmod>2020-07-23</lastmod>
-     <changefreq>daily</changefreq>
-    </url><url>
-     <loc>https://expressapp.github.io/pybotx/reference/clients/async-client/</loc>
-     <lastmod>2020-07-23</lastmod>
-     <changefreq>daily</changefreq>
-    </url><url>
-     <loc>https://expressapp.github.io/pybotx/reference/clients/sync-client/</loc>
-     <lastmod>2020-07-23</lastmod>
-     <changefreq>daily</changefreq>
-    </url><url>
-     <loc>https://expressapp.github.io/pybotx/reference/testing/test-client/</loc>
-     <lastmod>2020-07-23</lastmod>
-     <changefreq>daily</changefreq>
-    </url><url>
-     <loc>https://expressapp.github.io/pybotx/reference/testing/message-builder/</loc>
-     <lastmod>2020-07-23</lastmod>
-     <changefreq>daily</changefreq>
-    </url><url>
      <loc>https://expressapp.github.io/pybotx/reference/exceptions/</loc>
+     <lastmod>2020-07-23</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>https://expressapp.github.io/pybotx/reference/testing/</loc>
+     <lastmod>2020-07-23</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>https://expressapp.github.io/pybotx/reference/models/</loc>
+     <lastmod>2020-07-23</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>https://expressapp.github.io/pybotx/reference/dependencies/</loc>
+     <lastmod>2020-07-23</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>https://expressapp.github.io/pybotx/reference/middlewares/</loc>
      <lastmod>2020-07-23</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
