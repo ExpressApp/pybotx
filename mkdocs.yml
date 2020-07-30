@@ -26,6 +26,7 @@ nav:
           - Base: 'reference/middlewares/base.md'
           - Next Step: 'reference/middlewares/ns.md'
           - Authorization: 'reference/middlewares/authorization.md'
+      - Models: 'reference/models.md'
       - Clients:
           - Methods: 'reference/clients/methods.md'
           - Async Client: 'reference/clients/async-client.md'
