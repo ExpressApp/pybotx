@@ -1,6 +1,6 @@
 """Entities for users."""
 
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -31,22 +31,22 @@ class UserFromSearch(BaseModel):
     user_huid: UUID
 
     #: AD login of user.
-    ad_login: str
+    ad_login: Optional[str]
 
     # AD domain of user.
-    ad_domain: str
+    ad_domain: Optional[str]
 
     #: visible username.
     name: str
 
     #: user's company.
-    company: str
+    company: Optional[str]
 
     #: user's position.
-    company_position: str
+    company_position: Optional[str]
 
     #: user's department.
-    department: str
+    department: Optional[str]
 
     #: user's emails.
     emails: List[str]
