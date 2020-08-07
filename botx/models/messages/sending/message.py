@@ -78,7 +78,7 @@ class SendingMessage:  # noqa: WPS214
             sync_id=sync_id,
             message_id=message_id,
             chat_id=chat_id,
-            credentials=credentials,
+            credentials=(credentials.copy() if credentials else credentials),
         )
 
         self.payload: MessagePayload = MessagePayload(
