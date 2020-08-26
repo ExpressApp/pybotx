@@ -4,6 +4,7 @@ from typing import Any
 
 from loguru import logger
 
+from botx.exceptions import NoMatchFound
 from botx.models.messages import message as messages
 
 
@@ -16,12 +17,12 @@ async def dependency_failure_exception_handler(*_: Any) -> None:
 
 
 async def no_match_found_exception_handler(
-    _: Exception, message: messages.Message,
+    exception: NoMatchFound, message: messages.Message,
 ) -> None:
     """Log that handler was not found.
 
     Arguments:
-        _: raised exception, that is useless, since it is global handler.
+        exception: raised NoMatchFound exception.
         message: message on which processing error was raised.
     """
-    logger.info("handler for {0} was not found", message.body)
+    logger.info("handler for {0!r} was not found", exception.search_param)

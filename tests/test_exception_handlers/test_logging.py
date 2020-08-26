@@ -8,7 +8,7 @@ async def test_logging_that_handler_was_not_found(
 ) -> None:
     await client.send_command(incoming_message)
 
-    error_message = "handler for {0} was not found".format(
+    error_message = "handler for {0!r} was not found".format(
         incoming_message.command.body,
     )
 
