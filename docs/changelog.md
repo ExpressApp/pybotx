@@ -1,3 +1,28 @@
+## 0.15.3 (Aug 26, 2020)
+
+### Added
+
+* Models were added to API Reference
+
+### Fixed
+
+* Fix "handler not found" error message
+
+
+## 0.15.2 (Aug 7, 2020)
+
+### Fixed
+
+* Fix overwriting SendingMessage credentials
+
+
+## 0.15.1 (Aug 4, 2020)
+
+### Fixed
+
+* Fix optional fields in UserFromSearch model
+
+
 ## 0.15.0 (Jul 23, 2020)
 
 ### Added
