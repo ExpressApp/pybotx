@@ -43,14 +43,14 @@ Main features:
 
 ```toml
 [tool.poetry.dependencies]
-botx = "^0.14.0"
+botx = "^0.15.0"
 ```
 
 ---
 
 ## Requirements
 
-Python 3.6+
+Python 3.7+
 
 `pybotx` use the following libraries:
 
