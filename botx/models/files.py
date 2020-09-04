@@ -10,33 +10,24 @@ from pydantic import BaseModel, validator
 
 #: file extensions that can be proceed by BotX API.
 BOTX_API_ACCEPTED_EXTENSIONS = (
-    # documents
-    ".doc",
-    ".docx",
-    ".xls",
-    ".xlsx",
-    ".ppt",
-    ".pptx",
-    # custom
-    ".json",
-    ".txt",
-    ".pdf",
-    ".html",
-    # media
+    # image extensions
     ".jpg",
     ".jpeg",
     ".gif",
     ".png",
-    ".mp3",
-    ".mp4",
-    # archives
-    ".rar",
-    ".zip",
-    ".7z",
-    ".tar.gz",
-    ".tar.bz2",
+    # document extensions
+    ".doc",
+    ".docx",
+    ".xls",
+    ".xlsx",
+    ".txt",
+    ".pdf",
+    ".html",
+    ".json",
     ".gz",
     ".tgz",
+    ".zip",
+    ".rar",
 )
 
 
