@@ -1,3 +1,17 @@
+## 0.15.5 (Sep 16, 2020)
+
+### Added
+
+* Added `.ppt` and `.pptx` to allowed file formats
+
+
+## 0.15.4 (Sep 4, 2020)
+
+### Added
+
+* Update accepted extensions list (`.jpg`, `.jpeg`, `.gif`, `.png`, `.json`, `.zip`, `.rar`)
+
+
 ## 0.15.3 (Aug 26, 2020)
 
 ### Added
