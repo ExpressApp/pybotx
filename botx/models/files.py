@@ -28,6 +28,8 @@ BOTX_API_ACCEPTED_EXTENSIONS = (
     ".tgz",
     ".zip",
     ".rar",
+    ".ppt",
+    ".pptx",
 )
 
 
