@@ -18,7 +18,7 @@ class UserInChatCreated(BaseModel):
     user_kind: UserKinds
 
     #: user username.
-    name: str
+    name: Optional[str]
 
     #: is user administrator in chat.
     admin: bool
