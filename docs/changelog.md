@@ -1,3 +1,10 @@
+## 0.15.6 (Oct 12, 2020)
+
+### Fixed
+
+* Fix `system:chat_created` event (`UserInChatCreated.name` now optional)
+
+
 ## 0.15.5 (Sep 16, 2020)
 
 ### Added
