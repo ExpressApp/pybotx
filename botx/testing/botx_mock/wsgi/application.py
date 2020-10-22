@@ -23,6 +23,7 @@ _ENDPOINTS: Tuple[Callable[..., Any], ...] = (
     # V3
     # chats
     chats.get_info,
+    chats.post_add_admin_role,
     chats.post_add_user,
     chats.post_remove_user,
     chats.post_stealth_set,

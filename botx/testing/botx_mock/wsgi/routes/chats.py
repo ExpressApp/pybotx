@@ -5,6 +5,7 @@ from molten import Request, RequestData, Response, Settings
 
 from botx.clients.methods.base import APIResponse
 from botx.clients.methods.v3.chats import (
+    add_admin_role,
     add_user,
     create,
     info,
@@ -131,3 +132,19 @@ def post_create(request_data: RequestData, settings: Settings) -> Response:
     return PydanticResponse(
         APIResponse[ChatCreatedResult](result=ChatCreatedResult(chat_id=uuid.uuid4())),
     )
+
+
+@bind_implementation_to_method(add_admin_role.AddAdminRole)
+def post_add_admin_role(request_data: RequestData, settings: Settings) -> Response:
+    """Handle promoting users to admins request.
+
+    Arguments:
+        request_data: parsed json data from request.
+        settings: application settings with storage.
+
+    Returns:
+        Response with result of adding.
+    """
+    payload = add_admin_role.AddAdminRole.parse_obj(request_data)
+    add_request_to_collection(settings, payload)
+    return PydanticResponse(APIResponse[bool](result=True))

@@ -56,3 +56,13 @@ async def test_retrieving_chat_info(bot, client, message):
     chat_id = uuid.uuid4()
     info = await bot.get_chat_info(message.credentials, chat_id=chat_id)
     assert info.group_chat_id == chat_id
+
+
+async def test_promoting_users_to_admins(bot, client, message):
+    users = [uuid.uuid4()]
+    await bot.add_admin_roles(
+        message.credentials, chat_id=message.group_chat_id, user_huids=users,
+    )
+    request = client.requests[0]
+    assert request.group_chat_id == message.group_chat_id
+    assert request.user_huids == users
