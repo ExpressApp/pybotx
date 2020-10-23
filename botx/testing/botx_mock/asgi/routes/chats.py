@@ -5,6 +5,7 @@ from starlette import requests, responses
 
 from botx.clients.methods.base import APIResponse
 from botx.clients.methods.v3.chats import (
+    add_admin_role,
     add_user,
     create,
     info,
@@ -125,3 +126,18 @@ async def post_create(request: requests.Request) -> responses.Response:
     return PydanticResponse(
         APIResponse[ChatCreatedResult](result=ChatCreatedResult(chat_id=uuid.uuid4())),
     )
+
+
+@bind_implementation_to_method(add_admin_role.AddAdminRole)
+async def post_add_admin_role(request: requests.Request) -> responses.Response:
+    """Handle promoting users to admins request.
+
+    Arguments:
+        request: HTTP request from Starlette.
+
+    Returns:
+        Response with result of adding.
+    """
+    payload = add_admin_role.AddAdminRole.parse_obj(await request.json())
+    add_request_to_collection(request, payload)
+    return PydanticResponse(APIResponse[bool](result=True))

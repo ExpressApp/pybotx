@@ -4,6 +4,7 @@ from typing import Union
 
 from botx.clients.methods.v2.bots import token
 from botx.clients.methods.v3.chats import (
+    add_admin_role,
     add_user,
     create,
     info,
@@ -29,6 +30,7 @@ APIRequest = Union[
     token.Token,
     # V3
     # chats
+    add_admin_role.AddAdminRole,
     add_user.AddUser,
     info.Info,
     remove_user.RemoveUser,

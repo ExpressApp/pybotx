@@ -6,6 +6,8 @@
 
 ## chats
 
+::: botx.clients.methods.v3.chats.add_admin_role
+
 ::: botx.clients.methods.v3.chats.add_user
 
 ::: botx.clients.methods.v3.chats.create

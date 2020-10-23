@@ -1,3 +1,11 @@
+## 0.15.7 (Oct 22, 2020)
+
+### Added
+
+* New bot method `add_admin_roles` for promoting users to admins (bot should have
+  admin role itself)
+
+
 ## 0.15.6 (Oct 12, 2020)
 
 ### Fixed

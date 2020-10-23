@@ -4,6 +4,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
+from botx.clients.methods.v3.chats.add_admin_role import AddAdminRole
 from botx.clients.methods.v3.chats.add_user import AddUser
 from botx.clients.methods.v3.chats.create import Create
 from botx.clients.methods.v3.chats.info import Info
@@ -140,5 +141,23 @@ class ChatsRequestsMixin:
         """
         await self.call_method(
             RemoveUser(group_chat_id=chat_id, user_huids=user_huids),
+            credentials=credentials,
+        )
+
+    async def add_admin_roles(
+        self: BotXMethodCallProtocol,
+        credentials: SendingCredentials,
+        chat_id: UUID,
+        user_huids: List[UUID],
+    ) -> None:
+        """Promote users in chat to admins.
+
+        Arguments:
+            credentials: credentials for making request.
+            chat_id: UUID of chat where action should be performed.
+            user_huids: HUIDs of users that should be promoted to admins.
+        """
+        await self.call_method(
+            AddAdminRole(group_chat_id=chat_id, user_huids=user_huids),
             credentials=credentials,
         )
