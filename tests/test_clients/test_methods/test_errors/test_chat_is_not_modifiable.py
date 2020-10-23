@@ -1,7 +1,7 @@
 import uuid
 
+import httpx
 import pytest
-from httpx import StatusCode
 
 from botx.clients.methods.errors.chat_is_not_modifiable import (
     PersonalChatIsNotModifiableData,
@@ -19,7 +19,7 @@ async def test_raising_chat_is_not_modifiable(client, requests_client):
 
     errors_to_raise = {
         AddUser: (
-            StatusCode.FORBIDDEN,
+            httpx.codes.FORBIDDEN,
             PersonalChatIsNotModifiableData(group_chat_id=method.group_chat_id),
         ),
     }

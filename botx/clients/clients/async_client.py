@@ -3,7 +3,7 @@ from dataclasses import field
 from typing import Any, List, Optional, TypeVar
 
 import httpx
-from httpx import Response, StatusCode
+from httpx import Response
 from loguru import logger
 from pydantic.dataclasses import dataclass
 
@@ -48,7 +48,7 @@ class AsyncClient:
 
         response = await self.execute(method)
 
-        if StatusCode.is_error(response.status_code):
+        if httpx.codes.is_error(response.status_code):
             handlers_dict = method.error_handlers
             error_handlers = handlers_dict.get(response.status_code)
             if error_handlers is not None:
@@ -82,5 +82,5 @@ class AsyncClient:
             request.url,
             headers=request.headers,
             params=request.query_params,
-            data=request.request_data,
+            content=request.request_data,
         )

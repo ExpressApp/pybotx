@@ -1,7 +1,7 @@
 """Definition of middleware that will generate BotX API errors depending from flag."""
 from typing import Any, Callable, Tuple, Type, cast
 
-from httpx import StatusCode
+import httpx
 from molten import BaseApp, Request, Response, Route, Settings
 from pydantic import BaseModel
 
@@ -56,7 +56,7 @@ def generate_error_response(
             errors=["error from mock"], reason="asked_for_error", error_data=error_data,
         ),
         status_code="{0} {1}".format(
-            status_code, StatusCode.get_reason_phrase(status_code),
+            status_code, httpx.codes.get_reason_phrase(status_code),
         ),
     )
 

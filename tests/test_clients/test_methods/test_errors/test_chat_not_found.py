@@ -1,7 +1,7 @@
 import uuid
 
+import httpx
 import pytest
-from httpx import StatusCode
 
 from botx.clients.methods.errors.chat_not_found import (
     ChatNotFoundData,
@@ -19,7 +19,7 @@ async def test_raising_chat_not_found(client, requests_client):
 
     errors_to_raise = {
         AddUser: (
-            StatusCode.NOT_FOUND,
+            httpx.codes.NOT_FOUND,
             ChatNotFoundData(group_chat_id=method.group_chat_id),
         ),
     }
