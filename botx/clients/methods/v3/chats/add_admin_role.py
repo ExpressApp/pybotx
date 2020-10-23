@@ -2,7 +2,7 @@
 from typing import List
 from uuid import UUID
 
-from httpx import StatusCode
+import httpx
 
 from botx.clients.methods.base import AuthorizedBotXMethod
 from botx.clients.methods.errors import (
@@ -19,11 +19,11 @@ class AddAdminRole(AuthorizedBotXMethod[bool]):
     __method__ = "POST"
     __returning__ = bool
     __errors_handlers__ = {
-        StatusCode.FORBIDDEN: (
+        httpx.codes.FORBIDDEN: (
             bot_is_not_admin.handle_error,
             chat_is_not_modifiable.handle_error,
         ),
-        StatusCode.NOT_FOUND: (chat_not_found.handle_error,),
+        httpx.codes.NOT_FOUND: (chat_not_found.handle_error,),
     }
 
     #: ID of chat where action should be performed.

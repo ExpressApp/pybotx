@@ -1,7 +1,7 @@
 import uuid
 
+import httpx
 import pytest
-from httpx import StatusCode
 
 from botx import ChatTypes
 from botx.clients.methods.errors.chat_creation_error import ChatCreationError
@@ -17,7 +17,7 @@ async def test_raising_chat_creation_error(client, requests_client):
         name="test name", members=[uuid.uuid4()], chat_type=ChatTypes.group_chat,
     )
 
-    errors_to_raise = {Create: (StatusCode.UNPROCESSABLE_ENTITY, {})}
+    errors_to_raise = {Create: (httpx.codes.UNPROCESSABLE_ENTITY, {})}
 
     with client.error_client(errors=errors_to_raise):
         with pytest.raises(ChatCreationError):

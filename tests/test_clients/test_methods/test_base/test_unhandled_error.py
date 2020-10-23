@@ -1,7 +1,7 @@
 import uuid
 
+import httpx
 import pytest
-from httpx import StatusCode
 
 from botx import BotXAPIError, ChatTypes
 from botx.clients.methods.errors.bot_is_not_admin import BotIsNotAdminData
@@ -18,7 +18,7 @@ async def test_raising_base_api_error_if_empty_handlers(client, requests_client)
 
     errors_to_raise = {
         Token: (
-            StatusCode.IM_A_TEAPOT,
+            httpx.codes.IM_A_TEAPOT,
             BotIsNotAdminData(sender=uuid.uuid4(), group_chat_id=uuid.uuid4()),
         ),
     }
@@ -33,11 +33,11 @@ async def test_raising_base_api_error_if_unhandled(client, requests_client):
         name="test name", members=[uuid.uuid4()], chat_type=ChatTypes.group_chat,
     )
 
-    method.__errors_handlers__[StatusCode.IM_A_TEAPOT] = []
+    method.__errors_handlers__[httpx.codes.IM_A_TEAPOT] = []
 
     errors_to_raise = {
         Create: (
-            StatusCode.IM_A_TEAPOT,
+            httpx.codes.IM_A_TEAPOT,
             BotIsNotAdminData(sender=uuid.uuid4(), group_chat_id=uuid.uuid4()),
         ),
     }

@@ -1,6 +1,8 @@
 """Base for testing client for bots."""
 from __future__ import annotations
 
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from typing import Any, Dict, Generator, List, Optional, Tuple, Type
 
@@ -84,6 +86,9 @@ class BaseTestClient:
         if self._error_middleware is not None:
             self.bot.exception_middleware = self._error_middleware
 
+        ThreadPoolExecutor().submit(
+            asyncio.run, self.bot.client.http_client.aclose(),
+        ).result()
         self.bot.client.http_client = self._original_http_client
         self.bot.sync_client.http_client = self._original_sync_http_client
         self._messages = []

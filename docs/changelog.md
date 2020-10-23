@@ -1,3 +1,11 @@
+## 0.15.8 (Oct 23, 2020)
+
+### Changed
+
+* `httpx` dependency was updated to 0.16
+* `loguru` dependency was updated to 0.5
+
+
 ## 0.15.7 (Oct 22, 2020)
 
 ### Added

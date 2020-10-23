@@ -1,7 +1,7 @@
 import uuid
 
+import httpx
 import pytest
-from httpx import StatusCode
 
 from botx import ChatTypes
 from botx.clients.methods.errors.chat_creation_disallowed import (
@@ -21,7 +21,10 @@ async def test_raising_chat_creation_disallowed(client, requests_client):
     )
 
     errors_to_raise = {
-        Create: (StatusCode.FORBIDDEN, ChatCreationDisallowedData(bot_id=uuid.uuid4())),
+        Create: (
+            httpx.codes.FORBIDDEN,
+            ChatCreationDisallowedData(bot_id=uuid.uuid4()),
+        ),
     }
 
     with client.error_client(errors=errors_to_raise):
