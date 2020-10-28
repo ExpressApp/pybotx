@@ -6319,7 +6319,10 @@ send_command_result<span class="p">(</span><span class="bp">self</span><span cla
 44
 45
 46
-47</pre>
+47
+48
+49
+50</pre>
 </div>
 </td>
 <td class="code">
@@ -6351,7 +6354,10 @@ send_command_result<span class="p">(</span><span class="bp">self</span><span cla
             <span class="p">),</span>
             <span class="n">recipients</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">recipients</span><span class="p">,</span>
             <span class="n">file</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">file</span><span class="p">,</span>
-            <span class="n">opts</span><span class="o">=</span><span class="n">ResultOptions</span><span class="p">(</span><span class="n">notification_opts</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">notifications</span><span class="p">),</span>
+            <span class="n">opts</span><span class="o">=</span><span class="n">ResultOptions</span><span class="p">(</span>
+                <span class="n">silent_response</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">silent_response</span><span class="p">,</span>
+                <span class="n">notification_opts</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">notifications</span><span class="p">,</span>
+            <span class="p">),</span>
         <span class="p">),</span>
         <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">,</span>
     <span class="p">)</span>
@@ -6609,10 +6615,7 @@ send_direct_notification<span class="p">(</span><span class="bp">self</span><spa
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>56
-57
-58
-59
+<pre><span></span>59
 60
 61
 62
@@ -6645,7 +6648,13 @@ send_direct_notification<span class="p">(</span><span class="bp">self</span><spa
 89
 90
 91
-92</pre>
+92
+93
+94
+95
+96
+97
+98</pre>
 </div>
 </td>
 <td class="code">
@@ -6683,7 +6692,10 @@ send_direct_notification<span class="p">(</span><span class="bp">self</span><spa
             <span class="p">),</span>
             <span class="n">recipients</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">recipients</span><span class="p">,</span>
             <span class="n">file</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">file</span><span class="p">,</span>
-            <span class="n">opts</span><span class="o">=</span><span class="n">ResultOptions</span><span class="p">(</span><span class="n">notification_opts</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">notifications</span><span class="p">),</span>
+            <span class="n">opts</span><span class="o">=</span><span class="n">ResultOptions</span><span class="p">(</span>
+                <span class="n">silent_response</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">silent_response</span><span class="p">,</span>
+                <span class="n">notification_opts</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">notifications</span><span class="p">,</span>
+            <span class="p">),</span>
         <span class="p">),</span>
         <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">,</span>
     <span class="p">)</span>
@@ -6780,7 +6792,10 @@ send_notification<span class="p">(</span><span class="bp">self</span><span class
 51
 52
 53
-54</pre>
+54
+55
+56
+57</pre>
 </div>
 </td>
 <td class="code">
@@ -6817,7 +6832,10 @@ send_notification<span class="p">(</span><span class="bp">self</span><span class
             <span class="p">),</span>
             <span class="n">recipients</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">recipients</span><span class="p">,</span>
             <span class="n">file</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">file</span><span class="p">,</span>
-            <span class="n">opts</span><span class="o">=</span><span class="n">ResultOptions</span><span class="p">(</span><span class="n">notification_opts</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">notifications</span><span class="p">),</span>
+            <span class="n">opts</span><span class="o">=</span><span class="n">ResultOptions</span><span class="p">(</span>
+                <span class="n">silent_response</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">silent_response</span><span class="p">,</span>
+                <span class="n">notification_opts</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">notifications</span><span class="p">,</span>
+            <span class="p">),</span>
         <span class="p">),</span>
         <span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">,</span>
     <span class="p">)</span>
