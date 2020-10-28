@@ -1,3 +1,10 @@
+## 0.15.9 (Oct 28, 2020)
+
+### Added
+
+* New message option 'silent_response' to hide next user messages in chat
+
+
 ## 0.15.8 (Oct 23, 2020)
 
 ### Changed

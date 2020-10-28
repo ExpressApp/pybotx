@@ -48,7 +48,10 @@ class NotificationRequestsMixin:
                 ),
                 recipients=payload.options.recipients,
                 file=payload.file,
-                opts=ResultOptions(notification_opts=payload.options.notifications),
+                opts=ResultOptions(
+                    silent_response=payload.options.silent_response,
+                    notification_opts=payload.options.notifications,
+                ),
             ),
             credentials=credentials,
         )
@@ -86,7 +89,10 @@ class NotificationRequestsMixin:
                 ),
                 recipients=payload.options.recipients,
                 file=payload.file,
-                opts=ResultOptions(notification_opts=payload.options.notifications),
+                opts=ResultOptions(
+                    silent_response=payload.options.silent_response,
+                    notification_opts=payload.options.notifications,
+                ),
             ),
             credentials=credentials,
         )
