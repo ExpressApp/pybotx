@@ -4,7 +4,7 @@ from typing import List, Optional, Type, TypeVar
 
 from pydantic import BaseModel
 
-from botx.models.buttons import BubbleElement, Button, KeyboardElement
+from botx.models.buttons import BubbleElement, Button, ButtonOptions, KeyboardElement
 
 TUIElement = TypeVar("TUIElement", bound=Button)
 
@@ -18,11 +18,12 @@ class MessageMarkup(BaseModel):
     #: keyboard elements that will be attached to message.
     keyboard: List[List[KeyboardElement]] = []
 
-    def add_bubble(
+    def add_bubble(  # noqa: WPS211
         self,
         command: str,
         label: Optional[str] = None,
         data: Optional[dict] = None,  # noqa: WPS110
+        options: Optional[ButtonOptions] = None,
         *,
         new_row: bool = True,
     ) -> None:
@@ -32,6 +33,7 @@ class MessageMarkup(BaseModel):
             command: command that will be triggered on bubble click.
             label: label that will be shown on bubble.
             data: payload that will be attached to bubble.
+            options: add special effects to bubble.
             new_row: place bubble on new row or on current.
         """
         self._add_ui_element(
@@ -40,6 +42,7 @@ class MessageMarkup(BaseModel):
             command=command,
             label=label,
             data=data,
+            opts=options,
             new_row=new_row,
         )
 
@@ -58,14 +61,16 @@ class MessageMarkup(BaseModel):
             command=element.command,
             label=element.label,
             data=element.data,
+            opts=element.opts,
             new_row=new_row,
         )
 
-    def add_keyboard_button(
+    def add_keyboard_button(  # noqa: WPS211
         self,
         command: str,
         label: Optional[str] = None,
         data: Optional[dict] = None,  # noqa: WPS110
+        options: Optional[ButtonOptions] = None,
         *,
         new_row: bool = True,
     ) -> None:
@@ -75,6 +80,7 @@ class MessageMarkup(BaseModel):
             command: command that will be triggered on keyboard click.
             label: label that will be shown on keyboard button.
             data: payload that will be attached to keyboard.
+            options: add special effects to keyboard button.
             new_row: place keyboard on new row or on current.
         """
         self._add_ui_element(
@@ -83,6 +89,7 @@ class MessageMarkup(BaseModel):
             command=command,
             label=label,
             data=data,
+            opts=options,
             new_row=new_row,
         )
 
@@ -101,6 +108,7 @@ class MessageMarkup(BaseModel):
             command=element.command,
             label=element.label,
             data=element.data,
+            opts=element.opts,
             new_row=new_row,
         )
 
@@ -111,6 +119,7 @@ class MessageMarkup(BaseModel):
         command: str,
         label: Optional[str] = None,
         data: Optional[dict] = None,  # noqa: WPS110
+        opts: Optional[ButtonOptions] = None,
         new_row: bool = True,
     ) -> None:
         """Add new button to bubble or keyboard arrays.
@@ -121,9 +130,15 @@ class MessageMarkup(BaseModel):
             command: command that will be triggered on ui element click.
             label: label that will be shown on ui element.
             data: payload that will be attached to ui element.
+            opts: add special effects ui element.
             new_row: place ui element on new row or on current.
         """
-        element = ui_cls(command=command, label=label, data=data or {})
+        element = ui_cls(
+            command=command,
+            label=label,
+            data=(data or {}),
+            opts=(opts or ButtonOptions()),
+        )
 
         if new_row:
             ui_array.append([element])

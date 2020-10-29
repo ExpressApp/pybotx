@@ -1,3 +1,10 @@
+## 0.15.10 (Oct 29, 2020)
+
+### Added
+
+* Added alerts (toast on button press) for bubbles and keyboard buttons
+
+
 ## 0.15.9 (Oct 28, 2020)
 
 ### Added

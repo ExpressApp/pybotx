@@ -11,6 +11,12 @@ class ButtonOptions(BaseModel):
     #: if True then text won't shown for user in messenger.
     silent: bool = True
 
+    #: text to be shown in toast (show command body if `alert_text` is `None`).
+    alert_text: Optional[str] = None
+
+    #: show toast with `alert_text` when user press the button
+    show_alert: bool = False
+
 
 class Button(BaseModel):
     """Base class for ui element like bubble or keyboard button."""
