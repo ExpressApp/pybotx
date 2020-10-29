@@ -19,7 +19,7 @@ class MessagePayload(BaseModel):
     #: message text.
     text: str = Field("", max_length=MAXIMUM_TEXT_LENGTH)
 
-    #: message metadat
+    #: message metadata.
     metadata: Dict[str, Any] = {}
 
     #: attached to message file.

@@ -2,6 +2,7 @@
 from typing import Any, BinaryIO, Dict, List, Optional, TextIO, Union, cast
 from uuid import UUID
 
+from botx.models.buttons import ButtonOptions
 from botx.models.enums import MentionTypes
 from botx.models.files import File
 from botx.models.mentions import ChatMention, Mention, UserMention
@@ -283,11 +284,12 @@ class SendingMessage:  # noqa: WPS214
 
         self.payload.options.recipients.extend(recipients)
 
-    def add_bubble(
+    def add_bubble(  # noqa: WPS211
         self,
         command: str,
         label: Optional[str] = None,
         data: Optional[dict] = None,  # noqa: WPS110
+        options: Optional[ButtonOptions] = None,
         *,
         new_row: bool = True,
     ) -> None:
@@ -297,15 +299,17 @@ class SendingMessage:  # noqa: WPS214
             command: command that will be triggered on bubble click.
             label: label that will be shown on bubble.
             data: payload that will be attached to bubble.
+            options: add special effects to bubble.
             new_row: place bubble on new row or on current.
         """
-        self.payload.markup.add_bubble(command, label, data, new_row=new_row)
+        self.payload.markup.add_bubble(command, label, data, options, new_row=new_row)
 
-    def add_keyboard_button(
+    def add_keyboard_button(  # noqa: WPS211
         self,
         command: str,
         label: Optional[str] = None,
         data: Optional[dict] = None,  # noqa: WPS110
+        options: Optional[ButtonOptions] = None,
         *,
         new_row: bool = True,
     ) -> None:
@@ -315,9 +319,12 @@ class SendingMessage:  # noqa: WPS214
             command: command that will be triggered on keyboard click.
             label: label that will be shown on keyboard button.
             data: payload that will be attached to keyboard.
+            options: add special effects to keyboard button.
             new_row: place keyboard on new row or on current.
         """
-        self.payload.markup.add_keyboard_button(command, label, data, new_row=new_row)
+        self.payload.markup.add_keyboard_button(
+            command, label, data, options, new_row=new_row,
+        )
 
     def show_notification(self, show: bool) -> None:
         """Show notification about message.
