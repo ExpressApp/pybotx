@@ -1,3 +1,11 @@
+## 0.15.12 (Oct 30, 2020)
+
+### Added
+
+* Added width weight for bubbles and keyboard buttons (`h_size`). The more width weight,
+  the more horizontal space is occupied by button.
+
+
 ## 0.15.11 (Oct 30, 2020)
 
 ### Added
