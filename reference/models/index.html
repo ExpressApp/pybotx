@@ -1670,19 +1670,19 @@ add_ui_flag_to_data<span class="p">(</span><span class="n">button_data</span><sp
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>46
-47
-48
-49
-50
-51
-52
+<pre><span></span>52
 53
 54
 55
 56
 57
-58</pre>
+58
+59
+60
+61
+62
+63
+64</pre>
 </div>
 </td>
 <td class="code">
@@ -1778,13 +1778,7 @@ label_as_command_if_none<span class="p">(</span><span class="n">label</span><spa
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>30
-31
-32
-33
-34
-35
-36
+<pre><span></span>36
 37
 38
 39
@@ -1792,7 +1786,13 @@ label_as_command_if_none<span class="p">(</span><span class="n">label</span><spa
 41
 42
 43
-44</pre>
+44
+45
+46
+47
+48
+49
+50</pre>
 </div>
 </td>
 <td class="code">
@@ -3920,7 +3920,7 @@ from_dict<span class="p">(</span><span class="n">message</span><span class="p">,
 <div class="doc doc-object doc-method">
 <h3 class="doc doc-heading" id="botx.models.messages.sending.markup.MessageMarkup.add_bubble">
 <code class="highlight language-python">
-add_bubble<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">new_row</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> </code>
+add_bubble<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">new_row</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> </code>
 </h3>
 <div class="doc doc-contents">
 <p>Add new bubble button to markup.</p>
@@ -3956,6 +3956,14 @@ add_bubble<span class="p">(</span><span class="bp">self</span><span class="p">,<
 <td><code>Optional[dict]</code></td>
 <td>
 <p>payload that will be attached to bubble.</p>
+</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td><code>Optional[botx.models.buttons.ButtonOptions]</code></td>
+<td>
+<p>add special effects to bubble.</p>
 </td>
 <td><code>None</code></td>
 </tr>
@@ -3998,16 +4006,20 @@ add_bubble<span class="p">(</span><span class="bp">self</span><span class="p">,<
 41
 42
 43
-44</pre>
+44
+45
+46
+47</pre>
 </div>
 </td>
 <td class="code">
 <div class="highlight">
-<pre><span></span><code><span class="k">def</span> <span class="nf">add_bubble</span><span class="p">(</span>
+<pre><span></span><code><span class="k">def</span> <span class="nf">add_bubble</span><span class="p">(</span>  <span class="c1"># noqa: WPS211</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">command</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: WPS110</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ButtonOptions</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">new_row</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -4017,6 +4029,7 @@ add_bubble<span class="p">(</span><span class="bp">self</span><span class="p">,<
 <span class="sd">        command: command that will be triggered on bubble click.</span>
 <span class="sd">        label: label that will be shown on bubble.</span>
 <span class="sd">        data: payload that will be attached to bubble.</span>
+<span class="sd">        options: add special effects to bubble.</span>
 <span class="sd">        new_row: place bubble on new row or on current.</span>
 <span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_add_ui_element</span><span class="p">(</span>
@@ -4025,6 +4038,7 @@ add_bubble<span class="p">(</span><span class="bp">self</span><span class="p">,<
         <span class="n">command</span><span class="o">=</span><span class="n">command</span><span class="p">,</span>
         <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
         <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+        <span class="n">opts</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
         <span class="n">new_row</span><span class="o">=</span><span class="n">new_row</span><span class="p">,</span>
     <span class="p">)</span>
 </code></pre>
@@ -4077,10 +4091,7 @@ add_bubble_element<span class="p">(</span><span class="bp">self</span><span clas
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>46
-47
-48
-49
+<pre><span></span>49
 50
 51
 52
@@ -4093,7 +4104,11 @@ add_bubble_element<span class="p">(</span><span class="bp">self</span><span clas
 59
 60
 61
-62</pre>
+62
+63
+64
+65
+66</pre>
 </div>
 </td>
 <td class="code">
@@ -4113,6 +4128,7 @@ add_bubble_element<span class="p">(</span><span class="bp">self</span><span clas
         <span class="n">command</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">command</span><span class="p">,</span>
         <span class="n">label</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
         <span class="n">data</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+        <span class="n">opts</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">opts</span><span class="p">,</span>
         <span class="n">new_row</span><span class="o">=</span><span class="n">new_row</span><span class="p">,</span>
     <span class="p">)</span>
 </code></pre>
@@ -4126,7 +4142,7 @@ add_bubble_element<span class="p">(</span><span class="bp">self</span><span clas
 <div class="doc doc-object doc-method">
 <h3 class="doc doc-heading" id="botx.models.messages.sending.markup.MessageMarkup.add_keyboard_button">
 <code class="highlight language-python">
-add_keyboard_button<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">new_row</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> </code>
+add_keyboard_button<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">new_row</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> </code>
 </h3>
 <div class="doc doc-contents">
 <p>Add new keyboard button to markup.</p>
@@ -4166,6 +4182,14 @@ add_keyboard_button<span class="p">(</span><span class="bp">self</span><span cla
 <td><code>None</code></td>
 </tr>
 <tr>
+<td><code>options</code></td>
+<td><code>Optional[botx.models.buttons.ButtonOptions]</code></td>
+<td>
+<p>add special effects to keyboard button.</p>
+</td>
+<td><code>None</code></td>
+</tr>
+<tr>
 <td><code>new_row</code></td>
 <td><code>bool</code></td>
 <td>
@@ -4181,11 +4205,7 @@ add_keyboard_button<span class="p">(</span><span class="bp">self</span><span cla
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>64
-65
-66
-67
-68
+<pre><span></span>68
 69
 70
 71
@@ -4204,16 +4224,24 @@ add_keyboard_button<span class="p">(</span><span class="bp">self</span><span cla
 84
 85
 86
-87</pre>
+87
+88
+89
+90
+91
+92
+93
+94</pre>
 </div>
 </td>
 <td class="code">
 <div class="highlight">
-<pre><span></span><code><span class="k">def</span> <span class="nf">add_keyboard_button</span><span class="p">(</span>
+<pre><span></span><code><span class="k">def</span> <span class="nf">add_keyboard_button</span><span class="p">(</span>  <span class="c1"># noqa: WPS211</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">command</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: WPS110</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ButtonOptions</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">new_row</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -4223,6 +4251,7 @@ add_keyboard_button<span class="p">(</span><span class="bp">self</span><span cla
 <span class="sd">        command: command that will be triggered on keyboard click.</span>
 <span class="sd">        label: label that will be shown on keyboard button.</span>
 <span class="sd">        data: payload that will be attached to keyboard.</span>
+<span class="sd">        options: add special effects to keyboard button.</span>
 <span class="sd">        new_row: place keyboard on new row or on current.</span>
 <span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_add_ui_element</span><span class="p">(</span>
@@ -4231,6 +4260,7 @@ add_keyboard_button<span class="p">(</span><span class="bp">self</span><span cla
         <span class="n">command</span><span class="o">=</span><span class="n">command</span><span class="p">,</span>
         <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
         <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+        <span class="n">opts</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
         <span class="n">new_row</span><span class="o">=</span><span class="n">new_row</span><span class="p">,</span>
     <span class="p">)</span>
 </code></pre>
@@ -4283,14 +4313,7 @@ add_keyboard_button_element<span class="p">(</span><span class="bp">self</span><
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span> 89
- 90
- 91
- 92
- 93
- 94
- 95
- 96
+<pre><span></span> 96
  97
  98
  99
@@ -4299,7 +4322,15 @@ add_keyboard_button_element<span class="p">(</span><span class="bp">self</span><
 102
 103
 104
-105</pre>
+105
+106
+107
+108
+109
+110
+111
+112
+113</pre>
 </div>
 </td>
 <td class="code">
@@ -4319,6 +4350,7 @@ add_keyboard_button_element<span class="p">(</span><span class="bp">self</span><
         <span class="n">command</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">command</span><span class="p">,</span>
         <span class="n">label</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
         <span class="n">data</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+        <span class="n">opts</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">opts</span><span class="p">,</span>
         <span class="n">new_row</span><span class="o">=</span><span class="n">new_row</span><span class="p">,</span>
     <span class="p">)</span>
 </code></pre>
@@ -4638,8 +4670,7 @@ message.</p>
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>24
-25
+<pre><span></span>25
 26
 27
 28
@@ -4709,7 +4740,8 @@ message.</p>
 92
 93
 94
-95</pre>
+95
+96</pre>
 </div>
 </td>
 <td class="code">
@@ -4797,7 +4829,7 @@ message.</p>
 <div class="doc doc-object doc-method">
 <h3 class="doc doc-heading" id="botx.models.messages.sending.message.SendingMessage.add_bubble">
 <code class="highlight language-python">
-add_bubble<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">new_row</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> </code>
+add_bubble<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">new_row</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> </code>
 </h3>
 <div class="doc doc-contents">
 <p>Add new bubble button to message markup.</p>
@@ -4837,6 +4869,14 @@ add_bubble<span class="p">(</span><span class="bp">self</span><span class="p">,<
 <td><code>None</code></td>
 </tr>
 <tr>
+<td><code>options</code></td>
+<td><code>Optional[botx.models.buttons.ButtonOptions]</code></td>
+<td>
+<p>add special effects to bubble.</p>
+</td>
+<td><code>None</code></td>
+</tr>
+<tr>
 <td><code>new_row</code></td>
 <td><code>bool</code></td>
 <td>
@@ -4852,8 +4892,7 @@ add_bubble<span class="p">(</span><span class="bp">self</span><span class="p">,<
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>286
-287
+<pre><span></span>287
 288
 289
 290
@@ -4868,16 +4907,20 @@ add_bubble<span class="p">(</span><span class="bp">self</span><span class="p">,<
 299
 300
 301
-302</pre>
+302
+303
+304
+305</pre>
 </div>
 </td>
 <td class="code">
 <div class="highlight">
-<pre><span></span><code><span class="k">def</span> <span class="nf">add_bubble</span><span class="p">(</span>
+<pre><span></span><code><span class="k">def</span> <span class="nf">add_bubble</span><span class="p">(</span>  <span class="c1"># noqa: WPS211</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">command</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: WPS110</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ButtonOptions</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">new_row</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -4887,9 +4930,10 @@ add_bubble<span class="p">(</span><span class="bp">self</span><span class="p">,<
 <span class="sd">        command: command that will be triggered on bubble click.</span>
 <span class="sd">        label: label that will be shown on bubble.</span>
 <span class="sd">        data: payload that will be attached to bubble.</span>
+<span class="sd">        options: add special effects to bubble.</span>
 <span class="sd">        new_row: place bubble on new row or on current.</span>
 <span class="sd">    """</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">payload</span><span class="o">.</span><span class="n">markup</span><span class="o">.</span><span class="n">add_bubble</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">new_row</span><span class="o">=</span><span class="n">new_row</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">payload</span><span class="o">.</span><span class="n">markup</span><span class="o">.</span><span class="n">add_bubble</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">new_row</span><span class="o">=</span><span class="n">new_row</span><span class="p">)</span>
 </code></pre>
 </div>
 </td>
@@ -4941,8 +4985,7 @@ file.</p>
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>209
-210
+<pre><span></span>210
 211
 212
 213
@@ -4955,7 +4998,8 @@ file.</p>
 220
 221
 222
-223</pre>
+223
+224</pre>
 </div>
 </td>
 <td class="code">
@@ -4986,7 +5030,7 @@ file.</p>
 <div class="doc doc-object doc-method">
 <h3 class="doc doc-heading" id="botx.models.messages.sending.message.SendingMessage.add_keyboard_button">
 <code class="highlight language-python">
-add_keyboard_button<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">new_row</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> </code>
+add_keyboard_button<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">new_row</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> </code>
 </h3>
 <div class="doc doc-contents">
 <p>Add new keyboard button to message markup.</p>
@@ -5026,6 +5070,14 @@ add_keyboard_button<span class="p">(</span><span class="bp">self</span><span cla
 <td><code>None</code></td>
 </tr>
 <tr>
+<td><code>options</code></td>
+<td><code>Optional[botx.models.buttons.ButtonOptions]</code></td>
+<td>
+<p>add special effects to keyboard button.</p>
+</td>
+<td><code>None</code></td>
+</tr>
+<tr>
 <td><code>new_row</code></td>
 <td><code>bool</code></td>
 <td>
@@ -5041,10 +5093,7 @@ add_keyboard_button<span class="p">(</span><span class="bp">self</span><span cla
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>304
-305
-306
-307
+<pre><span></span>307
 308
 309
 310
@@ -5057,16 +5106,24 @@ add_keyboard_button<span class="p">(</span><span class="bp">self</span><span cla
 317
 318
 319
-320</pre>
+320
+321
+322
+323
+324
+325
+326
+327</pre>
 </div>
 </td>
 <td class="code">
 <div class="highlight">
-<pre><span></span><code><span class="k">def</span> <span class="nf">add_keyboard_button</span><span class="p">(</span>
+<pre><span></span><code><span class="k">def</span> <span class="nf">add_keyboard_button</span><span class="p">(</span>  <span class="c1"># noqa: WPS211</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">command</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: WPS110</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ButtonOptions</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">new_row</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -5076,9 +5133,12 @@ add_keyboard_button<span class="p">(</span><span class="bp">self</span><span cla
 <span class="sd">        command: command that will be triggered on keyboard click.</span>
 <span class="sd">        label: label that will be shown on keyboard button.</span>
 <span class="sd">        data: payload that will be attached to keyboard.</span>
+<span class="sd">        options: add special effects to keyboard button.</span>
 <span class="sd">        new_row: place keyboard on new row or on current.</span>
 <span class="sd">    """</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">payload</span><span class="o">.</span><span class="n">markup</span><span class="o">.</span><span class="n">add_keyboard_button</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">new_row</span><span class="o">=</span><span class="n">new_row</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">payload</span><span class="o">.</span><span class="n">markup</span><span class="o">.</span><span class="n">add_keyboard_button</span><span class="p">(</span>
+        <span class="n">command</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">new_row</span><span class="o">=</span><span class="n">new_row</span><span class="p">,</span>
+    <span class="p">)</span>
 </code></pre>
 </div>
 </td>
@@ -5121,8 +5181,7 @@ add_recipient<span class="p">(</span><span class="bp">self</span><span class="p"
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>264
-265
+<pre><span></span>265
 266
 267
 268
@@ -5130,7 +5189,8 @@ add_recipient<span class="p">(</span><span class="bp">self</span><span class="p"
 270
 271
 272
-273</pre>
+273
+274</pre>
 </div>
 </td>
 <td class="code">
@@ -5187,8 +5247,7 @@ add_recipients<span class="p">(</span><span class="bp">self</span><span class="p
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>275
-276
+<pre><span></span>276
 277
 278
 279
@@ -5196,7 +5255,8 @@ add_recipients<span class="p">(</span><span class="bp">self</span><span class="p
 281
 282
 283
-284</pre>
+284
+285</pre>
 </div>
 </td>
 <td class="code">
@@ -5253,13 +5313,13 @@ force_notification<span class="p">(</span><span class="bp">self</span><span clas
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>330
-331
-332
-333
-334
-335
-336</pre>
+<pre><span></span>337
+338
+339
+340
+341
+342
+343</pre>
 </div>
 </td>
 <td class="code">
@@ -5349,8 +5409,7 @@ from_message<span class="p">(</span><span class="o">*</span><span class="p">,</s
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span> 97
- 98
+<pre><span></span> 98
  99
 100
 101
@@ -5370,7 +5429,8 @@ from_message<span class="p">(</span><span class="o">*</span><span class="p">,</s
 115
 116
 117
-118</pre>
+118
+119</pre>
 </div>
 </td>
 <td class="code">
@@ -5447,8 +5507,7 @@ mention_chat<span class="p">(</span><span class="bp">self</span><span class="p">
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>250
-251
+<pre><span></span>251
 252
 253
 254
@@ -5459,7 +5518,8 @@ mention_chat<span class="p">(</span><span class="bp">self</span><span class="p">
 259
 260
 261
-262</pre>
+262
+263</pre>
 </div>
 </td>
 <td class="code">
@@ -5527,8 +5587,7 @@ mention_contact<span class="p">(</span><span class="bp">self</span><span class="
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>236
-237
+<pre><span></span>237
 238
 239
 240
@@ -5539,7 +5598,8 @@ mention_contact<span class="p">(</span><span class="bp">self</span><span class="
 245
 246
 247
-248</pre>
+248
+249</pre>
 </div>
 </td>
 <td class="code">
@@ -5607,8 +5667,7 @@ mention_user<span class="p">(</span><span class="bp">self</span><span class="p">
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>225
-226
+<pre><span></span>226
 227
 228
 229
@@ -5616,7 +5675,8 @@ mention_user<span class="p">(</span><span class="bp">self</span><span class="p">
 231
 232
 233
-234</pre>
+234
+235</pre>
 </div>
 </td>
 <td class="code">
@@ -5673,13 +5733,13 @@ show_notification<span class="p">(</span><span class="bp">self</span><span class
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>322
-323
-324
-325
-326
-327
-328</pre>
+<pre><span></span>329
+330
+331
+332
+333
+334
+335</pre>
 </div>
 </td>
 <td class="code">
