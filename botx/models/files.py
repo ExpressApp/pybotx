@@ -24,12 +24,17 @@ BOTX_API_ACCEPTED_EXTENSIONS = (
     ".pdf",
     ".html",
     ".json",
+    ".sig",
+    ".ppt",
+    ".pptx",
+    # media extensions
+    ".mp3",
+    ".mp4",
+    # archive extensions
     ".gz",
     ".tgz",
     ".zip",
     ".rar",
-    ".ppt",
-    ".pptx",
 )
 
 
