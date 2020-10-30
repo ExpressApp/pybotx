@@ -11,11 +11,33 @@ class ButtonOptions(BaseModel):
     #: if True then text won't shown for user in messenger.
     silent: bool = True
 
-    #: text to be shown in toast (show command body if `alert_text` is `None`).
-    alert_text: Optional[str] = None
+    #: button width weight (the more weight, the more occupied space).
+    h_size: int = 1
 
     #: show toast with `alert_text` when user press the button
     show_alert: bool = False
+
+    #: text to be shown in toast (show command body if `alert_text` is `None`).
+    alert_text: Optional[str] = None
+
+    @validator("h_size")
+    def h_size_should_be_positive(cls, h_size: int) -> int:  # noqa: N805
+        """Validate that `h_size` is positive integer.
+
+        Arguments:
+            cls: this class.
+            h_size: width weight for validation.
+
+        Returns:
+            Validated `h_size`.
+
+        Raises:
+            ValueError: if `h_size` is not valid.
+        """
+        if h_size < 1:
+            raise ValueError("h_size should be positive integer")
+
+        return h_size
 
 
 class Button(BaseModel):
