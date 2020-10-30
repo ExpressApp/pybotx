@@ -1,3 +1,10 @@
+## 0.15.11 (Oct 30, 2020)
+
+### Added
+
+* Added `.sig`, `.mp3` and `.mp4` to allowed file formats
+
+
 ## 0.15.10 (Oct 29, 2020)
 
 ### Added
