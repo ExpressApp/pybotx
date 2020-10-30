@@ -265,6 +265,15 @@
 <a class="md-nav__link" href="#botx.models.buttons.ButtonOptions">
     ButtonOptions
   </a>
+<nav aria-label="ButtonOptions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.buttons.ButtonOptions.h_size_should_be_positive">
+    h_size_should_be_positive()
+  </a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.buttons.KeyboardElement">
@@ -977,6 +986,15 @@
 <a class="md-nav__link" href="#botx.models.buttons.ButtonOptions">
     ButtonOptions
   </a>
+<nav aria-label="ButtonOptions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.buttons.ButtonOptions.h_size_should_be_positive">
+    h_size_should_be_positive()
+  </a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.buttons.KeyboardElement">
@@ -1670,19 +1688,19 @@ add_ui_flag_to_data<span class="p">(</span><span class="n">button_data</span><sp
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>52
-53
-54
-55
-56
-57
-58
-59
-60
-61
-62
-63
-64</pre>
+<pre><span></span>74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86</pre>
 </div>
 </td>
 <td class="code">
@@ -1778,21 +1796,21 @@ label_as_command_if_none<span class="p">(</span><span class="n">label</span><spa
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>36
-37
-38
-39
-40
-41
-42
-43
-44
-45
-46
-47
-48
-49
-50</pre>
+<pre><span></span>58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72</pre>
 </div>
 </td>
 <td class="code">
@@ -1833,6 +1851,133 @@ label_as_command_if_none<span class="p">(</span><span class="n">label</span><spa
 <div class="doc doc-contents">
 <p>Extra options for buttons, like disabling output by tap.</p>
 <div class="doc doc-children">
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="botx.models.buttons.ButtonOptions.h_size_should_be_positive">
+<code class="highlight language-python">
+h_size_should_be_positive<span class="p">(</span><span class="n">h_size</span><span class="p">)</span> </code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-classmethod"><code>classmethod</code></small>
+</span>
+</h3>
+<div class="doc doc-contents">
+<p>Validate that <code>h_size</code> is positive integer.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cls</code></td>
+<td><code></code></td>
+<td>
+<p>this class.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>h_size</code></td>
+<td><code>int</code></td>
+<td>
+<p>width weight for validation.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int</code></td>
+<td>
+<p>Validated <code>h_size</code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Exceptions:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ValueError</code></td>
+<td>
+<p>if <code>h_size</code> is not valid.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<details class="quote">
+<summary>Source code in <code>botx/models/buttons.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="nd">@validator</span><span class="p">(</span><span class="s2">"h_size"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">h_size_should_be_positive</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">h_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>  <span class="c1"># noqa: N805</span>
+    <span class="sd">"""Validate that `h_size` is positive integer.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        cls: this class.</span>
+<span class="sd">        h_size: width weight for validation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Validated `h_size`.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: if `h_size` is not valid.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">h_size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"h_size should be positive integer"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">h_size</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
 </div>
 </div>
 </div>
