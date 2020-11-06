@@ -7,7 +7,7 @@ from typing import Any, Callable, Dict, List, Set
 from loguru import logger
 from pydantic.dataclasses import dataclass
 
-from botx import concurrency, dataclasses_config, exception_handlers, exceptions, typing
+from botx import concurrency, exception_handlers, exceptions, shared, typing
 from botx.bots.mixins import (
     clients,
     collectors,
@@ -23,7 +23,7 @@ from botx.models import credentials, datastructures, menu
 from botx.models.messages.message import Message
 
 
-@dataclass(config=dataclasses_config.BotXDataclassConfig)
+@dataclass(config=shared.BotXDataclassConfig)
 class Bot(  # noqa: WPS215
     collectors.BotCollectingMixin,
     clients.ClientsMixin,

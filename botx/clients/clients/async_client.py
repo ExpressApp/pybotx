@@ -10,8 +10,8 @@ from pydantic.dataclasses import dataclass
 from botx.clients.clients.processing import extract_result, handle_error
 from botx.clients.methods.base import BotXMethod
 from botx.converters import optional_sequence_to_list
-from botx.dataclasses_config import BotXDataclassConfig
 from botx.exceptions import BotXAPIError
+from botx.shared import BotXDataclassConfig, debug_bot_id_var
 
 ResponseT = TypeVar("ResponseT")
 
@@ -75,7 +75,7 @@ class AsyncClient:
         request = method.build_http_request()
         method_name = method.__repr_name__()  # noqa: WPS609
         logger.bind(botx_client=True, payload=request.to_dict()).debug(
-            "send {0} request", method_name,
+            "send {0} request to bot {1}", method_name, debug_bot_id_var.get(),
         )
         return await self.http_client.request(
             request.method,

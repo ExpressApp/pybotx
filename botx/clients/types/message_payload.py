@@ -11,9 +11,7 @@ from botx.models.typing import BubbleMarkup, KeyboardMarkup
 try:
     from typing import Literal  # noqa: WPS433
 except ImportError:
-    from typing_extensions import (  # type: ignore  # noqa: WPS433, WPS440, F401
-        Literal,
-    )
+    from typing_extensions import Literal  # type: ignore  # noqa: WPS433, WPS440, F401
 
 
 class ResultPayload(BaseModel):

@@ -8,15 +8,14 @@ from botx.clients.methods.base import BotXMethod
 from botx.clients.methods.v2.bots.token import Token
 from botx.models.credentials import ExpressServer, ServerCredentials
 from botx.models.messages.sending.credentials import SendingCredentials
+from botx.shared import debug_bot_id_var
 
 ResponseT = TypeVar("ResponseT")
 
 try:
     from typing import Protocol  # noqa: WPS433
 except ImportError:
-    from typing_extensions import (  # type: ignore  # noqa: WPS433, WPS440, F401
-        Protocol,
-    )
+    from typing_extensions import Protocol  # type: ignore  # noqa: WPS433, WPS440, F401
 
 
 class CredentialsSearchProtocol(Protocol):
@@ -73,12 +72,14 @@ class BotXRequestsMixin(  # noqa: WPS215
             )
 
         if credentials is not None:
+            debug_bot_id_var.set(credentials.bot_id)
             host = cast(str, credentials.host)
             method.configure(
                 host=host,
                 token=cast(CredentialsSearchProtocol, self).get_token_for_cts(host),
             )
         else:
+            debug_bot_id_var.set(bot_id)
             method.configure(host=host or method.host, token=token or method.token)
 
         return await self.client.call(method)
