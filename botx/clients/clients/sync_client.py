@@ -11,8 +11,8 @@ from botx import concurrency
 from botx.clients.clients.processing import extract_result, handle_error
 from botx.clients.methods.base import BotXMethod, ErrorHandlersInMethod
 from botx.converters import optional_sequence_to_list
-from botx.dataclasses_config import BotXDataclassConfig
 from botx.exceptions import BotXAPIError
+from botx.shared import BotXDataclassConfig
 
 ResponseT = TypeVar("ResponseT")
 

@@ -14,9 +14,7 @@ from botx.models.enums import Statuses
 try:
     from typing import Literal  # noqa: WPS433
 except ImportError:
-    from typing_extensions import (  # type: ignore  # noqa: WPS433, WPS440, F401
-        Literal,
-    )
+    from typing_extensions import Literal  # type: ignore  # noqa: WPS433, WPS440, F401
 
 PRIMITIVES_FOR_QUERY = (str, int, float, bool, type(None))
 

@@ -8,12 +8,9 @@ if TYPE_CHECKING:
     from botx.bots.bots import Bot  # noqa: WPS433
 
 try:
-    from typing import Protocol, Literal  # noqa: WPS433
+    from typing import Literal  # noqa: WPS433
 except ImportError:
-    from typing_extensions import (  # type: ignore  # noqa: WPS433, WPS440, F401
-        Protocol,
-        Literal,
-    )
+    from typing_extensions import Literal  # type: ignore  # noqa: WPS433, WPS440, F401
 
 ExceptionT = TypeVar("ExceptionT", bound=Exception)
 

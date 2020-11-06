@@ -8,9 +8,7 @@ from botx.models.enums import SystemEvents
 try:
     from typing import Protocol  # noqa: WPS433
 except ImportError:
-    from typing_extensions import (  # type: ignore  # noqa: WPS433, WPS440, F401
-        Protocol,
-    )
+    from typing_extensions import Protocol  # type: ignore  # noqa: WPS433, WPS440, F401
 
 
 class SystemEventsHandlerMixin:
