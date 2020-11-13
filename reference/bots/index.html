@@ -3101,9 +3101,7 @@ handler.</p>
 115
 116
 117
-118
-119
-120</pre>
+118</pre>
 </div>
 </td>
 <td class="code">
@@ -3126,10 +3124,8 @@ handler.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        Passed in `handler` callable.</span>
 <span class="sd">    """</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">collector</span><span class="o">.</span><span class="n">system_event</span><span class="p">(</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">collector</span><span class="o">.</span><span class="n">added_to_chat</span><span class="p">(</span>
         <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
-        <span class="n">event</span><span class="o">=</span><span class="n">SystemEvents</span><span class="o">.</span><span class="n">added_to_chat</span><span class="p">,</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">SystemEvents</span><span class="o">.</span><span class="n">added_to_chat</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">dependencies</span><span class="o">=</span><span class="n">dependencies</span><span class="p">,</span>
         <span class="n">dependency_overrides_provider</span><span class="o">=</span><span class="n">dependency_overrides_provider</span><span class="p">,</span>
     <span class="p">)</span>
