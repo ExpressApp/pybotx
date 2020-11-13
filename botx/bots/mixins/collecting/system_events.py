@@ -111,10 +111,8 @@ class SystemEventsHandlerMixin:
         Returns:
             Passed in `handler` callable.
         """
-        return self.collector.system_event(
+        return self.collector.added_to_chat(
             handler=handler,
-            event=SystemEvents.added_to_chat,
-            name=SystemEvents.added_to_chat.value,
             dependencies=dependencies,
             dependency_overrides_provider=dependency_overrides_provider,
         )

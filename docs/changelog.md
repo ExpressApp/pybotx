@@ -1,8 +1,15 @@
+## 0.15.14 (Nov 13, 2020)
+
+### Fixed
+
+* `chat_created` event is created properly now
+
+
 ## 0.15.13 (Nov 6, 2020)
 
 ## Added
 
-* Add `bot_id` to outgoing messages debug logs. Incoming messages already have it.
+* Add `bot_id` to outgoing messages debug logs. Incoming messages already have it
 
 
 ## 0.15.12 (Oct 30, 2020)
