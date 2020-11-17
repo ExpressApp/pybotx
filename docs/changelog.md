@@ -1,3 +1,10 @@
+## 0.15.15 (Nov 17, 2020)
+
+### Added
+
+* New event `deleted_from_chat`, which stores deleted members HUIDs
+
+
 ## 0.15.14 (Nov 13, 2020)
 
 ### Fixed

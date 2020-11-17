@@ -116,3 +116,27 @@ class SystemEventsHandlerMixin:
             dependencies=dependencies,
             dependency_overrides_provider=dependency_overrides_provider,
         )
+
+    def deleted_from_chat(
+        self,
+        handler: Optional[Callable] = None,
+        *,
+        dependencies: Optional[Sequence[Depends]] = None,
+        dependency_overrides_provider: Any = None,
+    ) -> Callable:
+        """Register handler for `deleted_from_chat` event.
+
+        Arguments:
+            handler: callable that will be used for executing handler.
+            dependencies: sequence of dependencies that should be executed before
+                handler.
+            dependency_overrides_provider: mock of callable for handler.
+
+        Returns:
+            Passed in `handler` callable.
+        """
+        return self.collector.deleted_from_chat(
+            handler=handler,
+            dependencies=dependencies,
+            dependency_overrides_provider=dependency_overrides_provider,
+        )
