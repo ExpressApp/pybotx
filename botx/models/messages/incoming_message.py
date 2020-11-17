@@ -12,7 +12,10 @@ from botx.models.forwards import Forward
 from botx.models.mentions import Mention
 
 CommandDataType = Union[
-    events.ChatCreatedEvent, events.AddedToChatEvent, Dict[str, Any],
+    events.ChatCreatedEvent,
+    events.AddedToChatEvent,
+    events.DeletedFromChatEvent,
+    Dict[str, Any],
 ]
 
 

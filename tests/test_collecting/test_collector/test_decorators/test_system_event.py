@@ -12,6 +12,7 @@ def test_registration_handler_for_several_system_events(
         SystemEvents.chat_created,
         SystemEvents.file_transfer,
         SystemEvents.added_to_chat,
+        SystemEvents.deleted_from_chat,
     }
     collector = collector_cls()
     collector.system_event(
@@ -23,7 +24,12 @@ def test_registration_handler_for_several_system_events(
 
 @pytest.mark.parametrize(
     "event",
-    [SystemEvents.added_to_chat, SystemEvents.chat_created, SystemEvents.file_transfer],
+    [
+        SystemEvents.added_to_chat,
+        SystemEvents.deleted_from_chat,
+        SystemEvents.chat_created,
+        SystemEvents.file_transfer,
+    ],
 )
 def test_defining_system_handler_in_collector_as_decorator(
     handler_as_function, extract_collector, collector_cls, event,
