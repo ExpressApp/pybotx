@@ -386,6 +386,11 @@
   </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#botx.collecting.collectors.mixins.system_events.SystemEventsHandlerMixin.deleted_from_chat">
+    deleted_from_chat()
+  </a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#botx.collecting.collectors.mixins.system_events.SystemEventsHandlerMixin.file_transfer">
     file_transfer()
   </a>
@@ -704,6 +709,11 @@
 <li class="md-nav__item">
 <a class="md-nav__link" href="#botx.collecting.collectors.mixins.system_events.SystemEventsHandlerMixin.chat_created">
     chat_created()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.collecting.collectors.mixins.system_events.SystemEventsHandlerMixin.deleted_from_chat">
+    deleted_from_chat()
   </a>
 </li>
 <li class="md-nav__item">
@@ -2833,6 +2843,136 @@ handler.</p>
         <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
         <span class="n">event</span><span class="o">=</span><span class="n">SystemEvents</span><span class="o">.</span><span class="n">chat_created</span><span class="p">,</span>
         <span class="n">name</span><span class="o">=</span><span class="n">SystemEvents</span><span class="o">.</span><span class="n">chat_created</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">dependencies</span><span class="o">=</span><span class="n">dependencies</span><span class="p">,</span>
+        <span class="n">dependency_overrides_provider</span><span class="o">=</span><span class="n">dependency_overrides_provider</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="botx.collecting.collectors.mixins.system_events.SystemEventsHandlerMixin.deleted_from_chat">
+<code class="highlight language-python">
+deleted_from_chat<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dependency_overrides_provider</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> </code>
+</h3>
+<div class="doc doc-contents">
+<p>Register handler for <code>deleted_from_chat</code> event.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>handler</code></td>
+<td><code>Optional[Callable]</code></td>
+<td>
+<p>callable that will be used for executing handler.</p>
+</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>dependencies</code></td>
+<td><code>Optional[Sequence[botx.dependencies.models.Depends]]</code></td>
+<td>
+<p>sequence of dependencies that should be executed before
+handler.</p>
+</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>dependency_overrides_provider</code></td>
+<td><code>Any</code></td>
+<td>
+<p>mock of callable for handler.</p>
+</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Callable</code></td>
+<td>
+<p>Passed in <code>handler</code> callable.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<details class="quote">
+<summary>Source code in <code>botx/collecting/collectors/mixins/system_events.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="nf">deleted_from_chat</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">dependencies</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Depends</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dependency_overrides_provider</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+    <span class="sd">"""Register handler for `deleted_from_chat` event.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        handler: callable that will be used for executing handler.</span>
+<span class="sd">        dependencies: sequence of dependencies that should be executed before</span>
+<span class="sd">            handler.</span>
+<span class="sd">        dependency_overrides_provider: mock of callable for handler.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Passed in `handler` callable.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_event</span><span class="p">(</span>
+        <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
+        <span class="n">event</span><span class="o">=</span><span class="n">SystemEvents</span><span class="o">.</span><span class="n">deleted_from_chat</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">SystemEvents</span><span class="o">.</span><span class="n">deleted_from_chat</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">dependencies</span><span class="o">=</span><span class="n">dependencies</span><span class="p">,</span>
         <span class="n">dependency_overrides_provider</span><span class="o">=</span><span class="n">dependency_overrides_provider</span><span class="p">,</span>
     <span class="p">)</span>
