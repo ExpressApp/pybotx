@@ -2,6 +2,8 @@
 
 from typing import Any, Callable, Dict, List, Sequence, Tuple, Type
 
+from molten import App, JSONParser, Route, Settings, SettingsComponent
+
 from botx.clients.methods.base import BotXMethod
 from botx.testing.botx_mock.wsgi.errors import error_middleware
 from botx.testing.botx_mock.wsgi.routes import (
@@ -13,7 +15,6 @@ from botx.testing.botx_mock.wsgi.routes import (
     users,
 )
 from botx.testing.typing import APIMessage, APIRequest
-from molten import App, JSONParser, Route, Settings, SettingsComponent
 
 _ENDPOINTS: Tuple[Callable[..., Any], ...] = (
     # V2

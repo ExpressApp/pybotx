@@ -1,7 +1,8 @@
 """Logic for extending messages and requests collections from test client."""
 
-from botx.clients.methods.base import BotXMethod
 from molten import Settings
+
+from botx.clients.methods.base import BotXMethod
 
 
 def add_message_to_collection(settings: Settings, message: BotXMethod) -> None:

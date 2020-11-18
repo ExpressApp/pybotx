@@ -66,7 +66,7 @@ def test_user_email_when_credentials_missed() -> None:
 
 
 def test_skip_validation_for_file() -> None:
-    file_data = {"file_name": "zen.py", "data": "data:text/plain;base64,"}
+    file_data = {"file_name": "zen.txt", "data": "data:text/plain;base64,"}
 
     IncomingMessage.parse_obj(
         {

@@ -1,4 +1,6 @@
 """Endpoints for notification resource."""
+from molten import RequestData, Response, Settings
+
 from botx.clients.methods.base import APIResponse
 from botx.clients.methods.v3.notification.direct_notification import NotificationDirect
 from botx.clients.methods.v3.notification.notification import Notification
@@ -8,7 +10,6 @@ from botx.testing.botx_mock.wsgi.responses import (
     PydanticResponse,
     generate_push_response,
 )
-from molten import RequestData, Response, Settings
 
 
 @bind_implementation_to_method(Notification)

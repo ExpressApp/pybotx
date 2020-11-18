@@ -1,4 +1,18 @@
-from botx import BubbleElement, KeyboardElement, MessageMarkup, UpdatePayload
+import pytest
+from pydantic import ValidationError
+
+from botx import (
+    BubbleElement,
+    KeyboardElement,
+    MessageMarkup,
+    SendingCredentials,
+    UpdatePayload,
+)
+
+
+def test_message_credentials_require_chat_ids_or_sync_id() -> None:
+    with pytest.raises(ValidationError):
+        _ = SendingCredentials()
 
 
 def test_message_markup_will_add_row_if_there_is_no_existed_and_not_new_row() -> None:
