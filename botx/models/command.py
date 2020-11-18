@@ -6,7 +6,7 @@ from pydantic import BaseModel
 class CommandDescriptor(BaseModel):
     """Bot command descriptor.
 
-    Used when defining a handler.
+    Used when defining a handler via decorators.
     """
 
     #: command body that will trigger command execution.
