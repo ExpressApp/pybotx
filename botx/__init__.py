@@ -10,6 +10,7 @@ from botx.dependencies.injection_params import Depends
 from botx.exceptions import BotXAPIError, DependencyFailure, ServerUnknownError
 from botx.models.buttons import BubbleElement, KeyboardElement
 from botx.models.credentials import ExpressServer, ServerCredentials
+from botx.models.entities import ChatMention, Forward, Mention, UserMention
 from botx.models.enums import (
     ChatTypes,
     CommandTypes,
@@ -22,8 +23,6 @@ from botx.models.enums import (
 from botx.models.errors import BotDisabledErrorData, BotDisabledResponse
 from botx.models.events import ChatCreatedEvent
 from botx.models.files import File
-from botx.models.forwards import Forward
-from botx.models.mentions import ChatMention, Mention, UserMention
 from botx.models.menu import Status
 from botx.models.messages.incoming_message import Entity, IncomingMessage
 from botx.models.messages.message import Message

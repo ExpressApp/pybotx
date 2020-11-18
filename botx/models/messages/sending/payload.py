@@ -6,8 +6,8 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
 from botx.models.constants import MAXIMUM_TEXT_LENGTH
+from botx.models.entities import Mention
 from botx.models.files import File
-from botx.models.mentions import Mention
 from botx.models.messages.sending.markup import MessageMarkup
 from botx.models.messages.sending.options import MessageOptions, NotificationOptions
 from botx.models.typing import BubbleMarkup, KeyboardMarkup

@@ -4,7 +4,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from botx.models.mentions import Mention
+from botx.models.entities import Mention
 from botx.models.typing import AvailableRecipients
 
 

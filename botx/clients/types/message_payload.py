@@ -4,8 +4,8 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
 from botx.models.constants import MAXIMUM_TEXT_LENGTH
+from botx.models.entities import Mention
 from botx.models.enums import Statuses
-from botx.models.mentions import Mention
 from botx.models.typing import BubbleMarkup, KeyboardMarkup
 
 try:
