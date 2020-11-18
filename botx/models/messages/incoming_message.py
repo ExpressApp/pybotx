@@ -7,7 +7,7 @@ from pydantic import BaseConfig, BaseModel, Field
 
 from botx.models import events
 from botx.models.attachments import AttachList
-from botx.models.entities import Forward, Mention
+from botx.models.entities import Forward, Mention, Reply
 from botx.models.enums import ChatTypes, CommandTypes, EntityTypes
 from botx.models.files import File
 
@@ -106,7 +106,7 @@ class Entity(BaseModel):
     type: EntityTypes  # noqa: WPS: 125
 
     #: entity data.
-    data: Union[Forward, Mention]  # noqa: WPS: 110
+    data: Union[Reply, Forward, Mention]  # noqa: WPS: 110
 
 
 class IncomingMessage(BaseModel):

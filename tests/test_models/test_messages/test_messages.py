@@ -395,6 +395,11 @@ class TestSendingMessageProperties:
         sending_message.host = host
         assert sending_message.host == host
 
+    def test_message_metadata(self, sending_message: SendingMessage) -> None:
+        metadata = {"foo": "bar"}
+        sending_message.metadata = metadata
+        assert sending_message.metadata == metadata
+
     class TestMentioning:
         def test_mentioning_user(self, sending_message: SendingMessage) -> None:
             sending_message.payload.options.mentions = []

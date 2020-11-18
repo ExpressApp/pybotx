@@ -1,12 +1,13 @@
 """Forward entities that can be received in message."""
 
 from datetime import datetime
-from typing import Optional, Union
+from typing import List, Optional, Union
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, validator
 
-from botx.models.enums import ChatTypes, MentionTypes
+from botx.models.attachments import Attachments
+from botx.models.enums import ChatTypes, MentionTypes, ReplyType
 
 
 class Forward(BaseModel):
@@ -29,6 +30,34 @@ class Forward(BaseModel):
 
     #: id of event creation.
     source_inserted_at: datetime
+
+
+class Reply(BaseModel):
+    """Mention that is used in bot in messages."""
+
+    #: array of attachments
+    attachment: Optional[List[Attachments]] = []
+
+    #: text of source message
+    body: str
+
+    #: mentions of source message
+    mentions: List[dict] = []
+
+    #: type of source message's chat
+    reply_type: ReplyType
+
+    #: uuid of sender
+    sender: UUID
+
+    #: chat name of source message
+    source_chat_name: str
+
+    #: chat uuid of source message
+    source_group_chat_id: Optional[UUID]
+
+    #: uuid of source message
+    source_sync_id: UUID
 
 
 class UserMention(BaseModel):

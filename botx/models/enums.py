@@ -83,6 +83,14 @@ class EntityTypes(str, Enum):
     reply = "reply"
 
 
+class ReplyType(str, Enum):
+    """Types for reply that mean source chat Type."""
+
+    chat = "chat"
+    channel = "channel"
+    botx = "botx"  # todo wrong?
+
+
 class AttachmentsTypes(str, Enum):
     """Types for attachments that could be received by bot."""
 

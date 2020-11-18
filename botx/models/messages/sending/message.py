@@ -71,9 +71,9 @@ class SendingMessage:  # noqa: WPS214
             mentions: mentions that will be attached to message.
             notification_options: configuration for notifications for message.
             options: message options.
-            metadata: message metadata.
+            metadata: dict with metadata in message
         """
-        self.credentials: SendingCredentials = _build_credentials(
+        self.credentials: SendingCredentials = _built_credentials(
             bot_id=bot_id,
             host=host,
             sync_id=sync_id,
@@ -85,7 +85,7 @@ class SendingMessage:  # noqa: WPS214
         self.payload: MessagePayload = MessagePayload(
             text=text,
             file=file,
-            markup=_build_markup(bubbles=bubbles, keyboard=keyboard, markup=markup),
+            markup=_built_markup(bubbles=bubbles, keyboard=keyboard, markup=markup),
             options=_build_options(
                 recipients=recipients,
                 mentions=mentions,
@@ -344,7 +344,7 @@ class SendingMessage:  # noqa: WPS214
         self.payload.options.notifications.force_dnd = force
 
 
-def _build_credentials(  # noqa: WPS211
+def _built_credentials(  # noqa: WPS211
     bot_id: Optional[UUID] = None,
     host: Optional[str] = None,
     sync_id: Optional[UUID] = None,
@@ -393,7 +393,7 @@ def _build_credentials(  # noqa: WPS211
     return credentials
 
 
-def _build_markup(
+def _built_markup(
     bubbles: Optional[BubbleMarkup] = None,
     keyboard: Optional[KeyboardMarkup] = None,
     markup: Optional[MessageMarkup] = None,
@@ -427,7 +427,7 @@ def _build_options(
     notification_options: Optional[NotificationOptions] = None,
     options: Optional[MessageOptions] = None,
 ) -> MessageOptions:
-    """Build options for message.
+    """Built options for message.
 
     Arguments:
         recipients: recipients for message.
