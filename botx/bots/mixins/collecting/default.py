@@ -4,6 +4,7 @@ from typing import Any, Callable, Optional, Sequence, Union
 
 from botx.collecting.collectors.collector import Collector
 from botx.dependencies.models import Depends
+from botx.models.command import CommandDescriptor
 
 
 class DefaultHandlerMixin:
@@ -20,6 +21,7 @@ class DefaultHandlerMixin:
         name: Optional[str] = None,
         description: Optional[str] = None,
         full_description: Optional[str] = None,
+        command_descriptor: Optional[CommandDescriptor] = None,
         include_in_status: Union[bool, Callable] = False,
         dependencies: Optional[Sequence[Depends]] = None,
         dependency_overrides_provider: Any = None,
@@ -38,6 +40,8 @@ class DefaultHandlerMixin:
             description: description for command that will be shown in bot's menu.
             full_description: full description that can be used for example in `/help`
                 command.
+            command_descriptor: parameter object including `command`, `commands`,
+                `name` and `description`. Separately passed any of these has priority
             include_in_status: should this handler be shown in bot's menu, can be
                 callable function with no arguments *(for now)*.
             dependencies: sequence of dependencies that should be executed before
@@ -54,6 +58,7 @@ class DefaultHandlerMixin:
             name=name,
             description=description,
             full_description=full_description,
+            command_descriptor=command_descriptor,
             include_in_status=include_in_status,
             dependencies=dependencies,
             dependency_overrides_provider=dependency_overrides_provider,

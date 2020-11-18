@@ -27,6 +27,8 @@ class HiddenHandlerMixin:
             command: body template that will trigger this handler.
             commands: list of body templates that will trigger this handler.
             name: optional name for handler that will be used in generating body.
+            command_descriptor: parameter object including `command`, `commands`,
+                `name` and `description`. Separately passed any of these has priority.
             dependencies: sequence of dependencies that should be executed before
                 handler.
             dependency_overrides_provider: mock of callable for handler.

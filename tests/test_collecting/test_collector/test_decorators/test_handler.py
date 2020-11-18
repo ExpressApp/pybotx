@@ -1,5 +1,5 @@
 from botx import Collector
-from botx.models.command import CommandDescriptor, CommandDescription
+from botx.models.command import CommandDescriptor
 
 pytest_plugins = ("tests.test_collecting.fixtures",)
 
@@ -17,9 +17,9 @@ def test_handler_command_descriptor(
     handler_as_function, extract_collector, collector_cls,
 ):
     collector = collector_cls()
-    description = CommandDescription(short="short", full="full")
-    command_descriptor = CommandDescriptor(command="/test", name="name:test",
-                                           description=description)
+    command_descriptor = CommandDescriptor(
+        command="/test", name="name:test", description="short", full_description="full"
+    )
     collector.handler(command_descriptor=command_descriptor)(handler_as_function)
     handler = collector.handlers[0]
     assert handler.body == "/test"
@@ -28,13 +28,16 @@ def test_handler_command_descriptor(
     assert handler.description == "short"
 
 
-def test_handler_commands_descriptor(
+def test_handler_two_commands_descriptor(
     handler_as_function, extract_collector, collector_cls,
 ):
     collector = collector_cls()
-    description = CommandDescription(short="short", full="full")
-    command_descriptor = CommandDescriptor(commands=["/cmd1", "/cmd2"], name="name:test",
-                                           description=description)
+    command_descriptor = CommandDescriptor(
+        commands=["/cmd1", "/cmd2"],
+        name="name:test",
+        description="short",
+        full_description="full",
+    )
     collector.handler(command_descriptor=command_descriptor)(handler_as_function)
     assert collector.handlers[0].body == "/cmd1"
     assert collector.handlers[0].name == "name:test"

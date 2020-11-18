@@ -40,6 +40,8 @@ class HandlerMixin:
             description: description for command that will be shown in bot's menu.
             full_description: full description that can be used for example in `/help`
                 command.
+            command_descriptor: parameter object including `command`, `commands`,
+                `name` and `description`. Separately passed any of these has priority
             include_in_status: should this handler be shown in bot's menu, can be
                 callable function with no arguments *(for now)*.
             dependencies: sequence of dependencies that should be executed before

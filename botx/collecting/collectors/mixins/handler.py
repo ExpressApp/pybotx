@@ -24,7 +24,6 @@ class AddHandlerProtocol(Protocol):
         description: Optional[str] = None,
         full_description: Optional[str] = None,
         include_in_status: Union[bool, Callable] = True,
-        command_descriptor: Optional[CommandDescriptor] = None,
         dependencies: Optional[Sequence[Depends]] = None,
         dependency_overrides_provider: Any = None,
     ) -> None:
@@ -103,9 +102,9 @@ class HandlerMixin:
                 if name is None:
                     name = command_descriptor.name
                 if description is None:
-                    description = command_descriptor.description.short
+                    description = command_descriptor.description
                 if full_description is None:
-                    full_description = command_descriptor.description.full
+                    full_description = command_descriptor.full_description
 
             handler_commands: List[
                 Optional[str]
