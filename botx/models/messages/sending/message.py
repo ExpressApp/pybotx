@@ -3,9 +3,9 @@ from typing import Any, BinaryIO, Dict, List, Optional, TextIO, Union, cast
 from uuid import UUID
 
 from botx.models.buttons import ButtonOptions
+from botx.models.entities import ChatMention, Mention, UserMention
 from botx.models.enums import MentionTypes
 from botx.models.files import File
-from botx.models.mentions import ChatMention, Mention, UserMention
 from botx.models.messages.message import Message
 from botx.models.messages.sending.credentials import SendingCredentials
 from botx.models.messages.sending.markup import MessageMarkup

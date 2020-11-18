@@ -1,3 +1,10 @@
+## 0.15.18 (Nov 20, 2020)
+
+### Changed
+
+* Group message parts
+
+
 ## 0.15.17 (Nov 19, 2020)
 
 ### Changed

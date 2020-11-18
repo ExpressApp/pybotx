@@ -6,10 +6,9 @@ from uuid import UUID
 from pydantic import BaseConfig, BaseModel, Field, validator
 
 from botx.models import events
+from botx.models.entities import Forward, Mention
 from botx.models.enums import ChatTypes, CommandTypes, EntityTypes
 from botx.models.files import File
-from botx.models.forwards import Forward
-from botx.models.mentions import Mention
 
 CommandDataType = Union[
     events.ChatCreatedEvent,

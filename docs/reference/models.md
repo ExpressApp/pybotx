@@ -16,9 +16,7 @@
 
 ::: botx.models.files
 
-::: botx.models.forwards
-
-::: botx.models.mentions
+::: botx.models.entities
 
 ::: botx.models.menu
 

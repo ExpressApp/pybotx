@@ -1,11 +1,34 @@
-"""Pydantic models for mentions."""
+"""Entities that can be received in message."""
 
+from datetime import datetime
 from typing import Optional, Union
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, validator
 
-from botx.models.enums import MentionTypes
+from botx.models.enums import ChatTypes, MentionTypes
+
+
+class Forward(BaseModel):
+    """Forward in message."""
+
+    #: ID of chat from which forward received.
+    group_chat_id: UUID
+
+    #: ID of user that is author of message.
+    sender_huid: UUID
+
+    #: type of forward.
+    forward_type: ChatTypes
+
+    #: name of original chat.
+    source_chat_name: Optional[str] = None
+
+    #: id of original message event.
+    source_sync_id: Optional[UUID]
+
+    #: id of event creation.
+    source_inserted_at: datetime
 
 
 class UserMention(BaseModel):
