@@ -4,6 +4,7 @@ from typing import Any, Callable, List, Optional, Sequence, Union, cast
 
 from botx import converters
 from botx.dependencies.models import Depends
+from botx.models.command import CommandDescriptor
 
 try:
     from typing import Protocol  # noqa: WPS433
@@ -23,6 +24,7 @@ class AddHandlerProtocol(Protocol):
         description: Optional[str] = None,
         full_description: Optional[str] = None,
         include_in_status: Union[bool, Callable] = True,
+        command_descriptor: Optional[CommandDescriptor] = None,
         dependencies: Optional[Sequence[Depends]] = None,
         dependency_overrides_provider: Any = None,
     ) -> None:
@@ -42,6 +44,7 @@ class HandlerDecoratorProtocol(Protocol):
         description: Optional[str] = None,
         full_description: Optional[str] = None,
         include_in_status: Union[bool, Callable] = True,
+        command_descriptor: Optional[CommandDescriptor] = None,
         dependencies: Optional[Sequence[Depends]] = None,
         dependency_overrides_provider: Any = None,
     ) -> Callable:
@@ -60,6 +63,7 @@ class HandlerMixin:
         name: Optional[str] = None,
         description: Optional[str] = None,
         full_description: Optional[str] = None,
+        command_descriptor: Optional[CommandDescriptor] = None,
         include_in_status: Union[bool, Callable] = True,
         dependencies: Optional[Sequence[Depends]] = None,
         dependency_overrides_provider: Any = None,
@@ -78,6 +82,8 @@ class HandlerMixin:
             description: description for command that will be shown in bot's menu.
             full_description: full description that can be used for example in `/help`
                 command.
+            command_descriptor: parameter object including `command`, `commands`,
+                `name` and `description`. Separately passed any of these has priority
             include_in_status: should this handler be shown in bot's menu, can be
                 callable function with no arguments *(for now)*.
             dependencies: sequence of dependencies that should be executed before
@@ -87,7 +93,20 @@ class HandlerMixin:
         Returns:
             Passed in `handler` callable.
         """
+
         if handler:
+            if command_descriptor is not None:
+                if command is None:
+                    command = command_descriptor.command
+                if commands is None:
+                    commands = command_descriptor.commands
+                if name is None:
+                    name = command_descriptor.name
+                if description is None:
+                    description = command_descriptor.description.short
+                if full_description is None:
+                    full_description = command_descriptor.description.full
+
             handler_commands: List[
                 Optional[str]
             ] = converters.optional_sequence_to_list(commands)
@@ -118,6 +137,7 @@ class HandlerMixin:
             name=name,
             description=description,
             full_description=full_description,
+            command_descriptor=command_descriptor,
             include_in_status=include_in_status,
             dependencies=dependencies,
             dependency_overrides_provider=dependency_overrides_provider,

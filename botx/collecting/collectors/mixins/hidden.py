@@ -3,6 +3,7 @@ from typing import Any, Callable, Optional, Sequence
 
 from botx.collecting.collectors.mixins.handler import HandlerDecoratorProtocol
 from botx.dependencies.models import Depends
+from botx.models.command import CommandDescriptor
 
 
 class HiddenHandlerMixin:
@@ -15,6 +16,7 @@ class HiddenHandlerMixin:
         command: Optional[str] = None,
         commands: Optional[Sequence[str]] = None,
         name: Optional[str] = None,
+        command_descriptor: Optional[CommandDescriptor] = None,
         dependencies: Optional[Sequence[Depends]] = None,
         dependency_overrides_provider: Any = None,
     ) -> Callable:
@@ -38,6 +40,7 @@ class HiddenHandlerMixin:
             commands=commands,
             name=name,
             include_in_status=False,
+            command_descriptor=command_descriptor,
             dependencies=dependencies,
             dependency_overrides_provider=dependency_overrides_provider,
         )

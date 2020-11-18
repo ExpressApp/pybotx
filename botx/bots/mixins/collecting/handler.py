@@ -4,6 +4,7 @@ from typing import Any, Callable, Optional, Sequence, Union
 
 from botx.collecting.collectors.collector import Collector
 from botx.dependencies.models import Depends
+from botx.models.command import CommandDescriptor
 
 
 class HandlerMixin:
@@ -20,6 +21,7 @@ class HandlerMixin:
         name: Optional[str] = None,
         description: Optional[str] = None,
         full_description: Optional[str] = None,
+        command_descriptor: Optional[CommandDescriptor] = None,
         include_in_status: Union[bool, Callable] = True,
         dependencies: Optional[Sequence[Depends]] = None,
         dependency_overrides_provider: Any = None,
@@ -54,6 +56,7 @@ class HandlerMixin:
             name=name,
             description=description,
             full_description=full_description,
+            command_descriptor=command_descriptor,
             include_in_status=include_in_status,
             dependencies=dependencies,
             dependency_overrides_provider=dependency_overrides_provider,

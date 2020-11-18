@@ -6,6 +6,7 @@ from botx.collecting.collectors.mixins.handler import HandlerDecoratorProtocol
 from botx.collecting.handlers.handler import Handler
 from botx.collecting.handlers.name_generators import get_name_from_callable
 from botx.dependencies.models import Depends
+from botx.models.command import CommandDescriptor
 
 try:
     from typing import Protocol  # noqa: WPS433
@@ -35,6 +36,7 @@ class DefaultHandlerMixin:
         description: Optional[str] = None,
         full_description: Optional[str] = None,
         include_in_status: Union[bool, Callable] = False,
+        command_descriptor: Optional[CommandDescriptor] = None,
         dependencies: Optional[Sequence[Depends]] = None,
         dependency_overrides_provider: Any = None,
     ) -> Callable:
@@ -78,6 +80,7 @@ class DefaultHandlerMixin:
                 description=description,
                 full_description=full_description,
                 include_in_status=include_in_status,
+                command_descriptor=command_descriptor,
                 dependencies=dependencies,
                 dependency_overrides_provider=dependency_overrides_provider,
             )
@@ -96,6 +99,7 @@ class DefaultHandlerMixin:
             description=description,
             full_description=full_description,
             include_in_status=include_in_status,
+            command_descriptor=command_descriptor,
             dependencies=dependencies,
             dependency_overrides_provider=dependency_overrides_provider,
         )
