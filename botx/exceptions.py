@@ -63,3 +63,12 @@ class ServerUnknownError(BotXException):
 
     #: host that is unregistered.
     host: str
+
+
+class MissingAttributeError(BotXException):
+    """Raised if message hasn't any attribute."""
+
+    message_template = "Message hasn't {attribute}"
+
+    #: attribute name for rendering
+    attribute_name: str

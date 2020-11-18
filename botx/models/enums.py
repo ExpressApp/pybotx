@@ -79,6 +79,21 @@ class EntityTypes(str, Enum):
     #: forward entity.
     forward = "forward"
 
+    #: reply entity
+    reply = "reply"
+
+
+class AttachmentsTypes(str, Enum):
+    """Types for attachments that could be received by bot."""
+
+    image = "image"
+    video = "video"
+    document = "document"
+    voice = "voice"
+    contact = "contact"
+    location = "location"
+    link = "link"
+
 
 class MentionTypes(str, Enum):
     """Enum for available validated_values in mentions."""

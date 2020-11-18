@@ -79,12 +79,11 @@ class SendingMessage:  # noqa: WPS214
             sync_id=sync_id,
             message_id=message_id,
             chat_id=chat_id,
-            credentials=(credentials.copy() if credentials else credentials),
+            credentials=credentials,
         )
 
         self.payload: MessagePayload = MessagePayload(
             text=text,
-            metadata=metadata or {},
             file=file,
             markup=_build_markup(bubbles=bubbles, keyboard=keyboard, markup=markup),
             options=_build_options(
@@ -93,6 +92,7 @@ class SendingMessage:  # noqa: WPS214
                 notification_options=notification_options,
                 options=options,
             ),
+            metadata=metadata or {},
         )
 
     @classmethod
@@ -127,15 +127,6 @@ class SendingMessage:  # noqa: WPS214
     def text(self, text: str) -> None:
         """Text in message."""
         self.payload.text = text
-
-    @property
-    def metadata(self) -> Dict[str, Any]:
-        """Metadata in message."""
-        return self.payload.metadata
-
-    @metadata.setter
-    def metadata(self, metadata: Dict[str, Any]) -> None:
-        self.payload.metadata = metadata
 
     @property
     def file(self) -> Optional[File]:
@@ -206,6 +197,16 @@ class SendingMessage:  # noqa: WPS214
     def host(self, host: str) -> None:
         """Host where BotX API places."""
         self.credentials.host = host
+
+    @property
+    def metadata(self) -> Dict[str, Any]:
+        """Metadata in message."""
+        return self.payload.metadata
+
+    @metadata.setter
+    def metadata(self, metadata: Dict[str, Any]) -> None:
+        """Metadata in message."""
+        self.payload.metadata = metadata
 
     def add_file(
         self, file: Union[TextIO, BinaryIO, File], filename: Optional[str] = None,
@@ -299,7 +300,7 @@ class SendingMessage:  # noqa: WPS214
             command: command that will be triggered on bubble click.
             label: label that will be shown on bubble.
             data: payload that will be attached to bubble.
-            options: add special effects to bubble.
+            options: options that set special effects to bubble.
             new_row: place bubble on new row or on current.
         """
         self.payload.markup.add_bubble(command, label, data, options, new_row=new_row)

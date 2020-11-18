@@ -1,8 +1,6 @@
 """Endpoints for chats resource."""
 import uuid
 
-from molten import Request, RequestData, Response, Settings
-
 from botx.clients.methods.base import APIResponse
 from botx.clients.methods.v3.chats import (
     add_admin_role,
@@ -18,6 +16,7 @@ from botx.models import chats, enums, users
 from botx.testing.botx_mock.binders import bind_implementation_to_method
 from botx.testing.botx_mock.wsgi.messages import add_request_to_collection
 from botx.testing.botx_mock.wsgi.responses import PydanticResponse
+from molten import Request, RequestData, Response, Settings
 
 
 @bind_implementation_to_method(info.Info)

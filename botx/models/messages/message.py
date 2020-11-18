@@ -6,11 +6,12 @@ from typing import Any, List, Optional, Type
 from uuid import UUID
 
 from botx.bots import bots
+from botx.models.attachments import AttachList
 from botx.models.datastructures import State
 from botx.models.files import File
 from botx.models.messages.incoming_message import (
     Command,
-    Entity,
+    CommandDataType,
     IncomingMessage,
     Sender,
 )
@@ -62,13 +63,13 @@ class Message:
     command: Command = _message_proxy_property()
     #: command body.
     body: str = _message_proxy_property("command")
-    #: command data.
-    data: dict = _message_proxy_property("command")  # noqa: WPS110
-    #: command metadata.
-    metadata: dict = _message_proxy_property("command")
+    #: command data
+    data: CommandDataType = _message_proxy_property("command")  # noqa: WPS110
 
     #: file from message.
     file: Optional[File] = _message_proxy_property()
+    #: attachment from message v4+
+    attachments: AttachList = _message_proxy_property()
 
     #: information about user that sent message.
     user: Sender = _message_proxy_property()
@@ -86,7 +87,7 @@ class Message:
     host: str = _user_proxy_property()
 
     #: external entities in message (mentions, forwards, etc)
-    entities: List[Entity] = _message_proxy_property()
+    entities: List[dict] = _message_proxy_property()
 
     #: credentials from message for using in requests.
     credentials: SendingCredentials
@@ -114,7 +115,11 @@ class Message:
         )
 
         self.sent_from_button = (
-            self.data.get("ui", False) if isinstance(self.command.data, dict) else False
+            self.data.get(  # type: ignore
+                "ui", False,
+            )
+            if isinstance(self.command.data, dict)
+            else False
         )
 
     @classmethod

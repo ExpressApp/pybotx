@@ -3,9 +3,10 @@
 from typing import Any, Dict, List, Optional, Tuple, Union
 from uuid import UUID
 
-from pydantic import BaseConfig, BaseModel, Field, validator
+from pydantic import BaseConfig, BaseModel, Field
 
 from botx.models import events
+from botx.models.attachments import AttachList
 from botx.models.entities import Forward, Mention
 from botx.models.enums import ChatTypes, CommandTypes, EntityTypes
 from botx.models.files import File
@@ -30,7 +31,6 @@ class Command(BaseModel):
     #: command payload.
     data: CommandDataType = {}  # noqa: WPS110
 
-    #: command metadata.
     metadata: Dict[str, Any] = {}
 
     @property
@@ -70,7 +70,7 @@ class Sender(BaseModel):
     group_chat_id: UUID
 
     #: type of chat.
-    chat_type: ChatTypes
+    chat_type: Optional[ChatTypes]
 
     #: AD login of user.
     ad_login: Optional[str]
@@ -106,7 +106,7 @@ class Entity(BaseModel):
     type: EntityTypes  # noqa: WPS: 125
 
     #: entity data.
-    data: Union[Forward, Mention]  # noqa: WPS110
+    data: Union[Forward, Mention]  # noqa: WPS: 110
 
 
 class IncomingMessage(BaseModel):
@@ -114,11 +114,12 @@ class IncomingMessage(BaseModel):
 
     #: message event id on which bot should answer.
     sync_id: UUID
+    source_sync_id: Optional[UUID] = None
 
     #: command for bot.
     command: Command
 
-    #: file attached to message.
+    #: file attached to message. deprecated for v4+
     file: Optional[File] = None
 
     #: information about user from which message was received.
@@ -130,25 +131,8 @@ class IncomingMessage(BaseModel):
     #: additional entities that can be received by bot.
     entities: List[Entity] = []
 
+    #: attached documents and files to message.
+    attachments: AttachList = []  # type: ignore
+
     class Config(BaseConfig):
         allow_population_by_field_name = True
-
-    @validator("file", always=True, pre=True)
-    def skip_file_validation(
-        cls, file: Optional[Union[dict, File]],  # noqa: N805
-    ) -> Optional[File]:
-        """Skip validation for incoming file since users have not such limits as bot.
-
-        Arguments:
-            cls: this class.
-            file: file data that should be used for building file instance.
-
-        Returns:
-            Constructed file.
-        """
-        if isinstance(file, File):
-            return file
-        elif file is not None:
-            return File.construct(**file)
-
-        return None

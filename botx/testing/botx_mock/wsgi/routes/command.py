@@ -1,10 +1,9 @@
 """Endpoints for command resource."""
-from molten import RequestData, Response, Settings
-
 from botx.clients.methods.v3.command.command_result import CommandResult
 from botx.testing.botx_mock.binders import bind_implementation_to_method
 from botx.testing.botx_mock.wsgi.messages import add_message_to_collection
 from botx.testing.botx_mock.wsgi.responses import generate_push_response
+from molten import RequestData, Response, Settings
 
 
 @bind_implementation_to_method(CommandResult)
