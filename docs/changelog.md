@@ -1,3 +1,10 @@
+## 0.15.16 (Nov 19, 2020)
+
+### Added
+
+* New event `left_from_chat`, which stores HUIDs of members who left the chat
+
+
 ## 0.15.15 (Nov 17, 2020)
 
 ### Added

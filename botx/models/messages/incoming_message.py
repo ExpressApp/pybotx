@@ -15,6 +15,7 @@ CommandDataType = Union[
     events.ChatCreatedEvent,
     events.AddedToChatEvent,
     events.DeletedFromChatEvent,
+    events.LeftFromChatEvent,
     Dict[str, Any],
 ]
 
