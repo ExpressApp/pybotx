@@ -43,11 +43,19 @@ class DeletedFromChatEvent(BaseModel):
     deleted_members: List[UUID]
 
 
+class LeftFromChatEvent(BaseModel):
+    """Shape for `system:left_from_chat` event data."""
+
+    #: left chat members
+    left_members: List[UUID]
+
+
 # dict for validating shape for different events
 EVENTS_SHAPE_MAP: Mapping[SystemEvents, Type[BaseModel]] = MappingProxyType(
     {
         SystemEvents.chat_created: ChatCreatedEvent,
         SystemEvents.added_to_chat: AddedToChatEvent,
         SystemEvents.deleted_from_chat: DeletedFromChatEvent,
+        SystemEvents.left_from_chat: LeftFromChatEvent,
     },
 )
