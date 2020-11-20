@@ -22,7 +22,7 @@ class MessagePayload(BaseModel):
     #: message metadata.
     metadata: Dict[str, Any] = {}
 
-    #: attached to message file.
+    #: file attached to message.
     file: Optional[File] = None
 
     #: message markup.
@@ -37,6 +37,9 @@ class UpdatePayload(BaseModel):
 
     #: new message text.
     text: Optional[str] = Field(None, max_length=MAXIMUM_TEXT_LENGTH)
+
+    #: file attached to message.
+    file: Optional[File] = None
 
     #: new message bubbles.
     keyboard: Optional[KeyboardMarkup] = None
@@ -78,4 +81,5 @@ class UpdatePayload(BaseModel):
         update.text = payload.text or None
         update.set_markup(payload.markup)
         update.mentions = payload.options.mentions
+        update.file = payload.file
         return update

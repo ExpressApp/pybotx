@@ -1,3 +1,10 @@
+## 0.15.17 (Nov 19, 2020)
+
+### Changed
+
+* Now you can update attached file while updating message
+
+
 ## 0.15.16 (Nov 19, 2020)
 
 ### Added

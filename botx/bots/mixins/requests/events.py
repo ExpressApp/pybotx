@@ -37,6 +37,7 @@ class EventsRequestsMixin:
                     bubble=update.bubbles,
                     mentions=update.mentions,
                 ),
+                file=update.file,
             ),
             credentials=credentials,
         )
