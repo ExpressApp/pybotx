@@ -6087,10 +6087,7 @@ from_sending_payload<span class="p">(</span><span class="n">payload</span><span 
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>67
-68
-69
-70
+<pre><span></span>70
 71
 72
 73
@@ -6101,7 +6098,11 @@ from_sending_payload<span class="p">(</span><span class="n">payload</span><span 
 78
 79
 80
-81</pre>
+81
+82
+83
+84
+85</pre>
 </div>
 </td>
 <td class="code">
@@ -6120,6 +6121,7 @@ from_sending_payload<span class="p">(</span><span class="n">payload</span><span 
     <span class="n">update</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">text</span> <span class="ow">or</span> <span class="kc">None</span>
     <span class="n">update</span><span class="o">.</span><span class="n">set_markup</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">markup</span><span class="p">)</span>
     <span class="n">update</span><span class="o">.</span><span class="n">mentions</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mentions</span>
+    <span class="n">update</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">file</span>
     <span class="k">return</span> <span class="n">update</span>
 </code></pre>
 </div>
@@ -6163,14 +6165,14 @@ set_markup<span class="p">(</span><span class="bp">self</span><span class="p">,<
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>58
-59
-60
-61
+<pre><span></span>61
 62
 63
 64
-65</pre>
+65
+66
+67
+68</pre>
 </div>
 </td>
 <td class="code">
