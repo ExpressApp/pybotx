@@ -1,14 +1,14 @@
 """Definition of messages received by bot or sent by it."""
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 from uuid import UUID
 
 from pydantic import BaseConfig, BaseModel, Field, validator
 
 from botx.models import events
 from botx.models.attachments import AttachList
-from botx.models.entities import Forward, Mention
-from botx.models.enums import ChatTypes, CommandTypes, EntityTypes
+from botx.models.entities import EntityList
+from botx.models.enums import ChatTypes, CommandTypes
 from botx.models.files import File
 
 CommandDataType = Union[
@@ -101,16 +101,6 @@ class Sender(BaseModel):
         return None
 
 
-class Entity(BaseModel):
-    """Additional entity that can be received by bot."""
-
-    #: entity type.
-    type: EntityTypes  # noqa: WPS125
-
-    #: entity data.
-    data: Union[Forward, Mention]  # noqa: WPS110
-
-
 class IncomingMessage(BaseModel):
     """
     Message that was received by bot and should be handled.
@@ -135,7 +125,7 @@ class IncomingMessage(BaseModel):
     bot_id: UUID
 
     #: additional entities that can be received by bot.
-    entities: List[Entity] = []
+    entities: EntityList = Field([])
 
     #: attached documents and files to message.
     attachments: AttachList = Field([])

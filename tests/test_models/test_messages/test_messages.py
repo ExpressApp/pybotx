@@ -486,3 +486,14 @@ class TestSendingMessageProperties:
 def test_credentials_or_parameters_required_for_message_creation():
     with pytest.raises(AssertionError):
         SendingMessage()
+
+
+class TestIsForward:
+    def test_is_forward_message(self, message, bot) -> None:
+        builder = MessageBuilder()
+        builder.forward(message=message)
+        new_message = Message.from_dict(message=builder.message.dict(), bot=bot)
+        assert new_message.is_forward
+
+    def test_is_forward_message_error(self, message, bot) -> None:
+        assert not message.is_forward

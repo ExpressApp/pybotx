@@ -1,12 +1,13 @@
 """Entities that can be received in message."""
 
 from datetime import datetime
-from typing import Optional, Union
+from typing import List, Optional, Union, cast
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, validator
 
-from botx.models.enums import ChatTypes, MentionTypes
+from botx.models.attachments import Attachments
+from botx.models.enums import ChatTypes, EntityTypes, MentionTypes
 
 
 class Forward(BaseModel):
@@ -39,6 +40,9 @@ class UserMention(BaseModel):
 
     #: name that will be used instead of default user name.
     name: Optional[str] = None
+
+    #: connection type via that entity was mention
+    conn_type: Optional[str] = None
 
 
 class ChatMention(BaseModel):
@@ -114,3 +118,90 @@ class Mention(BaseModel):
             "mention_type for provided mention_data is wrong, accepted: {0}",
             chat_mention_types,
         )
+
+
+class Reply(BaseModel):
+    """Message that was replied."""
+
+    #: array of attachments.
+    attachment: Optional[List[Attachments]] = []
+
+    #: text of source message.
+    body: str
+
+    #: mentions of source message.
+    mentions: List[Mention] = []
+
+    #: type of source message's chat.
+    reply_type: ChatTypes
+
+    #: uuid of sender.
+    sender: UUID
+
+    #: chat name of source message.
+    source_chat_name: str
+
+    #: chat uuid of source message.
+    source_group_chat_id: Optional[UUID]
+
+    #: uuid of source message.
+    source_sync_id: UUID
+
+
+class Entity(BaseModel):
+    """Additional entity that can be received by bot."""
+
+    #: entity type.
+    type: EntityTypes  # noqa: WPS125
+
+    #: entity data.
+    data: Union[Forward, Mention, Reply]  # noqa: WPS110
+
+
+class EntityList(BaseModel):
+    """Additional wrapped class for use property."""
+
+    __root__: List[Entity]
+
+    @property
+    def mentions(self) -> List[Mention]:
+        """Search mentions in message's entity.
+
+        Returns:
+            List of mentions.
+        """
+        return [
+            cast(Mention, entity.data)
+            for entity in self.__root__
+            if entity.type == EntityTypes.mention
+        ]
+
+    @property
+    def forward(self) -> Forward:
+        """Search forward in message's entity.
+
+        Returns:
+            Information about forward.
+
+        Raises:
+            AttributeError: raised if message has no forward.
+        """
+        for entity in self.__root__:
+            if entity.type == EntityTypes.forward:  # pragma: no branch
+                return cast(Forward, entity.data)
+        raise AttributeError("forward")
+
+    @property
+    def reply(self) -> Reply:
+        """Search reply in message's entity.
+
+        Returns:
+            Reply.
+
+        Raises:
+            AttributeError: raised if message has no reply.
+        """
+        for entity in self.__root__:
+            if entity.type == EntityTypes.reply:  # pragma: no branch
+                return cast(Reply, entity.data)
+        raise AttributeError("reply")

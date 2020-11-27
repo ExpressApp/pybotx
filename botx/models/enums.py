@@ -49,6 +49,9 @@ class ChatTypes(str, Enum):
     #: channel chat.
     channel = "channel"
 
+    # botx
+    botx = "botx"  # todo replies incoming with whith type
+
 
 class UserKinds(str, Enum):
     """Enum for type of user."""
@@ -82,7 +85,7 @@ class EntityTypes(str, Enum):
     #: forward entity.
     forward = "forward"
 
-    #: reply entity
+    #: reply entity.
     reply = "reply"
 
 
@@ -117,8 +120,8 @@ class MentionTypes(str, Enum):
 class LinkProtos(str, Enum):
     """Enum for protos of links in attachments."""
 
-    #: proto for attach with email
+    #: proto for attach with email.
     email = "mailto:"
 
-    #: proto for attach with telephone number
+    #: proto for attach with telephone number.
     telephone = "tel://"

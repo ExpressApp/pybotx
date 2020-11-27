@@ -1,3 +1,16 @@
+## 0.16.0 (Nov 30, 2020)
+
+### Add
+
+* Support of reply in messages for bot's api v4
+* Entity building methods for `MessageBuilder` 
+* Flag `is_forward` for `Message`
+
+### Changed
+
+* `message.entities` now is `EntityList`(like `AttachList`) not `List[Attachment]`
+
+
 ## 0.15.19 (Nov 20, 2020)
 
 ### Add
