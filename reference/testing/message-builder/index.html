@@ -306,6 +306,31 @@
   </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.contact">
+    contact()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.document">
+    document()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.image">
+    image()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.link">
+    link()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.location">
+    location()
+  </a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.mention_chat">
     mention_chat()
   </a>
@@ -318,6 +343,16 @@
 <li class="md-nav__item">
 <a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.mention_user">
     mention_user()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.video">
+    video()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.voice">
+    voice()
   </a>
 </li>
 </ul>
@@ -378,6 +413,31 @@
   </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.contact">
+    contact()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.document">
+    document()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.image">
+    image()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.link">
+    link()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.location">
+    location()
+  </a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.mention_chat">
     mention_chat()
   </a>
@@ -390,6 +450,16 @@
 <li class="md-nav__item">
 <a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.mention_user">
     mention_user()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.video">
+    video()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.testing.building.builder.MessageBuilder.voice">
+    voice()
   </a>
 </li>
 </ul>
@@ -443,6 +513,494 @@ message: <span class="n">IncomingMessage</span> </code>
 </div>
 </div>
 <div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="botx.testing.building.builder.MessageBuilder.contact">
+<code class="highlight language-python">
+contact<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contact_name</span><span class="o">=</span><span class="s1">'Foo'</span><span class="p">)</span> </code>
+</h3>
+<div class="doc doc-contents">
+<p>Add link into incoming message.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>contact_name</code></td>
+<td><code>str</code></td>
+<td>
+<p>name of contact</p>
+</td>
+<td><code>'Foo'</code></td>
+</tr>
+</tbody>
+</table>
+<details class="quote">
+<summary>Source code in <code>botx/testing/building/builder.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="nf">contact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contact_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Foo"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">"""Add link into incoming message.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        contact_name: name of contact</span>
+<span class="sd">    """</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">attachments</span><span class="o">.</span><span class="n">__root__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">Attachment</span><span class="p">(</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">AttachmentsTypes</span><span class="o">.</span><span class="n">contact</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">Contact</span><span class="p">(</span><span class="n">contact_name</span><span class="o">=</span><span class="n">contact_name</span><span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="botx.testing.building.builder.MessageBuilder.document">
+<code class="highlight language-python">
+document<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s1">'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,Lg=='</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s1">'document.docx'</span><span class="p">)</span> </code>
+</h3>
+<div class="doc doc-contents">
+<p>Add document into incoming message.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>content</code></td>
+<td><code>str</code></td>
+<td>
+<p>document content in RFC 2397 format.</p>
+</td>
+<td><code>'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,Lg=='</code></td>
+</tr>
+<tr>
+<td><code>file_name</code></td>
+<td><code>str</code></td>
+<td>
+<p>name of file.</p>
+</td>
+<td><code>'document.docx'</code></td>
+</tr>
+</tbody>
+</table>
+<details class="quote">
+<summary>Source code in <code>botx/testing/building/builder.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="nf">document</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">test_content</span><span class="o">.</span><span class="n">DOCX_DATA</span><span class="p">,</span>  <span class="c1"># noqa: WPS110</span>
+    <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"document.docx"</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">"""Add document into incoming message.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        content: document content in RFC 2397 format.</span>
+<span class="sd">        file_name: name of file.</span>
+<span class="sd">    """</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">attachments</span><span class="o">.</span><span class="n">__root__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">Attachment</span><span class="p">(</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">AttachmentsTypes</span><span class="o">.</span><span class="n">document</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">Document</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="botx.testing.building.builder.MessageBuilder.image">
+<code class="highlight language-python">
+image<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s1">'data:image/png;base64,Lg=='</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s1">'image.jpg'</span><span class="p">)</span> </code>
+</h3>
+<div class="doc doc-contents">
+<p>Add image into incoming message.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>content</code></td>
+<td><code>str</code></td>
+<td>
+<p>image content in RFC 2397 format.</p>
+</td>
+<td><code>'data:image/png;base64,Lg=='</code></td>
+</tr>
+<tr>
+<td><code>file_name</code></td>
+<td><code>str</code></td>
+<td>
+<p>name of file.</p>
+</td>
+<td><code>'image.jpg'</code></td>
+</tr>
+</tbody>
+</table>
+<details class="quote">
+<summary>Source code in <code>botx/testing/building/builder.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="nf">image</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">test_content</span><span class="o">.</span><span class="n">PNG_DATA</span><span class="p">,</span>  <span class="c1"># noqa: WPS110</span>
+    <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"image.jpg"</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">"""Add image into incoming message.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        content: image content in RFC 2397 format.</span>
+<span class="sd">        file_name: name of file.</span>
+<span class="sd">    """</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">attachments</span><span class="o">.</span><span class="n">__root__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">Attachment</span><span class="p">(</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">AttachmentsTypes</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">Image</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="botx.testing.building.builder.MessageBuilder.link">
+<code class="highlight language-python">
+link<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s1">'https://google.com'</span><span class="p">,</span> <span class="n">url_preview</span><span class="o">=</span><span class="s1">'https://image.jpg'</span><span class="p">,</span> <span class="n">url_text</span><span class="o">=</span><span class="s1">'foo'</span><span class="p">,</span> <span class="n">url_title</span><span class="o">=</span><span class="s1">'bar'</span><span class="p">)</span> </code>
+</h3>
+<div class="doc doc-contents">
+<p>Add link into incoming message.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>url</code></td>
+<td><code>str</code></td>
+<td>
+<p>link on resource.</p>
+</td>
+<td><code>'https://google.com'</code></td>
+</tr>
+<tr>
+<td><code>url_preview</code></td>
+<td><code>str</code></td>
+<td>
+<p>link on url preview.</p>
+</td>
+<td><code>'https://image.jpg'</code></td>
+</tr>
+<tr>
+<td><code>url_text</code></td>
+<td><code>str</code></td>
+<td>
+<p>presented text on link.</p>
+</td>
+<td><code>'foo'</code></td>
+</tr>
+<tr>
+<td><code>url_title</code></td>
+<td><code>str</code></td>
+<td>
+<p>title of link.</p>
+</td>
+<td><code>'bar'</code></td>
+</tr>
+</tbody>
+</table>
+<details class="quote">
+<summary>Source code in <code>botx/testing/building/builder.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="nf">link</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"https://google.com"</span><span class="p">,</span>
+    <span class="n">url_preview</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"https://image.jpg"</span><span class="p">,</span>
+    <span class="n">url_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"foo"</span><span class="p">,</span>
+    <span class="n">url_title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"bar"</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">"""Add link into incoming message.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        url: link on resource.</span>
+<span class="sd">        url_preview: link on url preview.</span>
+<span class="sd">        url_text: presented text on link.</span>
+<span class="sd">        url_title: title of link.</span>
+<span class="sd">    """</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">attachments</span><span class="o">.</span><span class="n">__root__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">Attachment</span><span class="p">(</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">AttachmentsTypes</span><span class="o">.</span><span class="n">link</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">Link</span><span class="p">(</span>
+                <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+                <span class="n">url_preview</span><span class="o">=</span><span class="n">url_preview</span><span class="p">,</span>
+                <span class="n">url_text</span><span class="o">=</span><span class="n">url_text</span><span class="p">,</span>
+                <span class="n">url_title</span><span class="o">=</span><span class="n">url_title</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="botx.testing.building.builder.MessageBuilder.location">
+<code class="highlight language-python">
+location<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location_name</span><span class="o">=</span><span class="s1">'loc_name'</span><span class="p">,</span> <span class="n">location_address</span><span class="o">=</span><span class="s1">'loc_address'</span><span class="p">,</span> <span class="n">location_lat</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">location_lng</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> </code>
+</h3>
+<div class="doc doc-contents">
+<p>Add location into incoming message.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>location_name</code></td>
+<td><code>str</code></td>
+<td>
+<p>name of location.</p>
+</td>
+<td><code>'loc_name'</code></td>
+</tr>
+<tr>
+<td><code>location_lat</code></td>
+<td><code>int</code></td>
+<td>
+<p>latitude.</p>
+</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td><code>location_lng</code></td>
+<td><code>int</code></td>
+<td>
+<p>longitude.</p>
+</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td><code>location_address</code></td>
+<td><code>str</code></td>
+<td>
+<p>address of location.</p>
+</td>
+<td><code>'loc_address'</code></td>
+</tr>
+</tbody>
+</table>
+<details class="quote">
+<summary>Source code in <code>botx/testing/building/builder.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="nf">location</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">location_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"loc_name"</span><span class="p">,</span>
+    <span class="n">location_address</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"loc_address"</span><span class="p">,</span>
+    <span class="n">location_lat</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">location_lng</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">"""Add location into incoming message.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        location_name: name of location.</span>
+<span class="sd">        location_lat: latitude.</span>
+<span class="sd">        location_lng: longitude.</span>
+<span class="sd">        location_address: address of location.</span>
+<span class="sd">    """</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">attachments</span><span class="o">.</span><span class="n">__root__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">Attachment</span><span class="p">(</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">AttachmentsTypes</span><span class="o">.</span><span class="n">location</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">Location</span><span class="p">(</span>
+                <span class="n">location_name</span><span class="o">=</span><span class="n">location_name</span><span class="p">,</span>
+                <span class="n">location_lat</span><span class="o">=</span><span class="n">location_lat</span><span class="p">,</span>
+                <span class="n">location_lng</span><span class="o">=</span><span class="n">location_lng</span><span class="p">,</span>
+                <span class="n">location_address</span><span class="o">=</span><span class="n">location_address</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
+<div class="doc doc-object doc-method">
 <h3 class="doc doc-heading" id="botx.testing.building.builder.MessageBuilder.mention_chat">
 <code class="highlight language-python">
 mention_chat<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chat_id</span><span class="p">)</span> </code>
@@ -476,21 +1034,21 @@ mention_chat<span class="p">(</span><span class="bp">self</span><span class="p">
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>116
-117
-118
-119
-120
-121
-122
-123
-124
-125
-126
-127
-128
-129
-130</pre>
+<pre><span></span>130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144</pre>
 </div>
 </td>
 <td class="code">
@@ -552,21 +1110,21 @@ mention_contact<span class="p">(</span><span class="bp">self</span><span class="
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span> 87
- 88
- 89
- 90
- 91
- 92
- 93
- 94
- 95
- 96
- 97
- 98
- 99
-100
-101</pre>
+<pre><span></span>101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115</pre>
 </div>
 </td>
 <td class="code">
@@ -628,18 +1186,18 @@ mention_user<span class="p">(</span><span class="bp">self</span><span class="p">
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>103
-104
-105
-106
-107
-108
-109
-110
-111
-112
-113
-114</pre>
+<pre><span></span>117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128</pre>
 </div>
 </td>
 <td class="code">
@@ -654,6 +1212,190 @@ mention_user<span class="p">(</span><span class="bp">self</span><span class="p">
         <span class="n">Entity</span><span class="p">(</span>
             <span class="nb">type</span><span class="o">=</span><span class="n">EntityTypes</span><span class="o">.</span><span class="n">mention</span><span class="p">,</span>
             <span class="n">data</span><span class="o">=</span><span class="n">Mention</span><span class="p">(</span><span class="n">mention_data</span><span class="o">=</span><span class="n">UserMention</span><span class="p">(</span><span class="n">user_huid</span><span class="o">=</span><span class="n">user_huid</span><span class="p">)),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="botx.testing.building.builder.MessageBuilder.video">
+<code class="highlight language-python">
+video<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s1">'data:video/mp4;base64,Lg=='</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s1">'video.mp4'</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> </code>
+</h3>
+<div class="doc doc-contents">
+<p>Add video into incoming message.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>content</code></td>
+<td><code>str</code></td>
+<td>
+<p>voice content in RFC 2397 format.</p>
+</td>
+<td><code>'data:video/mp4;base64,Lg=='</code></td>
+</tr>
+<tr>
+<td><code>file_name</code></td>
+<td><code>str</code></td>
+<td>
+<p>name of file.</p>
+</td>
+<td><code>'video.mp4'</code></td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td><code>int</code></td>
+<td>
+<p>video duration.</p>
+</td>
+<td><code>10</code></td>
+</tr>
+</tbody>
+</table>
+<details class="quote">
+<summary>Source code in <code>botx/testing/building/builder.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="nf">video</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">test_content</span><span class="o">.</span><span class="n">MP4_DATA</span><span class="p">,</span>  <span class="c1"># noqa: WPS110</span>
+    <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"video.mp4"</span><span class="p">,</span>
+    <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">"""Add video into incoming message.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        content: voice content in RFC 2397 format.</span>
+<span class="sd">        file_name: name of file.</span>
+<span class="sd">        duration: video duration.</span>
+<span class="sd">    """</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">attachments</span><span class="o">.</span><span class="n">__root__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">Attachment</span><span class="p">(</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">AttachmentsTypes</span><span class="o">.</span><span class="n">video</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">Video</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="botx.testing.building.builder.MessageBuilder.voice">
+<code class="highlight language-python">
+voice<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s1">'data:audio/mpeg;base64,Lg=='</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> </code>
+</h3>
+<div class="doc doc-contents">
+<p>Add voice into incoming message.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>content</code></td>
+<td><code>str</code></td>
+<td>
+<p>voice content in RFC 2397 format.</p>
+</td>
+<td><code>'data:audio/mpeg;base64,Lg=='</code></td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td><code>int</code></td>
+<td>
+<p>voice duration.</p>
+</td>
+<td><code>10</code></td>
+</tr>
+</tbody>
+</table>
+<details class="quote">
+<summary>Source code in <code>botx/testing/building/builder.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="nf">voice</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">test_content</span><span class="o">.</span><span class="n">MP3_DATA</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>  <span class="c1"># noqa: WPS110</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">"""Add voice into incoming message.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        content: voice content in RFC 2397 format.</span>
+<span class="sd">        duration: voice duration.</span>
+<span class="sd">    """</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">attachments</span><span class="o">.</span><span class="n">__root__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">Attachment</span><span class="p">(</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">AttachmentsTypes</span><span class="o">.</span><span class="n">voice</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">Voice</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">),</span>
         <span class="p">),</span>
     <span class="p">)</span>
 </code></pre>

@@ -354,6 +354,11 @@
   </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.enums.AttachmentsTypes">
+    AttachmentsTypes
+  </a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.enums.ChatTypes">
     ChatTypes
   </a>
@@ -366,6 +371,11 @@
 <li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.enums.EntityTypes">
     EntityTypes
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.enums.LinkProtos">
+    LinkProtos
   </a>
 </li>
 <li class="md-nav__item">
@@ -1080,6 +1090,11 @@
   </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.enums.AttachmentsTypes">
+    AttachmentsTypes
+  </a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.enums.ChatTypes">
     ChatTypes
   </a>
@@ -1092,6 +1107,11 @@
 <li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.enums.EntityTypes">
     EntityTypes
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.enums.LinkProtos">
+    LinkProtos
   </a>
 </li>
 <li class="md-nav__item">
@@ -2447,6 +2467,16 @@ __setattr__<span class="p">(</span><span class="bp">self</span><span class="p">,
 <p>Definition of enums that are used across different components of this library.</p>
 <div class="doc doc-children">
 <div class="doc doc-object doc-class">
+<h2 class="doc doc-heading" id="botx.models.enums.AttachmentsTypes">
+<code>AttachmentsTypes</code>
+</h2>
+<div class="doc doc-contents">
+<p>Types for attachments that could be received by bot.</p>
+<div class="doc doc-children">
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-class">
 <h2 class="doc doc-heading" id="botx.models.enums.ChatTypes">
 <code>ChatTypes</code>
 </h2>
@@ -2472,6 +2502,16 @@ __setattr__<span class="p">(</span><span class="bp">self</span><span class="p">,
 </h2>
 <div class="doc doc-contents">
 <p>Types for entities that could be received by bot.</p>
+<div class="doc doc-children">
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-class">
+<h2 class="doc doc-heading" id="botx.models.enums.LinkProtos">
+<code>LinkProtos</code>
+</h2>
+<div class="doc doc-contents">
+<p>Enum for protos of links in attachments.</p>
 <div class="doc doc-children">
 </div>
 </div>
@@ -3688,6 +3728,10 @@ single_argument: <span class="nb">str</span> </code>
 </h2>
 <div class="doc doc-contents">
 <p>Message that was received by bot and should be handled.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code>file</code> is deprecated field for botx api v4+.</p>
+</div>
 <div class="doc doc-children">
 <div class="doc doc-object doc-method">
 <h3 class="doc doc-heading" id="botx.models.messages.incoming_message.IncomingMessage.skip_file_validation">
@@ -3751,16 +3795,7 @@ skip_file_validation<span class="p">(</span><span class="n">file</span><span cla
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>137
-138
-139
-140
-141
-142
-143
-144
-145
-146
+<pre><span></span>146
 147
 148
 149
@@ -3769,7 +3804,16 @@ skip_file_validation<span class="p">(</span><span class="n">file</span><span cla
 152
 153
 154
-155</pre>
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164</pre>
 </div>
 </td>
 <td class="code">
@@ -3891,28 +3935,28 @@ __init__<span class="p">(</span><span class="bp">self</span><span class="p">,</s
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span> 97
- 98
- 99
-100
-101
-102
-103
-104
-105
-106
-107
-108
-109
-110
-111
+<pre><span></span>111
 112
 113
 114
 115
 116
 117
-118</pre>
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132</pre>
 </div>
 </td>
 <td class="code">
@@ -4009,18 +4053,18 @@ from_dict<span class="p">(</span><span class="n">message</span><span class="p">,
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>120
-121
-122
-123
-124
-125
-126
-127
-128
-129
-130
-131</pre>
+<pre><span></span>134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145</pre>
 </div>
 </td>
 <td class="code">
