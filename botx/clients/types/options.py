@@ -10,7 +10,7 @@ class ResultOptions(BaseModel):
     #: send message only when stealth mode is enabled.
     stealth_mode: bool = False
 
-    #: don't show next user messages in chat
+    #: if true don't show next user's input in chat
     silent_response: bool = False
 
     #: message options for configuring notifications.

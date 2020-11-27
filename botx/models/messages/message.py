@@ -6,6 +6,7 @@ from typing import Any, List, Optional, Type
 from uuid import UUID
 
 from botx.bots import bots
+from botx.models.attachments import AttachList
 from botx.models.datastructures import State
 from botx.models.files import File
 from botx.models.messages.incoming_message import (
@@ -55,33 +56,46 @@ class Message:
 
     #: ID of message event.
     sync_id: UUID = _message_proxy_property()
+
     #: ID of bot that handles message in Express.
     bot_id: UUID = _message_proxy_property()
 
     #: access to command information.
     command: Command = _message_proxy_property()
+
     #: command body.
     body: str = _message_proxy_property("command")
+
     #: command data.
     data: dict = _message_proxy_property("command")  # noqa: WPS110
+
     #: command metadata.
     metadata: dict = _message_proxy_property("command")
 
     #: file from message.
     file: Optional[File] = _message_proxy_property()
 
+    #: attachment from message v4+
+    attachments: AttachList = _message_proxy_property()
+
     #: information about user that sent message.
     user: Sender = _message_proxy_property()
+
     #: HUID of user.
     user_huid: Optional[UUID] = _user_proxy_property()
+
     #: AD login of user.
     ad_login: Optional[str] = _user_proxy_property()
+
     #: AD domain of user.
     ad_domain: Optional[str] = _user_proxy_property()
+
     #: ID of chat from which message was received.
     group_chat_id: UUID = _user_proxy_property()
+
     #: type of chat.
     chat_type: str = _user_proxy_property()
+
     #: host of CTS from which message was received.
     host: str = _user_proxy_property()
 

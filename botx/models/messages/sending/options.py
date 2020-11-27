@@ -27,7 +27,7 @@ class MessageOptions(BaseModel):
     #: attached to message mentions.
     mentions: List[Mention] = []
 
-    #: don't show next user messages in chat
+    #: if true don't show next user's input in chat
     silent_response: bool = False
 
     #: notification configuration.
