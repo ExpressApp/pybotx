@@ -736,7 +736,7 @@ name = "molten"
 version = "1.0.1"
 description = "A minimal, extensible, fast and productive API framework."
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.6"
 
 [package.extras]
@@ -1216,7 +1216,7 @@ name = "typing-inspect"
 version = "0.5.0"
 description = "Runtime inspection utilities for typing module."
 category = "main"
-optional = true
+optional = false
 python-versions = "*"
 
 [package.dependencies]
@@ -1317,7 +1317,7 @@ tests = ["starlette", "molten"]
 [metadata]
 lock-version = "1.0"
 python-versions = "^3.7"
-content-hash = "2c3808a08c7253f274de46b9434f4d6c551188aa183a2cb09b958ca8e16843eb"
+content-hash = "93562d7c366c460d679df2f901ecefa07282b6bde810a976f6a07fe09a26c6aa"
 
 [metadata.files]
 add-trailing-comma = [

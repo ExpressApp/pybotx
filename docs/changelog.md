@@ -1,3 +1,11 @@
+## 0.15.19 (Nov 20, 2020)
+
+### Add
+
+* Support of attachments from botx api v4
+* Builder of attachments in MessageBuilder
+* Test content in RFC 2397
+
 ## 0.15.18 (Nov 20, 2020)
 
 ### Changed

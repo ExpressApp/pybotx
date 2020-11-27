@@ -6,6 +6,7 @@ from uuid import UUID
 from pydantic import BaseConfig, BaseModel, Field, validator
 
 from botx.models import events
+from botx.models.attachments import AttachList
 from botx.models.entities import Forward, Mention
 from botx.models.enums import ChatTypes, CommandTypes, EntityTypes
 from botx.models.files import File
@@ -104,14 +105,19 @@ class Entity(BaseModel):
     """Additional entity that can be received by bot."""
 
     #: entity type.
-    type: EntityTypes  # noqa: WPS: 125
+    type: EntityTypes  # noqa: WPS125
 
     #: entity data.
     data: Union[Forward, Mention]  # noqa: WPS110
 
 
 class IncomingMessage(BaseModel):
-    """Message that was received by bot and should be handled."""
+    """
+    Message that was received by bot and should be handled.
+
+    Warning:
+         `file` is deprecated field for botx api v4+.
+    """
 
     #: message event id on which bot should answer.
     sync_id: UUID
@@ -130,6 +136,9 @@ class IncomingMessage(BaseModel):
 
     #: additional entities that can be received by bot.
     entities: List[Entity] = []
+
+    #: attached documents and files to message.
+    attachments: AttachList = Field([])
 
     class Config(BaseConfig):
         allow_population_by_field_name = True
