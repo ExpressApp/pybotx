@@ -8,6 +8,17 @@ from botx.clients.clients.sync_client import Client
 from botx.collecting.collectors.collector import Collector
 from botx.dependencies.injection_params import Depends
 from botx.exceptions import BotXAPIError, DependencyFailure, ServerUnknownError
+from botx.models.attachments import (
+    AttachList,
+    Attachment,
+    Contact,
+    Document,
+    Image,
+    Link,
+    Location,
+    Video,
+    Voice,
+)
 from botx.models.buttons import BubbleElement, KeyboardElement
 from botx.models.credentials import ExpressServer, ServerCredentials
 from botx.models.entities import (
@@ -82,6 +93,16 @@ __all__ = (
     "ChatCreatedEvent",
     # files
     "File",
+    # attachments
+    "Image",
+    "Video",
+    "Document",
+    "Voice",
+    "Location",
+    "Contact",
+    "Link",
+    "Attachment",
+    "AttachList",
     # mentions
     "Mention",
     "ChatMention",
