@@ -3,6 +3,7 @@ from typing import Tuple, Union
 
 from botx.clients.methods.v3.command.command_result import CommandResult
 from botx.clients.methods.v3.events.edit_event import EditEvent
+from botx.clients.methods.v3.events.reply_event import ReplyEvent
 from botx.clients.methods.v3.notification.direct_notification import NotificationDirect
 from botx.clients.methods.v3.notification.notification import Notification
 from botx.testing.testing_client.base import BaseTestClient
@@ -68,3 +69,12 @@ class TestClient(BaseTestClient):
         return tuple(
             message for message in self.messages if isinstance(message, EditEvent)
         )
+
+    @property
+    def replies(self) -> Tuple[ReplyEvent, ...]:
+        """Return all replies that were sent by bot.
+
+        Returns:
+            Sequence of replies that were sent by bot.
+        """
+        return tuple(message for message in self.messages if isinstance(message, ReplyEvent))
