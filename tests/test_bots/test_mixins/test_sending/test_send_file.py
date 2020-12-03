@@ -10,10 +10,10 @@ def sending_file():
     return File.from_string("some content", "file.txt")
 
 
-async def test_using_command_result(bot, client, message, sending_file):
+async def test_send_file_is_notification(bot, client, message, sending_file):
     await bot.send_file(sending_file, message.credentials)
 
-    message = client.command_results[0]
+    message = client.notifications[0]
     assert message.file == sending_file
 
 

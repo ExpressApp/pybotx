@@ -28,10 +28,10 @@ def sending_message(message, metadata, sending_file):
     return sending_message
 
 
-async def test_using_command_result_route(bot, client, sending_message):
+async def test_using_notification_route(bot, client, sending_message):
     await bot.send(sending_message)
 
-    assert client.command_results[0]
+    assert client.notifications[0]
 
 
 async def test_sending_notification_using_send(bot, client, sending_message, metadata):
