@@ -135,7 +135,7 @@ class SendingMixin:
 
         return await self.send(sending_message)
 
-    async def send_file(  # noqa: WPS211
+    async def send_file(
         self: MessageSendProtocol,
         file: Union[TextIO, BinaryIO, File],
         credentials: SendingCredentials,
