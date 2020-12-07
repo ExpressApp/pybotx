@@ -171,3 +171,27 @@ def test_missing_telephone_in_attachments():
     builder.link(url="mailto:mail@mail.com")
     with pytest.raises(AttributeError):
         builder.message.attachments.telephone
+
+
+@pytest.mark.parametrize(
+    "attach", [lambda x: x.document, lambda x: x.image, lambda x: x.video],
+)
+def test_file_in_attachments(attach):
+    builder = MessageBuilder()
+    attach(builder)()
+    assert builder.message.attachments.file
+
+
+def test_no_file_in_message():
+    builder = MessageBuilder()
+    builder.link()
+    with pytest.raises(AttributeError):
+        builder.message.attachments.file
+
+
+@pytest.mark.parametrize("len_of_attachments", [1, 2, 3])
+def test_get_all_attachments(len_of_attachments):
+    builder = MessageBuilder()
+    for _ in range(len_of_attachments):
+        builder.document()
+    assert len(builder.message.attachments.all_attachments) == len_of_attachments
