@@ -78,7 +78,7 @@ class SendingMixin:
     async def send(
         self: ResultSendProtocol, message: SendingMessage, *, update: bool = False,
     ) -> UUID:
-        """Send message as answer to command or notification to chat and get it id.
+        """Send message as direct notification to chat and get it id.
 
         Arguments:
             message: message that should be sent to chat.
@@ -96,9 +96,6 @@ class SendingMixin:
                 UpdatePayload.from_sending_payload(message.payload),
             )
             return message.credentials.message_id
-
-        if message.sync_id:
-            return await self.send_command_result(message.credentials, message.payload)
 
         return await self.send_direct_notification(message.credentials, message.payload)
 

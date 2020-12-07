@@ -2,17 +2,18 @@
 
 ### Added
 
-* Support of attachments in messages for bot's api v4.
-* Support of reply in messages for bot's api v4.
-* Builder of attachments in MessageBuilder.
-* Test content in RFC 2397 format.
-* Entity building methods for `MessageBuilder`. 
-* Flag `is_forward` for `Message`.
-* Bot's method `reply` for reply by message.
+* Support of attachments in messages for bot's api v4
+* Support of reply in messages for bot's api v4
+* Builder of attachments in MessageBuilder
+* Test content in RFC 2397 format
+* Entity building methods for `MessageBuilder`
+* Flag `is_forward` for `Message`
+* Bot's method `reply` for reply by message
 
 ### Changed
 
-* Type of `message.entities` from `List[Attachment]` to is `EntityList` .
+* Type of `message.entities` from `List[Attachment]` to is `EntityList`
+* `send()` sending only direct notification, not command result
 
 ## 0.15.17 (Nov 20, 2020)
 

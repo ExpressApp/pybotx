@@ -10,7 +10,7 @@ async def test_sending_command_result(bot, client, message):
         "some text", message.credentials,
     )
 
-    assert client.command_results[0]
+    assert client.notifications[0]
 
 
 async def test_sending_notification_using_send_message(bot, client, message):
@@ -27,5 +27,5 @@ async def test_adding_file(bot, client, message):
         "some text", message.credentials, file=sending_file.file,
     )
 
-    command_result = client.command_results[0]
+    command_result = client.notifications[0]
     assert command_result.file == sending_file
