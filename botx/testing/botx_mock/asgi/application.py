@@ -35,6 +35,7 @@ _ENDPOINTS: Tuple[RequestResponseEndpoint, ...] = (
     command.post_command_result,
     # events
     events.post_edit_event,
+    events.post_reply_event,
     # notification
     notification.post_notification,
     notification.post_notification_direct,

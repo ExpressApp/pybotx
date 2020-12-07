@@ -2,19 +2,15 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Any, List, Optional, Type
+from typing import Any, Optional, Type
 from uuid import UUID
 
 from botx.bots import bots
 from botx.models.attachments import AttachList
 from botx.models.datastructures import State
+from botx.models.entities import EntityList
 from botx.models.files import File
-from botx.models.messages.incoming_message import (
-    Command,
-    Entity,
-    IncomingMessage,
-    Sender,
-)
+from botx.models.messages.incoming_message import Command, IncomingMessage, Sender
 from botx.models.messages.sending.credentials import SendingCredentials
 
 
@@ -100,7 +96,7 @@ class Message:
     host: str = _user_proxy_property()
 
     #: external entities in message (mentions, forwards, etc)
-    entities: List[Entity] = _message_proxy_property()
+    entities: EntityList = _message_proxy_property()
 
     #: credentials from message for using in requests.
     credentials: SendingCredentials
@@ -143,3 +139,17 @@ class Message:
             Parsed message.
         """
         return cls(IncomingMessage(**message), bot)
+
+    @property
+    def is_forward(self) -> bool:
+        """Check this message on forwarding.
+
+        Returns:
+            bool: True if message is forward else False
+        """
+        try:
+            self.entities.forward  # noqa: WPS428
+        except AttributeError:
+            return False
+        else:
+            return True

@@ -13,7 +13,7 @@ from botx.clients.methods.v3.chats import (
     stealth_set,
 )
 from botx.clients.methods.v3.command import command_result
-from botx.clients.methods.v3.events import edit_event
+from botx.clients.methods.v3.events import edit_event, reply_event
 from botx.clients.methods.v3.notification import direct_notification, notification
 from botx.clients.methods.v3.users import by_email, by_huid, by_login
 
@@ -22,6 +22,7 @@ APIMessage = Union[
     notification.Notification,
     direct_notification.NotificationDirect,
     edit_event.EditEvent,
+    reply_event.ReplyEvent,
 ]
 
 APIRequest = Union[
