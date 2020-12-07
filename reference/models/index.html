@@ -507,6 +507,35 @@
   </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.entities.Entity">
+    Entity
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.entities.EntityList">
+    EntityList
+  </a>
+<nav aria-label="EntityList" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.entities.EntityList.forward">
+    forward
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.entities.EntityList.mentions">
+    mentions
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.entities.EntityList.reply">
+    reply
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.entities.Forward">
     Forward
   </a>
@@ -529,6 +558,11 @@
 </li>
 </ul>
 </nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.entities.Reply">
+    Reply
+  </a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.entities.UserMention">
@@ -590,11 +624,6 @@
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#botx.models.messages.incoming_message.Entity">
-    Entity
-  </a>
-</li>
-<li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.messages.incoming_message.IncomingMessage">
     IncomingMessage
   </a>
@@ -633,6 +662,11 @@
   </a>
 <nav aria-label="Message" class="md-nav">
 <ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.messages.message.Message.is_forward">
+    is_forward
+  </a>
+</li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.messages.message.Message.__init__">
     __init__()
@@ -1243,6 +1277,35 @@
   </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.entities.Entity">
+    Entity
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.entities.EntityList">
+    EntityList
+  </a>
+<nav aria-label="EntityList" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.entities.EntityList.forward">
+    forward
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.entities.EntityList.mentions">
+    mentions
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.entities.EntityList.reply">
+    reply
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.entities.Forward">
     Forward
   </a>
@@ -1265,6 +1328,11 @@
 </li>
 </ul>
 </nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.entities.Reply">
+    Reply
+  </a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.entities.UserMention">
@@ -1326,11 +1394,6 @@
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#botx.models.messages.incoming_message.Entity">
-    Entity
-  </a>
-</li>
-<li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.messages.incoming_message.IncomingMessage">
     IncomingMessage
   </a>
@@ -1369,6 +1432,11 @@
   </a>
 <nav aria-label="Message" class="md-nav">
 <ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.messages.message.Message.is_forward">
+    is_forward
+  </a>
+</li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.messages.message.Message.__init__">
     __init__()
@@ -3273,6 +3341,156 @@ from_string<span class="p">(</span><span class="n">data_of_file</span><span clas
 </div>
 </div>
 <div class="doc doc-object doc-class">
+<h2 class="doc doc-heading" id="botx.models.entities.Entity">
+<code>Entity</code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+</span>
+</h2>
+<div class="doc doc-contents">
+<p>Additional entity that can be received by bot.</p>
+<div class="doc doc-children">
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-class">
+<h2 class="doc doc-heading" id="botx.models.entities.EntityList">
+<code>EntityList</code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+</span>
+</h2>
+<div class="doc doc-contents">
+<p>Additional wrapped class for use property.</p>
+<div class="doc doc-children">
+<div class="doc doc-object doc-attribute">
+<h3 class="doc doc-heading" id="botx.models.entities.EntityList.forward">
+<code class="highlight">
+forward: <span class="n">Forward</span> </code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-property"><code>property</code></small>
+<small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+</span>
+</h3>
+<div class="doc doc-contents">
+<p>Search forward in message's entity.</p>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Forward</code></td>
+<td>
+<p>Information about forward.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Exceptions:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AttributeError</code></td>
+<td>
+<p>raised if message has no forward.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="doc doc-object doc-attribute">
+<h3 class="doc doc-heading" id="botx.models.entities.EntityList.mentions">
+<code class="highlight">
+mentions: <span class="n">List</span><span class="p">[</span><span class="n">botx</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">Mention</span><span class="p">]</span> </code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-property"><code>property</code></small>
+<small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+</span>
+</h3>
+<div class="doc doc-contents">
+<p>Search mentions in message's entity.</p>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>List[botx.models.entities.Mention]</code></td>
+<td>
+<p>List of mentions.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="doc doc-object doc-attribute">
+<h3 class="doc doc-heading" id="botx.models.entities.EntityList.reply">
+<code class="highlight">
+reply: <span class="n">Reply</span> </code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-property"><code>property</code></small>
+<small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+</span>
+</h3>
+<div class="doc doc-contents">
+<p>Search reply in message's entity.</p>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Reply</code></td>
+<td>
+<p>Reply.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Exceptions:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AttributeError</code></td>
+<td>
+<p>raised if message has no reply.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-class">
 <h2 class="doc doc-heading" id="botx.models.entities.Forward">
 <code>Forward</code>
 <span class="doc doc-properties">
@@ -3382,11 +3600,7 @@ check_that_type_matches_data<span class="p">(</span><span class="n">mention_type
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span> 79
- 80
- 81
- 82
- 83
+<pre><span></span> 83
  84
  85
  86
@@ -3419,7 +3633,11 @@ check_that_type_matches_data<span class="p">(</span><span class="n">mention_type
 113
 114
 115
-116</pre>
+116
+117
+118
+119
+120</pre>
 </div>
 </td>
 <td class="code">
@@ -3532,18 +3750,18 @@ generate_mention_id<span class="p">(</span><span class="n">mention_id</span><spa
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>66
-67
-68
-69
-70
+<pre><span></span>70
 71
 72
 73
 74
 75
 76
-77</pre>
+77
+78
+79
+80
+81</pre>
 </div>
 </td>
 <td class="code">
@@ -3568,6 +3786,19 @@ generate_mention_id<span class="p">(</span><span class="n">mention_id</span><spa
 </details>
 </div>
 </div>
+</div>
+</div>
+</div>
+<div class="doc doc-object doc-class">
+<h2 class="doc doc-heading" id="botx.models.entities.Reply">
+<code>Reply</code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
+</span>
+</h2>
+<div class="doc doc-contents">
+<p>Message that was replied.</p>
+<div class="doc doc-children">
 </div>
 </div>
 </div>
@@ -3707,19 +3938,6 @@ single_argument: <span class="nb">str</span> </code>
 </div>
 </div>
 <div class="doc doc-object doc-class">
-<h2 class="doc doc-heading" id="botx.models.messages.incoming_message.Entity">
-<code>Entity</code>
-<span class="doc doc-properties">
-<small class="doc doc-property doc-property-pydantic-model"><code>pydantic-model</code></small>
-</span>
-</h2>
-<div class="doc doc-contents">
-<p>Additional entity that can be received by bot.</p>
-<div class="doc doc-children">
-</div>
-</div>
-</div>
-<div class="doc doc-object doc-class">
 <h2 class="doc doc-heading" id="botx.models.messages.incoming_message.IncomingMessage">
 <code>IncomingMessage</code>
 <span class="doc doc-properties">
@@ -3795,7 +4013,17 @@ skip_file_validation<span class="p">(</span><span class="n">file</span><span cla
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>146
+<pre><span></span>136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
 147
 148
 149
@@ -3803,17 +4031,7 @@ skip_file_validation<span class="p">(</span><span class="n">file</span><span cla
 151
 152
 153
-154
-155
-156
-157
-158
-159
-160
-161
-162
-163
-164</pre>
+154</pre>
 </div>
 </td>
 <td class="code">
@@ -3890,6 +4108,36 @@ email: <span class="n">Optional</span><span class="p">[</span><span class="nb">s
 <div class="doc doc-contents">
 <p>Message that is used in handlers.</p>
 <div class="doc doc-children">
+<div class="doc doc-object doc-attribute">
+<h3 class="doc doc-heading" id="botx.models.messages.message.Message.is_forward">
+<code class="highlight">
+is_forward: <span class="nb">bool</span> </code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-property"><code>property</code></small>
+<small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+</span>
+</h3>
+<div class="doc doc-contents">
+<p>Check this message on forwarding.</p>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bool</code></td>
+<td>
+<p>bool: True if message is forward else False</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <div class="doc doc-object doc-method">
 <h3 class="doc doc-heading" id="botx.models.messages.message.Message.__init__">
 <code class="highlight language-python">
@@ -3935,7 +4183,11 @@ __init__<span class="p">(</span><span class="bp">self</span><span class="p">,</s
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>111
+<pre><span></span>107
+108
+109
+110
+111
 112
 113
 114
@@ -3952,11 +4204,7 @@ __init__<span class="p">(</span><span class="bp">self</span><span class="p">,</s
 125
 126
 127
-128
-129
-130
-131
-132</pre>
+128</pre>
 </div>
 </td>
 <td class="code">
@@ -4053,18 +4301,18 @@ from_dict<span class="p">(</span><span class="n">message</span><span class="p">,
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>134
+<pre><span></span>130
+131
+132
+133
+134
 135
 136
 137
 138
 139
 140
-141
-142
-143
-144
-145</pre>
+141</pre>
 </div>
 </td>
 <td class="code">

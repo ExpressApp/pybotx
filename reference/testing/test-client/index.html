@@ -350,6 +350,11 @@
   </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#botx.testing.testing_client.client.TestClient.replies">
+    replies
+  </a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#botx.testing.testing_client.client.TestClient.requests">
     requests
   </a>
@@ -463,6 +468,11 @@
 <li class="md-nav__item">
 <a class="md-nav__link" href="#botx.testing.testing_client.client.TestClient.notifications">
     notifications
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.testing.testing_client.client.TestClient.replies">
+    replies
   </a>
 </li>
 <li class="md-nav__item">
@@ -961,7 +971,7 @@ message_updates: <span class="n">Tuple</span><span class="p">[</span><span class
 <div class="doc doc-object doc-attribute">
 <h3 class="doc doc-heading" id="botx.testing.testing_client.client.TestClient.messages">
 <code class="highlight">
-messages: <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">botx</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">v3</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="n">command_result</span><span class="o">.</span><span class="n">CommandResult</span><span class="p">,</span> <span class="n">botx</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">v3</span><span class="o">.</span><span class="n">notification</span><span class="o">.</span><span class="n">notification</span><span class="o">.</span><span class="n">Notification</span><span class="p">,</span> <span class="n">botx</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">v3</span><span class="o">.</span><span class="n">notification</span><span class="o">.</span><span class="n">direct_notification</span><span class="o">.</span><span class="n">NotificationDirect</span><span class="p">,</span> <span class="n">botx</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">v3</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">edit_event</span><span class="o">.</span><span class="n">EditEvent</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> </code>
+messages: <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">botx</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">v3</span><span class="o">.</span><span class="n">command</span><span class="o">.</span><span class="n">command_result</span><span class="o">.</span><span class="n">CommandResult</span><span class="p">,</span> <span class="n">botx</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">v3</span><span class="o">.</span><span class="n">notification</span><span class="o">.</span><span class="n">notification</span><span class="o">.</span><span class="n">Notification</span><span class="p">,</span> <span class="n">botx</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">v3</span><span class="o">.</span><span class="n">notification</span><span class="o">.</span><span class="n">direct_notification</span><span class="o">.</span><span class="n">NotificationDirect</span><span class="p">,</span> <span class="n">botx</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">v3</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">edit_event</span><span class="o">.</span><span class="n">EditEvent</span><span class="p">,</span> <span class="n">botx</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">v3</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">reply_event</span><span class="o">.</span><span class="n">ReplyEvent</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> </code>
 <span class="doc doc-properties">
 <small class="doc doc-property doc-property-property"><code>property</code></small>
 <small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
@@ -979,7 +989,7 @@ messages: <span class="n">Tuple</span><span class="p">[</span><span class="n">Un
 </thead>
 <tbody>
 <tr>
-<td><code>Tuple[Union[botx.clients.methods.v3.command.command_result.CommandResult, botx.clients.methods.v3.notification.notification.Notification, botx.clients.methods.v3.notification.direct_notification.NotificationDirect, botx.clients.methods.v3.events.edit_event.EditEvent], ...]</code></td>
+<td><code>Tuple[Union[botx.clients.methods.v3.command.command_result.CommandResult, botx.clients.methods.v3.notification.notification.Notification, botx.clients.methods.v3.notification.direct_notification.NotificationDirect, botx.clients.methods.v3.events.edit_event.EditEvent, botx.clients.methods.v3.events.reply_event.ReplyEvent], ...]</code></td>
 <td>
 <p>Sequence of messages that were sent from bot.</p>
 </td>
@@ -1012,6 +1022,36 @@ notifications: <span class="n">Tuple</span><span class="p">[</span><span class="
 <td><code>Tuple[Union[botx.clients.methods.v3.notification.notification.Notification, botx.clients.methods.v3.notification.direct_notification.NotificationDirect], ...]</code></td>
 <td>
 <p>Sequence of notifications that were sent by bot.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="doc doc-object doc-attribute">
+<h3 class="doc doc-heading" id="botx.testing.testing_client.client.TestClient.replies">
+<code class="highlight">
+replies: <span class="n">Tuple</span><span class="p">[</span><span class="n">botx</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">methods</span><span class="o">.</span><span class="n">v3</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">reply_event</span><span class="o">.</span><span class="n">ReplyEvent</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> </code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-property"><code>property</code></small>
+<small class="doc doc-property doc-property-readonly"><code>readonly</code></small>
+</span>
+</h3>
+<div class="doc doc-contents">
+<p>Return all replies that were sent by bot.</p>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Tuple[botx.clients.methods.v3.events.reply_event.ReplyEvent, ...]</code></td>
+<td>
+<p>Sequence of replies that were sent by bot.</p>
 </td>
 </tr>
 </tbody>
