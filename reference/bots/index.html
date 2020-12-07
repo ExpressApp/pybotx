@@ -4596,7 +4596,10 @@ configuration.</p>
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>105
+<pre><span></span>102
+103
+104
+105
 106
 107
 108
@@ -4624,10 +4627,7 @@ configuration.</p>
 130
 131
 132
-133
-134
-135
-136</pre>
+133</pre>
 </div>
 </td>
 <td class="code">
@@ -4678,7 +4678,7 @@ configuration.</p>
 send<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">update</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> </code>
 </h3>
 <div class="doc doc-contents">
-<p>Send message as answer to command or notification to chat and get it id.</p>
+<p>Send message as direct notification to chat and get it id.</p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -4754,10 +4754,7 @@ update existing message with this ID.</p>
  97
  98
  99
-100
-101
-102
-103</pre>
+100</pre>
 </div>
 </td>
 <td class="code">
@@ -4765,7 +4762,7 @@ update existing message with this ID.</p>
 <pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">send</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">:</span> <span class="n">ResultSendProtocol</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">SendingMessage</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">update</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UUID</span><span class="p">:</span>
-    <span class="sd">"""Send message as answer to command or notification to chat and get it id.</span>
+    <span class="sd">"""Send message as direct notification to chat and get it id.</span>
 
 <span class="sd">    Arguments:</span>
 <span class="sd">        message: message that should be sent to chat.</span>
@@ -4783,9 +4780,6 @@ update existing message with this ID.</p>
             <span class="n">UpdatePayload</span><span class="o">.</span><span class="n">from_sending_payload</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">message</span><span class="o">.</span><span class="n">credentials</span><span class="o">.</span><span class="n">message_id</span>
-
-    <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">sync_id</span><span class="p">:</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_command_result</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">credentials</span><span class="p">,</span> <span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_direct_notification</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">credentials</span><span class="p">,</span> <span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
 </code></pre>
@@ -4864,7 +4858,10 @@ send_file<span class="p">(</span><span class="bp">self</span><span class="p">,</
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>138
+<pre><span></span>135
+136
+137
+138
 139
 140
 141
@@ -4880,10 +4877,7 @@ send_file<span class="p">(</span><span class="bp">self</span><span class="p">,</
 151
 152
 153
-154
-155
-156
-157</pre>
+154</pre>
 </div>
 </td>
 <td class="code">
