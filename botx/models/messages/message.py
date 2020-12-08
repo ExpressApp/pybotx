@@ -7,6 +7,7 @@ from uuid import UUID
 
 from botx.bots import bots
 from botx.models.attachments import AttachList
+from botx.models.chats import ChatTypes
 from botx.models.datastructures import State
 from botx.models.entities import EntityList
 from botx.models.files import File
@@ -90,7 +91,7 @@ class Message:
     group_chat_id: UUID = _user_proxy_property()
 
     #: type of chat.
-    chat_type: str = _user_proxy_property()
+    chat_type: ChatTypes = _user_proxy_property()
 
     #: host of CTS from which message was received.
     host: str = _user_proxy_property()

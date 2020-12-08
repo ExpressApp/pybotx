@@ -5,9 +5,10 @@ from typing import List, Optional, Union, cast
 from pydantic import BaseModel
 
 from botx.models.enums import AttachmentsTypes, LinkProtos
+from botx.models.files import File
 
 
-class FileData(BaseModel):
+class FileAttachment(BaseModel):
     """Class that represents file in RFC 2397 format."""
 
     #: name of file.
@@ -17,13 +18,13 @@ class FileData(BaseModel):
     content: str  # noqa: WPS110
 
 
-class Image(FileData):
+class Image(FileAttachment):
     """Image model from botx."""
 
     file_name: str = "image.jpg"
 
 
-class Video(FileData):
+class Video(FileAttachment):
     """Video model from botx."""
 
     file_name: str = "video.mp4"
@@ -32,7 +33,7 @@ class Video(FileData):
     duration: int
 
 
-class Document(FileData):
+class Document(FileAttachment):
     """Document model from botx."""
 
     file_name: str = "document.docx"
@@ -252,3 +253,28 @@ class AttachList(BaseModel):  # noqa: WPS214, WPS338
         if attach.is_telephone():  # type: ignore
             return attach.tel  # type: ignore
         raise AttributeError(AttachmentsTypes.link)
+
+    @property
+    def all_attachments(self) -> List[Attachment]:
+        """Search attachments in message.
+
+        Returns:
+            List of attachments.
+        """
+        return self.__root__
+
+    @property
+    def file(self) -> File:
+        """Search file in message's attachments.
+
+        Returns:
+            Botx file from video, image or document.
+        Raises:
+            AttributeError: message has no file.
+        """
+        for attachment in self.__root__:
+            if isinstance(attachment.data, FileAttachment):
+                return File(
+                    file_name=attachment.data.file_name, data=attachment.data.content,
+                )
+        raise AttributeError
