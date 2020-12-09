@@ -1,3 +1,10 @@
+## 0.16.1 (Dec 09, 2020)
+
+### Added
+
+* StatusRecipient import from core module
+
+
 ## 0.16.0 (Dec 07, 2020)
 
 ### Added
@@ -14,6 +21,7 @@
 
 * Type of `message.entities` from `List[Attachment]` to is `EntityList`
 * `send()` sending only direct notification, not command result
+
 
 ## 0.15.17 (Nov 20, 2020)
 

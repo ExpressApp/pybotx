@@ -50,6 +50,7 @@ from botx.models.messages.sending.markup import MessageMarkup
 from botx.models.messages.sending.message import SendingMessage
 from botx.models.messages.sending.options import MessageOptions, NotificationOptions
 from botx.models.messages.sending.payload import MessagePayload, UpdatePayload
+from botx.models.status import StatusRecipient
 from botx.testing.building.builder import MessageBuilder
 
 try:
@@ -109,6 +110,7 @@ __all__ = (
     "UserMention",
     # status
     "Status",
+    "StatusRecipient",
     # messages
     # handler message
     "Message",
