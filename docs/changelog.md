@@ -1,3 +1,10 @@
+## 0.16.2 (Dec 11, 2020)
+
+### Fixed 
+
+* Now you can reply with mention (no text or file)
+
+
 ## 0.16.1 (Dec 09, 2020)
 
 ### Added

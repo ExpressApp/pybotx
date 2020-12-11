@@ -74,8 +74,8 @@ class EventsRequestsMixin:
         Raises:
             ValueError: empty text.
         """
-        if not (text or file):
-            raise ValueError("text or file required")
+        if not (text or file or mentions):
+            raise ValueError("text or file or mention required")
 
         await self.call_method(
             ReplyEvent(
