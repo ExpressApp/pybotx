@@ -121,7 +121,26 @@ class Bot(  # noqa: WPS215
         Raises:
             ServerUnknownError: raised if message was received from unregistered host.
         """
-        logger.bind(botx_bot=True, payload=message).debug("process incoming message")
+        from copy import deepcopy
+        log_message = deepcopy(message)
+        msg_file = log_message.get("file")
+        log_attachments = []
+        if msg_file:
+            file_data = msg_file.get("data")
+            if file_data:
+                log_message["file"]["data"] = file_data[:30]
+
+        for attachment in log_message["attachments"]:
+            attachment_data = attachment.get("data")
+            if not attachment_data:
+                continue
+
+            attachment_data_content = attachment_data.get("content")
+
+            if attachment_data_content:
+                attachment["data"]["content"] = attachment_data_content[:30]
+
+        logger.bind(botx_bot=True, payload=log_message).debug("process incoming message")
         msg = Message.from_dict(message, self)
         for server in self.known_hosts:
             if server.host == msg.host:

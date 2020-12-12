@@ -73,14 +73,33 @@ class ExceptionMiddleware(BaseMiddleware):
         handler = self._lookup_handler_for_exception(exc)
 
         if handler is None:
+            msg_dict = message.incoming_message.copy(
+                update={
+                    "body": _convert_text_to_logs_format(message.body),
+                    "file": _convert_file_to_logs_format(message.file),
+                },
+            ).dict()
+            from copy import deepcopy
+            log_message = deepcopy(msg_dict)
+            msg_file = log_message.get("file")
+            log_attachments = []
+            if msg_file:
+                file_data = msg_file.get("data")
+                if file_data:
+                    log_message["file"]["data"] = file_data[:30]
+
+            for attachment in log_message["attachments"]:
+                attachment_data = attachment.get("data")
+                if not attachment_data:
+                    continue
+
+                attachment_data_content = attachment_data.get("content")
+
+                if attachment_data_content:
+                    attachment["data"]["content"] = attachment_data_content[:30]
             logger.bind(
                 botx_error=True,
-                payload=message.incoming_message.copy(
-                    update={
-                        "body": _convert_text_to_logs_format(message.body),
-                        "file": _convert_file_to_logs_format(message.file),
-                    },
-                ).dict(),
+                payload=log_message,
             ).exception("uncaught {0} exception {1}", type(exc).__name__, exc)
             return
 
