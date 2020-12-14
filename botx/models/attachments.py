@@ -274,7 +274,7 @@ class AttachList(BaseModel):  # noqa: WPS214, WPS338
         """
         for attachment in self.__root__:
             if isinstance(attachment.data, FileAttachment):
-                return File(
+                return File.construct(
                     file_name=attachment.data.file_name, data=attachment.data.content,
                 )
         raise AttributeError

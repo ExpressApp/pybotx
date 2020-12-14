@@ -189,6 +189,12 @@ def test_no_file_in_message():
         builder.message.attachments.file
 
 
+def test_file_with_unsupported_extension():
+    builder = MessageBuilder()
+    builder.document(file_name="test.py")
+    assert builder.message.attachments.file
+
+
 @pytest.mark.parametrize("len_of_attachments", [1, 2, 3])
 def test_get_all_attachments(len_of_attachments):
     builder = MessageBuilder()

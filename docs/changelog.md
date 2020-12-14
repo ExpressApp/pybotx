@@ -1,6 +1,13 @@
+## 0.16.3 (Dec 14, 2020)
+
+### Fixed
+
+* Now you can accept File with unsupported extension
+
+
 ## 0.16.2 (Dec 11, 2020)
 
-### Fixed 
+### Fixed
 
 * Now you can reply with mention (no text or file)
 
