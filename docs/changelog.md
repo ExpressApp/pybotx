@@ -1,3 +1,10 @@
+## 0.16.4 (Dec 16, 2020)
+
+### Fixed
+
+* Fixed casting Voice attachment to Video
+
+
 ## 0.16.3 (Dec 14, 2020)
 
 ### Fixed

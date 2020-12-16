@@ -22,7 +22,7 @@ class BuildAttachmentsMixin:
             file_name: name of file.
         """
         self.attachments.__root__.append(
-            attach.Attachment(
+            attach.ImageAttachment(
                 type=attach.AttachmentsTypes.image,
                 data=attach.Image(content=content, file_name=file_name),
             ),
@@ -40,7 +40,7 @@ class BuildAttachmentsMixin:
             file_name: name of file.
         """
         self.attachments.__root__.append(
-            attach.Attachment(
+            attach.DocumentAttachment(
                 type=attach.AttachmentsTypes.document,
                 data=attach.Document(content=content, file_name=file_name),
             ),
@@ -62,7 +62,7 @@ class BuildAttachmentsMixin:
             location_address: address of location.
         """
         self.attachments.__root__.append(
-            attach.Attachment(
+            attach.LocationAttachment(
                 type=attach.AttachmentsTypes.location,
                 data=attach.Location(
                     location_name=location_name,
@@ -83,7 +83,7 @@ class BuildAttachmentsMixin:
             duration: voice duration.
         """
         self.attachments.__root__.append(
-            attach.Attachment(
+            attach.VoiceAttachment(
                 type=attach.AttachmentsTypes.voice,
                 data=attach.Voice(duration=duration, content=content),
             ),
@@ -103,7 +103,7 @@ class BuildAttachmentsMixin:
             duration: video duration.
         """
         self.attachments.__root__.append(
-            attach.Attachment(
+            attach.VideoAttachment(
                 type=attach.AttachmentsTypes.video,
                 data=attach.Video(
                     content=content, file_name=file_name, duration=duration,
@@ -127,7 +127,7 @@ class BuildAttachmentsMixin:
             url_title: title of link.
         """
         self.attachments.__root__.append(
-            attach.Attachment(
+            attach.LinkAttachment(
                 type=attach.AttachmentsTypes.link,
                 data=attach.Link(
                     url=url,
@@ -145,7 +145,7 @@ class BuildAttachmentsMixin:
             contact_name: name of contact
         """
         self.attachments.__root__.append(
-            attach.Attachment(
+            attach.ContactAttachment(
                 type=attach.AttachmentsTypes.contact,
                 data=attach.Contact(contact_name=contact_name),
             ),

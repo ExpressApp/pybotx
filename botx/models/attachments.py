@@ -7,6 +7,11 @@ from pydantic import BaseModel
 from botx.models.enums import AttachmentsTypes, LinkProtos
 from botx.models.files import File
 
+try:
+    from typing import Literal  # noqa: WPS433
+except ImportError:
+    from typing_extensions import Literal  # type: ignore  # noqa: WPS433, WPS440, F401
+
 
 class FileAttachment(BaseModel):
     """Class that represents file in RFC 2397 format."""
@@ -15,7 +20,7 @@ class FileAttachment(BaseModel):
     file_name: Optional[str]
 
     #: file content in RFC 2397 format.
-    content: str  # noqa: WPS110
+    content: str
 
 
 class Image(FileAttachment):
@@ -43,7 +48,7 @@ class Voice(BaseModel):
     """Voice model from botx."""
 
     #: file content in RFC 2397 format.
-    content: str  # noqa: WPS110
+    content: str
 
     #: voice duration
     duration: int
@@ -114,19 +119,88 @@ class Link(BaseModel):
         return self.url[len(LinkProtos.telephone) :]  # noqa: E203
 
 
-Attachments = Union[
-    Video, Voice, Contact, Location, Link, Image, Document,
-]
+Attachments = Union[Image, Video, Document, Voice, Location, Contact, Link]
 
 
-class Attachment(BaseModel):
-    """Attachment with main attach and type of this attachment."""
+class ImageAttachment(BaseModel):
+    """BotX API image attachment container."""
 
     #: type of attachment
-    type: str  # noqa: WPS125
+    type: Literal[AttachmentsTypes.image]
 
     #: content of attachment
-    data: Attachments  # noqa: WPS110
+    data: Image
+
+
+class VideoAttachment(BaseModel):
+    """BotX API video attachment container."""
+
+    #: type of attachment
+    type: Literal[AttachmentsTypes.video]
+
+    #: content of attachment
+    data: Video
+
+
+class DocumentAttachment(BaseModel):
+    """BotX API document attachment container."""
+
+    #: type of attachment
+    type: Literal[AttachmentsTypes.document]
+
+    #: content of attachment
+    data: Document
+
+
+class VoiceAttachment(BaseModel):
+    """BotX API voice attachment container."""
+
+    #: type of attachment
+    type: Literal[AttachmentsTypes.voice]
+
+    #: content of attachment
+    data: Voice
+
+
+class ContactAttachment(BaseModel):
+    """BotX API contact attachment container."""
+
+    #: type of attachment
+    type: Literal[AttachmentsTypes.contact]
+
+    #: content of attachment
+    data: Contact
+
+
+class LocationAttachment(BaseModel):
+    """BotX API location attachment container."""
+
+    #: type of attachment
+    type: Literal[AttachmentsTypes.location]
+
+    #: content of attachment
+    data: Location
+
+
+class LinkAttachment(BaseModel):
+    """BotX API link attachment container."""
+
+    #: type of attachment
+    type: Literal[AttachmentsTypes.link]
+
+    #: content of attachment
+    data: Link
+
+
+Attachment = Union[
+    ImageAttachment,
+    VideoAttachment,
+    DocumentAttachment,
+    VoiceAttachment,
+    ContactAttachment,
+    LocationAttachment,
+    LinkAttachment,
+]
 
 
 class AttachList(BaseModel):  # noqa: WPS214, WPS338
