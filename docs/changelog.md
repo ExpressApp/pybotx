@@ -1,3 +1,10 @@
+## 0.16.5 (Dec 22, 2020)
+
+### Added
+
+* New static method to check that file extension can be handled by BotX API
+
+
 ## 0.16.4 (Dec 16, 2020)
 
 ### Fixed
