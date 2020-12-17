@@ -1,6 +1,7 @@
 import pytest
 
 from botx import MessageBuilder
+from botx.models.attachments import Video, Voice
 
 
 def test_is_link_in_attachment():
@@ -201,3 +202,15 @@ def test_get_all_attachments(len_of_attachments):
     for _ in range(len_of_attachments):
         builder.document()
     assert len(builder.message.attachments.all_attachments) == len_of_attachments
+
+
+def test_video_attach_has_video_type():
+    builder = MessageBuilder()
+    builder.video()
+    assert isinstance(builder.message.attachments.video, Video)
+
+
+def test_voice_attach_has_voice_type():
+    builder = MessageBuilder()
+    builder.voice()
+    assert isinstance(builder.message.attachments.voice, Voice)
