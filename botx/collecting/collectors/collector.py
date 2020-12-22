@@ -90,7 +90,7 @@ class Collector(  # noqa: WPS215
                 await handler(message)
                 return
 
-        if self.default_message_handler:
+        if self.default_message_handler and not message.is_system_event:
             await self.default_message_handler(message)
         else:
             raise NoMatchFound(search_param=message.body)

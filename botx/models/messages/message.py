@@ -10,6 +10,7 @@ from botx.models.attachments import AttachList
 from botx.models.chats import ChatTypes
 from botx.models.datastructures import State
 from botx.models.entities import EntityList
+from botx.models.enums import CommandTypes
 from botx.models.files import File
 from botx.models.messages.incoming_message import Command, IncomingMessage, Sender
 from botx.models.messages.sending.credentials import SendingCredentials
@@ -154,3 +155,12 @@ class Message:
             return False
         else:
             return True
+
+    @property
+    def is_system_event(self) -> bool:
+        """Check if message is a system event.
+
+        Returns:
+            bool: Result of check.
+        """
+        return self.command.command_type == CommandTypes.system
