@@ -4,6 +4,7 @@ import base64
 import mimetypes
 import pathlib
 from io import BytesIO
+from pathlib import Path
 from typing import AnyStr, BinaryIO, Optional, TextIO, Union
 
 from pydantic import BaseModel, validator
@@ -38,7 +39,7 @@ BOTX_API_ACCEPTED_EXTENSIONS = (
 )
 
 
-class File(BaseModel):
+class File(BaseModel):  # noqa: WPS214
     """Object that represents file in RFC 2397 format."""
 
     #: name of file.
@@ -64,12 +65,7 @@ class File(BaseModel):
         Raises:
             ValueError: raised if extension is not supported.
         """
-        extensions_check = (
-            name.lower().endswith(extension)
-            for extension in BOTX_API_ACCEPTED_EXTENSIONS
-        )
-
-        if not any(extensions_check):
+        if not cls.has_supported_extension(name):
             raise ValueError(
                 "file {0} has an extensions that is not supported by BotX API".format(
                     name,
@@ -145,3 +141,15 @@ class File(BaseModel):
     def media_type(self) -> str:
         """Return media type of file."""
         return mimetypes.guess_type(self.data)[0] or "text/plain"
+
+    @classmethod
+    def has_supported_extension(cls, filename: str) -> bool:
+        """Check that file extension can be handled by BotX API.
+
+        Arguments:
+            filename: file name to check.
+
+        Returns:
+            Matching result.
+        """
+        return Path(filename).suffix in BOTX_API_ACCEPTED_EXTENSIONS
