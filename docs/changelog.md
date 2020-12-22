@@ -1,3 +1,14 @@
+## 0.16.6 (Dec 22, 2020)
+
+### Changed
+
+* Attachments now have default value for type
+
+### Fixed
+
+* Default handler don't process system events anymore
+
+
 ## 0.16.5 (Dec 22, 2020)
 
 ### Added
