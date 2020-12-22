@@ -23,7 +23,6 @@ class BuildAttachmentsMixin:
         """
         self.attachments.__root__.append(
             attach.ImageAttachment(
-                type=attach.AttachmentsTypes.image,
                 data=attach.Image(content=content, file_name=file_name),
             ),
         )
@@ -41,7 +40,6 @@ class BuildAttachmentsMixin:
         """
         self.attachments.__root__.append(
             attach.DocumentAttachment(
-                type=attach.AttachmentsTypes.document,
                 data=attach.Document(content=content, file_name=file_name),
             ),
         )
@@ -63,7 +61,6 @@ class BuildAttachmentsMixin:
         """
         self.attachments.__root__.append(
             attach.LocationAttachment(
-                type=attach.AttachmentsTypes.location,
                 data=attach.Location(
                     location_name=location_name,
                     location_lat=location_lat,
@@ -84,7 +81,6 @@ class BuildAttachmentsMixin:
         """
         self.attachments.__root__.append(
             attach.VoiceAttachment(
-                type=attach.AttachmentsTypes.voice,
                 data=attach.Voice(duration=duration, content=content),
             ),
         )
@@ -104,7 +100,6 @@ class BuildAttachmentsMixin:
         """
         self.attachments.__root__.append(
             attach.VideoAttachment(
-                type=attach.AttachmentsTypes.video,
                 data=attach.Video(
                     content=content, file_name=file_name, duration=duration,
                 ),
@@ -128,7 +123,6 @@ class BuildAttachmentsMixin:
         """
         self.attachments.__root__.append(
             attach.LinkAttachment(
-                type=attach.AttachmentsTypes.link,
                 data=attach.Link(
                     url=url,
                     url_preview=url_preview,
@@ -145,8 +139,5 @@ class BuildAttachmentsMixin:
             contact_name: name of contact
         """
         self.attachments.__root__.append(
-            attach.ContactAttachment(
-                type=attach.AttachmentsTypes.contact,
-                data=attach.Contact(contact_name=contact_name),
-            ),
+            attach.ContactAttachment(data=attach.Contact(contact_name=contact_name)),
         )

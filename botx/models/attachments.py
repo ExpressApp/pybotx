@@ -2,7 +2,7 @@
 
 from typing import List, Optional, Union, cast
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from botx.models.enums import AttachmentsTypes, LinkProtos
 from botx.models.files import File
@@ -126,7 +126,7 @@ class ImageAttachment(BaseModel):
     """BotX API image attachment container."""
 
     #: type of attachment
-    type: Literal[AttachmentsTypes.image]
+    type: Literal[AttachmentsTypes.image] = Field(default=AttachmentsTypes.image)
 
     #: content of attachment
     data: Image
@@ -136,7 +136,7 @@ class VideoAttachment(BaseModel):
     """BotX API video attachment container."""
 
     #: type of attachment
-    type: Literal[AttachmentsTypes.video]
+    type: Literal[AttachmentsTypes.video] = Field(default=AttachmentsTypes.video)
 
     #: content of attachment
     data: Video
@@ -146,7 +146,7 @@ class DocumentAttachment(BaseModel):
     """BotX API document attachment container."""
 
     #: type of attachment
-    type: Literal[AttachmentsTypes.document]
+    type: Literal[AttachmentsTypes.document] = Field(default=AttachmentsTypes.document)
 
     #: content of attachment
     data: Document
@@ -156,7 +156,7 @@ class VoiceAttachment(BaseModel):
     """BotX API voice attachment container."""
 
     #: type of attachment
-    type: Literal[AttachmentsTypes.voice]
+    type: Literal[AttachmentsTypes.voice] = Field(default=AttachmentsTypes.voice)
 
     #: content of attachment
     data: Voice
@@ -166,7 +166,7 @@ class ContactAttachment(BaseModel):
     """BotX API contact attachment container."""
 
     #: type of attachment
-    type: Literal[AttachmentsTypes.contact]
+    type: Literal[AttachmentsTypes.contact] = Field(default=AttachmentsTypes.contact)
 
     #: content of attachment
     data: Contact
@@ -176,7 +176,7 @@ class LocationAttachment(BaseModel):
     """BotX API location attachment container."""
 
     #: type of attachment
-    type: Literal[AttachmentsTypes.location]
+    type: Literal[AttachmentsTypes.location] = Field(default=AttachmentsTypes.location)
 
     #: content of attachment
     data: Location
@@ -186,7 +186,7 @@ class LinkAttachment(BaseModel):
     """BotX API link attachment container."""
 
     #: type of attachment
-    type: Literal[AttachmentsTypes.link]
+    type: Literal[AttachmentsTypes.link] = Field(default=AttachmentsTypes.link)
 
     #: content of attachment
     data: Link
