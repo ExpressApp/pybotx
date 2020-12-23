@@ -1,3 +1,5 @@
+import pytest
+
 from botx import File
 
 
@@ -13,15 +15,14 @@ def test_retrieving_file_media_type():
     assert File.from_string(b"test", filename="test.txt").media_type == "text/plain"
 
 
-def test_accept_has_supported_extension():
-    correct_filename = "test.txt"
-    result = File.has_supported_extension(correct_filename)
+@pytest.mark.parametrize("extension", [".txt", ".TXT"])
+def test_accept_has_supported_extension(extension):
+    filename = f"test{extension}"
 
-    assert result is True
+    assert File.has_supported_extension(filename)
 
 
 def test_decline_has_supported_extension():
     bad_filename = "test.bad"
-    result = File.has_supported_extension(bad_filename)
 
-    assert result is False
+    assert not File.has_supported_extension(bad_filename)

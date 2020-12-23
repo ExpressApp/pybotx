@@ -1,3 +1,10 @@
+## 0.16.7 (Dec 23, 2020)
+
+### Fixed
+
+* has_supported_extension now supports uppercase extensions
+
+
 ## 0.16.6 (Dec 22, 2020)
 
 ### Changed

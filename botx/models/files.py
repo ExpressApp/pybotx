@@ -152,4 +152,5 @@ class File(BaseModel):  # noqa: WPS214
         Returns:
             Matching result.
         """
-        return Path(filename).suffix in BOTX_API_ACCEPTED_EXTENSIONS
+        file_extension = Path(filename).suffix.lower()
+        return file_extension in BOTX_API_ACCEPTED_EXTENSIONS
