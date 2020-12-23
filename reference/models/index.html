@@ -3389,7 +3389,8 @@ has_supported_extension<span class="p">(</span><span class="n">filename</span><s
 152
 153
 154
-155</pre>
+155
+156</pre>
 </div>
 </td>
 <td class="code">
@@ -3404,7 +3405,8 @@ has_supported_extension<span class="p">(</span><span class="n">filename</span><s
 <span class="sd">    Returns:</span>
 <span class="sd">        Matching result.</span>
 <span class="sd">    """</span>
-    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">in</span> <span class="n">BOTX_API_ACCEPTED_EXTENSIONS</span>
+    <span class="n">file_extension</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">file_extension</span> <span class="ow">in</span> <span class="n">BOTX_API_ACCEPTED_EXTENSIONS</span>
 </code></pre>
 </div>
 </td>
