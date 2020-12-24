@@ -63,7 +63,6 @@ class File(BaseModel):  # noqa: WPS214
         """Check that file extension can be handled by BotX API.
 
         Arguments:
-            cls: this class.
             name: file name which will be checked for matching extensions.
 
         Returns:
