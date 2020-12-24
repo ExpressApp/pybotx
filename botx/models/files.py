@@ -3,10 +3,12 @@
 import base64
 import mimetypes
 import pathlib
+from contextlib import contextmanager
 from io import BytesIO
 from pathlib import Path
-from typing import AnyStr, BinaryIO, Optional, TextIO, Union
+from typing import AnyStr, AsyncIterable, BinaryIO, Generator, Optional, TextIO, Union
 
+from base64io import Base64IO
 from pydantic import BaseModel, validator
 
 #: file extensions that can be proceed by BotX API.
@@ -37,6 +39,12 @@ BOTX_API_ACCEPTED_EXTENSIONS = (
     ".zip",
     ".rar",
 )
+
+
+class NamedAsyncIterable(AsyncIterable):
+    """AsyncIterable with `name` protocol."""
+
+    name: str
 
 
 class File(BaseModel):  # noqa: WPS214
@@ -102,6 +110,46 @@ class File(BaseModel):  # noqa: WPS214
         )
 
     @classmethod
+    async def async_from_file(  # noqa: WPS210
+        cls, file: NamedAsyncIterable, filename: Optional[str] = None,
+    ) -> "File":
+        """Convert async file-like object into BotX API compatible file.
+
+        Arguments:
+            file: async file-like object that will be used for creating file.
+            filename: name that will be used for file, if was not passed, then will be
+                retrieved from `file` `.name` property.
+
+        Returns:
+            Built File object.
+        """
+        assert hasattr(  # noqa: WPS421
+            file, "__aiter__",
+        ), "file should support async iteration"
+
+        filename = filename or Path(file.name).name
+        media_type = cls._get_mimetype(filename)
+
+        encoded_file = BytesIO()
+
+        with Base64IO(encoded_file) as b64_stream:
+            async for line in file:  # pragma: no branch
+                b64_stream.write(line)
+
+        encoded_file.seek(0)
+        encoded_data = encoded_file.read().decode()
+
+        return cls(file_name=filename, data=cls._to_rfc2397(media_type, encoded_data))
+
+    @contextmanager
+    def file_chunks(self) -> Generator[bytes, None, None]:
+        """Return file data in iterator that will return bytes."""
+        encoded_file = BytesIO(self.data_in_base64.encode())
+
+        with Base64IO(encoded_file) as decoded_file:
+            yield decoded_file
+
+    @classmethod
     def from_string(cls, data_of_file: AnyStr, filename: str) -> "File":
         """Build file from bytes or string passed to method in `data` with `filename` as name.
 
@@ -140,7 +188,7 @@ class File(BaseModel):  # noqa: WPS214
     @property
     def media_type(self) -> str:
         """Return media type of file."""
-        return mimetypes.guess_type(self.data)[0] or "text/plain"
+        return self._get_mimetype(self.data)
 
     @classmethod
     def has_supported_extension(cls, filename: str) -> bool:
@@ -154,3 +202,28 @@ class File(BaseModel):  # noqa: WPS214
         """
         file_extension = Path(filename).suffix.lower()
         return file_extension in BOTX_API_ACCEPTED_EXTENSIONS
+
+    @classmethod
+    def _to_rfc2397(cls, media_type: str, encoded_data: str) -> str:
+        """Apply RFC 2397 format to encoded file contents.
+
+        Arguments:
+            media_type: file media type.
+            encoded_data: base64 encoded file contents.
+
+        Returns:
+            File contents converted to RFC 2397.
+        """
+        return "data:{0};base64,{1}".format(media_type, encoded_data)
+
+    @classmethod
+    def _get_mimetype(cls, filename: str) -> str:
+        """Get mimetype by filename.
+
+        Arguments:
+            filename: file name to inspect.
+
+        Returns:
+            File mimetype.
+        """
+        return mimetypes.guess_type(filename)[0] or "text/plain"
