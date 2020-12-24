@@ -479,8 +479,18 @@
   </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.files.File.async_from_file">
+    async_from_file()
+  </a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.files.File.check_file_extension">
     check_file_extension()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.files.File.file_chunks">
+    file_chunks()
   </a>
 </li>
 <li class="md-nav__item">
@@ -500,6 +510,11 @@
 </li>
 </ul>
 </nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.files.NamedAsyncIterable">
+    NamedAsyncIterable
+  </a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.entities">
@@ -1259,8 +1274,18 @@
   </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.files.File.async_from_file">
+    async_from_file()
+  </a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.files.File.check_file_extension">
     check_file_extension()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.files.File.file_chunks">
+    file_chunks()
   </a>
 </li>
 <li class="md-nav__item">
@@ -1280,6 +1305,11 @@
 </li>
 </ul>
 </nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#botx.models.files.NamedAsyncIterable">
+    NamedAsyncIterable
+  </a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#botx.models.entities">
@@ -1766,14 +1796,6 @@ add_ui_flag_to_data<span class="p">(</span><span class="n">button_data</span><sp
 </thead>
 <tbody>
 <tr>
-<td><code>cls</code></td>
-<td><code></code></td>
-<td>
-<p>passed button class.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
 <td><code>button_data</code></td>
 <td><code>dict</code></td>
 <td>
@@ -1806,7 +1828,9 @@ add_ui_flag_to_data<span class="p">(</span><span class="n">button_data</span><sp
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>74
+<pre><span></span>72
+73
+74
 75
 76
 77
@@ -1815,10 +1839,7 @@ add_ui_flag_to_data<span class="p">(</span><span class="n">button_data</span><sp
 80
 81
 82
-83
-84
-85
-86</pre>
+83</pre>
 </div>
 </td>
 <td class="code">
@@ -1828,7 +1849,6 @@ add_ui_flag_to_data<span class="p">(</span><span class="n">button_data</span><sp
     <span class="sd">"""Return command data with set UI flag.</span>
 
 <span class="sd">    Arguments:</span>
-<span class="sd">        cls: passed button class.</span>
 <span class="sd">        button_data: data passed to bot.</span>
 
 <span class="sd">    Returns:</span>
@@ -1865,14 +1885,6 @@ label_as_command_if_none<span class="p">(</span><span class="n">label</span><spa
 </tr>
 </thead>
 <tbody>
-<tr>
-<td><code>cls</code></td>
-<td><code></code></td>
-<td>
-<p>passed button class.</p>
-</td>
-<td><em>required</em></td>
-</tr>
 <tr>
 <td><code>label</code></td>
 <td><code>Optional[str]</code></td>
@@ -1914,7 +1926,8 @@ label_as_command_if_none<span class="p">(</span><span class="n">label</span><spa
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>58
+<pre><span></span>57
+58
 59
 60
 61
@@ -1926,9 +1939,7 @@ label_as_command_if_none<span class="p">(</span><span class="n">label</span><spa
 67
 68
 69
-70
-71
-72</pre>
+70</pre>
 </div>
 </td>
 <td class="code">
@@ -1940,7 +1951,6 @@ label_as_command_if_none<span class="p">(</span><span class="n">label</span><spa
     <span class="sd">"""Return command as label if it is `None`.</span>
 
 <span class="sd">    Arguments:</span>
-<span class="sd">        cls: passed button class.</span>
 <span class="sd">        label: value that should be checked.</span>
 <span class="sd">        values: all other validated_values checked before.</span>
 
@@ -1990,14 +2000,6 @@ h_size_should_be_positive<span class="p">(</span><span class="n">h_size</span><s
 </tr>
 </thead>
 <tbody>
-<tr>
-<td><code>cls</code></td>
-<td><code></code></td>
-<td>
-<p>this class.</p>
-</td>
-<td><em>required</em></td>
-</tr>
 <tr>
 <td><code>h_size</code></td>
 <td><code>int</code></td>
@@ -2064,8 +2066,7 @@ h_size_should_be_positive<span class="p">(</span><span class="n">h_size</span><s
 36
 37
 38
-39
-40</pre>
+39</pre>
 </div>
 </td>
 <td class="code">
@@ -2075,7 +2076,6 @@ h_size_should_be_positive<span class="p">(</span><span class="n">h_size</span><s
     <span class="sd">"""Validate that `h_size` is positive integer.</span>
 
 <span class="sd">    Arguments:</span>
-<span class="sd">        cls: this class.</span>
 <span class="sd">        h_size: width weight for validation.</span>
 
 <span class="sd">    Returns:</span>
@@ -2703,14 +2703,6 @@ status_message_in_error_data<span class="p">(</span><span class="n">error_data</
 </thead>
 <tbody>
 <tr>
-<td><code>cls</code></td>
-<td><code></code></td>
-<td>
-<p>this class.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
 <td><code>error_data</code></td>
 <td><code>Dict[str, Any]</code></td>
 <td>
@@ -2781,8 +2773,7 @@ status_message_in_error_data<span class="p">(</span><span class="n">error_data</
 44
 45
 46
-47
-48</pre>
+47</pre>
 </div>
 </td>
 <td class="code">
@@ -2794,7 +2785,6 @@ status_message_in_error_data<span class="p">(</span><span class="n">error_data</
     <span class="sd">"""Check that value contains `status_message` key or field.</span>
 
 <span class="sd">    Arguments:</span>
-<span class="sd">        cls: this class.</span>
 <span class="sd">        error_data: value that should be checked.</span>
 
 <span class="sd">    Returns:</span>
@@ -2954,6 +2944,143 @@ media_type: <span class="nb">str</span> </code>
 </div>
 </div>
 <div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="botx.models.files.File.async_from_file">
+<code class="highlight language-python">
+async_from_file<span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> </code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-classmethod"><code>classmethod</code></small>
+</span>
+</h3>
+<div class="doc doc-contents">
+<p>Convert async file-like object into BotX API compatible file.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>file</code></td>
+<td><code>NamedAsyncIterable</code></td>
+<td>
+<p>async file-like object that will be used for creating file.</p>
+</td>
+<td><em>required</em></td>
+</tr>
+<tr>
+<td><code>filename</code></td>
+<td><code>Optional[str]</code></td>
+<td>
+<p>name that will be used for file, if was not passed, then will be
+retrieved from <code>file</code> <code>.name</code> property.</p>
+</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>File</code></td>
+<td>
+<p>Built File object.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<details class="quote">
+<summary>Source code in <code>botx/models/files.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="nd">@classmethod</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">async_from_file</span><span class="p">(</span>  <span class="c1"># noqa: WPS210</span>
+    <span class="bp">cls</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">NamedAsyncIterable</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"File"</span><span class="p">:</span>
+    <span class="sd">"""Convert async file-like object into BotX API compatible file.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        file: async file-like object that will be used for creating file.</span>
+<span class="sd">        filename: name that will be used for file, if was not passed, then will be</span>
+<span class="sd">            retrieved from `file` `.name` property.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Built File object.</span>
+<span class="sd">    """</span>
+    <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span>  <span class="c1"># noqa: WPS421</span>
+        <span class="n">file</span><span class="p">,</span> <span class="s2">"__aiter__"</span><span class="p">,</span>
+    <span class="p">),</span> <span class="s2">"file should support async iteration"</span>
+
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span> <span class="ow">or</span> <span class="n">Path</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">media_type</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_mimetype</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="n">encoded_file</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">Base64IO</span><span class="p">(</span><span class="n">encoded_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">b64_stream</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>  <span class="c1"># pragma: no branch</span>
+            <span class="n">b64_stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+    <span class="n">encoded_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">encoded_data</span> <span class="o">=</span> <span class="n">encoded_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_to_rfc2397</span><span class="p">(</span><span class="n">media_type</span><span class="p">,</span> <span class="n">encoded_data</span><span class="p">))</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
+<div class="doc doc-object doc-method">
 <h3 class="doc doc-heading" id="botx.models.files.File.check_file_extension">
 <code class="highlight language-python">
 check_file_extension<span class="p">(</span><span class="n">name</span><span class="p">)</span> </code>
@@ -2974,14 +3101,6 @@ check_file_extension<span class="p">(</span><span class="n">name</span><span cla
 </tr>
 </thead>
 <tbody>
-<tr>
-<td><code>cls</code></td>
-<td><code></code></td>
-<td>
-<p>this class.</p>
-</td>
-<td><em>required</em></td>
-</tr>
 <tr>
 <td><code>name</code></td>
 <td><code>str</code></td>
@@ -3032,14 +3151,7 @@ check_file_extension<span class="p">(</span><span class="n">name</span><span cla
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>54
-55
-56
-57
-58
-59
-60
-61
+<pre><span></span>61
 62
 63
 64
@@ -3053,7 +3165,13 @@ check_file_extension<span class="p">(</span><span class="n">name</span><span cla
 72
 73
 74
-75</pre>
+75
+76
+77
+78
+79
+80
+81</pre>
 </div>
 </td>
 <td class="code">
@@ -3063,7 +3181,6 @@ check_file_extension<span class="p">(</span><span class="n">name</span><span cla
     <span class="sd">"""Check that file extension can be handled by BotX API.</span>
 
 <span class="sd">    Arguments:</span>
-<span class="sd">        cls: this class.</span>
 <span class="sd">        name: file name which will be checked for matching extensions.</span>
 
 <span class="sd">    Returns:</span>
@@ -3080,6 +3197,45 @@ check_file_extension<span class="p">(</span><span class="n">name</span><span cla
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">name</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="botx.models.files.File.file_chunks">
+<code class="highlight language-python">
+file_chunks<span class="p">(</span><span class="bp">self</span><span class="p">)</span> </code>
+</h3>
+<div class="doc doc-contents">
+<p>Return file data in iterator that will return bytes.</p>
+<details class="quote">
+<summary>Source code in <code>botx/models/files.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>148
+149
+150
+151
+152
+153
+154</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">file_chunks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="sd">"""Return file data in iterator that will return bytes."""</span>
+    <span class="n">encoded_file</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_in_base64</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+
+    <span class="k">with</span> <span class="n">Base64IO</span><span class="p">(</span><span class="n">encoded_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">decoded_file</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">decoded_file</span>
 </code></pre>
 </div>
 </td>
@@ -3151,13 +3307,7 @@ retrieved from <code>file</code> <code>.name</code> property.</p>
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span> 77
- 78
- 79
- 80
- 81
- 82
- 83
+<pre><span></span> 83
  84
  85
  86
@@ -3176,13 +3326,25 @@ retrieved from <code>file</code> <code>.name</code> property.</p>
  99
 100
 101
-102</pre>
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114</pre>
 </div>
 </td>
 <td class="code">
 <div class="highlight">
 <pre><span></span><code><span class="nd">@classmethod</span>
-<span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span>  <span class="c1"># noqa: WPS210</span>
     <span class="bp">cls</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">TextIO</span><span class="p">,</span> <span class="n">BinaryIO</span><span class="p">],</span> <span class="n">filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"File"</span><span class="p">:</span>
     <span class="sd">"""Convert file-like object into BotX API compatible file.</span>
@@ -3195,18 +3357,24 @@ retrieved from <code>file</code> <code>.name</code> property.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        Built file object.</span>
 <span class="sd">    """</span>
-    <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span> <span class="ow">or</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
-    <span class="n">file_data</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span> <span class="ow">or</span> <span class="n">Path</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">encoded_file</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">file_data</span> <span class="o">=</span> <span class="n">file_data</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+    <span class="n">text_mode</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="s2">""</span>  <span class="c1"># b"" if bytes mode</span>
 
-    <span class="n">encoded_data</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">file_data</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-    <span class="n">media_type</span> <span class="o">=</span> <span class="n">mimetypes</span><span class="o">.</span><span class="n">guess_type</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">"text/plain"</span>
-    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-        <span class="n">file_name</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
-        <span class="n">data</span><span class="o">=</span><span class="s2">"data:</span><span class="si">{0}</span><span class="s2">;base64,</span><span class="si">{1}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">media_type</span><span class="p">,</span> <span class="n">encoded_data</span><span class="p">),</span>
-    <span class="p">)</span>
+    <span class="k">with</span> <span class="n">Base64IO</span><span class="p">(</span><span class="n">encoded_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">b64_stream</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">text_mode</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">text_line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>  <span class="c1"># TODO: Deprecate text mode in 0.17</span>
+                <span class="n">b64_stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text_line</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>  <span class="c1"># type: ignore</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">b64_stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+    <span class="n">encoded_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">encoded_data</span> <span class="o">=</span> <span class="n">encoded_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+
+    <span class="n">media_type</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_mimetype</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_to_rfc2397</span><span class="p">(</span><span class="n">media_type</span><span class="p">,</span> <span class="n">encoded_data</span><span class="p">))</span>
 </code></pre>
 </div>
 </td>
@@ -3277,24 +3445,24 @@ from_string<span class="p">(</span><span class="n">data_of_file</span><span clas
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>104
-105
-106
-107
-108
-109
-110
-111
-112
-113
-114
-115
-116
-117
-118
-119
-120
-121</pre>
+<pre><span></span>156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173</pre>
 </div>
 </td>
 <td class="code">
@@ -3379,18 +3547,18 @@ has_supported_extension<span class="p">(</span><span class="n">filename</span><s
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>145
-146
-147
-148
-149
-150
-151
-152
-153
-154
-155
-156</pre>
+<pre><span></span>197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208</pre>
 </div>
 </td>
 <td class="code">
@@ -3416,6 +3584,14 @@ has_supported_extension<span class="p">(</span><span class="n">filename</span><s
 </div>
 </div>
 </div>
+</div>
+</div>
+<div class="doc doc-object doc-class">
+<h2 class="doc doc-heading" id="botx.models.files.NamedAsyncIterable">
+<code>NamedAsyncIterable</code>
+</h2>
+<div class="doc doc-contents">
+<p>AsyncIterable with <code>name</code> protocol.</p>
 </div>
 </div>
 </div>
@@ -3635,14 +3811,6 @@ check_that_type_matches_data<span class="p">(</span><span class="n">mention_type
 </thead>
 <tbody>
 <tr>
-<td><code>cls</code></td>
-<td><code></code></td>
-<td>
-<p>this class.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
 <td><code>mention_type</code></td>
 <td><code>MentionTypes</code></td>
 <td>
@@ -3700,7 +3868,8 @@ check_that_type_matches_data<span class="p">(</span><span class="n">mention_type
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span> 83
+<pre><span></span> 82
+ 83
  84
  85
  86
@@ -3735,9 +3904,7 @@ check_that_type_matches_data<span class="p">(</span><span class="n">mention_type
 115
 116
 117
-118
-119
-120</pre>
+118</pre>
 </div>
 </td>
 <td class="code">
@@ -3749,7 +3916,6 @@ check_that_type_matches_data<span class="p">(</span><span class="n">mention_type
     <span class="sd">"""Verify that `mention_type` matches provided `mention_data`.</span>
 
 <span class="sd">    Arguments:</span>
-<span class="sd">        cls: this class.</span>
 <span class="sd">        mention_type: mention type that should be consistent with data.</span>
 <span class="sd">        values: verified data.</span>
 
@@ -3810,14 +3976,6 @@ generate_mention_id<span class="p">(</span><span class="n">mention_id</span><spa
 </thead>
 <tbody>
 <tr>
-<td><code>cls</code></td>
-<td><code></code></td>
-<td>
-<p>this class.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
 <td><code>mention_id</code></td>
 <td><code>Optional[uuid.UUID]</code></td>
 <td>
@@ -3860,8 +4018,7 @@ generate_mention_id<span class="p">(</span><span class="n">mention_id</span><spa
 77
 78
 79
-80
-81</pre>
+80</pre>
 </div>
 </td>
 <td class="code">
@@ -3871,7 +4028,6 @@ generate_mention_id<span class="p">(</span><span class="n">mention_id</span><spa
     <span class="sd">"""Verify that `mention_id` will be in mention.</span>
 
 <span class="sd">    Arguments:</span>
-<span class="sd">        cls: this class.</span>
 <span class="sd">        mention_id: id that should present or new UUID4 will be generated.</span>
 
 <span class="sd">    Returns:</span>
@@ -4073,14 +4229,6 @@ skip_file_validation<span class="p">(</span><span class="n">file</span><span cla
 </thead>
 <tbody>
 <tr>
-<td><code>cls</code></td>
-<td><code></code></td>
-<td>
-<p>this class.</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
 <td><code>file</code></td>
 <td><code>Optional[Union[dict, botx.models.files.File]]</code></td>
 <td>
@@ -4130,8 +4278,7 @@ skip_file_validation<span class="p">(</span><span class="n">file</span><span cla
 150
 151
 152
-153
-154</pre>
+153</pre>
 </div>
 </td>
 <td class="code">
@@ -4143,7 +4290,6 @@ skip_file_validation<span class="p">(</span><span class="n">file</span><span cla
     <span class="sd">"""Skip validation for incoming file since users have not such limits as bot.</span>
 
 <span class="sd">    Arguments:</span>
-<span class="sd">        cls: this class.</span>
 <span class="sd">        file: file data that should be used for building file instance.</span>
 
 <span class="sd">    Returns:</span>
