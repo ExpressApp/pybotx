@@ -72,7 +72,6 @@ class Mention(BaseModel):
         """Verify that `mention_id` will be in mention.
 
         Arguments:
-            cls: this class.
             mention_id: id that should present or new UUID4 will be generated.
 
         Returns:
@@ -87,7 +86,6 @@ class Mention(BaseModel):
         """Verify that `mention_type` matches provided `mention_data`.
 
         Arguments:
-            cls: this class.
             mention_type: mention type that should be consistent with data.
             values: verified data.
 

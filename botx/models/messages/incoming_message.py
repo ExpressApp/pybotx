@@ -140,7 +140,6 @@ class IncomingMessage(BaseModel):
         """Skip validation for incoming file since users have not such limits as bot.
 
         Arguments:
-            cls: this class.
             file: file data that should be used for building file instance.
 
         Returns:

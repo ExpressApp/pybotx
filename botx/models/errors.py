@@ -30,7 +30,6 @@ class BotDisabledResponse(BaseModel):
         """Check that value contains `status_message` key or field.
 
         Arguments:
-            cls: this class.
             error_data: value that should be checked.
 
         Returns:

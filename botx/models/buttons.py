@@ -25,7 +25,6 @@ class ButtonOptions(BaseModel):
         """Validate that `h_size` is positive integer.
 
         Arguments:
-            cls: this class.
             h_size: width weight for validation.
 
         Returns:
@@ -62,7 +61,6 @@ class Button(BaseModel):
         """Return command as label if it is `None`.
 
         Arguments:
-            cls: passed button class.
             label: value that should be checked.
             values: all other validated_values checked before.
 
@@ -76,7 +74,6 @@ class Button(BaseModel):
         """Return command data with set UI flag.
 
         Arguments:
-            cls: passed button class.
             button_data: data passed to bot.
 
         Returns:
