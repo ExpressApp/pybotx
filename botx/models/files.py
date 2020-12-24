@@ -2,7 +2,6 @@
 
 import base64
 import mimetypes
-import pathlib
 from contextlib import contextmanager
 from io import BytesIO
 from pathlib import Path
@@ -83,7 +82,7 @@ class File(BaseModel):  # noqa: WPS214
         return name
 
     @classmethod
-    def from_file(
+    def from_file(  # noqa: WPS210
         cls, file: Union[TextIO, BinaryIO], filename: Optional[str] = None,
     ) -> "File":
         """Convert file-like object into BotX API compatible file.
@@ -96,18 +95,24 @@ class File(BaseModel):  # noqa: WPS214
         Returns:
             Built file object.
         """
-        filename = filename or pathlib.Path(file.name).name
-        file_data = file.read()
+        filename = filename or Path(file.name).name
+        encoded_file = BytesIO()
 
-        if isinstance(file_data, str):
-            file_data = file_data.encode()
+        text_mode = file.read(0) == ""  # b"" if bytes mode
 
-        encoded_data = base64.b64encode(file_data).decode()
-        media_type = mimetypes.guess_type(filename)[0] or "text/plain"
-        return cls(
-            file_name=filename,
-            data="data:{0};base64,{1}".format(media_type, encoded_data),
-        )
+        with Base64IO(encoded_file) as b64_stream:
+            if text_mode:
+                for text_line in file:  # TODO: Deprecate text mode in 0.17
+                    b64_stream.write(text_line.encode())  # type: ignore
+            else:
+                for line in file:
+                    b64_stream.write(line)
+
+        encoded_file.seek(0)
+        encoded_data = encoded_file.read().decode()
+
+        media_type = cls._get_mimetype(filename)
+        return cls(file_name=filename, data=cls._to_rfc2397(media_type, encoded_data))
 
     @classmethod
     async def async_from_file(  # noqa: WPS210
