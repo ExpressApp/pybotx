@@ -1,3 +1,15 @@
+## 0.16.8 (Dec 24, 2020)
+
+### Added
+
+* `async_from_file`, `file_chunks` methods for `File` to async work with attachments
+* new dependency "base64io"
+
+### Changed
+
+* `from_file` now uses stream base64 encoding
+
+
 ## 0.16.7 (Dec 23, 2020)
 
 ### Fixed
