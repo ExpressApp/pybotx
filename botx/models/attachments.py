@@ -209,7 +209,7 @@ class AttachList(BaseModel):  # noqa: WPS214, WPS338
     __root__: List[Attachment]
 
     def _get_attach_by_type(self, attach_type: AttachmentsTypes) -> Attachments:
-        for attach in self.__root__:
+        for attach in self.all_attachments:
             if attach.type == attach_type:
                 return attach.data
         raise AttributeError(attach_type)
@@ -346,7 +346,7 @@ class AttachList(BaseModel):  # noqa: WPS214, WPS338
         Raises:
             AttributeError: message has no file.
         """
-        for attachment in self.__root__:
+        for attachment in self.all_attachments:
             if isinstance(attachment.data, FileAttachment):
                 return File.construct(
                     file_name=attachment.data.file_name, data=attachment.data.content,
