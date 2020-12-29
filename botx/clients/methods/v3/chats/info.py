@@ -1,7 +1,6 @@
 """Method for retrieving information about chat."""
+from http import HTTPStatus
 from uuid import UUID
-
-import httpx
 
 from botx.clients.methods.base import AuthorizedBotXMethod
 from botx.clients.methods.errors import messaging
@@ -14,7 +13,7 @@ class Info(AuthorizedBotXMethod[ChatFromSearch]):
     __url__ = "/api/v3/botx/chats/info"
     __method__ = "GET"
     __returning__ = ChatFromSearch
-    __errors_handlers__ = {httpx.codes.BAD_REQUEST: messaging.handle_error}
+    __errors_handlers__ = {HTTPStatus.BAD_REQUEST: messaging.handle_error}
 
     #: ID of chat for about which information should be retrieving.
     group_chat_id: UUID

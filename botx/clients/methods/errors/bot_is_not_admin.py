@@ -2,10 +2,10 @@
 from typing import NoReturn
 from uuid import UUID
 
-from httpx import Response
 from pydantic import BaseModel
 
 from botx.clients.methods.base import APIErrorResponse, BotXMethod
+from botx.clients.methods.wrappers import HTTPResponse
 from botx.exceptions import BotXAPIError
 
 
@@ -31,7 +31,7 @@ class BotIsNotAdminData(BaseModel):
     group_chat_id: UUID
 
 
-def handle_error(method: BotXMethod, response: Response) -> NoReturn:
+def handle_error(method: BotXMethod, response: HTTPResponse) -> NoReturn:
     """Handle "bot is not admin" error response.
 
     Arguments:
@@ -42,12 +42,12 @@ def handle_error(method: BotXMethod, response: Response) -> NoReturn:
         BotIsNotAdminError: raised always.
     """
     error_data = (
-        APIErrorResponse[BotIsNotAdminData].parse_obj(response.json()).error_data
+        APIErrorResponse[BotIsNotAdminData].parse_obj(response.json_body).error_data
     )
     raise BotIsNotAdminError(
         url=method.url,
         method=method.http_method,
-        response_content=response.content,
+        response_content=response.bytes_body,
         status_content=response.status_code,
         bot_id=error_data.sender,
         group_chat_id=error_data.group_chat_id,

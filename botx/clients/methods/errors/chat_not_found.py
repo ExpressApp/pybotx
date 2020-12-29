@@ -2,10 +2,10 @@
 from typing import NoReturn
 from uuid import UUID
 
-from httpx import Response
 from pydantic import BaseModel
 
 from botx.clients.methods.base import APIErrorResponse, BotXMethod
+from botx.clients.methods.wrappers import HTTPResponse
 from botx.exceptions import BotXAPIError
 
 
@@ -25,7 +25,7 @@ class ChatNotFoundData(BaseModel):
     group_chat_id: UUID
 
 
-def handle_error(method: BotXMethod, response: Response) -> NoReturn:
+def handle_error(method: BotXMethod, response: HTTPResponse) -> NoReturn:
     """Handle "chat creation error" error response.
 
     Arguments:
@@ -35,13 +35,13 @@ def handle_error(method: BotXMethod, response: Response) -> NoReturn:
     Raises:
         ChatNotFoundError: raised always.
     """
-    parsed_response = APIErrorResponse[ChatNotFoundData].parse_obj(response.json())
+    parsed_response = APIErrorResponse[ChatNotFoundData].parse_obj(response.json_body)
 
     error_data = parsed_response.error_data
     raise ChatNotFoundError(
         url=method.url,
         method=method.http_method,
-        response_content=response.content,
+        response_content=response.bytes_body,
         status_content=response.status_code,
         group_chat_id=error_data.group_chat_id,
     )

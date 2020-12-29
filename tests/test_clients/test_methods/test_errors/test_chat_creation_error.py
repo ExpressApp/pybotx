@@ -1,6 +1,6 @@
 import uuid
+from http import HTTPStatus
 
-import httpx
 import pytest
 
 from botx import ChatTypes
@@ -17,8 +17,14 @@ async def test_raising_chat_creation_error(client, requests_client):
         name="test name", members=[uuid.uuid4()], chat_type=ChatTypes.group_chat,
     )
 
-    errors_to_raise = {Create: (httpx.codes.UNPROCESSABLE_ENTITY, {})}
+    errors_to_raise = {Create: (HTTPStatus.UNPROCESSABLE_ENTITY, {})}
 
     with client.error_client(errors=errors_to_raise):
+        method.host = "example.com"
+        request = requests_client.build_request(method)
+        response = await callable_to_coroutine(requests_client.execute, method, request)
+
         with pytest.raises(ChatCreationError):
-            await callable_to_coroutine(requests_client.call, method, "example.cts")
+            await callable_to_coroutine(
+                requests_client.process_response, method, response,
+            )
