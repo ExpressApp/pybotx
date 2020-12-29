@@ -2,14 +2,13 @@
 from typing import List
 from uuid import UUID
 
-import httpx
-
 from botx.clients.methods.base import AuthorizedBotXMethod
 from botx.clients.methods.errors import (
     bot_is_not_admin,
     chat_is_not_modifiable,
     chat_not_found,
 )
+from botx.models.constants import HTTPCodes
 
 
 class AddUser(AuthorizedBotXMethod[bool]):
@@ -19,11 +18,11 @@ class AddUser(AuthorizedBotXMethod[bool]):
     __method__ = "POST"
     __returning__ = bool
     __errors_handlers__ = {
-        httpx.codes.FORBIDDEN: (
+        HTTPCodes.FORBIDDEN: (
             bot_is_not_admin.handle_error,
             chat_is_not_modifiable.handle_error,
         ),
-        httpx.codes.NOT_FOUND: (chat_not_found.handle_error,),
+        HTTPCodes.NOT_FOUND: (chat_not_found.handle_error,),
     }
 
     #: ID of chat into which users should be added.

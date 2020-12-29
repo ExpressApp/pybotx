@@ -82,7 +82,9 @@ class BotXRequestsMixin(  # noqa: WPS215
             debug_bot_id_var.set(bot_id)
             method.configure(host=host or method.host, token=token or method.token)
 
-        return await self.client.call(method)
+        request = self.client.build_request(method)
+        response = await self.client.execute(method, request)
+        return await self.client.process_response(method, response)
 
 
 async def _fill_token(
@@ -92,6 +94,10 @@ async def _fill_token(
         return
 
     method = Token(bot_id=bot_id, signature=server.calculate_signature(bot_id))
-    server.server_credentials = ServerCredentials(
-        bot_id=bot_id, token=await client.call(method, host),
-    )
+    method.host = host
+
+    request = client.build_request(method)
+    response = await client.execute(method, request)
+    token = await client.process_response(method, response)
+
+    server.server_credentials = ServerCredentials(bot_id=bot_id, token=token)

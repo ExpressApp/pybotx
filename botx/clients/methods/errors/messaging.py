@@ -1,9 +1,8 @@
 """Definition for "messaging" error."""
 from typing import NoReturn
 
-from httpx import Response
-
 from botx.clients.methods.base import BotXMethod
+from botx.clients.methods.wrappers import HTTPResponse
 from botx.exceptions import BotXAPIError
 
 
@@ -13,7 +12,7 @@ class MessagingError(BotXAPIError):
     message_template = "error from messaging service"
 
 
-def handle_error(method: BotXMethod, response: Response) -> NoReturn:
+def handle_error(method: BotXMethod, response: HTTPResponse) -> NoReturn:
     """Handle messaging error response.
 
     Arguments:
@@ -26,6 +25,6 @@ def handle_error(method: BotXMethod, response: Response) -> NoReturn:
     raise MessagingError(
         url=method.url,
         method=method.http_method,
-        response=response.json(),
+        response=response.json_body,
         status=response.status_code,
     )

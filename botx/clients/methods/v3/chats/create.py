@@ -3,12 +3,11 @@
 from typing import List, Optional
 from uuid import UUID
 
-import httpx
-
 from botx.clients.methods.base import AuthorizedBotXMethod
 from botx.clients.methods.errors import chat_creation_disallowed, chat_creation_error
 from botx.clients.methods.extractors import extract_generated_chat_id
 from botx.clients.types.response_results import ChatCreatedResult
+from botx.models.constants import HTTPCodes
 from botx.models.enums import ChatTypes
 
 
@@ -20,8 +19,8 @@ class Create(AuthorizedBotXMethod[UUID]):
     __returning__ = ChatCreatedResult
     __result_extractor__ = extract_generated_chat_id
     __errors_handlers__ = {
-        httpx.codes.FORBIDDEN: chat_creation_disallowed.handle_error,
-        httpx.codes.UNPROCESSABLE_ENTITY: chat_creation_error.handle_error,
+        HTTPCodes.FORBIDDEN: chat_creation_disallowed.handle_error,
+        HTTPCodes.UNPROCESSABLE_ENTITY: chat_creation_error.handle_error,
     }
 
     #: name of chat that should be created.

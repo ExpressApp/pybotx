@@ -1,8 +1,8 @@
 """Method for searching user by his AD credentials."""
-import httpx
 
 from botx.clients.methods.base import AuthorizedBotXMethod
 from botx.clients.methods.errors import user_not_found
+from botx.models.constants import HTTPCodes
 from botx.models.users import UserFromSearch
 
 
@@ -12,7 +12,7 @@ class ByLogin(AuthorizedBotXMethod[UserFromSearch]):
     __url__ = "/api/v3/botx/users/by_login"
     __method__ = "GET"
     __returning__ = UserFromSearch
-    __errors_handlers__ = {httpx.codes.NOT_FOUND: user_not_found.handle_error}
+    __errors_handlers__ = {HTTPCodes.NOT_FOUND: user_not_found.handle_error}
 
     #: AD login to search
     ad_login: str
