@@ -1,3 +1,10 @@
+## 0.16.10 (Dec 29, 2020)
+
+### Added
+
+* Attachments now have property `attach_type` with type of attachment.
+
+
 ## 0.16.9 (Dec 29, 2020)
 
 ### Fixed

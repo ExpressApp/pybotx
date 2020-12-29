@@ -214,3 +214,15 @@ def test_voice_attach_has_voice_type():
     builder = MessageBuilder()
     builder.voice()
     assert isinstance(builder.message.attachments.voice, Voice)
+
+
+def test_no_attach_type():
+    builder = MessageBuilder()
+    with pytest.raises(AttributeError):
+        builder.message.attachments.attach_type
+
+
+def test_attach_type():
+    builder = MessageBuilder()
+    builder.link()
+    builder.message.attachments.attach_type == "link"

@@ -352,3 +352,17 @@ class AttachList(BaseModel):  # noqa: WPS214, WPS338
                     file_name=attachment.data.file_name, data=attachment.data.content,
                 )
         raise AttributeError
+
+    @property
+    def attach_type(self) -> AttachmentsTypes:
+        """Get attachment type.
+
+        Returns:
+            AttachmentsTypes: Attachment type.
+        Raises:
+            AttributeError: message has no attachment.
+        """
+        if self.all_attachments:
+            return self.all_attachments[0].type
+
+        raise AttributeError
