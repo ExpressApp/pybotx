@@ -161,6 +161,9 @@ class BaseCollector:
         self, handlers: List[Handler], dependencies: Optional[Sequence[Depends]] = None,
     ) -> None:
         for handler in handlers:
+            combined_dependencies = _combine_dependencies(
+                dependencies, handler.dependencies,
+            )
             self.add_handler(
                 body=handler.body,
                 handler=handler.handler,
@@ -168,11 +171,7 @@ class BaseCollector:
                 description=handler.description,
                 full_description=handler.full_description,
                 include_in_status=handler.include_in_status,
-                dependencies=handler.dependencies,
-            )
-            created_handler = self.handler_for(handler.name)
-            created_handler.dependencies = _combine_dependencies(
-                dependencies, created_handler.dependencies,
+                dependencies=combined_dependencies,
             )
 
     def _add_default_handler(

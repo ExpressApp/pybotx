@@ -60,3 +60,28 @@ def test_preserving_order_after_merging_for_default_handler(
     numbers = [dep.dependency.number for dep in handler.dependencies]
 
     assert numbers == [1, 2, 3]
+
+
+def test_dependencies_order_in_include_collector(
+    message, handler_as_function, build_dependency,
+):
+    message.command.body = "/command"
+
+    collector1 = Collector()
+    collector2 = Collector()
+
+    collector2.add_handler(
+        handler=handler_as_function,
+        body=message.command.command,
+        dependencies=[Depends(build_dependency(2))],
+    )
+
+    collector1.include_collector(
+        collector2, dependencies=[Depends(build_dependency(1))],
+    )
+
+    handler = collector1.handler_for("handler_function")
+
+    numbers = [dep.dependency.number for dep in handler.dependencies]
+
+    assert numbers == [1, 2]

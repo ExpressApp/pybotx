@@ -1,3 +1,10 @@
+## 0.16.9 (Dec 29, 2020)
+
+### Fixed
+
+* Dependencies added trought `include_collector` don't called
+
+
 ## 0.16.8 (Dec 24, 2020)
 
 ### Added
