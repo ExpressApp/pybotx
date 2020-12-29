@@ -17,6 +17,8 @@ async def test_sending_notification(client, requests_client):
         result=ResultPayload(body="test"),
     )
 
-    assert await callable_to_coroutine(requests_client.call, method, "example.cts")
+    method.host = "example.com"
+    request = requests_client.build_request(method)
+    assert await callable_to_coroutine(requests_client.execute, method, request)
 
     assert client.requests[0].result.body == method.result.body

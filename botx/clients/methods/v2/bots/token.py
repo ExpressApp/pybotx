@@ -1,8 +1,7 @@
 """Method for retrieving token for bot."""
 from typing import Dict
+from urllib.parse import urljoin
 from uuid import UUID
-
-from httpx import URL
 
 from botx.clients.methods.base import BotXMethod, PrimitiveDataType
 
@@ -23,9 +22,8 @@ class Token(BotXMethod[str]):
     @property
     def url(self) -> str:
         """Full URL for request with filling bot_id."""
-        super_url = URL(super().url)
         api_url = self.__url__.format(bot_id=self.bot_id)
-        return str(super_url.join(api_url))
+        return urljoin(super().url, api_url)
 
     @property
     def query_params(self) -> Dict[str, PrimitiveDataType]:

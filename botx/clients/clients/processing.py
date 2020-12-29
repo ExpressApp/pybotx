@@ -3,16 +3,16 @@ import collections
 import contextlib
 from typing import TypeVar
 
-from httpx import Response
 from pydantic import ValidationError
 
 from botx import concurrency
 from botx.clients.methods.base import APIResponse, BotXMethod, ErrorHandlersInMethod
+from botx.clients.methods.wrappers import HTTPResponse
 
 ResponseT = TypeVar("ResponseT")
 
 
-def extract_result(method: BotXMethod[ResponseT], response: Response) -> ResponseT:
+def extract_result(method: BotXMethod[ResponseT], response: HTTPResponse) -> ResponseT:
     """Extract result from successful response and convert it to right shape.
 
     Arguments:
@@ -23,7 +23,10 @@ def extract_result(method: BotXMethod[ResponseT], response: Response) -> Respons
         Converted shape from BotX API.
     """
     return_shape = method.returning
-    api_response = APIResponse[return_shape].parse_obj(response.json())  # type: ignore
+
+    api_response = APIResponse[return_shape].parse_obj(  # type: ignore
+        response.json_body,
+    )
     response_result = api_response.result
     extractor = method.result_extractor
     if extractor is not None:
@@ -34,7 +37,7 @@ def extract_result(method: BotXMethod[ResponseT], response: Response) -> Respons
 
 
 async def handle_error(
-    method: BotXMethod, error_handlers: ErrorHandlersInMethod, response: Response,
+    method: BotXMethod, error_handlers: ErrorHandlersInMethod, response: HTTPResponse,
 ) -> None:
     """Handle error status code from BotX API.
 
