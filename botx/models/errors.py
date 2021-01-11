@@ -2,17 +2,19 @@
 
 from typing import Any, Dict, List, Union
 
-from pydantic import BaseModel, validator
+from pydantic import validator
+
+from botx.models.base import BotXBaseModel
 
 
-class BotDisabledErrorData(BaseModel):
+class BotDisabledErrorData(BotXBaseModel):
     """Data about occurred error."""
 
     #: message that will be shown to user.
     status_message: str
 
 
-class BotDisabledResponse(BaseModel):
+class BotDisabledResponse(BotXBaseModel):
     """Response to BotX API if there was an error in handling incoming request."""
 
     #: error reason. *This should always be `bot_disabled` string.*

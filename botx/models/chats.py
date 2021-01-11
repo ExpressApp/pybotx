@@ -3,13 +3,12 @@
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel
-
+from botx.models.base import BotXBaseModel
 from botx.models.enums import ChatTypes
 from botx.models.users import UserFromChatSearch
 
 
-class ChatFromSearch(BaseModel):
+class ChatFromSearch(BotXBaseModel):
     """Chat from search request."""
 
     #: name of chat.

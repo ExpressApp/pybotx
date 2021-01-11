@@ -4,13 +4,14 @@ from datetime import datetime
 from typing import List, Optional, Union, cast
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, validator
+from pydantic import validator
 
 from botx.models.attachments import Attachments
+from botx.models.base import BotXBaseModel
 from botx.models.enums import ChatTypes, EntityTypes, MentionTypes
 
 
-class Forward(BaseModel):
+class Forward(BotXBaseModel):
     """Forward in message."""
 
     #: ID of chat from which forward received.
@@ -32,7 +33,7 @@ class Forward(BaseModel):
     source_inserted_at: datetime
 
 
-class UserMention(BaseModel):
+class UserMention(BotXBaseModel):
     """Mention for single user in chat or by `user_huid`."""
 
     #: huid of user that will be mentioned.
@@ -45,7 +46,7 @@ class UserMention(BaseModel):
     conn_type: Optional[str] = None
 
 
-class ChatMention(BaseModel):
+class ChatMention(BotXBaseModel):
     """Mention chat in message by `group_chat_id`."""
 
     #: id of chat that will be mentioned.
@@ -55,7 +56,7 @@ class ChatMention(BaseModel):
     name: Optional[str] = None
 
 
-class Mention(BaseModel):
+class Mention(BotXBaseModel):
     """Mention that is used in bot in messages."""
 
     #: unique id of mention.
@@ -118,7 +119,7 @@ class Mention(BaseModel):
         )
 
 
-class Reply(BaseModel):
+class Reply(BotXBaseModel):
     """Message that was replied."""
 
     #: array of attachments.
@@ -146,7 +147,7 @@ class Reply(BaseModel):
     source_sync_id: UUID
 
 
-class Entity(BaseModel):
+class Entity(BotXBaseModel):
     """Additional entity that can be received by bot."""
 
     #: entity type.
@@ -156,7 +157,7 @@ class Entity(BaseModel):
     data: Union[Forward, Mention, Reply]  # noqa: WPS110
 
 
-class EntityList(BaseModel):
+class EntityList(BotXBaseModel):
     """Additional wrapped class for use property."""
 
     __root__: List[Entity]

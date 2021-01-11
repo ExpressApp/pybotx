@@ -2,13 +2,12 @@
 
 from typing import List
 
-from pydantic import BaseModel
-
+from botx.models.base import BotXBaseModel
 from botx.models.entities import Mention
 from botx.models.typing import AvailableRecipients
 
 
-class NotificationOptions(BaseModel):
+class NotificationOptions(BotXBaseModel):
     """Configurations for message notifications."""
 
     #: show notification about message.
@@ -18,7 +17,7 @@ class NotificationOptions(BaseModel):
     force_dnd: bool = False
 
 
-class MessageOptions(BaseModel):
+class MessageOptions(BotXBaseModel):
     """Message options configuration."""
 
     #: users that should receive message.
