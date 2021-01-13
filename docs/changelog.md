@@ -1,3 +1,9 @@
+## Unreleased
+
+### Changed
+
+* All models use enum's fields by value
+
 ## 0.16.10 (Dec 29, 2020)
 
 ### Added

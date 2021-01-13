@@ -2,14 +2,13 @@
 
 from typing import List, Optional, Type, TypeVar
 
-from pydantic import BaseModel
-
+from botx.models.base import BotXBaseModel
 from botx.models.buttons import BubbleElement, Button, ButtonOptions, KeyboardElement
 
 TUIElement = TypeVar("TUIElement", bound=Button)
 
 
-class MessageMarkup(BaseModel):
+class MessageMarkup(BotXBaseModel):
     """Collection for bubbles and keyboard with some helper methods."""
 
     #: bubbles that will be attached to message.

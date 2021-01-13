@@ -3,12 +3,11 @@
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel
-
+from botx.models.base import BotXBaseModel
 from botx.models.enums import UserKinds
 
 
-class UserInChatCreated(BaseModel):
+class UserInChatCreated(BotXBaseModel):
     """User that can be included in data in `system:chat_created` event."""
 
     #: user HUID.
@@ -24,7 +23,7 @@ class UserInChatCreated(BaseModel):
     admin: bool
 
 
-class UserFromSearch(BaseModel):
+class UserFromSearch(BotXBaseModel):
     """User from search request."""
 
     #: HUID of user from search.
@@ -52,7 +51,7 @@ class UserFromSearch(BaseModel):
     emails: List[str]
 
 
-class UserFromChatSearch(BaseModel):
+class UserFromChatSearch(BotXBaseModel):
     """User from chat search request."""
 
     #: is user admin of chat.

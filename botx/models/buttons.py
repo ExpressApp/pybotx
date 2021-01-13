@@ -2,10 +2,12 @@
 
 from typing import Optional
 
-from pydantic import BaseModel, validator
+from pydantic import validator
+
+from botx.models.base import BotXBaseModel
 
 
-class ButtonOptions(BaseModel):
+class ButtonOptions(BotXBaseModel):
     """Extra options for buttons, like disabling output by tap."""
 
     #: if True then text won't shown for user in messenger.
@@ -39,7 +41,7 @@ class ButtonOptions(BaseModel):
         return h_size
 
 
-class Button(BaseModel):
+class Button(BotXBaseModel):
     """Base class for ui element like bubble or keyboard button."""
 
     #: command that will be triggered by click on the element.

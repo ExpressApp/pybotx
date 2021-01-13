@@ -4,13 +4,12 @@ from types import MappingProxyType
 from typing import List, Mapping, Type
 from uuid import UUID
 
-from pydantic import BaseModel
-
+from botx.models.base import BotXBaseModel
 from botx.models.enums import ChatTypes, SystemEvents
 from botx.models.users import UserInChatCreated
 
 
-class ChatCreatedEvent(BaseModel):
+class ChatCreatedEvent(BotXBaseModel):
     """Shape for `system:chat_created` event data."""
 
     #: chat id from which event received.
@@ -29,21 +28,21 @@ class ChatCreatedEvent(BaseModel):
     members: List[UserInChatCreated]
 
 
-class AddedToChatEvent(BaseModel):
+class AddedToChatEvent(BotXBaseModel):
     """Shape for `system:added_to_chat` event data."""
 
     #: members added to chat.
     added_members: List[UUID]
 
 
-class DeletedFromChatEvent(BaseModel):
+class DeletedFromChatEvent(BotXBaseModel):
     """Shape for `system:deleted_from_chat` event data."""
 
     #: members deleted from chat
     deleted_members: List[UUID]
 
 
-class LeftFromChatEvent(BaseModel):
+class LeftFromChatEvent(BotXBaseModel):
     """Shape for `system:left_from_chat` event data."""
 
     #: left chat members
@@ -51,7 +50,7 @@ class LeftFromChatEvent(BaseModel):
 
 
 # dict for validating shape for different events
-EVENTS_SHAPE_MAP: Mapping[SystemEvents, Type[BaseModel]] = MappingProxyType(
+EVENTS_SHAPE_MAP: Mapping[SystemEvents, Type[BotXBaseModel]] = MappingProxyType(
     {
         SystemEvents.chat_created: ChatCreatedEvent,
         SystemEvents.added_to_chat: AddedToChatEvent,

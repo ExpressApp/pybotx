@@ -6,10 +6,10 @@ import hmac
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from botx.models.base import BotXBaseModel
 
 
-class ServerCredentials(BaseModel):
+class ServerCredentials(BotXBaseModel):
     """Container for credentials for bot."""
 
     #: bot that retrieved token from API.
@@ -19,7 +19,7 @@ class ServerCredentials(BaseModel):
     token: str
 
 
-class ExpressServer(BaseModel):
+class ExpressServer(BotXBaseModel):
     """Server on which bot can answer."""
 
     #: host name of server.

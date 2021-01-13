@@ -8,9 +8,11 @@ from pathlib import Path
 from typing import AnyStr, AsyncIterable, BinaryIO, Generator, Optional, TextIO, Union
 
 from base64io import Base64IO
-from pydantic import BaseModel, validator
+from pydantic import validator
 
 #: file extensions that can be proceed by BotX API.
+from botx.models.base import BotXBaseModel
+
 BOTX_API_ACCEPTED_EXTENSIONS = (
     # image extensions
     ".jpg",
@@ -46,7 +48,7 @@ class NamedAsyncIterable(AsyncIterable):
     name: str
 
 
-class File(BaseModel):  # noqa: WPS214
+class File(BotXBaseModel):  # noqa: WPS214
     """Object that represents file in RFC 2397 format."""
 
     #: name of file.

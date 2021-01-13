@@ -3,8 +3,9 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
+from botx.models.base import BotXBaseModel
 from botx.models.constants import MAXIMUM_TEXT_LENGTH
 from botx.models.entities import Mention
 from botx.models.files import File
@@ -13,7 +14,7 @@ from botx.models.messages.sending.options import MessageOptions, NotificationOpt
 from botx.models.typing import BubbleMarkup, KeyboardMarkup
 
 
-class MessagePayload(BaseModel):
+class MessagePayload(BotXBaseModel):
     """Message payload configuration."""
 
     #: message text.
@@ -32,7 +33,7 @@ class MessagePayload(BaseModel):
     options: MessageOptions = MessageOptions()
 
 
-class UpdatePayload(BaseModel):
+class UpdatePayload(BotXBaseModel):
     """Payload for message edition."""
 
     #: new message text.

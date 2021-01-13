@@ -161,7 +161,7 @@ def test_message_is_proxy_to_incoming_message(incoming_message) -> None:
     assert msg.user_huid == incoming_message.user.user_huid
     assert msg.ad_login == incoming_message.user.ad_login
     assert msg.group_chat_id == incoming_message.user.group_chat_id
-    assert msg.chat_type == incoming_message.user.chat_type.value
+    assert msg.chat_type == incoming_message.user.chat_type
     assert msg.host == incoming_message.user.host
     assert msg.credentials.sync_id == incoming_message.sync_id
     assert msg.credentials.bot_id == incoming_message.bot_id

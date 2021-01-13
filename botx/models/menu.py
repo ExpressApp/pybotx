@@ -2,12 +2,11 @@
 
 from typing import List
 
-from pydantic import BaseModel
-
+from botx.models.base import BotXBaseModel
 from botx.models.enums import Statuses
 
 
-class MenuCommand(BaseModel):
+class MenuCommand(BotXBaseModel):
     """Command that is shown in bot menu."""
 
     #: command description that will be shown in menu.
@@ -20,7 +19,7 @@ class MenuCommand(BaseModel):
     name: str
 
 
-class StatusResult(BaseModel):
+class StatusResult(BotXBaseModel):
     """Bot menu commands collection."""
 
     #: is bot enabled.
@@ -33,7 +32,7 @@ class StatusResult(BaseModel):
     commands: List[MenuCommand] = []
 
 
-class Status(BaseModel):
+class Status(BotXBaseModel):
     """Object that should be returned on `/status` request from BotX API."""
 
     #: operation status.

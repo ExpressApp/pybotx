@@ -3,10 +3,10 @@
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from botx.models.base import BotXBaseModel
 
 
-class SendingCredentials(BaseModel):
+class SendingCredentials(BotXBaseModel):
     """Credentials that are required to send command or notification result."""
 
     #: message event id.
