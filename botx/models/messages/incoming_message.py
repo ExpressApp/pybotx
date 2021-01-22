@@ -8,7 +8,7 @@ from pydantic import BaseConfig, BaseModel, Field, validator
 from botx.models import events
 from botx.models.attachments import AttachList
 from botx.models.entities import EntityList
-from botx.models.enums import ChatTypes, CommandTypes
+from botx.models.enums import ChatTypes, ClientPlatformEnum, CommandTypes
 from botx.models.files import File
 
 CommandDataType = Union[
@@ -62,6 +62,19 @@ class Command(BaseModel):
         return self.data.dict()
 
 
+class DeviceMeta(BaseModel):
+    """User device metadata."""
+
+    #: could send pushes.
+    pushes: Optional[bool]
+
+    #: user timezone.
+    timezone: Optional[str]
+
+    #: app permissions (microphone, camera, etc.)
+    permissions: Optional[Dict[str, Any]]
+
+
 class Sender(BaseModel):
     """User that sent message to bot."""
 
@@ -88,6 +101,30 @@ class Sender(BaseModel):
 
     #: is user creator of chat.
     is_creator: Optional[bool]
+
+    #: device brand.
+    manufacturer: Optional[str]
+
+    #: device name.
+    device: Optional[str]
+
+    #: device Operating System.
+    device_software: Optional[str]
+
+    #: device metadata.
+    device_meta: Optional[DeviceMeta]
+
+    #: client platform name.
+    platform: Optional[ClientPlatformEnum]
+
+    #: platform package ID with app data and device.
+    platform_package_id: Optional[str]
+
+    #: Express app version.
+    app_version: Optional[str]
+
+    #: session locale.
+    locale: Optional[str]
 
     #: host from which user sent message.
     host: str

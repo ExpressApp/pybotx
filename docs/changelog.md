@@ -7,6 +7,8 @@
 ### Added
 
 * Now `File` has property `size_in_bytes`
+* New fields in **message.user**: `manufacturer`, `device`, `device_software`,
+  `device_meta`, `platform`, `platform_package_id`, `app_version`, `locale`.
 
 
 ## 0.16.10 (Dec 29, 2020)
