@@ -10,8 +10,13 @@ from pydantic.dataclasses import dataclass
 from botx.models import enums
 from botx.models.attachments import AttachList
 from botx.models.entities import EntityList
-from botx.models.enums import ChatTypes
-from botx.models.messages.incoming_message import Command, IncomingMessage, Sender
+from botx.models.enums import ChatTypes, ClientPlatformEnum
+from botx.models.messages.incoming_message import (
+    Command,
+    DeviceMeta,
+    IncomingMessage,
+    Sender,
+)
 from botx.testing.building.attachments import BuildAttachmentsMixin
 from botx.testing.building.entites import BuildEntityMixin
 from botx.testing.building.validators import (
@@ -32,6 +37,18 @@ def _build_default_user() -> Sender:
         is_admin=True,
         is_creator=True,
         host="cts.example.com",
+        manufacturer="Google",
+        device="Chrome 87.0",
+        device_software="macOS 10.15.7",
+        device_meta=DeviceMeta(
+            pushes=False,
+            timezone="Asia/Novosibirsk",
+            permissions={"microphone": True, "notifications": False},
+        ),
+        platform=ClientPlatformEnum.web,
+        platform_package_id=None,
+        app_version="1.15.52",
+        locale="en",
     )
 
 

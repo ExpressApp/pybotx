@@ -125,3 +125,19 @@ class LinkProtos(str, Enum):
 
     #: proto for attach with telephone number.
     telephone = "tel://"
+
+
+class ClientPlatformEnum(str, Enum):
+    """Enum for distinguishing client platforms."""
+
+    #: Web platform.
+    web = "web"
+
+    #: Android platform.
+    android = "android"
+
+    #: iOS platform.
+    ios = "ios"
+
+    #: Desktop platform.
+    desktop = "desktop"
