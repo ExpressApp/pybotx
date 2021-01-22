@@ -4,11 +4,16 @@
 
 * All models use enum's fields by value
 
+### Added
+
+* Now `File` has property `size_in_bytes`
+
+
 ## 0.16.10 (Dec 29, 2020)
 
 ### Added
 
-* Attachments now have property `attach_type` with type of attachment.
+* Attachments now have property `attach_type` with type of attachment
 
 
 ## 0.16.9 (Dec 29, 2020)

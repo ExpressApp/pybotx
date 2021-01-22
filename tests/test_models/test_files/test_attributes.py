@@ -15,6 +15,10 @@ def test_retrieving_file_media_type():
     assert File.from_string(b"test", filename="test.txt").media_type == "text/plain"
 
 
+def test_retrieving_file_size():
+    assert File.from_string(b"file\ncontents", filename="test.txt").size_in_bytes == 13
+
+
 @pytest.mark.parametrize("extension", [".txt", ".TXT"])
 def test_accept_has_supported_extension(extension):
     filename = f"test{extension}"

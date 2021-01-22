@@ -182,6 +182,12 @@ class File(BotXBaseModel):  # noqa: WPS214
         return bytes_file
 
     @property
+    def size_in_bytes(self) -> int:
+        """Return file size in bytes."""
+        with self.file_chunks() as chunks:
+            return sum(len(chunk) for chunk in chunks)  # type: ignore
+
+    @property
     def data_in_bytes(self) -> bytes:
         """Return decoded file data in bytes."""
         return base64.b64decode(self.data_in_base64)
