@@ -1,8 +1,13 @@
-## Unreleased
+## 0.17.0 (Jan 28, 2021)
 
 ### Changed
 
+* Mimetypes are now taken from constant dict, not `mimetypes` library
 * All models use enum's fields by value
+
+### Fixed
+
+* `File.media_type` property
 
 ### Added
 
