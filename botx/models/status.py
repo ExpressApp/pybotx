@@ -2,12 +2,11 @@
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel
-
 from botx import ChatTypes
+from botx.models.base import BotXBaseModel
 
 
-class StatusRecipient(BaseModel):
+class StatusRecipient(BotXBaseModel):
     """Model of recipients in status request."""
 
     #: bot that request status

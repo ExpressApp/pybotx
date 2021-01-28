@@ -1,45 +1,64 @@
 """Definition of file that can be included in incoming message or in sending result."""
 
 import base64
-import mimetypes
 from contextlib import contextmanager
 from io import BytesIO
 from pathlib import Path
+from types import MappingProxyType
 from typing import AnyStr, AsyncIterable, BinaryIO, Generator, Optional, TextIO, Union
 
 from base64io import Base64IO
 from pydantic import validator
 
-#: file extensions that can be proceed by BotX API.
 from botx.models.base import BotXBaseModel
 
-BOTX_API_ACCEPTED_EXTENSIONS = (
-    # image extensions
-    ".jpg",
-    ".jpeg",
-    ".gif",
-    ".png",
-    # document extensions
-    ".doc",
-    ".docx",
-    ".xls",
-    ".xlsx",
-    ".txt",
-    ".pdf",
-    ".html",
-    ".json",
-    ".sig",
-    ".ppt",
-    ".pptx",
-    # media extensions
-    ".mp3",
-    ".mp4",
-    # archive extensions
-    ".gz",
-    ".tgz",
-    ".zip",
-    ".rar",
+EXTENSIONS_TO_MIMETYPES = MappingProxyType(
+    {
+        # image_extensions
+        ".gif": "image/gif",
+        ".jpeg": "image/jpeg",
+        ".jpg": "image/jpeg",
+        ".png": "image/png",
+        ".svg": "image/svg+xml",
+        ".tiff": "image/tiff",
+        # document_extensions
+        ".csv": "text/csv",
+        ".doc": "application/msword",
+        ".docm": "application/vnd.ms-word.document.macroenabled.12",
+        ".docx": (
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ),
+        ".gz": "application/gzip",
+        ".html": "text/html",
+        ".json": "application/json",
+        ".mp3": "audio/mpeg",
+        ".mp4": "video/mp4",
+        ".odp": "application/vnd.oasis.opendocument.presentation",
+        ".ods": "application/vnd.oasis.opendocument.spreadsheet",
+        ".odt": "application/vnd.oasis.opendocument.text",
+        ".pdf": "application/pdf",
+        ".ppt": "application/vnd.ms-powerpoint",
+        ".pptm": "application/vnd.ms-powerpoint.presentation.macroenabled.12",
+        ".pptx": (
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        ),
+        ".psd": "image/vnd.adobe.photoshop",
+        ".rar": "application/vnd.rar",
+        ".rtf": "application/rtf",
+        ".sig": "application/pgp-signature",
+        ".tgz": "application/gzip",
+        ".txt": "text/plain",
+        ".vsd": "application/vnd.visio",
+        ".vsdx": "application/octet-stream",
+        ".xls": "application/vnd.ms-excel",
+        ".xlsm": "application/vnd.ms-excel.sheet.macroenabled.12",
+        ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        ".xml": "text/xml",
+        ".zip": "application/zip",
+    },
 )
+#: file extensions that can be proceed by BotX API.
+BOTX_API_ACCEPTED_EXTENSIONS = EXTENSIONS_TO_MIMETYPES.keys()
 
 
 class NamedAsyncIterable(AsyncIterable):
@@ -200,7 +219,7 @@ class File(BotXBaseModel):  # noqa: WPS214
     @property
     def media_type(self) -> str:
         """Return media type of file."""
-        return self._get_mimetype(self.data)
+        return self._get_mimetype(self.file_name)
 
     @classmethod
     def has_supported_extension(cls, filename: str) -> bool:
@@ -238,4 +257,5 @@ class File(BotXBaseModel):  # noqa: WPS214
         Returns:
             File mimetype.
         """
-        return mimetypes.guess_type(filename)[0] or "text/plain"
+        file_extension = Path(filename).suffix.lower()
+        return EXTENSIONS_TO_MIMETYPES[file_extension]
