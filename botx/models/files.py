@@ -200,7 +200,7 @@ class File(BotXBaseModel):  # noqa: WPS214
     @property
     def media_type(self) -> str:
         """Return media type of file."""
-        return self._get_mimetype(self.data)
+        return self._get_mimetype(self.file_name)
 
     @classmethod
     def has_supported_extension(cls, filename: str) -> bool:
