@@ -141,3 +141,13 @@ class ClientPlatformEnum(str, Enum):
 
     #: Desktop platform.
     desktop = "desktop"
+
+
+class ButtonHandlerTypes(str, Enum):
+    """Enum for markup's `handler` field."""
+
+    #: bot side process.
+    bot = "bot"
+
+    #: client side process.
+    client = "client"
