@@ -1,3 +1,10 @@
+## 0.17.1 (Feb 9, 2021)
+
+### Added
+
+* Add `handler` option for bubbles and keyboard buttons
+
+
 ## 0.17.0 (Jan 28, 2021)
 
 ### Changed
