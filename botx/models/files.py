@@ -12,8 +12,9 @@ from pydantic import validator
 
 from botx.models.base import BotXBaseModel
 
+
 EXTENSIONS_TO_MIMETYPES = MappingProxyType(
-    {
+    { 
         # image_extensions
         ".gif": "image/gif",
         ".jpeg": "image/jpeg",
@@ -25,9 +26,7 @@ EXTENSIONS_TO_MIMETYPES = MappingProxyType(
         ".csv": "text/csv",
         ".doc": "application/msword",
         ".docm": "application/vnd.ms-word.document.macroenabled.12",
-        ".docx": (
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        ),
+        ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         ".gz": "application/gzip",
         ".html": "text/html",
         ".json": "application/json",
@@ -39,9 +38,7 @@ EXTENSIONS_TO_MIMETYPES = MappingProxyType(
         ".pdf": "application/pdf",
         ".ppt": "application/vnd.ms-powerpoint",
         ".pptm": "application/vnd.ms-powerpoint.presentation.macroenabled.12",
-        ".pptx": (
-            "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-        ),
+        ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
         ".psd": "image/vnd.adobe.photoshop",
         ".rar": "application/vnd.rar",
         ".rtf": "application/rtf",
@@ -55,7 +52,7 @@ EXTENSIONS_TO_MIMETYPES = MappingProxyType(
         ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         ".xml": "text/xml",
         ".zip": "application/zip",
-    },
+    }
 )
 #: file extensions that can be proceed by BotX API.
 BOTX_API_ACCEPTED_EXTENSIONS = EXTENSIONS_TO_MIMETYPES.keys()

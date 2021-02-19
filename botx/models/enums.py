@@ -26,6 +26,9 @@ class SystemEvents(Enum):
     #: `file_transfer` message.
     file_transfer = "file_transfer"
 
+    #: `system:smartapp_event` event.
+    smartapp = "system:smartapp_event"
+
 
 class CommandTypes(str, Enum):
     """Enum that specify from whom command was received."""
@@ -141,13 +144,3 @@ class ClientPlatformEnum(str, Enum):
 
     #: Desktop platform.
     desktop = "desktop"
-
-
-class ButtonHandlerTypes(str, Enum):
-    """Enum for markup's `handler` field."""
-
-    #: bot side process.
-    bot = "bot"
-
-    #: client side process.
-    client = "client"

@@ -1,7 +1,5 @@
 """A little python framework for building bots for Express."""
 
-from loguru import logger
-
 from botx.bots.bots import Bot
 from botx.clients.clients.async_client import AsyncClient
 from botx.clients.clients.sync_client import Client
@@ -50,8 +48,10 @@ from botx.models.messages.sending.markup import MessageMarkup
 from botx.models.messages.sending.message import SendingMessage
 from botx.models.messages.sending.options import MessageOptions, NotificationOptions
 from botx.models.messages.sending.payload import MessagePayload, UpdatePayload
+from botx.models.smartapp import SendingSmartApp, SmartAppData
 from botx.models.status import StatusRecipient
 from botx.testing.building.builder import MessageBuilder
+from loguru import logger
 
 try:
     from botx.testing.testing_client.client import TestClient  # noqa: WPS433
@@ -128,6 +128,8 @@ __all__ = (
     "NotificationOptions",
     "MessagePayload",
     "UpdatePayload",
+    "SmartAppData",
+    "SendingSmartApp",
     # testing
     "TestClient",
     "MessageBuilder",

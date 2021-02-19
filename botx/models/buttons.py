@@ -5,7 +5,6 @@ from typing import Optional
 from pydantic import validator
 
 from botx.models.base import BotXBaseModel
-from botx.models.enums import ButtonHandlerTypes
 
 
 class ButtonOptions(BotXBaseModel):
@@ -22,10 +21,6 @@ class ButtonOptions(BotXBaseModel):
 
     #: text to be shown in toast (show command body if `alert_text` is `None`).
     alert_text: Optional[str] = None
-
-    #: platform, that handle command from markup. If `bot` - command should be send
-    # to bot, else(`client`) should be executed by client.
-    handler: ButtonHandlerTypes = ButtonHandlerTypes.bot
 
     @validator("h_size")
     def h_size_should_be_positive(cls, h_size: int) -> int:  # noqa: N805

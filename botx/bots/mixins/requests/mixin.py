@@ -2,7 +2,15 @@
 from typing import Optional, TypeVar, cast
 from uuid import UUID
 
-from botx.bots.mixins.requests import bots, chats, command, events, notification, users
+from botx.bots.mixins.requests import (
+    bots,
+    chats,
+    command,
+    events,
+    notification,
+    smartapp,
+    users,
+)
 from botx.clients.clients.async_client import AsyncClient
 from botx.clients.methods.base import BotXMethod
 from botx.clients.methods.v2.bots.token import Token
@@ -36,6 +44,7 @@ class BotXRequestsMixin(  # noqa: WPS215
     events.EventsRequestsMixin,
     notification.NotificationRequestsMixin,
     users.UsersRequestsMixin,
+    smartapp.SmartAppMixin,
 ):
     """Mixin that defines methods for communicating with BotX API."""
 
@@ -86,12 +95,16 @@ class BotXRequestsMixin(  # noqa: WPS215
 
 
 async def _fill_token(
-    client: AsyncClient, host: str, bot_id: UUID, server: ExpressServer,
+    client: AsyncClient,
+    host: str,
+    bot_id: UUID,
+    server: ExpressServer,
 ) -> None:
     if server.server_credentials is not None:
         return
 
     method = Token(bot_id=bot_id, signature=server.calculate_signature(bot_id))
     server.server_credentials = ServerCredentials(
-        bot_id=bot_id, token=await client.call(method, host),
+        bot_id=bot_id,
+        token=await client.call(method, host),
     )

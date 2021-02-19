@@ -1,3 +1,10 @@
+## unreleased
+
+### Added
+
+* Add `smartapp` support
+
+
 ## 0.17.1 (Feb 9, 2021)
 
 ### Added

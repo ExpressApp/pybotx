@@ -164,3 +164,27 @@ class SystemEventsHandlerMixin:
             dependencies=dependencies,
             dependency_overrides_provider=dependency_overrides_provider,
         )
+
+    def smartapp(
+        self,
+        handler: Optional[Callable] = None,
+        *,
+        dependencies: Optional[Sequence[Depends]] = None,
+        dependency_overrides_provider: Any = None,
+    ) -> Callable:
+        """Register handler for `smartapp_event` event.
+
+        Arguments:
+            handler: callable that will be used for executing handler.
+            dependencies: sequence of dependencies that should be executed before
+                handler.
+            dependency_overrides_provider: mock of callable for handler.
+
+        Returns:
+            Passed in `handler` callable.
+        """
+        return self.collector.smartapp(
+            handler=handler,
+            dependencies=dependencies,
+            dependency_overrides_provider=dependency_overrides_provider,
+        )

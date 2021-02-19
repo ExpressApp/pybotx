@@ -1,7 +1,7 @@
 """Definition of different schemas for system events."""
 
 from types import MappingProxyType
-from typing import List, Mapping, Type
+from typing import Any, List, Mapping, Type
 from uuid import UUID
 
 from botx.models.base import BotXBaseModel
@@ -47,6 +47,25 @@ class LeftFromChatEvent(BotXBaseModel):
 
     #: left chat members
     left_members: List[UUID]
+
+
+class SmartAppEvent(BotXBaseModel):
+    """Shape for `system:left_from_chat` event data."""
+
+    #: uniq id of request
+    ref: UUID
+
+    #:id of smartapp
+    smartapp_id: UUID
+
+    #: user's data
+    data: Any
+
+    #: options of smartapp
+    opts: Any
+
+    #: version of protocol smartapp <-> bot
+    smartapp_api_version: int
 
 
 # dict for validating shape for different events
