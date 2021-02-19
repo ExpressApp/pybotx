@@ -95,16 +95,12 @@ class BotXRequestsMixin(  # noqa: WPS215
 
 
 async def _fill_token(
-    client: AsyncClient,
-    host: str,
-    bot_id: UUID,
-    server: ExpressServer,
+    client: AsyncClient, host: str, bot_id: UUID, server: ExpressServer,
 ) -> None:
     if server.server_credentials is not None:
         return
 
     method = Token(bot_id=bot_id, signature=server.calculate_signature(bot_id))
     server.server_credentials = ServerCredentials(
-        bot_id=bot_id,
-        token=await client.call(method, host),
+        bot_id=bot_id, token=await client.call(method, host),
     )

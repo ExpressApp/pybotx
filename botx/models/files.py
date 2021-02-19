@@ -12,9 +12,8 @@ from pydantic import validator
 
 from botx.models.base import BotXBaseModel
 
-
 EXTENSIONS_TO_MIMETYPES = MappingProxyType(
-    { 
+    {
         # image_extensions
         ".gif": "image/gif",
         ".jpeg": "image/jpeg",
@@ -52,7 +51,7 @@ EXTENSIONS_TO_MIMETYPES = MappingProxyType(
         ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         ".xml": "text/xml",
         ".zip": "application/zip",
-    }
+    },
 )
 #: file extensions that can be proceed by BotX API.
 BOTX_API_ACCEPTED_EXTENSIONS = EXTENSIONS_TO_MIMETYPES.keys()

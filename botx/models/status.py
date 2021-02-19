@@ -2,9 +2,8 @@
 from typing import Optional
 from uuid import UUID
 
-from botx.models.base import BotXBaseModel
-
 from botx import ChatTypes
+from botx.models.base import BotXBaseModel
 
 
 class StatusRecipient(BotXBaseModel):
