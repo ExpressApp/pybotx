@@ -130,8 +130,11 @@ class Sender(BaseModel):
     host: str
 
     @property
-    def email(self) -> Optional[str]:
-        """User email."""
+    def upn(self) -> Optional[str]:
+        """User principal name.
+
+        https://docs.microsoft.com/en-us/windows/win32/adschema/a-userprincipalname
+        """
         if self.ad_login and self.ad_domain:
             return "{0}@{1}".format(self.ad_login, self.ad_domain)
 
