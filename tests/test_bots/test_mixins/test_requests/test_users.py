@@ -19,7 +19,7 @@ async def test_search_using_huid_method(client, message):
 
 
 async def test_search_using_email_method(client, message):
-    await client.bot.search_user(message.credentials, email=message.user.email)
+    await client.bot.search_user(message.credentials, email=message.user.upn)
 
     assert isinstance(client.requests[0], ByEmail)
 
