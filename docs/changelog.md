@@ -1,3 +1,10 @@
+## 0.17.2 (Mar 12, 2021)
+
+### Changed
+
+* Add `bot_id` attribute to `ExpressServer` model
+
+
 ## 0.17.1 (Feb 9, 2021)
 
 ### Added
