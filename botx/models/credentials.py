@@ -31,6 +31,9 @@ class ExpressServer(BotXBaseModel):
     #: obtained credentials for bot.
     server_credentials: Optional[ServerCredentials] = None
 
+    #: bot id
+    bot_id: Optional[UUID] = None
+
     def calculate_signature(self, bot_id: UUID) -> str:
         """Calculate signature for obtaining token for bot from BotX API.
 
