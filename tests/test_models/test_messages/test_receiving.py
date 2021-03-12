@@ -49,7 +49,7 @@ def test_user_email_when_credentials_passed() -> None:
         is_creator=True,
         host="cts.example.com",
     )
-    assert sender.email == "user@example.com"
+    assert sender.upn == "user@example.com"
 
 
 def test_user_email_when_credentials_missed() -> None:
@@ -60,7 +60,7 @@ def test_user_email_when_credentials_missed() -> None:
             is_admin=False,
             is_creator=True,
             host="cts.example.com",
-        ).email
+        ).upn
         is None
     )
 

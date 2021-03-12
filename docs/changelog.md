@@ -1,3 +1,10 @@
+## 0.18.0 (Mar 13, 2021)
+
+### Changed
+
+* Now `message.data` returns concatenated metadata and data from UI element
+* `message.user.email` renamed to `message.user.upn`
+
 ## 0.17.2 (Mar 12, 2021)
 
 ### Changed

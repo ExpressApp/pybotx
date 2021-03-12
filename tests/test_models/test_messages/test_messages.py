@@ -156,7 +156,7 @@ def test_message_is_proxy_to_incoming_message(incoming_message) -> None:
     assert msg.user == incoming_message.user
     assert msg.bot_id == incoming_message.bot_id
     assert msg.body == incoming_message.command.body
-    assert msg.data == incoming_message.command.data_dict
+    assert msg.data == {**msg.metadata, **incoming_message.command.data_dict}
     assert msg.metadata == incoming_message.command.metadata
     assert msg.user_huid == incoming_message.user.user_huid
     assert msg.ad_login == incoming_message.user.ad_login
