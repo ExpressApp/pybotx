@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Union, List
 from uuid import UUID
 
 from botx.models.base import BotXBaseModel
@@ -23,8 +23,8 @@ class SendingSmartApp(BotXBaseModel):
     #:id of smartapp
     smartapp_id: UUID
 
-    #: user's data
-    data: SmartAppData
+    #: payload of smartapp
+    data: Union[Dict, List]
 
     #: options of smartapp
     opts: Dict
@@ -36,7 +36,7 @@ class SendingSmartApp(BotXBaseModel):
     group_chat_id: UUID
 
     @classmethod
-    def from_message_with_smartapp(cls, data: SmartAppData, message: Message):
+    def from_message_with_smartapp(cls, data: Union[Dict, List], message: Message):
         return cls(
             ref=message.data.ref,
             smartapp_id=message.data.smartapp_id,
