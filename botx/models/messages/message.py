@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Any, Optional, Type
+from typing import Any, Dict, Optional, Type
 from uuid import UUID
 
 from botx.bots import bots
@@ -63,9 +63,6 @@ class Message:
 
     #: command body.
     body: str = _message_proxy_property("command")
-
-    #: command data.
-    data: dict = _message_proxy_property("command")  # noqa: WPS110
 
     #: command metadata.
     metadata: dict = _message_proxy_property("command")
@@ -164,3 +161,12 @@ class Message:
             bool: Result of check.
         """
         return self.command.command_type == CommandTypes.system
+
+    @property
+    def data(self) -> Dict[Any, Any]:  # noqa: WPS110
+        """Concatenated metadata and data from UI element.
+
+        Returns:
+            dict: Concatenated metadata and data.
+        """
+        return {**self.metadata, **self.incoming_message.command.data_dict}
