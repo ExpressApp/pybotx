@@ -1,7 +1,7 @@
 """Definition of different schemas for system events."""
 
 from types import MappingProxyType
-from typing import Any, List, Mapping, Type
+from typing import Any, List, Mapping, Optional, Type
 from uuid import UUID
 
 from botx.models.base import BotXBaseModel
@@ -53,7 +53,7 @@ class SmartAppEvent(BotXBaseModel):
     """Shape for `system:left_from_chat` event data."""
 
     #: uniq id of request
-    ref: UUID
+    ref: Optional[UUID] = None
 
     #:id of smartapp
     smartapp_id: UUID

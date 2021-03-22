@@ -1,5 +1,5 @@
 """Method for sending smartapp event."""
-from typing import Any
+from typing import Any, Optional
 from uuid import UUID
 
 from botx.clients.methods.base import AuthorizedBotXMethod
@@ -12,7 +12,7 @@ class SmartAppEvent(AuthorizedBotXMethod[str]):
     __method__ = "POST"
     __returning__ = str
     #: uniq id of request
-    ref: UUID
+    ref: Optional[UUID] = None
 
     #:id of smartapp
     smartapp_id: UUID

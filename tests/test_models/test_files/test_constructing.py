@@ -1,8 +1,8 @@
 from io import BytesIO, StringIO
 
+import aiofiles
 import pytest
 
-import aiofiles
 from botx import File
 
 

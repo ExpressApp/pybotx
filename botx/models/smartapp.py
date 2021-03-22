@@ -1,4 +1,4 @@
-from typing import Dict, Union, List
+from typing import Dict, List, Optional, Union
 from uuid import UUID
 
 from botx.models.base import BotXBaseModel
@@ -18,7 +18,7 @@ class SmartAppData(BotXBaseModel):
 
 class SendingSmartApp(BotXBaseModel):
     #: uniq id of request
-    ref: UUID
+    ref: Optional[UUID] = None
 
     #:id of smartapp
     smartapp_id: UUID
