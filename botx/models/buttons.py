@@ -74,7 +74,10 @@ class Button(BotXBaseModel):
         Returns:
             Label for button.
         """
-        return label or values["command"]
+        if label is None:
+            return values["command"]
+
+        return label
 
     @validator("data", always=True)
     def add_ui_flag_to_data(cls, button_data: dict) -> dict:  # noqa: N805

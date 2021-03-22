@@ -16,6 +16,10 @@ def test_label_can_be_set_if_passed_explicitly():
     assert CustomButton(command="/cmd", label="temp").label == "temp"
 
 
+def test_empty_label():
+    assert CustomButton(command="/cmd", label="").label == ""
+
+
 def test_setting_ui_flag_on_buttons():
     assert CustomButton(command="/cmd").data.get("ui")
 

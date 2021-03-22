@@ -1,3 +1,9 @@
+## 0.18.1 (Mar 22, 2021)
+
+### Changed
+
+* Fixed empty label bug, now you can use empty string as button label 
+
 ## 0.18.0 (Mar 13, 2021)
 
 ### Changed
