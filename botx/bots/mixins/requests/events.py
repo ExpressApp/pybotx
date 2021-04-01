@@ -5,7 +5,7 @@ from uuid import UUID
 from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
 from botx.clients.methods.v3.events.edit_event import EditEvent
 from botx.clients.methods.v3.events.reply_event import ReplyEvent
-from botx.clients.types.message_payload import ResultPayload, UpdatePayload
+from botx.clients.types.message_payload import ResultPayload
 from botx.clients.types.options import ResultOptions
 from botx.models.entities import Mention
 from botx.models.messages.message import File
@@ -38,8 +38,8 @@ class EventsRequestsMixin:
         await self.call_method(
             EditEvent(
                 sync_id=credentials.sync_id,
-                result=UpdatePayload(
-                    body=update.text,
+                result=ResultPayload(
+                    body=update.body,
                     keyboard=update.keyboard,
                     bubble=update.bubbles,
                     mentions=update.mentions,

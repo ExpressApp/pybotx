@@ -21,35 +21,17 @@ class ResultPayload(BaseModel):
     status: Literal[Statuses.ok] = Statuses.ok
 
     #: body for new message from bot.
-    body: str = Field("", max_length=MAXIMUM_TEXT_LENGTH)
+    body: str = Field(None, max_length=MAXIMUM_TEXT_LENGTH)
 
     #: message metadata.
-    metadata: Dict[str, Any] = {}
+    metadata: Optional[Dict[str, Any]] = None
 
     #: keyboard that will be used for new message.
-    keyboard: KeyboardMarkup = []
-
-    #: bubble elements that will be showed under new message.
-    bubble: BubbleMarkup = []
-
-    #: mentions that BotX API will append before new message text.
-    mentions: List[Mention] = []
-
-
-class UpdatePayload(BaseModel):
-    """Data that is sent when bot updates message."""
-
-    #: status of operation.
-    status: Literal[Statuses.ok] = Statuses.ok
-
-    #: new body in message.
-    body: Optional[str] = Field(None, max_length=MAXIMUM_TEXT_LENGTH)
-
-    #: new keyboard that will be used for new message.
     keyboard: Optional[KeyboardMarkup] = None
 
-    #: new bubble elements that will be showed under new message.
+    #: bubble elements that will be showed under new message.
     bubble: Optional[BubbleMarkup] = None
 
-    #: new mentions that BotX API will append before new message text.
+    #: mentions that BotX API will append before new message text.
     mentions: Optional[List[Mention]] = None
+

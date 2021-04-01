@@ -37,7 +37,7 @@ class UpdatePayload(BotXBaseModel):
     """Payload for message edition."""
 
     #: new message text.
-    text: Optional[str] = Field(None, max_length=MAXIMUM_TEXT_LENGTH)
+    body: Optional[str] = Field(None, max_length=MAXIMUM_TEXT_LENGTH)
 
     #: file attached to message.
     file: Optional[File] = None
@@ -79,7 +79,7 @@ class UpdatePayload(BotXBaseModel):
             Created payload for update.
         """
         update = cls()
-        update.text = payload.text or None
+        update.body = payload.text or None
         update.set_markup(payload.markup)
         update.mentions = payload.options.mentions
         update.file = payload.file

@@ -5,7 +5,7 @@ from uuid import UUID
 from pydantic import Field
 
 from botx.clients.methods.base import AuthorizedBotXMethod
-from botx.clients.types.message_payload import UpdatePayload
+from botx.clients.types.message_payload import ResultPayload
 from botx.clients.types.options import ResultOptions
 from botx.models.files import File
 
@@ -21,7 +21,7 @@ class EditEvent(AuthorizedBotXMethod[str]):
     sync_id: UUID
 
     #: data for editing.
-    result: UpdatePayload = Field(..., alias="payload")
+    result: ResultPayload = Field(..., alias="payload")
 
     #: file attached to message.
     file: Optional[File] = None

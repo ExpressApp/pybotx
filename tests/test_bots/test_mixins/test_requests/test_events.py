@@ -10,7 +10,7 @@ async def test_updating_message_through_bot(bot, client, message):
 
     await bot.update_message(
         message.credentials.copy(update={"sync_id": sync_id}),
-        UpdatePayload(text="new text"),
+        UpdatePayload(body="new text"),
     )
 
     update = client.message_updates[0].result
