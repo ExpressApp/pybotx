@@ -45,6 +45,9 @@ class UpdatePayload(BotXBaseModel):
     #: new message bubbles.
     keyboard: Optional[KeyboardMarkup] = None
 
+    #: new message's metadata
+    metadata: Optional[Dict[str, Any]] = None
+
     #: new message keyboard.
     bubbles: Optional[BubbleMarkup] = None
 
