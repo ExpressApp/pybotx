@@ -98,7 +98,7 @@ class Mention(BotXBaseModel):
         return mention_data
 
     @validator("mention_type", pre=True, always=True)
-    def check_that_type_matches_data(  # noqa: WPS231
+    def check_that_type_matches_data(  # noqa: WPS231, WPS210
         cls, mention_type: MentionTypes, values: dict,  # noqa: N805, WPS110
     ) -> MentionTypes:
         """Verify that `mention_type` matches provided `mention_data`.
@@ -128,7 +128,7 @@ class Mention(BotXBaseModel):
         )
         is_mention_all_signature = mention_type == MentionTypes.all_members
 
-        if not any(
+        if not any(  # noqa: WPS337
             {
                 is_chat_mention_signature,
                 is_mention_all_signature,
