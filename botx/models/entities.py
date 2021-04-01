@@ -92,13 +92,13 @@ class Mention(BotXBaseModel):
         Returns:
              Mention's data if is not empty or None.
         """
-        if not mention_data:
+        if mention_data == {}:  # noqa: WPS520
             return None
 
         return mention_data
 
     @validator("mention_type", pre=True, always=True)
-    def check_that_type_matches_data(
+    def check_that_type_matches_data(  # noqa: WPS231
         cls, mention_type: MentionTypes, values: dict,  # noqa: N805, WPS110
     ) -> MentionTypes:
         """Verify that `mention_type` matches provided `mention_data`.
@@ -129,17 +129,19 @@ class Mention(BotXBaseModel):
                 ),
             )
 
-        if mention_type in chat_mention_types:
-            return mention_type
+        if isinstance(mention_data, ChatMention):
+            if mention_type in chat_mention_types:
+                return mention_type
+            raise ValueError(
+                "mention_type for provided mention_data is wrong, accepted: {0}".format(
+                    chat_mention_types,
+                ),
+            )
 
         if mention_type == MentionTypes.all_members:
             return mention_type
 
-        raise ValueError(
-            "mention_type for provided mention_data is wrong, accepted: {0}".format(
-                chat_mention_types,
-            ),
-        )
+        raise ValueError("No one suitable type for this signature")
 
 
 class Reply(BotXBaseModel):
