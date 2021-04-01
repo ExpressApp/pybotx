@@ -420,6 +420,24 @@ class TestSendingMessageProperties:
             mention = sending_message.payload.options.mentions[0]
             assert mention.mention_type == MentionTypes.chat
 
+        def test_wrong_mention_chat(self, sending_message: SendingMessage) -> None:
+            wrong_mention_chat = {
+                "mention_type": MentionTypes.chat,
+                "mention_id": uuid.uuid4(),
+                "mention_data": {"foo": "bar"},
+            }
+            with pytest.raises(ValueError):
+                Mention.parse_obj(wrong_mention_chat)
+
+        def test_mention_data_error(self):
+            mention_all = {
+                "mention_type": "all",
+                "mention_id": uuid.uuid4(),
+                "mention_data": {},
+            }
+            mention = Mention.parse_obj(mention_all)
+            assert mention.mention_data is None
+
     class TestAddingRecipients:
         def test_adding_recipients_separately(
             self, sending_message: SendingMessage,

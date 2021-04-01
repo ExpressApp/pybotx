@@ -1,7 +1,7 @@
 """Entities that can be received in message."""
 
 from datetime import datetime
-from typing import List, Optional, Union, cast
+from typing import Dict, List, Optional, Union, cast
 from uuid import UUID, uuid4
 
 from pydantic import validator
@@ -62,8 +62,8 @@ class Mention(BotXBaseModel):
     #: unique id of mention.
     mention_id: Optional[UUID] = None
 
-    #: mention type.
-    mention_data: Union[ChatMention, UserMention]
+    #: information about mention object
+    mention_data: Optional[Union[ChatMention, UserMention, Dict]]
 
     #: payload with data about mention.
     mention_type: MentionTypes = MentionTypes.user
@@ -80,8 +80,25 @@ class Mention(BotXBaseModel):
         """
         return mention_id or uuid4()
 
+    @validator("mention_data", pre=True, always=True)
+    def ignore_empty_data(
+        cls, mention_data: Union[ChatMention, UserMention, Dict],  # noqa: N805
+    ) -> Optional[Union[ChatMention, UserMention, Dict]]:
+        """Pass empty dict into mention_data as None.
+
+        Arguments:
+            mention_data: dict of mention's data.
+
+        Returns:
+             Mention's data if is not empty or None.
+        """
+        if mention_data == {}:  # noqa: WPS520
+            return None
+
+        return mention_data
+
     @validator("mention_type", pre=True, always=True)
-    def check_that_type_matches_data(
+    def check_that_type_matches_data(  # noqa: WPS231, WPS210
         cls, mention_type: MentionTypes, values: dict,  # noqa: N805, WPS110
     ) -> MentionTypes:
         """Verify that `mention_type` matches provided `mention_data`.
@@ -97,26 +114,30 @@ class Mention(BotXBaseModel):
             ValueError: raised if mention_type does not corresponds with data.
         """
         mention_data = values.get("mention_data")
-        if mention_data is None:
+        if (mention_type != MentionTypes.all_members) and (mention_data is None):
             raise ValueError("no `mention_data`, perhaps this entity isn't a mention")
 
         user_mention_types = {MentionTypes.user, MentionTypes.contact}
         chat_mention_types = {MentionTypes.chat, MentionTypes.channel}
 
-        if isinstance(mention_data, UserMention):
-            if mention_type in user_mention_types:
-                return mention_type
-            raise ValueError(
-                "mention_type for provided mention_data is wrong, accepted: {0}",
-                user_mention_types,
-            )
-
-        if mention_type in chat_mention_types:
-            return mention_type
-        raise ValueError(
-            "mention_type for provided mention_data is wrong, accepted: {0}",
-            chat_mention_types,
+        is_user_mention_signature = isinstance(mention_data, UserMention) and (
+            mention_type in user_mention_types
         )
+        is_chat_mention_signature = isinstance(mention_data, ChatMention) and (
+            mention_type in chat_mention_types
+        )
+        is_mention_all_signature = mention_type == MentionTypes.all_members
+
+        if not any(  # noqa: WPS337
+            {
+                is_chat_mention_signature,
+                is_mention_all_signature,
+                is_user_mention_signature,
+            },
+        ):
+            raise ValueError("No one suitable type for this mention_data signature")
+
+        return mention_type
 
 
 class Reply(BotXBaseModel):
