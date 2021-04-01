@@ -120,28 +120,24 @@ class Mention(BotXBaseModel):
         user_mention_types = {MentionTypes.user, MentionTypes.contact}
         chat_mention_types = {MentionTypes.chat, MentionTypes.channel}
 
-        if isinstance(mention_data, UserMention):
-            if mention_type in user_mention_types:
-                return mention_type
-            raise ValueError(
-                "mention_type for provided mention_data is wrong, accepted: {0}".format(
-                    user_mention_types,
-                ),
-            )
+        is_user_mention_signature = isinstance(mention_data, UserMention) and (
+            mention_type in user_mention_types
+        )
+        is_chat_mention_signature = isinstance(mention_data, ChatMention) and (
+            mention_type in chat_mention_types
+        )
+        is_mention_all_signature = mention_type == MentionTypes.all_members
 
-        if isinstance(mention_data, ChatMention):
-            if mention_type in chat_mention_types:
-                return mention_type
-            raise ValueError(
-                "mention_type for provided mention_data is wrong, accepted: {0}".format(
-                    chat_mention_types,
-                ),
-            )
+        if not any(
+            {
+                is_chat_mention_signature,
+                is_mention_all_signature,
+                is_user_mention_signature,
+            },
+        ):
+            raise ValueError("No one suitable type for this mention_data signature")
 
-        if mention_type == MentionTypes.all_members:
-            return mention_type
-
-        raise ValueError("No one suitable type for this signature")
+        return mention_type
 
 
 class Reply(BotXBaseModel):
