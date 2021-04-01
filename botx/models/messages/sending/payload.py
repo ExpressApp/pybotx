@@ -10,7 +10,11 @@ from botx.models.constants import MAXIMUM_TEXT_LENGTH
 from botx.models.entities import Mention
 from botx.models.files import File
 from botx.models.messages.sending.markup import MessageMarkup
-from botx.models.messages.sending.options import MessageOptions, NotificationOptions
+from botx.models.messages.sending.options import (
+    MessageOptions,
+    NotificationOptions,
+    UpdateOptions,
+)
 from botx.models.typing import BubbleMarkup, KeyboardMarkup
 
 
@@ -55,7 +59,9 @@ class UpdatePayload(BotXBaseModel):
     mentions: Optional[List[Mention]] = None
 
     #: new message options.
-    opts: Optional[NotificationOptions] = None
+    options: UpdateOptions = UpdateOptions(
+        silent_response=None, notifications=NotificationOptions(),
+    )
 
     @property
     def markup(self) -> MessageMarkup:

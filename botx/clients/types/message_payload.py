@@ -34,4 +34,3 @@ class ResultPayload(BaseModel):
 
     #: mentions that BotX API will append before new message text.
     mentions: Optional[List[Mention]] = None
-

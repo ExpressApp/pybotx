@@ -1,6 +1,6 @@
 """Special options for message."""
 
-from typing import List
+from typing import List, Optional
 
 from botx.models.base import BotXBaseModel
 from botx.models.entities import Mention
@@ -31,3 +31,13 @@ class MessageOptions(BotXBaseModel):
 
     #: notification configuration.
     notifications: NotificationOptions = NotificationOptions()
+
+
+class UpdateOptions(BotXBaseModel):
+    """Update options configuration."""
+
+    #: if true don't show next user's input in chat
+    silent_response: Optional[bool] = None
+
+    #: notification configuration.
+    notifications: Optional[NotificationOptions] = None

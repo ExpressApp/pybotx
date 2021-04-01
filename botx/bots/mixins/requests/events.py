@@ -11,7 +11,7 @@ from botx.models.entities import Mention
 from botx.models.messages.message import File
 from botx.models.messages.sending.credentials import SendingCredentials
 from botx.models.messages.sending.markup import MessageMarkup
-from botx.models.messages.sending.payload import UpdatePayload as SendingUpdatePayload
+from botx.models.messages.sending.payload import UpdatePayload
 
 
 class EventsRequestsMixin:
@@ -20,7 +20,7 @@ class EventsRequestsMixin:
     async def update_message(
         self: BotXMethodCallProtocol,
         credentials: SendingCredentials,
-        update: SendingUpdatePayload,
+        update: UpdatePayload,
     ) -> None:
         """Change message by it's event id.
 
@@ -38,13 +38,9 @@ class EventsRequestsMixin:
         await self.call_method(
             EditEvent(
                 sync_id=credentials.sync_id,
-                result=ResultPayload(
-                    body=update.body,
-                    keyboard=update.keyboard,
-                    bubble=update.bubbles,
-                    mentions=update.mentions,
-                ),
+                result=ResultPayload(**update.dict()),
                 file=update.file,
+                opts=ResultOptions(**update.options.dict()),
             ),
             credentials=credentials,
         )
