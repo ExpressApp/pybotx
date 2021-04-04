@@ -45,6 +45,9 @@ class UpdatePayload(BaseModel):
     #: new body in message.
     body: Optional[str] = Field(None, max_length=MAXIMUM_TEXT_LENGTH)
 
+    #: message metadata.
+    metadata: Optional[Dict[str, Any]] = None
+
     #: new keyboard that will be used for new message.
     keyboard: Optional[KeyboardMarkup] = None
 

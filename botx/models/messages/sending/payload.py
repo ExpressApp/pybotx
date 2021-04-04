@@ -54,6 +54,9 @@ class UpdatePayload(BotXBaseModel):
     #: new message options.
     opts: Optional[NotificationOptions] = None
 
+    #: message metadata.
+    metadata: Optional[Dict[str, Any]] = None
+
     @property
     def markup(self) -> MessageMarkup:
         """Markup for edited message."""
@@ -83,4 +86,5 @@ class UpdatePayload(BotXBaseModel):
         update.set_markup(payload.markup)
         update.mentions = payload.options.mentions
         update.file = payload.file
+        update.metadata = payload.metadata
         return update

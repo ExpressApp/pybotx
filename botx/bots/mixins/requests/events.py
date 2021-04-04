@@ -40,6 +40,7 @@ class EventsRequestsMixin:
                 sync_id=credentials.sync_id,
                 result=UpdatePayload(
                     body=update.text,
+                    metadata=update.metadata,
                     keyboard=update.keyboard,
                     bubble=update.bubbles,
                     mentions=update.mentions,

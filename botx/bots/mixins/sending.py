@@ -1,6 +1,6 @@
 """Definition for mixin that defines helpers for sending message."""
 
-from typing import BinaryIO, Optional, TextIO, Union
+from typing import Any, BinaryIO, Dict, Optional, TextIO, Union
 from uuid import UUID
 
 from botx.models.files import File
@@ -104,6 +104,7 @@ class SendingMixin:
         text: str,
         message: Message,
         *,
+        metadata: Optional[Dict[str, Any]] = None,
         file: Optional[Union[BinaryIO, TextIO, File]] = None,
         markup: Optional[MessageMarkup] = None,
         options: Optional[MessageOptions] = None,
@@ -120,12 +121,17 @@ class SendingMixin:
             markup: bubbles and keyboard that can be attached to the message.
             options: additional message options, like mentions or notifications
                 configuration.
+            metadata: dict of message metadata
 
         Returns:
             `UUID` of sent event.
         """
         sending_message = SendingMessage(
-            text=text, credentials=message.credentials, markup=markup, options=options,
+            text=text,
+            credentials=message.credentials,
+            markup=markup,
+            options=options,
+            metadata=metadata,
         )
         if file:
             sending_message.add_file(file)

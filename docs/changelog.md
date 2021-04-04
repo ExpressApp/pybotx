@@ -1,3 +1,9 @@
+## 0.18.3 (Apr 05, 2021)
+
+### Add
+
+* Edit events and answer message now support metadata
+
 ## 0.18.2 (Apr 01, 2021)
 
 ### Changed
