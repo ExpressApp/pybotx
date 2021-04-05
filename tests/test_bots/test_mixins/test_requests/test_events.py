@@ -1,6 +1,6 @@
 import pytest
 
-from botx import UpdatePayload
+from botx import SendingMessage, UpdatePayload
 
 pytestmark = pytest.mark.asyncio
 
@@ -15,6 +15,20 @@ async def test_updating_message_through_bot(bot, client, message):
 
     update = client.message_updates[0].result
     assert update.body == "new text"
+
+
+async def test_update_metadata(bot, client, message):
+    msg = SendingMessage.from_message(text="some text", message=message)
+    msg.metadata = {"hello": "world"}
+    await bot.send(msg)
+
+    upd = UpdatePayload.from_sending_payload(msg.payload)
+    upd.metadata = {"foo": "bar"}
+
+    await bot.update_message(message.credentials, upd)
+
+    update = client.message_updates[0].result
+    assert update.metadata == {"foo": "bar"}
 
 
 async def test_cant_update_without_sync_id(bot, client, message):
