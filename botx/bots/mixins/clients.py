@@ -1,49 +1,50 @@
 """Define Mixin that combines API and sending mixins and will be used in Bot."""
 from typing import List
+from uuid import UUID
 
 from botx.bots.mixins.requests.mixin import BotXRequestsMixin
 from botx.bots.mixins.sending import SendingMixin
-from botx.exceptions import ServerUnknownError
-from botx.models.credentials import ExpressServer
+from botx.exceptions import UnknownBotError, TokenError
+from botx.models.credentials import BotXCredentials
 
 
 class ClientsMixin(SendingMixin, BotXRequestsMixin):
     """Mixin that defines methods that are used for communicating with BotX API."""
 
-    known_hosts: List[ExpressServer]
+    bot_accounts: List[BotXCredentials]
 
-    def get_cts_by_host(self, host: str) -> ExpressServer:
-        """Find CTS in bot registered servers.
+    def get_account_by_bot_id(self, bot_id: UUID) -> BotXCredentials:
+        """Find BotCredentials in bot registered bot.
 
         Arguments:
-            host: host of server that should be found.
+            bot_id: UUID of bot for which server should be searched.
 
         Returns:
             Found instance of registered server.
 
         Raises:
-            ServerUnknownError: raised if server was not found.
+            UnknownBotError: raised if account was not found.
         """
-        for cts in self.known_hosts:
-            if cts.host == host:
-                return cts
+        for bot in self.bot_accounts:
+            if bot.bot_id == bot_id:
+                return bot
 
-        raise ServerUnknownError(host=host)
+        raise UnknownBotError(bot_id=bot_id)
 
-    def get_token_for_cts(self, host: str) -> str:
-        """Search token in bot saved tokens.
+    def get_token_for_bot(self, bot_id: UUID) -> str:
+        """Search token in bot saved tokens by bot_id.
 
         Arguments:
-            host: host for which token should be searched.
+            bot_id: UUID of bot for which token should be searched.
 
         Returns:
-            Found token.
+            Found bot's token.
 
         Raises:
-            ValueError: raised of there is not token for host.
+            TokenError: raised of there is not token for bot.
         """
-        server = self.get_cts_by_host(host)
-        if server.server_credentials is not None:
-            return server.server_credentials.token
+        account = self.get_account_by_bot_id(bot_id)
+        if account.token is not None:
+            return account.token
 
-        raise ValueError("token for cts {0} unfilled".format(host))
+        raise TokenError(message_template="Token is empty")

@@ -1,7 +1,6 @@
 """Middleware for retrieving tokens from BotX API before processing message."""
 
 from botx.middlewares.base import BaseMiddleware
-from botx.models.credentials import ServerCredentials
 from botx.models.messages.message import Message
 from botx.typing import AsyncExecutor
 
@@ -17,14 +16,12 @@ class AuthorizationMiddleware(BaseMiddleware):
             call_next: next executor in chain.
         """
         bot = message.bot
-        server = bot.get_cts_by_host(message.host)
-        if server.server_credentials is None:
+        bot_account = bot.get_account_by_bot_id(message.bot_id)
+        if bot_account.token is None:
             token = await bot.get_token(
                 message.host,
                 message.bot_id,
-                server.calculate_signature(message.bot_id),
+                bot_account.calculate_signature(message.bot_id),
             )
-            server.server_credentials = ServerCredentials(
-                bot_id=message.bot_id, token=token,
-            )
+            bot_account.token = token
         await call_next(message)

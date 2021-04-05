@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import FastAPI
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
@@ -7,14 +9,14 @@ from botx import (
     Bot,
     BotDisabledErrorData,
     BotDisabledResponse,
-    ExpressServer,
+    BotXCredentials,
     IncomingMessage,
     Message,
     ServerUnknownError,
     Status,
 )
 
-bot = Bot(known_hosts=[ExpressServer(host="cts.example.com", secret_key="secret")])
+bot = Bot(bot_accounts=[BotXCredentials(host="cts.example.com", secret_key="secret", bot_id=UUID("bot_id"))])
 
 
 @bot.default(include_in_status=False)

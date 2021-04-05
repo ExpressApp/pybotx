@@ -8,7 +8,7 @@ from botx.clients.methods.errors import messaging
 from botx.models.chats import ChatFromSearch
 
 
-class Info(AuthorizedBotXMethod[ChatFromSearch]):
+class Info(AuthorizedBotXMethod[ChatFromSearch]):  # noqa: WPS110
     """Method for retrieving information about chat."""
 
     __url__ = "/api/v3/botx/chats/info"
