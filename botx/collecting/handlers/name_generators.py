@@ -21,7 +21,7 @@ def get_body_from_name(name: str) -> str:
     splited_words = re.findall(r"^[a-z\d_\-]+|[A-Z\d_\-][^A-Z\d_\-]*", name)
     joined_body = "-".join(splited_words)
     dashed_body = joined_body.replace("_", "-")
-    return "/{0}".format(re.sub(r"-+", "-", dashed_body).lower())
+    return "/{0}".format(re.sub("-+", "-", dashed_body).lower())
 
 
 def get_name_from_callable(handler: Callable) -> str:

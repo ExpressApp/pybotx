@@ -1,6 +1,8 @@
+from uuid import UUID
+
 import pytest
 
-from botx import Bot, ExpressServer, MessageBuilder, TestClient
+from botx import Bot, BotXCredentials, MessageBuilder, TestClient
 
 from .bot import bot
 
@@ -14,7 +16,7 @@ def builder() -> MessageBuilder:
 
 @pytest.fixture
 def bot(builder: MessageBuilder) -> Bot:
-    bot.known_hosts.append(ExpressServer(host=builder.user.host, secret_key="secret"))
+    bot.bot_accounts.append(BotXCredentials(host=builder.user.host, secret_key="secret", bot_id=UUID("bot_id")))
     return bot
 
 

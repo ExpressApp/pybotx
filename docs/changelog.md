@@ -1,4 +1,14 @@
+## 0.19.0 (Unreleased)
+
+Tested on BotX 1.40.0-rc0
+
+### Changed
+
+* `ExpressServer` now is `BotXCredentials`
+* Bot id now required to `BotXCredentials`
+
 ## 0.18.4 (Apr 08, 2021) 
+
 Tested on BotX 1.40.0-rc0
 
 ### Changed
@@ -7,7 +17,7 @@ Tested on BotX 1.40.0-rc0
 
 ## 0.18.3 (Apr 05, 2021)
 
-### Add
+### Added
 
 * Edit events and answer message now support metadata
 

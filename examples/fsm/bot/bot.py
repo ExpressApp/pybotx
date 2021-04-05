@@ -1,11 +1,12 @@
 from typing import Any
+from uuid import UUID
 
 from bot.config import BOT_SECRET, CTS_HOST
 from bot.handlers import FSMStates, fsm
 from bot.middleware import FlowError, FSMMiddleware, change_state
-from botx import Bot, ExpressServer, Message
+from botx import Bot, BotXCredentials, Message
 
-bot = Bot(known_hosts=[ExpressServer(host=CTS_HOST, secret_key=str(BOT_SECRET))])
+bot = Bot(bot_accounts=[BotXCredentials(host=CTS_HOST, secret_key=str(BOT_SECRET), bot_id=UUID("bot_id"))])
 bot.add_middleware(FSMMiddleware, bot=bot, fsm=fsm)
 
 

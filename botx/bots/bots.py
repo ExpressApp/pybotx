@@ -34,7 +34,7 @@ class Bot(  # noqa: WPS215
     """Class that implements bot behaviour."""
 
     dependencies: InitVar[List[Depends]] = field(default=None)
-    known_hosts: List[credentials.ExpressServer] = field(default_factory=list)
+    bot_accounts: List[credentials.BotXCredentials] = field(default_factory=list)
     startup_events: List[typing.BotLifespanEvent] = field(default_factory=list)
     shutdown_events: List[typing.BotLifespanEvent] = field(default_factory=list)
 
@@ -117,15 +117,12 @@ class Bot(  # noqa: WPS215
 
         Arguments:
             message: incoming message to bot.
-
-        Raises:
-            ServerUnknownError: raised if message was received from unregistered host.
         """
         logger.bind(botx_bot=True, payload=message).debug("process incoming message")
         msg = Message.from_dict(message, self)
-        for server in self.known_hosts:
-            if server.host == msg.host:
-                await self(msg)
-                break
-        else:
-            raise exceptions.ServerUnknownError(host=msg.host)
+
+        # raise UnknownBotError if not registered.
+        self.get_account_by_bot_id(msg.bot_id)
+
+        await self(msg)
+

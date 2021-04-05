@@ -81,12 +81,18 @@ $ pip install fastapi uvicorn
 Let's create a simple echo bot.
 
 * Create a file `main.py` with following content:
+
 ```python3
-from botx import Bot, ExpressServer, IncomingMessage, Message, Status
+from botx import Bot, BotXCredentials, IncomingMessage, Message, Status
 from fastapi import FastAPI
 from starlette.status import HTTP_202_ACCEPTED
+from uuid import UUID
 
-bot = Bot(known_hosts=[ExpressServer(host="cts.example.com", secret_key="secret")])
+
+bot_accounts=[
+    BotXCredentials(host="cts.example.com", secret_key="secret", bot_id=UUID("bot_id"))
+]
+bot = Bot(bot_accounts=bot_accounts)
 
 
 @bot.default(include_in_status=False)

@@ -6,7 +6,7 @@ from botx.bots.mixins.requests import bots, chats, command, events, notification
 from botx.clients.clients.async_client import AsyncClient
 from botx.clients.methods.base import BotXMethod
 from botx.clients.methods.v2.bots.token import Token
-from botx.models.credentials import ExpressServer, ServerCredentials
+from botx.models.credentials import BotXCredentials
 from botx.models.messages.sending.credentials import SendingCredentials
 from botx.shared import debug_bot_id_var
 
@@ -21,11 +21,11 @@ except ImportError:
 class CredentialsSearchProtocol(Protocol):
     """Protocol for search token in local credentials."""
 
-    def get_token_for_cts(self, host: str) -> str:
+    def get_token_for_bot(self, bot_id: UUID) -> str:
         """Search token in local credentials."""
 
-    def get_cts_by_host(self, host: str) -> ExpressServer:
-        """Get CTS by host."""
+    def get_account_by_bot_id(self, bot_id: UUID) -> BotXCredentials:
+        """Get bot credentials by bot id."""
 
 
 # A lot of base classes since it's mixin for all shorthands for BotX API requests
@@ -62,21 +62,23 @@ class BotXRequestsMixin(  # noqa: WPS215
         Returns:
             Response for method.
         """
+
+        # TODO: remove _fill_token(with optional params) and use AuthMiddleware on bot.
         if not isinstance(method, Token):
-            host = cast(str, credentials.host if credentials else host)
             await _fill_token(
                 self.client,
-                host,
-                cast(UUID, credentials.bot_id if credentials else bot_id),
-                cast(CredentialsSearchProtocol, self).get_cts_by_host(host),
+                cast(CredentialsSearchProtocol, self).get_account_by_bot_id(
+                    credentials.bot_id if credentials else bot_id,  # type: ignore
+                ),
             )
 
         if credentials is not None:
             debug_bot_id_var.set(credentials.bot_id)
             host = cast(str, credentials.host)
+            bot_id = cast(UUID, credentials.bot_id)
             method.configure(
                 host=host,
-                token=cast(CredentialsSearchProtocol, self).get_token_for_cts(host),
+                token=cast(CredentialsSearchProtocol, self).get_token_for_bot(bot_id),
             )
         else:
             debug_bot_id_var.set(bot_id)
@@ -85,13 +87,12 @@ class BotXRequestsMixin(  # noqa: WPS215
         return await self.client.call(method)
 
 
-async def _fill_token(
-    client: AsyncClient, host: str, bot_id: UUID, server: ExpressServer,
-) -> None:
-    if server.server_credentials is not None:
+async def _fill_token(client: AsyncClient, account: BotXCredentials) -> None:
+    if account.token is not None:
         return
 
-    method = Token(bot_id=bot_id, signature=server.calculate_signature(bot_id))
-    server.server_credentials = ServerCredentials(
-        bot_id=bot_id, token=await client.call(method, host),
+    method = Token(
+        bot_id=account.bot_id, signature=account.calculate_signature(account.bot_id),
     )
+    token = await client.call(method, account.host)
+    account.token = token

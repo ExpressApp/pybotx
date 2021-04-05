@@ -1,21 +1,37 @@
 import pytest
+import uuid
 
-from botx import ExpressServer, ServerUnknownError
+from botx import BotXCredentials
+from botx.exceptions import UnknownBotError, TokenError
 
 pytestmark = pytest.mark.asyncio
 
 
 def test_raising_error_if_token_was_not_found(client, incoming_message):
-    server = client.bot.get_cts_by_host(incoming_message.user.host)
-    server.server_credentials = None
-    with pytest.raises(ValueError):
-        client.bot.get_token_for_cts(incoming_message.user.host)
+    account = client.bot.get_account_by_bot_id(incoming_message.bot_id)
+    account.token = None
+    with pytest.raises(TokenError):
+        client.bot.get_token_for_bot(incoming_message.bot_id)
+
+
+def test_get_token_to_bot(client, incoming_message):
+    account = client.bot.get_account_by_bot_id(incoming_message.bot_id)
+    account.token = "token"
+    assert client.bot.get_token_for_bot(incoming_message.bot_id) is not None
 
 
 def test_raising_error_if_cts_not_found(bot, incoming_message):
-    bot.known_hosts = [
-        ExpressServer(host="cts.unknown1.com", secret_key="secret"),
-        ExpressServer(host="cts.unknown2.com", secret_key="secret"),
+    bot.bot_accounts = [
+        BotXCredentials(
+            host="cts.unknown1.com",
+            secret_key="secret",
+            bot_id=uuid.uuid4(),
+        ),
+        BotXCredentials(
+            host="cts.unknown2.com",
+            secret_key="secret",
+            bot_id=uuid.uuid4(),
+        ),
     ]
-    with pytest.raises(ServerUnknownError):
-        bot.get_cts_by_host(incoming_message.user.host)
+    with pytest.raises(UnknownBotError):
+        bot.get_account_by_bot_id(incoming_message.bot_id)

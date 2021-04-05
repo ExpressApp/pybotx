@@ -12,7 +12,7 @@ from botx.clients.methods.request_wrapper import HTTPRequest, PrimitiveDataType
 from botx.models.enums import Statuses
 
 try:
-    from typing import Literal  # noqa: WPS433
+    from typing import Literal  # noqa: WPS433, WPS458
 except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS433, WPS440, F401
 
