@@ -1,9 +1,11 @@
+from uuid import UUID
+
 from fastapi import FastAPI
 from starlette.status import HTTP_202_ACCEPTED
 
-from botx import Bot, ExpressServer, IncomingMessage, Message, Status
+from botx import Bot, BotXCredentials, IncomingMessage, Message, Status
 
-bot = Bot(known_hosts=[ExpressServer(host="cts.example.com", secret_key="secret")])
+bot = Bot(bot_accounts=[BotXCredentials(host="cts.example.com", secret_key="secret", bot_id=UUID("bot_id"))])
 
 
 @bot.default(include_in_status=False)

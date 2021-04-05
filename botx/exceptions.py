@@ -1,5 +1,6 @@
 """Exceptions that are used in this library."""
 from typing import Any, Dict
+from uuid import UUID
 
 
 class BotXException(Exception):
@@ -56,10 +57,18 @@ class BotXAPIError(BotXException):
     status: int
 
 
-class ServerUnknownError(BotXException):
+class UnknownBotError(BotXException):
     """Raised if bot does not know host."""
 
-    message_template = "unknown server {host}"
+    message_template = "unknown bot {bot_id}"
 
-    #: host that is unregistered.
-    host: str
+    #: bot id that is unregistered.
+    bot_id: UUID
+
+
+class TokenError(BotXException):
+    """Raised if token is invalid."""
+
+    message_template = "invalid token for bot {bot_id}"
+
+    bot_id: UUID

@@ -146,7 +146,7 @@ class Message:
         Returns:
             bool: True if message is forward else False
         """
-        try:
+        try:  # noqa: WPS503
             self.entities.forward  # noqa: WPS428
         except AttributeError:
             return False

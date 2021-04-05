@@ -3,7 +3,6 @@ from dataclasses import field
 from typing import Any, List, Optional, TypeVar
 
 import httpx
-from httpx import Response
 from loguru import logger
 from pydantic.dataclasses import dataclass
 
@@ -64,7 +63,7 @@ class Client:
 
         return extract_result(method, response)
 
-    def execute(self, method: BotXMethod) -> Response:
+    def execute(self, method: BotXMethod) -> httpx.Response:
         """Make real HTTP request using client.
 
         Arguments:
@@ -88,6 +87,6 @@ class Client:
 
 
 def _handle_error(
-    method: BotXMethod, error_handlers: ErrorHandlersInMethod, response: Response,
+    method: BotXMethod, error_handlers: ErrorHandlersInMethod, response: httpx.Response,
 ) -> None:
     concurrency.async_to_sync(handle_error)(method, error_handlers, response)

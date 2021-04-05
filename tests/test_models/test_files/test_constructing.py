@@ -59,7 +59,7 @@ def temp_file(tmp_path, filename, origin_data):
     return file_path
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_async_from_file(temp_file, encoded_data):
     async with aiofiles.open(temp_file, "rb") as fo:
         file = await File.async_from_file(fo)

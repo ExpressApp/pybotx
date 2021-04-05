@@ -7,10 +7,9 @@ from typing import Any, Optional
 from pydantic import BaseConfig, validator
 from pydantic.dataclasses import dataclass
 
-from botx.models import enums
 from botx.models.attachments import AttachList
 from botx.models.entities import EntityList
-from botx.models.enums import ChatTypes, ClientPlatformEnum
+from botx.models.enums import ChatTypes, ClientPlatformEnum, CommandTypes
 from botx.models.messages.incoming_message import (
     Command,
     DeviceMeta,
@@ -83,11 +82,7 @@ class MessageBuilder(BuildAttachmentsMixin, BuildEntityMixin):  # noqa: WPS214
     @property
     def message(self) -> IncomingMessage:
         """Message that was built by builder."""
-        command_type = (
-            enums.CommandTypes.system
-            if self.system_command
-            else enums.CommandTypes.user
-        )
+        command_type = CommandTypes.system if self.system_command else CommandTypes.user
         command = Command(
             body=self.body, command_type=command_type, data=self.command_data,
         )

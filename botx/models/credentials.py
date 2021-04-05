@@ -9,18 +9,8 @@ from uuid import UUID
 from botx.models.base import BotXBaseModel
 
 
-class ServerCredentials(BotXBaseModel):
-    """Container for credentials for bot."""
-
-    #: bot that retrieved token from API.
-    bot_id: UUID
-
-    #: token generated for bot.
-    token: str
-
-
-class ExpressServer(BotXBaseModel):
-    """Server on which bot can answer."""
+class BotXCredentials(BotXBaseModel):
+    """Credentials to bot account in express."""
 
     #: host name of server.
     host: str
@@ -28,8 +18,11 @@ class ExpressServer(BotXBaseModel):
     #: secret that will be used for generating signature for bot.
     secret_key: str
 
-    #: obtained credentials for bot.
-    server_credentials: Optional[ServerCredentials] = None
+    #: bot that retrieved token from API.
+    bot_id: UUID
+
+    #: token generated for bot.
+    token: Optional[str] = None
 
     def calculate_signature(self, bot_id: UUID) -> str:
         """Calculate signature for obtaining token for bot from BotX API.

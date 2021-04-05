@@ -6,7 +6,7 @@ pytestmark = pytest.mark.asyncio
 
 
 async def test_obtain_token_if_missed(bot, client, message):
-    bot.known_hosts[0].server_credentials = None
+    bot.bot_accounts[0].token = None
 
     await bot.answer_message("some text", message)
 

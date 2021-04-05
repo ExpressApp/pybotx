@@ -3,7 +3,6 @@ from dataclasses import field
 from typing import Any, List, Optional, TypeVar
 
 import httpx
-from httpx import Response
 from loguru import logger
 from pydantic.dataclasses import dataclass
 
@@ -63,7 +62,7 @@ class AsyncClient:
 
         return extract_result(method, response)
 
-    async def execute(self, method: BotXMethod) -> Response:
+    async def execute(self, method: BotXMethod) -> httpx.Response:
         """Make real HTTP request using client.
 
         Arguments:

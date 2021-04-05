@@ -7,7 +7,7 @@ from botx.clients.clients.async_client import AsyncClient
 from botx.clients.clients.sync_client import Client
 from botx.collecting.collectors.collector import Collector
 from botx.dependencies.injection_params import Depends
-from botx.exceptions import BotXAPIError, DependencyFailure, ServerUnknownError
+from botx.exceptions import BotXAPIError, DependencyFailure, UnknownBotError, TokenError
 from botx.models.attachments import (
     AttachList,
     Attachment,
@@ -20,7 +20,7 @@ from botx.models.attachments import (
     Voice,
 )
 from botx.models.buttons import BubbleElement, KeyboardElement
-from botx.models.credentials import ExpressServer, ServerCredentials
+from botx.models.credentials import BotXCredentials
 from botx.models.entities import (
     ChatMention,
     Entity,
@@ -68,8 +68,9 @@ __all__ = (
     "Client",
     # exceptions
     "BotXAPIError",
-    "ServerUnknownError",
     "DependencyFailure",
+    "UnknownBotError",
+    "TokenError",
     # DI
     "Depends",
     # models
@@ -77,8 +78,7 @@ __all__ = (
     "BubbleElement",
     "KeyboardElement",
     # credentials
-    "ExpressServer",
-    "ServerCredentials",
+    "BotXCredentials",
     # enums
     "Statuses",
     "UserKinds",

@@ -1,16 +1,15 @@
 import pytest
 
-from botx import Bot, ExpressServer, ServerCredentials, TestClient
+from botx import Bot, BotXCredentials, TestClient
 
 
 @pytest.fixture()
 def bot(host, secret_key, bot_id, token):
-    credentials = ServerCredentials(bot_id=bot_id, token=token)
-    server = ExpressServer(
-        host=host, secret_key=secret_key, server_credentials=credentials,
+    accounts = BotXCredentials(
+        host=host, secret_key=secret_key, bot_id=bot_id, token=token,
     )
 
-    return Bot(known_hosts=[server])
+    return Bot(bot_accounts=[accounts])
 
 
 @pytest.fixture()
