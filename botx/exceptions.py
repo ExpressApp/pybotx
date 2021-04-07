@@ -63,3 +63,9 @@ class ServerUnknownError(BotXException):
 
     #: host that is unregistered.
     host: str
+
+
+class BotXAPIRouteDeprecated(BotXAPIError):
+    """Raised if API route was deprecated."""
+
+    message_template = "route {method} {url} is deprecated"

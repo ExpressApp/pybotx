@@ -10,7 +10,7 @@ from pydantic.dataclasses import dataclass
 from botx.clients.clients.processing import extract_result, handle_error
 from botx.clients.methods.base import BotXMethod
 from botx.converters import optional_sequence_to_list
-from botx.exceptions import BotXAPIError
+from botx.exceptions import BotXAPIError, BotXAPIRouteDeprecated
 from botx.shared import BotXDataclassConfig, debug_bot_id_var
 
 ResponseT = TypeVar("ResponseT")
@@ -42,6 +42,7 @@ class AsyncClient:
 
         Raises:
             BotXAPIError: raised if handler for error status code was not found.
+            BotXAPIRouteDeprecated: raised if API route was deprecated.
         """
         if host is not None:
             method.host = host
@@ -53,6 +54,14 @@ class AsyncClient:
             error_handlers = handlers_dict.get(response.status_code)
             if error_handlers is not None:
                 await handle_error(method, error_handlers, response)
+
+            if response.status_code == httpx.codes.GONE:
+                raise BotXAPIRouteDeprecated(
+                    url=method.url,
+                    method=method.http_method,
+                    status=response.status_code,
+                    response_content=response.json(),
+                )
 
             raise BotXAPIError(
                 url=method.url,
