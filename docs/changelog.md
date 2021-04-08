@@ -1,3 +1,10 @@
+## 0.18.4 (Apr 08, 2021) 
+Tested on BotX 1.40.0-rc0
+
+### Changed
+
+* Raise special exception (BotXAPIRouteDeprecated) on response 410 GONE
+
 ## 0.18.3 (Apr 05, 2021)
 
 ### Add
