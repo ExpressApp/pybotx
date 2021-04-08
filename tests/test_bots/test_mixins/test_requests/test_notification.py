@@ -7,7 +7,8 @@ pytestmark = pytest.mark.asyncio
 
 async def test_filling_with_chat_id_from_credentials(client, message):
     await client.bot.send_notification(
-        credentials=message.credentials, payload=MessagePayload(text="some text"),
+        credentials=message.credentials,
+        payload=MessagePayload(text="some text"),
     )
 
     assert client.notifications[0].result.body == "some text"
@@ -37,7 +38,8 @@ async def test_direct_notification_chat_id_required(client, message):
 
     with pytest.raises(ValueError) as exc:
         await client.bot.send_direct_notification(
-            credentials, payload=MessagePayload(text="some text"),
+            credentials,
+            payload=MessagePayload(text="some text"),
         )
 
     assert "chat_id is required" in str(exc.value)

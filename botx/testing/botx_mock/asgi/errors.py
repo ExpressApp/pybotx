@@ -57,7 +57,9 @@ def generate_error_response(request: Request) -> Response:
 
     return PydanticResponse(
         APIErrorResponse[BaseModel](
-            errors=["error from mock"], reason="asked_for_error", error_data=error_data,
+            errors=["error from mock"],
+            reason="asked_for_error",
+            error_data=error_data,
         ),
         status_code=status_code,
     )
@@ -67,7 +69,9 @@ class ErrorMiddleware(BaseHTTPMiddleware):
     """Middleware that will generate error response."""
 
     async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint,
+        self,
+        request: Request,
+        call_next: RequestResponseEndpoint,
     ) -> Response:
         """Generate error response for API call or pass request to mocked endpoint.
 

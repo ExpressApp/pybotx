@@ -120,7 +120,14 @@ class BuildEntityMixin:
         forward: Optional[Forward] = None,
         source_chat_name: str = "chat",
         source_inserted_at: datetime = datetime(  # noqa: B008, WPS404
-            1, 1, 1, 1, 1, 1, 1, None,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            None,
         ),
     ) -> None:
         """Add forward to message for bot.

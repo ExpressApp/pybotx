@@ -31,7 +31,10 @@ class PydanticResponse(Response):
             kwargs: other arguments to response constructor from starlette.
         """
         super().__init__(
-            model.json(by_alias=True), status_code, media_type=media_type, **kwargs,
+            model.json(by_alias=True),
+            status_code,
+            media_type=media_type,
+            **kwargs,
         )
 
 

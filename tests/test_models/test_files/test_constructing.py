@@ -17,7 +17,10 @@ def test_file_creation_with_right_extension(extension):
 )
 @pytest.mark.parametrize("explicit_file_name", ["test2.txt", None])
 def test_creating_file_from_io_with_name(
-    io_cls, file_data, file_name, explicit_file_name,
+    io_cls,
+    file_data,
+    file_name,
+    explicit_file_name,
 ):
     created_file = io_cls(file_data)
     if not explicit_file_name:
@@ -32,7 +35,8 @@ def test_creating_file_from_io_with_name(
 @pytest.mark.parametrize("file_data", ["test", b"test"])
 def test_creating_file_from_string(file_data):
     assert File.from_string(file_data, filename="test.txt") == File(
-        file_name="test.txt", data="data:text/plain;base64,dGVzdA==",
+        file_name="test.txt",
+        data="data:text/plain;base64,dGVzdA==",
     )
 
 

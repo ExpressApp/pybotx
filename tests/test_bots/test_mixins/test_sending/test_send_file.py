@@ -19,7 +19,8 @@ async def test_send_file_is_notification(bot, client, message, sending_file):
 
 async def test_using_notification(bot, client, message, sending_file):
     await bot.send_file(
-        sending_file, message.credentials.copy(update={"sync_id": None}),
+        sending_file,
+        message.credentials.copy(update={"sync_id": None}),
     )
 
     message = client.notifications[0]

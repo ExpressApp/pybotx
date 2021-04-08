@@ -82,7 +82,8 @@ class Mention(BotXBaseModel):
 
     @validator("mention_data", pre=True, always=True)
     def ignore_empty_data(
-        cls, mention_data: Union[ChatMention, UserMention, Dict],  # noqa: N805
+        cls,
+        mention_data: Union[ChatMention, UserMention, Dict],  # noqa: N805
     ) -> Optional[Union[ChatMention, UserMention, Dict]]:
         """Pass empty dict into mention_data as None.
 
@@ -99,7 +100,9 @@ class Mention(BotXBaseModel):
 
     @validator("mention_type", pre=True, always=True)
     def check_that_type_matches_data(  # noqa: WPS231, WPS210
-        cls, mention_type: MentionTypes, values: dict,  # noqa: N805, WPS110
+        cls,
+        mention_type: MentionTypes,
+        values: dict,  # noqa: N805, WPS110
     ) -> MentionTypes:
         """Verify that `mention_type` matches provided `mention_data`.
 

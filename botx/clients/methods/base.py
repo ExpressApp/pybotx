@@ -21,7 +21,8 @@ PRIMITIVES_FOR_QUERY = (str, int, float, bool, type(None))
 ResponseT = typing.TypeVar("ResponseT")
 SyncErrorHandler = typing.Callable[["BotXMethod", Response], typing.NoReturn]
 AsyncErrorHandler = typing.Callable[
-    ["BotXMethod", Response], typing.Awaitable[typing.NoReturn],
+    ["BotXMethod", Response],
+    typing.Awaitable[typing.NoReturn],
 ]
 ErrorHandler = typing.Union[SyncErrorHandler, AsyncErrorHandler]
 ErrorHandlersInMethod = typing.Union[typing.Sequence[ErrorHandler], ErrorHandler]
@@ -179,7 +180,9 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
             Encoded data for request.
         """
         return self.json(
-            by_alias=True, exclude=set(CREDENTIALS_FIELDS), exclude_none=True,
+            by_alias=True,
+            exclude=set(CREDENTIALS_FIELDS),
+            exclude_none=True,
         )
 
     def build_http_request(self) -> HTTPRequest:

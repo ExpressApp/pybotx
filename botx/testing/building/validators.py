@@ -17,13 +17,17 @@ def validate_body_corresponds_command(body: str, values: dict) -> str:  # noqa: 
         Checked passed body.
     """
     _check_system_command_properties(
-        body, values.get("system_command", False), values["command_data"], values,
+        body,
+        values.get("system_command", False),
+        values["command_data"],
+        values,
     )
     return body
 
 
 def validate_command_type_corresponds_command(
-    is_system_command: bool, values: dict,  # noqa: WPS110
+    is_system_command: bool,
+    values: dict,  # noqa: WPS110
 ) -> bool:
     """Check that command type corresponds body.
 
@@ -36,7 +40,10 @@ def validate_command_type_corresponds_command(
     """
     if is_system_command:
         _check_system_command_properties(
-            values["body"], is_system_command, values["command_data"], values,
+            values["body"],
+            is_system_command,
+            values["command_data"],
+            values,
         )
 
     return is_system_command
@@ -62,7 +69,10 @@ def convert_to_acceptable_file(
 
 
 def _check_system_command_properties(
-    body: str, is_system_command: bool, command_data: dict, validated_values: dict,
+    body: str,
+    is_system_command: bool,
+    command_data: dict,
+    validated_values: dict,
 ) -> None:
     if is_system_command:
         event = enums.SystemEvents(body)  # check that is real system event
