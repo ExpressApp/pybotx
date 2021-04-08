@@ -46,10 +46,12 @@ async def test_handling_from_nearest_mro_handler(
     handler_event = threading.Event()
 
     bot.add_exception_handler(
-        Exception, build_exception_catcher(exception_catcher_event),
+        Exception,
+        build_exception_catcher(exception_catcher_event),
     )
     bot.add_exception_handler(
-        Exception, build_exception_catcher(value_error_catcher_event),
+        Exception,
+        build_exception_catcher(value_error_catcher_event),
     )
     bot.default(handler=build_failed_handler(exc_for_raising, handler_event))
 
@@ -63,7 +65,10 @@ async def test_handling_from_nearest_mro_handler(
 
 
 async def test_logging_exception_if_was_not_found(
-    bot, incoming_message, loguru_caplog, build_failed_handler,
+    bot,
+    incoming_message,
+    loguru_caplog,
+    build_failed_handler,
 ) -> None:
     event = threading.Event()
     bot.default(build_failed_handler(ValueError, event))

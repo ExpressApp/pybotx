@@ -20,7 +20,9 @@ def metadata():
 @pytest.fixture()
 def sending_message(message, metadata, sending_file):
     sending_message = SendingMessage.from_message(
-        text="some text", file=sending_file, message=message,
+        text="some text",
+        file=sending_file,
+        message=message,
     )
     sending_message.add_keyboard_button(command="/command", label="keyboard")
     sending_message.add_bubble(command="/command", label="bubble")

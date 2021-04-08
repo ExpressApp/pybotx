@@ -17,7 +17,9 @@ pytest_plugins = ("tests.test_clients.fixtures",)
 
 async def test_raising_chat_creation_disallowed(client, requests_client):
     method = Create(
-        name="test name", members=[uuid.uuid4()], chat_type=ChatTypes.group_chat,
+        name="test name",
+        members=[uuid.uuid4()],
+        chat_type=ChatTypes.group_chat,
     )
 
     errors_to_raise = {

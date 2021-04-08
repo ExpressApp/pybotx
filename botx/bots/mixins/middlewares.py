@@ -13,7 +13,9 @@ class MiddlewareMixin:
     exception_middleware: ExceptionMiddleware
 
     def add_middleware(
-        self, middleware_class: Type[BaseMiddleware], **kwargs: Any,
+        self,
+        middleware_class: Type[BaseMiddleware],
+        **kwargs: Any,
     ) -> None:
         """Register new middleware for execution before handler.
 
@@ -22,7 +24,8 @@ class MiddlewareMixin:
             kwargs: arguments that are required for middleware initialization.
         """
         self.exception_middleware.executor = middleware_class(
-            self.exception_middleware.executor, **kwargs,
+            self.exception_middleware.executor,
+            **kwargs,
         )
 
     def middleware(self, handler: typing.Executor) -> Callable:

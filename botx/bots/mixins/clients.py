@@ -4,7 +4,7 @@ from uuid import UUID
 
 from botx.bots.mixins.requests.mixin import BotXRequestsMixin
 from botx.bots.mixins.sending import SendingMixin
-from botx.exceptions import UnknownBotError, TokenError
+from botx.exceptions import TokenError, UnknownBotError
 from botx.models.credentials import BotXCredentials
 
 

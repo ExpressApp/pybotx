@@ -53,7 +53,8 @@ def retrieve_name_for_handler(name: Optional[str], handler: Callable) -> str:
 
 
 def retrieve_full_description_for_handler(
-    full_description: Optional[str], handler: Callable,
+    full_description: Optional[str],
+    handler: Callable,
 ) -> str:
     """Retrieve full description for handler.
 
@@ -100,14 +101,16 @@ def retrieve_dependant(handler: Callable, dependencies: List[Depends]) -> Depend
     dependant = get_dependant(call=handler)
     for index, depends in enumerate(dependencies):
         dependant.dependencies.insert(
-            index, get_dependant(call=depends.dependency, use_cache=depends.use_cache),
+            index,
+            get_dependant(call=depends.dependency, use_cache=depends.use_cache),
         )
 
     return dependant
 
 
 def retrieve_executor(
-    dependant: Dependant, dependency_overrides_provider: Any,
+    dependant: Dependant,
+    dependency_overrides_provider: Any,
 ) -> Callable:
     """Retrieve executor for handler.
 

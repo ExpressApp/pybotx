@@ -34,7 +34,9 @@ def extract_result(method: BotXMethod[ResponseT], response: Response) -> Respons
 
 
 async def handle_error(
-    method: BotXMethod, error_handlers: ErrorHandlersInMethod, response: Response,
+    method: BotXMethod,
+    error_handlers: ErrorHandlersInMethod,
+    response: Response,
 ) -> None:
     """Handle error status code from BotX API.
 

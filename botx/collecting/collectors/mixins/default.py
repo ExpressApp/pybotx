@@ -83,7 +83,8 @@ class DefaultHandlerMixin:
             )
             name = name or get_name_from_callable(registered_handler)
             self.default_message_handler = cast(
-                HandlerSearchProtocol, self,
+                HandlerSearchProtocol,
+                self,
             ).handler_for(name)
 
             return handler

@@ -46,14 +46,20 @@ async def test_setting_args_into_message_state(
 
     bot.default(
         handler=build_handler_to_store_arguments(
-            "ns_handler", event1, arg1=1, arg2="2", arg3=True,
+            "ns_handler",
+            event1,
+            arg1=1,
+            arg2="2",
+            arg3=True,
         ),
     )
 
     ns_handler = build_handler_to_save_message_in_storage(event2)
 
     bot.add_middleware(
-        NextStepMiddleware, bot=bot, functions={"ns_handler": ns_handler},
+        NextStepMiddleware,
+        bot=bot,
+        functions={"ns_handler": ns_handler},
     )
 
     await client.send_command(incoming_message)

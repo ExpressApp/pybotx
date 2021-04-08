@@ -97,7 +97,11 @@ class SendingMessage:  # noqa: WPS214
 
     @classmethod
     def from_message(
-        cls, *, text: str = "", file: Optional[File] = None, message: Message,
+        cls,
+        *,
+        text: str = "",
+        file: Optional[File] = None,
+        message: Message,
     ) -> "SendingMessage":
         """Build message for sending from incoming message.
 
@@ -208,7 +212,9 @@ class SendingMessage:  # noqa: WPS214
         self.credentials.host = host
 
     def add_file(
-        self, file: Union[TextIO, BinaryIO, File], filename: Optional[str] = None,
+        self,
+        file: Union[TextIO, BinaryIO, File],
+        filename: Optional[str] = None,
     ) -> None:
         """Attach file to message.
 
@@ -323,7 +329,11 @@ class SendingMessage:  # noqa: WPS214
             new_row: place keyboard on new row or on current.
         """
         self.payload.markup.add_keyboard_button(
-            command, label, data, options, new_row=new_row,
+            command,
+            label,
+            data,
+            options,
+            new_row=new_row,
         )
 
     def show_notification(self, show: bool) -> None:

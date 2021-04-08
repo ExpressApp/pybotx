@@ -25,7 +25,9 @@ from botx.typing import Executor, MiddlewareDispatcher, SyncExecutor
 
 
 def _default_dispatch(
-    _middleware: "BaseMiddleware", _message: Message, _call_next: SyncExecutor,
+    _middleware: "BaseMiddleware",
+    _message: Message,
+    _call_next: SyncExecutor,
 ) -> None:
     raise NotImplementedError
 
@@ -36,7 +38,9 @@ class BaseMiddleware:
     dispatch: Callable = _default_dispatch
 
     def __init__(
-        self, executor: Executor, dispatch: Optional[MiddlewareDispatcher] = None,
+        self,
+        executor: Executor,
+        dispatch: Optional[MiddlewareDispatcher] = None,
     ) -> None:
         """Init middleware with required query_params.
 

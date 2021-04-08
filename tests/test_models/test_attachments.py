@@ -175,7 +175,8 @@ def test_missing_telephone_in_attachments():
 
 
 @pytest.mark.parametrize(
-    "attach", [lambda x: x.document, lambda x: x.image, lambda x: x.video],
+    "attach",
+    [lambda x: x.document, lambda x: x.image, lambda x: x.video],
 )
 def test_file_in_attachments(attach):
     builder = MessageBuilder()

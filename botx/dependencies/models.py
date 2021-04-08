@@ -85,12 +85,17 @@ def get_param_sub_dependant(*, dependency_param: inspect.Parameter) -> Dependant
     dependency = depends.dependency
 
     return get_dependant(
-        call=dependency, name=dependency_param.name, use_cache=depends.use_cache,
+        call=dependency,
+        name=dependency_param.name,
+        use_cache=depends.use_cache,
     )
 
 
 def get_dependant(
-    *, call: Callable, name: Optional[str] = None, use_cache: bool = True,
+    *,
+    call: Callable,
+    name: Optional[str] = None,
+    use_cache: bool = True,
 ) -> Dependant:
     """Get dependant instance from passed callable object.
 
@@ -115,14 +120,17 @@ def get_dependant(
             continue
 
         is_special_param = add_special_param_to_dependency(
-            dependency_param=dependency_param, dependant=dependant,
+            dependency_param=dependency_param,
+            dependant=dependant,
         )
         if is_special_param:
             continue
 
         raise ValueError(
             WRONG_PARAM_TYPE_ERROR_TEXT.format(
-                dependency_param.name, call, dependency_param.annotation,
+                dependency_param.name,
+                call,
+                dependency_param.annotation,
             ),
         )
 
@@ -130,7 +138,9 @@ def get_dependant(
 
 
 def add_special_param_to_dependency(
-    *, dependency_param: inspect.Parameter, dependant: Dependant,
+    *,
+    dependency_param: inspect.Parameter,
+    dependant: Dependant,
 ) -> bool:
     """Check if param is non field object that should be passed into callable.
 

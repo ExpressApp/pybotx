@@ -30,7 +30,9 @@ async def test_raising_base_api_error_if_empty_handlers(client, requests_client)
 
 async def test_raising_base_api_error_if_unhandled(client, requests_client):
     method = Create(
-        name="test name", members=[uuid.uuid4()], chat_type=ChatTypes.group_chat,
+        name="test name",
+        members=[uuid.uuid4()],
+        chat_type=ChatTypes.group_chat,
     )
 
     method.__errors_handlers__[httpx.codes.IM_A_TEAPOT] = []

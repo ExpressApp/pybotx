@@ -106,7 +106,8 @@ def test_setting_raw_entities():
 
 
 @pytest.mark.parametrize(
-    "include_param", ["user_huid", "ad_login", "ad_domain", "username"],
+    "include_param",
+    ["user_huid", "ad_login", "ad_domain", "username"],
 )
 def test_error_when_chat_validation_not_passed(include_param):
     user_params = {"user_huid", "ad_login", "ad_domain", "username"}

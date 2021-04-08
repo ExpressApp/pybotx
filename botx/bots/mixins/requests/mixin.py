@@ -62,7 +62,6 @@ class BotXRequestsMixin(  # noqa: WPS215
         Returns:
             Response for method.
         """
-
         # TODO: remove _fill_token(with optional params) and use AuthMiddleware on bot.
         if not isinstance(method, Token):
             await _fill_token(
@@ -92,7 +91,8 @@ async def _fill_token(client: AsyncClient, account: BotXCredentials) -> None:
         return
 
     method = Token(
-        bot_id=account.bot_id, signature=account.calculate_signature(account.bot_id),
+        bot_id=account.bot_id,
+        signature=account.calculate_signature(account.bot_id),
     )
     token = await client.call(method, account.host)
     account.token = token

@@ -34,7 +34,10 @@ def test_register_break_handler_as_string(bot, build_handler_for_collector):
     bot.handler(handler=build_handler_for_collector("break_handler"), command="/break")
 
     bot.add_middleware(
-        NextStepMiddleware, bot=bot, functions={}, break_handler="break_handler",
+        NextStepMiddleware,
+        bot=bot,
+        functions={},
+        break_handler="break_handler",
     )
 
     assert bot.state.ns_collector.handler_for("break_handler") == bot.handler_for(
@@ -60,7 +63,10 @@ def test_register_break_handler_as_handler(bot, build_handler_for_collector):
 def test_register_break_handler_as_function(bot, build_handler_for_collector):
     handler = build_handler_for_collector("break_handler")
     bot.add_middleware(
-        NextStepMiddleware, bot=bot, functions={}, break_handler=handler,
+        NextStepMiddleware,
+        bot=bot,
+        functions={},
+        break_handler=handler,
     )
 
     assert bot.state.ns_collector.handler_for("break_handler").handler == handler
