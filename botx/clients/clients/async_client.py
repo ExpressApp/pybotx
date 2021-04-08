@@ -28,7 +28,9 @@ class AsyncClient:
         self.interceptors = optional_sequence_to_list(self.interceptors)
 
     async def call(
-        self, method: BotXMethod[ResponseT], host: Optional[str] = None,
+        self,
+        method: BotXMethod[ResponseT],
+        host: Optional[str] = None,
     ) -> ResponseT:
         """Make request to BotX API using passed method and return result.
 
@@ -83,7 +85,9 @@ class AsyncClient:
         request = method.build_http_request()
         method_name = method.__repr_name__()  # noqa: WPS609
         logger.bind(botx_client=True, payload=request.to_dict()).debug(
-            "send {0} request to bot {1}", method_name, debug_bot_id_var.get(),
+            "send {0} request to bot {1}",
+            method_name,
+            debug_bot_id_var.get(),
         )
         return await self.http_client.request(
             request.method,

@@ -31,7 +31,9 @@ class PydanticResponse(Response):
         headers = headers or {}
         headers["Content-Type"] = "application/json"
         super().__init__(
-            status_code, headers, model.json(by_alias=True),
+            status_code,
+            headers,
+            model.json(by_alias=True),
         )
 
 

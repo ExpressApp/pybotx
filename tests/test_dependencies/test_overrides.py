@@ -8,7 +8,10 @@ pytestmark = pytest.mark.asyncio
 
 
 async def test_that_dependency_can_be_overriden(
-    bot, client, incoming_message, build_handler,
+    bot,
+    client,
+    incoming_message,
+    build_handler,
 ):
     handler_event = threading.Event()
     original_dependency_event = threading.Event()
@@ -27,7 +30,10 @@ async def test_that_dependency_can_be_overriden(
 
 
 async def test_bot_is_used_as_default_provider(
-    bot, client, incoming_message, build_handler,
+    bot,
+    client,
+    incoming_message,
+    build_handler,
 ):
     handler_event = threading.Event()
     original_dependency_event = threading.Event()
@@ -50,7 +56,10 @@ async def test_bot_is_used_as_default_provider(
 
 
 async def test_overrider_is_used_if_not_none(
-    bot, client, incoming_message, build_handler,
+    bot,
+    client,
+    incoming_message,
+    build_handler,
 ):
     handler_event = threading.Event()
     original_dependency_event = threading.Event()

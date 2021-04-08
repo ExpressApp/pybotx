@@ -71,7 +71,9 @@ class BuildAttachmentsMixin:
         )
 
     def voice(
-        self, content: str = test_content.MP3_DATA, duration: int = 10,  # noqa: WPS110
+        self,
+        content: str = test_content.MP3_DATA,  # noqa: WPS110
+        duration: int = 10,  # noqa: WPS110
     ) -> None:
         """Add voice into incoming message.
 
@@ -101,7 +103,9 @@ class BuildAttachmentsMixin:
         self.attachments.__root__.append(
             attach.VideoAttachment(
                 data=attach.Video(
-                    content=content, file_name=file_name, duration=duration,
+                    content=content,
+                    file_name=file_name,
+                    duration=duration,
                 ),
             ),
         )

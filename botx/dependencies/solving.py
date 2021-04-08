@@ -112,7 +112,8 @@ async def solve_dependencies(
 
 
 def get_executor(
-    dependant: Dependant, dependency_overrides_provider: Any = None,
+    dependant: Dependant,
+    dependency_overrides_provider: Any = None,
 ) -> Callable[[Message], Awaitable[None]]:
     """Get an execution callable for passed dependency.
 
@@ -137,7 +138,8 @@ def get_executor(
             dependency_overrides_provider=dependency_overrides_provider,
         )
         await concurrency.callable_to_coroutine(
-            cast(Callable, dependant.call), **solved_values,
+            cast(Callable, dependant.call),
+            **solved_values,
         )
 
     return factory

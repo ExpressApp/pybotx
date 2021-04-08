@@ -19,7 +19,8 @@ def test_building_command_with_arguments(handler_as_function, collector_cls):
 
 
 def test_raising_exception_when_generating_command_and_not_found(
-    build_handler_for_collector, collector_cls,
+    build_handler_for_collector,
+    collector_cls,
 ):
     collector = collector_cls()
     collector.handler(build_handler_for_collector("handler1"))

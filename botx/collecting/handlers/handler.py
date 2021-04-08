@@ -72,11 +72,13 @@ class Handler:
         """Initialize or update special fields."""
         self.name = retrieve_name_for_handler(self.name, self.handler)
         self.full_description = retrieve_full_description_for_handler(
-            self.full_description, self.handler,
+            self.full_description,
+            self.handler,
         )
         self.dependant = retrieve_dependant(self.handler, self.dependencies)
         self.executor = retrieve_executor(  # type: ignore
-            self.dependant, self.dependency_overrides_provider,
+            self.dependant,
+            self.dependency_overrides_provider,
         )
 
     def matches(self, message: Message) -> bool:

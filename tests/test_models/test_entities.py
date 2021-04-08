@@ -17,7 +17,8 @@ class TestMentions:
     @pytest.mark.parametrize("mention_id", [None, uuid.uuid4()])
     def test_mention_id_will_be_generated_if_missed(self, mention_id):
         mention = Mention(
-            mention_id=mention_id, mention_data=UserMention(user_huid=uuid.uuid4()),
+            mention_id=mention_id,
+            mention_data=UserMention(user_huid=uuid.uuid4()),
         )
         assert mention.mention_id is not None
 
@@ -48,7 +49,9 @@ class TestMentions:
         ],
     )
     def test_error_when_data_not_corresponds_type(
-        self, mention_data, mention_type,
+        self,
+        mention_data,
+        mention_type,
     ) -> None:
         with pytest.raises(ValidationError):
             assert Mention(mention_data=mention_data, mention_type=mention_type)

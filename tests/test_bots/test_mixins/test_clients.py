@@ -1,8 +1,9 @@
-import pytest
 import uuid
 
+import pytest
+
 from botx import BotXCredentials
-from botx.exceptions import UnknownBotError, TokenError
+from botx.exceptions import TokenError, UnknownBotError
 
 pytestmark = pytest.mark.asyncio
 

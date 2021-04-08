@@ -37,7 +37,9 @@ class ExceptionMiddleware(BaseMiddleware):
             await self._handle_error_in_handler(exc, message)
 
     def add_exception_handler(
-        self, exc_class: Type[Exception], handler: Callable,
+        self,
+        exc_class: Type[Exception],
+        handler: Callable,
     ) -> None:
         """Register handler for specific exception in middleware.
 

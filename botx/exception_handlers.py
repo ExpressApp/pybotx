@@ -17,7 +17,8 @@ async def dependency_failure_exception_handler(*_: Any) -> None:
 
 
 async def no_match_found_exception_handler(
-    exception: NoMatchFound, message: messages.Message,
+    exception: NoMatchFound,
+    message: messages.Message,
 ) -> None:
     """Log that handler was not found.
 

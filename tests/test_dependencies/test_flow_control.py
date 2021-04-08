@@ -22,7 +22,11 @@ def build_fail_dependency():
 
 
 async def test_flow_stop_if_error_raised(
-    bot, client, incoming_message, build_handler, build_fail_dependency,
+    bot,
+    client,
+    incoming_message,
+    build_handler,
+    build_fail_dependency,
 ):
     handler_event = threading.Event()
 

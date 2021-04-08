@@ -31,7 +31,10 @@ def _combine_dependencies(
 
 
 def _check_new_handler_restrictions(
-    body: str, name: Optional[str], handler: Callable, existed_handler: Handler,
+    body: str,
+    name: Optional[str],
+    handler: Callable,
+    existed_handler: Handler,
 ) -> None:
     handler_executor = existed_handler.handler
     handler_name = existed_handler.name
@@ -158,11 +161,14 @@ class BaseCollector:
         self.handlers.append(command_handler)
 
     def _add_handlers(
-        self, handlers: List[Handler], dependencies: Optional[Sequence[Depends]] = None,
+        self,
+        handlers: List[Handler],
+        dependencies: Optional[Sequence[Depends]] = None,
     ) -> None:
         for handler in handlers:
             combined_dependencies = _combine_dependencies(
-                dependencies, handler.dependencies,
+                dependencies,
+                handler.dependencies,
             )
             self.add_handler(
                 body=handler.body,
@@ -175,10 +181,14 @@ class BaseCollector:
             )
 
     def _add_default_handler(
-        self, default: Handler, dependencies: Optional[Sequence[Depends]] = None,
+        self,
+        default: Handler,
+        dependencies: Optional[Sequence[Depends]] = None,
     ) -> None:
         default_dependencies = _combine_dependencies(
-            self.dependencies, dependencies, default.dependencies,
+            self.dependencies,
+            dependencies,
+            default.dependencies,
         )
         self.default_message_handler = Handler(
             body=default.body,

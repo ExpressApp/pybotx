@@ -84,7 +84,9 @@ class MessageBuilder(BuildAttachmentsMixin, BuildEntityMixin):  # noqa: WPS214
         """Message that was built by builder."""
         command_type = CommandTypes.system if self.system_command else CommandTypes.user
         command = Command(
-            body=self.body, command_type=command_type, data=self.command_data,
+            body=self.body,
+            command_type=command_type,
+            data=self.command_data,
         )
         return IncomingMessage(
             sync_id=uuid.uuid4(),

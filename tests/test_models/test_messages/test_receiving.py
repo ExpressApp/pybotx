@@ -21,7 +21,10 @@ from botx.models.messages.incoming_message import Command, IncomingMessage, Send
     ],
 )
 def test_command_splits_right(
-    body: str, command: str, arguments: List[str], single_argument: str,
+    body: str,
+    command: str,
+    arguments: List[str],
+    single_argument: str,
 ) -> None:
     command = Command(body=body, command_type=CommandTypes.user)
     assert command.body == body
@@ -32,7 +35,9 @@ def test_command_splits_right(
 
 def test_command_data_as_dict() -> None:
     command = Command(
-        body="/test", command_type=CommandTypes.user, data={"some": "data"},
+        body="/test",
+        command_type=CommandTypes.user,
+        data={"some": "data"},
     )
     assert command.data_dict == command.data == {"some": "data"}
 

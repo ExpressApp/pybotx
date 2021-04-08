@@ -10,7 +10,10 @@ class BotsRequestsMixin:
     """Mixin for shortcut for bots resource requests."""
 
     async def get_token(
-        self: BotXMethodCallProtocol, host: str, bot_id: UUID, signature: str,
+        self: BotXMethodCallProtocol,
+        host: str,
+        bot_id: UUID,
+        signature: str,
     ) -> str:
         """Obtain token for bot.
 
@@ -23,5 +26,6 @@ class BotsRequestsMixin:
              Obtained token.
         """
         return await self.call_method(
-            Token(bot_id=bot_id, signature=signature), host=host,
+            Token(bot_id=bot_id, signature=signature),
+            host=host,
         )

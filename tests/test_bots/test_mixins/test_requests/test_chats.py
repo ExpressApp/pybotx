@@ -20,14 +20,17 @@ async def test_creating_chat(client, message):
 
 async def test_enable_stealth_mode(bot, client, message):
     await bot.enable_stealth_mode(
-        message.credentials, chat_id=message.group_chat_id, burn_in=60,
+        message.credentials,
+        chat_id=message.group_chat_id,
+        burn_in=60,
     )
     assert client.requests[0].burn_in == 60
 
 
 async def test_disable_stealth_mode(bot, client, message):
     await bot.disable_stealth_mode(
-        message.credentials, chat_id=message.group_chat_id,
+        message.credentials,
+        chat_id=message.group_chat_id,
     )
     assert client.requests[0].group_chat_id == message.group_chat_id
 
@@ -35,7 +38,9 @@ async def test_disable_stealth_mode(bot, client, message):
 async def test_adding_user_to_chat(bot, client, message):
     users = [uuid.uuid4()]
     await bot.add_users(
-        message.credentials, chat_id=message.group_chat_id, user_huids=users,
+        message.credentials,
+        chat_id=message.group_chat_id,
+        user_huids=users,
     )
     request = client.requests[0]
     assert request.group_chat_id == message.group_chat_id
@@ -45,7 +50,9 @@ async def test_adding_user_to_chat(bot, client, message):
 async def test_remove_user(bot, client, message):
     users = [uuid.uuid4()]
     await bot.remove_users(
-        message.credentials, chat_id=message.group_chat_id, user_huids=users,
+        message.credentials,
+        chat_id=message.group_chat_id,
+        user_huids=users,
     )
     request = client.requests[0]
     assert request.group_chat_id == message.group_chat_id
@@ -61,7 +68,9 @@ async def test_retrieving_chat_info(bot, client, message):
 async def test_promoting_users_to_admins(bot, client, message):
     users = [uuid.uuid4()]
     await bot.add_admin_roles(
-        message.credentials, chat_id=message.group_chat_id, user_huids=users,
+        message.credentials,
+        chat_id=message.group_chat_id,
+        user_huids=users,
     )
     request = client.requests[0]
     assert request.group_chat_id == message.group_chat_id
