@@ -116,6 +116,9 @@ class MentionTypes(str, Enum):
     #: mention channel in message.
     channel = "channel"
 
+    #: mention each members
+    all_members = "all"
+
 
 class LinkProtos(str, Enum):
     """Enum for protos of links in attachments."""

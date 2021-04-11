@@ -497,3 +497,14 @@ class TestIsForward:
 
     def test_is_forward_message_error(self, message, bot) -> None:
         assert not message.is_forward
+
+
+class TestEntites:
+    def test_mention_data_error(self):
+        mention_all = {
+            "mention_type": "all",
+            "mention_id": uuid.uuid4(),
+            "mention_data": {},
+        }
+        mention = Mention.parse_obj(mention_all)
+        assert mention.mention_data is None

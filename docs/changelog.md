@@ -1,3 +1,9 @@
+## 0.18.2 (Apr 01, 2021)
+
+### Changed
+
+* Bot can recognize mention all (@all) now 
+
 ## 0.18.1 (Mar 22, 2021)
 
 ### Changed
