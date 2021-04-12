@@ -1,6 +1,5 @@
 import uuid
 
-import httpx
 import pytest
 
 from botx import BotXAPIError, ChatTypes
@@ -12,20 +11,30 @@ from botx.concurrency import callable_to_coroutine
 pytestmark = pytest.mark.asyncio
 pytest_plugins = ("tests.test_clients.fixtures",)
 
+IM_A_TEAPOT = 418  # This status code added in python 3.9
+
 
 async def test_raising_base_api_error_if_empty_handlers(client, requests_client):
     method = Token(bot_id=uuid.uuid4(), signature="signature")
 
     errors_to_raise = {
         Token: (
-            httpx.codes.IM_A_TEAPOT,
+            IM_A_TEAPOT,
             BotIsNotAdminData(sender=uuid.uuid4(), group_chat_id=uuid.uuid4()),
         ),
     }
 
     with client.error_client(errors=errors_to_raise):
+        method.host = "example.com"
+        request = requests_client.build_request(method)
+        response = await callable_to_coroutine(requests_client.execute, request)
+
         with pytest.raises(BotXAPIError):
-            await callable_to_coroutine(requests_client.call, method, "example.cts")
+            await callable_to_coroutine(
+                requests_client.process_response,
+                method,
+                response,
+            )
 
 
 async def test_raising_base_api_error_if_unhandled(client, requests_client):
@@ -35,15 +44,23 @@ async def test_raising_base_api_error_if_unhandled(client, requests_client):
         chat_type=ChatTypes.group_chat,
     )
 
-    method.__errors_handlers__[httpx.codes.IM_A_TEAPOT] = []
+    method.__errors_handlers__[IM_A_TEAPOT] = []
 
     errors_to_raise = {
         Create: (
-            httpx.codes.IM_A_TEAPOT,
+            IM_A_TEAPOT,
             BotIsNotAdminData(sender=uuid.uuid4(), group_chat_id=uuid.uuid4()),
         ),
     }
 
     with client.error_client(errors=errors_to_raise):
+        method.host = "example.com"
+        request = requests_client.build_request(method)
+        response = await callable_to_coroutine(requests_client.execute, request)
+
         with pytest.raises(BotXAPIError):
-            await callable_to_coroutine(requests_client.call, method, "example.cts")
+            await callable_to_coroutine(
+                requests_client.process_response,
+                method,
+                response,
+            )

@@ -1,5 +1,5 @@
 """Method for searching user by his email."""
-import httpx
+from http import HTTPStatus
 
 from botx.clients.methods.base import AuthorizedBotXMethod
 from botx.clients.methods.errors import user_not_found
@@ -12,7 +12,7 @@ class ByEmail(AuthorizedBotXMethod[UserFromSearch]):
     __url__ = "/api/v3/botx/users/by_email"
     __method__ = "GET"
     __returning__ = UserFromSearch
-    __errors_handlers__ = {httpx.codes.NOT_FOUND: user_not_found.handle_error}
+    __errors_handlers__ = {HTTPStatus.NOT_FOUND: user_not_found.handle_error}
 
     #: email to search
     email: str
