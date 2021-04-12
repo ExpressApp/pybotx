@@ -12,7 +12,14 @@ pytest_plugins = ("tests.test_clients.fixtures",)
 async def test_search_by_huid(client, requests_client):
     method = ByHUID(user_huid=uuid.uuid4())
 
-    user = await callable_to_coroutine(requests_client.call, method, "example.cts")
+    method.host = "example.com"
+    request = requests_client.build_request(method)
+    response = await callable_to_coroutine(requests_client.execute, request)
+    user = await callable_to_coroutine(
+        requests_client.process_response,
+        method,
+        response,
+    )
 
     assert user.user_huid == method.user_huid
 

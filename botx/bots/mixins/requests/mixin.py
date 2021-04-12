@@ -2,13 +2,14 @@
 from typing import Optional, TypeVar, cast
 from uuid import UUID
 
+from loguru import logger
+
 from botx.bots.mixins.requests import bots, chats, command, events, notification, users
 from botx.clients.clients.async_client import AsyncClient
 from botx.clients.methods.base import BotXMethod
 from botx.clients.methods.v2.bots.token import Token
 from botx.models.credentials import BotXCredentials
 from botx.models.messages.sending.credentials import SendingCredentials
-from botx.shared import debug_bot_id_var
 
 ResponseT = TypeVar("ResponseT")
 
@@ -72,7 +73,7 @@ class BotXRequestsMixin(  # noqa: WPS215
             )
 
         if credentials is not None:
-            debug_bot_id_var.set(credentials.bot_id)
+            debug_bot_id = credentials.bot_id
             host = cast(str, credentials.host)
             bot_id = cast(UUID, credentials.bot_id)
             method.configure(
@@ -80,10 +81,19 @@ class BotXRequestsMixin(  # noqa: WPS215
                 token=cast(CredentialsSearchProtocol, self).get_token_for_bot(bot_id),
             )
         else:
-            debug_bot_id_var.set(bot_id)
+            debug_bot_id = bot_id
             method.configure(host=host or method.host, token=token or method.token)
 
-        return await self.client.call(method)
+        request = self.client.build_request(method)
+
+        logger.bind(botx_client=True, payload=request.dict()).debug(
+            "send {0} request to bot {1}",
+            method.__repr_name__(),  # noqa: WPS609
+            debug_bot_id,
+        )
+
+        response = await self.client.execute(request)
+        return await self.client.process_response(method, response)
 
 
 async def _fill_token(client: AsyncClient, account: BotXCredentials) -> None:
@@ -94,5 +104,9 @@ async def _fill_token(client: AsyncClient, account: BotXCredentials) -> None:
         bot_id=account.bot_id,
         signature=account.calculate_signature(account.bot_id),
     )
-    token = await client.call(method, account.host)
+    method.host = account.host
+    request = client.build_request(method)
+    response = await client.execute(request)
+    token = await client.process_response(method, response)
+
     account.token = token

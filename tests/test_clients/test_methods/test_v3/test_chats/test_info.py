@@ -11,7 +11,15 @@ pytestmark = pytest.mark.asyncio
 async def test_retrieving_info(client, requests_client):
     method = Info(group_chat_id=uuid.uuid4())
 
-    info = await callable_to_coroutine(requests_client.call, method, "example.cts")
+    method.host = "example.com"
+    request = requests_client.build_request(method)
+    response = await callable_to_coroutine(requests_client.execute, request)
+    info = await callable_to_coroutine(
+        requests_client.process_response,
+        method,
+        response,
+    )
+
     assert info.members
 
     assert client.requests[0].group_chat_id == method.group_chat_id

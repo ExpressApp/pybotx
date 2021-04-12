@@ -14,6 +14,8 @@ async def test_removing_users(client, requests_client):
         user_huids=[uuid.uuid4() for _ in range(10)],
     )
 
-    assert await callable_to_coroutine(requests_client.call, method, "example.cts")
+    method.host = "example.com"
+    request = requests_client.build_request(method)
+    assert await callable_to_coroutine(requests_client.execute, request)
 
     assert client.requests[0].group_chat_id == method.group_chat_id
