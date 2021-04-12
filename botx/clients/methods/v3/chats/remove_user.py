@@ -1,8 +1,7 @@
 """Method for removing users from chat."""
+from http import HTTPStatus
 from typing import List
 from uuid import UUID
-
-import httpx
 
 from botx.clients.methods.base import AuthorizedBotXMethod
 from botx.clients.methods.errors import (
@@ -19,11 +18,11 @@ class RemoveUser(AuthorizedBotXMethod[bool]):
     __method__ = "POST"
     __returning__ = bool
     __errors_handlers__ = {
-        httpx.codes.FORBIDDEN: (
+        HTTPStatus.FORBIDDEN: (
             bot_is_not_admin.handle_error,
             chat_is_not_modifiable.handle_error,
         ),
-        httpx.codes.NOT_FOUND: (chat_not_found.handle_error,),
+        HTTPStatus.NOT_FOUND: (chat_not_found.handle_error,),
     }
 
     #: ID of chat from which users should be removed.

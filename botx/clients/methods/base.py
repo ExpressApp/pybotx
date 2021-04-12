@@ -3,12 +3,13 @@ from __future__ import annotations
 
 import typing
 from abc import ABC, abstractmethod
+from urllib.parse import urljoin
 
-from httpx import URL, Response
+from httpx import Response
 from pydantic import BaseConfig, BaseModel, Extra
 from pydantic.generics import GenericModel
 
-from botx.clients.methods.request_wrapper import HTTPRequest, PrimitiveDataType
+from botx.clients.methods.wrappers import HTTPRequest, HTTPResponse, PrimitiveDataType
 from botx.models.enums import Statuses
 
 try:
@@ -19,7 +20,7 @@ except ImportError:
 PRIMITIVES_FOR_QUERY = (str, int, float, bool, type(None))
 
 ResponseT = typing.TypeVar("ResponseT")
-SyncErrorHandler = typing.Callable[["BotXMethod", Response], typing.NoReturn]
+SyncErrorHandler = typing.Callable[["BotXMethod", HTTPResponse], typing.NoReturn]
 AsyncErrorHandler = typing.Callable[
     ["BotXMethod", Response],
     typing.Awaitable[typing.NoReturn],
@@ -117,7 +118,7 @@ class BaseBotXMethod(AbstractBotXMethod[ResponseT], ABC):
     def url(self) -> str:
         """Full URL for request."""
         base_url = "{scheme}://{host}".format(scheme=self.scheme, host=self.host)
-        return str(URL(base_url).join(self.__url__))
+        return urljoin(base_url, self.__url__)
 
     @property
     def http_method(self) -> str:
