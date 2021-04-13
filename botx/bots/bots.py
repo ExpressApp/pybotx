@@ -18,7 +18,10 @@ from botx.bots.mixins import (
 from botx.clients.clients import async_client, sync_client as synchronous_client
 from botx.collecting.collectors.collector import Collector
 from botx.dependencies.models import Depends
-from botx.middlewares.exceptions import ExceptionMiddleware
+from botx.middlewares import (
+    authorization as auth_middlawers,
+    exceptions as exceptions_middlawers,
+)
 from botx.models import credentials, datastructures, menu
 from botx.models.messages.message import Message
 
@@ -41,7 +44,7 @@ class Bot(  # noqa: WPS215
     client: async_client.AsyncClient = field(init=False)
     sync_client: synchronous_client.Client = field(init=False)
     collector: Collector = field(init=False)
-    exception_middleware: ExceptionMiddleware = field(init=False)
+    exception_middleware: exceptions_middlawers.ExceptionMiddleware = field(init=False)
     state: datastructures.State = field(init=False)
     dependency_overrides: Dict[Callable, Callable] = field(
         init=False,
@@ -71,7 +74,9 @@ class Bot(  # noqa: WPS215
             dependencies=dependencies,
             dependency_overrides_provider=self,
         )
-        self.exception_middleware = ExceptionMiddleware(self.collector)
+        self.exception_middleware = exceptions_middlawers.ExceptionMiddleware(
+            self.collector,
+        )
 
         self.add_exception_handler(
             exceptions.DependencyFailure,
@@ -81,6 +86,7 @@ class Bot(  # noqa: WPS215
             exceptions.NoMatchFound,
             exception_handlers.no_match_found_exception_handler,
         )
+        self.add_middleware(auth_middlawers.AuthorizationMiddleware)
 
     async def status(self, *args: Any, **kwargs: Any) -> menu.Status:
         """Generate status object that could be return to BotX API on `/status`.
