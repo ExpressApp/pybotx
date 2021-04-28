@@ -7,7 +7,6 @@ from loguru import logger
 from botx.bots.mixins.requests import bots, chats, command, events, notification, users
 from botx.clients.clients.async_client import AsyncClient
 from botx.clients.methods.base import BotXMethod
-from botx.clients.methods.v2.bots.token import Token
 from botx.models.credentials import BotXCredentials
 from botx.models.messages.sending.credentials import SendingCredentials
 
@@ -42,6 +41,7 @@ class BotXRequestsMixin(  # noqa: WPS215
 
     client: AsyncClient
 
+    # TODO: remove SendingCredential from client module.
     async def call_method(  # noqa: WPS211
         self,
         method: BotXMethod[ResponseT],
@@ -63,15 +63,6 @@ class BotXRequestsMixin(  # noqa: WPS215
         Returns:
             Response for method.
         """
-        # TODO: remove _fill_token(with optional params) and use AuthMiddleware on bot.
-        if not isinstance(method, Token):
-            await _fill_token(
-                self.client,
-                cast(CredentialsSearchProtocol, self).get_account_by_bot_id(
-                    credentials.bot_id if credentials else bot_id,  # type: ignore
-                ),
-            )
-
         if credentials is not None:
             debug_bot_id = credentials.bot_id
             host = cast(str, credentials.host)
@@ -94,19 +85,3 @@ class BotXRequestsMixin(  # noqa: WPS215
 
         response = await self.client.execute(request)
         return await self.client.process_response(method, response)
-
-
-async def _fill_token(client: AsyncClient, account: BotXCredentials) -> None:
-    if account.token is not None:
-        return
-
-    method = Token(
-        bot_id=account.bot_id,
-        signature=account.calculate_signature(account.bot_id),
-    )
-    method.host = account.host
-    request = client.build_request(method)
-    response = await client.execute(request)
-    token = await client.process_response(method, response)
-
-    account.token = token
