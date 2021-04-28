@@ -24,11 +24,9 @@ class BotXCredentials(BotXBaseModel):
     #: token generated for bot.
     token: Optional[str] = None
 
-    def calculate_signature(self, bot_id: UUID) -> str:
+    @property
+    def signature(self) -> str:
         """Calculate signature for obtaining token for bot from BotX API.
-
-        Arguments:
-            bot_id: bot for which token should be generated.
 
         Returns:
             Calculated signature.
@@ -36,7 +34,7 @@ class BotXCredentials(BotXBaseModel):
         return base64.b16encode(
             hmac.new(
                 key=self.secret_key.encode(),
-                msg=str(bot_id).encode(),
+                msg=str(self.bot_id).encode(),
                 digestmod=hashlib.sha256,
             ).digest(),
         ).decode()

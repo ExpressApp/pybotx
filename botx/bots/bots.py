@@ -18,6 +18,7 @@ from botx.bots.mixins import (
 from botx.clients.clients import async_client, sync_client as synchronous_client
 from botx.collecting.collectors.collector import Collector
 from botx.dependencies.models import Depends
+from botx.middlewares.authorization import AuthorizationMiddleware
 from botx.middlewares.exceptions import ExceptionMiddleware
 from botx.models import credentials, datastructures, menu
 from botx.models.messages.message import Message
@@ -81,6 +82,7 @@ class Bot(  # noqa: WPS215
             exceptions.NoMatchFound,
             exception_handlers.no_match_found_exception_handler,
         )
+        self.add_middleware(AuthorizationMiddleware)
 
     async def status(self, *args: Any, **kwargs: Any) -> menu.Status:
         """Generate status object that could be return to BotX API on `/status`.
@@ -129,3 +131,13 @@ class Bot(  # noqa: WPS215
         self.get_account_by_bot_id(msg.bot_id)
 
         await self(msg)
+
+    async def authorize(self) -> None:
+        """Process auth for each bot account."""
+        for account in self.bot_accounts:
+            token = await self.get_token(
+                account.host,
+                account.bot_id,
+                account.signature,
+            )
+            account.token = token

@@ -21,7 +21,7 @@ class AuthorizationMiddleware(BaseMiddleware):
             token = await bot.get_token(
                 message.host,
                 message.bot_id,
-                bot_account.calculate_signature(message.bot_id),
+                bot_account.signature,
             )
             bot_account.token = token
         await call_next(message)

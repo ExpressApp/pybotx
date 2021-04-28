@@ -2,6 +2,10 @@
 
 Tested on BotX 1.40.0-rc0
 
+### Added
+
+* Bot now has method `authorize` for explicit auth each account
+
 ### Changed
 
 * `ExpressServer` now is `BotXCredentials`
