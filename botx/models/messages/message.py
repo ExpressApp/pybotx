@@ -125,10 +125,6 @@ class Message:
             chat_id=self.group_chat_id,
         )
 
-        self.sent_from_button = (
-            self.data.get("ui", False) if isinstance(self.command.data, dict) else False
-        )
-
     @classmethod
     def from_dict(cls, message: dict, bot: "bots.Bot") -> Message:
         """Parse incoming dict into message.

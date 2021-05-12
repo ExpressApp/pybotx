@@ -81,19 +81,6 @@ class Button(BotXBaseModel):
 
         return label
 
-    @validator("data", always=True)
-    def add_ui_flag_to_data(cls, button_data: dict) -> dict:  # noqa: N805
-        """Return command data with set UI flag.
-
-        Arguments:
-            button_data: data passed to bot.
-
-        Returns:
-            Passed data with set "ui" flag to True if it wasn't set already.
-        """
-        button_data.setdefault("ui", True)
-        return button_data
-
 
 class BubbleElement(Button):
     """Bubble buttons that is shown under messages."""
