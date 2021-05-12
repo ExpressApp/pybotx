@@ -12,6 +12,11 @@ Tested on BotX 1.40.0-rc0
 * `ExpressServer` now is `BotXCredentials`
 * Bot id now required to `BotXCredentials`
 
+### Removed
+
+* `send_from_button` field from `Message`
+* `ui` flag from button's data
+
 ## 0.18.4 (Apr 08, 2021) 
 
 Tested on BotX 1.40.0-rc0

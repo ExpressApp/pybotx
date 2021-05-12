@@ -20,10 +20,6 @@ def test_empty_label():
     assert CustomButton(command="/cmd", label="").label == ""
 
 
-def test_setting_ui_flag_on_buttons():
-    assert CustomButton(command="/cmd").data.get("ui")
-
-
 def test_create_button_options_with_invalid_hsize():
     with pytest.raises(ValidationError) as exc_info:
         ButtonOptions(h_size=0)
