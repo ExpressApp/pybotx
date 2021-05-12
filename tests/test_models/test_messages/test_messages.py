@@ -87,6 +87,7 @@ def test_setting_ui_flag_property_for_common_message() -> None:
     msg = Message.from_dict(
         {
             "sync_id": "a465f0f3-1354-491c-8f11-f400164295cb",
+            "source_sync_id": "ff934be3-a03f-45d8-b315-738ba1ddec45",
             "command": {
                 "body": "/cmd",
                 "command_type": "user",
@@ -110,12 +111,12 @@ def test_setting_ui_flag_property_for_common_message() -> None:
         Bot(),
     )
 
-    assert msg.sent_from_button
+    assert msg.source_sync_id == uuid.UUID("ff934be3-a03f-45d8-b315-738ba1ddec45")
 
 
 def test_setting_ui_flag_property_for_system_message(incoming_message) -> None:
     msg = Message.from_dict(incoming_message.dict(), Bot())
-    assert not msg.sent_from_button
+    assert not msg.source_sync_id
 
 
 @pytest.fixture()
