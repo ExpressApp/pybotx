@@ -161,6 +161,9 @@ class IncomingMessage(BaseModel):
     #: information about user from which message was received.
     user: Sender = Field(..., alias="from")
 
+    #: ID of message whose ui element was triggered to send this message.
+    source_sync_id: Optional[UUID] = None
+
     #: id of bot that should handle message.
     bot_id: UUID
 

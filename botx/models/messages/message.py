@@ -55,6 +55,9 @@ class Message:
     #: ID of message event.
     sync_id: UUID = _message_proxy_property()
 
+    #: ID of message whose ui element was triggered to send this message.
+    source_sync_id: Optional[UUID] = _message_proxy_property()
+
     #: ID of bot that handles message in Express.
     bot_id: UUID = _message_proxy_property()
 
