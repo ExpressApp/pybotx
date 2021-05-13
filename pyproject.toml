@@ -3,7 +3,11 @@ name = "botx"
 version = "0.19.0"
 description = "A little python framework for building bots for eXpress"
 license = "MIT"
-authors = ["Sidnev Nikolay <nsidnev@ccsteam.ru>"]
+authors = [
+    "Sidnev Nikolay <nsidnev@ccsteam.ru>",
+    "Maxim Gorbachev <mgorbachev@ccsteam.ru>",
+    "Alexander Samoylenko <alexandr.samojlenko@ccsteam.ru>"
+]
 readme = "README.md"
 documentation = "https://expressapp.github.io/pybotx"
 repository = "https://github.com/ExpressApp/pybotx"
