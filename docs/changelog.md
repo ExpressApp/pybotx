@@ -4,13 +4,13 @@ Tested on BotX 1.40.0-rc0
 
 ### Added
 
-* Bot now has method `authorize` for explicit auth each account
-* `source_sync_id` field to `Message` that which contains id of the message if it was sent from button
+* Bot now has method `authorize` for explicit authorization each account
+* Add `source_sync_id` field to `Message` which contains id of the message if it was sent from button
 
 ### Changed
 
-* `ExpressServer` now is `BotXCredentials`
-* Bot id now required to `BotXCredentials`
+* `ExpressServer` renamed to `BotXCredentials`
+* Bot id now required for `BotXCredentials`
 
 ### Removed
 
