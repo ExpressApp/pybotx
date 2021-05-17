@@ -25,7 +25,7 @@ class BotDisabledResponse(BotXBaseModel):
 
     errors: List[str] = []
 
-    @validator("error_data", always=True, whole=True)
+    @validator("error_data", always=True, each_item=True)
     def status_message_in_error_data(
         cls, error_data: Dict[str, Any],  # noqa: N805
     ) -> Union[BotDisabledErrorData, Dict[str, Any]]:
