@@ -1,4 +1,4 @@
-## 0.19.0 (Unreleased)
+## 0.19.0 (May 18, 2021) 
 
 Tested on BotX 1.40.0-rc0
 
