@@ -17,6 +17,10 @@ Tested on BotX 1.40.0-rc0
 * `send_from_button` field from `Message`
 * `ui` flag from button's data
 
+### Fixed
+
+* Fix pydantic deprecation warning: `whole` flag renamed to `each_item`
+
 ## 0.18.4 (Apr 08, 2021) 
 
 Tested on BotX 1.40.0-rc0
