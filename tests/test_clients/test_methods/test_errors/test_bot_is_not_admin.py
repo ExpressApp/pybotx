@@ -16,6 +16,7 @@ pytest_plugins = ("tests.test_clients.fixtures",)
 
 async def test_raising_bot_is_not_admin(client, requests_client):
     method = AddUser(
+        host="example.com",
         group_chat_id=uuid.uuid4(),
         user_huids=[uuid.uuid4() for _ in range(10)],
     )
@@ -27,7 +28,6 @@ async def test_raising_bot_is_not_admin(client, requests_client):
     }
 
     with client.error_client(errors=errors_to_raise):
-        method.host = "example.com"
         request = requests_client.build_request(method)
         response = await callable_to_coroutine(requests_client.execute, request)
 

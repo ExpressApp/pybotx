@@ -11,12 +11,12 @@ pytestmark = pytest.mark.asyncio
 
 async def test_chat_creation(client, requests_client):
     method = Create(
+        host="example.com",
         name="test name",
         members=[uuid.uuid4()],
         chat_type=ChatTypes.group_chat,
     )
 
-    method.host = "example.com"
     request = requests_client.build_request(method)
     await callable_to_coroutine(requests_client.execute, request)
 

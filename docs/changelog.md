@@ -1,4 +1,13 @@
-## 0.19.0 (May 18, 2021) 
+## 0.19.1 (May 21, 2021)
+
+Tested on BotX 1.40.0-rc0
+
+### Changed
+
+* `method.host` assignment moved to method constructor in unit-tests
+
+
+## 0.19.0 (May 18, 2021)
 
 Tested on BotX 1.40.0-rc0
 

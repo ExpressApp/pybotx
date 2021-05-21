@@ -12,12 +12,12 @@ pytest_plugins = ("tests.test_clients.fixtures",)
 
 async def test_sending_direct_notification(client, requests_client):
     method = NotificationDirect(
+        host="example.com",
         group_chat_id=uuid.uuid4(),
         bot_id=uuid.uuid4(),
         result=ResultPayload(body="test"),
     )
 
-    method.host = "example.com"
     request = requests_client.build_request(method)
     assert await callable_to_coroutine(requests_client.execute, request)
 
