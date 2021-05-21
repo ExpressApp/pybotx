@@ -10,11 +10,11 @@ pytestmark = pytest.mark.asyncio
 
 async def test_adding_users(client, requests_client):
     method = AddAdminRole(
+        host="example.com",
         group_chat_id=uuid.uuid4(),
         user_huids=[uuid.uuid4() for _ in range(10)],
     )
 
-    method.host = "example.com"
     request = requests_client.build_request(method)
     assert await callable_to_coroutine(requests_client.execute, request)
 

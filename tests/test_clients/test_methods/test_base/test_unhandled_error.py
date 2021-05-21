@@ -15,7 +15,7 @@ IM_A_TEAPOT = 418  # This status code added in python 3.9
 
 
 async def test_raising_base_api_error_if_empty_handlers(client, requests_client):
-    method = Token(bot_id=uuid.uuid4(), signature="signature")
+    method = Token(host="example.com", bot_id=uuid.uuid4(), signature="signature")
 
     errors_to_raise = {
         Token: (
@@ -25,7 +25,6 @@ async def test_raising_base_api_error_if_empty_handlers(client, requests_client)
     }
 
     with client.error_client(errors=errors_to_raise):
-        method.host = "example.com"
         request = requests_client.build_request(method)
         response = await callable_to_coroutine(requests_client.execute, request)
 
@@ -39,6 +38,7 @@ async def test_raising_base_api_error_if_empty_handlers(client, requests_client)
 
 async def test_raising_base_api_error_if_unhandled(client, requests_client):
     method = Create(
+        host="example.com",
         name="test name",
         members=[uuid.uuid4()],
         chat_type=ChatTypes.group_chat,
@@ -54,7 +54,6 @@ async def test_raising_base_api_error_if_unhandled(client, requests_client):
     }
 
     with client.error_client(errors=errors_to_raise):
-        method.host = "example.com"
         request = requests_client.build_request(method)
         response = await callable_to_coroutine(requests_client.execute, request)
 

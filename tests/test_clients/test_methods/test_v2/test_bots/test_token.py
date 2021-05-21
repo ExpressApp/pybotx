@@ -10,9 +10,8 @@ pytest_plugins = ("tests.test_clients.fixtures",)
 
 
 async def test_obtaining_token(client, requests_client):
-    method = Token(bot_id=uuid.uuid4(), signature="signature")
+    method = Token(host="example.com", bot_id=uuid.uuid4(), signature="signature")
 
-    method.host = "example.com"
     request = requests_client.build_request(method)
     await callable_to_coroutine(requests_client.execute, request)
 

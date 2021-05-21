@@ -10,9 +10,8 @@ pytest_plugins = ("tests.test_clients.fixtures",)
 
 
 async def test_disabling_stealth(client, requests_client):
-    method = StealthDisable(group_chat_id=uuid.uuid4())
+    method = StealthDisable(host="example.com", group_chat_id=uuid.uuid4())
 
-    method.host = "example.com"
     request = requests_client.build_request(method)
     assert await callable_to_coroutine(requests_client.execute, request)
 

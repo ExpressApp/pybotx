@@ -8,9 +8,8 @@ pytest_plugins = ("tests.test_clients.fixtures",)
 
 
 async def test_search_by_huid(client, requests_client):
-    method = ByEmail(email="test@example.com")
+    method = ByEmail(host="example.com", email="test@example.com")
 
-    method.host = "example.com"
     request = requests_client.build_request(method)
     response = await callable_to_coroutine(requests_client.execute, request)
     user = await callable_to_coroutine(
