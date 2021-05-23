@@ -17,7 +17,9 @@ class ExceptionHandlersMixin:
     exception_middleware: ExceptionMiddleware
 
     def add_exception_handler(
-        self, exc_class: Type[Exception], handler: typing.ExceptionHandler,
+        self,
+        exc_class: Type[Exception],
+        handler: typing.ExceptionHandler,
     ) -> None:
         """Register new handler for exception.
 

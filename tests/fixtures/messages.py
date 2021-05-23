@@ -34,7 +34,10 @@ def chat_created_message(host, bot_id):
                 admin=True,
             ),
             UserInChatCreated(
-                huid=builder.bot_id, user_kind=UserKinds.bot, name="bot", admin=False,
+                huid=builder.bot_id,
+                user_kind=UserKinds.bot,
+                name="bot",
+                admin=False,
             ),
         ],
     )

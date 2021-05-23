@@ -38,13 +38,15 @@ class UsersRequestsMixin:
         """
         if user_huid is not None:
             return await self.call_method(
-                ByHUID(user_huid=user_huid), credentials=credentials,
+                ByHUID(user_huid=user_huid),
+                credentials=credentials,
             )
         elif email is not None:
             return await self.call_method(ByEmail(email=email), credentials=credentials)
         elif ad is not None:
             return await self.call_method(
-                ByLogin(ad_login=ad[0], ad_domain=ad[1]), credentials=credentials,
+                ByLogin(ad_login=ad[0], ad_domain=ad[1]),
+                credentials=credentials,
             )
 
         raise ValueError("one of user_huid, email or ad query_params should be filled")

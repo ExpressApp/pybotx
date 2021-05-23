@@ -28,7 +28,9 @@ async def test_cant_update_without_sync_id(bot, client, message):
 
 async def test_reply(bot, client, message):
     await bot.reply(
-        text="foo", source_sync_id=message.sync_id, credentials=message.credentials,
+        text="foo",
+        source_sync_id=message.sync_id,
+        credentials=message.credentials,
     )
 
     reply = client.replies[0]
@@ -39,12 +41,15 @@ async def test_reply(bot, client, message):
 async def test_reply_on_message_empty_text_error(bot, message):
     with pytest.raises(ValueError):
         await bot.reply(
-            text="", source_sync_id=message.sync_id, credentials=message.credentials,
+            text="",
+            source_sync_id=message.sync_id,
+            credentials=message.credentials,
         )
 
 
 async def test_reply_arguments_error(bot, message):
     with pytest.raises(ValueError):
         await bot.reply(
-            source_sync_id=message.sync_id, credentials=message.credentials,
+            source_sync_id=message.sync_id,
+            credentials=message.credentials,
         )

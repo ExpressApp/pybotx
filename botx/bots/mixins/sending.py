@@ -21,17 +21,23 @@ class ResultSendProtocol(Protocol):
     """Protocol for object that can create new or update message."""
 
     async def send_command_result(
-        self, credentials: SendingCredentials, payload: MessagePayload,
+        self,
+        credentials: SendingCredentials,
+        payload: MessagePayload,
     ) -> UUID:
         """Send command result."""
 
     async def send_direct_notification(
-        self, credentials: SendingCredentials, payload: MessagePayload,
+        self,
+        credentials: SendingCredentials,
+        payload: MessagePayload,
     ) -> UUID:
         """Send notification."""
 
     async def update_message(
-        self, credentials: SendingCredentials, update: UpdatePayload,
+        self,
+        credentials: SendingCredentials,
+        update: UpdatePayload,
     ) -> None:
         """Update existing message."""
 
@@ -68,7 +74,10 @@ class SendingMixin:
             `UUID` of sent event.
         """
         message = SendingMessage(
-            text=text, markup=markup, options=options, credentials=credentials,
+            text=text,
+            markup=markup,
+            options=options,
+            credentials=credentials,
         )
         if file:
             message.add_file(file)
@@ -76,7 +85,10 @@ class SendingMixin:
         return await self.send(message)
 
     async def send(
-        self: ResultSendProtocol, message: SendingMessage, *, update: bool = False,
+        self: ResultSendProtocol,
+        message: SendingMessage,
+        *,
+        update: bool = False,
     ) -> UUID:
         """Send message as direct notification to chat and get it id.
 
@@ -125,7 +137,10 @@ class SendingMixin:
             `UUID` of sent event.
         """
         sending_message = SendingMessage(
-            text=text, credentials=message.credentials, markup=markup, options=options,
+            text=text,
+            credentials=message.credentials,
+            markup=markup,
+            options=options,
         )
         if file:
             sending_message.add_file(file)

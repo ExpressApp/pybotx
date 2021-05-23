@@ -53,7 +53,9 @@ class ChatsRequestsMixin:
         )
 
     async def get_chat_info(
-        self: BotXMethodCallProtocol, credentials: SendingCredentials, chat_id: UUID,
+        self: BotXMethodCallProtocol,
+        credentials: SendingCredentials,
+        chat_id: UUID,
     ) -> ChatFromSearch:
         """Create new chat.
 
@@ -65,7 +67,8 @@ class ChatsRequestsMixin:
              Information about chat.
         """
         return await self.call_method(
-            Info(group_chat_id=chat_id), credentials=credentials,
+            Info(group_chat_id=chat_id),
+            credentials=credentials,
         )
 
     async def enable_stealth_mode(  # noqa: WPS211
@@ -96,7 +99,9 @@ class ChatsRequestsMixin:
         )
 
     async def disable_stealth_mode(
-        self: BotXMethodCallProtocol, credentials: SendingCredentials, chat_id: UUID,
+        self: BotXMethodCallProtocol,
+        credentials: SendingCredentials,
+        chat_id: UUID,
     ) -> None:
         """Disable stealth mode.
 
@@ -105,7 +110,8 @@ class ChatsRequestsMixin:
             chat_id: ID of chat where stealth should be disabled.
         """
         await self.call_method(
-            StealthDisable(group_chat_id=chat_id), credentials=credentials,
+            StealthDisable(group_chat_id=chat_id),
+            credentials=credentials,
         )
 
     async def add_users(

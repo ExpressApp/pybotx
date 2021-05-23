@@ -25,6 +25,7 @@ class AuthorizationMiddleware(BaseMiddleware):
                 server.calculate_signature(message.bot_id),
             )
             server.server_credentials = ServerCredentials(
-                bot_id=message.bot_id, token=token,
+                bot_id=message.bot_id,
+                token=token,
             )
         await call_next(message)

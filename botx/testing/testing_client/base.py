@@ -61,7 +61,8 @@ class BaseTestClient:
     def __enter__(self) -> BaseTestClient:
         """Mock original HTTP clients."""
         is_error_middleware = isinstance(
-            self.bot.exception_middleware, ExceptionMiddleware,
+            self.bot.exception_middleware,
+            ExceptionMiddleware,
         )
         if not self._suppress_errors and is_error_middleware:
             self._error_middleware = self.bot.exception_middleware
@@ -87,7 +88,8 @@ class BaseTestClient:
             self.bot.exception_middleware = self._error_middleware
 
         ThreadPoolExecutor().submit(
-            asyncio.run, self.bot.client.http_client.aclose(),
+            asyncio.run,
+            self.bot.client.http_client.aclose(),
         ).result()
         self.bot.client.http_client = self._original_http_client
         self.bot.sync_client.http_client = self._original_sync_http_client
@@ -95,7 +97,8 @@ class BaseTestClient:
 
     @contextmanager
     def error_client(
-        self, errors: Dict[Type[BotXMethod], Tuple[int, Any]],
+        self,
+        errors: Dict[Type[BotXMethod], Tuple[int, Any]],
     ) -> Generator[BaseTestClient, None, None]:
         """Enter into new test client that adds error responses to mocks.
 

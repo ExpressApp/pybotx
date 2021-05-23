@@ -30,7 +30,9 @@ class Client:
         self.interceptors = optional_sequence_to_list(self.interceptors)
 
     def call(
-        self, method: BotXMethod[ResponseT], host: Optional[str] = None,
+        self,
+        method: BotXMethod[ResponseT],
+        host: Optional[str] = None,
     ) -> ResponseT:
         """Make request to BotX API using passed method and return result.
 
@@ -76,7 +78,8 @@ class Client:
         request = method.build_http_request()
         method_name = method.__repr_name__()  # noqa: WPS609
         logger.bind(botx_client=True, payload=request.to_dict()).debug(
-            "send {0} request", method_name,
+            "send {0} request",
+            method_name,
         )
         return self.http_client.request(
             request.method,
@@ -88,6 +91,8 @@ class Client:
 
 
 def _handle_error(
-    method: BotXMethod, error_handlers: ErrorHandlersInMethod, response: Response,
+    method: BotXMethod,
+    error_handlers: ErrorHandlersInMethod,
+    response: Response,
 ) -> None:
     concurrency.async_to_sync(handle_error)(method, error_handlers, response)

@@ -9,7 +9,10 @@ pytest_plugins = ("tests.test_middlewares.test_ns_middleware.fixtures",)
 
 
 async def test_error_for_ns_for_unregistered_handler(
-    bot, client, incoming_message, build_handler_to_start_chain,
+    bot,
+    client,
+    incoming_message,
+    build_handler_to_start_chain,
 ):
     event = threading.Event()
 

@@ -89,7 +89,9 @@ class MessageBuilder(BuildAttachmentsMixin, BuildEntityMixin):  # noqa: WPS214
             else enums.CommandTypes.user
         )
         command = Command(
-            body=self.body, command_type=command_type, data=self.command_data,
+            body=self.body,
+            command_type=command_type,
+            data=self.command_data,
         )
         return IncomingMessage(
             sync_id=uuid.uuid4(),

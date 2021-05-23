@@ -46,7 +46,10 @@ class MessageMarkup(BotXBaseModel):
         )
 
     def add_bubble_element(
-        self, element: BubbleElement, *, new_row: bool = True,
+        self,
+        element: BubbleElement,
+        *,
+        new_row: bool = True,
     ) -> None:
         """Add new button to markup from existing element.
 
@@ -93,7 +96,10 @@ class MessageMarkup(BotXBaseModel):
         )
 
     def add_keyboard_button_element(
-        self, element: KeyboardElement, *, new_row: bool = True,
+        self,
+        element: KeyboardElement,
+        *,
+        new_row: bool = True,
     ) -> None:
         """Add new keyboard button to markup from existing element.
 

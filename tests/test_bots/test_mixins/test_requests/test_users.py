@@ -26,7 +26,8 @@ async def test_search_using_email_method(client, message):
 
 async def test_search_using_ad_method(client, message):
     await client.bot.search_user(
-        message.credentials, ad=(message.user.ad_login, message.user.ad_domain),
+        message.credentials,
+        ad=(message.user.ad_login, message.user.ad_domain),
     )
 
     assert isinstance(client.requests[0], ByLogin)

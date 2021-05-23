@@ -1,6 +1,7 @@
-from typing import Dict, List, Optional, Union
+from typing import BinaryIO, Dict, List, Optional, TextIO, Union
 from uuid import UUID
 
+from botx.models.files import File
 from botx.models.base import BotXBaseModel
 from botx.models.messages.message import Message
 
@@ -35,6 +36,9 @@ class SendingSmartApp(BotXBaseModel):
     #: chat of this smartapp (smartapp_id now)
     group_chat_id: UUID
 
+    # smartapp files
+    files: List[File] = []
+
     @classmethod
     def from_message_with_smartapp(cls, data: Union[Dict, List], message: Message):
         return cls(
@@ -45,3 +49,21 @@ class SendingSmartApp(BotXBaseModel):
             smartapp_api_version=message.data.smartapp_api_version,
             group_chat_id=message.group_chat_id,
         )
+
+    def add_file(
+        self,
+        file: Union[TextIO, BinaryIO, File],
+        filename: Optional[str] = None,
+    ) -> None:
+        """Attach file to smartapp.
+
+        Arguments:
+            file: file that should be attached to the message.
+            filename: name for file that will be used if if can not be retrieved from
+                file.
+        """
+        if isinstance(file, File):
+            file.file_name = filename or file.file_name
+            self.files.append(file)
+        else:
+            self.files.append(File.from_file(file, filename=filename))

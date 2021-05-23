@@ -10,7 +10,9 @@ from botx.testing.botx_mock.wsgi.responses import PydanticResponse
 
 
 def _get_error_from_request(
-    request: Request, app: BaseApp, settings: Settings,
+    request: Request,
+    app: BaseApp,
+    settings: Settings,
 ) -> Tuple[Type[BotXMethod], Tuple[int, BaseModel]]:
     match = app.router.match(request.method, request.path)
     route, _ = cast(Tuple[Route, Any], match)
@@ -19,7 +21,9 @@ def _get_error_from_request(
 
 
 def should_generate_error_response(
-    request: Request, app: BaseApp, settings: Settings,
+    request: Request,
+    app: BaseApp,
+    settings: Settings,
 ) -> bool:
     """Check if mocked API should generate error response.
 
@@ -36,7 +40,9 @@ def should_generate_error_response(
 
 
 def generate_error_response(
-    request: Request, app: BaseApp, settings: Settings,
+    request: Request,
+    app: BaseApp,
+    settings: Settings,
 ) -> Response:
     """Generate error response for mocked BotX API.
 
@@ -53,10 +59,13 @@ def generate_error_response(
 
     return PydanticResponse(
         APIErrorResponse[BaseModel](
-            errors=["error from mock"], reason="asked_for_error", error_data=error_data,
+            errors=["error from mock"],
+            reason="asked_for_error",
+            error_data=error_data,
         ),
         status_code="{0} {1}".format(
-            status_code, httpx.codes.get_reason_phrase(status_code),
+            status_code,
+            httpx.codes.get_reason_phrase(status_code),
         ),
     )
 

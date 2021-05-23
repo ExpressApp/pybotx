@@ -26,5 +26,6 @@ class SmartAppMixin:
              ID sent message.
         """
         return await self.call_method(
-            SmartAppEvent(**smartapp.dict()), credentials=credentials,
+            SmartAppEvent(**smartapp.dict()),
+            credentials=credentials,
         )

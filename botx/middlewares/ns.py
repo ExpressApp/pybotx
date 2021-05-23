@@ -63,14 +63,18 @@ class NextStepMiddleware(BaseMiddleware):
         """
         super().__init__(executor)
 
-        dependencies = converters.optional_sequence_to_list(
-            bot.collector.dependencies,
-        ) + converters.optional_sequence_to_list(dependencies)
+        dependencies = (
+            converters.optional_sequence_to_list(
+                bot.collector.dependencies,
+            )
+            + converters.optional_sequence_to_list(dependencies)
+        )
         dep_override = (
             dependency_overrides_provider or bot.collector.dependency_overrides_provider
         )
         bot.state.ns_collector = Collector(
-            dependencies=dependencies, dependency_overrides_provider=dep_override,
+            dependencies=dependencies,
+            dependency_overrides_provider=dep_override,
         )
         bot.state.ns_store = {}
 
@@ -128,7 +132,8 @@ class NextStepMiddleware(BaseMiddleware):
         await next_handler(message)
 
     async def lookup_next_handler_for_message(
-        self, message: Message,
+        self,
+        message: Message,
     ) -> Tuple[Handler, NextStepHandlerState]:
         """Find handler in bot storage or in handlers.
 
@@ -176,7 +181,9 @@ def get_chain_key_by_message(message: Message) -> Tuple[str, UUID, UUID, UUID]:
 
 
 def register_function_as_ns_handler(
-    bot: Bot, func: Callable, name: Optional[str] = None,
+    bot: Bot,
+    func: Callable,
+    name: Optional[str] = None,
 ) -> None:
     """Register new function that can be called as next step handler.
 
@@ -209,7 +216,9 @@ def register_function_as_ns_handler(
 
 
 def register_next_step_handler(
-    message: Message, func: Union[str, Callable], **ns_arguments: Any,
+    message: Message,
+    func: Union[str, Callable],
+    **ns_arguments: Any,
 ) -> None:
     """Register new next step handler for next message from user.
 

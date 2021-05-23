@@ -58,7 +58,9 @@ class Button(BotXBaseModel):
 
     @validator("label", always=True)
     def label_as_command_if_none(
-        cls, label: Optional[str], values: dict,  # noqa: N805, WPS110
+        cls,
+        label: Optional[str],
+        values: dict,  # noqa: N805, WPS110
     ) -> str:
         """Return command as label if it is `None`.
 

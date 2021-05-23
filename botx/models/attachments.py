@@ -350,7 +350,8 @@ class AttachList(BotXBaseModel):  # noqa: WPS214, WPS338
         for attachment in self.all_attachments:
             if isinstance(attachment.data, FileAttachment):
                 return File.construct(
-                    file_name=attachment.data.file_name, data=attachment.data.content,
+                    file_name=attachment.data.file_name,
+                    data=attachment.data.content,
                 )
         raise AttributeError
 

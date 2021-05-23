@@ -1,7 +1,8 @@
 """Method for sending smartapp event."""
-from typing import Any, Optional
+from typing import Any, List, Optional
 from uuid import UUID
 
+from botx.models.files import File
 from botx.clients.methods.base import AuthorizedBotXMethod
 
 
@@ -28,3 +29,6 @@ class SmartAppEvent(AuthorizedBotXMethod[str]):
 
     #: chat of this smartapp (smartapp_id now)
     group_chat_id: UUID
+
+    #: files
+    files: List[File]

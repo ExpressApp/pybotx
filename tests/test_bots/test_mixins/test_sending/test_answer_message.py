@@ -15,7 +15,9 @@ async def test_answer_message_is_notification(bot, client, message):
 async def test_answer_message_with_file_is_notification(bot, client, message):
     file = File.from_string("some content", "file.txt")
     await bot.answer_message(
-        "some text", message, file=file,
+        "some text",
+        message,
+        file=file,
     )
 
     message = client.notifications[0]

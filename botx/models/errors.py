@@ -27,7 +27,8 @@ class BotDisabledResponse(BotXBaseModel):
 
     @validator("error_data", always=True, whole=True)
     def status_message_in_error_data(
-        cls, error_data: Dict[str, Any],  # noqa: N805
+        cls,
+        error_data: Dict[str, Any],  # noqa: N805
     ) -> Union[BotDisabledErrorData, Dict[str, Any]]:
         """Check that value contains `status_message` key or field.
 

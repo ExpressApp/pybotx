@@ -82,7 +82,9 @@ class Mention(BotXBaseModel):
 
     @validator("mention_type", pre=True, always=True)
     def check_that_type_matches_data(
-        cls, mention_type: MentionTypes, values: dict,  # noqa: N805, WPS110
+        cls,
+        mention_type: MentionTypes,
+        values: dict,  # noqa: N805, WPS110
     ) -> MentionTypes:
         """Verify that `mention_type` matches provided `mention_data`.
 

@@ -44,7 +44,8 @@ class Bot(  # noqa: WPS215
     exception_middleware: ExceptionMiddleware = field(init=False)
     state: datastructures.State = field(init=False)
     dependency_overrides: Dict[Callable, Callable] = field(
-        init=False, default_factory=dict,
+        init=False,
+        default_factory=dict,
     )
 
     tasks: Set[asyncio.Future] = field(init=False, default_factory=set)
@@ -67,7 +68,8 @@ class Bot(  # noqa: WPS215
         self.client = async_client.AsyncClient()
         self.sync_client = synchronous_client.Client()
         self.collector = Collector(
-            dependencies=dependencies, dependency_overrides_provider=self,
+            dependencies=dependencies,
+            dependency_overrides_provider=self,
         )
         self.exception_middleware = ExceptionMiddleware(self.collector)
 
@@ -96,7 +98,9 @@ class Bot(  # noqa: WPS215
         for handler in self.handlers:
             if callable(handler.include_in_status):
                 include_in_status = await concurrency.callable_to_coroutine(
-                    handler.include_in_status, *args, **kwargs,
+                    handler.include_in_status,
+                    *args,
+                    **kwargs,
                 )
             else:
                 include_in_status = handler.include_in_status

@@ -40,7 +40,8 @@ class LifespanMixin:
         """Wait until all current tasks are done."""
         if self.tasks:
             tasks, _ = await asyncio.wait(
-                self.tasks, return_when=asyncio.ALL_COMPLETED,
+                self.tasks,
+                return_when=asyncio.ALL_COMPLETED,
             )
             for task in tasks:
                 task.result()

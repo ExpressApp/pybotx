@@ -99,7 +99,9 @@ class File(BotXBaseModel):  # noqa: WPS214
 
     @classmethod
     def from_file(  # noqa: WPS210
-        cls, file: Union[TextIO, BinaryIO], filename: Optional[str] = None,
+        cls,
+        file: Union[TextIO, BinaryIO],
+        filename: Optional[str] = None,
     ) -> "File":
         """Convert file-like object into BotX API compatible file.
 
@@ -132,7 +134,9 @@ class File(BotXBaseModel):  # noqa: WPS214
 
     @classmethod
     async def async_from_file(  # noqa: WPS210
-        cls, file: NamedAsyncIterable, filename: Optional[str] = None,
+        cls,
+        file: NamedAsyncIterable,
+        filename: Optional[str] = None,
     ) -> "File":
         """Convert async file-like object into BotX API compatible file.
 
@@ -145,7 +149,8 @@ class File(BotXBaseModel):  # noqa: WPS214
             Built File object.
         """
         assert hasattr(  # noqa: WPS421
-            file, "__aiter__",
+            file,
+            "__aiter__",
         ), "file should support async iteration"
 
         filename = filename or Path(file.name).name
