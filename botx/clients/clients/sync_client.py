@@ -101,7 +101,6 @@ class Client:
 
         return HTTPResponse(
             status_code=response.status_code,
-            bytes_body=response.content,
             json_body=response.json(),
         )
 

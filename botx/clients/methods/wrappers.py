@@ -31,9 +31,6 @@ class HTTPResponse(BaseModel):
     #: response status code.
     status_code: int
 
-    #: content
-    bytes_body: bytes
-
     #: response json.
     json_body: Dict[str, Any]
 
