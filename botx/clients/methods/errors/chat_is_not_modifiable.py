@@ -39,7 +39,7 @@ def handle_error(method: BotXMethod, response: HTTPResponse) -> NoReturn:
     raise PersonalChatIsNotModifiableError(
         url=method.url,
         method=method.http_method,
-        response_content=response.bytes_body,
+        response_content=response.json_body,
         status_content=response.status_code,
         group_chat_id=error_data.group_chat_id,
     )

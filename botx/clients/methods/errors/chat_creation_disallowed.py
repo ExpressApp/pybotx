@@ -42,7 +42,7 @@ def handle_error(method: BotXMethod, response: HTTPResponse) -> NoReturn:
     raise ChatCreationDisallowedError(
         url=method.url,
         method=method.http_method,
-        response_content=response.bytes_body,
+        response_content=response.json_body,
         status_content=response.status_code,
         bot_id=error_data.bot_id,
     )
