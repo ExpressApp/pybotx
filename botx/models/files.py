@@ -1,6 +1,7 @@
 """Definition of file that can be included in incoming message or in sending result."""
 
 import base64
+import uuid
 from contextlib import contextmanager
 from io import BytesIO
 from pathlib import Path
@@ -8,7 +9,7 @@ from types import MappingProxyType
 from typing import AnyStr, AsyncIterable, BinaryIO, Generator, Optional, TextIO, Union
 
 from base64io import Base64IO
-from pydantic import validator
+from pydantic import Field, validator
 
 from botx.models.base import BotXBaseModel
 
@@ -74,6 +75,9 @@ class File(BotXBaseModel):  # noqa: WPS214
 
     #: text under file.
     caption: Optional[str] = None
+
+    #: file id. Need to bind files with smartapp.
+    file_id: uuid.UUID = Field(default_factory=uuid.uuid4)
 
     @validator("file_name", always=True)
     def check_file_extension(cls, name: str) -> str:  # noqa: N805

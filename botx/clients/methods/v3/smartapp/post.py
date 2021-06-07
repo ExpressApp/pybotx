@@ -2,8 +2,8 @@
 from typing import Any, List, Optional
 from uuid import UUID
 
-from botx.models.files import File
 from botx.clients.methods.base import AuthorizedBotXMethod
+from botx.models.files import File
 
 
 class SmartAppEvent(AuthorizedBotXMethod[str]):

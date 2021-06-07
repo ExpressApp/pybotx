@@ -1,8 +1,8 @@
 from typing import BinaryIO, Dict, List, Optional, TextIO, Union
 from uuid import UUID
 
-from botx.models.files import File
 from botx.models.base import BotXBaseModel
+from botx.models.files import File
 from botx.models.messages.message import Message
 
 
