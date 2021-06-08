@@ -30,8 +30,8 @@ class Token(BotXMethod[str]):
         """Query string query_params for request with signature key."""
         return {"signature": self.signature}
 
-    def encode(self) -> None:
-        """Return nothing to override request body.
+    def build_serialized_dict(self) -> None:
+        """Return nothing to override dict body.
 
         Returns:
             Nothing.

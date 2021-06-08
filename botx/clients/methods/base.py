@@ -1,6 +1,7 @@
 """Definition for base class that is responsible for request to BotX API."""
 from __future__ import annotations
 
+import json
 import typing
 from abc import ABC, abstractmethod
 from urllib.parse import urljoin
@@ -17,8 +18,6 @@ try:
 except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS433, WPS440, F401
 
-PRIMITIVES_FOR_QUERY = (str, int, float, bool, type(None))
-
 ResponseT = typing.TypeVar("ResponseT")
 SyncErrorHandler = typing.Callable[["BotXMethod", HTTPResponse], typing.NoReturn]
 AsyncErrorHandler = typing.Callable[
@@ -27,19 +26,6 @@ AsyncErrorHandler = typing.Callable[
 ]
 ErrorHandler = typing.Union[SyncErrorHandler, AsyncErrorHandler]
 ErrorHandlersInMethod = typing.Union[typing.Sequence[ErrorHandler], ErrorHandler]
-
-
-def _convert_query_to_primitives(
-    query_params: typing.Mapping[str, typing.Any],
-) -> typing.Dict[str, PrimitiveDataType]:
-    converted_params = {}
-    for param_key, param_value in query_params.items():
-        if isinstance(param_value, PRIMITIVES_FOR_QUERY):
-            converted_params[param_key] = param_value
-        else:
-            converted_params[param_key] = str(param_value)
-
-    return converted_params
 
 
 class APIResponse(GenericModel, typing.Generic[ResponseT]):
@@ -174,16 +160,21 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
         self.host = host
         self.scheme = scheme
 
-    def encode(self) -> typing.Optional[str]:
-        """Encode request data body for request.
+    def build_serialized_dict(
+        self,
+    ) -> typing.Optional[typing.Dict[str, PrimitiveDataType]]:
+        """Build serialized dict (with only primitive types) for request.
 
         Returns:
-            Encoded data for request.
+            Serialized dict.
         """
-        return self.json(
-            by_alias=True,
-            exclude=set(CREDENTIALS_FIELDS),
-            exclude_none=True,
+        # TODO: Waiting for <https://github.com/samuelcolvin/pydantic/issues/1409/>
+        return json.loads(
+            self.json(
+                by_alias=True,
+                exclude=set(CREDENTIALS_FIELDS),
+                exclude_none=True,
+            ),
         )
 
     def build_http_request(self) -> HTTPRequest:
@@ -193,24 +184,18 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
             Built HTTP request.
         """
         request_params = self.query_params
-        request_data = self.encode()
+        request_data = self.build_serialized_dict()
 
-        if self.__method__ == "GET":
-            if request_data:
-                request_data = None
-
-            if not request_params:
-                request_params = _convert_query_to_primitives(
-                    self.dict(exclude=set(CREDENTIALS_FIELDS)),
-                )
-                request_data = None
+        if self.__method__ == "GET" and request_data:
+            request_params = request_data
+            request_data = None
 
         return HTTPRequest(
             method=self.__method__,
             url=self.url,
             headers=self.headers,
             query_params=dict(request_params),
-            request_data=request_data,
+            json_body=request_data,
         )
 
 
