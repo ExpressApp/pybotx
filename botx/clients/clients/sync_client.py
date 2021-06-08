@@ -96,7 +96,7 @@ class Client:
             request.url,
             headers=request.headers,
             params=request.query_params,
-            content=request.request_data,
+            json=request.json_body,
         )
 
         return HTTPResponse(

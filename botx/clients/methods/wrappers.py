@@ -22,7 +22,7 @@ class HTTPRequest(BaseModel):
     query_params: Dict[str, PrimitiveDataType]
 
     #: request body.
-    request_data: Optional[Union[str, bytes]]
+    json_body: Optional[Dict[str, Any]]
 
 
 class HTTPResponse(BaseModel):
@@ -31,7 +31,7 @@ class HTTPResponse(BaseModel):
     #: response status code.
     status_code: int
 
-    #: response json.
+    #: response body.
     json_body: Dict[str, Any]
 
     @property
