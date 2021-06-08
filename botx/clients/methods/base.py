@@ -85,7 +85,7 @@ class AbstractBotXMethod(ABC, typing.Generic[ResponseT]):
         return None  # noqa: WPS324
 
 
-CREDENTIALS_FIELDS = ("token", "host", "scheme")
+CREDENTIALS_FIELDS = frozenset(("token", "host", "scheme"))
 
 
 class BaseBotXMethod(AbstractBotXMethod[ResponseT], ABC):
@@ -172,7 +172,7 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
         return json.loads(
             self.json(
                 by_alias=True,
-                exclude=set(CREDENTIALS_FIELDS),
+                exclude=CREDENTIALS_FIELDS,
                 exclude_none=True,
             ),
         )
