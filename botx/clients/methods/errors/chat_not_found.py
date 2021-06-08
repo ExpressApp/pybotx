@@ -5,7 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from botx.clients.methods.base import APIErrorResponse, BotXMethod
-from botx.clients.methods.wrappers import HTTPResponse
+from botx.clients.types.http import HTTPResponse
 from botx.exceptions import BotXAPIError
 
 

@@ -7,7 +7,7 @@ from pydantic import ValidationError
 
 from botx import concurrency
 from botx.clients.methods.base import APIResponse, BotXMethod, ErrorHandlersInMethod
-from botx.clients.methods.wrappers import HTTPResponse
+from botx.clients.types.http import HTTPResponse
 
 ResponseT = TypeVar("ResponseT")
 

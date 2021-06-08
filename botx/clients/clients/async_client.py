@@ -8,7 +8,7 @@ from pydantic.dataclasses import dataclass
 
 from botx.clients.clients.processing import extract_result, handle_error
 from botx.clients.methods.base import BotXMethod
-from botx.clients.methods.wrappers import HTTPRequest, HTTPResponse
+from botx.clients.types.http import HTTPRequest, HTTPResponse
 from botx.converters import optional_sequence_to_list
 from botx.exceptions import BotXAPIError, BotXAPIRouteDeprecated
 from botx.shared import BotXDataclassConfig
