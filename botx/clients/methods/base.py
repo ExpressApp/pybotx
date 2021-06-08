@@ -10,7 +10,7 @@ from httpx import Response
 from pydantic import BaseConfig, BaseModel, Extra
 from pydantic.generics import GenericModel
 
-from botx.clients.methods.wrappers import HTTPRequest, HTTPResponse, PrimitiveDataType
+from botx.clients.types.http import HTTPRequest, HTTPResponse, PrimitiveDataType
 from botx.models.enums import Statuses
 
 try:
