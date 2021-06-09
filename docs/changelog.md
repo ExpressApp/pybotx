@@ -1,3 +1,17 @@
+## 0.20.0 (Unreleased)
+
+Tested on BotX 1.41.0
+
+### Changed
+
+* `HTTPRequest` & `HTTPResponse` moved to `clients.types`
+* `HTTPRequest` now work with JSON (dict) instead of bytes. It improves consistency with
+  `HTTPResponse` and will be useful in interceptors implementation.
+
+### Removed
+* `HTTPResponse` bytes content property
+
+
 ## 0.19.1 (May 21, 2021)
 
 Tested on BotX 1.40.0-rc0
