@@ -67,3 +67,26 @@ class SendingSmartApp(BotXBaseModel):
             self.files.append(file)
         else:
             self.files.append(File.from_file(file, filename=filename))
+
+
+class SendingSmartAppNotification(BotXBaseModel):
+    #: chat of this smartapp
+    group_chat_id: UUID
+
+    #: unread notifications count
+    notification_counter: int
+
+    #: options of smartapp
+    opts: Dict
+
+    #: version of protocol smartapp <-> bot
+    smartapp_api_version: int
+
+    @classmethod
+    def from_message_with_smartapp(cls, notification_counter: int, message: Message):
+        return cls(
+            notification_counter=notification_counter,
+            opts=message.data.opts,
+            smartapp_api_version=message.data.smartapp_api_version,
+            group_chat_id=message.group_chat_id,
+        )

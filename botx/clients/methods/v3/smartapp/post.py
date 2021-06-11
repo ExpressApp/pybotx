@@ -32,3 +32,22 @@ class SmartAppEvent(AuthorizedBotXMethod[str]):
 
     #: files
     files: List[File]
+
+
+class SmartAppNotification(AuthorizedBotXMethod[str]):
+    """Method for editing sent event."""
+
+    __url__ = "/api/v3/botx/smartapps/notification"
+    __method__ = "POST"
+    __returning__ = str
+    #: chat of this smartapp
+    group_chat_id: UUID
+
+    #: unread notifications count
+    notification_counter: int
+
+    #: options of smartapp
+    opts: Any
+
+    #: version of protocol smartapp <-> bot
+    smartapp_api_version: int
