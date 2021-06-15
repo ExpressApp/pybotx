@@ -34,13 +34,13 @@ class ChatFromSearch(BotXBaseModel):
     inserted_at: datetime
 
 
-class BotChat(BotXBaseModel):
+class BotChatFromList(BotXBaseModel):
     """Chat from list."""
 
     #: name of chat.
     name: str
 
-    #: description of chat
+    #: description of chat.
     description: Optional[str]
 
     #: type of chat.
@@ -52,7 +52,7 @@ class BotChat(BotXBaseModel):
     #: users in chat.
     members: List[UUID]
 
-    #: creation datetime of chat.
+    #: datetime bot joined in chat.
     inserted_at: datetime
 
     #: update datetime of chat.
@@ -60,16 +60,16 @@ class BotChat(BotXBaseModel):
 
 
 class BotChatList(BotXBaseModel):
-    """List of chats."""
+    """Bot's chat list response model."""
 
-    __root__: List[BotChat]
+    __root__: List[BotChatFromList]
 
-    def __iter__(self) -> Iterator[BotChat]:  # type: ignore
+    def __iter__(self) -> Iterator[BotChatFromList]:  # type: ignore
         """Override iterator for pydantic model."""
         return iter(self.__root__)
 
     def __len__(self) -> int:  # noqa: D105
         return len(self.__root__)
 
-    def __getitem__(self, key: int) -> BotChat:  # noqa: D105
+    def __getitem__(self, key: int) -> BotChatFromList:  # noqa: D105
         return self.__root__[key]

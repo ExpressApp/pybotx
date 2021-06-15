@@ -1,6 +1,6 @@
 """Endpoints for chats resource."""
 import uuid
-from datetime import datetime
+from datetime import datetime as dt
 
 from molten import Request, RequestData, Response, Settings
 
@@ -36,7 +36,7 @@ def get_info(request: Request, settings: Settings) -> Response:
     payload = info.Info.parse_obj(request.params)
     add_request_to_collection(settings, payload)
 
-    inserted_ad = datetime.fromisoformat("2019-08-29T11:22:48.358586+00:00")
+    inserted_ad = dt.fromisoformat("2019-08-29T11:22:48.358586+00:00")
     return PydanticResponse(
         APIResponse[chats.ChatFromSearch](
             result=chats.ChatFromSearch(
@@ -71,13 +71,13 @@ def get_bot_chats(request: Request, settings: Settings) -> Response:
     payload = chat_list.ChatList.parse_obj(request.params)
     add_request_to_collection(settings, payload)
 
-    inserted_at = datetime.fromisoformat("2019-08-29T11:22:48.358586+00:00")
-    updated_at = datetime.fromisoformat("2019-09-29T10:30:48.358586+00:00")
+    inserted_at = dt.fromisoformat("2019-08-29T11:22:48.358586+00:00")
+    updated_at = dt.fromisoformat("2019-09-29T10:30:48.358586+00:00")
     return PydanticResponse(
         APIResponse[chats.BotChatList](
             result=chats.BotChatList(
                 __root__=[
-                    chats.BotChat(
+                    chats.BotChatFromList(
                         name="chat name",
                         description="test",
                         chat_type=enums.ChatTypes.group_chat,

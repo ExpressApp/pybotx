@@ -3,6 +3,7 @@ import uuid
 import pytest
 
 from botx import ChatTypes
+from botx.clients.methods.v3.chats.chat_list import ChatList
 
 pytestmark = pytest.mark.asyncio
 
@@ -66,8 +67,9 @@ async def test_retrieving_chat_info(bot, client, message):
 
 
 async def test_retrieving_bot_chats(bot, client, message):
-    chats = await bot.get_bot_chats(message.credentials)
-    assert len(chats) == 1
+    await bot.get_bot_chats(message.credentials)
+    request = client.requests[0]
+    assert isinstance(request, ChatList)
 
 
 async def test_promoting_users_to_admins(bot, client, message):
