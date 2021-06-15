@@ -1,8 +1,8 @@
 """Entities for chats."""
 
+from datetime import datetime
 from typing import Iterator, List, Optional
 from uuid import UUID
-from datetime import datetime
 
 from botx.models.base import BotXBaseModel
 from botx.models.enums import ChatTypes
@@ -35,6 +35,8 @@ class ChatFromSearch(BotXBaseModel):
 
 
 class BotChat(BotXBaseModel):
+    """Chat from list."""
+
     #: name of chat.
     name: str
 
@@ -58,9 +60,12 @@ class BotChat(BotXBaseModel):
 
 
 class BotChatList(BotXBaseModel):
+    """List of chats."""
+
     __root__: List[BotChat]
 
-    def __iter__(self) -> Iterator[BotChat]:  # noqa: D105
+    def __iter__(self) -> Iterator[BotChat]:  # type: ignore
+        """Override iterator for pydantic model."""
         return iter(self.__root__)
 
     def __len__(self) -> int:  # noqa: D105

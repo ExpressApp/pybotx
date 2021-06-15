@@ -1,5 +1,3 @@
-import uuid
-
 import pytest
 
 from botx.clients.methods.v3.chats.chat_list import ChatList
@@ -19,6 +17,8 @@ async def test_retrieving_bot_chats(client, requests_client):
         response,
     )
 
-    assert list(bot_chats)
+    assert isinstance(list(bot_chats), list)
+
+    assert len(bot_chats) == 1
 
     assert len(bot_chats[0].members) == 1

@@ -1,8 +1,6 @@
 """Method for retrieving information about chat."""
-from http import HTTPStatus
 
 from botx.clients.methods.base import AuthorizedBotXMethod
-from botx.clients.methods.errors import messaging
 from botx.models.chats import BotChatList
 
 
