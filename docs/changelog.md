@@ -2,11 +2,16 @@
 
 Tested on BotX 1.41.0
 
+### Added
+
+* Add method for retrieving list of bot's chats
+
 ### Changed
 
 * `HTTPRequest` & `HTTPResponse` moved to `clients.types`
 * `HTTPRequest` now work with JSON (dict) instead of bytes. It improves consistency with
   `HTTPResponse` and will be useful in interceptors implementation.
+* Add `inserted_at` field to `ChatFromSearch` model
 
 ### Removed
 * `HTTPResponse` bytes content property
