@@ -12,6 +12,7 @@ from botx.clients.methods.v3.chats import (
     remove_user,
     stealth_disable,
     stealth_set,
+    chat_list,
 )
 from botx.clients.types.response_results import ChatCreatedResult
 from botx.models import chats, enums, users
@@ -46,6 +47,38 @@ async def get_info(request: requests.Request) -> responses.Response:
                         admin=True,
                     ),
                 ],
+                inserted_at="2019-08-29T11:22:48.358586Z",
+            ),
+        ),
+    )
+
+
+@bind_implementation_to_method(chat_list.ChatList)
+async def get_bot_chats(request: requests.Request) -> responses.Response:
+    """Return list of bot chats.
+
+    Arguments:
+        credentials: credentials for making request.
+
+    Returns:
+         List of bot chats.
+    """
+    payload = chat_list.ChatList.parse_obj(request.query_params)
+    add_request_to_collection(request, payload)
+    return PydanticResponse(
+        APIResponse[chats.BotChatList](
+            result=chats.BotChatList(
+                __root__=[
+                    chats.BotChat(
+                        name="chat name",
+                        description="test",
+                        chat_type=enums.ChatTypes.group_chat,
+                        group_chat_id=uuid.uuid4(),
+                        members=[uuid.uuid4()],
+                        inserted_at="2019-08-29T11:22:48.358586Z",
+                        updated_at="2019-09-29T10:30:48.358586Z",
+                    )
+                ]
             ),
         ),
     )

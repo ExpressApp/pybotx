@@ -25,6 +25,7 @@ _ENDPOINTS: Tuple[RequestResponseEndpoint, ...] = (
     # V3
     # chats
     chats.get_info,
+    chats.get_bot_chats,
     chats.post_add_admin_role,
     chats.post_add_user,
     chats.post_remove_user,
