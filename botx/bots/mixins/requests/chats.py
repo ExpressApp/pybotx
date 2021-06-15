@@ -76,13 +76,13 @@ class ChatsRequestsMixin:
         self: BotXMethodCallProtocol,
         credentials: SendingCredentials,
     ) -> BotChatList:
-        """Return list of bot chats.
+        """Return list of bot's chats.
 
         Arguments:
             credentials: credentials for making request.
 
         Returns:
-             List of bot chats.
+             List of bot's chats.
         """
         return await self.call_method(
             ChatList(),
