@@ -6,6 +6,7 @@ from botx.clients.methods.v2.bots import token
 from botx.clients.methods.v3.chats import (
     add_admin_role,
     add_user,
+    chat_list,
     create,
     info,
     remove_user,
@@ -33,6 +34,7 @@ APIRequest = Union[
     # chats
     add_admin_role.AddAdminRole,
     add_user.AddUser,
+    chat_list.ChatList,
     info.Info,
     remove_user.RemoveUser,
     stealth_disable.StealthDisable,

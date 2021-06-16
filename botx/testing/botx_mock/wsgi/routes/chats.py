@@ -1,5 +1,6 @@
 """Endpoints for chats resource."""
 import uuid
+from datetime import datetime as dt
 
 from molten import Request, RequestData, Response, Settings
 
@@ -7,6 +8,7 @@ from botx.clients.methods.base import APIResponse
 from botx.clients.methods.v3.chats import (
     add_admin_role,
     add_user,
+    chat_list,
     create,
     info,
     remove_user,
@@ -33,6 +35,8 @@ def get_info(request: Request, settings: Settings) -> Response:
     """
     payload = info.Info.parse_obj(request.params)
     add_request_to_collection(settings, payload)
+
+    inserted_ad = dt.fromisoformat("2019-08-29T11:22:48.358586+00:00")
     return PydanticResponse(
         APIResponse[chats.ChatFromSearch](
             result=chats.ChatFromSearch(
@@ -45,6 +49,42 @@ def get_info(request: Request, settings: Settings) -> Response:
                         user_huid=uuid.uuid4(),
                         user_kind=enums.UserKinds.user,
                         admin=True,
+                    ),
+                ],
+                inserted_at=inserted_ad,
+            ),
+        ),
+    )
+
+
+@bind_implementation_to_method(chat_list.ChatList)
+def get_bot_chats(request: Request, settings: Settings) -> Response:
+    """Return list of bot chats.
+
+    Arguments:
+        request: HTTP request from Molten.
+        settings: application settings with storage.
+
+    Returns:
+         List of bot chats.
+    """
+    payload = chat_list.ChatList.parse_obj(request.params)
+    add_request_to_collection(settings, payload)
+
+    inserted_at = dt.fromisoformat("2019-08-29T11:22:48.358586+00:00")
+    updated_at = dt.fromisoformat("2019-09-29T10:30:48.358586+00:00")
+    return PydanticResponse(
+        APIResponse[chats.BotChatList](
+            result=chats.BotChatList(
+                __root__=[
+                    chats.BotChatFromList(
+                        name="chat name",
+                        description="test",
+                        chat_type=enums.ChatTypes.group_chat,
+                        group_chat_id=uuid.uuid4(),
+                        members=[uuid.uuid4()],
+                        inserted_at=inserted_at,
+                        updated_at=updated_at,
                     ),
                 ],
             ),
