@@ -2,6 +2,11 @@
 
 Tested on BotX 1.41.0
 
+### Added
+
+* Add method for retrieving list of bot's chats
+Add `inserted_at` field to `ChatFromSearch` model
+
 ### Changed
 
 * `HTTPRequest` & `HTTPResponse` moved to `clients.types`
@@ -44,7 +49,7 @@ Tested on BotX 1.40.0-rc0
 
 * Fix pydantic deprecation warning: `whole` flag renamed to `each_item`
 
-## 0.18.4 (Apr 08, 2021) 
+## 0.18.4 (Apr 08, 2021)
 
 Tested on BotX 1.40.0-rc0
 
@@ -62,13 +67,13 @@ Tested on BotX 1.40.0-rc0
 
 ### Changed
 
-* Bot can recognize mention all (@all) now 
+* Bot can recognize mention all (@all) now
 
 ## 0.18.1 (Mar 22, 2021)
 
 ### Changed
 
-* Fixed empty label bug, now you can use empty string as button label 
+* Fixed empty label bug, now you can use empty string as button label
 
 ## 0.18.0 (Mar 13, 2021)
 

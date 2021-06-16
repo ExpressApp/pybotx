@@ -3,6 +3,7 @@ import uuid
 import pytest
 
 from botx import ChatTypes
+from botx.clients.methods.v3.chats.chat_list import ChatList
 
 pytestmark = pytest.mark.asyncio
 
@@ -24,6 +25,7 @@ async def test_enable_stealth_mode(bot, client, message):
         chat_id=message.group_chat_id,
         burn_in=60,
     )
+
     assert client.requests[0].burn_in == 60
 
 
@@ -32,6 +34,7 @@ async def test_disable_stealth_mode(bot, client, message):
         message.credentials,
         chat_id=message.group_chat_id,
     )
+
     assert client.requests[0].group_chat_id == message.group_chat_id
 
 
@@ -43,7 +46,9 @@ async def test_adding_user_to_chat(bot, client, message):
         user_huids=users,
     )
     request = client.requests[0]
+
     assert request.group_chat_id == message.group_chat_id
+
     assert request.user_huids == users
 
 
@@ -55,14 +60,24 @@ async def test_remove_user(bot, client, message):
         user_huids=users,
     )
     request = client.requests[0]
+
     assert request.group_chat_id == message.group_chat_id
+
     assert request.user_huids == users
 
 
 async def test_retrieving_chat_info(bot, client, message):
     chat_id = uuid.uuid4()
     info = await bot.get_chat_info(message.credentials, chat_id=chat_id)
+
     assert info.group_chat_id == chat_id
+
+
+async def test_retrieving_bot_chats(bot, client, message):
+    await bot.get_bot_chats(message.credentials)
+    request = client.requests[0]
+
+    assert isinstance(request, ChatList)
 
 
 async def test_promoting_users_to_admins(bot, client, message):
@@ -73,5 +88,7 @@ async def test_promoting_users_to_admins(bot, client, message):
         user_huids=users,
     )
     request = client.requests[0]
+
     assert request.group_chat_id == message.group_chat_id
+
     assert request.user_huids == users

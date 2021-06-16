@@ -6,12 +6,13 @@ from uuid import UUID
 from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
 from botx.clients.methods.v3.chats.add_admin_role import AddAdminRole
 from botx.clients.methods.v3.chats.add_user import AddUser
+from botx.clients.methods.v3.chats.chat_list import ChatList
 from botx.clients.methods.v3.chats.create import Create
 from botx.clients.methods.v3.chats.info import Info
 from botx.clients.methods.v3.chats.remove_user import RemoveUser
 from botx.clients.methods.v3.chats.stealth_disable import StealthDisable
 from botx.clients.methods.v3.chats.stealth_set import StealthSet
-from botx.models.chats import ChatFromSearch
+from botx.models.chats import BotChatList, ChatFromSearch
 from botx.models.enums import ChatTypes
 from botx.models.messages.sending.credentials import SendingCredentials
 
@@ -68,6 +69,23 @@ class ChatsRequestsMixin:
         """
         return await self.call_method(
             Info(group_chat_id=chat_id),
+            credentials=credentials,
+        )
+
+    async def get_bot_chats(
+        self: BotXMethodCallProtocol,
+        credentials: SendingCredentials,
+    ) -> BotChatList:
+        """Return list of bot's chats.
+
+        Arguments:
+            credentials: credentials for making request.
+
+        Returns:
+             List of bot's chats.
+        """
+        return await self.call_method(
+            ChatList(),
             credentials=credentials,
         )
 
