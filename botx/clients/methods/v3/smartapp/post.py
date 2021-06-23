@@ -44,7 +44,7 @@ class SmartAppNotification(AuthorizedBotXMethod[str]):
     group_chat_id: UUID
 
     #: unread notifications count
-    notification_counter: int
+    smartapp_counter: int
 
     #: options of smartapp
     opts: Any

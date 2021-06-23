@@ -74,7 +74,7 @@ class SendingSmartAppNotification(BotXBaseModel):
     group_chat_id: UUID
 
     #: unread notifications count
-    notification_counter: int
+    smartapp_counter: int
 
     #: options of smartapp
     opts: Dict
@@ -83,9 +83,9 @@ class SendingSmartAppNotification(BotXBaseModel):
     smartapp_api_version: int
 
     @classmethod
-    def from_message_with_smartapp(cls, notification_counter: int, message: Message):
+    def from_message_with_smartapp(cls, smartapp_counter: int, message: Message):
         return cls(
-            notification_counter=notification_counter,
+            smartapp_counter=smartapp_counter,
             opts=message.data.opts,
             smartapp_api_version=message.data.smartapp_api_version,
             group_chat_id=message.group_chat_id,
