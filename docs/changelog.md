@@ -14,7 +14,12 @@ Add `inserted_at` field to `ChatFromSearch` model
   `HTTPResponse` and will be useful in interceptors implementation.
 
 ### Removed
+
 * `HTTPResponse` bytes content property
+
+### Fixed
+
+* `Bot_id` is now displayed in the request
 
 
 ## 0.19.1 (May 21, 2021)

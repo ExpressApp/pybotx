@@ -28,4 +28,5 @@ class BotsRequestsMixin:
         return await self.call_method(
             Token(bot_id=bot_id, signature=signature),
             host=host,
+            bot_id=bot_id,
         )
