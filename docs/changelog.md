@@ -14,7 +14,12 @@ Add `inserted_at` field to `ChatFromSearch` model
   `HTTPResponse` and will be useful in interceptors implementation.
 
 ### Removed
+
 * `HTTPResponse` bytes content property
+
+### Fixed
+
+* `File` is now deleted when the message is updated
 
 
 ## 0.19.1 (May 21, 2021)
