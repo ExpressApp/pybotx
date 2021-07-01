@@ -169,13 +169,16 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
             Serialized dict.
         """
         # TODO: Waiting for <https://github.com/samuelcolvin/pydantic/issues/1409/>
-        return json.loads(
+        serialized_dict = json.loads(
             self.json(
                 by_alias=True,
                 exclude=CREDENTIALS_FIELDS,
                 exclude_none=True,
             ),
         )
+        serialized_dict.update(self.dict(include={"file"}))
+
+        return serialized_dict
 
     def build_http_request(self) -> HTTPRequest:
         """Build HTTP request that can be used by clients for making real requests.

@@ -19,6 +19,7 @@ Add `inserted_at` field to `ChatFromSearch` model
 
 ### Fixed
 
+* `File` is now deleted when the message is updated
 * `Bot_id` is now displayed in the request
 
 
