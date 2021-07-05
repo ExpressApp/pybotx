@@ -162,13 +162,13 @@ class Reply(BotXBaseModel):
     sender: UUID
 
     #: chat name of source message.
-    source_chat_name: str
+    source_chat_name: Optional[str]
 
     #: chat uuid of source message.
     source_group_chat_id: Optional[UUID]
 
     #: uuid of source message.
-    source_sync_id: UUID
+    source_sync_id: Optional[UUID]
 
 
 class Entity(BotXBaseModel):
