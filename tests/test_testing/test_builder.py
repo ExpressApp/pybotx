@@ -144,6 +144,7 @@ class TestBuildForward:
                 sender_huid=uuid.uuid4(),
                 forward_type=ChatTypes.group_chat,  # ignore: type
                 source_inserted_at=datetime.now(),
+                source_sync_id=uuid.uuid4(),
             ),
         )
 
@@ -161,6 +162,7 @@ class TestBuildForward:
                     sender_huid=uuid.uuid4(),
                     forward_type=ChatTypes.botx,  # ignore: type
                     source_inserted_at=datetime.now(),
+                    source_sync_id=uuid.uuid4(),
                 ),
             )
 
