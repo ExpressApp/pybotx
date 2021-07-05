@@ -1,3 +1,10 @@
+## 0.19.2 (Jul 05, 2021)
+
+### Changed
+
+* Reply event fields `source_chat_name`, `source_sync_id` are optional now
+
+
 ## 0.19.1 (May 21, 2021)
 
 Tested on BotX 1.40.0-rc0
