@@ -12,6 +12,8 @@ Add `inserted_at` field to `ChatFromSearch` model
 * `HTTPRequest` & `HTTPResponse` moved to `clients.types`
 * `HTTPRequest` now work with JSON (dict) instead of bytes. It improves consistency with
   `HTTPResponse` and will be useful in interceptors implementation.
+* Reply event field `source_chat_name` is optional now
+* Forward event field `source_sync_id` is required now
 
 ### Removed
 
