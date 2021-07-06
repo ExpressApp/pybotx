@@ -21,6 +21,7 @@ Add `inserted_at` field to `ChatFromSearch` model
 
 * `File` is now deleted when the message is updated
 * `Bot_id` is now displayed in the request
+* Add description for `BotXAPIError`
 
 
 ## 0.19.1 (May 21, 2021)
