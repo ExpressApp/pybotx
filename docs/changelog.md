@@ -1,11 +1,11 @@
-## 0.20.0 (Unreleased)
+## 0.20.0 (Jul 08, 2021)
 
-Tested on BotX 1.41.0
+Tested on BotX 1.42.0-rc4
 
 ### Added
 
 * Add method for retrieving list of bot's chats
-Add `inserted_at` field to `ChatFromSearch` model
+* Add `inserted_at` field to `ChatFromSearch` model
 
 ### Changed
 
