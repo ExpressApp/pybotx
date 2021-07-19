@@ -10,6 +10,7 @@ from botx.clients.methods.v3.notification.notification import Notification
 from botx.clients.types.message_payload import ResultPayload
 from botx.clients.types.options import ResultOptions
 from botx.models.messages.sending.credentials import SendingCredentials
+from botx.models.messages.sending.options import ResultPayloadOptions
 from botx.models.messages.sending.payload import MessagePayload
 
 
@@ -45,11 +46,13 @@ class NotificationRequestsMixin:
                     bubble=payload.markup.bubbles,
                     keyboard=payload.markup.keyboard,
                     mentions=payload.options.mentions,
+                    opts=ResultPayloadOptions(
+                        silent_response=payload.options.silent_response,
+                    ),
                 ),
                 recipients=payload.options.recipients,
                 file=payload.file,
                 opts=ResultOptions(
-                    silent_response=payload.options.silent_response,
                     notification_opts=payload.options.notifications,
                 ),
             ),
@@ -86,11 +89,13 @@ class NotificationRequestsMixin:
                     bubble=payload.markup.bubbles,
                     keyboard=payload.markup.keyboard,
                     mentions=payload.options.mentions,
+                    opts=ResultPayloadOptions(
+                        silent_response=payload.options.silent_response,
+                    ),
                 ),
                 recipients=payload.options.recipients,
                 file=payload.file,
                 opts=ResultOptions(
-                    silent_response=payload.options.silent_response,
                     notification_opts=payload.options.notifications,
                 ),
             ),

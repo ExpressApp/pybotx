@@ -1,4 +1,15 @@
+## 0.20.4 (Jul 23, 2021)
+
+Tested on BotX 1.42.0-rc4
+
+### Fixed
+
+* Fix silent response by changing option location in method call.
+
+
 ## 0.20.3 (Jul 22, 2021)
+
+Tested on BotX 1.42.0-rc4
 
 ### Add
 
@@ -7,12 +18,16 @@
 
 ## 0.20.2 (Jul 22, 2021)
 
+Tested on BotX 1.42.0-rc4
+
 ### Changed
 
 *  Exceptions thrown in `exception_handler` are now logged.
 
 
 ## 0.20.1 (Jul 19, 2021)
+
+Tested on BotX 1.42.0-rc4
 
 ### Added
 
