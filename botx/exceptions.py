@@ -83,3 +83,30 @@ class TokenError(BotXException):
     message_template = "invalid token for bot {bot_id}"
 
     bot_id: UUID
+
+
+class BotXJSONDecodeError(BotXException):
+    """Raised if response body cannot be processed."""
+
+    message_template = "unable to process response body from {method} {url}"
+
+    #: URL from request.
+    url: str
+
+    #: HTTP method.
+    method: str
+
+
+class BotXConnectError(BotXException):
+    """Raised if unable to connect to service."""
+
+    message_template = (
+        "unable to connect to service {method} {url}. "
+        "Make sure you specified the correct host in bot credentials."
+    )
+
+    #: URL from request.
+    url: str
+
+    #: HTTP method.
+    method: str
