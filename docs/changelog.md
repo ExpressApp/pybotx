@@ -1,3 +1,13 @@
+## 0.20.1 (Jul 19, 2021)
+
+### Added
+
+*  Add `bot not found` error handler for `Token` method.
+*  Add `invalid bot credentials` error handler for `Token` method.
+*  Add `connection error` handler for all BotX methods.
+*  Add `JSON decoding error` handler for all BotX methods.
+
+
 ## 0.20.0 (Jul 08, 2021)
 
 Tested on BotX 1.42.0-rc4
