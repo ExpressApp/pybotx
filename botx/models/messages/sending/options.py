@@ -7,6 +7,13 @@ from botx.models.entities import Mention
 from botx.models.typing import AvailableRecipients
 
 
+class ResultPayloadOptions(BotXBaseModel):
+    """Options for `notification` and `command_result` API entities."""
+
+    #: don't show next user's input in chat
+    silent_response: bool = False
+
+
 class NotificationOptions(BotXBaseModel):
     """Configurations for message notifications."""
 
@@ -26,7 +33,7 @@ class MessageOptions(BotXBaseModel):
     #: attached to message mentions.
     mentions: List[Mention] = []
 
-    #: if true don't show next user's input in chat
+    #: don't show next user's input in chat
     silent_response: bool = False
 
     #: notification configuration.

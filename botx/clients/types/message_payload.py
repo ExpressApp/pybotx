@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from botx.models.constants import MAXIMUM_TEXT_LENGTH
 from botx.models.entities import Mention
 from botx.models.enums import Statuses
+from botx.models.messages.sending.options import ResultPayloadOptions
 from botx.models.typing import BubbleMarkup, KeyboardMarkup
 
 try:
@@ -25,6 +26,9 @@ class ResultPayload(BaseModel):
 
     #: message metadata.
     metadata: Dict[str, Any] = {}
+
+    #: options for `notification` and `command_result` API entities.
+    opts: ResultPayloadOptions = ResultPayloadOptions()
 
     #: keyboard that will be used for new message.
     keyboard: KeyboardMarkup = []
