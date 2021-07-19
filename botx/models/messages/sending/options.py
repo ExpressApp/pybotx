@@ -36,5 +36,8 @@ class MessageOptions(BotXBaseModel):
     #: don't show next user's input in chat
     silent_response: bool = False
 
+    #: deliver message only if stealth mode enabled
+    stealth_mode: bool = False
+
     #: notification configuration.
     notifications: NotificationOptions = NotificationOptions()

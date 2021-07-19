@@ -53,6 +53,7 @@ class NotificationRequestsMixin:
                 recipients=payload.options.recipients,
                 file=payload.file,
                 opts=ResultOptions(
+                    stealth_mode=payload.options.stealth_mode,
                     notification_opts=payload.options.notifications,
                 ),
             ),
@@ -96,6 +97,7 @@ class NotificationRequestsMixin:
                 recipients=payload.options.recipients,
                 file=payload.file,
                 opts=ResultOptions(
+                    stealth_mode=payload.options.stealth_mode,
                     notification_opts=payload.options.notifications,
                 ),
             ),

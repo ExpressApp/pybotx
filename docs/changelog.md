@@ -2,6 +2,10 @@
 
 Tested on BotX 1.42.0-rc4
 
+### Added
+
+* Add possibility to send message that visible only in stealth mode.
+
 ### Fixed
 
 * Fix silent response by changing option location in method call.
