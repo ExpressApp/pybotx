@@ -1,5 +1,4 @@
 import uuid
-from unittest.mock import AsyncMock
 
 import pytest
 from httpx import ConnectError, Request, Response
