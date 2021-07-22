@@ -37,3 +37,6 @@ class Create(AuthorizedBotXMethod[UUID]):
 
     #: chat type.
     chat_type: ChatTypes
+
+    #: chat history is available to newcomers.
+    shared_history: bool

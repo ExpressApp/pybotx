@@ -15,6 +15,7 @@ async def test_chat_creation(client, requests_client):
         name="test name",
         members=[uuid.uuid4()],
         chat_type=ChatTypes.group_chat,
+        shared_history=False,
     )
 
     request = requests_client.build_request(method)

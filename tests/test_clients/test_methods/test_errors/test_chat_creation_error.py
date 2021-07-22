@@ -18,6 +18,7 @@ async def test_raising_chat_creation_error(client, requests_client):
         name="test name",
         members=[uuid.uuid4()],
         chat_type=ChatTypes.group_chat,
+        shared_history=False,
     )
 
     errors_to_raise = {Create: (HTTPStatus.UNPROCESSABLE_ENTITY, {})}

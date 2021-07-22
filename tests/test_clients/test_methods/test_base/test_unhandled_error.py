@@ -42,6 +42,7 @@ async def test_raising_base_api_error_if_unhandled(client, requests_client):
         name="test name",
         members=[uuid.uuid4()],
         chat_type=ChatTypes.group_chat,
+        shared_history=False,
     )
 
     method.__errors_handlers__[IM_A_TEAPOT] = []

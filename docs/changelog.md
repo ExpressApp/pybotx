@@ -1,3 +1,10 @@
+## 0.20.3 (Jul 22, 2021)
+
+### Add
+
+*  Add possibility to create chats with enabled shared_history option (Bot.create_chat).
+
+
 ## 0.20.2 (Jul 22, 2021)
 
 ### Changed
