@@ -26,6 +26,7 @@ class ChatsRequestsMixin:
         name: str,
         members: List[UUID],
         chat_type: ChatTypes,
+        shared_history: bool = False,
         description: Optional[str] = None,
         avatar: Optional[str] = None,
     ) -> UUID:
@@ -38,6 +39,7 @@ class ChatsRequestsMixin:
             chat_type: chat type.
             description: description of new chat.
             avatar: logo image of chat.
+            shared_history: chat history is available to newcomers.
 
         Returns:
              ID of created chat.
@@ -49,6 +51,7 @@ class ChatsRequestsMixin:
                 members=members,
                 avatar=avatar,
                 chat_type=chat_type,
+                shared_history=shared_history,
             ),
             credentials=credentials,
         )
