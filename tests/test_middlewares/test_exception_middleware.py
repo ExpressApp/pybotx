@@ -78,3 +78,24 @@ async def test_logging_exception_if_was_not_found(
 
     assert event.is_set()
     assert "uncaught ValueError exception" in loguru_caplog.text
+
+
+async def test_logging_from_failed_exception_handler(
+    bot,
+    incoming_message,
+    client,
+    loguru_caplog,
+    build_exception_catcher,
+    build_failed_handler,
+) -> None:
+    exc_for_raising = ValueError("exception from handler")
+
+    handler_event = threading.Event()
+
+    bot.add_exception_handler(Exception, build_exception_catcher(None))
+    bot.default(build_failed_handler(exc_for_raising, handler_event))
+
+    await client.send_command(incoming_message)
+
+    assert "ValueError('exception from handler')" in loguru_caplog.text
+    assert "uncaught AttributeError exception in error handler:" in loguru_caplog.text

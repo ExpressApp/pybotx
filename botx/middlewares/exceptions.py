@@ -72,21 +72,33 @@ class ExceptionMiddleware(BaseMiddleware):
             exc: exception that occurred.
             message: message on which exception occurred.
         """
+        exception_logger = logger.bind(
+            botx_error=True,
+            payload=message.incoming_message.copy(
+                update={
+                    "body": _convert_text_to_logs_format(message.body),
+                    "file": _convert_file_to_logs_format(message.file),
+                },
+            ).dict(),
+        )
         handler = self._lookup_handler_for_exception(exc)
 
         if handler is None:
-            logger.bind(
-                botx_error=True,
-                payload=message.incoming_message.copy(
-                    update={
-                        "body": _convert_text_to_logs_format(message.body),
-                        "file": _convert_file_to_logs_format(message.file),
-                    },
-                ).dict(),
-            ).exception("uncaught {0} exception {1}", type(exc).__name__, exc)
+            exception_logger.exception(
+                "uncaught {0} exception in handler: {1}",
+                type(exc).__name__,
+                exc,
+            )
             return
 
-        await concurrency.callable_to_coroutine(handler, exc, message)
+        try:
+            await concurrency.callable_to_coroutine(handler, exc, message)
+        except Exception as error_handler_exc:
+            exception_logger.exception(
+                "uncaught {0} exception in error handler: {1}",
+                type(error_handler_exc).__name__,
+                error_handler_exc,
+            )
 
 
 def _convert_text_to_logs_format(text: str) -> str:
