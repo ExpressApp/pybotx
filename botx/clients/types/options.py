@@ -10,5 +10,8 @@ class ResultOptions(BaseModel):
     #: send message only when stealth mode is enabled.
     stealth_mode: bool = False
 
+    #: use in-text mentions
+    raw_mentions: bool = False
+
     #: message options for configuring notifications.
     notification_opts: NotificationOptions = NotificationOptions()

@@ -1,5 +1,16 @@
 """Message that is sent from bot."""
-from typing import Any, BinaryIO, Dict, List, Optional, TextIO, Union, cast
+import re
+from typing import (  # noqa: WPS235
+    Any,
+    BinaryIO,
+    Dict,
+    List,
+    Optional,
+    TextIO,
+    Tuple,
+    Union,
+    cast,
+)
 from uuid import UUID
 
 from botx.models.buttons import ButtonOptions
@@ -13,8 +24,22 @@ from botx.models.messages.sending.options import MessageOptions, NotificationOpt
 from botx.models.messages.sending.payload import MessagePayload
 from botx.models.typing import AvailableRecipients, BubbleMarkup, KeyboardMarkup
 
+try:
+    from typing import Final  # noqa: WPS433
+except ImportError:
+    from typing_extensions import Final  # type: ignore  # noqa: WPS433, WPS440, F401
+
 ARGUMENTS_DUPLICATION_ERROR = (
     "{0} can not be passed along with manual validated_values for it"
+)
+
+EMBED_MENTION_TEMPATE = (
+    "<embed_mention:{mention_type}:"
+    "{mentioned_entity_id}:{mention_id}:{mention_name}>"  # noqa: WPS326
+)
+EMBED_MENTION_RE: Final = re.compile(
+    "<embed_mention:(?P<mention_type>.+?):(?P<mentioned_entity_id>.+?)"
+    ":(?P<mention_id>.+?):(?P<name>.+?)?>",  # noqa: WPS326 C812
 )
 
 
@@ -41,6 +66,7 @@ class SendingMessage:  # noqa: WPS214
         options: Optional[MessageOptions] = None,
         markup: Optional[MessageMarkup] = None,
         metadata: Optional[Dict[str, Any]] = None,
+        embed_mentions: bool = False,
     ) -> None:
         """Init message with required attributes.
 
@@ -72,6 +98,7 @@ class SendingMessage:  # noqa: WPS214
             notification_options: configuration for notifications for message.
             options: message options.
             metadata: message metadata.
+            embed_mentions: get mentions from text.
         """
         self.credentials: SendingCredentials = _build_credentials(
             bot_id=bot_id,
@@ -82,17 +109,25 @@ class SendingMessage:  # noqa: WPS214
             credentials=(credentials.copy() if credentials else credentials),
         )
 
+        options = _build_options(
+            recipients=recipients,
+            mentions=mentions,
+            notification_options=notification_options,
+            options=options,
+        )
+        if embed_mentions:
+            updated_text, found_mentions = self._find_and_replace_embed_mentions(text)
+
+            text = updated_text
+            options.mentions = found_mentions
+            options.raw_mentions = True
+
         self.payload: MessagePayload = MessagePayload(
             text=text,
             metadata=metadata or {},
             file=file,
             markup=_build_markup(bubbles=bubbles, keyboard=keyboard, markup=markup),
-            options=_build_options(
-                recipients=recipients,
-                mentions=mentions,
-                notification_options=notification_options,
-                options=options,
-            ),
+            options=options,
         )
 
     @classmethod
@@ -121,6 +156,141 @@ class SendingMessage:  # noqa: WPS214
             bot_id=message.bot_id,
             host=message.host,
         )
+
+    @classmethod
+    def make_mention_embeddable(cls, mention: Mention) -> str:
+        """Get mention as string, which can be embed in text.
+
+        Arguments:
+            mention: mention for embedding.
+
+        Raises:
+            NotImplementedError: If unsupported mention type was passed.
+
+        Returns:
+            Formatted mention.
+        """
+        if mention.mention_type in {MentionTypes.user, MentionTypes.contact}:
+            assert isinstance(mention.mention_data, UserMention)  # for mypy
+            mentioned_entity_id = mention.mention_data.user_huid
+        elif mention.mention_type in {MentionTypes.chat, MentionTypes.channel}:
+            assert isinstance(mention.mention_data, ChatMention)  # for mypy
+            mentioned_entity_id = mention.mention_data.group_chat_id
+        else:
+            raise NotImplementedError("Unsupported mention type")
+
+        mention_name = mention.mention_data.name or ""
+
+        return EMBED_MENTION_TEMPATE.format(
+            mention_type=mention.mention_type,
+            mentioned_entity_id=mentioned_entity_id,
+            mention_id=mention.mention_id,
+            mention_name=mention_name,
+        )
+
+    @classmethod
+    def build_embeddable_user_mention(
+        cls,
+        user_huid: UUID,
+        name: Optional[str] = None,
+        mention_id: Optional[UUID] = None,
+    ) -> str:
+        """Get user mention as string, which can be embed in text.
+
+        Arguments:
+            user_huid: user id to mention.
+            name: for overriding mention name.
+            mention_id: mention id (if not passed, will be generated).
+
+        Returns:
+            Formatted mention.
+        """
+        mention = Mention.build_from_values(
+            MentionTypes.user,
+            user_huid,
+            name,
+            mention_id,
+        )
+
+        return cls.make_mention_embeddable(mention)
+
+    @classmethod
+    def build_embeddable_contact_mention(
+        cls,
+        user_huid: UUID,
+        name: Optional[str] = None,
+        mention_id: Optional[UUID] = None,
+    ) -> str:
+        """Get contact mention as string, which can be embed in text.
+
+        Arguments:
+            user_huid: user id to mention.
+            name: for overriding mention name.
+            mention_id: mention id (if not passed, will be generated).
+
+        Returns:
+            Formatted mention.
+        """
+        mention = Mention.build_from_values(
+            MentionTypes.contact,
+            user_huid,
+            name,
+            mention_id,
+        )
+
+        return cls.make_mention_embeddable(mention)
+
+    @classmethod
+    def build_embeddable_chat_mention(
+        cls,
+        group_chat_id: UUID,
+        name: Optional[str] = None,
+        mention_id: Optional[UUID] = None,
+    ) -> str:
+        """Get chat mention as string, which can be embed in text.
+
+        Arguments:
+            group_chat_id: chat id to mention.
+            name: for overriding mention name.
+            mention_id: mention id (if not passed, will be generated).
+
+        Returns:
+            Formatted mention.
+        """
+        mention = Mention.build_from_values(
+            MentionTypes.chat,
+            group_chat_id,
+            name,
+            mention_id,
+        )
+
+        return cls.make_mention_embeddable(mention)
+
+    @classmethod
+    def build_embeddable_channel_mention(
+        cls,
+        group_chat_id: UUID,
+        name: Optional[str] = None,
+        mention_id: Optional[UUID] = None,
+    ) -> str:
+        """Get channel mention as string, which can be embed in text.
+
+        Arguments:
+            group_chat_id: channel id to mention.
+            name: for overriding mention name.
+            mention_id: mention id (if not passed, will be generated).
+
+        Returns:
+            Formatted mention.
+        """
+        mention = Mention.build_from_values(
+            MentionTypes.channel,
+            group_chat_id,
+            name,
+            mention_id,
+        )
+
+        return cls.make_mention_embeddable(mention)
 
     @property
     def text(self) -> str:
@@ -351,6 +521,31 @@ class SendingMessage:  # noqa: WPS214
             force: break mute on bot messages.
         """
         self.payload.options.notifications.force_dnd = force
+
+    def _find_and_replace_embed_mentions(  # noqa: WPS210
+        self,
+        text: str,
+    ) -> Tuple[str, List[Mention]]:
+        mentions = []
+
+        match = EMBED_MENTION_RE.search(text)
+        while match:
+            mention_dict = match.groupdict()
+            embed_mention = match.group(0)
+
+            mention = Mention.build_from_values(
+                MentionTypes(mention_dict["mention_type"]),
+                UUID(mention_dict["mentioned_entity_id"]),
+                mention_dict["name"],
+                UUID(mention_dict["mention_id"]),
+            )
+
+            text = text.replace(embed_mention, mention.to_botx_format())
+            mentions.append(mention)
+
+            match = EMBED_MENTION_RE.search(text)
+
+        return text, mentions
 
 
 def _build_credentials(  # noqa: WPS211

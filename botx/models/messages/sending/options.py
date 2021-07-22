@@ -39,5 +39,8 @@ class MessageOptions(BotXBaseModel):
     #: deliver message only if stealth mode enabled
     stealth_mode: bool = False
 
+    #: use in-text mentions
+    raw_mentions: bool = False
+
     #: notification configuration.
     notifications: NotificationOptions = NotificationOptions()

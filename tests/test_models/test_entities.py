@@ -77,6 +77,54 @@ class TestMentions:
         message = Message.from_dict(builder.message.dict(), bot)
         assert message.entities.mentions == []
 
+    def test_user_mention_botx_format(self) -> None:
+        mention_id = uuid.uuid4()
+        user_mention = Mention(
+            mention_id=mention_id,
+            mention_data=UserMention(user_huid=uuid.uuid4()),
+            mention_type=MentionTypes.user,
+        )
+
+        formatted_mention = user_mention.to_botx_format()
+
+        assert formatted_mention == f"@{{mention:{mention_id}}}"
+
+    def test_contact_mention_botx_format(self) -> None:
+        mention_id = uuid.uuid4()
+        contact_mention = Mention(
+            mention_id=mention_id,
+            mention_data=UserMention(user_huid=uuid.uuid4()),
+            mention_type=MentionTypes.contact,
+        )
+
+        formatted_mention = contact_mention.to_botx_format()
+
+        assert formatted_mention == f"@@{{mention:{mention_id}}}"
+
+    def test_chat_mention_botx_format(self) -> None:
+        mention_id = uuid.uuid4()
+        chat_mention = Mention(
+            mention_id=mention_id,
+            mention_data=ChatMention(group_chat_id=uuid.uuid4()),
+            mention_type=MentionTypes.chat,
+        )
+
+        formatted_mention = chat_mention.to_botx_format()
+
+        assert formatted_mention == f"##{{mention:{mention_id}}}"
+
+    def test_channel_mention_botx_format(self) -> None:
+        mention_id = uuid.uuid4()
+        channel_mention = Mention(
+            mention_id=mention_id,
+            mention_data=ChatMention(group_chat_id=uuid.uuid4()),
+            mention_type=MentionTypes.channel,
+        )
+
+        formatted_mention = channel_mention.to_botx_format()
+
+        assert formatted_mention == f"##{{mention:{mention_id}}}"
+
 
 class TestReply:
     def test_reply_in_message(self, message) -> None:
