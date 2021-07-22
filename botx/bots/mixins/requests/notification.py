@@ -54,6 +54,7 @@ class NotificationRequestsMixin:
                 file=payload.file,
                 opts=ResultOptions(
                     stealth_mode=payload.options.stealth_mode,
+                    raw_mentions=payload.options.raw_mentions,
                     notification_opts=payload.options.notifications,
                 ),
             ),
@@ -98,6 +99,7 @@ class NotificationRequestsMixin:
                 file=payload.file,
                 opts=ResultOptions(
                     stealth_mode=payload.options.stealth_mode,
+                    raw_mentions=payload.options.raw_mentions,
                     notification_opts=payload.options.notifications,
                 ),
             ),

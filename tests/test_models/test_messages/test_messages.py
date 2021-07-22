@@ -185,6 +185,23 @@ class TestBuildingSendingMessage:
         assert sending_msg.sync_id == msg.sync_id
         assert sending_msg.bot_id == msg.bot_id
 
+    def test_building_with_embed_mentions(
+        self,
+        sending_message: SendingMessage,
+    ) -> None:
+        credentials = sending_message.credentials
+        user_huid = uuid.uuid4()
+
+        mention_id = uuid.uuid4()
+        text = (
+            f"Text with embed_mention: <embed_mention:user:{user_huid}:{mention_id}:>"
+        )
+
+        msg = SendingMessage(text=text, credentials=credentials, embed_mentions=True)
+
+        assert msg.text == f"Text with embed_mention: @{{mention:{mention_id}}}"
+        assert msg.options.mentions
+
     class TestCredentialsBuilding:
         def test_only_credentials_or_separate_credential_parts(
             self,
@@ -455,6 +472,41 @@ class TestSendingMessageProperties:
             }
             mention = Mention.parse_obj(mention_all)
             assert mention.mention_data is None
+
+    class TestBuildingMentions:
+        def test_build_embeddable_user_mention(self) -> None:
+            user_huid = uuid.uuid4()
+
+            embeddable_mention = SendingMessage.build_embeddable_user_mention(user_huid)
+
+            assert embeddable_mention.startswith(f"<embed_mention:user:{user_huid}:")
+
+        def test_build_embeddable_contact_mention(self) -> None:
+            user_huid = uuid.uuid4()
+
+            embeddable_mention = SendingMessage.build_embeddable_contact_mention(
+                user_huid,
+            )
+
+            assert embeddable_mention.startswith(f"<embed_mention:contact:{user_huid}:")
+
+        def test_build_embeddable_chat_mention(self) -> None:
+            chat_id = uuid.uuid4()
+
+            embeddable_mention = SendingMessage.build_embeddable_chat_mention(chat_id)
+
+            assert embeddable_mention.startswith(f"<embed_mention:chat:{chat_id}:")
+
+        def test_build_embeddable_channel_mention(self) -> None:
+            channel_id = uuid.uuid4()
+
+            embeddable_mention = SendingMessage.build_embeddable_channel_mention(
+                channel_id,
+            )
+
+            assert embeddable_mention.startswith(
+                f"<embed_mention:channel:{channel_id}:",
+            )
 
     class TestAddingRecipients:
         def test_adding_recipients_separately(

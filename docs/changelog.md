@@ -5,6 +5,7 @@ Tested on BotX 1.42.0-rc4
 ### Added
 
 * Add possibility to send message that visible only in stealth mode.
+* Add support for embed mentions (can be used anywhere in text).
 
 ### Fixed
 

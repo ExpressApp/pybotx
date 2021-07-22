@@ -142,6 +142,67 @@ class Mention(BotXBaseModel):
 
         return mention_type
 
+    @classmethod
+    def build_from_values(
+        cls,
+        mention_type: MentionTypes,
+        mentioned_entity_id: UUID,
+        name: Optional[str] = None,
+        mention_id: Optional[UUID] = None,
+    ) -> "Mention":
+        """Build mention.
+
+        Simpler to use than constructor 'cause of flat values.
+
+        Arguments:
+            mention_type: mention type.
+            mentioned_entity_id: id of mentioned entity (user, chat, etc.).
+            name: for overriding mention name.
+            mention_id: mention id (if not passed, will be generated).
+
+        Raises:
+            NotImplementedError: If unsupported mention type was passed.
+
+        Returns:
+            Built mention.
+        """
+        mention_data: Union[UserMention, ChatMention]
+
+        if mention_type in {MentionTypes.user, MentionTypes.contact}:
+            mention_data = UserMention(user_huid=mentioned_entity_id, name=name)
+        elif mention_type in {MentionTypes.chat, MentionTypes.channel}:
+            mention_data = ChatMention(group_chat_id=mentioned_entity_id, name=name)
+        else:
+            raise NotImplementedError("Unsupported mention type")
+
+        return cls(
+            mention_id=mention_id,
+            mention_data=mention_data,
+            mention_type=mention_type,
+        )
+
+    def to_botx_format(self) -> str:
+        """Format mention to format, which can be parse by botx.
+
+        Raises:
+            NotImplementedError: If unsupported mention type was passed.
+
+        Returns:
+            Formatted mention.
+        """
+        formatted_mention_data = "{{mention:{0}}}".format(self.mention_id)
+
+        if self.mention_type == MentionTypes.user:
+            prefix = "@"
+        elif self.mention_type == MentionTypes.contact:
+            prefix = "@@"
+        elif self.mention_type in {MentionTypes.chat, MentionTypes.channel}:
+            prefix = "##"
+        else:
+            raise NotImplementedError("Unsupported mention type")
+
+        return "{0}{1}".format(prefix, formatted_mention_data)
+
 
 class Reply(BotXBaseModel):
     """Message that was replied."""
