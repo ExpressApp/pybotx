@@ -1,3 +1,10 @@
+## 0.20.2 (Jul 22, 2021)
+
+### Changed
+
+*  Exceptions thrown in `exception_handler` are now logged.
+
+
 ## 0.20.1 (Jul 19, 2021)
 
 ### Added
