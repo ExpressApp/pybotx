@@ -1,8 +1,6 @@
 """Definition of errors in processing request from BotX API."""
 
-from typing import Any, Dict, List, Union
-
-from pydantic import validator
+from typing import List
 
 from botx.models.base import BotXBaseModel
 
@@ -21,30 +19,6 @@ class BotDisabledResponse(BotXBaseModel):
     reason: str = "bot_disabled"
 
     #: data about occurred error that should include `status_message` field in json.
-    error_data: Union[Dict[str, Any], BotDisabledErrorData]
+    error_data: BotDisabledErrorData
 
     errors: List[str] = []
-
-    @validator("error_data", always=True, each_item=True)
-    def status_message_in_error_data(
-        cls,
-        error_data: Dict[str, Any],  # noqa: N805
-    ) -> Union[BotDisabledErrorData, Dict[str, Any]]:
-        """Check that value contains `status_message` key or field.
-
-        Arguments:
-            error_data: value that should be checked.
-
-        Returns:
-            Built payload for response.
-
-        Raises:
-            ValueError: raised if error_data does not contain status_message.
-        """
-        if set(error_data.keys()) == {"status_message"}:
-            return BotDisabledErrorData(status_message=error_data["status_message"])
-
-        if "status_message" not in error_data:
-            raise ValueError("status_message key required in error_data")
-
-        return error_data
