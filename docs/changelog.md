@@ -1,3 +1,13 @@
+## 0.21.0 (Jul 23, 2021)
+
+Tested on BotX 1.42.0-rc4
+
+### Fixed
+
+* Remove `Dict[str, Any]` from type of `error_data` field of `BotDisabledResponse`,
+  now it can only be `BotDisabledErrorData`.
+
+
 ## 0.20.4 (Jul 23, 2021)
 
 Tested on BotX 1.42.0-rc4

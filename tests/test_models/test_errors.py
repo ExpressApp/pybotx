@@ -14,8 +14,3 @@ def test_doing_nothing_when_passed_error_data_model():
         error_data=BotDisabledErrorData(status_message="test"),
     )
     assert response.error_data.status_message == "test"
-
-
-def test_do_not_changing_right_shape():
-    extra_data = {"status_message": "test", "extra": True}
-    assert BotDisabledResponse(error_data=extra_data).error_data == extra_data
