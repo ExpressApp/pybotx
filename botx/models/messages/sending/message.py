@@ -1,16 +1,7 @@
 """Message that is sent from bot."""
 import re
-from typing import (  # noqa: WPS235
-    Any,
-    BinaryIO,
-    Dict,
-    List,
-    Optional,
-    TextIO,
-    Tuple,
-    Union,
-    cast,
-)
+from typing import Any  # noqa: WPS235
+from typing import BinaryIO, Dict, List, Optional, TextIO, Tuple, Union, cast
 from uuid import UUID
 
 from botx.models.buttons import ButtonOptions
