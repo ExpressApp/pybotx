@@ -211,7 +211,7 @@ class Reply(BotXBaseModel):
     attachment: Optional[List[Attachments]] = []
 
     #: text of source message.
-    body: str
+    body: Optional[str]
 
     #: mentions of source message.
     mentions: List[Mention] = []
