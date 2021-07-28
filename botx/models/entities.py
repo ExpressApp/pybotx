@@ -4,9 +4,9 @@ from datetime import datetime
 from typing import Dict, List, Optional, Union, cast
 from uuid import UUID, uuid4
 
-from pydantic import validator
+from pydantic import Field, validator
 
-from botx.models.attachments import Attachments
+from botx.models.attachments_meta import AttachmentMeta
 from botx.models.base import BotXBaseModel
 from botx.models.enums import ChatTypes, EntityTypes, MentionTypes
 
@@ -207,11 +207,11 @@ class Mention(BotXBaseModel):
 class Reply(BotXBaseModel):
     """Message that was replied."""
 
-    #: array of attachments.
-    attachment: Optional[List[Attachments]] = []
+    #: attachment metadata.
+    attachment_meta: Optional[AttachmentMeta] = Field(alias="attachment")
 
     #: text of source message.
-    body: str
+    body: Optional[str]
 
     #: mentions of source message.
     mentions: List[Mention] = []
@@ -230,6 +230,9 @@ class Reply(BotXBaseModel):
 
     #: uuid of source message.
     source_sync_id: UUID
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 class Entity(BotXBaseModel):

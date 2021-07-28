@@ -1,3 +1,11 @@
+## 0.21.1 (Jul 28, 2021)
+
+### Fixed
+
+* Make the `body` attribute of `Reply` event optional.
+* Add `AttachmentMeta` model to `Reply` event instead of `Attachments`.
+
+
 ## 0.21.0 (Jul 23, 2021)
 
 Tested on BotX 1.42.0-rc4

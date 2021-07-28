@@ -5,6 +5,7 @@ from dataclasses import field
 from datetime import datetime
 from typing import Optional
 
+from botx.models.attachments_meta import DocumentAttachmentMeta
 from botx.models.entities import (
     ChatMention,
     Entity,
@@ -98,7 +99,7 @@ class BuildEntityMixin:
             mentions = message.entities.mentions
 
             reply = Reply(
-                attachment=message.attachments.__root__,  # type: ignore
+                attachment=DocumentAttachmentMeta(file_name="test.doc"),
                 body=message.body,
                 mentions=mentions,
                 reply_type=ChatTypes(message.chat_type),
