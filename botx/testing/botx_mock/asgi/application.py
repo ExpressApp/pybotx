@@ -14,6 +14,7 @@ from botx.testing.botx_mock.asgi.routes import (
     command,
     events,
     notification,
+    smartapps,
     users,
 )
 from botx.testing.typing import APIMessage, APIRequest
@@ -44,6 +45,9 @@ _ENDPOINTS: Tuple[RequestResponseEndpoint, ...] = (
     users.get_by_huid,
     users.get_by_email,
     users.get_by_login,
+    # smartapps
+    smartapps.post_smartapp_event,
+    smartapps.post_smartapp_notification,
 )
 
 

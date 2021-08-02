@@ -1,7 +1,7 @@
 """Definition of different schemas for system events."""
 
 from types import MappingProxyType
-from typing import List, Mapping, Type
+from typing import Any, Dict, List, Mapping, Optional, Type
 from uuid import UUID
 
 from botx.models.base import BotXBaseModel
@@ -49,6 +49,25 @@ class LeftFromChatEvent(BotXBaseModel):
     left_members: List[UUID]
 
 
+class SmartAppEvent(BotXBaseModel):
+    """Shape for `system:smartapp_event` event data."""
+
+    #: unique request id
+    ref: Optional[UUID] = None
+
+    #: smartapp id
+    smartapp_id: UUID
+
+    #: event data
+    data: Dict[str, Any]  # noqa: WPS110
+
+    #: event options
+    opts: Dict[str, Any] = {}
+
+    #: version of protocol smartapp <-> bot
+    smartapp_api_version: int
+
+
 # dict for validating shape for different events
 EVENTS_SHAPE_MAP: Mapping[SystemEvents, Type[BotXBaseModel]] = MappingProxyType(
     {
@@ -56,5 +75,6 @@ EVENTS_SHAPE_MAP: Mapping[SystemEvents, Type[BotXBaseModel]] = MappingProxyType(
         SystemEvents.added_to_chat: AddedToChatEvent,
         SystemEvents.deleted_from_chat: DeletedFromChatEvent,
         SystemEvents.left_from_chat: LeftFromChatEvent,
+        SystemEvents.smartapp_event: SmartAppEvent,
     },
 )

@@ -26,6 +26,9 @@ class SystemEvents(Enum):
     #: `file_transfer` message.
     file_transfer = "file_transfer"
 
+    #: `system:smartapp_event` event.
+    smartapp_event = "system:smartapp_event"
+
 
 class CommandTypes(str, Enum):
     """Enum that specify from whom command was received."""
