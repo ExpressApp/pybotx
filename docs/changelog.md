@@ -1,3 +1,10 @@
+## 0.21.2 (Aug 3, 2021)
+
+### Fixed
+
+* `File` is now serializing when sending message.
+
+
 ## 0.21.1 (Jul 28, 2021)
 
 ### Fixed

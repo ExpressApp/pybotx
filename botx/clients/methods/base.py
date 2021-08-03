@@ -176,7 +176,10 @@ class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):
                 exclude_none=True,
             ),
         )
-        serialized_dict.update(self.dict(include={"file"}))
+
+        # Because exclude_none removes empty file key on message update
+        if hasattr(self, "file") and self.file is None:  # type: ignore # noqa: WPS421
+            serialized_dict["file"] = None
 
         return serialized_dict
 
