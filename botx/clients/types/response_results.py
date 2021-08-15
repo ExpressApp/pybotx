@@ -16,3 +16,10 @@ class ChatCreatedResult(BaseModel):
 
     #: id of created chat.
     chat_id: UUID
+
+
+class InternalBotNotificationResult(BaseModel):
+    """Entity that contains result from internal bot notification."""
+
+    #: event id of pushed message.
+    sync_id: UUID

@@ -4,7 +4,15 @@ from uuid import UUID
 
 from loguru import logger
 
-from botx.bots.mixins.requests import bots, chats, command, events, notification, users
+from botx.bots.mixins.requests import (
+    bots,
+    chats,
+    command,
+    events,
+    internal_bot_notification,
+    notification,
+    users,
+)
 from botx.clients.clients.async_client import AsyncClient
 from botx.clients.methods.base import BotXMethod
 from botx.models.credentials import BotXCredentials
@@ -36,6 +44,7 @@ class BotXRequestsMixin(  # noqa: WPS215
     events.EventsRequestsMixin,
     notification.NotificationRequestsMixin,
     users.UsersRequestsMixin,
+    internal_bot_notification.InternalBotNotificationRequestsMixin,
 ):
     """Mixin that defines methods for communicating with BotX API."""
 
