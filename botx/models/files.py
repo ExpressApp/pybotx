@@ -6,6 +6,7 @@ from io import BytesIO
 from pathlib import Path
 from types import MappingProxyType
 from typing import AnyStr, AsyncIterable, BinaryIO, Generator, Optional, TextIO, Union
+from uuid import UUID
 
 from base64io import Base64IO
 from pydantic import validator
@@ -78,6 +79,9 @@ class File(BotXBaseModel):  # noqa: WPS214
 
     #: text under file.
     caption: Optional[str] = None
+
+    #: unique file identificator
+    file_id: Optional[UUID] = None
 
     @validator("file_name", always=True)
     def check_file_extension(cls, name: str) -> str:  # noqa: N805
