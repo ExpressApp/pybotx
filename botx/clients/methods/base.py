@@ -10,7 +10,12 @@ from httpx import Response
 from pydantic import BaseConfig, BaseModel, Extra
 from pydantic.generics import GenericModel
 
-from botx.clients.types.http import HTTPRequest, HTTPResponse, PrimitiveDataType
+from botx.clients.types.http import (
+    ExpectedType,
+    HTTPRequest,
+    HTTPResponse,
+    PrimitiveDataType,
+)
 from botx.models.enums import Statuses
 
 try:
@@ -84,11 +89,16 @@ class AbstractBotXMethod(ABC, typing.Generic[ResponseT]):
         """Extractor for response shape from BotX API."""
         return None  # noqa: WPS324
 
+    @property
+    def __expected_type__(self) -> ExpectedType:
+        """Extractor of expected type of response body."""
+        return ExpectedType.JSON
+
 
 CREDENTIALS_FIELDS = frozenset(("token", "host", "scheme"))
 
 
-class BaseBotXMethod(AbstractBotXMethod[ResponseT], ABC):
+class BaseBotXMethod(AbstractBotXMethod[ResponseT], ABC):  # noqa: WPS214
     """Base logic that is responsible for configuration and shortcuts for fields."""
 
     #: host where request should be sent.
@@ -137,6 +147,11 @@ class BaseBotXMethod(AbstractBotXMethod[ResponseT], ABC):
     ) -> typing.Optional[typing.Callable[[BotXMethod, typing.Any], ResponseT]]:
         """Extractor for response shape from BotX API."""
         return self.__result_extractor__
+
+    @property
+    def expected_type(self) -> ExpectedType:
+        """Extractor of expected type of response body."""
+        return self.__expected_type__
 
 
 class BotXMethod(BaseBotXMethod[ResponseT], BaseModel, ABC):

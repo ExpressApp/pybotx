@@ -6,11 +6,13 @@ from io import BytesIO
 from pathlib import Path
 from types import MappingProxyType
 from typing import AnyStr, AsyncIterable, BinaryIO, Generator, Optional, TextIO, Union
+from uuid import UUID
 
 from base64io import Base64IO
 from pydantic import validator
 
 from botx.models.base import BotXBaseModel
+from botx.models.enums import AttachmentsTypes
 
 EXTENSIONS_TO_MIMETYPES = MappingProxyType(
     {
@@ -240,6 +242,25 @@ class File(BotXBaseModel):  # noqa: WPS214
         return file_extension in BOTX_API_ACCEPTED_EXTENSIONS
 
     @classmethod
+    def get_ext_by_mimetype(cls, mimetype: str) -> str:
+        """Get extension by mimetype.
+
+        Arguments:
+            mimetype: mimetype of file.
+
+        Returns:
+            file extension.
+
+        Raises:
+            ValueError: when mimetype is unsupported.
+        """
+        for ext, m_type in EXTENSIONS_TO_MIMETYPES.items():
+            if m_type == mimetype:
+                return ext
+
+        raise ValueError("`{0}` is unsupported mimetype.".format(mimetype))
+
+    @classmethod
     def _to_rfc2397(cls, media_type: str, encoded_data: str) -> str:
         """Apply RFC 2397 format to encoded file contents.
 
@@ -264,3 +285,49 @@ class File(BotXBaseModel):  # noqa: WPS214
         """
         file_extension = Path(filename).suffix.lower()
         return EXTENSIONS_TO_MIMETYPES[file_extension]
+
+
+class MetaFile(BotXBaseModel):
+    """File info from file service."""
+
+    #: type of file
+    type: AttachmentsTypes
+
+    #: file url.
+    file: str
+
+    #: mime type of file.
+    file_mime_type: str
+
+    #: name of file.
+    file_name: str
+
+    #: file preview.
+    file_preview: Optional[str]
+
+    #: height of file (px).
+    file_preview_height: Optional[int]
+
+    #: width of file (px).
+    file_preview_width: Optional[int]
+
+    #: size of file.
+    file_size: int
+
+    #: hash of file.
+    file_hash: str
+
+    #: encryption algorithm of file.
+    file_encryption_algo: str
+
+    #: chunks size.
+    chunk_size: int
+
+    #: ID of file.
+    file_id: UUID
+
+    #: file caption.
+    caption: Optional[str]
+
+    #: media file duration.
+    duration: Optional[int]
