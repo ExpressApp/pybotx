@@ -5,6 +5,7 @@ from loguru import logger
 from botx.bots.bots import Bot
 from botx.clients.clients.async_client import AsyncClient
 from botx.clients.clients.sync_client import Client
+from botx.clients.types.message_payload import InternalBotNotificationPayload
 from botx.collecting.collectors.collector import Collector
 from botx.dependencies.injection_params import Depends
 from botx.exceptions import BotXAPIError, DependencyFailure, TokenError, UnknownBotError
@@ -52,7 +53,6 @@ from botx.models.messages.sending.options import MessageOptions, NotificationOpt
 from botx.models.messages.sending.payload import MessagePayload, UpdatePayload
 from botx.models.status import StatusRecipient
 from botx.testing.building.builder import MessageBuilder
-from botx.clients.types.message_payload import InternalBotNotificationPayload
 
 try:
     from botx.testing.testing_client.client import TestClient  # noqa: WPS433

@@ -69,4 +69,4 @@ class InternalBotNotificationPayload(BaseModel):
     message: str
 
     #: extra information about notification sender
-    from_: Optional[str] = Field(None, alias="from")
+    sender: Optional[str]

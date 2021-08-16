@@ -19,7 +19,7 @@ class InternalBotNotificationRequestsMixin:
         credentials: SendingCredentials,
         group_chat_id: UUID,
         text: str,
-        from_: str = None,
+        sender: str = None,
         recipients: Optional[List[UUID]] = None,
         opts: Optional[Dict[str, Any]] = None,
     ) -> UUID:
@@ -28,7 +28,7 @@ class InternalBotNotificationRequestsMixin:
         Arguments:
             credentials: credentials for making request.
             text: notification text.
-            from_: information about notification sender.
+            sender: information about notification sender.
             group_chat_id: ID of chats into which message should be sent.
         """
 
@@ -36,7 +36,7 @@ class InternalBotNotificationRequestsMixin:
             InternalBotNotification(
                 group_chat_id=group_chat_id,
                 recipients=recipients,
-                data=InternalBotNotificationPayload(message=text, from_=from_),
+                data=InternalBotNotificationPayload(message=text, sender=sender),
                 opts=opts or {},
             ),
             credentials=credentials,
