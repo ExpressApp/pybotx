@@ -52,6 +52,7 @@ from botx.models.messages.sending.options import MessageOptions, NotificationOpt
 from botx.models.messages.sending.payload import MessagePayload, UpdatePayload
 from botx.models.status import StatusRecipient
 from botx.testing.building.builder import MessageBuilder
+from botx.clients.types.message_payload import InternalBotNotificationPayload
 
 try:
     from botx.testing.testing_client.client import TestClient  # noqa: WPS433
@@ -128,6 +129,7 @@ __all__ = (
     "NotificationOptions",
     "MessagePayload",
     "UpdatePayload",
+    "InternalBotNotificationPayload",
     # testing
     "TestClient",
     "MessageBuilder",

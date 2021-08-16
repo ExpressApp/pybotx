@@ -17,8 +17,9 @@ class InternalBotNotificationRequestsMixin:
     async def internal_bot_notification(
         self: BotXMethodCallProtocol,
         credentials: SendingCredentials,
-        text: str,
         group_chat_id: UUID,
+        text: str,
+        from_: str = None,
         recipients: Optional[List[UUID]] = None,
         opts: Optional[Dict[str, Any]] = None,
     ) -> UUID:
@@ -26,7 +27,8 @@ class InternalBotNotificationRequestsMixin:
 
         Arguments:
             credentials: credentials for making request.
-            payload: payload for notification.
+            text: notification text.
+            from_: information about notification sender.
             group_chat_id: ID of chats into which message should be sent.
         """
 
@@ -34,7 +36,7 @@ class InternalBotNotificationRequestsMixin:
             InternalBotNotification(
                 group_chat_id=group_chat_id,
                 recipients=recipients,
-                data=InternalBotNotificationPayload(message=text),
+                data=InternalBotNotificationPayload(message=text, from_=from_),
                 opts=opts or {},
             ),
             credentials=credentials,
