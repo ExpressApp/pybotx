@@ -14,7 +14,7 @@ from botx.models.messages.sending.credentials import SendingCredentials
 class InternalBotNotificationRequestsMixin:
     """Mixin for shortcut for internal bot notification resource requests."""
 
-    async def internal_bot_notification(
+    async def internal_bot_notification(  # noqa: WPS211
         self: BotXMethodCallProtocol,
         credentials: SendingCredentials,
         group_chat_id: UUID,
@@ -27,11 +27,15 @@ class InternalBotNotificationRequestsMixin:
 
         Arguments:
             credentials: credentials for making request.
+            group_chat_id: ID of chats into which message should be sent.
             text: notification text.
             sender: information about notification sender.
-            group_chat_id: ID of chats into which message should be sent.
-        """
+            recipients: List of recipients' UUIDs (send to all if None)
+            opts: additional user-defined data to send
 
+        Returns:
+            Sync ID of sent notification.
+        """
         return await self.call_method(
             InternalBotNotification(
                 group_chat_id=group_chat_id,
