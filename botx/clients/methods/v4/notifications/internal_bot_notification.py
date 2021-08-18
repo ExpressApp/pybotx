@@ -26,4 +26,4 @@ class InternalBotNotification(AuthorizedBotXMethod[UUID]):
     data: InternalBotNotificationPayload  # noqa: WPS110
 
     #: extra options for message.
-    opts: Dict[str, Any]
+    opts: Dict[str, Any] = {}

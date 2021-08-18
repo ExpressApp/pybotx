@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from botx.bots.mixins.requests.call_protocol import BotXMethodCallProtocol
-from botx.clients.methods.v4.bots.internal_bot_notification import (
+from botx.clients.methods.v4.notifications.internal_bot_notification import (
     InternalBotNotification,
 )
 from botx.clients.types.message_payload import InternalBotNotificationPayload
