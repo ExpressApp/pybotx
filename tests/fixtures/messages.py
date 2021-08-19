@@ -2,8 +2,8 @@ import pytest
 
 from botx import (
     ChatCreatedEvent,
-    InternalBotNotificationPayload,
     InternalBotNotificationEvent,
+    InternalBotNotificationPayload,
     Message,
     MessageBuilder,
     UserKinds,
@@ -64,8 +64,8 @@ def internal_bot_notification_message(host, bot_id, bot):
     builder = MessageBuilder()
     builder.bot_id = bot_id
     builder.command_data = InternalBotNotificationEvent(
-        data=InternalBotNotificationPayload(message="ping"),
-        opts={}
+        data=InternalBotNotificationPayload(message="ping"),  # noqa: WPS110
+        opts={},
     )
     builder.body = "system:internal_bot_notification"
     builder.system_command = True

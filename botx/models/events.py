@@ -1,13 +1,13 @@
 """Definition of different schemas for system events."""
 
 from types import MappingProxyType
-from typing import List, Mapping, Type, Dict, Any
+from typing import Any, Dict, List, Mapping, Type
 from uuid import UUID
 
+from botx.clients.types.message_payload import InternalBotNotificationPayload
 from botx.models.base import BotXBaseModel
 from botx.models.enums import ChatTypes, SystemEvents
 from botx.models.users import UserInChatCreated
-from botx.clients.types.message_payload import InternalBotNotificationPayload
 
 
 class ChatCreatedEvent(BotXBaseModel):
@@ -54,7 +54,7 @@ class InternalBotNotificationEvent(BotXBaseModel):
     """Shape for `system:internal_bot_notification` event data."""
 
     #: notification data
-    data: InternalBotNotificationPayload
+    data: InternalBotNotificationPayload  # noqa: WPS110
 
     #: user-defined extra options
     opts: Dict[str, Any]
