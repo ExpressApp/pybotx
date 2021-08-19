@@ -41,7 +41,7 @@ from botx.models.enums import (
     UserKinds,
 )
 from botx.models.errors import BotDisabledErrorData, BotDisabledResponse
-from botx.models.events import ChatCreatedEvent
+from botx.models.events import ChatCreatedEvent, InternalBotNotificationEvent
 from botx.models.files import File
 from botx.models.menu import Status
 from botx.models.messages.incoming_message import IncomingMessage
@@ -93,6 +93,7 @@ __all__ = (
     "BotDisabledResponse",
     # events
     "ChatCreatedEvent",
+    "InternalBotNotificationEvent",
     # files
     "File",
     # attachments

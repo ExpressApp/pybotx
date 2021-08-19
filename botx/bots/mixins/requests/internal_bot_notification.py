@@ -19,7 +19,7 @@ class InternalBotNotificationRequestsMixin:
         credentials: SendingCredentials,
         group_chat_id: UUID,
         text: str,
-        sender: str = None,
+        sender: Optional[str] = None,
         recipients: Optional[List[UUID]] = None,
         opts: Optional[Dict[str, Any]] = None,
     ) -> UUID:

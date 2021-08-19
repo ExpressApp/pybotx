@@ -108,7 +108,7 @@ def _check_internal_notification_event(
     command_data: Dict[str, Any],
     **_kwargs: Any,
 ) -> None:
-    assert "message" in command_data
+    assert "data" in command_data
 
 
 _event_checkers = {

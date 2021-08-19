@@ -16,6 +16,7 @@ CommandDataType = Union[
     events.AddedToChatEvent,
     events.DeletedFromChatEvent,
     events.LeftFromChatEvent,
+    events.InternalBotNotificationEvent,
     Dict[str, Any],
 ]
 
