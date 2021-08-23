@@ -31,3 +31,18 @@ async def test_auth_to_each_known_account(bot, client) -> None:
 
     for account in bot.bot_accounts:
         assert account.token is not None
+
+
+@pytest.mark.asyncio()
+async def test_auth_with_wrong_credentials(bot, host) -> None:
+    bot_id = UUID("8dada2c8-67a6-4434-9dec-570d244e78ee")
+    bot.bot_accounts = [
+        BotXCredentials(
+            host=host,
+            secret_key="wrong_secret",
+            bot_id=bot_id,
+        ),
+    ]
+    await bot.authorize()
+
+    assert bot.bot_accounts[0].token is None
