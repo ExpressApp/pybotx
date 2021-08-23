@@ -24,13 +24,14 @@ ARGUMENTS_DUPLICATION_ERROR = (
     "{0} can not be passed along with manual validated_values for it"
 )
 
-EMBED_MENTION_TEMPATE = (
+EMBED_MENTION_TEMPLATE = (
     "<embed_mention:{mention_type}:"
     "{mentioned_entity_id}:{mention_id}:{mention_name}>"  # noqa: WPS326
 )
 EMBED_MENTION_RE: Final = re.compile(
-    "<embed_mention:(?P<mention_type>.+?):(?P<mentioned_entity_id>.+?)"
-    ":(?P<mention_id>.+?):(?P<name>.+?)?>",  # noqa: WPS326 C812
+    "<embed_mention:(?P<mention_type>.+?):"
+    "(?P<mentioned_entity_id>[0-9a-f\-]+?):"  # noqa: W605
+    "(?P<mention_id>[0-9a-f\-]+?):(?P<name>.+?)??>",  # noqa: WPS326 C812 W605
 )
 
 
@@ -175,7 +176,7 @@ class SendingMessage:  # noqa: WPS214
 
         mention_name = mention.mention_data.name or ""
 
-        return EMBED_MENTION_TEMPATE.format(
+        return EMBED_MENTION_TEMPLATE.format(
             mention_type=mention.mention_type,
             mentioned_entity_id=mentioned_entity_id,
             mention_id=mention.mention_id,
