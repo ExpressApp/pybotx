@@ -183,3 +183,29 @@ class SystemEventsHandlerMixin:
             dependencies=dependencies,
             dependency_overrides_provider=dependency_overrides_provider,
         )
+
+    def internal_bot_notification(
+        self,
+        handler: Optional[Callable] = None,
+        *,
+        dependencies: Optional[Sequence[Depends]] = None,
+        dependency_overrides_provider: Any = None,
+    ) -> Callable:
+        """Register handler for `internal_bot_notification` event.
+
+        Arguments:
+            handler: callable that will be used for executing handler.
+            dependencies: sequence of dependencies that should be executed before
+                handler.
+            dependency_overrides_provider: mock of callable for handler.
+
+        Returns:
+            Passed in `handler` callable.
+        """
+        return self.system_event(
+            handler=handler,
+            event=SystemEvents.internal_bot_notification,
+            name=SystemEvents.internal_bot_notification.value,
+            dependencies=dependencies,
+            dependency_overrides_provider=dependency_overrides_provider,
+        )

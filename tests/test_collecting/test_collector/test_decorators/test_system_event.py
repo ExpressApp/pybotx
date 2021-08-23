@@ -16,6 +16,7 @@ def test_registration_handler_for_several_system_events(
         SystemEvents.added_to_chat,
         SystemEvents.deleted_from_chat,
         SystemEvents.left_from_chat,
+        SystemEvents.internal_bot_notification,
     }
     collector = collector_cls()
     collector.system_event(

@@ -1,3 +1,12 @@
+## 0.22.0 (Aug 19, 2021)
+
+Tested on BotX 1.44.0-rc2
+
+### Added
+
+* Sending and handling internal bot notifications.
+
+
 ## 0.21.3 (Aug 17, 2021)
 
 ### Fixed

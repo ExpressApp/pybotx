@@ -12,6 +12,7 @@ from botx.testing.botx_mock.wsgi.routes import (
     command,
     events,
     notification,
+    notifications,
     users,
 )
 from botx.testing.typing import APIMessage, APIRequest
@@ -41,6 +42,8 @@ _ENDPOINTS: Tuple[Callable[..., Any], ...] = (
     users.get_by_huid,
     users.get_by_email,
     users.get_by_login,
+    # notifications
+    notifications.post_internal_bot_notification,
 )
 
 
