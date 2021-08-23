@@ -128,6 +128,7 @@ class SendingMessage:  # noqa: WPS214
         text: str = "",
         file: Optional[File] = None,
         message: Message,
+        embed_mentions: bool = False,
     ) -> "SendingMessage":
         """Build message for sending from incoming message.
 
@@ -135,6 +136,7 @@ class SendingMessage:  # noqa: WPS214
             text: text for message.
             file: file attached to message.
             message: incoming message.
+            embed_mentions: get mentions from text.
 
         Returns:
             Built message.
@@ -146,6 +148,7 @@ class SendingMessage:  # noqa: WPS214
             chat_id=message.group_chat_id,
             bot_id=message.bot_id,
             host=message.host,
+            embed_mentions=embed_mentions,
         )
 
     @classmethod
