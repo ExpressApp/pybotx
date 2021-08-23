@@ -132,12 +132,21 @@ class Bot(  # noqa: WPS215
 
         await self(msg)
 
-    async def authorize(self) -> None:
+    async def authorize(self, *args: Any) -> None:
         """Process auth for each bot account."""
         for account in self.bot_accounts:
-            token = await self.get_token(
-                account.host,
-                account.bot_id,
-                account.signature,
-            )
+            try:
+                token = await self.get_token(
+                    account.host,
+                    account.bot_id,
+                    account.signature,
+                )
+            except (exceptions.BotXAPIError, exceptions.BotXConnectError) as exc:
+                logger.bind(botx_bot=True).warning(
+                    f"Credentials `host - {account.host}, "  # noqa: WPS305
+                    f"bot_id - {account.bot_id}` are invalid. "
+                    f"Reason - {exc.message_template}",
+                )
+                continue
+
             account.token = token
