@@ -83,6 +83,24 @@ def incoming_message() -> IncomingMessage:
     )
 
 
+@pytest.fixture()
+def embed_mention_with_name() -> str:
+    user_huid = uuid.uuid4()
+    return f"<embed_mention:contact:{user_huid}:{user_huid}:Test User>"
+
+
+@pytest.fixture()
+def embed_mention_without_name() -> str:
+    user_huid = uuid.uuid4()
+    return f"<embed_mention:contact:{user_huid}:{user_huid}:>"
+
+
+@pytest.fixture()
+def embed_mention_with_wrong_type() -> str:
+    user_huid = uuid.uuid4()
+    return f"<embed_mention:wrong_type:{user_huid}:{user_huid}:Test User>"
+
+
 def test_setting_ui_flag_property_for_common_message() -> None:
     msg = Message.from_dict(
         {
@@ -507,6 +525,62 @@ class TestSendingMessageProperties:
             assert embeddable_mention.startswith(
                 f"<embed_mention:channel:{channel_id}:",
             )
+
+    class TestParseEmbedMentions:
+        def test_replace_embed_mention_with_name(
+            self,
+            sending_message: SendingMessage,
+            embed_mention_with_name: str,
+        ) -> None:
+            _, found_mentions = sending_message._find_and_replace_embed_mentions(
+                embed_mention_with_name,
+            )
+
+            assert len(found_mentions) == 1
+
+        def test_replace_embed_mention_without_name(
+            self,
+            sending_message: SendingMessage,
+            embed_mention_without_name: str,
+        ) -> None:
+            _, found_mentions = sending_message._find_and_replace_embed_mentions(
+                embed_mention_without_name,
+            )
+
+            assert len(found_mentions) == 1
+
+        @pytest.mark.parametrize(
+            ("embed_mention_with_name", "embed_mention_without_name"),
+            [
+                (embed_mention_with_name, embed_mention_without_name),
+                (embed_mention_without_name, embed_mention_with_name),
+            ],
+            indirect=True,
+        )
+        def test_replace_group_embed_mentions(
+            self,
+            sending_message: SendingMessage,
+            embed_mention_with_name: str,
+            embed_mention_without_name: str,
+        ) -> None:
+            embed_mentions = ", ".join(
+                [embed_mention_with_name, embed_mention_without_name],
+            )
+            _, found_mentions = sending_message._find_and_replace_embed_mentions(
+                embed_mentions,
+            )
+
+            assert len(found_mentions) == 2
+
+        def test_replace_embed_mention_with_wrong_type(
+            self,
+            sending_message: SendingMessage,
+            embed_mention_with_wrong_type: str,
+        ) -> None:
+            with pytest.raises(ValueError):
+                _, found_mentions = sending_message._find_and_replace_embed_mentions(
+                    embed_mention_with_wrong_type,
+                )
 
     class TestAddingRecipients:
         def test_adding_recipients_separately(
