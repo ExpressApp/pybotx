@@ -30,3 +30,16 @@ async def test_executing_handler_when_partial_match(message, build_handler):
     await collector.handle_message(message)
 
     assert event.is_set()
+
+
+async def test_execution_internal_bot_notification(
+    internal_bot_notification_message,
+    build_handler,
+):
+    event = threading.Event()
+    collector = Collector()
+    collector.internal_bot_notification(build_handler(event))
+
+    await collector.handle_message(internal_bot_notification_message)
+
+    assert event.is_set()

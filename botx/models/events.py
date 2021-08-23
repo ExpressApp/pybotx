@@ -4,6 +4,7 @@ from types import MappingProxyType
 from typing import Any, Dict, List, Mapping, Optional, Type
 from uuid import UUID
 
+from botx.clients.types.message_payload import InternalBotNotificationPayload
 from botx.models.base import BotXBaseModel
 from botx.models.enums import ChatTypes, SystemEvents
 from botx.models.users import UserInChatCreated
@@ -49,6 +50,16 @@ class LeftFromChatEvent(BotXBaseModel):
     left_members: List[UUID]
 
 
+class InternalBotNotificationEvent(BotXBaseModel):
+    """Shape for `system:internal_bot_notification` event data."""
+
+    #: notification data
+    data: InternalBotNotificationPayload  # noqa: WPS110
+
+    #: user-defined extra options
+    opts: Dict[str, Any]
+
+
 class SmartAppEvent(BotXBaseModel):
     """Shape for `system:smartapp_event` event data."""
 
@@ -75,6 +86,7 @@ EVENTS_SHAPE_MAP: Mapping[SystemEvents, Type[BotXBaseModel]] = MappingProxyType(
         SystemEvents.added_to_chat: AddedToChatEvent,
         SystemEvents.deleted_from_chat: DeletedFromChatEvent,
         SystemEvents.left_from_chat: LeftFromChatEvent,
+        SystemEvents.internal_bot_notification: InternalBotNotificationEvent,
         SystemEvents.smartapp_event: SmartAppEvent,
     },
 )

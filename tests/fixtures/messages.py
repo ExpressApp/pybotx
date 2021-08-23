@@ -1,6 +1,13 @@
 import pytest
 
-from botx import ChatCreatedEvent, Message, MessageBuilder, UserKinds
+from botx import (
+    ChatCreatedEvent,
+    InternalBotNotificationEvent,
+    InternalBotNotificationPayload,
+    Message,
+    MessageBuilder,
+    UserKinds,
+)
 from botx.models.events import UserInChatCreated
 
 
@@ -50,3 +57,16 @@ def chat_created_message(host, bot_id):
     builder.system_command = True
 
     return builder.message
+
+
+@pytest.fixture()
+def internal_bot_notification_message(host, bot_id, bot):
+    builder = MessageBuilder()
+    builder.bot_id = bot_id
+    builder.command_data = InternalBotNotificationEvent(
+        data=InternalBotNotificationPayload(message="ping"),  # noqa: WPS110
+        opts={},
+    )
+    builder.body = "system:internal_bot_notification"
+    builder.system_command = True
+    return Message.from_dict(builder.message.dict(), bot)

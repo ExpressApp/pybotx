@@ -1,6 +1,6 @@
 """Validators and converters for fields in builder."""
 
-from typing import Any, BinaryIO, Optional, TextIO, Union
+from typing import Any, BinaryIO, Dict, Optional, TextIO, Union
 
 from botx.models import enums, events, files
 from botx.models.messages.incoming_message import Sender
@@ -104,8 +104,16 @@ def _check_file_transfer_event(file: Optional[files.File], **_kwargs: Any) -> No
         raise ValueError("file_transfer event should have attached file")
 
 
+def _check_internal_notification_event(
+    command_data: Dict[str, Any],
+    **_kwargs: Any,
+) -> None:
+    assert "data" in command_data
+
+
 _event_checkers = {
     enums.SystemEvents.chat_created: _check_common_system_event,
     enums.SystemEvents.added_to_chat: _check_common_system_event,
     enums.SystemEvents.file_transfer: _check_file_transfer_event,
+    enums.SystemEvents.internal_bot_notification: _check_internal_notification_event,
 }
