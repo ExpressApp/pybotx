@@ -7,6 +7,13 @@ Tested on BotX 1.44.0-rc2
 * Sending and handling internal bot notifications.
 
 
+## 0.21.3 (Aug 17, 2021)
+
+### Fixed
+
+* Bot's method `authorize()` now not fall if cant take some tokens. Just logging and skip invalid credentials.
+
+
 ## 0.21.2 (Aug 3, 2021)
 
 ### Fixed
