@@ -5,6 +5,14 @@
 * Add smartapps main functional.
 
 
+## 0.22.1 (Aug 23, 2021)
+
+### Fixed
+
+* Add `embed_mentions` argument in `SendingMessage.from_message` method.
+* Fix `EMBED_MENTION_RE` expression.
+
+
 ## 0.22.0 (Aug 19, 2021)
 
 Tested on BotX 1.44.0-rc2
