@@ -11,6 +11,7 @@ from botx.testing.botx_mock.wsgi.routes import (
     chats,
     command,
     events,
+    files,
     notification,
     notifications,
     users,
@@ -44,6 +45,9 @@ _ENDPOINTS: Tuple[Callable[..., Any], ...] = (
     users.get_by_login,
     # notifications
     notifications.post_internal_bot_notification,
+    # files
+    files.upload_file,
+    files.download_file,
 )
 
 

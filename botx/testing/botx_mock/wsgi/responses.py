@@ -23,7 +23,8 @@ class PydanticResponse(Response):
 
     def __init__(
         self,
-        model: BaseModel,
+        model: Optional[BaseModel],
+        raw_data: Optional[str] = None,
         status_code: str = HTTP_200,
         headers: Optional[Dict[Any, Any]] = None,
     ) -> None:
@@ -31,15 +32,16 @@ class PydanticResponse(Response):
 
         Arguments:
             model: pydantic model that should be encoded.
+            raw_data: raw data that should be encoded.
             status_code: response HTTP status code.
             headers: headers for response.
         """
-        headers = headers or {}
-        headers["Content-Type"] = "application/json"
+        headers = headers or {"Content-Type": "application/json"}
+
         super().__init__(
             status_code,
             headers,
-            model.json(by_alias=True),
+            raw_data or model.json(by_alias=True),  # type: ignore
         )
 
 
