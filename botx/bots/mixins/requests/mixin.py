@@ -10,6 +10,7 @@ from botx.bots.mixins.requests import (
     command,
     events,
     notification,
+    internal_bot_notification,
     smartapps,
     users,
 )
@@ -44,6 +45,7 @@ class BotXRequestsMixin(  # noqa: WPS215
     events.EventsRequestsMixin,
     notification.NotificationRequestsMixin,
     users.UsersRequestsMixin,
+    internal_bot_notification.InternalBotNotificationRequestsMixin,
     smartapps.SmartAppMixin,
 ):
     """Mixin that defines methods for communicating with BotX API."""

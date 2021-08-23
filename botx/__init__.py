@@ -5,6 +5,7 @@ from loguru import logger
 from botx.bots.bots import Bot
 from botx.clients.clients.async_client import AsyncClient
 from botx.clients.clients.sync_client import Client
+from botx.clients.types.message_payload import InternalBotNotificationPayload
 from botx.collecting.collectors.collector import Collector
 from botx.dependencies.injection_params import Depends
 from botx.exceptions import BotXAPIError, DependencyFailure, TokenError, UnknownBotError
@@ -40,7 +41,7 @@ from botx.models.enums import (
     UserKinds,
 )
 from botx.models.errors import BotDisabledErrorData, BotDisabledResponse
-from botx.models.events import ChatCreatedEvent
+from botx.models.events import ChatCreatedEvent, InternalBotNotificationEvent
 from botx.models.files import File
 from botx.models.menu import Status
 from botx.models.messages.incoming_message import IncomingMessage
@@ -93,6 +94,7 @@ __all__ = (
     "BotDisabledResponse",
     # events
     "ChatCreatedEvent",
+    "InternalBotNotificationEvent",
     # files
     "File",
     # attachments
@@ -129,6 +131,7 @@ __all__ = (
     "NotificationOptions",
     "MessagePayload",
     "UpdatePayload",
+    "InternalBotNotificationPayload",
     "SendingSmartAppEvent",
     "SendingSmartAppNotification",
     # testing

@@ -60,3 +60,13 @@ class UpdatePayload(BaseModel):
 
     #: new mentions that BotX API will append before new message text.
     mentions: Optional[List[Mention]] = None
+
+
+class InternalBotNotificationPayload(BaseModel):
+    """Data that is sent in internal bot notification."""
+
+    #: message data
+    message: str
+
+    #: extra information about notification sender
+    sender: Optional[str]

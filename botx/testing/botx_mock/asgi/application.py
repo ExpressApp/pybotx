@@ -14,6 +14,7 @@ from botx.testing.botx_mock.asgi.routes import (
     command,
     events,
     notification,
+    notifications,
     smartapps,
     users,
 )
@@ -45,6 +46,8 @@ _ENDPOINTS: Tuple[RequestResponseEndpoint, ...] = (
     users.get_by_huid,
     users.get_by_email,
     users.get_by_login,
+    # notifications
+    notifications.post_internal_bot_notification,
     # smartapps
     smartapps.post_smartapp_event,
     smartapps.post_smartapp_notification,

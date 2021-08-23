@@ -23,6 +23,9 @@ class SystemEvents(Enum):
     #: `system:left_from_chat` event.
     left_from_chat = "system:left_from_chat"
 
+    #: `system:internal_bot_notification` event
+    internal_bot_notification = "system:internal_bot_notification"
+
     #: `file_transfer` message.
     file_transfer = "file_transfer"
 
