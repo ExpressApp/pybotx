@@ -1,7 +1,7 @@
 """Common responses for mocks."""
 
 import uuid
-from typing import Any, Union
+from typing import Any, Optional, Union
 
 from pydantic import BaseModel
 from starlette.responses import Response
@@ -21,9 +21,10 @@ from botx.clients.types.response_results import (
 class PydanticResponse(Response):
     """Custom response to encode pydantic model from route."""
 
-    def __init__(
+    def __init__(  # noqa: WPS211
         self,
-        model: BaseModel,
+        model: Optional[BaseModel],
+        raw_data: Optional[bytes] = None,
         status_code: int = 200,
         media_type: str = "application/json",
         **kwargs: Any,
@@ -32,12 +33,13 @@ class PydanticResponse(Response):
 
         Arguments:
             model: pydantic model that should be encoded.
+            raw_data: binary data.
             status_code: response HTTP status code.
             media_type: content type of response.
             kwargs: other arguments to response constructor from starlette.
         """
         super().__init__(
-            model.json(by_alias=True),
+            raw_data or model.json(by_alias=True),  # type: ignore
             status_code,
             media_type=media_type,
             **kwargs,

@@ -9,6 +9,7 @@ from botx.bots.mixins.requests import (
     chats,
     command,
     events,
+    files,
     notification,
     internal_bot_notification,
     smartapps,
@@ -46,6 +47,7 @@ class BotXRequestsMixin(  # noqa: WPS215
     notification.NotificationRequestsMixin,
     users.UsersRequestsMixin,
     internal_bot_notification.InternalBotNotificationRequestsMixin,
+    files.FilesRequestsMixin,
     smartapps.SmartAppMixin,
 ):
     """Mixin that defines methods for communicating with BotX API."""
@@ -88,7 +90,10 @@ class BotXRequestsMixin(  # noqa: WPS215
 
         request = self.client.build_request(method)
 
-        logger.bind(botx_client=True, payload=request.dict()).debug(
+        logger.bind(
+            botx_client=True,
+            payload=request.dict(exclude={"expected_type"}),
+        ).debug(
             "send {0} request to bot {1}",
             method.__repr_name__(),  # noqa: WPS609
             debug_bot_id,
