@@ -5,6 +5,23 @@
 * Add smartapps main functional.
 
 
+## 0.23.0 (Aug 23, 2021)
+
+### Added
+
+* Add method for uploading files to chat.
+* Add method for downloading files from chat.
+
+### Changed
+
+* Add `data` and `files` fields to `HTTPRequest` for sending multipart/form-data in request.
+* Add `expected_type` field to `HTTPRequest` and `expected_type` property to `BaseBotXMethod`
+  to allow interacting with non JSON responses.
+* Add `should_process_as_error` field to `HTTPRequest` so that errors that are not in
+  the range of 400 to 599 can be added.
+* Add `raw_data` to `HTTPResponse`so that you can process raw content of response.
+
+
 ## 0.22.1 (Aug 23, 2021)
 
 ### Fixed

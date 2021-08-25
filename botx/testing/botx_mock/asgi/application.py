@@ -13,6 +13,7 @@ from botx.testing.botx_mock.asgi.routes import (
     chats,
     command,
     events,
+    files,
     notification,
     notifications,
     smartapps,
@@ -48,6 +49,9 @@ _ENDPOINTS: Tuple[RequestResponseEndpoint, ...] = (
     users.get_by_login,
     # notifications
     notifications.post_internal_bot_notification,
+    # files
+    files.upload_file,
+    files.download_file,
     # smartapps
     smartapps.post_smartapp_event,
     smartapps.post_smartapp_notification,

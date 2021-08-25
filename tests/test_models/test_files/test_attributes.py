@@ -34,3 +34,8 @@ def test_decline_has_supported_extension():
     bad_filename = "test.bad"
 
     assert not File.has_supported_extension(bad_filename)
+
+
+def test_get_ext_by_unsupported_mimetype():
+    with pytest.raises(ValueError):
+        File.get_ext_by_mimetype("application/javascript")
