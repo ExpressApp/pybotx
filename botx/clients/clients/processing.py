@@ -1,18 +1,38 @@
 """Logic for handling response from BotX API for real HTTP responses."""
 import collections
 import contextlib
+from io import BytesIO
 from typing import TypeVar
 
 from pydantic import ValidationError
 
 from botx import concurrency
 from botx.clients.methods.base import APIResponse, BotXMethod, ErrorHandlersInMethod
-from botx.clients.types.http import HTTPResponse
+from botx.clients.types.http import ExpectedType, HTTPResponse
+from botx.models.files import File
 
 ResponseT = TypeVar("ResponseT")
 
 
-def extract_result(method: BotXMethod[ResponseT], response: HTTPResponse) -> ResponseT:
+def build_file(response: HTTPResponse) -> File:
+    """Build file from response raw data.
+
+    Arguments:
+        response: HTTP response from BotX API.
+
+    Returns:
+        Built file from response.
+    """
+    mimetype = response.headers["content-type"].split(";", 1)[0]
+    ext = File.get_ext_by_mimetype(mimetype)
+    file_name = "document{0}".format(ext)
+    return File.from_file(BytesIO(response.raw_data), file_name)  # type: ignore
+
+
+def extract_result(  # noqa: WPS210
+    method: BotXMethod[ResponseT],
+    response: HTTPResponse,
+) -> ResponseT:
     """Extract result from successful response and convert it to right shape.
 
     Arguments:
@@ -22,6 +42,9 @@ def extract_result(method: BotXMethod[ResponseT], response: HTTPResponse) -> Res
     Returns:
         Converted shape from BotX API.
     """
+    if method.expected_type == ExpectedType.BINARY:
+        return build_file(response)  # type: ignore
+
     return_shape = method.returning
     api_response = APIResponse[return_shape].parse_obj(  # type: ignore
         response.json_body,

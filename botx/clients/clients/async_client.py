@@ -9,7 +9,7 @@ from pydantic.dataclasses import dataclass
 
 from botx.clients.clients.processing import extract_result, handle_error
 from botx.clients.methods.base import BotXMethod
-from botx.clients.types.http import HTTPRequest, HTTPResponse
+from botx.clients.types.http import ExpectedType, HTTPRequest, HTTPResponse
 from botx.converters import optional_sequence_to_list
 from botx.exceptions import (
     BotXAPIError,
@@ -65,20 +65,20 @@ class AsyncClient:
             BotXAPIError: raised if handler for error status code was not found.
             BotXAPIRouteDeprecated: raised if API route was deprecated.
         """
+        handlers_dict = method.error_handlers
+        error_handlers = handlers_dict.get(response.status_code)
+        if error_handlers is not None:
+            await handle_error(method, error_handlers, response)
+
+        if response.status_code == HTTPStatus.GONE:
+            raise BotXAPIRouteDeprecated(
+                url=method.url,
+                method=method.http_method,
+                status=response.status_code,
+                response_content=response.json_body,
+            )
+
         if response.is_error or response.is_redirect:
-            handlers_dict = method.error_handlers
-            error_handlers = handlers_dict.get(response.status_code)
-            if error_handlers is not None:
-                await handle_error(method, error_handlers, response)
-
-            if response.status_code == HTTPStatus.GONE:
-                raise BotXAPIRouteDeprecated(
-                    url=method.url,
-                    method=method.http_method,
-                    status=response.status_code,
-                    response_content=response.json_body,
-                )
-
             raise BotXAPIError(
                 url=method.url,
                 method=method.http_method,
@@ -108,6 +108,8 @@ class AsyncClient:
                 headers=request.headers,
                 params=request.query_params,
                 json=request.json_body,
+                data=request.data,
+                files=request.files,
             )
         except httpx.HTTPError as httpx_exc:
             raise BotXConnectError(
@@ -115,12 +117,29 @@ class AsyncClient:
                 method=request.method,
             ) from httpx_exc
 
+        headers = dict(response.headers)
+
+        should_process_as_error = (
+            response.status_code in request.should_process_as_error
+        )
+        if (  # noqa: WPS337
+            not response.is_error
+            and not should_process_as_error  # noqa: W503
+            and request.expected_type == ExpectedType.BINARY  # noqa: W503
+        ):
+            return HTTPResponse(
+                headers=headers,
+                status_code=response.status_code,
+                raw_data=response.read(),
+            )
+
         try:
             json_body = response.json()
         except JSONDecodeError as exc:
             raise BotXJSONDecodeError(url=request.url, method=request.method) from exc
 
         return HTTPResponse(
+            headers=headers,
             status_code=response.status_code,
             json_body=json_body,
         )

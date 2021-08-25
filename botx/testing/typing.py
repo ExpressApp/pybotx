@@ -15,6 +15,7 @@ from botx.clients.methods.v3.chats import (
 )
 from botx.clients.methods.v3.command import command_result
 from botx.clients.methods.v3.events import edit_event, reply_event
+from botx.clients.methods.v3.files import download, upload
 from botx.clients.methods.v3.notification import direct_notification, notification
 from botx.clients.methods.v3.users import by_email, by_huid, by_login
 
@@ -51,4 +52,7 @@ APIRequest = Union[
     by_huid.ByHUID,
     by_email.ByEmail,
     by_login.ByLogin,
+    # files
+    upload.UploadFile,
+    download.DownloadFile,
 ]
