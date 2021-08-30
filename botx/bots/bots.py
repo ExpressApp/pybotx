@@ -2,7 +2,8 @@
 
 import asyncio
 from dataclasses import InitVar, field
-from typing import Any, Callable, Dict, List, Set
+from typing import Any, Callable, Dict, List
+from weakref import WeakSet
 
 from loguru import logger
 from pydantic.dataclasses import dataclass
@@ -49,7 +50,7 @@ class Bot(  # noqa: WPS215
         default_factory=dict,
     )
 
-    tasks: Set[asyncio.Future] = field(init=False, default_factory=set)
+    tasks: WeakSet = field(init=False, default_factory=WeakSet)
 
     async def __call__(self, message: Message) -> None:
         """Iterate through collector, find handler and execute it, running middlewares.

@@ -1,3 +1,10 @@
+## 0.23.1 (Aug 30, 2021)
+
+### Fixed
+
+* Memory leak in bot.tasks collection.
+
+
 ## 0.23.0 (Aug 23, 2021)
 
 ### Added

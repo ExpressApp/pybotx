@@ -1,7 +1,8 @@
 """Lifespan mixin for bot."""
 
 import asyncio
-from typing import List, Set
+from typing import List
+from weakref import WeakSet
 
 from botx.concurrency import callable_to_coroutine
 from botx.typing import BotLifespanEvent
@@ -16,7 +17,7 @@ class LifespanMixin:
     """Lifespan events mixin for bot."""
 
     #: currently running tasks.
-    tasks: Set[asyncio.Future]
+    tasks: WeakSet
 
     #: startup events.
     startup_events: List[BotLifespanEvent]
