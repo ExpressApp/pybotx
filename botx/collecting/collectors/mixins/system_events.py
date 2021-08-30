@@ -11,7 +11,7 @@ except ImportError:
     from typing_extensions import Protocol  # type: ignore  # noqa: WPS433, WPS440, F401
 
 
-class SystemEventsHandlerMixin:
+class SystemEventsHandlerMixin:  # noqa: WPS214
     """Mixin that defines system events handler decorator."""
 
     def system_event(  # noqa: WPS211

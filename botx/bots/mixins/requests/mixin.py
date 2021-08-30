@@ -4,14 +4,14 @@ from uuid import UUID
 
 from loguru import logger
 
+from botx.bots.mixins.requests import bots  # noqa: WPS235
 from botx.bots.mixins.requests import (
-    bots,
     chats,
     command,
     events,
     files,
-    notification,
     internal_bot_notification,
+    notification,
     smartapps,
     users,
 )
