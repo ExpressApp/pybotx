@@ -8,8 +8,8 @@ from starlette.routing import Route
 
 from botx.clients.methods.base import BotXMethod
 from botx.testing.botx_mock.asgi.errors import ErrorMiddleware
+from botx.testing.botx_mock.asgi.routes import bots  # noqa: WPS235
 from botx.testing.botx_mock.asgi.routes import (
-    bots,
     chats,
     command,
     events,

@@ -6,8 +6,8 @@ from molten import App, JSONParser, Route, Settings, SettingsComponent
 
 from botx.clients.methods.base import BotXMethod
 from botx.testing.botx_mock.wsgi.errors import error_middleware
+from botx.testing.botx_mock.wsgi.routes import bots  # noqa: WPS235
 from botx.testing.botx_mock.wsgi.routes import (
-    bots,
     chats,
     command,
     events,
