@@ -1,1 +1,0 @@
-"""Definition for collecting logic."""

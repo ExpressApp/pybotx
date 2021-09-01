@@ -1,1 +1,0 @@
-"""Entities responsible for MessageBuilder."""
