@@ -60,7 +60,7 @@ def callable_to_coroutine(func: Callable, *args: Any, **kwargs: Any) -> Coroutin
 
     Arguments:
         func: function that can be sync or async and should be transformed into
-            corouine.
+            coroutine.
         args: positional arguments for this function.
         kwargs: key arguments for this function.
 

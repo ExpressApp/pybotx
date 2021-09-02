@@ -17,6 +17,16 @@ from botx.clients.methods.v3.command import command_result
 from botx.clients.methods.v3.events import edit_event, reply_event
 from botx.clients.methods.v3.files import download, upload
 from botx.clients.methods.v3.notification import direct_notification, notification
+from botx.clients.methods.v3.stickers import (
+    add_sticker,
+    create_sticker_pack,
+    delete_sticker,
+    delete_sticker_pack,
+    edit_sticker_pack,
+    sticker,
+    sticker_pack,
+    sticker_pack_list,
+)
 from botx.clients.methods.v3.users import by_email, by_huid, by_login
 
 APIMessage = Union[
@@ -55,4 +65,13 @@ APIRequest = Union[
     # files
     upload.UploadFile,
     download.DownloadFile,
+    # stickers
+    sticker_pack_list.GetStickerPackList,
+    sticker_pack.GetStickerPack,
+    sticker.GetSticker,
+    add_sticker.AddSticker,
+    delete_sticker_pack.DeleteStickerPack,
+    delete_sticker.DeleteSticker,
+    create_sticker_pack.CreateStickerPack,
+    edit_sticker_pack.EditStickerPack,
 ]

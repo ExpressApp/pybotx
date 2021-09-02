@@ -35,7 +35,7 @@ async def get_info(request: requests.Request) -> responses.Response:
     payload = info.Info.parse_obj(request.query_params)
     add_request_to_collection(request, payload)
 
-    inserted_ad = dt.fromisoformat("2019-08-29T11:22:48.358586+00:00")
+    inserted_at = dt.fromisoformat("2019-08-29T11:22:48.358586+00:00")
     return PydanticResponse(
         APIResponse[chats.ChatFromSearch](
             result=chats.ChatFromSearch(
@@ -50,7 +50,7 @@ async def get_info(request: requests.Request) -> responses.Response:
                         admin=True,
                     ),
                 ],
-                inserted_at=inserted_ad,
+                inserted_at=inserted_at,
             ),
         ),
     )
