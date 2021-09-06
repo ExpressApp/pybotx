@@ -1,0 +1,16 @@
+name: Publish python package
+on:
+  push:
+    tags:
+      - "*.*.*"
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Assert tag is from master
+        run: git branch -a --contains $(git describe --tags) | grep master
+      - name: Build and publish to pypi
+        uses: JRubics/poetry-publish@v1.8
+        with:
+          pypi_token: ${{ secrets.PYPI_TOKEN }}
