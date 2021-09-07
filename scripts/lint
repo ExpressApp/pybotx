@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -ex
+
+black --check --diff botx tests
+isort --profile black --check-only botx tests
+
+mypy botx tests
+flake8 botx tests

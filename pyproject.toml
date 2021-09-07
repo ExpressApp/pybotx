@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "botx"
+version = "0.21.2"
+description = "A python library for interacting with eXpress BotX API"
+authors = [
+    "Sidnev Nikolay <nsidnev@ccsteam.ru>",
+    "Maxim Gorbachev <mgorbachev@ccsteam.ru>",
+    "Alexander Samoylenko <alexandr.samojlenko@ccsteam.ru>",
+    "Arseniy Zhiltsov <arseniy.zhiltsov@ccsteam.ru>"
+]
+documentation = "https://expressapp.github.io/pybotx"
+repository = "https://github.com/ExpressApp/pybotx"
+
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+httpx = "~0.18"
+pydantic = "~1.8"
+typing-extensions = { version = "^3.10", python = "<3.8" }
+
+
+[tool.poetry.dev-dependencies]
+add-trailing-comma = "~2.1"
+autoflake = "~1.4"
+black = "21.7b0"
+isort = "~5.9"
+wemake-python-styleguide = "~0.15"
+
+pytest = "~6.2"
+pytest-asyncio = "~0.15"
+pytest-cov = "~2.12"
+sure = "~2.0"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

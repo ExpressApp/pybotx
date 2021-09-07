@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -ex
+
+autoflake --recursive --in-place \
+  --remove-all-unused-imports \
+  --ignore-init-module-imports \
+  botx tests
+find botx -type f -name "*.py" | xargs add-trailing-comma --py36-plus --exit-zero-even-if-changed
+find tests -type f -name "*.py" | xargs add-trailing-comma --py36-plus --exit-zero-even-if-changed
+isort --profile black botx tests
+black botx tests
