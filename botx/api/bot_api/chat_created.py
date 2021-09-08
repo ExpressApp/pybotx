@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from pydantic import Field
@@ -12,6 +12,11 @@ from botx.api.bot_api.enums import (
 from botx.api.enums import APIChatTypes, convert_chat_type_to_domain
 from botx.api.pydantic import APIBaseModel
 from botx.system_events.chat_created import ChatCreatedEvent, ChatCreatedMember
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 class BotAPIChatMember(APIBaseModel):

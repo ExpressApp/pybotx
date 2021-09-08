@@ -1,5 +1,10 @@
 from dataclasses import asdict, dataclass, field
-from typing import Any, Dict, List, Literal
+from typing import Any, Dict, List
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 @dataclass

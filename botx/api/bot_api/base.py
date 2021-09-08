@@ -1,9 +1,14 @@
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Dict, Optional
 from uuid import UUID
 
 from botx.api.bot_api.enums import BotAPIClientPlatforms, BotAPICommandTypes
 from botx.api.enums import APIChatTypes
 from botx.api.pydantic import APIBaseModel
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 class BotAPICommandPayload(APIBaseModel):
