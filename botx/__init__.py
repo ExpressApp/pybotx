@@ -1,4 +1,5 @@
 # - Bot API -
+from botx.api.bot_api.exceptions import UnsupportedBotAPIVersionError
 from botx.api.bot_api.responses.accepted import build_accepted_response
 from botx.api.bot_api.responses.bot_disabled import (
     BotAPIBotDisabledResponse,
@@ -31,8 +32,9 @@ __all__ = (
     "HandlerCollector",
     "HandlerNotFoundException",
     "IncomingMessage",
-    "UserEventSender",
+    "UnsupportedBotAPIVersionError",
     "UserDevice",
+    "UserEventSender",
     "UserKinds",
     "build_accepted_response",
     "build_bot_disabled_response",

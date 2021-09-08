@@ -55,7 +55,8 @@ async def test_minimally_filled_incoming_message() -> None:
             "platform_package_id": null,
             "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
             "username": null
-        }
+        },
+        "proto_version": 4
     }
     """
 
@@ -152,7 +153,8 @@ async def test_maximum_filled_incoming_message() -> None:
             "platform_package_id": "ru.unlimitedtech.express",
             "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
             "username": "Ivanov Ivan Ivanovich"
-        }
+        },
+        "proto_version": 4
     }
     """
 
@@ -265,7 +267,8 @@ async def test_chat_created() -> None:
             "platform_package_id": null,
             "user_huid": null,
             "username": null
-        }
+        },
+        "proto_version": 4
     }
     """
 

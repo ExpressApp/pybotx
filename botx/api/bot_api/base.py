@@ -1,7 +1,11 @@
 from typing import Any, Dict, Optional
 from uuid import UUID
 
+from pydantic import validator
+
 from botx.api.bot_api.enums import BotAPIClientPlatforms, BotAPICommandTypes
+from botx.api.bot_api.exceptions import UnsupportedBotAPIVersionError
+from botx.api.constants import BOT_API_VERSION
 from botx.api.enums import APIChatTypes
 from botx.api.pydantic import APIBaseModel
 
@@ -66,3 +70,12 @@ class BotAPIUserEventSender(BotAPIBaseSender):
 class BotAPIBaseCommand(APIBaseModel):
     bot_id: UUID
     sync_id: UUID
+    proto_version: int
+
+    @validator("proto_version", pre=True)
+    @classmethod
+    def validate_proto_version(cls, version: Any) -> int:
+        if isinstance(version, int) and version == BOT_API_VERSION:
+            return version
+
+        raise UnsupportedBotAPIVersionError(version)
