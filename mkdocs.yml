@@ -1,0 +1,23 @@
+site_name: pybotx-next
+site_url: !!python/object/apply:os.getenv ["SITE_URL", "https://expressapp.github.io/pybotx-next"]
+site_description: A little python library for building bots for Express
+
+theme:
+  name: "material"
+
+repo_name: ExpressApp/pybotx
+repo_url: https://github.com/ExpressApp/pybotx
+edit_uri: ''
+
+nav:
+  - Introduction: 'index.md'
+  - API Reference:
+      - api:
+        - bot_api:
+          - responses:
+            - bot_disabled: 'reference/api/bot_api/responses/bot_disabled.md'
+            - accepted: 'reference/api/bot_api/responses/accepted.md'
+
+plugins:
+  - search
+  - mkdocstrings
