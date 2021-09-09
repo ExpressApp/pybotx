@@ -50,12 +50,13 @@ class FilesRequestsMixin:
             credentials=credentials,
         )
 
-    async def download_file(
+    async def download_file(  # noqa: WPS211
         self: BotXMethodCallProtocol,
         credentials: SendingCredentials,
         file_id: UUID,
         group_chat_id: UUID,
         *,
+        file_name: Optional[str] = None,
         is_preview: bool = False,
     ) -> File:
         """Download file from the chat.
@@ -64,12 +65,13 @@ class FilesRequestsMixin:
             credentials: credentials for making request.
             file_id: ID of the file.
             group_chat_id: ID of the chat that accepts the file.
+            file_name: file name to be assigned instead of default name.
             is_preview: get preview or file.
 
         Returns:
             Downloaded file.
         """
-        return await self.call_method(
+        file = await self.call_method(
             DownloadFile(
                 file_id=file_id,
                 group_chat_id=group_chat_id,
@@ -77,3 +79,9 @@ class FilesRequestsMixin:
             ),
             credentials=credentials,
         )
+
+        if file_name:
+            ext = file.file_name.split(".")[1]
+            file.file_name = "{name}.{ext}".format(name=file_name, ext=ext)
+
+        return file

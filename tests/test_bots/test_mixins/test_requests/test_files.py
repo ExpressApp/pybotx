@@ -25,3 +25,14 @@ async def test_download_file(client, message):
     )
 
     assert isinstance(client.requests[0], DownloadFile)
+
+
+async def test_custom_filename(client, message):
+    file = await client.bot.download_file(
+        message.credentials,
+        file_id=uuid4(),
+        group_chat_id=uuid4(),
+        file_name="myname",
+    )
+
+    assert file.file_name.split(".")[0] == "myname"
