@@ -63,7 +63,7 @@ async def test_minimally_filled_incoming_message() -> None:
     collector = HandlerCollector()
     incoming_message: Optional[IncomingMessage] = None
 
-    @collector.default
+    @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         nonlocal incoming_message
         incoming_message = message
@@ -161,7 +161,7 @@ async def test_maximum_filled_incoming_message() -> None:
     collector = HandlerCollector()
     incoming_message: Optional[IncomingMessage] = None
 
-    @collector.default
+    @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         nonlocal incoming_message
         incoming_message = message

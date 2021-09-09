@@ -18,7 +18,7 @@ class HandlerCollector:
     VALID_COMMAND_NAME_RE = re.compile(r"^\/[^\s\/]+$", flags=re.UNICODE)
 
     def __init__(self) -> None:
-        self._message_handlers: Dict[str, BotXCommandHandler] = {}
+        self._user_commands_handlers: Dict[str, BotXCommandHandler] = {}
         self._default_message_handler: Optional[BotXCommandHandler] = None
         self._system_events_handlers: Dict[str, BotXCommandHandler] = {}
 
@@ -41,19 +41,20 @@ class HandlerCollector:
 
         await handler(botx_command, bot)
 
-    def handler(
+    def command(
         self,
-        *,
-        command: str,
+        command_name: str,
     ) -> Callable[[IncomingMessageHandler], IncomingMessageHandler]:
-        if not self.VALID_COMMAND_NAME_RE.match(command):
+        if not self.VALID_COMMAND_NAME_RE.match(command_name):
             raise ValueError("Command should start with '/' and doesn't include spaces")
 
         def decorator(handler_func: IncomingMessageHandler) -> IncomingMessageHandler:
-            if command in self._message_handlers:
-                raise ValueError(f"Handler for command `{command}` already registered")
+            if command_name in self._user_commands_handlers:
+                raise ValueError(
+                    f"Handler for command `{command_name}` already registered",
+                )
 
-            self._message_handlers[command] = BotXCommandHandler(
+            self._user_commands_handlers[command_name] = BotXCommandHandler(
                 handler_func=handler_func,
             )
 
@@ -61,7 +62,10 @@ class HandlerCollector:
 
         return decorator
 
-    def default(self, handler_func: IncomingMessageHandler) -> IncomingMessageHandler:
+    def default_message_handler(
+        self,
+        handler_func: IncomingMessageHandler,
+    ) -> IncomingMessageHandler:
         if self._default_message_handler:
             raise ValueError("Default command handler already registered")
 
@@ -79,13 +83,15 @@ class HandlerCollector:
 
     def _include_collector(self, other: "HandlerCollector") -> None:
         # - Message handlers -
-        command_duplicates = set(self._message_handlers) & set(other._message_handlers)
+        command_duplicates = set(self._user_commands_handlers) & set(
+            other._user_commands_handlers,
+        )
         if command_duplicates:
             raise ValueError(
                 f"Handlers for {command_duplicates} commands already registered",
             )
 
-        self._message_handlers.update(other._message_handlers)
+        self._user_commands_handlers.update(other._user_commands_handlers)
 
         # - Default message handler -
         if self._default_message_handler and other._default_message_handler:
@@ -111,9 +117,9 @@ class HandlerCollector:
     ) -> BotXCommandHandler:
         handler: Optional[BotXCommandHandler] = None
 
-        command = self._get_message_command(message.body)
-        if command:
-            handler = self._message_handlers.get(command)
+        command_name = self._get_command_name(message.body)
+        if command_name:
+            handler = self._user_commands_handlers.get(command_name)
 
         if handler is None:
             if self._default_message_handler:
@@ -131,13 +137,13 @@ class HandlerCollector:
 
         return self._system_events_handlers.get(event_cls_name)
 
-    def _get_message_command(self, body: str) -> Optional[str]:
+    def _get_command_name(self, body: str) -> Optional[str]:
         if not body:
             return None
 
-        command = body.split(maxsplit=1)[0]
-        if self.VALID_COMMAND_NAME_RE.match(command):
-            return command
+        command_name = body.split(maxsplit=1)[0]
+        if self.VALID_COMMAND_NAME_RE.match(command_name):
+            return command_name
 
         return None
 

@@ -16,7 +16,7 @@ async def test_user_command(
     user_command = incoming_message_factory(body="/command")
     collector = HandlerCollector()
 
-    @collector.handler(command="/command")
+    @collector.command("/command")
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         right_handler_trigger()
 
@@ -39,7 +39,7 @@ async def test_non_ascii_user_command(
     russian_command = incoming_message_factory(body="/команда")
     collector = HandlerCollector()
 
-    @collector.handler(command="/команда")
+    @collector.command("/команда")
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         right_handler_trigger()
 
@@ -63,11 +63,11 @@ async def test_one_collector_and_two_handlers(
     user_command = incoming_message_factory(body="/command")
     collector = HandlerCollector()
 
-    @collector.handler(command="/command-two")
+    @collector.command("/command-two")
     async def wrong_handler(message: IncomingMessage, bot: Bot) -> None:
         wrong_handler_trigger()
 
-    @collector.handler(command="/command")
+    @collector.command("/command")
     async def right_handler(message: IncomingMessage, bot: Bot) -> None:
         right_handler_trigger()
 
@@ -94,11 +94,11 @@ async def test_two_collectors_and_commands(
     collector_1 = HandlerCollector()
     collector_2 = HandlerCollector()
 
-    @collector_1.handler(command="/command")
+    @collector_1.command("/command")
     async def right_handler(message: IncomingMessage, bot: Bot) -> None:
         right_handler_trigger()
 
-    @collector_2.handler(command="/command-two")
+    @collector_2.command("/command-two")
     async def wrong_handler(message: IncomingMessage, bot: Bot) -> None:
         wrong_handler_trigger()
 
@@ -122,7 +122,7 @@ async def test_default_handler(
     user_command = incoming_message_factory(body="/command")
     collector = HandlerCollector()
 
-    @collector.default
+    @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         right_handler_trigger()
 
@@ -145,7 +145,7 @@ async def test_empty_command_goes_to_default_handler(
     empty_command = incoming_message_factory(body="")
     collector = HandlerCollector()
 
-    @collector.default
+    @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         right_handler_trigger()
 
@@ -168,7 +168,7 @@ async def test_invalid_command_goes_to_default_handler(
     empty_command = incoming_message_factory(body="/")
     collector = HandlerCollector()
 
-    @collector.default
+    @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         right_handler_trigger()
 
@@ -213,7 +213,7 @@ async def test_default_handler_in_first_collector(
     collector_1 = HandlerCollector()
     collector_2 = HandlerCollector()
 
-    @collector_1.default
+    @collector_1.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         right_handler_trigger()
 
@@ -238,7 +238,7 @@ async def test_default_handler_in_second_collector(
     collector_1 = HandlerCollector()
     collector_2 = HandlerCollector()
 
-    @collector_2.default
+    @collector_2.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         right_handler_trigger()
 

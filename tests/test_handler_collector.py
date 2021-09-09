@@ -12,7 +12,7 @@ def test_define_command_with_space(collector: HandlerCollector) -> None:
     # - Arrange -
     with pytest.raises(ValueError) as exc:
 
-        @collector.handler(command="/ command")
+        @collector.command("/ command")
         async def handler(message: IncomingMessage, bot: Bot) -> None:
             pass
 
@@ -24,7 +24,7 @@ def test_define_command_without_leading_slash(collector: HandlerCollector) -> No
     # - Arrange -
     with pytest.raises(ValueError) as exc:
 
-        @collector.handler(command="command")
+        @collector.command("command")
         async def handler(message: IncomingMessage, bot: Bot) -> None:
             pass
 
@@ -34,14 +34,14 @@ def test_define_command_without_leading_slash(collector: HandlerCollector) -> No
 
 def test_define_two_handlers_with_same_command(collector: HandlerCollector) -> None:
     # - Arrange -
-    @collector.handler(command="/command")
+    @collector.command("/command")
     async def handler_1(message: IncomingMessage, bot: Bot) -> None:
         pass
 
     # - Act -
     with pytest.raises(ValueError) as exc:
 
-        @collector.handler(command="/command")
+        @collector.command("/command")
         async def handler_2(message: IncomingMessage, bot: Bot) -> None:
             pass
 
@@ -52,14 +52,14 @@ def test_define_two_handlers_with_same_command(collector: HandlerCollector) -> N
 
 def test_define_two_default_handlers(collector: HandlerCollector) -> None:
     # - Arrange -
-    @collector.default
+    @collector.default_message_handler
     async def handler_1(message: IncomingMessage, bot: Bot) -> None:
         pass
 
     # - Act -
     with pytest.raises(ValueError) as exc:
 
-        @collector.default
+        @collector.default_message_handler
         async def handler_2(message: IncomingMessage, bot: Bot) -> None:
             pass
 
@@ -90,13 +90,13 @@ def test_merge_collectors_with_same_command_handlers(
     collector: HandlerCollector,
 ) -> None:
     # - Arrange -
-    @collector.handler(command="/command")
+    @collector.command("/command")
     async def handler_1(message: IncomingMessage, bot: Bot) -> None:
         pass
 
     other_collector = HandlerCollector()
 
-    @other_collector.handler(command="/command")
+    @other_collector.command("/command")
     async def handler_2(message: IncomingMessage, bot: Bot) -> None:
         pass
 
@@ -111,13 +111,13 @@ def test_merge_collectors_with_same_command_handlers(
 
 def test_merge_collectors_with_default_handlers(collector: HandlerCollector) -> None:
     # - Arrange -
-    @collector.default
+    @collector.default_message_handler
     async def handler_1(message: IncomingMessage, bot: Bot) -> None:
         pass
 
     other_collector = HandlerCollector()
 
-    @other_collector.default
+    @other_collector.default_message_handler
     async def handler_2(message: IncomingMessage, bot: Bot) -> None:
         pass
 
