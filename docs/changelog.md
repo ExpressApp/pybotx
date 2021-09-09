@@ -1,3 +1,10 @@
+## 0.23.2 (Sep 09, 2021)
+
+### Added
+
+* Add `file_name` param to `download_file` method to provide ability to change the returned file name.
+
+
 ## 0.23.1 (Aug 30, 2021)
 
 ### Fixed
