@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from botx.clients.methods.base import AuthorizedBotXMethod
-from botx.models.files import File
+from botx.models.files import File, MetaFile
 
 
 class SmartAppEvent(AuthorizedBotXMethod[str]):
@@ -33,3 +33,6 @@ class SmartAppEvent(AuthorizedBotXMethod[str]):
 
     #: files
     files: List[File] = []
+
+    #: file's meta to upload
+    async_files: List[MetaFile] = []
