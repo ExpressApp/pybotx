@@ -4,7 +4,7 @@ from typing import Any, BinaryIO, Dict, List, Optional, TextIO, Union
 from uuid import UUID
 
 from botx.models.base import BotXBaseModel
-from botx.models.files import File
+from botx.models.files import File, MetaFile
 from botx.models.messages.message import Message
 
 
@@ -29,8 +29,11 @@ class SendingSmartAppEvent(BotXBaseModel):
     #: smartapp chat
     group_chat_id: UUID
 
-    # files
+    #: files
     files: List[File] = []
+
+    #: file's meta to upload
+    async_files: List[MetaFile] = []
 
     @classmethod
     def from_message(

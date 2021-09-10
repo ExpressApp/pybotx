@@ -35,6 +35,7 @@ class SmartAppMixin:
                 smartapp_api_version=smartapp_event.smartapp_api_version,
                 group_chat_id=smartapp_event.group_chat_id,
                 files=smartapp_event.files,
+                async_files=smartapp_event.async_files,
             ),
             credentials=credentials,
         )
