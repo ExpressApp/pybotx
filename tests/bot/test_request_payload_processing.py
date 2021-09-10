@@ -1,7 +1,6 @@
 import pytest
 
-from botx import Bot, HandlerCollector, UnsupportedBotAPIVersionError
-from botx.testing import lifespan_wrapper
+from botx import Bot, HandlerCollector, UnsupportedBotAPIVersionError, lifespan_wrapper
 
 
 @pytest.mark.asyncio

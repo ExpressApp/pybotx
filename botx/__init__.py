@@ -1,24 +1,28 @@
 # - Bot API -
-from botx.api.bot_api.exceptions import UnsupportedBotAPIVersionError
-from botx.api.bot_api.responses.accepted import build_accepted_response
-from botx.api.bot_api.responses.bot_disabled import (
+from botx.bot.api.commands.accepted_response import build_accepted_response
+from botx.bot.api.commands.bot_disabled_response import (
     BotAPIBotDisabledResponse,
     build_bot_disabled_response,
 )
+from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
 
 # - Domains -
-from botx.bot import Bot
-from botx.enums import ChatTypes, ClientPlatforms, UserKinds
-from botx.exceptions import HandlerNotFoundException
-from botx.handler_collector import HandlerCollector
-from botx.incoming_message import (
+from botx.bot.bot import Bot
+from botx.bot.exceptions import HandlerNotFoundException
+from botx.bot.handler_collector import HandlerCollector
+from botx.bot.models.commands.enums import ChatTypes, ClientPlatforms, UserKinds
+from botx.bot.models.commands.incoming_message import (
     Chat,
     ExpressApp,
     IncomingMessage,
     UserDevice,
     UserEventSender,
 )
-from botx.system_events.chat_created import ChatCreatedEvent, ChatCreatedMember
+from botx.bot.models.commands.system_events.chat_created import (
+    ChatCreatedEvent,
+    ChatCreatedMember,
+)
+from botx.bot.testing import lifespan_wrapper
 
 __all__ = (
     "Bot",
@@ -38,4 +42,5 @@ __all__ = (
     "UserKinds",
     "build_accepted_response",
     "build_bot_disabled_response",
+    "lifespan_wrapper",
 )

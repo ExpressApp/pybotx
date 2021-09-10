@@ -3,8 +3,13 @@ from unittest.mock import Mock
 
 import pytest
 
-from botx import Bot, HandlerCollector, HandlerNotFoundException, IncomingMessage
-from botx.testing import lifespan_wrapper
+from botx import (
+    Bot,
+    HandlerCollector,
+    HandlerNotFoundException,
+    IncomingMessage,
+    lifespan_wrapper,
+)
 
 
 @pytest.mark.asyncio

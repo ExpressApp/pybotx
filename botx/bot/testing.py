@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from botx.bot import Bot
+from botx.bot.bot import Bot
 
 
 @asynccontextmanager

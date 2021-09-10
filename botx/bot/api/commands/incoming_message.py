@@ -3,14 +3,13 @@ from uuid import UUID
 
 from pydantic import Field
 
-from botx.api.bot_api.base import (
+from botx.bot.api.commands.base import (
     BotAPIBaseCommand,
     BotAPICommandPayload,
     BotAPIUserEventSender,
 )
-from botx.api.bot_api.enums import convert_client_platform
-from botx.api.enums import convert_chat_type_to_domain
-from botx.incoming_message import (
+from botx.bot.api.enums import convert_chat_type_to_domain, convert_client_platform
+from botx.bot.models.commands.incoming_message import (
     Chat,
     ExpressApp,
     IncomingMessage,

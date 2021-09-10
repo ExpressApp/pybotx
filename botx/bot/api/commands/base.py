@@ -3,11 +3,14 @@ from uuid import UUID
 
 from pydantic import validator
 
-from botx.api.bot_api.enums import BotAPIClientPlatforms, BotAPICommandTypes
-from botx.api.bot_api.exceptions import UnsupportedBotAPIVersionError
-from botx.api.constants import BOT_API_VERSION
-from botx.api.enums import APIChatTypes
-from botx.api.pydantic import APIBaseModel
+from botx.bot.api.constants import BOT_API_VERSION
+from botx.bot.api.enums import (
+    BotAPIChatTypes,
+    BotAPIClientPlatforms,
+    BotAPICommandTypes,
+)
+from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
+from botx.bot.api.pydantic import APIBaseModel
 
 try:
     from typing import Literal
@@ -46,7 +49,7 @@ class BotAPIBaseSender(APIBaseModel):
 class BotAPISystemEventSender(BotAPIBaseSender):
     is_admin: Literal[None]
     is_creator: Literal[None]
-    chat_type: Optional[APIChatTypes]
+    chat_type: Optional[BotAPIChatTypes]
     group_chat_id: Optional[UUID]
     user_huid: Optional[UUID]
 
@@ -54,7 +57,7 @@ class BotAPISystemEventSender(BotAPIBaseSender):
 class BotAPIChatEventSender(BotAPIBaseSender):
     is_admin: Literal[None]
     is_creator: Literal[None]
-    chat_type: APIChatTypes
+    chat_type: BotAPIChatTypes
     group_chat_id: UUID
     user_huid: Optional[UUID]
 
@@ -62,7 +65,7 @@ class BotAPIChatEventSender(BotAPIBaseSender):
 class BotAPIUserEventSender(BotAPIBaseSender):
     is_admin: bool
     is_creator: bool
-    chat_type: APIChatTypes
+    chat_type: BotAPIChatTypes
     group_chat_id: UUID
     user_huid: UUID
 

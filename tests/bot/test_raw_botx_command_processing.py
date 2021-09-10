@@ -16,8 +16,8 @@ from botx import (
     UserDevice,
     UserEventSender,
     UserKinds,
+    lifespan_wrapper,
 )
-from botx.testing import lifespan_wrapper
 
 
 @pytest.mark.asyncio

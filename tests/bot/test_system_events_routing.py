@@ -2,8 +2,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from botx import Bot, ChatCreatedEvent, HandlerCollector
-from botx.testing import lifespan_wrapper
+from botx import Bot, ChatCreatedEvent, HandlerCollector, lifespan_wrapper
 
 
 @pytest.mark.asyncio

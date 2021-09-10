@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import Any, Dict, Optional
 from uuid import UUID
 
-from botx.base import BotXCommandBase
-from botx.enums import ChatTypes, ClientPlatforms
+from botx.bot.models.commands.base import BotXCommandBase
+from botx.bot.models.commands.enums import ChatTypes, ClientPlatforms
 
 
 @dataclass

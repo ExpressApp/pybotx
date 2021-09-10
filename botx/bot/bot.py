@@ -6,9 +6,9 @@ from weakref import WeakSet
 
 from pydantic import ValidationError, parse_obj_as
 
-from botx.api.bot_api.typing import BotAPICommand
-from botx.handler_collector import HandlerCollector
-from botx.typing import BotXCommand
+from botx.bot.api.commands.commands import BotAPICommand
+from botx.bot.handler_collector import HandlerCollector
+from botx.bot.models.commands.commands import BotXCommand
 
 
 class Bot:

@@ -1,17 +1,26 @@
 import re
-from typing import TYPE_CHECKING, Callable, Dict, Optional
+from typing import TYPE_CHECKING, Awaitable, Callable, Dict, Optional, TypeVar
 
-from botx.exceptions import HandlerNotFoundException
-from botx.handler import BotXCommandHandler, HandlerFunc
-from botx.incoming_message import IncomingMessage
-from botx.system_events.chat_created import ChatCreatedEvent
-from botx.system_events.typing import SystemEvent
-from botx.typing import BotXCommand
+from botx.bot.exceptions import HandlerNotFoundException
+from botx.bot.models.commands.commands import BotXCommand, SystemEvent
+from botx.bot.models.commands.incoming_message import IncomingMessage
+from botx.bot.models.commands.system_events.chat_created import ChatCreatedEvent
 
 if TYPE_CHECKING:
-    from botx.bot import Bot
+    from botx.bot.bot import Bot
+
+TBotXCommand = TypeVar("TBotXCommand", bound=BotXCommand)
+HandlerFunc = Callable[[TBotXCommand, "Bot"], Awaitable[None]]
 
 IncomingMessageHandler = HandlerFunc[IncomingMessage]
+
+
+class BotXCommandHandler:
+    def __init__(self, handler_func: HandlerFunc) -> None:  # type: ignore
+        self.handler_func = handler_func
+
+    async def __call__(self, botx_command: BotXCommand, bot: "Bot") -> None:
+        await self.handler_func(botx_command, bot)
 
 
 class HandlerCollector:
