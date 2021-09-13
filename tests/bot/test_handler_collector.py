@@ -68,7 +68,7 @@ def test_define_two_default_handlers(collector: HandlerCollector) -> None:
     assert "Default" in str(exc)
 
 
-def test_define_two_chat_created_handlers(collector: HandlerCollector) -> None:
+def test_define_two_same_system_events_handlers(collector: HandlerCollector) -> None:
     # - Arrange -
     @collector.chat_created
     async def handler_1(message: ChatCreatedEvent, bot: Bot) -> None:
@@ -130,7 +130,7 @@ def test_merge_collectors_with_default_handlers(collector: HandlerCollector) -> 
     assert "Default" in str(exc)
 
 
-def test_merge_collectors_with_chat_created_handlers(
+def test_merge_collectors_with_same_system_events_handlers(
     collector: HandlerCollector,
 ) -> None:
     # - Arrange -

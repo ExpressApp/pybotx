@@ -6,7 +6,7 @@ from botx import Bot, ChatCreatedEvent, HandlerCollector, lifespan_wrapper
 
 
 @pytest.mark.asyncio
-async def test_chat_created_event(
+async def test_system_event_handling(
     chat_created: ChatCreatedEvent,
     right_handler_trigger: Mock,
 ) -> None:
