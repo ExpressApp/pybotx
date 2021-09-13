@@ -48,7 +48,7 @@ starlette = "^0.13.2"
 # docs
 mkdocs = "^1.1"
 mkdocs-material = "^5.2.1"
-markdown-include = "^0.5.1"
+markdown-include = "^0.6.0"
 mkdocstrings = "^0.12.2"
 livereload = "^2.6.3"
 

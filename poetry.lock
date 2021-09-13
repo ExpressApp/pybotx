@@ -627,7 +627,7 @@ testing = ["coverage", "pyyaml"]
 
 [[package]]
 name = "markdown-include"
-version = "0.5.1"
+version = "0.6.0"
 description = "This is an extension to Python-Markdown which provides an \"include\" function, similar to that found in LaTeX (and also the C pre-processor and Fortran). I originally wrote it for my FORD Fortran auto-documentation generator."
 category = "dev"
 optional = false
@@ -1311,7 +1311,7 @@ tests = ["aiofiles", "molten", "python-multipart"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "a50a234a0f11d2f46b5a763cb50c5280efd0c4c05ca2b0aa169c08a825e8de20"
+content-hash = "418ef5b300b019829aee3a48fbeb4820c4d7bc6bfa3a83be26702dd4dcf0b8d4"
 
 [metadata.files]
 add-trailing-comma = [
@@ -1570,7 +1570,7 @@ markdown = [
     {file = "Markdown-3.3.4.tar.gz", hash = "sha256:31b5b491868dcc87d6c24b7e3d19a0d730d59d3e46f4eea6430a321bed387a49"},
 ]
 markdown-include = [
-    {file = "markdown-include-0.5.1.tar.gz", hash = "sha256:72a45461b589489a088753893bc95c5fa5909936186485f4ed55caa57d10250f"},
+    {file = "markdown-include-0.6.0.tar.gz", hash = "sha256:6f5d680e36f7780c7f0f61dca53ca581bd50d1b56137ddcd6353efafa0c3e4a2"},
 ]
 markupsafe = [
     {file = "MarkupSafe-2.0.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:d8446c54dc28c01e5a2dbac5a25f071f6653e6e40f3a8818e8b45d790fe6ef53"},
