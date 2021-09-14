@@ -44,7 +44,7 @@ pytest-asyncio = "^0.15.0"
 pytest-cov = "^2.8.1"
 pytest-clarity = "^0.3.0-alpha.0"
 coverage-conditional-plugin = "^0.4.0"
-starlette = "^0.13.2"
+starlette = "^0.16.0"
 # docs
 mkdocs = "^1.1"
 mkdocs-material = "^7.0.0"
