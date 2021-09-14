@@ -31,7 +31,7 @@ python-multipart = { version = "^0.0.5", optional = true }
 nox = "^2020.5.24"
 # formatters
 black = "^20.8b1"
-isort = "^4.3"
+isort = "^5.9"
 autoflake = "^1.4"
 add-trailing-comma = "^2.0.1"
 # linters
