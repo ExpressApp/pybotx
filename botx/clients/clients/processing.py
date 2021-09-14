@@ -24,7 +24,7 @@ def build_file(response: HTTPResponse) -> File:
         Built file from response.
     """
     mimetype = response.headers["content-type"].split(";", 1)[0]
-    ext = File.get_ext_by_mimetype(mimetype)
+    ext = File.get_ext_by_mimetype(mimetype) or ""
     file_name = "document{0}".format(ext)
     return File.from_file(BytesIO(response.raw_data), file_name)  # type: ignore
 

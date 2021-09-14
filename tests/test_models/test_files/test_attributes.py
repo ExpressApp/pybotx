@@ -1,5 +1,3 @@
-import pytest
-
 from botx import File
 
 
@@ -23,19 +21,5 @@ def test_retrieving_file_size():
     assert File.from_string(b"file\ncontents", filename="test.txt").size_in_bytes == 13
 
 
-@pytest.mark.parametrize("extension", [".txt", ".TXT"])
-def test_accept_has_supported_extension(extension):
-    filename = f"test{extension}"
-
-    assert File.has_supported_extension(filename)
-
-
-def test_decline_has_supported_extension():
-    bad_filename = "test.bad"
-
-    assert not File.has_supported_extension(bad_filename)
-
-
 def test_get_ext_by_unsupported_mimetype():
-    with pytest.raises(ValueError):
-        File.get_ext_by_mimetype("application/javascript")
+    assert File.get_ext_by_mimetype("application/javascript") is None

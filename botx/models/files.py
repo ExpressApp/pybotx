@@ -9,58 +9,115 @@ from typing import AnyStr, AsyncIterable, BinaryIO, Generator, Optional, TextIO,
 from uuid import UUID
 
 from base64io import Base64IO
-from pydantic import validator
 
 from botx.models.base import BotXBaseModel
 from botx.models.enums import AttachmentsTypes
 
 EXTENSIONS_TO_MIMETYPES = MappingProxyType(
     {
-        # image_extensions
+        # application
+        ".7z": "application/x-7z-compressed",
+        ".abw": "application/x-abiword",
+        ".ai": "application/postscript",
+        ".arc": "application/x-freearc",
+        ".azw": "application/vnd.amazon.ebook",
+        ".bin": "application/octet-stream",
+        ".bz": "application/x-bzip",
+        ".bz2": "application/x-bzip2",
+        ".cda": "application/x-cdf",
+        ".csh": "application/x-csh",
+        ".doc": "application/msword",
+        ".docx": (
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ),
+        ".eot": "application/vnd.ms-fontobject",
+        ".eps": "application/postscript",
+        ".epub": "application/epub+zip",
+        ".gz": "application/gzip",
+        ".jar": "application/java-archive",
+        ".json-api": "application/vnd.api+json",
+        ".json-patch": "application/json-patch+json",
+        ".json": "application/json",
+        ".jsonld": "application/ld+json",
+        ".mdb": "application/x-msaccess",
+        ".mpkg": "application/vnd.apple.installer+xml",
+        ".odp": "application/vnd.oasis.opendocument.presentation",
+        ".ods": "application/vnd.oasis.opendocument.spreadsheet",
+        ".odt": "application/vnd.oasis.opendocument.text",
+        ".ogx": "application/ogg",
+        ".pdf": "application/pdf",
+        ".php": "application/x-httpd-php",
+        ".ppt": "application/vnd.ms-powerpoint",
+        ".pptx": (
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        ),
+        ".ps": "application/postscript",
+        ".rar": "application/vnd.rar",
+        ".rtf": "application/rtf",
+        ".sh": "application/x-sh",
+        ".swf": "application/x-shockwave-flash",
+        ".tar": "application/x-tar",
+        ".vsd": "application/vnd.visio",
+        ".wasm": "application/wasm",
+        ".webmanifest": "application/manifest+json",
+        ".xhtml": "application/xhtml+xml",
+        ".xls": "application/vnd.ms-excel",
+        ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        ".xul": "application/vnd.mozilla.xul+xml",
+        ".zip": "application/zip",
+        # audio
+        ".aac": "audio/aac",
+        ".mid": "audio/midi",
+        ".midi": "audio/midi",
+        ".mp3": "audio/mpeg",
+        ".oga": "audio/ogg",
+        ".opus": "audio/opus",
+        ".wav": "audio/wav",
+        ".weba": "audio/webm",
+        # font
+        ".otf": "font/otf",
+        ".ttf": "font/ttf",
+        ".woff": "font/woff",
+        ".woff2": "font/woff2",
+        # image
+        ".avif": "image/avif",
+        ".bmp": "image/bmp",
         ".gif": "image/gif",
+        ".ico": "image/vnd.microsoft.icon",
         ".jpeg": "image/jpeg",
         ".jpg": "image/jpeg",
         ".png": "image/png",
         ".svg": "image/svg+xml",
+        ".svgz": "image/svg+xml",
+        ".tif": "image/tiff",
         ".tiff": "image/tiff",
-        # document_extensions
+        ".webp": "image/webp",
+        # text
+        ".css": "text/css",
         ".csv": "text/csv",
-        ".doc": "application/msword",
-        ".docm": "application/vnd.ms-word.document.macroenabled.12",
-        ".docx": (
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        ),
-        ".gz": "application/gzip",
+        ".htm": "text/html",
         ".html": "text/html",
-        ".json": "application/json",
-        ".mp3": "audio/mpeg",
-        ".mp4": "video/mp4",
-        ".odp": "application/vnd.oasis.opendocument.presentation",
-        ".ods": "application/vnd.oasis.opendocument.spreadsheet",
-        ".odt": "application/vnd.oasis.opendocument.text",
-        ".pdf": "application/pdf",
-        ".ppt": "application/vnd.ms-powerpoint",
-        ".pptm": "application/vnd.ms-powerpoint.presentation.macroenabled.12",
-        ".pptx": (
-            "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-        ),
-        ".psd": "image/vnd.adobe.photoshop",
-        ".rar": "application/vnd.rar",
-        ".rtf": "application/rtf",
-        ".sig": "application/pgp-signature",
-        ".tgz": "application/gzip",
+        ".ics": "text/calendar",
+        ".js": "text/javascript",
+        ".mjs": "text/javascript",
         ".txt": "text/plain",
-        ".vsd": "application/vnd.visio",
-        ".vsdx": "application/octet-stream",
-        ".xls": "application/vnd.ms-excel",
-        ".xlsm": "application/vnd.ms-excel.sheet.macroenabled.12",
-        ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        ".text": "text/plain",
         ".xml": "text/xml",
-        ".zip": "application/zip",
+        # video
+        ".3g2": "video/3gpp2",
+        ".3gp": "video/3gpp",
+        ".avi": "video/x-msvideo",
+        ".mov": "video/quicktime",
+        ".mp4": "video/mp4",
+        ".mpeg": "video/mpeg",
+        ".mpg": "video/mpeg",
+        ".ogv": "video/ogg",
+        ".ts": "video/mp2t",
+        ".webm": "video/webm",
+        ".wmv": "video/x-ms-wmv",
     },
 )
-#: file extensions that can be proceed by BotX API.
-BOTX_API_ACCEPTED_EXTENSIONS = EXTENSIONS_TO_MIMETYPES.keys()
+DEFAULT_MIMETYPE = "application/octet-stream"
 
 
 class NamedAsyncIterable(AsyncIterable):
@@ -80,28 +137,6 @@ class File(BotXBaseModel):  # noqa: WPS214
 
     #: text under file.
     caption: Optional[str] = None
-
-    @validator("file_name", always=True)
-    def check_file_extension(cls, name: str) -> str:  # noqa: N805
-        """Check that file extension can be handled by BotX API.
-
-        Arguments:
-            name: file name which will be checked for matching extensions.
-
-        Returns:
-            Passed name if matching was successful.
-
-        Raises:
-            ValueError: raised if extension is not supported.
-        """
-        if not cls.has_supported_extension(name):
-            raise ValueError(
-                "file {0} has an extensions that is not supported by BotX API".format(
-                    name,
-                ),
-            )
-
-        return name
 
     @classmethod
     def from_file(  # noqa: WPS210
@@ -229,36 +264,20 @@ class File(BotXBaseModel):  # noqa: WPS214
         return self._get_mimetype(self.file_name)
 
     @classmethod
-    def has_supported_extension(cls, filename: str) -> bool:
-        """Check that file extension can be handled by BotX API.
-
-        Arguments:
-            filename: file name to check.
-
-        Returns:
-            Matching result.
-        """
-        file_extension = Path(filename).suffix.lower()
-        return file_extension in BOTX_API_ACCEPTED_EXTENSIONS
-
-    @classmethod
-    def get_ext_by_mimetype(cls, mimetype: str) -> str:
+    def get_ext_by_mimetype(cls, mimetype: str) -> Optional[str]:
         """Get extension by mimetype.
 
         Arguments:
             mimetype: mimetype of file.
 
         Returns:
-            file extension.
-
-        Raises:
-            ValueError: when mimetype is unsupported.
+            file extension or none if mimetype not found.
         """
         for ext, m_type in EXTENSIONS_TO_MIMETYPES.items():
             if m_type == mimetype:
                 return ext
 
-        raise ValueError("`{0}` is unsupported mimetype.".format(mimetype))
+        return None
 
     @classmethod
     def _to_rfc2397(cls, media_type: str, encoded_data: str) -> str:
@@ -284,7 +303,7 @@ class File(BotXBaseModel):  # noqa: WPS214
             File mimetype.
         """
         file_extension = Path(filename).suffix.lower()
-        return EXTENSIONS_TO_MIMETYPES[file_extension]
+        return EXTENSIONS_TO_MIMETYPES.get(file_extension, DEFAULT_MIMETYPE)
 
 
 class MetaFile(BotXBaseModel):

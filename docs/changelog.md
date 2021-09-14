@@ -1,3 +1,19 @@
+## 0.24.0 (Sep 14, 2021)
+
+### Removed
+
+* File extensions validation.
+* `File.has_supported_extension` classmethod.
+
+### Added
+
+* Multiple mime-types.
+
+### Changed
+
+* `File.get_ext_by_mimetype` now don't raise `ValueError` and returns `None` if mimetype not found.
+
+
 ## 0.23.2 (Sep 09, 2021)
 
 ### Added
