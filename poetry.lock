@@ -11,11 +11,11 @@ tokenize-rt = ">=3.0.1"
 
 [[package]]
 name = "aiofiles"
-version = "0.6.0"
+version = "0.7.0"
 description = "File support for asyncio."
 category = "main"
 optional = true
-python-versions = "*"
+python-versions = ">=3.6,<4.0"
 
 [[package]]
 name = "anyio"
@@ -1325,7 +1325,7 @@ tests = ["aiofiles", "molten", "python-multipart"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "c2a7263c6a2717ff46ecc2e64c8cf63b82aab5d96b960a1e0b61ee40c3fac6fe"
+content-hash = "38e2869421d591fbf885518de07b0f21f865d353756389da69470f3bce478d01"
 
 [metadata.files]
 add-trailing-comma = [
@@ -1333,8 +1333,8 @@ add-trailing-comma = [
     {file = "add_trailing_comma-2.1.0.tar.gz", hash = "sha256:f9864ffbc12ea4e54916a356d57341ab58f612867c2ad453339c51004807e8ce"},
 ]
 aiofiles = [
-    {file = "aiofiles-0.6.0-py3-none-any.whl", hash = "sha256:bd3019af67f83b739f8e4053c6c0512a7f545b9a8d91aaeab55e6e0f9d123c27"},
-    {file = "aiofiles-0.6.0.tar.gz", hash = "sha256:e0281b157d3d5d59d803e3f4557dcc9a3dff28a4dd4829a9ff478adae50ca092"},
+    {file = "aiofiles-0.7.0-py3-none-any.whl", hash = "sha256:c67a6823b5f23fcab0a2595a289cec7d8c863ffcb4322fb8cd6b90400aedfdbc"},
+    {file = "aiofiles-0.7.0.tar.gz", hash = "sha256:a1c4fc9b2ff81568c83e21392a82f344ea9d23da906e4f6a52662764545e19d4"},
 ]
 anyio = [
     {file = "anyio-3.3.1-py3-none-any.whl", hash = "sha256:d7c604dd491eca70e19c78664d685d5e4337612d574419d503e76f5d7d1590bd"},
