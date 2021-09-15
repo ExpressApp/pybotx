@@ -12,11 +12,9 @@ edit_uri: ''
 nav:
   - Introduction: 'index.md'
   - API Reference:
-      - api:
-        - bot_api:
-          - responses:
-            - bot_disabled: 'reference/api/bot_api/responses/bot_disabled.md'
-            - accepted: 'reference/api/bot_api/responses/accepted.md'
+      - bot:
+        - api:
+          - commands: 'reference/bot/api/commands.md'
 
 plugins:
   - search

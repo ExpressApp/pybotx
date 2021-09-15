@@ -1,14 +1,21 @@
 import asyncio
 import json
 from json.decoder import JSONDecodeError
-from typing import Sequence, Union
+from typing import TYPE_CHECKING, Dict, Sequence, Union
 from weakref import WeakSet
 
 from pydantic import ValidationError, parse_obj_as
 
 from botx.bot.api.commands.commands import BotAPICommand
+from botx.bot.api.status.recipient import BotAPIStatusRecipient
+from botx.bot.api.status.response import build_bot_status_response
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.models.commands.commands import BotXCommand
+from botx.bot.models.status.bot_menu import BotMenu
+from botx.bot.models.status.recipient import StatusRecipient
+
+if TYPE_CHECKING:  # JSON is recursive type alias
+    from botx.typing import JSON
 
 
 class Bot:
@@ -41,6 +48,20 @@ class Bot:
             self._handler_collector.handle_botx_command(botx_command, self),
         )
         self._tasks.add(task)
+
+    async def raw_get_status(self, query_params: Dict[str, str]) -> "JSON":
+        try:
+            bot_api_status_recipient = BotAPIStatusRecipient.parse_obj(query_params)
+        except ValidationError as exc:
+            raise ValueError("Status request validation error") from exc
+
+        status_recipient = bot_api_status_recipient.to_domain()
+
+        bot_menu = await self.get_status(status_recipient)
+        return build_bot_status_response(bot_menu)
+
+    async def get_status(self, status_recipient: StatusRecipient) -> BotMenu:
+        return await self._handler_collector.get_bot_menu(status_recipient, self)
 
     async def shutdown(self) -> None:
         if not self._tasks:
