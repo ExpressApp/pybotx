@@ -22,11 +22,14 @@ from botx.bot.models.commands.system_events.chat_created import (
     ChatCreatedEvent,
     ChatCreatedMember,
 )
+from botx.bot.models.status.bot_menu import BotMenu
+from botx.bot.models.status.recipient import StatusRecipient
 from botx.bot.testing import lifespan_wrapper
 
 __all__ = (
     "Bot",
     "BotAPIBotDisabledResponse",
+    "BotMenu",
     "Chat",
     "ChatCreatedEvent",
     "ChatCreatedMember",
@@ -36,6 +39,7 @@ __all__ = (
     "HandlerCollector",
     "HandlerNotFoundException",
     "IncomingMessage",
+    "StatusRecipient",
     "UnsupportedBotAPIVersionError",
     "UserDevice",
     "UserEventSender",

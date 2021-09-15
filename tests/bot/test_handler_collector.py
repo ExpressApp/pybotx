@@ -12,7 +12,7 @@ def test_define_command_with_space(collector: HandlerCollector) -> None:
     # - Arrange -
     with pytest.raises(ValueError) as exc:
 
-        @collector.command("/ command")
+        @collector.command("/ command", description="My command")
         async def handler(message: IncomingMessage, bot: Bot) -> None:
             pass
 
@@ -24,7 +24,7 @@ def test_define_command_without_leading_slash(collector: HandlerCollector) -> No
     # - Arrange -
     with pytest.raises(ValueError) as exc:
 
-        @collector.command("command")
+        @collector.command("command", description="My command")
         async def handler(message: IncomingMessage, bot: Bot) -> None:
             pass
 
@@ -32,16 +32,30 @@ def test_define_command_without_leading_slash(collector: HandlerCollector) -> No
     assert "should start with '/'" in str(exc)
 
 
+def test_define_visible_command_without_description(
+    collector: HandlerCollector,
+) -> None:
+    # - Act -
+    with pytest.raises(ValueError) as exc:
+
+        @collector.command("/command")
+        async def handler(message: IncomingMessage, bot: Bot) -> None:
+            pass
+
+    # - Assert -
+    assert "Description is required" in str(exc)
+
+
 def test_define_two_handlers_with_same_command(collector: HandlerCollector) -> None:
     # - Arrange -
-    @collector.command("/command")
+    @collector.command("/command", description="My command")
     async def handler_1(message: IncomingMessage, bot: Bot) -> None:
         pass
 
     # - Act -
     with pytest.raises(ValueError) as exc:
 
-        @collector.command("/command")
+        @collector.command("/command", description="My command")
         async def handler_2(message: IncomingMessage, bot: Bot) -> None:
             pass
 
@@ -90,13 +104,13 @@ def test_merge_collectors_with_same_command_handlers(
     collector: HandlerCollector,
 ) -> None:
     # - Arrange -
-    @collector.command("/command")
+    @collector.command("/command", description="My command")
     async def handler_1(message: IncomingMessage, bot: Bot) -> None:
         pass
 
     other_collector = HandlerCollector()
 
-    @other_collector.command("/command")
+    @other_collector.command("/command", description="My command")
     async def handler_2(message: IncomingMessage, bot: Bot) -> None:
         pass
 

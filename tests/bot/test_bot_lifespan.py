@@ -16,7 +16,7 @@ async def test_wait_active_handlers(
     user_command = incoming_message_factory(body="/command")
     collector = HandlerCollector()
 
-    @collector.command("/command")
+    @collector.command("/command", description="My command")
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         await asyncio.sleep(0)  # Return control to event loop
         right_handler_trigger()
