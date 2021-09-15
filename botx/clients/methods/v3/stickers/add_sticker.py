@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from uuid import UUID
 
 from botx.clients.methods.base import AuthorizedBotXMethod
-from botx.clients.methods.errors import sticker_pack_not_found
+from botx.clients.methods.errors.stickers import image_not_valid, sticker_pack_not_found
 from botx.clients.types.http import HTTPRequest
 from botx.models.stickers import Sticker
 
@@ -16,7 +16,10 @@ class AddSticker(AuthorizedBotXMethod[Sticker]):
     __method__ = "POST"
     __returning__ = Sticker
     __errors_handlers__ = {
-        HTTPStatus.BAD_REQUEST: (sticker_pack_not_found.handle_error,),
+        HTTPStatus.BAD_REQUEST: (
+            sticker_pack_not_found.handle_error,
+            image_not_valid.handle_error,
+        ),
     }
 
     #: Pack ID.

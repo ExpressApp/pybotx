@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from uuid import UUID
 
 from botx.clients.methods.base import AuthorizedBotXMethod
-from botx.clients.methods.errors import sticker_pack_or_sticker_not_found
+from botx.clients.methods.errors.stickers import sticker_pack_or_sticker_not_found
 from botx.clients.types.http import HTTPRequest
 
 
