@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Awaitable, Callable, TypeVar, Union
 
-from botx.bot.models.commands.commands import BotXCommand
+from botx.bot.models.commands.commands import BotXCommand, SystemEvent
 from botx.bot.models.commands.incoming_message import IncomingMessage
 from botx.bot.models.status.recipient import StatusRecipient
 
@@ -16,33 +16,34 @@ if TYPE_CHECKING:  # To avoid circular import
 TBotXCommand = TypeVar("TBotXCommand", bound=BotXCommand)
 HandlerFunc = Callable[[TBotXCommand, "Bot"], Awaitable[None]]
 
-IncomingMessageHandler = HandlerFunc[IncomingMessage]
+IncomingMessageHandlerFunc = HandlerFunc[IncomingMessage]
+SystemEventHandlerFunc = HandlerFunc[SystemEvent]
 
 VisibleFunc = Callable[[StatusRecipient, "Bot"], Awaitable[bool]]
 
 
 @dataclass
-class BaseCommandHandler:
-    handler_func: IncomingMessageHandler
+class BaseIncomingMessageHandler:
+    handler_func: IncomingMessageHandlerFunc
 
     async def __call__(self, incoming_message: IncomingMessage, bot: "Bot") -> None:
         await self.handler_func(incoming_message, bot)
 
 
 @dataclass
-class HiddenCommandHandler(BaseCommandHandler):
+class HiddenCommandHandler(BaseIncomingMessageHandler):
     # Default should be here, see: https://github.com/python/mypy/issues/6113
     visible: Literal[False] = False
 
 
 @dataclass
-class VisibleCommandHandler(BaseCommandHandler):
+class VisibleCommandHandler(BaseIncomingMessageHandler):
     visible: Union[Literal[True], VisibleFunc]
     description: str
 
 
 @dataclass
-class DefaultHandler(BaseCommandHandler):
+class DefaultMessageHandler(BaseIncomingMessageHandler):
     """Just for separate type."""
 
 

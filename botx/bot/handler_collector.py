@@ -4,10 +4,11 @@ from typing import TYPE_CHECKING, Callable, Dict, Optional, Union
 from botx.bot.exceptions import HandlerNotFoundException
 from botx.bot.handler import (
     CommandHandler,
-    DefaultHandler,
+    DefaultMessageHandler,
     HandlerFunc,
     HiddenCommandHandler,
-    IncomingMessageHandler,
+    IncomingMessageHandlerFunc,
+    SystemEventHandlerFunc,
     VisibleCommandHandler,
     VisibleFunc,
 )
@@ -20,23 +21,23 @@ from botx.bot.models.status.recipient import StatusRecipient
 if TYPE_CHECKING:  # To avoid circular import
     from botx.bot.bot import Bot
 
-SystemEventHandler = HandlerFunc[SystemEvent]
-
 
 class HandlerCollector:
     VALID_COMMAND_NAME_RE = re.compile(r"^\/[^\s\/]+$", flags=re.UNICODE)
 
     def __init__(self) -> None:
         self._user_commands_handlers: Dict[str, CommandHandler] = {}
-        self._default_message_handler: Optional[DefaultHandler] = None
-        self._system_events_handlers: Dict[str, SystemEventHandler] = {}
+        self._default_message_handler: Optional[DefaultMessageHandler] = None
+        self._system_events_handlers: Dict[str, SystemEventHandlerFunc] = {}
 
     def include(self, *others: "HandlerCollector") -> None:
         for collector in others:
             self._include_collector(collector)
 
     async def handle_botx_command(self, botx_command: BotXCommand, bot: "Bot") -> None:
-        handler: Optional[Union[CommandHandler, DefaultHandler, SystemEventHandler]]
+        handler: Optional[
+            Union[CommandHandler, DefaultMessageHandler, SystemEventHandlerFunc]
+        ]
 
         if isinstance(botx_command, IncomingMessage):
             handler = self._get_incoming_message_handler(botx_command)
@@ -71,11 +72,13 @@ class HandlerCollector:
         command_name: str,
         visible: Union[bool, VisibleFunc] = True,
         description: Optional[str] = None,
-    ) -> Callable[[IncomingMessageHandler], IncomingMessageHandler]:
+    ) -> Callable[[IncomingMessageHandlerFunc], IncomingMessageHandlerFunc]:
         if not self.VALID_COMMAND_NAME_RE.match(command_name):
             raise ValueError("Command should start with '/' and doesn't include spaces")
 
-        def decorator(handler_func: IncomingMessageHandler) -> IncomingMessageHandler:
+        def decorator(
+            handler_func: IncomingMessageHandlerFunc,
+        ) -> IncomingMessageHandlerFunc:
             if command_name in self._user_commands_handlers:
                 raise ValueError(
                     f"Handler for command `{command_name}` already registered",
@@ -93,12 +96,12 @@ class HandlerCollector:
 
     def default_message_handler(
         self,
-        handler_func: IncomingMessageHandler,
-    ) -> IncomingMessageHandler:
+        handler_func: IncomingMessageHandlerFunc,
+    ) -> IncomingMessageHandlerFunc:
         if self._default_message_handler:
             raise ValueError("Default command handler already registered")
 
-        self._default_message_handler = DefaultHandler(handler_func=handler_func)
+        self._default_message_handler = DefaultMessageHandler(handler_func=handler_func)
 
         return handler_func
 
@@ -143,8 +146,8 @@ class HandlerCollector:
     def _get_incoming_message_handler(
         self,
         message: IncomingMessage,
-    ) -> Union[CommandHandler, DefaultHandler]:
-        handler: Optional[Union[CommandHandler, DefaultHandler]] = None
+    ) -> Union[CommandHandler, DefaultMessageHandler]:
+        handler: Optional[Union[CommandHandler, DefaultMessageHandler]] = None
 
         command_name = self._get_command_name(message.body)
         if command_name:
@@ -161,7 +164,7 @@ class HandlerCollector:
     def _get_system_event_handler_or_none(
         self,
         event: SystemEvent,
-    ) -> Optional[SystemEventHandler]:
+    ) -> Optional[SystemEventHandlerFunc]:
         event_cls_name = event.__class__.__name__
 
         return self._system_events_handlers.get(event_cls_name)
@@ -178,7 +181,7 @@ class HandlerCollector:
 
     def _build_command_handler(
         self,
-        handler_func: IncomingMessageHandler,
+        handler_func: IncomingMessageHandlerFunc,
         visible: Union[bool, VisibleFunc],
         description: Optional[str],
     ) -> CommandHandler:
