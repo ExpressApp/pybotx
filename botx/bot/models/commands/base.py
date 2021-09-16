@@ -3,5 +3,5 @@ from typing import Any, Dict, Optional
 
 
 @dataclass
-class BotXCommandBase:
+class BotCommandBase:
     raw_command: Optional[Dict[str, Any]]

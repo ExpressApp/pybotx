@@ -21,7 +21,7 @@ async def test_system_event_handling(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_botx_command(chat_created)
+        bot.async_execute_bot_command(chat_created)
 
     # - Assert -
     right_handler_trigger.assert_called_once()
@@ -39,7 +39,7 @@ async def test_no_handler_for_system_event(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_botx_command(chat_created)
+        bot.async_execute_bot_command(chat_created)
 
     # - Assert -
     # This test is considered as passed if no exception was raised
@@ -62,7 +62,7 @@ async def test_system_event_in_first_collector(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_botx_command(chat_created)
+        bot.async_execute_bot_command(chat_created)
 
     # - Assert -
     right_handler_trigger.assert_called_once()
@@ -85,7 +85,7 @@ async def test_system_event_in_second_collector(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_botx_command(chat_created)
+        bot.async_execute_bot_command(chat_created)
 
     # - Assert -
     right_handler_trigger.assert_called_once()

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Awaitable, Callable, TypeVar, Union
 
-from botx.bot.models.commands.commands import BotXCommand, SystemEvent
+from botx.bot.models.commands.commands import BotCommand, SystemEvent
 from botx.bot.models.commands.incoming_message import IncomingMessage
 from botx.bot.models.status.recipient import StatusRecipient
 
@@ -13,8 +13,8 @@ except ImportError:
 if TYPE_CHECKING:  # To avoid circular import
     from botx.bot.bot import Bot
 
-TBotXCommand = TypeVar("TBotXCommand", bound=BotXCommand)
-HandlerFunc = Callable[[TBotXCommand, "Bot"], Awaitable[None]]
+TBotCommand = TypeVar("TBotCommand", bound=BotCommand)
+HandlerFunc = Callable[[TBotCommand, "Bot"], Awaitable[None]]
 
 IncomingMessageHandlerFunc = HandlerFunc[IncomingMessage]
 SystemEventHandlerFunc = HandlerFunc[SystemEvent]

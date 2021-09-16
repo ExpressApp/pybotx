@@ -12,7 +12,7 @@ async def test_handle_decoding_error() -> None:
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(ValueError) as exc:
-            bot.async_execute_raw_botx_command(payload)
+            bot.async_execute_raw_bot_command(payload)
 
     # - Assert -
     assert "decoding JSON" in str(exc)
@@ -27,7 +27,7 @@ async def test_handle_validation_error() -> None:
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(ValueError) as exc:
-            bot.async_execute_raw_botx_command(payload)
+            bot.async_execute_raw_bot_command(payload)
 
     # - Assert -
     assert "validation" in str(exc)
@@ -42,7 +42,7 @@ async def test_handle_invalid_bot_api_version() -> None:
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnsupportedBotAPIVersionError) as exc:
-            bot.async_execute_raw_botx_command(payload)
+            bot.async_execute_raw_bot_command(payload)
 
     # - Assert -
     assert "Unsupported" in str(exc)

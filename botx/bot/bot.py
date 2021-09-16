@@ -10,7 +10,7 @@ from botx.bot.api.commands.commands import BotAPICommand
 from botx.bot.api.status.recipient import BotAPIStatusRecipient
 from botx.bot.api.status.response import build_bot_status_response
 from botx.bot.handler_collector import HandlerCollector
-from botx.bot.models.commands.commands import BotXCommand
+from botx.bot.models.commands.commands import BotCommand
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 
@@ -24,28 +24,28 @@ class Bot:
         # Can't set WeakSet[asyncio.Task] type in Python < 3.9
         self._tasks = WeakSet()  # type: ignore
 
-    def async_execute_raw_botx_command(self, payload: Union[str, bytes]) -> None:
+    def async_execute_raw_bot_command(self, payload: Union[str, bytes]) -> None:
         try:
-            raw_botx_command = json.loads(payload)
+            raw_bot_command = json.loads(payload)
         except JSONDecodeError as decoding_exc:
             raise ValueError("Error while decoding JSON") from decoding_exc
 
         try:
-            botx_api_command: BotAPICommand = parse_obj_as(
+            bot_api_command: BotAPICommand = parse_obj_as(
                 # Same ignore as in pydantic
                 BotAPICommand,  # type: ignore[arg-type]
-                raw_botx_command,
+                raw_bot_command,
             )
         except ValidationError as validation_exc:
-            raise ValueError("Error validation BotX command") from validation_exc
+            raise ValueError("Error validation bot command") from validation_exc
 
-        botx_command = botx_api_command.to_domain(raw_botx_command)
+        bot_command = bot_api_command.to_domain(raw_bot_command)
 
-        self.async_execute_botx_command(botx_command)
+        self.async_execute_bot_command(bot_command)
 
-    def async_execute_botx_command(self, botx_command: BotXCommand) -> None:
+    def async_execute_bot_command(self, bot_command: BotCommand) -> None:
         task = asyncio.create_task(
-            self._handler_collector.handle_botx_command(botx_command, self),
+            self._handler_collector.handle_bot_command(bot_command, self),
         )
         self._tasks.add(task)
 

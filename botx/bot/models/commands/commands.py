@@ -5,4 +5,4 @@ from botx.bot.models.commands.system_events.chat_created import ChatCreatedEvent
 
 SystemEvent = Union[ChatCreatedEvent]
 
-BotXCommand = Union[IncomingMessage, SystemEvent]
+BotCommand = Union[IncomingMessage, SystemEvent]

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 from uuid import UUID
 
-from botx.bot.models.commands.base import BotXCommandBase
+from botx.bot.models.commands.base import BotCommandBase
 from botx.bot.models.commands.enums import ChatTypes, UserKinds
 
 
@@ -15,7 +15,7 @@ class ChatCreatedMember:
 
 
 @dataclass
-class ChatCreatedEvent(BotXCommandBase):
+class ChatCreatedEvent(BotCommandBase):
     sync_id: UUID
     chat_id: UUID
     bot_id: UUID

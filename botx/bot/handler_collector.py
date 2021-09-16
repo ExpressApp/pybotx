@@ -12,7 +12,7 @@ from botx.bot.handler import (
     VisibleCommandHandler,
     VisibleFunc,
 )
-from botx.bot.models.commands.commands import BotXCommand, SystemEvent
+from botx.bot.models.commands.commands import BotCommand, SystemEvent
 from botx.bot.models.commands.incoming_message import IncomingMessage
 from botx.bot.models.commands.system_events.chat_created import ChatCreatedEvent
 from botx.bot.models.status.bot_menu import BotMenu
@@ -34,22 +34,22 @@ class HandlerCollector:
         for collector in others:
             self._include_collector(collector)
 
-    async def handle_botx_command(self, botx_command: BotXCommand, bot: "Bot") -> None:
+    async def handle_bot_command(self, bot_command: BotCommand, bot: "Bot") -> None:
         handler: Optional[
             Union[CommandHandler, DefaultMessageHandler, SystemEventHandlerFunc]
         ]
 
-        if isinstance(botx_command, IncomingMessage):
-            handler = self._get_incoming_message_handler(botx_command)
-            await handler(botx_command, bot)
+        if isinstance(bot_command, IncomingMessage):
+            handler = self._get_incoming_message_handler(bot_command)
+            await handler(bot_command, bot)
 
-        elif isinstance(botx_command, SystemEvent):
-            handler = self._get_system_event_handler_or_none(botx_command)
+        elif isinstance(bot_command, SystemEvent):
+            handler = self._get_system_event_handler_or_none(bot_command)
             if handler:
-                await handler(botx_command, bot)
+                await handler(bot_command, bot)
 
         else:
-            raise NotImplementedError(f"Unsupported event type: `{botx_command}`")
+            raise NotImplementedError(f"Unsupported event type: `{bot_command}`")
 
     async def get_bot_menu(
         self,

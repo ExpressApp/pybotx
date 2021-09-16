@@ -24,7 +24,7 @@ async def test_wait_active_handlers(
     bot = Bot(collectors=[collector])
 
     # - Act -
-    bot.async_execute_botx_command(user_command)
+    bot.async_execute_bot_command(user_command)
     await bot.shutdown()
 
     # - Assert -

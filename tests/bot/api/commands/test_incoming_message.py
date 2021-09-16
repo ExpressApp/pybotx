@@ -71,7 +71,7 @@ async def test_minimally_filled_incoming_message() -> None:
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_botx_command(payload)
+        bot.async_execute_raw_bot_command(payload)
 
     # - Assert -
     assert incoming_message == IncomingMessage(
@@ -169,7 +169,7 @@ async def test_maximum_filled_incoming_message() -> None:
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_botx_command(payload)
+        bot.async_execute_raw_bot_command(payload)
 
     # - Assert -
     assert incoming_message == IncomingMessage(

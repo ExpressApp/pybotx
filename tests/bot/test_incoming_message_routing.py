@@ -29,7 +29,7 @@ async def test_user_command(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_botx_command(user_command)
+        bot.async_execute_bot_command(user_command)
 
     # - Assert -
     right_handler_trigger.assert_called_once()
@@ -52,7 +52,7 @@ async def test_non_ascii_user_command(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_botx_command(russian_command)
+        bot.async_execute_bot_command(russian_command)
 
     # - Assert -
     right_handler_trigger.assert_called_once()
@@ -80,7 +80,7 @@ async def test_one_collector_and_two_handlers(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_botx_command(user_command)
+        bot.async_execute_bot_command(user_command)
 
     # - Assert -
     right_handler_trigger.assert_called_once()
@@ -111,7 +111,7 @@ async def test_two_collectors_and_commands(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_botx_command(user_command)
+        bot.async_execute_bot_command(user_command)
 
     # - Assert -
     right_handler_trigger.assert_called_once()
@@ -135,7 +135,7 @@ async def test_default_handler(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_botx_command(user_command)
+        bot.async_execute_bot_command(user_command)
 
     # - Assert -
     right_handler_trigger.assert_called_once()
@@ -158,7 +158,7 @@ async def test_empty_command_goes_to_default_handler(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_botx_command(empty_command)
+        bot.async_execute_bot_command(empty_command)
 
     # - Assert -
     right_handler_trigger.assert_called_once()
@@ -181,7 +181,7 @@ async def test_invalid_command_goes_to_default_handler(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_botx_command(empty_command)
+        bot.async_execute_bot_command(empty_command)
 
     # - Assert -
     right_handler_trigger.assert_called_once()
@@ -201,7 +201,7 @@ async def test_unknown_command_and_no_default_handler(
     # Exception throws in background task so we need to wrap lifespan
     with pytest.raises(HandlerNotFoundException) as exc:
         async with lifespan_wrapper(built_bot) as bot:
-            bot.async_execute_botx_command(user_command)
+            bot.async_execute_bot_command(user_command)
 
     # - Assert -
     assert "/command" in str(exc)
@@ -226,7 +226,7 @@ async def test_default_handler_in_first_collector(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_botx_command(user_command)
+        bot.async_execute_bot_command(user_command)
 
     # - Assert -
     right_handler_trigger.assert_called_once()
@@ -251,7 +251,7 @@ async def test_default_handler_in_second_collector(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_botx_command(user_command)
+        bot.async_execute_bot_command(user_command)
 
     # - Assert -
     right_handler_trigger.assert_called_once()
