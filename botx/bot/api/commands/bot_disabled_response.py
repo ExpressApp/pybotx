@@ -26,18 +26,18 @@ class BotAPIBotDisabledResponse:
 
 
 def build_bot_disabled_response(status_message: str) -> Dict[str, Any]:
-    """Build `bot disabled` response to BotX API.
+    """Build bot disabled response for BotX.
+
+    It should be send if the bot can't process the command.
+
+    If you would like to build complex response, see
+    [botx.bot.api.commands.bot_disabled_response.BotAPIBotDisabledResponse][].
 
     Arguments:
         status_message: Status message.
 
     Returns:
-        built bot_disabled response.
-
-    It should be send if the bot can't process the command.
-
-    If you would like to build complex response, see
-    ::: botx.bot.api.commands.bot_disabled_response.BotAPIBotDisabledResponse
+        built bot disabled response.
     """
     response = BotAPIBotDisabledResponse(
         error_data=BotAPIBotDisabledErrorData(status_message=status_message),

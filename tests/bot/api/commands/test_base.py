@@ -15,7 +15,7 @@ async def test_handle_decoding_error() -> None:
             bot.async_execute_raw_bot_command(payload)
 
     # - Assert -
-    assert "decoding JSON" in str(exc)
+    assert "JSON decoding" in str(exc)
 
 
 @pytest.mark.asyncio

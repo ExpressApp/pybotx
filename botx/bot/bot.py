@@ -28,7 +28,7 @@ class Bot:
         try:
             raw_bot_command = json.loads(payload)
         except JSONDecodeError as decoding_exc:
-            raise ValueError("Error while decoding JSON") from decoding_exc
+            raise ValueError("JSON decoding error") from decoding_exc
 
         try:
             bot_api_command: BotAPICommand = parse_obj_as(
@@ -37,7 +37,7 @@ class Bot:
                 raw_bot_command,
             )
         except ValidationError as validation_exc:
-            raise ValueError("Error validation bot command") from validation_exc
+            raise ValueError("Bot command validation error") from validation_exc
 
         bot_command = bot_api_command.to_domain(raw_bot_command)
 
