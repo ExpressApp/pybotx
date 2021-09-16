@@ -1,19 +1,19 @@
-"""Definition for "image not valid" error."""
+"""Definition for "image is not valid" error."""
 from typing import NoReturn
 
-from botx.clients.methods.base import APIErrorResponse, BotXMethod
+from botx.clients.methods.base import BotXMethod
 from botx.clients.types.http import HTTPResponse
 from botx.exceptions import BotXAPIError
 
 
 class ImageNotValidError(BotXAPIError):
-    """Error for raising when image not valid."""
+    """Error for raising when image is not valid."""
 
-    message_template = "image not valid"
+    message_template = "image is not valid"
 
 
 def handle_error(method: BotXMethod, response: HTTPResponse) -> NoReturn:
-    """Handle "image not valid" error response.
+    """Handle "image is not valid" error response.
 
     Arguments:
         method: method which was made before error.
@@ -22,7 +22,6 @@ def handle_error(method: BotXMethod, response: HTTPResponse) -> NoReturn:
     Raises:
         ImageNotValidError: raised always.
     """
-    APIErrorResponse[dict].parse_obj(response.json_body)
     raise ImageNotValidError(
         url=method.url,
         method=method.http_method,

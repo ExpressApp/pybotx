@@ -1,4 +1,4 @@
-"""Definition for "sticker pack not found" error."""
+"""Definition for "sticker pack was not found" error."""
 from typing import NoReturn
 from uuid import UUID
 
@@ -10,18 +10,18 @@ from botx.exceptions import BotXAPIError
 
 
 class StickerPackNotFoundError(BotXAPIError):
-    """Error for raising when sticker pack not found."""
+    """Error for raising when sticker pack was not found."""
 
     message_template = "sticker pack {pack_id} not found"
 
-    #: ID of sticker pack that was requested.
+    #: sticker pack ID.
     pack_id: UUID
 
 
 class StickerPackNotFoundData(BaseModel):
-    """Data for error when sticker pack not found."""
+    """Data for error when sticker pack was not found."""
 
-    #: ID of sticker pack that was requested.
+    #: sticker pack ID.
     pack_id: UUID
 
 

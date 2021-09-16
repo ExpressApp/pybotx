@@ -13,10 +13,10 @@ class CreateStickerPack(AuthorizedBotXMethod[StickerPack]):
     __method__ = "POST"
     __returning__ = StickerPack
 
-    #: Sticker pack name.
+    #: sticker pack name.
     name: str
 
-    #: Sticker pack author.
+    #: author HUID.
     user_huid: UUID
 
     def build_http_request(self) -> HTTPRequest:

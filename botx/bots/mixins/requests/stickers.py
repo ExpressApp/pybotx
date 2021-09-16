@@ -36,12 +36,12 @@ class StickersMixin:  # noqa: WPS214
 
         Arguments:
             credentials: credentials for making request.
-            user_huid: HUID of user.
-            limit: limit of returning sticker.
+            user_huid: author HUID.
+            limit: returning value count.
             after: cursor hash for pagination.
 
         Returns:
-            List of sticker packs and cursor.
+            Sticker packs list and cursor.
         """
         response: StickerPackList = await self.call_method(
             GetStickerPackList(user_huid=user_huid, limit=limit, after=after),
@@ -59,7 +59,7 @@ class StickersMixin:  # noqa: WPS214
 
         Arguments:
             credentials: credentials for making request.
-            pack_id: id of sticker pack.
+            pack_id: sticker pack ID.
 
         Returns:
             StickerPack entity.
@@ -79,8 +79,8 @@ class StickersMixin:  # noqa: WPS214
 
         Arguments:
             credentials: credentials for making request.
-            pack_id: id of sticker pack.
-            sticker_id: id of sticker.
+            pack_id: sticker pack ID.
+            sticker_id: sticker ID.
 
         Returns:
             StickerFromPack entity.
@@ -100,8 +100,8 @@ class StickersMixin:  # noqa: WPS214
 
         Arguments:
             credentials: credentials for making request.
-            name: name of sticker pack.
-            user_huid: id of sticker pack author.
+            name: sticker pack name.
+            user_huid: author HUID.
 
         Returns:
             StickerPackPreview entity.
@@ -122,9 +122,9 @@ class StickersMixin:  # noqa: WPS214
 
         Arguments:
             credentials: credentials for making request.
-            pack_id: id of pack.
+            pack_id: sticker pack ID.
             emoji: emoji that the sticker will be associated with.
-            image: image of sticker.
+            image: sticker image.
 
         Returns:
             Sticker entity.
@@ -146,10 +146,10 @@ class StickersMixin:  # noqa: WPS214
 
         Arguments:
             credentials: credentials for making request.
-            pack_id: id of pack.
-            name: name of sticker pack.
-            preview: preview of sticker pack.
-            stickers_order: order of stickers in sticker pack.
+            pack_id: sticker pack ID.
+            name: sticker pack name.
+            preview: sticker pack preview.
+            stickers_order: stickers order in sticker pack.
 
         Returns:
             StickerPack entity.
@@ -173,7 +173,7 @@ class StickersMixin:  # noqa: WPS214
 
         Arguments:
             credentials: credentials for making request.
-            pack_id: id of pack.
+            pack_id: sticker pack ID.
         """
         await self.call_method(
             DeleteStickerPack(pack_id=pack_id),
@@ -190,8 +190,8 @@ class StickersMixin:  # noqa: WPS214
 
         Arguments:
             credentials: credentials for making request.
-            pack_id: id of pack.
-            sticker_id: id of sticker.
+            pack_id: sticker pack ID.
+            sticker_id: sticker ID.
         """
         await self.call_method(
             DeleteSticker(pack_id=pack_id, sticker_id=sticker_id),

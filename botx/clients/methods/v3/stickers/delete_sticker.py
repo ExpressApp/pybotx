@@ -18,10 +18,10 @@ class DeleteSticker(AuthorizedBotXMethod[str]):
         HTTPStatus.NOT_FOUND: (sticker_pack_or_sticker_not_found.handle_error,),
     }
 
-    # : Pack ID.
+    # : sticker pack ID.
     pack_id: UUID
 
-    # : Sticker ID.
+    # : sticker ID.
     sticker_id: UUID
 
     @property

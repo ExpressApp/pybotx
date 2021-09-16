@@ -10,7 +10,7 @@ pytest_plugins = ("tests.test_clients.fixtures",)
 async def test_get_sticker_pack_list(client, requests_client):
     sticker_pack_name = "Test sticker pack"
 
-    method = GetStickerPackList(host="example.com")
+    method = GetStickerPackList(host="example.com", limit=1)
     request = requests_client.build_request(method)
     response = await callable_to_coroutine(requests_client.execute, request)
 

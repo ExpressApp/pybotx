@@ -14,13 +14,13 @@ class GetStickerPackList(AuthorizedBotXMethod[StickerPackList]):
     __method__ = "GET"
     __returning__ = StickerPackList
 
-    #: Author ID.
+    #: author HUID.
     user_huid: Optional[UUID]
 
-    #: Count of returning value.
-    limit: int = 1
+    #: returning value count.
+    limit: int
 
-    #: Cursor.
+    #: cursor hash for pagination.
     after: Optional[str] = None
 
     def build_http_request(self) -> HTTPRequest:

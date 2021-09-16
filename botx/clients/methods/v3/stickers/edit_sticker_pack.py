@@ -20,16 +20,16 @@ class EditStickerPack(AuthorizedBotXMethod[StickerPack]):
         HTTPStatus.NOT_FOUND: (sticker_pack_not_found.handle_error,),
     }
 
-    # : Pack ID.
+    # : sticker pack ID.
     pack_id: UUID
 
-    # : Pack name.
+    # : sticker pack name.
     name: str
 
-    #: Pack preview.
+    #: sticker pack preview.
     preview: Optional[UUID]
 
-    #: Stickers order
+    #: stickers order in sticker pack.
     stickers_order: Optional[List[UUID]]
 
     @property

@@ -22,13 +22,13 @@ class AddSticker(AuthorizedBotXMethod[Sticker]):
         ),
     }
 
-    #: Pack ID.
+    #: sticker pack ID.
     pack_id: UUID
 
-    #: Sticker emoji.
+    #: emoji that the sticker will be associated with.
     emoji: str
 
-    #: Sticker image
+    #: sticker image.
     image: str
 
     @property
