@@ -17,7 +17,7 @@ from botx import (
 @pytest.mark.asyncio
 async def test_chat_created() -> None:
     # - Arrange -
-    payload = """{
+    payload = {
         "bot_id": "bc7f96e2-91a5-5de4-8bde-23765450cac8",
         "command": {
             "body": "system:chat_created",
@@ -28,50 +28,49 @@ async def test_chat_created() -> None:
                 "group_chat_id": "dea55ee4-7a9f-5da0-8c73-079f400ee517",
                 "members": [
                     {
-                        "admin": true,
+                        "admin": True,
                         "huid": "bc7f96e2-91a5-5de4-8bde-23765450cac8",
                         "name": "Feature bot",
-                        "user_kind": "botx"
+                        "user_kind": "botx",
                     },
                     {
-                        "admin": false,
+                        "admin": False,
                         "huid": "83fbf1c7-f14b-5176-bd32-ca15cf00d4b7",
                         "name": "Ivanov Ivan Ivanovich",
-                        "user_kind": "cts_user"
-                    }
+                        "user_kind": "cts_user",
+                    },
                 ],
-                "name": "Feature-party"
+                "name": "Feature-party",
             },
-            "metadata": {}
+            "metadata": {},
         },
-        "source_sync_id": null,
+        "source_sync_id": None,
         "sync_id": "2c1a31d6-f47f-5f54-aee2-d0c526bb1d54",
         "from": {
-            "ad_domain": null,
-            "ad_login": null,
-            "app_version": null,
+            "ad_domain": None,
+            "ad_login": None,
+            "app_version": None,
             "chat_type": "group_chat",
-            "device": null,
+            "device": None,
             "device_meta": {
-                "permissions": null,
-                "pushes": null,
-                "timezone": null
+                "permissions": None,
+                "pushes": None,
+                "timezone": None,
             },
-            "device_software": null,
+            "device_software": None,
             "group_chat_id": "dea55ee4-7a9f-5da0-8c73-079f400ee517",
             "host": "cts.example.com",
-            "is_admin": null,
-            "is_creator": null,
+            "is_admin": None,
+            "is_creator": None,
             "locale": "en",
-            "manufacturer": null,
-            "platform": null,
-            "platform_package_id": null,
-            "user_huid": null,
-            "username": null
+            "manufacturer": None,
+            "platform": None,
+            "platform_package_id": None,
+            "user_huid": None,
+            "username": None,
         },
-        "proto_version": 4
+        "proto_version": 4,
     }
-    """
 
     collector = HandlerCollector()
     chat_created: Optional[ChatCreatedEvent] = None

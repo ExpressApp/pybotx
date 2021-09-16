@@ -4,24 +4,9 @@ from botx import Bot, HandlerCollector, UnsupportedBotAPIVersionError, lifespan_
 
 
 @pytest.mark.asyncio
-async def test_handle_decoding_error() -> None:
-    # - Arrange -
-    payload = "{invalid: json"
-    built_bot = Bot(collectors=[HandlerCollector()])
-
-    # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(ValueError) as exc:
-            bot.async_execute_raw_bot_command(payload)
-
-    # - Assert -
-    assert "JSON decoding" in str(exc)
-
-
-@pytest.mark.asyncio
 async def test_handle_validation_error() -> None:
     # - Arrange -
-    payload = '{"invalid": "command"}'
+    payload = {"invalid": "command"}
     built_bot = Bot(collectors=[HandlerCollector()])
 
     # - Act -
@@ -36,7 +21,7 @@ async def test_handle_validation_error() -> None:
 @pytest.mark.asyncio
 async def test_handle_invalid_bot_api_version() -> None:
     # - Arrange -
-    payload = '{"proto_version": "3"}'
+    payload = {"proto_version": "3"}
     built_bot = Bot(collectors=[HandlerCollector()])
 
     # - Act -

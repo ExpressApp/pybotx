@@ -20,42 +20,41 @@ from botx import (
 @pytest.mark.asyncio
 async def test_minimally_filled_incoming_message() -> None:
     # - Arrange -
-    payload = """{
+    payload = {
         "bot_id": "c1b0c5df-075c-55ff-a931-bfa39ddfd424",
         "command": {
             "body": "/hello",
             "command_type": "user",
             "data": {},
-            "metadata": {}
+            "metadata": {},
         },
-        "source_sync_id": null,
+        "source_sync_id": None,
         "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
         "from": {
-            "ad_domain": null,
-            "ad_login": null,
-            "app_version": null,
+            "ad_domain": None,
+            "ad_login": None,
+            "app_version": None,
             "chat_type": "chat",
-            "device": null,
+            "device": None,
             "device_meta": {
-                "permissions": null,
-                "pushes": false,
-                "timezone": "Europe/Moscow"
+                "permissions": None,
+                "pushes": False,
+                "timezone": "Europe/Moscow",
             },
-            "device_software": null,
+            "device_software": None,
             "group_chat_id": "30dc1980-643a-00ad-37fc-7cc10d74e935",
             "host": "cts.example.com",
-            "is_admin": true,
-            "is_creator": true,
+            "is_admin": True,
+            "is_creator": True,
             "locale": "en",
-            "manufacturer": null,
-            "platform": null,
-            "platform_package_id": null,
+            "manufacturer": None,
+            "platform": None,
+            "platform_package_id": None,
             "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
-            "username": null
+            "username": None,
         },
-        "proto_version": 4
+        "proto_version": 4,
     }
-    """
 
     collector = HandlerCollector()
     incoming_message: Optional[IncomingMessage] = None
@@ -115,13 +114,13 @@ async def test_minimally_filled_incoming_message() -> None:
 @pytest.mark.asyncio
 async def test_maximum_filled_incoming_message() -> None:
     # - Arrange -
-    payload = """{
+    payload = {
         "bot_id": "c1b0c5df-075c-55ff-a931-bfa39ddfd424",
         "command": {
             "body": "/hello",
             "command_type": "user",
             "data": {"message": "data"},
-            "metadata": {"message": "metadata"}
+            "metadata": {"message": "metadata"},
         },
         "source_sync_id": "bc3d06ed-7b2e-41ad-99f9-ca28adc2c88d",
         "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
@@ -133,27 +132,26 @@ async def test_maximum_filled_incoming_message() -> None:
             "device": "Firefox 91.0",
             "device_meta": {
                 "permissions": {
-                    "microphone": true,
-                    "notifications": false
+                    "microphone": True,
+                    "notifications": False,
                 },
-                "pushes": false,
-                "timezone": "Europe/Moscow"
+                "pushes": False,
+                "timezone": "Europe/Moscow",
             },
             "device_software": "Linux",
             "group_chat_id": "30dc1980-643a-00ad-37fc-7cc10d74e935",
             "host": "cts.example.com",
-            "is_admin": true,
-            "is_creator": true,
+            "is_admin": True,
+            "is_creator": True,
             "locale": "en",
             "manufacturer": "Mozilla",
             "platform": "web",
             "platform_package_id": "ru.unlimitedtech.express",
             "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
-            "username": "Ivanov Ivan Ivanovich"
+            "username": "Ivanov Ivan Ivanovich",
         },
-        "proto_version": 4
+        "proto_version": 4,
     }
-    """
 
     collector = HandlerCollector()
     incoming_message: Optional[IncomingMessage] = None

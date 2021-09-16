@@ -1,7 +1,5 @@
 import asyncio
-import json
-from json.decoder import JSONDecodeError
-from typing import Any, Dict, Sequence, Union
+from typing import Any, Dict, Sequence
 from weakref import WeakSet
 
 from pydantic import ValidationError, parse_obj_as
@@ -21,12 +19,7 @@ class Bot:
         # Can't set WeakSet[asyncio.Task] type in Python < 3.9
         self._tasks = WeakSet()  # type: ignore
 
-    def async_execute_raw_bot_command(self, payload: Union[str, bytes]) -> None:
-        try:
-            raw_bot_command = json.loads(payload)
-        except JSONDecodeError as decoding_exc:
-            raise ValueError("JSON decoding error") from decoding_exc
-
+    def async_execute_raw_bot_command(self, raw_bot_command: Dict[str, Any]) -> None:
         try:
             bot_api_command: BotAPICommand = parse_obj_as(
                 # Same ignore as in pydantic
