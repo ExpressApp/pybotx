@@ -89,10 +89,10 @@ class Message:
     ad_domain: Optional[str] = _user_proxy_property()
 
     #: ID of chat from which message was received.
-    group_chat_id: UUID = _user_proxy_property()
+    group_chat_id: Optional[UUID] = _user_proxy_property()
 
     #: type of chat.
-    chat_type: ChatTypes = _user_proxy_property()
+    chat_type: Optional[ChatTypes] = _user_proxy_property()
 
     #: host of CTS from which message was received.
     host: str = _user_proxy_property()

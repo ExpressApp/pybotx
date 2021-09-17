@@ -26,6 +26,12 @@ class SystemEvents(Enum):
     #: `system:internal_bot_notification` event
     internal_bot_notification = "system:internal_bot_notification"
 
+    #: `system:cts_login` event.
+    cts_login = "system:cts_login"
+
+    #: `system:cts_logout` event.
+    cts_logout = "system:cts_logout"
+
     #: `file_transfer` message.
     file_transfer = "file_transfer"
 

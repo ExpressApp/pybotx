@@ -60,6 +60,26 @@ class InternalBotNotificationEvent(BotXBaseModel):
     opts: Dict[str, Any]
 
 
+class CTSLoginEvent(BotXBaseModel):
+    """Shape for `system:cts_login` event data."""
+
+    #: huid of user which logged into CTS.
+    user_huid: UUID
+
+    #: CTS id.
+    cts_id: UUID
+
+
+class CTSLogoutEvent(BotXBaseModel):
+    """Shape for `system:cts_logout` event data."""
+
+    #: huid of user which logged out from CTS.
+    user_huid: UUID
+
+    #: CTS id.
+    cts_id: UUID
+
+
 # dict for validating shape for different events
 EVENTS_SHAPE_MAP: Mapping[SystemEvents, Type[BotXBaseModel]] = MappingProxyType(
     {
@@ -68,5 +88,7 @@ EVENTS_SHAPE_MAP: Mapping[SystemEvents, Type[BotXBaseModel]] = MappingProxyType(
         SystemEvents.deleted_from_chat: DeletedFromChatEvent,
         SystemEvents.left_from_chat: LeftFromChatEvent,
         SystemEvents.internal_bot_notification: InternalBotNotificationEvent,
+        SystemEvents.cts_login: CTSLoginEvent,
+        SystemEvents.cts_logout: CTSLogoutEvent,
     },
 )
