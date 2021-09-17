@@ -46,7 +46,7 @@ class BotAPIBaseSender(APIBaseModel):
     username: Optional[str]
 
 
-class BotAPISystemEventSender(BotAPIBaseSender):
+class BotAPIServerEventSender(BotAPIBaseSender):
     is_admin: Literal[None]
     is_creator: Literal[None]
     chat_type: Optional[BotAPIChatTypes]
