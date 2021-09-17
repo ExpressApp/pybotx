@@ -36,6 +36,20 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "asgiref"
+version = "3.4.1"
+description = "ASGI specs, helper code, and adapters"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+typing-extensions = {version = "*", markers = "python_version < \"3.8\""}
+
+[package.extras]
+tests = ["pytest", "pytest-asyncio", "mypy (>=0.800)"]
+
+[[package]]
 name = "astor"
 version = "0.8.1"
 description = "Read/rewrite/write Python ASTs"
@@ -146,7 +160,7 @@ python-versions = "*"
 name = "click"
 version = "8.0.1"
 description = "Composable command line interface toolkit"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -158,7 +172,7 @@ importlib-metadata = {version = "*", markers = "python_version < \"3.8\""}
 name = "colorama"
 version = "0.4.4"
 description = "Cross-platform colored terminal text."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
@@ -465,7 +479,7 @@ python-versions = ">=3.5"
 name = "importlib-metadata"
 version = "4.8.1"
 description = "Read metadata from Python packages"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -950,6 +964,21 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "starlette"
+version = "0.16.0"
+description = "The little ASGI library that shines."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+anyio = ">=3.0.0,<4"
+typing-extensions = {version = "*", markers = "python_version < \"3.8\""}
+
+[package.extras]
+full = ["itsdangerous", "jinja2", "python-multipart", "pyyaml", "requests", "graphene"]
+
+[[package]]
 name = "stevedore"
 version = "3.4.0"
 description = "Manage dynamic plugins for Python applications"
@@ -1015,6 +1044,23 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "uvicorn"
+version = "0.15.0"
+description = "The lightning-fast ASGI server."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+asgiref = ">=3.4.0"
+click = ">=7.0"
+h11 = ">=0.8"
+typing-extensions = {version = "*", markers = "python_version < \"3.8\""}
+
+[package.extras]
+standard = ["websockets (>=9.1)", "httptools (>=0.2.0,<0.3.0)", "watchgod (>=0.6)", "python-dotenv (>=0.13)", "PyYAML (>=5.1)", "uvloop (>=0.14.0,!=0.15.0,!=0.15.1)", "colorama (>=0.4)"]
+
+[[package]]
 name = "watchdog"
 version = "2.1.5"
 description = "Filesystem events monitoring"
@@ -1059,7 +1105,7 @@ typing_extensions = ">=3.6,<4.0"
 name = "zipp"
 version = "3.5.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -1070,7 +1116,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "b9828a9603b1c96296c53e9d9848de0feae44d8734ac34d8c5f7437046bb7b42"
+content-hash = "9f562a5ef75120e6f492fd7504761fe55e47538a9f9f487cffdf4e16a84b87b8"
 
 [metadata.files]
 add-trailing-comma = [
@@ -1084,6 +1130,10 @@ anyio = [
 appdirs = [
     {file = "appdirs-1.4.4-py2.py3-none-any.whl", hash = "sha256:a841dacd6b99318a741b166adb07e19ee71a274450e68237b4650ca1055ab128"},
     {file = "appdirs-1.4.4.tar.gz", hash = "sha256:7d5d0167b2b1ba821647616af46a749d1c653740dd0d2415100fe26e27afdf41"},
+]
+asgiref = [
+    {file = "asgiref-3.4.1-py3-none-any.whl", hash = "sha256:ffc141aa908e6f175673e7b1b3b7af4fdb0ecb738fc5c8b88f69f055c2415214"},
+    {file = "asgiref-3.4.1.tar.gz", hash = "sha256:4ef1ab46b484e3c706329cedeff284a5d40824200638503f5768edb6de7d58e9"},
 ]
 astor = [
     {file = "astor-0.8.1-py2.py3-none-any.whl", hash = "sha256:070a54e890cefb5b3739d19f30f5a5ec840ffc9c50ffa7d23cc9fc1a38ebbfc5"},
@@ -1580,6 +1630,10 @@ snowballstemmer = [
     {file = "snowballstemmer-2.1.0-py2.py3-none-any.whl", hash = "sha256:b51b447bea85f9968c13b650126a888aabd4cb4463fca868ec596826325dedc2"},
     {file = "snowballstemmer-2.1.0.tar.gz", hash = "sha256:e997baa4f2e9139951b6f4c631bad912dfd3c792467e2f03d7239464af90e914"},
 ]
+starlette = [
+    {file = "starlette-0.16.0-py3-none-any.whl", hash = "sha256:38eb24bf705a2c317e15868e384c1b8a12ca396e5a3c3a003db7e667c43f939f"},
+    {file = "starlette-0.16.0.tar.gz", hash = "sha256:e1904b5d0007aee24bdd3c43994be9b3b729f4f58e740200de1d623f8c3a8870"},
+]
 stevedore = [
     {file = "stevedore-3.4.0-py3-none-any.whl", hash = "sha256:920ce6259f0b2498aaa4545989536a27e4e4607b8318802d7ddc3a533d3d069e"},
     {file = "stevedore-3.4.0.tar.gz", hash = "sha256:59b58edb7f57b11897f150475e7bc0c39c5381f0b8e3fa9f5c20ce6c89ec4aa1"},
@@ -1636,6 +1690,10 @@ typing-extensions = [
     {file = "typing_extensions-3.10.0.2-py2-none-any.whl", hash = "sha256:d8226d10bc02a29bcc81df19a26e56a9647f8b0a6d4a83924139f4a8b01f17b7"},
     {file = "typing_extensions-3.10.0.2-py3-none-any.whl", hash = "sha256:f1d25edafde516b146ecd0613dabcc61409817af4766fbbcfb8d1ad4ec441a34"},
     {file = "typing_extensions-3.10.0.2.tar.gz", hash = "sha256:49f75d16ff11f1cd258e1b988ccff82a3ca5570217d7ad8c5f48205dd99a677e"},
+]
+uvicorn = [
+    {file = "uvicorn-0.15.0-py3-none-any.whl", hash = "sha256:17f898c64c71a2640514d4089da2689e5db1ce5d4086c2d53699bf99513421c1"},
+    {file = "uvicorn-0.15.0.tar.gz", hash = "sha256:d9a3c0dd1ca86728d3e235182683b4cf94cd53a867c288eaeca80ee781b2caff"},
 ]
 watchdog = [
     {file = "watchdog-2.1.5-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:5f57ce4f7e498278fb2a091f39359930144a0f2f90ea8cbf4523c4e25de34028"},

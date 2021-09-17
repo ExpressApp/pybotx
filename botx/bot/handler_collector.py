@@ -1,5 +1,6 @@
 import re
-from typing import TYPE_CHECKING, Callable, Dict, Optional, Union
+from functools import partial
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
 
 from botx.bot.exceptions import HandlerNotFoundException
 from botx.bot.handler import (
@@ -8,6 +9,7 @@ from botx.bot.handler import (
     HandlerFunc,
     HiddenCommandHandler,
     IncomingMessageHandlerFunc,
+    Middleware,
     SystemEventHandlerFunc,
     VisibleCommandHandler,
     VisibleFunc,
@@ -25,10 +27,11 @@ if TYPE_CHECKING:  # To avoid circular import
 class HandlerCollector:
     VALID_COMMAND_NAME_RE = re.compile(r"^\/[^\s\/]+$", flags=re.UNICODE)
 
-    def __init__(self) -> None:
+    def __init__(self, middlewares: Optional[List[Middleware]] = None) -> None:
         self._user_commands_handlers: Dict[str, CommandHandler] = {}
         self._default_message_handler: Optional[DefaultMessageHandler] = None
         self._system_events_handlers: Dict[str, SystemEventHandlerFunc] = {}
+        self._middlewares = self._reverse_middlewares(middlewares)
 
     def include(self, *others: "HandlerCollector") -> None:
         for collector in others:
@@ -41,7 +44,7 @@ class HandlerCollector:
 
         if isinstance(bot_command, IncomingMessage):
             handler = self._get_incoming_message_handler(bot_command)
-            await handler(bot_command, bot)
+            await self._build_middleware_stack(handler)(bot_command, bot)
 
         elif isinstance(bot_command, SystemEvent):
             handler = self._get_system_event_handler_or_none(bot_command)
@@ -72,6 +75,7 @@ class HandlerCollector:
         command_name: str,
         visible: Union[bool, VisibleFunc] = True,
         description: Optional[str] = None,
+        middlewares: Optional[List[Middleware]] = None,
     ) -> Callable[[IncomingMessageHandlerFunc], IncomingMessageHandlerFunc]:
         if not self.VALID_COMMAND_NAME_RE.match(command_name):
             raise ValueError("Command should start with '/' and doesn't include spaces")
@@ -88,6 +92,7 @@ class HandlerCollector:
                 handler_func,
                 visible,
                 description,
+                self._reverse_middlewares(middlewares) + self._middlewares,
             )
 
             return handler_func
@@ -101,7 +106,10 @@ class HandlerCollector:
         if self._default_message_handler:
             raise ValueError("Default command handler already registered")
 
-        self._default_message_handler = DefaultMessageHandler(handler_func=handler_func)
+        self._default_message_handler = DefaultMessageHandler(
+            handler_func=handler_func,
+            middlewares=self._middlewares,
+        )
 
         return handler_func
 
@@ -110,6 +118,23 @@ class HandlerCollector:
         handler_func: HandlerFunc[ChatCreatedEvent],
     ) -> HandlerFunc[ChatCreatedEvent]:
         self._system_event(ChatCreatedEvent.__name__, handler_func)
+
+        return handler_func
+
+    def _reverse_middlewares(
+        self,
+        middlewares: Optional[List[Middleware]] = None,
+    ) -> List[Middleware]:
+        return (middlewares or [])[::-1]
+
+    def _build_middleware_stack(
+        self,
+        handler: Union[CommandHandler, DefaultMessageHandler],
+    ) -> IncomingMessageHandlerFunc:
+        handler_func = handler.handler_func
+
+        for middleware in handler.middlewares:
+            handler_func = partial(middleware, call_next=handler_func)
 
         return handler_func
 
@@ -123,13 +148,18 @@ class HandlerCollector:
                 f"Handlers for {command_duplicates} commands already registered",
             )
 
-        self._user_commands_handlers.update(other._user_commands_handlers)
+        other_handlers = other._user_commands_handlers
+        for handler in other_handlers.values():
+            handler.middlewares += self._middlewares
+
+        self._user_commands_handlers.update(other_handlers)
 
         # - Default message handler -
         if self._default_message_handler and other._default_message_handler:
             raise ValueError("Default message handler already registered")
 
-        if not self._default_message_handler:
+        if not self._default_message_handler and other._default_message_handler:
+            other._default_message_handler.middlewares += self._middlewares
             self._default_message_handler = other._default_message_handler
 
         # - System events -
@@ -184,6 +214,7 @@ class HandlerCollector:
         handler_func: IncomingMessageHandlerFunc,
         visible: Union[bool, VisibleFunc],
         description: Optional[str],
+        middlewares: List[Middleware],
     ) -> CommandHandler:
         if visible is True or callable(visible):
             if not description:
@@ -193,9 +224,13 @@ class HandlerCollector:
                 handler_func=handler_func,
                 visible=visible,
                 description=description,
+                middlewares=middlewares,
             )
 
-        return HiddenCommandHandler(handler_func=handler_func)
+        return HiddenCommandHandler(
+            handler_func=handler_func,
+            middlewares=middlewares,
+        )
 
     def _system_event(
         self,

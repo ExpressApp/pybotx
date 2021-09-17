@@ -1,5 +1,7 @@
 import asyncio
-from typing import Any, Dict, Sequence
+import json
+from json.decoder import JSONDecodeError
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Union
 from weakref import WeakSet
 
 from pydantic import ValidationError, parse_obj_as
@@ -7,6 +9,7 @@ from pydantic import ValidationError, parse_obj_as
 from botx.bot.api.commands.commands import BotAPICommand
 from botx.bot.api.status.recipient import BotAPIStatusRecipient
 from botx.bot.api.status.response import build_bot_status_response
+from botx.bot.handler import Middleware
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.models.commands.commands import BotCommand
 from botx.bot.models.status.bot_menu import BotMenu
@@ -14,7 +17,13 @@ from botx.bot.models.status.recipient import StatusRecipient
 
 
 class Bot:
-    def __init__(self, *, collectors: Sequence[HandlerCollector]) -> None:
+    def __init__(
+        self,
+        *,
+        collectors: Sequence[HandlerCollector],
+        middlewares: Optional[List[Middleware]] = None,
+    ) -> None:
+        self._middlewares = middlewares or []
         self._handler_collector = self._merge_collectors(collectors)
         # Can't set WeakSet[asyncio.Task] type in Python < 3.9
         self._tasks = WeakSet()  # type: ignore
@@ -30,7 +39,6 @@ class Bot:
             raise ValueError("Bot command validation error") from validation_exc
 
         bot_command = bot_api_command.to_domain(raw_bot_command)
-
         self.async_execute_bot_command(bot_command)
 
     def async_execute_bot_command(self, bot_command: BotCommand) -> None:
@@ -74,9 +82,7 @@ class Bot:
         if collectors_count == 0:
             raise ValueError("Bot should have at least one `HandlerCollector`")
 
-        if collectors_count == 1:
-            return collectors[0]
+        main_collector = HandlerCollector(middlewares=self._middlewares)
+        main_collector.include(*collectors)
 
-        collector = collectors[0]
-        collector.include(*collectors[1:])
-        return collector
+        return main_collector
