@@ -1,7 +1,5 @@
 import asyncio
-import json
-from json.decoder import JSONDecodeError
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Union
+from typing import Any, Dict, Optional, Sequence
 from weakref import WeakSet
 
 from pydantic import ValidationError, parse_obj_as
@@ -14,6 +12,7 @@ from botx.bot.handler_collector import HandlerCollector
 from botx.bot.models.commands.commands import BotCommand
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
+from botx.converters import optional_sequence_to_list
 
 
 class Bot:
@@ -21,9 +20,9 @@ class Bot:
         self,
         *,
         collectors: Sequence[HandlerCollector],
-        middlewares: Optional[List[Middleware]] = None,
+        middlewares: Optional[Sequence[Middleware]] = None,
     ) -> None:
-        self._middlewares = middlewares or []
+        self._middlewares = optional_sequence_to_list(middlewares)
         self._handler_collector = self._merge_collectors(collectors)
         # Can't set WeakSet[asyncio.Task] type in Python < 3.9
         self._tasks = WeakSet()  # type: ignore

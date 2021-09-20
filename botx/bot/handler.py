@@ -32,9 +32,6 @@ class BaseIncomingMessageHandler:
     handler_func: IncomingMessageHandlerFunc
     middlewares: List[Middleware]
 
-    async def __call__(self, incoming_message: IncomingMessage, bot: "Bot") -> None:
-        await self.handler_func(incoming_message, bot)
-
 
 @dataclass
 class HiddenCommandHandler(BaseIncomingMessageHandler):

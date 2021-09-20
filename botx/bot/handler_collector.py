@@ -1,6 +1,6 @@
 import re
 from functools import partial
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Sequence, Union
 
 from botx.bot.exceptions import HandlerNotFoundException
 from botx.bot.handler import (
@@ -19,6 +19,7 @@ from botx.bot.models.commands.incoming_message import IncomingMessage
 from botx.bot.models.commands.system_events.chat_created import ChatCreatedEvent
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
+from botx.converters import optional_sequence_to_list
 
 if TYPE_CHECKING:  # To avoid circular import
     from botx.bot.bot import Bot
@@ -27,11 +28,11 @@ if TYPE_CHECKING:  # To avoid circular import
 class HandlerCollector:
     VALID_COMMAND_NAME_RE = re.compile(r"^\/[^\s\/]+$", flags=re.UNICODE)
 
-    def __init__(self, middlewares: Optional[List[Middleware]] = None) -> None:
+    def __init__(self, middlewares: Optional[Sequence[Middleware]] = None) -> None:
         self._user_commands_handlers: Dict[str, CommandHandler] = {}
         self._default_message_handler: Optional[DefaultMessageHandler] = None
         self._system_events_handlers: Dict[str, SystemEventHandlerFunc] = {}
-        self._middlewares = self._reverse_middlewares(middlewares)
+        self._middlewares = self._reversed_middlewares(middlewares)
 
     def include(self, *others: "HandlerCollector") -> None:
         for collector in others:
@@ -44,7 +45,8 @@ class HandlerCollector:
 
         if isinstance(bot_command, IncomingMessage):
             handler = self._get_incoming_message_handler(bot_command)
-            await self._build_middleware_stack(handler)(bot_command, bot)
+            middleware_stack = self._build_middleware_stack(handler)
+            await middleware_stack(bot_command, bot)
 
         elif isinstance(bot_command, SystemEvent):
             handler = self._get_system_event_handler_or_none(bot_command)
@@ -75,7 +77,7 @@ class HandlerCollector:
         command_name: str,
         visible: Union[bool, VisibleFunc] = True,
         description: Optional[str] = None,
-        middlewares: Optional[List[Middleware]] = None,
+        middlewares: Optional[Sequence[Middleware]] = None,
     ) -> Callable[[IncomingMessageHandlerFunc], IncomingMessageHandlerFunc]:
         if not self.VALID_COMMAND_NAME_RE.match(command_name):
             raise ValueError("Command should start with '/' and doesn't include spaces")
@@ -92,7 +94,7 @@ class HandlerCollector:
                 handler_func,
                 visible,
                 description,
-                self._reverse_middlewares(middlewares) + self._middlewares,
+                self._reversed_middlewares(middlewares) + self._middlewares,
             )
 
             return handler_func
@@ -121,11 +123,12 @@ class HandlerCollector:
 
         return handler_func
 
-    def _reverse_middlewares(
+    def _reversed_middlewares(
         self,
-        middlewares: Optional[List[Middleware]] = None,
+        middlewares: Optional[Sequence[Middleware]] = None,
     ) -> List[Middleware]:
-        return (middlewares or [])[::-1]
+        middlewares_list = optional_sequence_to_list(middlewares)
+        return middlewares_list[::-1]
 
     def _build_middleware_stack(
         self,
