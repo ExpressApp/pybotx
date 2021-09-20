@@ -143,6 +143,7 @@ class BuildEntityMixin:
             ValueError: raise if conflict of requirement arguments.
         """
         if message and not forward:
+            assert message.group_chat_id is not None
             forward = Forward(
                 group_chat_id=message.group_chat_id,
                 sender_huid=message.user_huid or uuid.uuid4(),

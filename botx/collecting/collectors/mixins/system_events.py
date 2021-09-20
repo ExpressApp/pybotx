@@ -11,7 +11,7 @@ except ImportError:
     from typing_extensions import Protocol  # type: ignore  # noqa: WPS433, WPS440, F401
 
 
-class SystemEventsHandlerMixin:
+class SystemEventsHandlerMixin:  # noqa: WPS214
     """Mixin that defines system events handler decorator."""
 
     def system_event(  # noqa: WPS211
@@ -206,6 +206,58 @@ class SystemEventsHandlerMixin:
             handler=handler,
             event=SystemEvents.internal_bot_notification,
             name=SystemEvents.internal_bot_notification.value,
+            dependencies=dependencies,
+            dependency_overrides_provider=dependency_overrides_provider,
+        )
+
+    def cts_login(
+        self,
+        handler: Optional[Callable] = None,
+        *,
+        dependencies: Optional[Sequence[Depends]] = None,
+        dependency_overrides_provider: Any = None,
+    ) -> Callable:
+        """Register handler for `cts_login` event.
+
+        Arguments:
+            handler: callable that will be used for executing handler.
+            dependencies: sequence of dependencies that should be executed before
+                handler.
+            dependency_overrides_provider: mock of callable for handler.
+
+        Returns:
+            Passed in `handler` callable.
+        """
+        return self.system_event(
+            handler=handler,
+            event=SystemEvents.cts_login,
+            name=SystemEvents.cts_login.value,
+            dependencies=dependencies,
+            dependency_overrides_provider=dependency_overrides_provider,
+        )
+
+    def cts_logout(
+        self,
+        handler: Optional[Callable] = None,
+        *,
+        dependencies: Optional[Sequence[Depends]] = None,
+        dependency_overrides_provider: Any = None,
+    ) -> Callable:
+        """Register handler for `cts_logout` event.
+
+        Arguments:
+            handler: callable that will be used for executing handler.
+            dependencies: sequence of dependencies that should be executed before
+                handler.
+            dependency_overrides_provider: mock of callable for handler.
+
+        Returns:
+            Passed in `handler` callable.
+        """
+        return self.system_event(
+            handler=handler,
+            event=SystemEvents.cts_logout,
+            name=SystemEvents.cts_logout.value,
             dependencies=dependencies,
             dependency_overrides_provider=dependency_overrides_provider,
         )

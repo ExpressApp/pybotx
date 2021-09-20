@@ -1,3 +1,10 @@
+## 0.25.0 (Sep 17, 2021)
+
+### Added
+
+* `cts_login` and `cts_logout` system events.
+
+
 ## 0.24.0 (Sep 14, 2021)
 
 ### Removed

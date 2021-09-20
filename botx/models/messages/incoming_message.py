@@ -17,6 +17,8 @@ CommandDataType = Union[
     events.DeletedFromChatEvent,
     events.LeftFromChatEvent,
     events.InternalBotNotificationEvent,
+    events.CTSLoginEvent,
+    events.CTSLogoutEvent,
     Dict[str, Any],
 ]
 
@@ -83,10 +85,10 @@ class Sender(BaseModel):
     user_huid: Optional[UUID]
 
     #: chat id.
-    group_chat_id: UUID
+    group_chat_id: Optional[UUID]
 
     #: type of chat.
-    chat_type: ChatTypes
+    chat_type: Optional[ChatTypes]
 
     #: AD login of user.
     ad_login: Optional[str]

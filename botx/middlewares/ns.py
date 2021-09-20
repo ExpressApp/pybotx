@@ -174,8 +174,9 @@ def get_chain_key_by_message(message: Message) -> Tuple[str, UUID, UUID, UUID]:
         RuntimeError: raised if key for chain can not be built.
     """
     # key is a tuple of (host, bot_id, chat_id, user_huid)
-    if message.user_huid is None:
+    if not (message.user_huid and message.group_chat_id):
         raise RuntimeError("key for chain can be obtained only for messages from users")
+
     return message.host, message.bot_id, message.group_chat_id, message.user_huid
 
 
