@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Awaitable, Callable, TypeVar, Union
+from typing import TYPE_CHECKING, Awaitable, Callable, List, TypeVar, Union
 
 from botx.bot.models.commands.commands import BotCommand, SystemEvent
 from botx.bot.models.commands.incoming_message import IncomingMessage
@@ -21,13 +21,16 @@ SystemEventHandlerFunc = HandlerFunc[SystemEvent]
 
 VisibleFunc = Callable[[StatusRecipient, "Bot"], Awaitable[bool]]
 
+Middleware = Callable[
+    [IncomingMessage, "Bot", IncomingMessageHandlerFunc],
+    Awaitable[None],
+]
+
 
 @dataclass
 class BaseIncomingMessageHandler:
     handler_func: IncomingMessageHandlerFunc
-
-    async def __call__(self, incoming_message: IncomingMessage, bot: "Bot") -> None:
-        await self.handler_func(incoming_message, bot)
+    middlewares: List[Middleware]
 
 
 @dataclass
@@ -38,8 +41,8 @@ class HiddenCommandHandler(BaseIncomingMessageHandler):
 
 @dataclass
 class VisibleCommandHandler(BaseIncomingMessageHandler):
-    visible: Union[Literal[True], VisibleFunc]
     description: str
+    visible: Union[Literal[True], VisibleFunc] = True
 
 
 @dataclass
