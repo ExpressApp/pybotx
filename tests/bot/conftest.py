@@ -28,17 +28,7 @@ def wrong_handler_trigger() -> Mock:
 
 
 @pytest.fixture
-def host() -> str:
-    return "cts.example.com"
-
-
-@pytest.fixture
-def username() -> str:
-    return "Ivanov Ivan Ivanovich"
-
-
-@pytest.fixture
-def incoming_message_factory(host: str) -> Callable[..., IncomingMessage]:
+def incoming_message_factory() -> Callable[..., IncomingMessage]:
     def decorator(
         *,
         body: str = "",
@@ -77,7 +67,7 @@ def incoming_message_factory(host: str) -> Callable[..., IncomingMessage]:
                 id=uuid4(),
                 bot_id=uuid4(),
                 type=ChatTypes.PERSONAL_CHAT,
-                host=host,
+                host="cts.example.com",
             ),
             raw_command=None,
         )
@@ -86,12 +76,12 @@ def incoming_message_factory(host: str) -> Callable[..., IncomingMessage]:
 
 
 @pytest.fixture
-def chat_created(host: str) -> ChatCreatedEvent:
+def chat_created() -> ChatCreatedEvent:
     return ChatCreatedEvent(
         sync_id=uuid4(),
         chat_id=uuid4(),
         bot_id=uuid4(),
-        host=host,
+        host="cts.example.com",
         chat_name="Test",
         chat_type=ChatTypes.PERSONAL_CHAT,
         creator_id=uuid4(),

@@ -28,7 +28,7 @@ class BotAPIStatusResult:
 
 @dataclass
 class BotAPIStatus:
-    result: BotAPIStatusResult  # noqa: WPS110
+    result: BotAPIStatusResult
     status: Literal["ok"] = "ok"
 
 

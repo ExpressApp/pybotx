@@ -39,6 +39,7 @@ def build_bot_disabled_response(status_message: str) -> Dict[str, Any]:
     Returns:
         built bot disabled response.
     """
+
     response = BotAPIBotDisabledResponse(
         error_data=BotAPIBotDisabledErrorData(status_message=status_message),
     )

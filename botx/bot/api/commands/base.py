@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import validator
 
+from botx.api_base_models import APIBaseModel
 from botx.bot.api.constants import BOT_API_VERSION
 from botx.bot.api.enums import (
     BotAPIChatTypes,
@@ -10,7 +11,6 @@ from botx.bot.api.enums import (
     BotAPICommandTypes,
 )
 from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
-from botx.bot.api.pydantic import APIBaseModel
 
 try:
     from typing import Literal

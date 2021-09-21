@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import Field
 
+from botx.api_base_models import APIBaseModel
 from botx.bot.api.commands.base import BotAPIBaseCommand, BotAPIChatEventSender
 from botx.bot.api.enums import (
     BotAPIChatTypes,
@@ -11,7 +12,6 @@ from botx.bot.api.enums import (
     convert_chat_type_to_domain,
     convert_user_kind,
 )
-from botx.bot.api.pydantic import APIBaseModel
 from botx.bot.models.commands.system_events.chat_created import (
     ChatCreatedEvent,
     ChatCreatedMember,

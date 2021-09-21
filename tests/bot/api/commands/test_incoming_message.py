@@ -66,7 +66,7 @@ async def test_minimally_filled_incoming_message() -> None:
         # Drop `raw_command` from asserting
         incoming_message.raw_command = None
 
-    built_bot = Bot(collectors=[collector])
+    built_bot = Bot(collectors=[collector], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -163,7 +163,7 @@ async def test_maximum_filled_incoming_message() -> None:
         # Drop `raw_command` from asserting
         incoming_message.raw_command = None
 
-    built_bot = Bot(collectors=[collector])
+    built_bot = Bot(collectors=[collector], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

@@ -17,7 +17,7 @@ async def test_system_event_handling(
     async def chat_created_handler(event: ChatCreatedEvent, bot: Bot) -> None:
         right_handler_trigger()
 
-    built_bot = Bot(collectors=[collector])
+    built_bot = Bot(collectors=[collector], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -35,7 +35,7 @@ async def test_no_handler_for_system_event(
     # - Arrange -
     collector = HandlerCollector()
 
-    built_bot = Bot(collectors=[collector])
+    built_bot = Bot(collectors=[collector], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -58,7 +58,7 @@ async def test_system_event_in_first_collector(
     async def chat_created_handler(event: ChatCreatedEvent, bot: Bot) -> None:
         right_handler_trigger()
 
-    built_bot = Bot(collectors=[collector_1, collector_2])
+    built_bot = Bot(collectors=[collector_1, collector_2], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -81,7 +81,7 @@ async def test_system_event_in_second_collector(
     async def chat_created_handler(event: ChatCreatedEvent, bot: Bot) -> None:
         right_handler_trigger()
 
-    built_bot = Bot(collectors=[collector_1, collector_2])
+    built_bot = Bot(collectors=[collector_1, collector_2], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

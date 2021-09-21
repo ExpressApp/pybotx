@@ -22,23 +22,37 @@ from botx.bot.models.commands.system_events.chat_created import (
     ChatCreatedEvent,
     ChatCreatedMember,
 )
+from botx.bot.models.credentials import BotCredentials
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
+
+# - Testing -
 from botx.bot.testing import lifespan_wrapper
+from botx.client.exceptions import (
+    ExceptionNotRaisedInStatusHandlerError,
+    InvalidBotCredentialsError,
+    InvalidBotXResponseError,
+    InvalidBotXStatusCodeError,
+)
 
 __all__ = (
     "Bot",
     "BotAPIBotDisabledResponse",
+    "BotCredentials",
     "BotMenu",
     "Chat",
     "ChatCreatedEvent",
     "ChatCreatedMember",
     "ChatTypes",
     "ClientPlatforms",
+    "ExceptionNotRaisedInStatusHandlerError",
     "ExpressApp",
     "HandlerCollector",
     "HandlerNotFoundException",
     "IncomingMessage",
+    "InvalidBotCredentialsError",
+    "InvalidBotXResponseError",
+    "InvalidBotXStatusCodeError",
     "StatusRecipient",
     "UnsupportedBotAPIVersionError",
     "UserDevice",
