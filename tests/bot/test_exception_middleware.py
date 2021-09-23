@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from typing import Callable, Generator
 from unittest.mock import MagicMock, call
@@ -6,10 +7,6 @@ import pytest
 from loguru import logger
 
 from botx import Bot, HandlerCollector, IncomingMessage, lifespan_wrapper
-
-
-async def async_func() -> None:
-    pass
 
 
 @pytest.fixture()
@@ -33,7 +30,7 @@ async def test_exception_middleware_with_handler(
 ) -> None:
     # - Arrange -
     exc = ValueError("test_error")
-    value_error_handler = MagicMock(async_func)
+    value_error_handler = MagicMock(asyncio.Future())
 
     user_command = incoming_message_factory(body="/command")
 
