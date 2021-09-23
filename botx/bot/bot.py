@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Dict, Optional, Sequence
+from typing import Any, Dict, Optional, Sequence, Type
 from weakref import WeakSet
 
 from pydantic import ValidationError, parse_obj_as
@@ -9,6 +9,7 @@ from botx.bot.api.status.recipient import BotAPIStatusRecipient
 from botx.bot.api.status.response import build_bot_status_response
 from botx.bot.handler import Middleware
 from botx.bot.handler_collector import HandlerCollector
+from botx.bot.middlewares.exceptions import ExceptionHandler, ExceptionMiddleware
 from botx.bot.models.commands.commands import BotCommand
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
@@ -23,6 +24,8 @@ class Bot:
         middlewares: Optional[Sequence[Middleware]] = None,
     ) -> None:
         self._middlewares = optional_sequence_to_list(middlewares)
+        self._add_exception_middleware()
+
         self._handler_collector = self._merge_collectors(collectors)
         # Can't set WeakSet[asyncio.Task] type in Python < 3.9
         self._tasks = WeakSet()  # type: ignore
@@ -57,6 +60,13 @@ class Bot:
         bot_menu = await self.get_status(status_recipient)
         return build_bot_status_response(bot_menu)
 
+    def add_exception_handler(
+        self,
+        exc_class: Type[Exception],
+        handler: ExceptionHandler,
+    ) -> None:
+        self._exception_middleware.add_exception_handler(exc_class, handler)
+
     async def get_status(self, status_recipient: StatusRecipient) -> BotMenu:
         return await self._handler_collector.get_bot_menu(status_recipient, self)
 
@@ -72,6 +82,11 @@ class Bot:
         # Raise handlers exceptions
         for task in finished_tasks:
             task.result()
+
+    def _add_exception_middleware(self) -> None:
+        exception_middleware = ExceptionMiddleware()
+        self._exception_middleware = exception_middleware
+        self._middlewares.insert(0, exception_middleware.dispatch)
 
     def _merge_collectors(
         self,
