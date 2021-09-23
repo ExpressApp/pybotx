@@ -58,7 +58,6 @@ async def test_middlewares_order(
 @pytest.mark.asyncio
 async def test_default_handler_middlewares(
     incoming_message_factory: Callable[..., IncomingMessage],
-    right_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
@@ -100,7 +99,6 @@ async def test_default_handler_middlewares(
 @pytest.mark.asyncio
 async def test_child_collector_middlewares(
     incoming_message_factory: Callable[..., IncomingMessage],
-    right_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
@@ -148,7 +146,6 @@ async def test_child_collector_middlewares(
 @pytest.mark.asyncio
 async def test_parent_collector_middlewares(
     incoming_message_factory: Callable[..., IncomingMessage],
-    right_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
