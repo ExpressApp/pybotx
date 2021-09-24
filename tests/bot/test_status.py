@@ -38,7 +38,7 @@ async def test_hidden_command_not_in_menu(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         wrong_handler_trigger()
 
-    built_bot = Bot(collectors=[collector])
+    built_bot = Bot(collectors=[collector], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -62,7 +62,7 @@ async def test_visible_command_in_menu(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         wrong_handler_trigger()
 
-    built_bot = Bot(collectors=[collector])
+    built_bot = Bot(collectors=[collector], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -89,7 +89,7 @@ async def test_command_not_in_menu_if_visible_func_return_false(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         wrong_handler_trigger()
 
-    built_bot = Bot(collectors=[collector])
+    built_bot = Bot(collectors=[collector], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -116,7 +116,7 @@ async def test_command_in_menu_if_visible_func_return_true(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         wrong_handler_trigger()
 
-    built_bot = Bot(collectors=[collector])
+    built_bot = Bot(collectors=[collector], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

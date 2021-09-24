@@ -25,7 +25,7 @@ async def test_user_command(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         right_handler_trigger()
 
-    built_bot = Bot(collectors=[collector])
+    built_bot = Bot(collectors=[collector], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -48,7 +48,7 @@ async def test_non_ascii_user_command(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         right_handler_trigger()
 
-    built_bot = Bot(collectors=[collector])
+    built_bot = Bot(collectors=[collector], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -76,7 +76,7 @@ async def test_one_collector_and_two_handlers(
     async def right_handler(message: IncomingMessage, bot: Bot) -> None:
         right_handler_trigger()
 
-    built_bot = Bot(collectors=[collector])
+    built_bot = Bot(collectors=[collector], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -107,7 +107,7 @@ async def test_two_collectors_and_commands(
     async def wrong_handler(message: IncomingMessage, bot: Bot) -> None:
         wrong_handler_trigger()
 
-    built_bot = Bot(collectors=[collector_1, collector_2])
+    built_bot = Bot(collectors=[collector_1, collector_2], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -131,7 +131,7 @@ async def test_default_handler(
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         right_handler_trigger()
 
-    built_bot = Bot(collectors=[collector])
+    built_bot = Bot(collectors=[collector], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -154,7 +154,7 @@ async def test_empty_command_goes_to_default_handler(
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         right_handler_trigger()
 
-    built_bot = Bot(collectors=[collector])
+    built_bot = Bot(collectors=[collector], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -177,7 +177,7 @@ async def test_invalid_command_goes_to_default_handler(
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         right_handler_trigger()
 
-    built_bot = Bot(collectors=[collector])
+    built_bot = Bot(collectors=[collector], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -195,7 +195,7 @@ async def test_unknown_command_and_no_default_handler(
     user_command = incoming_message_factory(body="/command")
     collector = HandlerCollector()
 
-    built_bot = Bot(collectors=[collector])
+    built_bot = Bot(collectors=[collector], credentials=[])
 
     # - Act -
     # Exception throws in background task so we need to wrap lifespan
@@ -222,7 +222,7 @@ async def test_default_handler_in_first_collector(
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         right_handler_trigger()
 
-    built_bot = Bot(collectors=[collector_1, collector_2])
+    built_bot = Bot(collectors=[collector_1, collector_2], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -247,7 +247,7 @@ async def test_default_handler_in_second_collector(
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         right_handler_trigger()
 
-    built_bot = Bot(collectors=[collector_1, collector_2])
+    built_bot = Bot(collectors=[collector_1, collector_2], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

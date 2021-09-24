@@ -1,4 +1,4 @@
-from botx.bot.api.pydantic import StrEnum
+from botx.api_base_models import StrEnum
 from botx.bot.models.commands.enums import ChatTypes, ClientPlatforms, UserKinds
 
 

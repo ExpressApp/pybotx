@@ -1,8 +1,8 @@
 from typing import Optional
 from uuid import UUID
 
+from botx.api_base_models import APIBaseModel
 from botx.bot.api.enums import BotAPIChatTypes, convert_chat_type_to_domain
-from botx.bot.api.pydantic import APIBaseModel
 from botx.bot.models.status.recipient import StatusRecipient
 
 

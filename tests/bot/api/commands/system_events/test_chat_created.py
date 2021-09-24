@@ -82,7 +82,7 @@ async def test_chat_created() -> None:
         # Drop `raw_command` from asserting
         chat_created.raw_command = None
 
-    built_bot = Bot(collectors=[collector])
+    built_bot = Bot(collectors=[collector], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

@@ -7,7 +7,7 @@ from botx import Bot, HandlerCollector, UnsupportedBotAPIVersionError, lifespan_
 async def test_handle_validation_error() -> None:
     # - Arrange -
     payload = {"invalid": "command"}
-    built_bot = Bot(collectors=[HandlerCollector()])
+    built_bot = Bot(collectors=[HandlerCollector()], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -22,7 +22,7 @@ async def test_handle_validation_error() -> None:
 async def test_handle_invalid_bot_api_version() -> None:
     # - Arrange -
     payload = {"proto_version": "3"}
-    built_bot = Bot(collectors=[HandlerCollector()])
+    built_bot = Bot(collectors=[HandlerCollector()], credentials=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

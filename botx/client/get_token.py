@@ -1,0 +1,29 @@
+from uuid import UUID
+
+import httpx
+
+from botx.bot.credentials_storage import CredentialsStorage
+from botx.client.bots_api.get_token import BotXAPIGetTokenPayload, GetTokenMethod
+
+
+async def get_token(
+    bot_id: UUID,
+    httpx_client: httpx.AsyncClient,
+    credentials_storage: CredentialsStorage,
+) -> str:
+    """
+    Request token for bot.
+
+    Moved to separate file because used in:
+    * [botx.client.authorized_botx_method.AuthorizedBotXMethod][].
+    * [botx.client.botx_api_client.BotXAPIClient][].
+    """
+
+    method = GetTokenMethod(bot_id, httpx_client, credentials_storage)
+
+    signature = credentials_storage.build_signature(bot_id)
+    payload = BotXAPIGetTokenPayload.from_domain(signature)
+
+    botx_api_token = await method.execute(payload)
+
+    return botx_api_token.to_domain()
