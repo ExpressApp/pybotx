@@ -32,6 +32,9 @@ class BaseIncomingMessageHandler:
     handler_func: IncomingMessageHandlerFunc
     middlewares: List[Middleware]
 
+    def add_middlewares(self, middlewares: List[Middleware]) -> None:
+        self.middlewares += middlewares
+
 
 @dataclass
 class HiddenCommandHandler(BaseIncomingMessageHandler):

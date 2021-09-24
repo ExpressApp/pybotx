@@ -153,7 +153,7 @@ class HandlerCollector:
 
         other_handlers = other._user_commands_handlers
         for handler in other_handlers.values():
-            handler.middlewares += self._middlewares
+            handler.add_middlewares(self._middlewares)
 
         self._user_commands_handlers.update(other_handlers)
 
@@ -162,7 +162,7 @@ class HandlerCollector:
             raise ValueError("Default message handler already registered")
 
         if not self._default_message_handler and other._default_message_handler:
-            other._default_message_handler.middlewares += self._middlewares
+            other._default_message_handler.add_middlewares(self._middlewares)
             self._default_message_handler = other._default_message_handler
 
         # - System events -
