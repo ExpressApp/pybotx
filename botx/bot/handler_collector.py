@@ -1,6 +1,6 @@
 import re
 from functools import partial
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Sequence, Type, Union
 
 from botx.bot.exceptions import HandlerNotFoundException
 from botx.bot.handler import (
@@ -31,7 +31,10 @@ class HandlerCollector:
     def __init__(self, middlewares: Optional[Sequence[Middleware]] = None) -> None:
         self._user_commands_handlers: Dict[str, CommandHandler] = {}
         self._default_message_handler: Optional[DefaultMessageHandler] = None
-        self._system_events_handlers: Dict[str, SystemEventHandlerFunc] = {}
+        self._system_events_handlers: Dict[
+            Type[BotCommand],
+            SystemEventHandlerFunc,
+        ] = {}
         self._middlewares = self._reversed_middlewares(middlewares)
 
     def include(self, *others: "HandlerCollector") -> None:
@@ -119,7 +122,7 @@ class HandlerCollector:
         self,
         handler_func: HandlerFunc[ChatCreatedEvent],
     ) -> HandlerFunc[ChatCreatedEvent]:
-        self._system_event(ChatCreatedEvent.__name__, handler_func)
+        self._system_event(ChatCreatedEvent, handler_func)
 
         return handler_func
 
@@ -198,7 +201,7 @@ class HandlerCollector:
         self,
         event: SystemEvent,
     ) -> Optional[SystemEventHandlerFunc]:
-        event_cls_name = event.__class__.__name__
+        event_cls_name = event.__class__
 
         return self._system_events_handlers.get(event_cls_name)
 
@@ -237,7 +240,7 @@ class HandlerCollector:
 
     def _system_event(
         self,
-        event_cls_name: str,
+        event_cls_name: Type[BotCommand],
         handler_func: HandlerFunc[SystemEvent],
     ) -> HandlerFunc[SystemEvent]:
         if event_cls_name in self._system_events_handlers:
