@@ -4,7 +4,7 @@ import httpx
 
 from botx.api_base_models import APIBaseModel
 from botx.client.botx_method import BotXMethod
-from botx.client.exceptions import InvalidBotCredentialsError
+from botx.client.exceptions import InvalidBotAccountError
 
 try:
     from typing import Literal
@@ -28,12 +28,12 @@ class BotXAPIToken(APIBaseModel):
         return self.result
 
 
-def invalid_credentials_status_handler(response: httpx.Response) -> NoReturn:
-    raise InvalidBotCredentialsError(response)
+def invalid_bot_account_status_handler(response: httpx.Response) -> NoReturn:
+    raise InvalidBotAccountError(response)
 
 
 class GetTokenMethod(BotXMethod):
-    status_handlers = {401: invalid_credentials_status_handler}
+    status_handlers = {401: invalid_bot_account_status_handler}
 
     async def execute(self, payload: BotXAPIGetTokenPayload) -> BotXAPIToken:
         path = f"/api/v2/botx/bots/{self._bot_id}/token"

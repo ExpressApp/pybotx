@@ -9,13 +9,13 @@ from pydantic import ValidationError, parse_obj_as
 from botx.bot.api.commands.commands import BotAPICommand
 from botx.bot.api.status.recipient import BotAPIStatusRecipient
 from botx.bot.api.status.response import build_bot_status_response
-from botx.bot.credentials_storage import CredentialsStorage
+from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.bot.handler import Middleware
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.middlewares.exceptions import ExceptionHandlersDict, ExceptionMiddleware
+from botx.bot.models.bot_account import BotAccount
 from botx.bot.models.commands.commands import BotCommand
 from botx.bot.models.commands.enums import ChatTypes
-from botx.bot.models.credentials import BotCredentials
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 from botx.client.botx_api_client import BotXAPIClient
@@ -27,7 +27,7 @@ class Bot:
         self,
         *,
         collectors: Sequence[HandlerCollector],
-        credentials: Sequence[BotCredentials],
+        bot_accounts: Sequence[BotAccount],
         middlewares: Optional[Sequence[Middleware]] = None,
         httpx_client: Optional[httpx.AsyncClient] = None,
         exception_handlers: Optional[ExceptionHandlersDict] = None,
@@ -39,7 +39,7 @@ class Bot:
 
         self._botx_api_client = BotXAPIClient(
             httpx_client,
-            CredentialsStorage(list(credentials)),
+            BotAccountsStorage(list(bot_accounts)),
         )
 
         # Can't set WeakSet[asyncio.Task] type in Python < 3.9

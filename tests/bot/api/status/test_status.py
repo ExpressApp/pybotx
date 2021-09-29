@@ -14,7 +14,7 @@ async def test_invalid_status() -> None:
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         pass
 
-    built_bot = Bot(collectors=[collector], credentials=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[])
 
     # - Act -
     with pytest.raises(ValueError) as exc:
@@ -40,7 +40,7 @@ async def test_minimally_filled_status_recipient_and_hidden_command() -> None:
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         pass
 
-    built_bot = Bot(collectors=[collector], credentials=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -75,7 +75,7 @@ async def test_maximum_filled_status_recipient_and_visible_command() -> None:
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         pass
 
-    built_bot = Bot(collectors=[collector], credentials=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

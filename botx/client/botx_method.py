@@ -6,7 +6,7 @@ import httpx
 from pydantic import ValidationError
 
 from botx.api_base_models import APIBaseModel
-from botx.bot.credentials_storage import CredentialsStorage
+from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.exceptions import (
     ExceptionNotRaisedInStatusHandlerError,
     InvalidBotXResponseError,
@@ -28,11 +28,11 @@ class BotXMethod:
         self,
         sender_bot_id: UUID,
         httpx_client: httpx.AsyncClient,
-        credentials_storage: CredentialsStorage,
+        bot_accounts_storage: BotAccountsStorage,
     ) -> None:
         self._bot_id = sender_bot_id
         self._httpx_client = httpx_client
-        self._credentials_storage = credentials_storage
+        self._bot_accounts_storage = bot_accounts_storage
 
     # For MyPy checks
     execute: Callable[..., Awaitable[Any]]
@@ -41,7 +41,7 @@ class BotXMethod:
         raise NotImplementedError("You should define `execute` method")
 
     def _build_url(self, path: str) -> str:
-        host = self._credentials_storage.get_host(self._bot_id)
+        host = self._bot_accounts_storage.get_host(self._bot_id)
         return urljoin(f"https://{host}", path)
 
     def _extract_api_model(

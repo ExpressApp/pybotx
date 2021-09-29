@@ -21,7 +21,7 @@ async def test_wait_active_handlers(
         await asyncio.sleep(0)  # Return control to event loop
         right_handler_trigger()
 
-    bot = Bot(collectors=[collector], credentials=[])
+    bot = Bot(collectors=[collector], bot_accounts=[])
 
     # - Act -
     bot.async_execute_bot_command(user_command)
