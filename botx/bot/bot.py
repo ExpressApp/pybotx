@@ -1,4 +1,5 @@
 import asyncio
+from types import SimpleNamespace
 from typing import Any, Dict, List, Optional, Sequence
 from uuid import UUID
 from weakref import WeakSet
@@ -32,6 +33,8 @@ class Bot:
         httpx_client: Optional[httpx.AsyncClient] = None,
         exception_handlers: Optional[ExceptionHandlersDict] = None,
     ) -> None:
+        self.state: SimpleNamespace = SimpleNamespace()
+
         self._middlewares = optional_sequence_to_list(middlewares)
         self._add_exception_middleware(exception_handlers)
 
@@ -82,7 +85,7 @@ class Bot:
         await self._botx_api_client.shutdown()
 
         if not self._tasks:
-            return  # pragma: no cover
+            return
 
         finished_tasks, _ = await asyncio.wait(
             self._tasks,
