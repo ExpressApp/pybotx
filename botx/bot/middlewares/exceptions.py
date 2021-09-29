@@ -12,13 +12,14 @@ ExceptionHandler = Callable[
     [Exception, IncomingMessage, "Bot"],
     Awaitable[None],
 ]
+ExceptionHandlersDict = Dict[Type[Exception], ExceptionHandler]
 
 
 class ExceptionMiddleware:
     """Exception handling middleware."""
 
-    def __init__(self) -> None:
-        self._exception_handlers: Dict[Type[Exception], ExceptionHandler] = {}
+    def __init__(self, exception_handlers: ExceptionHandlersDict) -> None:
+        self._exception_handlers = exception_handlers
 
     async def dispatch(
         self,
@@ -46,13 +47,6 @@ class ExceptionMiddleware:
                     f"Uncaught exception {exc_name} in exception handler:",
                     error_handler_exc,
                 )
-
-    def add_exception_handler(
-        self,
-        exc_class: Type[Exception],
-        handler: ExceptionHandler,
-    ) -> None:
-        self._exception_handlers[exc_class] = handler
 
     def _get_exception_handler(self, exc: Exception) -> Optional[ExceptionHandler]:
         for exc_cls in type(exc).mro():

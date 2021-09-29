@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Dict, List, Optional, Sequence, Type
+from typing import Any, Dict, List, Optional, Sequence
 from uuid import UUID
 from weakref import WeakSet
 
@@ -12,7 +12,7 @@ from botx.bot.api.status.response import build_bot_status_response
 from botx.bot.credentials_storage import CredentialsStorage
 from botx.bot.handler import Middleware
 from botx.bot.handler_collector import HandlerCollector
-from botx.bot.middlewares.exceptions import ExceptionHandler, ExceptionMiddleware
+from botx.bot.middlewares.exceptions import ExceptionHandlersDict, ExceptionMiddleware
 from botx.bot.models.commands.commands import BotCommand
 from botx.bot.models.commands.enums import ChatTypes
 from botx.bot.models.credentials import BotCredentials
@@ -30,9 +30,10 @@ class Bot:
         credentials: Sequence[BotCredentials],
         middlewares: Optional[Sequence[Middleware]] = None,
         httpx_client: Optional[httpx.AsyncClient] = None,
+        exception_handlers: Optional[ExceptionHandlersDict] = None,
     ) -> None:
         self._middlewares = optional_sequence_to_list(middlewares)
-        self._add_exception_middleware()
+        self._add_exception_middleware(exception_handlers)
 
         self._handler_collector = self._merge_collectors(collectors)
 
@@ -74,13 +75,6 @@ class Bot:
         bot_menu = await self.get_status(status_recipient)
         return build_bot_status_response(bot_menu)
 
-    def add_exception_handler(
-        self,
-        exc_class: Type[Exception],
-        handler: ExceptionHandler,
-    ) -> None:
-        self._exception_middleware.add_exception_handler(exc_class, handler)
-
     async def get_status(self, status_recipient: StatusRecipient) -> BotMenu:
         return await self._handler_collector.get_bot_menu(status_recipient, self)
 
@@ -120,9 +114,11 @@ class Bot:
     async def get_token(self, bot_id: UUID) -> str:
         return await self._botx_api_client.get_token(bot_id)
 
-    def _add_exception_middleware(self) -> None:
-        exception_middleware = ExceptionMiddleware()
-        self._exception_middleware = exception_middleware
+    def _add_exception_middleware(
+        self,
+        exception_handlers: Optional[ExceptionHandlersDict] = None,
+    ) -> None:
+        exception_middleware = ExceptionMiddleware(exception_handlers or {})
         self._middlewares.insert(0, exception_middleware.dispatch)
 
     def _merge_collectors(
