@@ -40,8 +40,11 @@ async def test_exception_middleware_with_handler(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         raise exc
 
-    built_bot = Bot(collectors=[collector], credentials=[])
-    built_bot.add_exception_handler(ValueError, value_error_handler)
+    built_bot = Bot(
+        collectors=[collector],
+        credentials=[],
+        exception_handlers={ValueError: value_error_handler},
+    )
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -98,8 +101,11 @@ async def test_exception_middleware_with_handler_error(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         raise ValueError("Testing exception middleware")
 
-    built_bot = Bot(collectors=[collector], credentials=[])
-    built_bot.add_exception_handler(Exception, exception_handler)
+    built_bot = Bot(
+        collectors=[collector],
+        credentials=[],
+        exception_handlers={Exception: exception_handler},
+    )
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
