@@ -17,7 +17,7 @@ class BotXAPIGetTokenPayload(APIBaseModel):
 
     @classmethod
     def from_domain(cls, signature: str) -> "BotXAPIGetTokenPayload":
-        return cls(signature=signature)
+        return cls.construct(signature=signature)
 
 
 class BotXAPIToken(APIBaseModel):

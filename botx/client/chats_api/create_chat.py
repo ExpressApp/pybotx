@@ -28,7 +28,7 @@ class BotXAPICreateChatPayload(APIBaseModel):
         description: Optional[str] = None,
         shared_history: bool = False,
     ) -> "BotXAPICreateChatPayload":
-        return cls(
+        return cls.construct(
             name=name,
             chat_type=convert_chat_type_from_domain(chat_type),
             members=members,
