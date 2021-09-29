@@ -1,5 +1,4 @@
 import re
-from functools import partial
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Sequence, Type, Union
 
 from botx.bot.exceptions import HandlerNotFoundException
@@ -42,19 +41,14 @@ class HandlerCollector:
             self._include_collector(collector)
 
     async def handle_bot_command(self, bot_command: BotCommand, bot: "Bot") -> None:
-        handler: Optional[
-            Union[CommandHandler, DefaultMessageHandler, SystemEventHandlerFunc]
-        ]
-
         if isinstance(bot_command, IncomingMessage):
-            handler = self._get_incoming_message_handler(bot_command)
-            middleware_stack = self._build_middleware_stack(handler)
-            await middleware_stack(bot_command, bot)
+            message_handler = self._get_incoming_message_handler(bot_command)
+            await message_handler(bot_command, bot)
 
         elif isinstance(bot_command, SystemEvent):
-            handler = self._get_system_event_handler_or_none(bot_command)
-            if handler:
-                await handler(bot_command, bot)
+            event_handler = self._get_system_event_handler_or_none(bot_command)
+            if event_handler:
+                await event_handler(bot_command, bot)
 
         else:
             raise NotImplementedError(f"Unsupported event type: `{bot_command}`")
@@ -132,17 +126,6 @@ class HandlerCollector:
     ) -> List[Middleware]:
         middlewares_list = optional_sequence_to_list(middlewares)
         return middlewares_list[::-1]
-
-    def _build_middleware_stack(
-        self,
-        handler: Union[CommandHandler, DefaultMessageHandler],
-    ) -> IncomingMessageHandlerFunc:
-        handler_func = handler.handler_func
-
-        for middleware in handler.middlewares:
-            handler_func = partial(middleware, call_next=handler_func)
-
-        return handler_func
 
     def _include_collector(self, other: "HandlerCollector") -> None:
         # - Message handlers -
