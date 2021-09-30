@@ -17,13 +17,13 @@ from botx.bot.handler_collector import HandlerCollector
 from botx.bot.middlewares.exceptions import ExceptionHandlersDict, ExceptionMiddleware
 from botx.bot.models.bot_account import BotAccount
 from botx.bot.models.commands.commands import BotCommand
-from botx.bot.models.commands.enums import ChatTypes
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 from botx.client.botx_api_client import BotXAPIClient
 from botx.client.chats_api.list_chats import ChatListItem
 from botx.client.exceptions import InvalidBotAccountError
 from botx.converters import optional_sequence_to_list
+from botx.shared_models.enums import ChatTypes
 
 
 class Bot:

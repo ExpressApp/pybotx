@@ -3,10 +3,13 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from botx.api_base_models import APIBaseModel
-from botx.bot.api.enums import BotAPIChatTypes, convert_chat_type_to_domain
-from botx.bot.models.commands.enums import ChatTypes
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
+from botx.shared_models.api_base import APIBaseModel
+from botx.shared_models.enums import (
+    APIChatTypes,
+    ChatTypes,
+    convert_chat_type_to_domain,
+)
 
 try:
     from typing import Literal
@@ -27,7 +30,7 @@ class ChatListItem:
 
 class BotXAPIListChatResult(APIBaseModel):
     group_chat_id: UUID
-    chat_type: BotAPIChatTypes  # FIXME: Change to BotXAPIChatTypes
+    chat_type: APIChatTypes
     name: str
     description: Optional[str] = None
     members: List[UUID]
