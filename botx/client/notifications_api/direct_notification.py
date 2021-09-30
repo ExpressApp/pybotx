@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from botx.api_base_models import APIBaseModel
+from botx.shared_models.api_base import APIBaseModel
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 
 try:

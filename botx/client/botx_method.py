@@ -5,7 +5,7 @@ from uuid import UUID
 import httpx
 from pydantic import ValidationError
 
-from botx.api_base_models import APIBaseModel
+from botx.shared_models.api_base import APIBaseModel
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.exceptions import (
     ExceptionNotRaisedInStatusHandlerError,

@@ -12,7 +12,7 @@ from botx import (
     InvalidBotXResponseError,
     InvalidBotXStatusCodeError,
 )
-from botx.api_base_models import APIBaseModel
+from botx.shared_models.api_base import APIBaseModel
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.botx_method import BotXMethod
 

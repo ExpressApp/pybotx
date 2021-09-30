@@ -3,19 +3,14 @@ from uuid import UUID
 
 from pydantic import Field
 
-from botx.api_base_models import APIBaseModel
+from botx.shared_models.api_base import APIBaseModel
 from botx.bot.api.commands.base import BotAPIBaseCommand, BotAPIChatEventSender
-from botx.bot.api.enums import (
-    BotAPIChatTypes,
-    BotAPICommandTypes,
-    BotAPIUserKinds,
-    convert_chat_type_to_domain,
-    convert_user_kind,
-)
+from botx.bot.api.enums import BotAPICommandTypes, BotAPIUserKinds, convert_user_kind
 from botx.bot.models.commands.system_events.chat_created import (
     ChatCreatedEvent,
     ChatCreatedMember,
 )
+from botx.shared_models.enums import APIChatTypes, convert_chat_type_to_domain
 
 try:
     from typing import Literal
@@ -31,7 +26,7 @@ class BotAPIChatMember(APIBaseModel):
 
 
 class BotAPIChatCreatedData(APIBaseModel):
-    chat_type: BotAPIChatTypes
+    chat_type: APIChatTypes
     creator: UUID
     group_chat_id: UUID
     members: List[BotAPIChatMember]

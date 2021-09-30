@@ -1,11 +1,5 @@
-from botx.api_base_models import StrEnum
-from botx.bot.models.commands.enums import ChatTypes, ClientPlatforms, UserKinds
-
-
-class BotAPIChatTypes(StrEnum):
-    CHAT = "chat"
-    GROUP_CHAT = "group_chat"
-    CHANNEL = "channel"
+from botx.shared_models.api_base import StrEnum
+from botx.bot.models.commands.enums import ClientPlatforms, UserKinds
 
 
 class BotAPICommandTypes(StrEnum):
@@ -24,20 +18,6 @@ class BotAPIUserKinds(StrEnum):
     USER = "user"
     CTS_USER = "cts_user"
     BOTX = "botx"
-
-
-def convert_chat_type_to_domain(chat_type: BotAPIChatTypes) -> ChatTypes:
-    chat_types_mapping = {
-        BotAPIChatTypes.CHAT: ChatTypes.PERSONAL_CHAT,
-        BotAPIChatTypes.GROUP_CHAT: ChatTypes.GROUP_CHAT,
-        BotAPIChatTypes.CHANNEL: ChatTypes.CHANNEL,
-    }
-
-    converted_type = chat_types_mapping.get(chat_type)
-    if converted_type is None:
-        raise NotImplementedError(f"Unsupported chat type: {chat_type}")
-
-    return converted_type
 
 
 def convert_client_platform(client_platform: BotAPIClientPlatforms) -> ClientPlatforms:

@@ -11,7 +11,7 @@ from botx.bot.bot import Bot
 from botx.bot.exceptions import HandlerNotFoundException, UnknownBotAccountError
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.models.bot_account import BotAccount
-from botx.bot.models.commands.enums import ChatTypes, ClientPlatforms, UserKinds
+from botx.bot.models.commands.enums import ClientPlatforms, UserKinds
 from botx.bot.models.commands.incoming_message import (
     Chat,
     ExpressApp,
@@ -32,6 +32,7 @@ from botx.client.exceptions import (
     InvalidBotXResponseError,
     InvalidBotXStatusCodeError,
 )
+from botx.shared_models.enums import ChatTypes
 
 __all__ = (
     "Bot",

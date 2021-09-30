@@ -8,8 +8,7 @@ import pytest
 import respx
 from pydantic import BaseModel
 
-from botx import Bot, BotAccount, HandlerCollector, lifespan_wrapper
-from botx.bot.models.commands.enums import ChatTypes
+from botx import Bot, BotAccount, ChatTypes, HandlerCollector, lifespan_wrapper
 from botx.client.chats_api.list_chats import ChatListItem
 
 
