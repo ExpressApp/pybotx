@@ -6,6 +6,7 @@ import httpx
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.bot.models.commands.enums import ChatTypes
 from botx.client.chats_api.create_chat import BotXAPICreateChatPayload, CreateChatMethod
+from botx.client.chats_api.list_chats import ChatListItem, ListChatsMethod
 from botx.client.get_token import get_token
 
 
@@ -49,3 +50,17 @@ class BotXAPIClient:
         botx_api_chat_id = await method.execute(payload)
 
         return botx_api_chat_id.to_domain()
+
+    async def list_chats(
+        self,
+        bot_id: UUID,
+    ) -> List[ChatListItem]:
+        method = ListChatsMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        botx_api_list_chat = await method.execute()
+
+        return botx_api_list_chat.to_domain()
