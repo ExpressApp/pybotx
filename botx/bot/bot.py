@@ -21,6 +21,7 @@ from botx.bot.models.commands.enums import ChatTypes
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 from botx.client.botx_api_client import BotXAPIClient
+from botx.client.chats_api.list_chats import ChatListItem
 from botx.client.exceptions import InvalidBotAccountError
 from botx.converters import optional_sequence_to_list
 
@@ -108,6 +109,12 @@ class Bot:
         # Raise handlers exceptions
         for task in finished_tasks:
             task.result()
+
+    async def list_chats(
+        self,
+        bot_id: UUID,
+    ) -> List[ChatListItem]:
+        return await self._botx_api_client.list_chats(bot_id)
 
     async def create_chat(
         self,
