@@ -7,13 +7,13 @@ import pytest
 import respx
 
 from botx import (
-    BotCredentials,
+    BotAccount,
     ExceptionNotRaisedInStatusHandlerError,
     InvalidBotXResponseError,
     InvalidBotXStatusCodeError,
 )
 from botx.api_base_models import APIBaseModel
-from botx.bot.credentials_storage import CredentialsStorage
+from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.botx_method import BotXMethod
 
 
@@ -65,7 +65,7 @@ async def test_exception_not_raised_status_handler(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_credentials: BotCredentials,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(f"https://{host}/foo/bar", params={"baz": 1}).mock(
@@ -75,7 +75,7 @@ async def test_exception_not_raised_status_handler(
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        CredentialsStorage([bot_credentials]),
+        BotAccountsStorage([bot_account]),
     )
     payload = BotXAPIFooBarPayload.from_domain(baz=1)
 
@@ -93,7 +93,7 @@ async def test_invalid_botx_status_code_error(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_credentials: BotCredentials,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(f"https://{host}/foo/bar", params={"baz": 1}).mock(
@@ -103,7 +103,7 @@ async def test_invalid_botx_status_code_error(
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        CredentialsStorage([bot_credentials]),
+        BotAccountsStorage([bot_account]),
     )
     payload = BotXAPIFooBarPayload.from_domain(baz=1)
 
@@ -122,7 +122,7 @@ async def test_invalid_botx_response_error(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_credentials: BotCredentials,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(f"https://{host}/foo/bar", params={"baz": 1}).mock(
@@ -135,7 +135,7 @@ async def test_invalid_botx_response_error(
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        CredentialsStorage([bot_credentials]),
+        BotAccountsStorage([bot_account]),
     )
     payload = BotXAPIFooBarPayload.from_domain(baz=1)
 
@@ -153,7 +153,7 @@ async def test_status_handler(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_credentials: BotCredentials,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(f"https://{host}/foo/bar", params={"baz": 1}).mock(
@@ -163,7 +163,7 @@ async def test_status_handler(
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        CredentialsStorage([bot_credentials]),
+        BotAccountsStorage([bot_account]),
     )
     payload = BotXAPIFooBarPayload.from_domain(baz=1)
 
@@ -182,7 +182,7 @@ async def test_execute(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_credentials: BotCredentials,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(f"https://{host}/foo/bar", params={"baz": 1}).mock(
@@ -195,7 +195,7 @@ async def test_execute(
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        CredentialsStorage([bot_credentials]),
+        BotAccountsStorage([bot_account]),
     )
     payload = BotXAPIFooBarPayload.from_domain(baz=1)
 

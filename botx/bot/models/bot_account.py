@@ -3,7 +3,7 @@ from uuid import UUID
 
 
 @dataclass
-class BotCredentials:
+class BotAccount:
     host: str
     bot_id: UUID
     secret_key: str

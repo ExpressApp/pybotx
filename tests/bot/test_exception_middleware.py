@@ -1,27 +1,10 @@
 import asyncio
-import logging
-from typing import Callable, Generator
+from typing import Callable
 from unittest.mock import MagicMock, call
 
 import pytest
-from loguru import logger
 
 from botx import Bot, HandlerCollector, IncomingMessage, lifespan_wrapper
-
-
-@pytest.fixture()
-def loguru_caplog(
-    caplog: pytest.LogCaptureFixture,
-) -> Generator[pytest.LogCaptureFixture, None, None]:
-    # https://github.com/Delgan/loguru/issues/59
-
-    class PropogateHandler(logging.Handler):  # noqa: WPS431
-        def emit(self, record: logging.LogRecord) -> None:
-            logging.getLogger(record.name).handle(record)
-
-    handler_id = logger.add(PropogateHandler(), format="{message}")
-    yield caplog
-    logger.remove(handler_id)
 
 
 @pytest.mark.asyncio
@@ -42,7 +25,7 @@ async def test_exception_middleware_with_handler(
 
     built_bot = Bot(
         collectors=[collector],
-        credentials=[],
+        bot_accounts=[],
         exception_handlers={ValueError: value_error_handler},
     )
 
@@ -69,7 +52,7 @@ async def test_exception_middleware_without_handler(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         raise ValueError("Testing exception middleware")
 
-    built_bot = Bot(collectors=[collector], credentials=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -103,7 +86,7 @@ async def test_exception_middleware_with_handler_error(
 
     built_bot = Bot(
         collectors=[collector],
-        credentials=[],
+        bot_accounts=[],
         exception_handlers={Exception: exception_handler},
     )
 

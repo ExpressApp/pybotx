@@ -1,8 +1,10 @@
-from typing import Callable, Optional
+import logging
+from typing import Callable, Generator, Optional
 from unittest.mock import Mock
 from uuid import uuid4
 
 import pytest
+from loguru import logger
 
 from botx import (
     Chat,
@@ -95,3 +97,18 @@ def chat_created() -> ChatCreatedEvent:
         ],
         raw_command=None,
     )
+
+
+@pytest.fixture()
+def loguru_caplog(
+    caplog: pytest.LogCaptureFixture,
+) -> Generator[pytest.LogCaptureFixture, None, None]:
+    # https://github.com/Delgan/loguru/issues/59
+
+    class PropogateHandler(logging.Handler):  # noqa: WPS431
+        def emit(self, record: logging.LogRecord) -> None:
+            logging.getLogger(record.name).handle(record)
+
+    handler_id = logger.add(PropogateHandler(), format="{message}")
+    yield caplog
+    logger.remove(handler_id)

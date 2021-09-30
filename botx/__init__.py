@@ -10,6 +10,7 @@ from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
 from botx.bot.bot import Bot
 from botx.bot.exceptions import HandlerNotFoundException
 from botx.bot.handler_collector import HandlerCollector
+from botx.bot.models.bot_account import BotAccount
 from botx.bot.models.commands.enums import ChatTypes, ClientPlatforms, UserKinds
 from botx.bot.models.commands.incoming_message import (
     Chat,
@@ -22,7 +23,6 @@ from botx.bot.models.commands.system_events.chat_created import (
     ChatCreatedEvent,
     ChatCreatedMember,
 )
-from botx.bot.models.credentials import BotCredentials
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 
@@ -30,7 +30,7 @@ from botx.bot.models.status.recipient import StatusRecipient
 from botx.bot.testing import lifespan_wrapper
 from botx.client.exceptions import (
     ExceptionNotRaisedInStatusHandlerError,
-    InvalidBotCredentialsError,
+    InvalidBotAccountError,
     InvalidBotXResponseError,
     InvalidBotXStatusCodeError,
 )
@@ -38,7 +38,7 @@ from botx.client.exceptions import (
 __all__ = (
     "Bot",
     "BotAPIBotDisabledResponse",
-    "BotCredentials",
+    "BotAccount",
     "BotMenu",
     "Chat",
     "ChatCreatedEvent",
@@ -50,7 +50,7 @@ __all__ = (
     "HandlerCollector",
     "HandlerNotFoundException",
     "IncomingMessage",
-    "InvalidBotCredentialsError",
+    "InvalidBotAccountError",
     "InvalidBotXResponseError",
     "InvalidBotXStatusCodeError",
     "StatusRecipient",

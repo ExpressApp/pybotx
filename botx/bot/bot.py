@@ -1,24 +1,27 @@
 import asyncio
+from types import SimpleNamespace
 from typing import Any, Dict, List, Optional, Sequence
 from uuid import UUID
 from weakref import WeakSet
 
 import httpx
+from loguru import logger
 from pydantic import ValidationError, parse_obj_as
 
 from botx.bot.api.commands.commands import BotAPICommand
 from botx.bot.api.status.recipient import BotAPIStatusRecipient
 from botx.bot.api.status.response import build_bot_status_response
-from botx.bot.credentials_storage import CredentialsStorage
+from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.bot.handler import Middleware
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.middlewares.exceptions import ExceptionHandlersDict, ExceptionMiddleware
+from botx.bot.models.bot_account import BotAccount
 from botx.bot.models.commands.commands import BotCommand
 from botx.bot.models.commands.enums import ChatTypes
-from botx.bot.models.credentials import BotCredentials
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 from botx.client.botx_api_client import BotXAPIClient
+from botx.client.exceptions import InvalidBotAccountError
 from botx.converters import optional_sequence_to_list
 
 
@@ -27,20 +30,20 @@ class Bot:
         self,
         *,
         collectors: Sequence[HandlerCollector],
-        credentials: Sequence[BotCredentials],
+        bot_accounts: Sequence[BotAccount],
         middlewares: Optional[Sequence[Middleware]] = None,
         httpx_client: Optional[httpx.AsyncClient] = None,
         exception_handlers: Optional[ExceptionHandlersDict] = None,
     ) -> None:
+        self.state: SimpleNamespace = SimpleNamespace()
+
         self._middlewares = optional_sequence_to_list(middlewares)
         self._add_exception_middleware(exception_handlers)
 
         self._handler_collector = self._merge_collectors(collectors)
 
-        self._botx_api_client = BotXAPIClient(
-            httpx_client,
-            CredentialsStorage(list(credentials)),
-        )
+        self._bot_accounts_storage = BotAccountsStorage(list(bot_accounts))
+        self._botx_api_client = BotXAPIClient(httpx_client, self._bot_accounts_storage)
 
         # Can't set WeakSet[asyncio.Task] type in Python < 3.9
         self._tasks = WeakSet()  # type: ignore
@@ -78,11 +81,24 @@ class Bot:
     async def get_status(self, status_recipient: StatusRecipient) -> BotMenu:
         return await self._handler_collector.get_bot_menu(status_recipient, self)
 
+    async def startup(self) -> None:
+        for host, bot_id in self._bot_accounts_storage.iter_host_and_bot_id_pairs():
+            try:
+                token = await self.get_token(bot_id)
+            except (InvalidBotAccountError, httpx.HTTPError):
+                logger.warning(
+                    "Can't get token for bot account: "
+                    f"host - {host}, bot_id - {bot_id}",
+                )
+                continue
+
+            self._bot_accounts_storage.set_token(bot_id, token)
+
     async def shutdown(self) -> None:
         await self._botx_api_client.shutdown()
 
         if not self._tasks:
-            return  # pragma: no cover
+            return
 
         finished_tasks, _ = await asyncio.wait(
             self._tasks,

@@ -7,21 +7,21 @@ import respx
 
 from botx import (
     Bot,
-    BotCredentials,
+    BotAccount,
     HandlerCollector,
-    InvalidBotCredentialsError,
+    InvalidBotAccountError,
     lifespan_wrapper,
 )
 
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_invalid_credentials(
+async def test_invalid_bot_account(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
     bot_signature: str,
-    bot_credentials: BotCredentials,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(
@@ -33,12 +33,12 @@ async def test_invalid_credentials(
 
     built_bot = Bot(
         collectors=[HandlerCollector()],
-        credentials=[bot_credentials],
+        bot_accounts=[bot_account],
         httpx_client=httpx_client,
     )
 
     # - Act -
-    with pytest.raises(InvalidBotCredentialsError) as exc:
+    with pytest.raises(InvalidBotAccountError) as exc:
         async with lifespan_wrapper(built_bot) as bot:
             await bot.get_token(bot_id)
 
@@ -54,7 +54,7 @@ async def test_get_token(
     host: str,
     bot_id: UUID,
     bot_signature: str,
-    bot_credentials: BotCredentials,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(
@@ -72,7 +72,7 @@ async def test_get_token(
 
     built_bot = Bot(
         collectors=[HandlerCollector()],
-        credentials=[bot_credentials],
+        bot_accounts=[bot_account],
         httpx_client=httpx_client,
     )
 

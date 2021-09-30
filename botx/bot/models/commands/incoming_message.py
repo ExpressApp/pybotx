@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from types import SimpleNamespace
 from typing import Any, Dict, Optional
 from uuid import UUID
 
@@ -61,3 +62,5 @@ class IncomingMessage(BotCommandBase):
     metadata: Dict[str, Any]
     sender: UserEventSender
     chat: Chat
+
+    state: SimpleNamespace = field(default_factory=SimpleNamespace)

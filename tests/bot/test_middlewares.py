@@ -14,6 +14,7 @@ async def test_middlewares_order(
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
+    user_command = incoming_message_factory(body="/command")
 
     def middleware_factory(number: int) -> Middleware:
         async def middleware(
@@ -21,12 +22,12 @@ async def test_middlewares_order(
             bot: Bot,
             call_next: IncomingMessageHandlerFunc,
         ) -> None:
+            nonlocal middlewares_called_order
             middlewares_called_order.append(number)
+
             await call_next(message, bot)
 
         return middleware
-
-    user_command = incoming_message_factory(body="/command")
 
     collector = HandlerCollector(
         middlewares=[middleware_factory(3), middleware_factory(4)],
@@ -42,7 +43,7 @@ async def test_middlewares_order(
 
     built_bot = Bot(
         collectors=[collector],
-        credentials=[],
+        bot_accounts=[],
         middlewares=[middleware_factory(1), middleware_factory(2)],
     )
 
@@ -62,6 +63,7 @@ async def test_default_handler_middlewares(
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
+    user_command = incoming_message_factory(body="/command")
 
     def middleware_factory(number: int) -> Middleware:
         async def middleware(
@@ -69,12 +71,12 @@ async def test_default_handler_middlewares(
             bot: Bot,
             call_next: IncomingMessageHandlerFunc,
         ) -> None:
+            nonlocal middlewares_called_order
             middlewares_called_order.append(number)
+
             await call_next(message, bot)
 
         return middleware
-
-    user_command = incoming_message_factory(body="/command")
 
     collector = HandlerCollector(
         middlewares=[middleware_factory(3), middleware_factory(4)],
@@ -86,7 +88,7 @@ async def test_default_handler_middlewares(
 
     built_bot = Bot(
         collectors=[collector],
-        credentials=[],
+        bot_accounts=[],
         middlewares=[middleware_factory(1), middleware_factory(2)],
     )
 
@@ -104,6 +106,7 @@ async def test_child_collector_middlewares(
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
+    user_command = incoming_message_factory(body="/command")
 
     def middleware_factory(number: int) -> Middleware:
         async def middleware(
@@ -111,12 +114,12 @@ async def test_child_collector_middlewares(
             bot: Bot,
             call_next: IncomingMessageHandlerFunc,
         ) -> None:
+            nonlocal middlewares_called_order
             middlewares_called_order.append(number)
+
             await call_next(message, bot)
 
         return middleware
-
-    user_command = incoming_message_factory(body="/command")
 
     collector_1 = HandlerCollector(
         middlewares=[middleware_factory(1), middleware_factory(2)],
@@ -135,7 +138,7 @@ async def test_child_collector_middlewares(
         pass
 
     collector_1.include(collector_2)
-    built_bot = Bot(collectors=[collector_1], credentials=[])
+    built_bot = Bot(collectors=[collector_1], bot_accounts=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -151,6 +154,7 @@ async def test_parent_collector_middlewares(
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
+    user_command = incoming_message_factory(body="/command")
 
     def middleware_factory(number: int) -> Middleware:
         async def middleware(
@@ -158,12 +162,12 @@ async def test_parent_collector_middlewares(
             bot: Bot,
             call_next: IncomingMessageHandlerFunc,
         ) -> None:
+            nonlocal middlewares_called_order
             middlewares_called_order.append(number)
+
             await call_next(message, bot)
 
         return middleware
-
-    user_command = incoming_message_factory(body="/command")
 
     collector_1 = HandlerCollector(
         middlewares=[middleware_factory(1), middleware_factory(2)],
@@ -182,7 +186,7 @@ async def test_parent_collector_middlewares(
         pass
 
     collector_1.include(collector_2)
-    built_bot = Bot(collectors=[collector_1], credentials=[])
+    built_bot = Bot(collectors=[collector_1], bot_accounts=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

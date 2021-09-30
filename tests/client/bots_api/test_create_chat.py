@@ -5,8 +5,8 @@ import httpx
 import pytest
 import respx
 
-from botx import Bot, BotCredentials, HandlerCollector, lifespan_wrapper
-from botx.bot.credentials_storage import CredentialsStorage
+from botx import Bot, BotAccount, HandlerCollector, lifespan_wrapper
+from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.bot.models.commands.enums import ChatTypes
 
 
@@ -22,9 +22,10 @@ async def test_create_chat(
     host: str,
     bot_id: UUID,
     bot_signature: str,
-    bot_credentials: BotCredentials,
-    prepared_credentials_storage: CredentialsStorage,
+    bot_account: BotAccount,
+    prepared_bot_accounts_storage: BotAccountsStorage,
     chat_id: UUID,
+    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -42,12 +43,8 @@ async def test_create_chat(
 
     built_bot = Bot(
         collectors=[HandlerCollector()],
-        credentials=[],
+        bot_accounts=[bot_account],
         httpx_client=httpx_client,
-    )
-    # TODO: replace with bot_factory with prefilled token
-    built_bot._botx_api_client._credentials_storage = (  # noqa: WPS437
-        prepared_credentials_storage
     )
 
     # - Act -

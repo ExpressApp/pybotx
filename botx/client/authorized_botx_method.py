@@ -12,14 +12,14 @@ class AuthorizedBotXMethod(BotXMethod):
         *args: Any,
         **kwargs: Any,
     ) -> httpx.Response:
-        token = self._credentials_storage.get_token_or_none(self._bot_id)
+        token = self._bot_accounts_storage.get_token_or_none(self._bot_id)
         if not token:
             token = await get_token(
                 self._bot_id,
                 self._httpx_client,
-                self._credentials_storage,
+                self._bot_accounts_storage,
             )
-            self._credentials_storage.set_token(self._bot_id, token)
+            self._bot_accounts_storage.set_token(self._bot_id, token)
 
         headers = kwargs.pop("headers", {})
         headers.update(

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from functools import partial
 from typing import TYPE_CHECKING, Awaitable, Callable, List, TypeVar, Union
 
 from botx.bot.models.commands.commands import BotCommand, SystemEvent
@@ -31,6 +32,14 @@ Middleware = Callable[
 class BaseIncomingMessageHandler:
     handler_func: IncomingMessageHandlerFunc
     middlewares: List[Middleware]
+
+    async def __call__(self, message: IncomingMessage, bot: "Bot") -> None:
+        handler_func = self.handler_func
+
+        for middleware in self.middlewares:
+            handler_func = partial(middleware, call_next=handler_func)
+
+        await handler_func(message, bot)
 
     def add_middlewares(self, middlewares: List[Middleware]) -> None:
         self.middlewares += middlewares

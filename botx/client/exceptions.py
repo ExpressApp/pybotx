@@ -36,5 +36,5 @@ class InvalidBotXResponseError(BaseBotXAPIError):
     """Received invalid response."""
 
 
-class InvalidBotCredentialsError(BaseBotXAPIError):
-    """Can't get token with current credentials."""
+class InvalidBotAccountError(BaseBotXAPIError):
+    """Can't get token with given bot account."""

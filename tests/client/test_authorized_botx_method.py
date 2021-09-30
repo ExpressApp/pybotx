@@ -5,8 +5,8 @@ import httpx
 import pytest
 import respx
 
-from botx import BotCredentials
-from botx.bot.credentials_storage import CredentialsStorage
+from botx import BotAccount
+from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from tests.client.test_botx_method import BotXAPIFooBar, BotXAPIFooBarPayload
 
@@ -31,7 +31,7 @@ async def test_authorized_execute(
     host: str,
     bot_id: UUID,
     bot_signature: str,
-    bot_credentials: BotCredentials,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     token_endpoint = respx.get(
@@ -63,7 +63,7 @@ async def test_authorized_execute(
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        CredentialsStorage([bot_credentials]),
+        BotAccountsStorage([bot_account]),
     )
     payload = BotXAPIFooBarPayload.from_domain(baz=1)
 
@@ -83,8 +83,8 @@ async def test_authorized_execute_with_prepared_token(
     host: str,
     bot_id: UUID,
     bot_signature: str,
-    bot_credentials: BotCredentials,
-    prepared_credentials_storage: CredentialsStorage,
+    bot_account: BotAccount,
+    prepared_bot_accounts_storage: BotAccountsStorage,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(
@@ -103,7 +103,7 @@ async def test_authorized_execute_with_prepared_token(
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        prepared_credentials_storage,
+        prepared_bot_accounts_storage,
     )
 
     payload = BotXAPIFooBarPayload.from_domain(baz=1)
