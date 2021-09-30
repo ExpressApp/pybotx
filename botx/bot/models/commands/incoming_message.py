@@ -48,7 +48,6 @@ class UserEventSender:
 @dataclass
 class Chat:
     id: UUID
-    bot_id: UUID
     type: ChatTypes
     host: str
 

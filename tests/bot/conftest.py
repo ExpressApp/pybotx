@@ -1,7 +1,7 @@
 import logging
 from typing import Callable, Generator, Optional
 from unittest.mock import Mock
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from loguru import logger
@@ -30,7 +30,10 @@ def wrong_handler_trigger() -> Mock:
 
 
 @pytest.fixture
-def incoming_message_factory() -> Callable[..., IncomingMessage]:
+def incoming_message_factory(
+    bot_id: UUID,
+    chat_id: UUID,
+) -> Callable[..., IncomingMessage]:
     def decorator(
         *,
         body: str = "",
@@ -38,6 +41,7 @@ def incoming_message_factory() -> Callable[..., IncomingMessage]:
         ad_domain: Optional[str] = None,
     ) -> IncomingMessage:
         return IncomingMessage(
+            bot_id=bot_id,
             sync_id=uuid4(),
             source_sync_id=None,
             body=body,
@@ -66,8 +70,7 @@ def incoming_message_factory() -> Callable[..., IncomingMessage]:
                 ),
             ),
             chat=Chat(
-                id=uuid4(),
-                bot_id=uuid4(),
+                id=chat_id,
                 type=ChatTypes.PERSONAL_CHAT,
                 host="cts.example.com",
             ),
@@ -80,12 +83,12 @@ def incoming_message_factory() -> Callable[..., IncomingMessage]:
 @pytest.fixture
 def chat_created() -> ChatCreatedEvent:
     return ChatCreatedEvent(
+        bot_id=uuid4(),
         sync_id=uuid4(),
         chat_id=uuid4(),
-        bot_id=uuid4(),
-        host="cts.example.com",
         chat_name="Test",
         chat_type=ChatTypes.PERSONAL_CHAT,
+        host="cts.example.com",
         creator_id=uuid4(),
         members=[
             ChatCreatedMember(

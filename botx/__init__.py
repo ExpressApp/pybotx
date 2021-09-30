@@ -8,7 +8,7 @@ from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
 
 # - Domains -
 from botx.bot.bot import Bot
-from botx.bot.exceptions import HandlerNotFoundException
+from botx.bot.exceptions import HandlerNotFoundException, UnknownBotAccountError
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.models.bot_account import BotAccount
 from botx.bot.models.commands.enums import ChatTypes, ClientPlatforms, UserKinds
@@ -25,8 +25,6 @@ from botx.bot.models.commands.system_events.chat_created import (
 )
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
-
-# - Testing -
 from botx.bot.testing import lifespan_wrapper
 from botx.client.exceptions import (
     ExceptionNotRaisedInStatusHandlerError,
@@ -60,5 +58,6 @@ __all__ = (
     "UserKinds",
     "build_accepted_response",
     "build_bot_disabled_response",
+    "UnknownBotAccountError",
     "lifespan_wrapper",
 )

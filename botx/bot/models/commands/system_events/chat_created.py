@@ -18,9 +18,8 @@ class ChatCreatedMember:
 class ChatCreatedEvent(BotCommandBase):
     sync_id: UUID
     chat_id: UUID
-    bot_id: UUID
-    host: str
     chat_name: str
     chat_type: ChatTypes
+    host: str
     creator_id: UUID
     members: List[ChatCreatedMember]

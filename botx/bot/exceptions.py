@@ -1,3 +1,6 @@
+from uuid import UUID
+
+
 class HandlerNotFoundException(Exception):
     """Handler for received command not found.
 
@@ -8,4 +11,11 @@ class HandlerNotFoundException(Exception):
     def __init__(self, command: str) -> None:
         self.command = command
         self.message = f"Handler for command `{command}` not found"
+        super().__init__(self.message)
+
+
+class UnknownBotAccountError(Exception):
+    def __init__(self, bot_id: UUID) -> None:
+        self.bot_id = bot_id
+        self.message = f"No bot account with bot_id: `{bot_id}`"
         super().__init__(self.message)

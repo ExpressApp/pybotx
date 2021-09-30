@@ -137,6 +137,13 @@ class Bot:
     async def get_token(self, bot_id: UUID) -> str:
         return await self._botx_api_client.get_token(bot_id)
 
+    async def send(self, body: str, *, bot_id: UUID, chat_id: UUID) -> UUID:
+        return await self._botx_api_client.send_direct_notification(
+            bot_id,
+            body,
+            chat_id,
+        )
+
     def _add_exception_middleware(
         self,
         exception_handlers: Optional[ExceptionHandlersDict] = None,

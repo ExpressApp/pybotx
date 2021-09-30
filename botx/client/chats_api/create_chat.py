@@ -14,10 +14,10 @@ except ImportError:
 
 class BotXAPICreateChatPayload(APIBaseModel):
     name: str
-    description: Optional[str] = None
+    description: Optional[str]
     chat_type: BotXAPIChatTypes
     members: List[UUID]
-    shared_history: bool = False
+    shared_history: bool
 
     @classmethod
     def from_domain(
