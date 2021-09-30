@@ -8,7 +8,7 @@ from botx.bot.api.commands.base import (
     BotAPICommandPayload,
     BotAPIUserEventSender,
 )
-from botx.bot.api.enums import convert_chat_type_to_domain, convert_client_platform
+from botx.bot.api.enums import convert_client_platform
 from botx.bot.models.commands.incoming_message import (
     Chat,
     ExpressApp,
@@ -16,6 +16,7 @@ from botx.bot.models.commands.incoming_message import (
     UserDevice,
     UserEventSender,
 )
+from botx.shared_models.enums import convert_chat_type_to_domain
 
 
 class BotAPIIncomingMessage(BotAPIBaseCommand):

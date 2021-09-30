@@ -2,9 +2,9 @@ from typing import NoReturn
 
 import httpx
 
-from botx.api_base_models import APIBaseModel
 from botx.client.botx_method import BotXMethod
 from botx.client.exceptions import InvalidBotAccountError
+from botx.shared_models.api_base import APIBaseModel
 
 try:
     from typing import Literal

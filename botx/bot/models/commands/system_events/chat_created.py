@@ -3,7 +3,8 @@ from typing import List, Optional
 from uuid import UUID
 
 from botx.bot.models.commands.base import BotCommandBase
-from botx.bot.models.commands.enums import ChatTypes, UserKinds
+from botx.bot.models.commands.enums import UserKinds
+from botx.shared_models.enums import ChatTypes
 
 
 @dataclass

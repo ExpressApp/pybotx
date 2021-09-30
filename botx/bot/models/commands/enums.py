@@ -17,12 +17,6 @@ class UserKinds(AutoName):
     BOT = auto()
 
 
-class ChatTypes(AutoName):
-    PERSONAL_CHAT = auto()
-    GROUP_CHAT = auto()
-    CHANNEL = auto()
-
-
 class ClientPlatforms(AutoName):
     WEB = auto()
     ANDROID = auto()

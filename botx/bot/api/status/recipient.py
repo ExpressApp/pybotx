@@ -1,9 +1,9 @@
 from typing import Optional
 from uuid import UUID
 
-from botx.api_base_models import APIBaseModel
-from botx.bot.api.enums import BotAPIChatTypes, convert_chat_type_to_domain
 from botx.bot.models.status.recipient import StatusRecipient
+from botx.shared_models.api_base import APIBaseModel
+from botx.shared_models.enums import APIChatTypes, convert_chat_type_to_domain
 
 
 class BotAPIStatusRecipient(APIBaseModel):
@@ -12,7 +12,7 @@ class BotAPIStatusRecipient(APIBaseModel):
     ad_login: Optional[str]
     ad_domain: Optional[str]
     is_admin: Optional[bool]
-    chat_type: BotAPIChatTypes
+    chat_type: APIChatTypes
 
     def to_domain(self) -> StatusRecipient:
         return StatusRecipient(

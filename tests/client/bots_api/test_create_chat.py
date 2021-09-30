@@ -5,8 +5,7 @@ import httpx
 import pytest
 import respx
 
-from botx import Bot, BotAccount, HandlerCollector, lifespan_wrapper
-from botx.bot.models.commands.enums import ChatTypes
+from botx import Bot, BotAccount, ChatTypes, HandlerCollector, lifespan_wrapper
 
 
 @pytest.fixture

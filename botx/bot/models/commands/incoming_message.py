@@ -4,7 +4,8 @@ from typing import Any, Dict, Optional
 from uuid import UUID
 
 from botx.bot.models.commands.base import BotCommandBase
-from botx.bot.models.commands.enums import ChatTypes, ClientPlatforms
+from botx.bot.models.commands.enums import ClientPlatforms
+from botx.shared_models.enums import ChatTypes
 
 
 @dataclass
