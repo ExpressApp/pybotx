@@ -1,27 +1,10 @@
 import asyncio
-import logging
-from typing import Callable, Generator
+from typing import Callable
 from unittest.mock import MagicMock, call
 
 import pytest
-from loguru import logger
 
 from botx import Bot, HandlerCollector, IncomingMessage, lifespan_wrapper
-
-
-@pytest.fixture()
-def loguru_caplog(
-    caplog: pytest.LogCaptureFixture,
-) -> Generator[pytest.LogCaptureFixture, None, None]:
-    # https://github.com/Delgan/loguru/issues/59
-
-    class PropogateHandler(logging.Handler):  # noqa: WPS431
-        def emit(self, record: logging.LogRecord) -> None:
-            logging.getLogger(record.name).handle(record)
-
-    handler_id = logger.add(PropogateHandler(), format="{message}")
-    yield caplog
-    logger.remove(handler_id)
 
 
 @pytest.mark.asyncio

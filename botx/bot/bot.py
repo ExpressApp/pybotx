@@ -85,8 +85,11 @@ class Bot:
         for host, bot_id in self._bot_accounts_storage.iter_host_and_bot_id_pairs():
             try:
                 token = await self.get_token(bot_id)
-            except InvalidBotAccountError:
-                logger.warning(f"Invalid bot account: host - {host}, bot_id - {bot_id}")
+            except (InvalidBotAccountError, httpx.HTTPError):
+                logger.warning(
+                    "Can't get token for bot account: "
+                    f"host - {host}, bot_id - {bot_id}",
+                )
                 continue
 
             self._bot_accounts_storage.set_token(bot_id, token)
