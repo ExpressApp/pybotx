@@ -5,6 +5,7 @@ from uuid import UUID
 from weakref import WeakSet
 
 import httpx
+from loguru import logger
 from pydantic import ValidationError, parse_obj_as
 
 from botx.bot.api.commands.commands import BotAPICommand
@@ -20,6 +21,7 @@ from botx.bot.models.commands.enums import ChatTypes
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 from botx.client.botx_api_client import BotXAPIClient
+from botx.client.exceptions import InvalidBotAccountError
 from botx.converters import optional_sequence_to_list
 
 
@@ -40,10 +42,8 @@ class Bot:
 
         self._handler_collector = self._merge_collectors(collectors)
 
-        self._botx_api_client = BotXAPIClient(
-            httpx_client,
-            BotAccountsStorage(list(bot_accounts)),
-        )
+        self._bot_accounts_storage = BotAccountsStorage(list(bot_accounts))
+        self._botx_api_client = BotXAPIClient(httpx_client, self._bot_accounts_storage)
 
         # Can't set WeakSet[asyncio.Task] type in Python < 3.9
         self._tasks = WeakSet()  # type: ignore
@@ -80,6 +80,16 @@ class Bot:
 
     async def get_status(self, status_recipient: StatusRecipient) -> BotMenu:
         return await self._handler_collector.get_bot_menu(status_recipient, self)
+
+    async def startup(self) -> None:
+        for host, bot_id in self._bot_accounts_storage.iter_host_and_bot_id_pairs():
+            try:
+                token = await self.get_token(bot_id)
+            except InvalidBotAccountError:
+                logger.warning(f"Invalid bot account: host - {host}, bot_id - {bot_id}")
+                continue
+
+            self._bot_accounts_storage.set_token(bot_id, token)
 
     async def shutdown(self) -> None:
         await self._botx_api_client.shutdown()

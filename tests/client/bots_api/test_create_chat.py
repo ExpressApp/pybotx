@@ -25,6 +25,7 @@ async def test_create_chat(
     bot_account: BotAccount,
     prepared_bot_accounts_storage: BotAccountsStorage,
     chat_id: UUID,
+    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -42,12 +43,8 @@ async def test_create_chat(
 
     built_bot = Bot(
         collectors=[HandlerCollector()],
-        bot_accounts=[],
+        bot_accounts=[bot_account],
         httpx_client=httpx_client,
-    )
-    # TODO: replace with bot_factory with prefilled token
-    built_bot._botx_api_client._bot_accounts_storage = (  # noqa: WPS437
-        prepared_bot_accounts_storage
     )
 
     # - Act -

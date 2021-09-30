@@ -1,8 +1,10 @@
+from http import HTTPStatus
 from typing import AsyncGenerator
 from uuid import UUID
 
 import httpx
 import pytest
+import respx
 
 from botx import BotAccount
 from botx.bot.bot_accounts_storage import BotAccountsStorage
@@ -47,3 +49,23 @@ def prepared_bot_accounts_storage(
     bot_accounts_storage.set_token(bot_id, "token")
 
     return bot_accounts_storage
+
+
+@pytest.fixture
+def mock_authorization(
+    host: str,
+    bot_id: UUID,
+    bot_signature: str,
+) -> None:
+    respx.get(
+        f"https://{host}/api/v2/botx/bots/{bot_id}/token",
+        params={"signature": bot_signature},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.OK,
+            json={
+                "status": "ok",
+                "result": "token",
+            },
+        ),
+    )

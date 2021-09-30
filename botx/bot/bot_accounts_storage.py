@@ -1,7 +1,7 @@
 import base64
 import hashlib
 import hmac
-from typing import Dict, List, Optional
+from typing import Dict, Iterator, List, Optional, Tuple
 from uuid import UUID
 
 from botx.bot.models.bot_account import BotAccount
@@ -11,6 +11,11 @@ class BotAccountsStorage:
     def __init__(self, bot_accounts: List[BotAccount]) -> None:
         self._bot_accounts = bot_accounts
         self._auth_tokens: Dict[UUID, str] = {}
+
+    def iter_host_and_bot_id_pairs(self) -> Iterator[Tuple[str, UUID]]:
+        yield from (
+            (bot_account.host, bot_account.bot_id) for bot_account in self._bot_accounts
+        )
 
     def get_host(self, bot_id: UUID) -> str:
         bot_account = self._get_bot_account(bot_id)
