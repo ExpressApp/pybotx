@@ -14,6 +14,11 @@ def host() -> str:
 
 
 @pytest.fixture
+def chat_id() -> UUID:
+    return UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa")
+
+
+@pytest.fixture
 def bot_id() -> UUID:
     return UUID("24348246-6791-4ac0-9d86-b948cd6a0e46")
 

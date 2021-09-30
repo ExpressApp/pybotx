@@ -2,6 +2,7 @@ from http import HTTPStatus
 from uuid import UUID
 
 import pytest
+from loguru import logger
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -23,16 +24,20 @@ collector = HandlerCollector()
 
 @collector.command("/debug", description="Simple debug command")
 async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
-    pass
+    await bot.send(
+        "Works!",
+        bot_id=message.bot_id,
+        chat_id=message.chat.id,
+    )
 
 
 bot = Bot(
     collectors=[collector],
     bot_accounts=[
         BotAccount(
-            host="cts.example.com",
-            bot_id=UUID("bc7f96e2-91a5-5de4-8bde-23765450cac8"),
-            secret_key="secret",
+            host="cts31st.ccsteam.ru",
+            bot_id=UUID("33891bbd-b12c-5f88-a9b4-e7b3568661a2"),
+            secret_key="6bce97f550fda05b1537e6ec2e77950a",
         ),
     ],
 )
@@ -43,8 +48,11 @@ async def command_handler(request: Request) -> JSONResponse:
     try:
         bot.async_execute_raw_bot_command(await request.json())
     except ValueError:
+        error_label = "Bot command validation error"
+        logger.exception(error_label)
+
         return JSONResponse(
-            build_bot_disabled_response("Validation error"),
+            build_bot_disabled_response(error_label),
             status_code=HTTPStatus.SERVICE_UNAVAILABLE,
         )
 

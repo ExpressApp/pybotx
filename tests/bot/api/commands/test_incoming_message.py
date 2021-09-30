@@ -74,6 +74,7 @@ async def test_minimally_filled_incoming_message() -> None:
 
     # - Assert -
     assert incoming_message == IncomingMessage(
+        bot_id=UUID("c1b0c5df-075c-55ff-a931-bfa39ddfd424"),
         sync_id=UUID("6f40a492-4b5f-54f3-87ee-77126d825b51"),
         source_sync_id=None,
         body="/hello",
@@ -103,7 +104,6 @@ async def test_minimally_filled_incoming_message() -> None:
         ),
         chat=Chat(
             id=UUID("30dc1980-643a-00ad-37fc-7cc10d74e935"),
-            bot_id=UUID("c1b0c5df-075c-55ff-a931-bfa39ddfd424"),
             type=ChatTypes.PERSONAL_CHAT,
             host="cts.example.com",
         ),
@@ -171,6 +171,7 @@ async def test_maximum_filled_incoming_message() -> None:
 
     # - Assert -
     assert incoming_message == IncomingMessage(
+        bot_id=UUID("c1b0c5df-075c-55ff-a931-bfa39ddfd424"),
         sync_id=UUID("6f40a492-4b5f-54f3-87ee-77126d825b51"),
         source_sync_id=UUID("bc3d06ed-7b2e-41ad-99f9-ca28adc2c88d"),
         body="/hello",
@@ -200,7 +201,6 @@ async def test_maximum_filled_incoming_message() -> None:
         ),
         chat=Chat(
             id=UUID("30dc1980-643a-00ad-37fc-7cc10d74e935"),
-            bot_id=UUID("c1b0c5df-075c-55ff-a931-bfa39ddfd424"),
             type=ChatTypes.PERSONAL_CHAT,
             host="cts.example.com",
         ),

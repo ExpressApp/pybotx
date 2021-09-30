@@ -4,6 +4,7 @@ import hmac
 from typing import Dict, Iterator, List, Optional, Tuple
 from uuid import UUID
 
+from botx.bot.exceptions import UnknownBotAccountError
 from botx.bot.models.bot_account import BotAccount
 
 
@@ -43,5 +44,4 @@ class BotAccountsStorage:
             if bot_account.bot_id == bot_id:
                 return bot_account
 
-        raise ValueError(f"No Bot account with bot_id `{bot_id}`")
-        # TODO: raise UnknownBotError(bot_id)
+        raise UnknownBotAccountError(bot_id)
