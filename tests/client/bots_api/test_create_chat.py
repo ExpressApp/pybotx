@@ -6,7 +6,6 @@ import pytest
 import respx
 
 from botx import Bot, BotAccount, HandlerCollector, lifespan_wrapper
-from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.bot.models.commands.enums import ChatTypes
 
 
@@ -21,9 +20,7 @@ async def test_create_chat(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_signature: str,
     bot_account: BotAccount,
-    prepared_bot_accounts_storage: BotAccountsStorage,
     chat_id: UUID,
     mock_authorization: None,
 ) -> None:
@@ -31,6 +28,13 @@ async def test_create_chat(
     endpoint = respx.post(
         f"https://{host}/api/v3/botx/chats/create",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        json={
+            "name": "Test chat name",
+            "description": None,
+            "chat_type": "group_chat",
+            "members": [],
+            "shared_history": False,
+        },
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.OK,
@@ -51,7 +55,7 @@ async def test_create_chat(
     async with lifespan_wrapper(built_bot) as bot:
         created_chat_id = await bot.create_chat(
             bot_id,
-            "TEST_CHAT_NAME",
+            "Test chat name",
             ChatTypes.GROUP_CHAT,
             [],
         )
