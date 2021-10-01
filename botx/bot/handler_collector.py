@@ -1,7 +1,7 @@
 import re
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Sequence, Type, Union
 
-from botx.bot.exceptions import HandlerNotFoundException
+from botx.bot.exceptions import HandlerNotFoundError
 from botx.bot.handler import (
     CommandHandler,
     DefaultMessageHandler,
@@ -176,7 +176,7 @@ class HandlerCollector:
             if self._default_message_handler:
                 handler = self._default_message_handler
             else:
-                raise HandlerNotFoundException(message.body)
+                raise HandlerNotFoundError(message.body)
 
         return handler
 

@@ -17,11 +17,11 @@ from botx.client.botx_method import BotXMethod
 from botx.shared_models.api_base import APIBaseModel
 
 
-def wrong_error_handler(response: httpx.Response) -> None:
+def incorrect_error_handler(response: httpx.Response) -> None:
     pass
 
 
-def right_error_handler(response: httpx.Response) -> NoReturn:
+def correct_error_handler(response: httpx.Response) -> NoReturn:
     raise ValueError("Some error")
 
 
@@ -43,8 +43,8 @@ class BotXAPIFooBar(APIBaseModel):
 class FooBarMethod(BotXMethod):
     status_handlers = {
         # Wrong type just for test
-        401: wrong_error_handler,  # type: ignore
-        403: right_error_handler,
+        401: incorrect_error_handler,  # type: ignore
+        403: correct_error_handler,
     }
 
     async def execute(self, payload: BotXAPIFooBarPayload) -> BotXAPIFooBar:
@@ -61,7 +61,7 @@ class FooBarMethod(BotXMethod):
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_exception_not_raised_status_handler(
+async def test__botx_method__exception_not_raised_in_status_handler_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -89,7 +89,7 @@ async def test_exception_not_raised_status_handler(
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_invalid_botx_status_code_error(
+async def test__botx_method__invalid_botx_status_code_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -118,7 +118,7 @@ async def test_invalid_botx_status_code_error(
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_invalid_botx_response_error(
+async def test__botx_method__invalid_botx_response_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -149,7 +149,7 @@ async def test_invalid_botx_response_error(
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_status_handler(
+async def test__botx_method__status_handler_called(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -178,7 +178,7 @@ async def test_status_handler(
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_execute(
+async def test__botx_method__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,

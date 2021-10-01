@@ -21,7 +21,7 @@ def sync_id() -> UUID:
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_send_direct_notification_from_unknown_bot_account(
+async def test__send__unknown_bot_account_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     sync_id: UUID,
@@ -57,7 +57,7 @@ async def test_send_direct_notification_from_unknown_bot_account(
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_send_direct_notification(
+async def test__send__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,

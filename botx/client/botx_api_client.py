@@ -11,7 +11,7 @@ from botx.client.notifications_api.direct_notification import (
     BotXAPIDirectNotificationPayload,
     DirectNotificationMethod,
 )
-from botx.shared_models.enums import ChatTypes
+from botx.shared_models.chat_types import ChatTypes
 
 
 class BotXAPIClient:

@@ -8,7 +8,7 @@ from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
 
 # - Domains -
 from botx.bot.bot import Bot
-from botx.bot.exceptions import HandlerNotFoundException, UnknownBotAccountError
+from botx.bot.exceptions import HandlerNotFoundError, UnknownBotAccountError
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.models.bot_account import BotAccount
 from botx.bot.models.commands.enums import ClientPlatforms, UserKinds
@@ -32,7 +32,7 @@ from botx.client.exceptions import (
     InvalidBotXResponseError,
     InvalidBotXStatusCodeError,
 )
-from botx.shared_models.enums import ChatTypes
+from botx.shared_models.chat_types import ChatTypes
 
 __all__ = (
     "Bot",
@@ -47,7 +47,7 @@ __all__ = (
     "ExceptionNotRaisedInStatusHandlerError",
     "ExpressApp",
     "HandlerCollector",
-    "HandlerNotFoundException",
+    "HandlerNotFoundError",
     "IncomingMessage",
     "InvalidBotAccountError",
     "InvalidBotXResponseError",

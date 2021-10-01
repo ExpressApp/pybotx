@@ -15,7 +15,7 @@ from botx import (
 
 
 @pytest.mark.asyncio
-async def test_chat_created() -> None:
+async def test__chat_created__succeed() -> None:
     # - Arrange -
     payload = {
         "bot_id": "bc7f96e2-91a5-5de4-8bde-23765450cac8",

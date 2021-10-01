@@ -80,7 +80,7 @@ def test_client(mock_authorization: None) -> TestClient:
     return TestClient(app)
 
 
-def test_status(
+def test__web_app__bot_status(
     test_client: TestClient,
 ) -> None:
     response = test_client.get(
@@ -108,7 +108,7 @@ def test_status(
     }
 
 
-def test_command(
+def test__web_app__bot_command(
     test_client: TestClient,
 ) -> None:
     payload = {
@@ -152,3 +152,19 @@ def test_command(
     )
 
     assert response.status_code == HTTPStatus.ACCEPTED
+
+
+def test__web_app__disabled_bot_response(
+    test_client: TestClient,
+) -> None:
+    response = test_client.post(
+        "/command",
+        json={"incorrect": "request"},
+    )
+
+    assert response.status_code == HTTPStatus.SERVICE_UNAVAILABLE
+    assert response.json() == {
+        "error_data": {"status_message": "Bot command validation error"},
+        "errors": [],
+        "reason": "bot_disabled",
+    }

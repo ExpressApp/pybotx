@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 from uuid import UUID
 
-from botx.shared_models.enums import ChatTypes
+from botx.shared_models.chat_types import ChatTypes
 
 
 @dataclass

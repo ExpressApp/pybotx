@@ -8,7 +8,7 @@ from botx import Bot, HandlerCollector, IncomingMessage, lifespan_wrapper
 
 
 @pytest.mark.asyncio
-async def test_exception_middleware_with_handler(
+async def test__exception_middleware__handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
 ) -> None:
     # - Arrange -
@@ -39,7 +39,7 @@ async def test_exception_middleware_with_handler(
 
 
 @pytest.mark.asyncio
-async def test_exception_middleware_without_handler(
+async def test__exception_middleware__without_handler_logs(
     incoming_message_factory: Callable[..., IncomingMessage],
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
@@ -64,7 +64,7 @@ async def test_exception_middleware_without_handler(
 
 
 @pytest.mark.asyncio
-async def test_exception_middleware_with_handler_error(
+async def test__exception_middleware__error_in_handler_logs(
     incoming_message_factory: Callable[..., IncomingMessage],
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:

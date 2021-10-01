@@ -18,7 +18,7 @@ from botx import (
 
 
 @pytest.mark.asyncio
-async def test_minimally_filled_incoming_message() -> None:
+async def test__async_execute_raw_bot_command__minimally_filled_incoming_message() -> None:
     # - Arrange -
     payload = {
         "bot_id": "c1b0c5df-075c-55ff-a931-bfa39ddfd424",
@@ -112,7 +112,7 @@ async def test_minimally_filled_incoming_message() -> None:
 
 
 @pytest.mark.asyncio
-async def test_maximum_filled_incoming_message() -> None:
+async def test__async_execute_raw_bot_command__maximum_filled_incoming_message() -> None:
     # - Arrange -
     payload = {
         "bot_id": "c1b0c5df-075c-55ff-a931-bfa39ddfd424",

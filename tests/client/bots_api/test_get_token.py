@@ -16,7 +16,7 @@ from botx import (
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_invalid_bot_account(
+async def test__get_token__invalid_bot_account_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -49,7 +49,7 @@ async def test_invalid_bot_account(
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_get_token(
+async def test__get_token__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,

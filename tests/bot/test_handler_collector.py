@@ -8,7 +8,9 @@ def collector() -> HandlerCollector:
     return HandlerCollector()
 
 
-def test_define_command_with_space(collector: HandlerCollector) -> None:
+def test__handler_collector__command_with_space_error_raised(
+    collector: HandlerCollector,
+) -> None:
     # - Arrange -
     with pytest.raises(ValueError) as exc:
 
@@ -20,7 +22,9 @@ def test_define_command_with_space(collector: HandlerCollector) -> None:
     assert "include space" in str(exc)
 
 
-def test_define_command_without_leading_slash(collector: HandlerCollector) -> None:
+def test__handler_collector__command_without_leading_slash_error_raised(
+    collector: HandlerCollector,
+) -> None:
     # - Arrange -
     with pytest.raises(ValueError) as exc:
 
@@ -32,7 +36,7 @@ def test_define_command_without_leading_slash(collector: HandlerCollector) -> No
     assert "should start with '/'" in str(exc)
 
 
-def test_define_visible_command_without_description(
+def test__handler_collector__visible_command_without_description_error_raised(
     collector: HandlerCollector,
 ) -> None:
     # - Act -
@@ -46,7 +50,9 @@ def test_define_visible_command_without_description(
     assert "Description is required" in str(exc)
 
 
-def test_define_two_handlers_with_same_command(collector: HandlerCollector) -> None:
+def test__handler_collector__two_same_commands_error_raised(
+    collector: HandlerCollector,
+) -> None:
     # - Arrange -
     @collector.command("/command", description="My command")
     async def handler_1(message: IncomingMessage, bot: Bot) -> None:
@@ -64,7 +70,9 @@ def test_define_two_handlers_with_same_command(collector: HandlerCollector) -> N
     assert "/command" in str(exc)
 
 
-def test_define_two_default_handlers(collector: HandlerCollector) -> None:
+def test__handler_collector__two_default_handlers_error_raised(
+    collector: HandlerCollector,
+) -> None:
     # - Arrange -
     @collector.default_message_handler
     async def handler_1(message: IncomingMessage, bot: Bot) -> None:
@@ -82,7 +90,9 @@ def test_define_two_default_handlers(collector: HandlerCollector) -> None:
     assert "Default" in str(exc)
 
 
-def test_define_two_same_system_events_handlers(collector: HandlerCollector) -> None:
+def test__handler_collector__two_same_system_events_handlers_error_raised(
+    collector: HandlerCollector,
+) -> None:
     # - Arrange -
     @collector.chat_created
     async def handler_1(message: ChatCreatedEvent, bot: Bot) -> None:
@@ -100,7 +110,7 @@ def test_define_two_same_system_events_handlers(collector: HandlerCollector) -> 
     assert "Event" in str(exc)
 
 
-def test_merge_collectors_with_same_command_handlers(
+def test___handler_collector__merge_collectors_with_same_command_error_raised(
     collector: HandlerCollector,
 ) -> None:
     # - Arrange -
@@ -123,7 +133,9 @@ def test_merge_collectors_with_same_command_handlers(
     assert "/command" in str(exc)
 
 
-def test_merge_collectors_with_default_handlers(collector: HandlerCollector) -> None:
+def test__handler_collector__merge_collectors_with_default_handlers_error_raised(
+    collector: HandlerCollector,
+) -> None:
     # - Arrange -
     @collector.default_message_handler
     async def handler_1(message: IncomingMessage, bot: Bot) -> None:
@@ -144,7 +156,7 @@ def test_merge_collectors_with_default_handlers(collector: HandlerCollector) -> 
     assert "Default" in str(exc)
 
 
-def test_merge_collectors_with_same_system_events_handlers(
+def test__handler_collector__merge_collectors_with_same_system_events_handlers_error_raised(
     collector: HandlerCollector,
 ) -> None:
     # - Arrange -

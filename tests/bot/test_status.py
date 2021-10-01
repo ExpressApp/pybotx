@@ -27,16 +27,16 @@ def status_recipient() -> StatusRecipient:
 
 
 @pytest.mark.asyncio
-async def test_hidden_command_not_in_menu(
+async def test__get_status__hidden_command_not_in_menu(
     status_recipient: StatusRecipient,
-    wrong_handler_trigger: Mock,
+    incorrect_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
 
     @collector.command("/_command", visible=False)
     async def handler(message: IncomingMessage, bot: Bot) -> None:
-        wrong_handler_trigger()
+        incorrect_handler_trigger()
 
     built_bot = Bot(collectors=[collector], bot_accounts=[])
 
@@ -47,20 +47,20 @@ async def test_hidden_command_not_in_menu(
     # - Assert -
     assert status == BotMenu({})
 
-    wrong_handler_trigger.assert_not_called()
+    incorrect_handler_trigger.assert_not_called()
 
 
 @pytest.mark.asyncio
-async def test_visible_command_in_menu(
+async def test__get_status__visible_command_in_menu(
     status_recipient: StatusRecipient,
-    wrong_handler_trigger: Mock,
+    incorrect_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
 
     @collector.command("/command", description="My command")
     async def handler(message: IncomingMessage, bot: Bot) -> None:
-        wrong_handler_trigger()
+        incorrect_handler_trigger()
 
     built_bot = Bot(collectors=[collector], bot_accounts=[])
 
@@ -71,13 +71,13 @@ async def test_visible_command_in_menu(
     # - Assert -
     assert status == BotMenu({"/command": "My command"})
 
-    wrong_handler_trigger.assert_not_called()
+    incorrect_handler_trigger.assert_not_called()
 
 
 @pytest.mark.asyncio
-async def test_command_not_in_menu_if_visible_func_return_false(
+async def test__get_status__command_not_in_menu_if_visible_func_return_false(
     status_recipient: StatusRecipient,
-    wrong_handler_trigger: Mock,
+    incorrect_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -87,7 +87,7 @@ async def test_command_not_in_menu_if_visible_func_return_false(
 
     @collector.command("/command", visible=visible_func, description="My command")
     async def handler(message: IncomingMessage, bot: Bot) -> None:
-        wrong_handler_trigger()
+        incorrect_handler_trigger()
 
     built_bot = Bot(collectors=[collector], bot_accounts=[])
 
@@ -98,13 +98,13 @@ async def test_command_not_in_menu_if_visible_func_return_false(
     # - Assert -
     assert status == BotMenu({})
 
-    wrong_handler_trigger.assert_not_called()
+    incorrect_handler_trigger.assert_not_called()
 
 
 @pytest.mark.asyncio
-async def test_command_in_menu_if_visible_func_return_true(
+async def test__get_status__command_in_menu_if_visible_func_return_true(
     status_recipient: StatusRecipient,
-    wrong_handler_trigger: Mock,
+    incorrect_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -114,7 +114,7 @@ async def test_command_in_menu_if_visible_func_return_true(
 
     @collector.command("/command", visible=visible_func, description="My command")
     async def handler(message: IncomingMessage, bot: Bot) -> None:
-        wrong_handler_trigger()
+        incorrect_handler_trigger()
 
     built_bot = Bot(collectors=[collector], bot_accounts=[])
 
@@ -125,4 +125,4 @@ async def test_command_in_menu_if_visible_func_return_true(
     # - Assert -
     assert status == BotMenu({"/command": "My command"})
 
-    wrong_handler_trigger.assert_not_called()
+    incorrect_handler_trigger.assert_not_called()

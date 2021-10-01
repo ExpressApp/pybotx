@@ -10,7 +10,7 @@ from botx.bot.models.commands.system_events.chat_created import (
     ChatCreatedMember,
 )
 from botx.shared_models.api_base import APIBaseModel
-from botx.shared_models.enums import APIChatTypes, convert_chat_type_to_domain
+from botx.shared_models.chat_types import APIChatTypes, convert_chat_type_to_domain
 
 try:
     from typing import Literal
