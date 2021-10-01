@@ -5,6 +5,7 @@ class ExceptionNotRaisedInStatusHandlerError(Exception):
     def __init__(self, status_code: int, status_handler_name: str) -> None:
         self.status_code = status_code
         self.status_handler_name = status_handler_name
+        # TODO: Add request's body
 
         self.message = (
             f"`{status_handler_name}` should raise exception "
@@ -38,3 +39,11 @@ class InvalidBotXResponseError(BaseBotXAPIError):
 
 class InvalidBotAccountError(BaseBotXAPIError):
     """Can't get token with given bot account."""
+
+
+class ChatCreationProhibited(BaseBotXAPIError):
+    """Bot doesn't have permissions to create chat."""
+
+
+class ChatCreationError(BaseBotXAPIError):
+    """Error while chat creation."""

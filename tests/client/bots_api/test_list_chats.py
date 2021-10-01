@@ -25,7 +25,7 @@ def datetime_formatter() -> Callable[[str], datetime]:
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_create_chat(
+async def test_list_chats(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,

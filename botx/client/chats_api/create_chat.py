@@ -1,7 +1,11 @@
-from typing import List, Optional
+from typing import List, NoReturn, Optional
 from uuid import UUID
 
+import httpx
+
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
+from botx.client.botx_method import StatusHandlers
+from botx.client.exceptions import ChatCreationError, ChatCreationProhibited
 from botx.shared_models.api_base import APIBaseModel
 from botx.shared_models.enums import (
     APIChatTypes,
@@ -52,7 +56,21 @@ class BotXAPIChatId(APIBaseModel):
         return self.result.chat_id
 
 
+def chat_creation_prohibited_status_error(response: httpx.Response) -> NoReturn:
+    raise ChatCreationProhibited(response)
+
+
+def chat_creation_error_status_handler(response: httpx.Response) -> NoReturn:
+    raise ChatCreationError(response)
+
+
 class CreateChatMethod(AuthorizedBotXMethod):
+    status_handlers: StatusHandlers = {  # TODO: Fix this ignore
+        **AuthorizedBotXMethod.status_handlers,  # type: ignore
+        403: chat_creation_prohibited_status_error,
+        422: chat_creation_error_status_handler,
+    }
+
     async def execute(self, payload: BotXAPICreateChatPayload) -> BotXAPIChatId:
         path = "/api/v3/botx/chats/create"
 
