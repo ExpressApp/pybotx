@@ -16,7 +16,7 @@ from botx.bot.models.commands.incoming_message import (
     UserDevice,
     UserEventSender,
 )
-from botx.shared_models.enums import convert_chat_type_to_domain
+from botx.shared_models.chat_types import convert_chat_type_to_domain
 
 
 class BotAPIIncomingMessage(BotAPIBaseCommand):

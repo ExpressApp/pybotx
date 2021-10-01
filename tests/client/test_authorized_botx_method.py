@@ -26,7 +26,7 @@ class FooBarMethod(AuthorizedBotXMethod):
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_authorized_execute(
+async def test__authorized_botx_method__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -78,7 +78,7 @@ async def test_authorized_execute(
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_authorized_execute_with_prepared_token(
+async def test__authorized_botx_method__with_prepared_token(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,

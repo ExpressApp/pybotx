@@ -6,16 +6,16 @@ import pytest
 from botx import (
     Bot,
     HandlerCollector,
-    HandlerNotFoundException,
+    HandlerNotFoundError,
     IncomingMessage,
     lifespan_wrapper,
 )
 
 
 @pytest.mark.asyncio
-async def test_user_command(
+async def test__handler_collector__command_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
-    right_handler_trigger: Mock,
+    correct_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -23,7 +23,7 @@ async def test_user_command(
 
     @collector.command("/command", description="My command")
     async def handler(message: IncomingMessage, bot: Bot) -> None:
-        right_handler_trigger()
+        correct_handler_trigger()
 
     built_bot = Bot(collectors=[collector], bot_accounts=[])
 
@@ -32,13 +32,13 @@ async def test_user_command(
         bot.async_execute_bot_command(user_command)
 
     # - Assert -
-    right_handler_trigger.assert_called_once()
+    correct_handler_trigger.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_non_ascii_user_command(
+async def test__handler_collector__unicode_command_error_raised(
     incoming_message_factory: Callable[..., IncomingMessage],
-    right_handler_trigger: Mock,
+    correct_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     russian_command = incoming_message_factory(body="/команда")
@@ -46,7 +46,7 @@ async def test_non_ascii_user_command(
 
     @collector.command("/команда", description="Моя команда")
     async def handler(message: IncomingMessage, bot: Bot) -> None:
-        right_handler_trigger()
+        correct_handler_trigger()
 
     built_bot = Bot(collectors=[collector], bot_accounts=[])
 
@@ -55,26 +55,26 @@ async def test_non_ascii_user_command(
         bot.async_execute_bot_command(russian_command)
 
     # - Assert -
-    right_handler_trigger.assert_called_once()
+    correct_handler_trigger.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_one_collector_and_two_handlers(
+async def test__handler_collector__correct_command_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
-    right_handler_trigger: Mock,
-    wrong_handler_trigger: Mock,
+    correct_handler_trigger: Mock,
+    incorrect_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
     collector = HandlerCollector()
 
-    @collector.command("/command-two", description="My command")
-    async def wrong_handler(message: IncomingMessage, bot: Bot) -> None:
-        wrong_handler_trigger()
-
     @collector.command("/command", description="My command")
-    async def right_handler(message: IncomingMessage, bot: Bot) -> None:
-        right_handler_trigger()
+    async def correct_handler(message: IncomingMessage, bot: Bot) -> None:
+        correct_handler_trigger()
+
+    @collector.command("/other", description="My command")
+    async def incorrect_handler(message: IncomingMessage, bot: Bot) -> None:
+        incorrect_handler_trigger()
 
     built_bot = Bot(collectors=[collector], bot_accounts=[])
 
@@ -83,15 +83,15 @@ async def test_one_collector_and_two_handlers(
         bot.async_execute_bot_command(user_command)
 
     # - Assert -
-    right_handler_trigger.assert_called_once()
-    wrong_handler_trigger.assert_not_called()
+    correct_handler_trigger.assert_called_once()
+    incorrect_handler_trigger.assert_not_called()
 
 
 @pytest.mark.asyncio
-async def test_two_collectors_and_commands(
+async def test__handler_collector__correct_command_handler_called_in_merged_collectors(
     incoming_message_factory: Callable[..., IncomingMessage],
-    right_handler_trigger: Mock,
-    wrong_handler_trigger: Mock,
+    correct_handler_trigger: Mock,
+    incorrect_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -100,12 +100,12 @@ async def test_two_collectors_and_commands(
     collector_2 = HandlerCollector()
 
     @collector_1.command("/command", description="My command")
-    async def right_handler(message: IncomingMessage, bot: Bot) -> None:
-        right_handler_trigger()
+    async def correct_handler(message: IncomingMessage, bot: Bot) -> None:
+        correct_handler_trigger()
 
     @collector_2.command("/command-two", description="My command")
-    async def wrong_handler(message: IncomingMessage, bot: Bot) -> None:
-        wrong_handler_trigger()
+    async def incorrect_handler(message: IncomingMessage, bot: Bot) -> None:
+        incorrect_handler_trigger()
 
     built_bot = Bot(collectors=[collector_1, collector_2], bot_accounts=[])
 
@@ -114,14 +114,14 @@ async def test_two_collectors_and_commands(
         bot.async_execute_bot_command(user_command)
 
     # - Assert -
-    right_handler_trigger.assert_called_once()
-    wrong_handler_trigger.assert_not_called()
+    correct_handler_trigger.assert_called_once()
+    incorrect_handler_trigger.assert_not_called()
 
 
 @pytest.mark.asyncio
-async def test_default_handler(
+async def test__handler_collector__default_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
-    right_handler_trigger: Mock,
+    correct_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -129,7 +129,7 @@ async def test_default_handler(
 
     @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
-        right_handler_trigger()
+        correct_handler_trigger()
 
     built_bot = Bot(collectors=[collector], bot_accounts=[])
 
@@ -138,13 +138,13 @@ async def test_default_handler(
         bot.async_execute_bot_command(user_command)
 
     # - Assert -
-    right_handler_trigger.assert_called_once()
+    correct_handler_trigger.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_empty_command_goes_to_default_handler(
+async def test__handler_collector__empty_command_goes_to_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
-    right_handler_trigger: Mock,
+    correct_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     empty_command = incoming_message_factory(body="")
@@ -152,7 +152,7 @@ async def test_empty_command_goes_to_default_handler(
 
     @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
-        right_handler_trigger()
+        correct_handler_trigger()
 
     built_bot = Bot(collectors=[collector], bot_accounts=[])
 
@@ -161,13 +161,13 @@ async def test_empty_command_goes_to_default_handler(
         bot.async_execute_bot_command(empty_command)
 
     # - Assert -
-    right_handler_trigger.assert_called_once()
+    correct_handler_trigger.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_invalid_command_goes_to_default_handler(
+async def test__handler_collector__invalid_command_goes_to_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
-    right_handler_trigger: Mock,
+    correct_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     empty_command = incoming_message_factory(body="/")
@@ -175,7 +175,7 @@ async def test_invalid_command_goes_to_default_handler(
 
     @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
-        right_handler_trigger()
+        correct_handler_trigger()
 
     built_bot = Bot(collectors=[collector], bot_accounts=[])
 
@@ -184,11 +184,11 @@ async def test_invalid_command_goes_to_default_handler(
         bot.async_execute_bot_command(empty_command)
 
     # - Assert -
-    right_handler_trigger.assert_called_once()
+    correct_handler_trigger.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_unknown_command_and_no_default_handler(
+async def test__handler_collector__handler_not_found_error_raised(
     incoming_message_factory: Callable[..., IncomingMessage],
 ) -> None:
     # - Arrange -
@@ -199,7 +199,7 @@ async def test_unknown_command_and_no_default_handler(
 
     # - Act -
     # Exception throws in background task so we need to wrap lifespan
-    with pytest.raises(HandlerNotFoundException) as exc:
+    with pytest.raises(HandlerNotFoundError) as exc:
         async with lifespan_wrapper(built_bot) as bot:
             bot.async_execute_bot_command(user_command)
 
@@ -208,9 +208,9 @@ async def test_unknown_command_and_no_default_handler(
 
 
 @pytest.mark.asyncio
-async def test_default_handler_in_first_collector(
+async def test__handler_collector__default_handler_in_first_collector_called(
     incoming_message_factory: Callable[..., IncomingMessage],
-    right_handler_trigger: Mock,
+    correct_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -220,7 +220,7 @@ async def test_default_handler_in_first_collector(
 
     @collector_1.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
-        right_handler_trigger()
+        correct_handler_trigger()
 
     built_bot = Bot(collectors=[collector_1, collector_2], bot_accounts=[])
 
@@ -229,13 +229,13 @@ async def test_default_handler_in_first_collector(
         bot.async_execute_bot_command(user_command)
 
     # - Assert -
-    right_handler_trigger.assert_called_once()
+    correct_handler_trigger.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_default_handler_in_second_collector(
+async def test__handler_collector__default_handler_in_second_collector_called(
     incoming_message_factory: Callable[..., IncomingMessage],
-    right_handler_trigger: Mock,
+    correct_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -245,7 +245,7 @@ async def test_default_handler_in_second_collector(
 
     @collector_2.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
-        right_handler_trigger()
+        correct_handler_trigger()
 
     built_bot = Bot(collectors=[collector_1, collector_2], bot_accounts=[])
 
@@ -254,4 +254,4 @@ async def test_default_handler_in_second_collector(
         bot.async_execute_bot_command(user_command)
 
     # - Assert -
-    right_handler_trigger.assert_called_once()
+    correct_handler_trigger.assert_called_once()

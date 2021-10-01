@@ -11,7 +11,7 @@ from botx.client.exceptions import ChatCreationError, ChatCreationProhibited
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_create_chat_bot_have_no_permissions_raised(
+async def test__create_chat__bot_have_no_permissions_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -66,7 +66,7 @@ async def test_create_chat_bot_have_no_permissions_raised(
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_create_chat_botx_error_raised(  # TODO: Rename all tests to unified style
+async def test__create_chat__botx_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -119,7 +119,7 @@ async def test_create_chat_botx_error_raised(  # TODO: Rename all tests to unifi
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_create_chat(
+async def test__create_chat__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,

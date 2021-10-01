@@ -20,12 +20,12 @@ from botx import (
 
 
 @pytest.fixture
-def right_handler_trigger() -> Mock:
+def correct_handler_trigger() -> Mock:
     return Mock()
 
 
 @pytest.fixture
-def wrong_handler_trigger() -> Mock:
+def incorrect_handler_trigger() -> Mock:
     return Mock()
 
 

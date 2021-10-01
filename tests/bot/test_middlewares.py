@@ -8,9 +8,9 @@ from botx.bot.handler import IncomingMessageHandlerFunc, Middleware
 
 
 @pytest.mark.asyncio
-async def test_middlewares_order(
+async def test__middlewares__correct_order(
     incoming_message_factory: Callable[..., IncomingMessage],
-    right_handler_trigger: Mock,
+    correct_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
@@ -39,7 +39,7 @@ async def test_middlewares_order(
         middlewares=[middleware_factory(5), middleware_factory(6)],
     )
     async def handler(message: IncomingMessage, bot: Bot) -> None:
-        right_handler_trigger()
+        correct_handler_trigger()
 
     built_bot = Bot(
         collectors=[collector],
@@ -52,13 +52,13 @@ async def test_middlewares_order(
         bot.async_execute_bot_command(user_command)
 
     # - Assert -
-    right_handler_trigger.assert_called_once()
+    correct_handler_trigger.assert_called_once()
 
     assert middlewares_called_order == [1, 2, 3, 4, 5, 6]
 
 
 @pytest.mark.asyncio
-async def test_default_handler_middlewares(
+async def test__middlewares__called_in_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
 ) -> None:
     # - Arrange -
@@ -101,7 +101,7 @@ async def test_default_handler_middlewares(
 
 
 @pytest.mark.asyncio
-async def test_child_collector_middlewares(
+async def test__middlewares__correct_child_collector_middlewares(
     incoming_message_factory: Callable[..., IncomingMessage],
 ) -> None:
     # - Arrange -
@@ -149,7 +149,7 @@ async def test_child_collector_middlewares(
 
 
 @pytest.mark.asyncio
-async def test_parent_collector_middlewares(
+async def test__middlewares__correct_parent_collector_middlewares(
     incoming_message_factory: Callable[..., IncomingMessage],
 ) -> None:
     # - Arrange -

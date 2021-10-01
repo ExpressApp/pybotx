@@ -3,7 +3,7 @@ from uuid import UUID
 
 from botx.bot.models.status.recipient import StatusRecipient
 from botx.shared_models.api_base import APIBaseModel
-from botx.shared_models.enums import APIChatTypes, convert_chat_type_to_domain
+from botx.shared_models.chat_types import APIChatTypes, convert_chat_type_to_domain
 
 
 class BotAPIStatusRecipient(APIBaseModel):

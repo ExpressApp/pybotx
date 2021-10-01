@@ -4,7 +4,7 @@ from uuid import UUID
 
 from botx.bot.models.commands.base import BotCommandBase
 from botx.bot.models.commands.enums import UserKinds
-from botx.shared_models.enums import ChatTypes
+from botx.shared_models.chat_types import ChatTypes
 
 
 @dataclass

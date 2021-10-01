@@ -5,7 +5,7 @@ from uuid import UUID
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.shared_models.api_base import APIBaseModel
-from botx.shared_models.enums import (
+from botx.shared_models.chat_types import (
     APIChatTypes,
     ChatTypes,
     convert_chat_type_to_domain,

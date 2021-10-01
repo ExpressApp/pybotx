@@ -1,7 +1,7 @@
 from uuid import UUID
 
 
-class HandlerNotFoundException(Exception):
+class HandlerNotFoundError(Exception):
     """Handler for received command not found.
 
     Raises if bot received a command that does not have its own handler and no default

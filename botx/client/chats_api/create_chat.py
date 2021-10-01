@@ -7,7 +7,7 @@ from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import StatusHandlers
 from botx.client.exceptions import ChatCreationError, ChatCreationProhibited
 from botx.shared_models.api_base import APIBaseModel
-from botx.shared_models.enums import (
+from botx.shared_models.chat_types import (
     APIChatTypes,
     ChatTypes,
     convert_chat_type_from_domain,

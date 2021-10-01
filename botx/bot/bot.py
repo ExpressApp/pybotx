@@ -23,7 +23,7 @@ from botx.client.botx_api_client import BotXAPIClient
 from botx.client.chats_api.list_chats import ChatListItem
 from botx.client.exceptions import InvalidBotAccountError
 from botx.converters import optional_sequence_to_list
-from botx.shared_models.enums import ChatTypes
+from botx.shared_models.chat_types import ChatTypes
 
 
 class Bot:

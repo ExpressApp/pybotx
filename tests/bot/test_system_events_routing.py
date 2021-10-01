@@ -6,16 +6,16 @@ from botx import Bot, ChatCreatedEvent, HandlerCollector, lifespan_wrapper
 
 
 @pytest.mark.asyncio
-async def test_system_event_handling(
+async def test__system_event_handler__called(
     chat_created: ChatCreatedEvent,
-    right_handler_trigger: Mock,
+    correct_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
 
     @collector.chat_created
     async def chat_created_handler(event: ChatCreatedEvent, bot: Bot) -> None:
-        right_handler_trigger()
+        correct_handler_trigger()
 
     built_bot = Bot(collectors=[collector], bot_accounts=[])
 
@@ -24,13 +24,13 @@ async def test_system_event_handling(
         bot.async_execute_bot_command(chat_created)
 
     # - Assert -
-    right_handler_trigger.assert_called_once()
+    correct_handler_trigger.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_no_handler_for_system_event(
+async def test__system_event_handler__no_handler_for_system_event(
     chat_created: ChatCreatedEvent,
-    right_handler_trigger: Mock,
+    correct_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -46,9 +46,9 @@ async def test_no_handler_for_system_event(
 
 
 @pytest.mark.asyncio
-async def test_system_event_in_first_collector(
+async def test__system_event_handler__handler_in_first_collector(
     chat_created: ChatCreatedEvent,
-    right_handler_trigger: Mock,
+    correct_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     collector_1 = HandlerCollector()
@@ -56,7 +56,7 @@ async def test_system_event_in_first_collector(
 
     @collector_1.chat_created
     async def chat_created_handler(event: ChatCreatedEvent, bot: Bot) -> None:
-        right_handler_trigger()
+        correct_handler_trigger()
 
     built_bot = Bot(collectors=[collector_1, collector_2], bot_accounts=[])
 
@@ -65,13 +65,13 @@ async def test_system_event_in_first_collector(
         bot.async_execute_bot_command(chat_created)
 
     # - Assert -
-    right_handler_trigger.assert_called_once()
+    correct_handler_trigger.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_system_event_in_second_collector(
+async def test__system_event_handler__handler_in_second_collector(
     chat_created: ChatCreatedEvent,
-    right_handler_trigger: Mock,
+    correct_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     collector_1 = HandlerCollector()
@@ -79,7 +79,7 @@ async def test_system_event_in_second_collector(
 
     @collector_2.chat_created
     async def chat_created_handler(event: ChatCreatedEvent, bot: Bot) -> None:
-        right_handler_trigger()
+        correct_handler_trigger()
 
     built_bot = Bot(collectors=[collector_1, collector_2], bot_accounts=[])
 
@@ -88,4 +88,4 @@ async def test_system_event_in_second_collector(
         bot.async_execute_bot_command(chat_created)
 
     # - Assert -
-    right_handler_trigger.assert_called_once()
+    correct_handler_trigger.assert_called_once()
