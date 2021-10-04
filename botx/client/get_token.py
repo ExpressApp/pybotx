@@ -3,7 +3,7 @@ from uuid import UUID
 import httpx
 
 from botx.bot.bot_accounts_storage import BotAccountsStorage
-from botx.client.bots_api.get_token import BotXAPIGetTokenPayload, GetTokenMethod
+from botx.client.bots_api.get_token import BotXAPIGetTokenRequestPayload, GetTokenMethod
 
 
 async def get_token(
@@ -22,7 +22,7 @@ async def get_token(
     method = GetTokenMethod(bot_id, httpx_client, bot_accounts_storage)
 
     signature = bot_accounts_storage.build_signature(bot_id)
-    payload = BotXAPIGetTokenPayload.from_domain(signature)
+    payload = BotXAPIGetTokenRequestPayload.from_domain(signature)
 
     botx_api_token = await method.execute(payload)
 

@@ -19,13 +19,16 @@ from botx.bot.models.bot_account import BotAccount
 from botx.bot.models.commands.commands import BotCommand
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
-from botx.client.chats_api.create_chat import BotXAPICreateChatPayload, CreateChatMethod
+from botx.client.chats_api.create_chat import (
+    BotXAPICreateChatRequestPayload,
+    CreateChatMethod,
+)
 from botx.client.chats_api.list_chats import ChatListItem, ListChatsMethod
 from botx.client.exceptions import InvalidBotAccountError
 from botx.client.get_token import get_token
 from botx.client.missing import Missing, Undefined
 from botx.client.notifications_api.direct_notification import (
-    BotXAPIDirectNotificationPayload,
+    BotXAPIDirectNotificationRequestPayload,
     DirectNotificationMethod,
 )
 from botx.converters import optional_sequence_to_list
@@ -150,7 +153,7 @@ class Bot:
             self._bot_accounts_storage,
         )
 
-        payload = BotXAPICreateChatPayload.from_domain(
+        payload = BotXAPICreateChatRequestPayload.from_domain(
             name,
             chat_type,
             members,
@@ -176,7 +179,7 @@ class Bot:
             self._bot_accounts_storage,
         )
 
-        payload = BotXAPIDirectNotificationPayload.from_domain(
+        payload = BotXAPIDirectNotificationRequestPayload.from_domain(
             chat_id,
             body,
             metadata,

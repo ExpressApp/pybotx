@@ -15,8 +15,8 @@ from botx import (
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.botx_method import BotXMethod
 from botx.shared_models.api_base import (
-    IncomingRequestBaseModel,
-    OutgoingRequestBaseModel,
+    UnverifiedPayloadBaseModel,
+    VerifiedPayloadBaseModel,
 )
 
 
@@ -28,7 +28,7 @@ def correct_error_handler(response: httpx.Response) -> NoReturn:
     raise ValueError("Some error")
 
 
-class BotXAPIFooBarPayload(OutgoingRequestBaseModel):
+class BotXAPIFooBarPayload(UnverifiedPayloadBaseModel):
     baz: int
 
     @classmethod
@@ -36,7 +36,7 @@ class BotXAPIFooBarPayload(OutgoingRequestBaseModel):
         return cls(baz=baz)
 
 
-class BotXAPIFooBar(IncomingRequestBaseModel):
+class BotXAPIFooBar(VerifiedPayloadBaseModel):
     quux: int
 
     def to_domain(self) -> int:

@@ -23,14 +23,14 @@ def _remove_undefined_from_dict(origin_dict: Any) -> Dict[str, Any]:
     return new_dict
 
 
-class IncomingRequestBaseModel(BaseModel):
+class VerifiedPayloadBaseModel(BaseModel):
     """Pydantic base model for API models."""
 
     class Config:
         use_enum_values = True
 
 
-class UnverifiedBaseModel(BaseModel):
+class UnverifiedPayloadBaseModel(BaseModel):
     def __init__(
         self,
         _fields_set: Optional[Set[str]] = None,
@@ -39,8 +39,6 @@ class UnverifiedBaseModel(BaseModel):
         model = BaseModel.construct(_fields_set, **kwargs)
         self.__dict__.update(model.__dict__)  # noqa: WPS609 (Replace self attrs)
 
-
-class OutgoingRequestBaseModel(UnverifiedBaseModel):
     class Config:
         arbitrary_types_allowed = True
 

@@ -7,8 +7,8 @@ from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import StatusHandlers
 from botx.client.exceptions import ChatCreationError, ChatCreationProhibited
 from botx.shared_models.api_base import (
-    IncomingRequestBaseModel,
-    OutgoingRequestBaseModel,
+    UnverifiedPayloadBaseModel,
+    VerifiedPayloadBaseModel,
 )
 from botx.shared_models.chat_types import (
     APIChatTypes,
@@ -22,7 +22,7 @@ except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
-class BotXAPICreateChatPayload(OutgoingRequestBaseModel):
+class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
     name: str
     description: Optional[str]
     chat_type: APIChatTypes
@@ -37,7 +37,7 @@ class BotXAPICreateChatPayload(OutgoingRequestBaseModel):
         members: List[UUID],
         description: Optional[str] = None,
         shared_history: bool = False,
-    ) -> "BotXAPICreateChatPayload":
+    ) -> "BotXAPICreateChatRequestPayload":
         return cls(
             name=name,
             chat_type=convert_chat_type_from_domain(chat_type),
@@ -47,11 +47,11 @@ class BotXAPICreateChatPayload(OutgoingRequestBaseModel):
         )
 
 
-class BotXAPIChatIdResult(IncomingRequestBaseModel):
+class BotXAPIChatIdResult(VerifiedPayloadBaseModel):
     chat_id: UUID
 
 
-class BotXAPIChatId(IncomingRequestBaseModel):
+class BotXAPICreateChatResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
     result: BotXAPIChatIdResult
 
@@ -74,7 +74,10 @@ class CreateChatMethod(AuthorizedBotXMethod):
         422: chat_creation_error_status_handler,
     }
 
-    async def execute(self, payload: BotXAPICreateChatPayload) -> BotXAPIChatId:
+    async def execute(
+        self,
+        payload: BotXAPICreateChatRequestPayload,
+    ) -> BotXAPICreateChatResponsePayload:
         path = "/api/v3/botx/chats/create"
 
         response = await self._botx_method_call(
@@ -83,4 +86,4 @@ class CreateChatMethod(AuthorizedBotXMethod):
             json=payload.jsonable_dict(),
         )
 
-        return self._extract_api_model(BotXAPIChatId, response)
+        return self._extract_api_model(BotXAPICreateChatResponsePayload, response)

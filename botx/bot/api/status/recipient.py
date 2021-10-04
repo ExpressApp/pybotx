@@ -2,11 +2,11 @@ from typing import Optional
 from uuid import UUID
 
 from botx.bot.models.status.recipient import StatusRecipient
-from botx.shared_models.api_base import IncomingRequestBaseModel
+from botx.shared_models.api_base import VerifiedPayloadBaseModel
 from botx.shared_models.chat_types import APIChatTypes, convert_chat_type_to_domain
 
 
-class BotAPIStatusRecipient(IncomingRequestBaseModel):
+class BotAPIStatusRecipient(VerifiedPayloadBaseModel):
     bot_id: UUID
     user_huid: UUID
     ad_login: Optional[str]

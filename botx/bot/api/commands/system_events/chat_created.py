@@ -9,7 +9,7 @@ from botx.bot.models.commands.system_events.chat_created import (
     ChatCreatedEvent,
     ChatCreatedMember,
 )
-from botx.shared_models.api_base import IncomingRequestBaseModel
+from botx.shared_models.api_base import VerifiedPayloadBaseModel
 from botx.shared_models.chat_types import APIChatTypes, convert_chat_type_to_domain
 
 try:
@@ -18,14 +18,14 @@ except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
-class BotAPIChatMember(IncomingRequestBaseModel):
+class BotAPIChatMember(VerifiedPayloadBaseModel):
     is_admin: bool = Field(..., alias="admin")
     huid: UUID
     name: Optional[str]
     user_kind: BotAPIUserKinds
 
 
-class BotAPIChatCreatedData(IncomingRequestBaseModel):
+class BotAPIChatCreatedData(VerifiedPayloadBaseModel):
     chat_type: APIChatTypes
     creator: UUID
     group_chat_id: UUID
@@ -33,7 +33,7 @@ class BotAPIChatCreatedData(IncomingRequestBaseModel):
     name: str
 
 
-class BotAPIChatCreatedPayload(IncomingRequestBaseModel):
+class BotAPIChatCreatedPayload(VerifiedPayloadBaseModel):
     body: Literal["system:chat_created"] = "system:chat_created"
     command_type: Literal[BotAPICommandTypes.SYSTEM]
     data: BotAPIChatCreatedData

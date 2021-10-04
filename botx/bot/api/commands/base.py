@@ -6,7 +6,7 @@ from pydantic import validator
 from botx.bot.api.constants import BOT_API_VERSION
 from botx.bot.api.enums import BotAPIClientPlatforms, BotAPICommandTypes
 from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
-from botx.shared_models.api_base import IncomingRequestBaseModel
+from botx.shared_models.api_base import VerifiedPayloadBaseModel
 from botx.shared_models.chat_types import APIChatTypes
 
 try:
@@ -15,20 +15,20 @@ except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
-class BotAPICommandPayload(IncomingRequestBaseModel):
+class BotAPICommandPayload(VerifiedPayloadBaseModel):
     body: str
     command_type: Literal[BotAPICommandTypes.USER]
     data: Dict[str, Any]
     metadata: Dict[str, Any]
 
 
-class BotAPIDeviceMeta(IncomingRequestBaseModel):
+class BotAPIDeviceMeta(VerifiedPayloadBaseModel):
     pushes: Optional[bool]
     timezone: Optional[str]
     permissions: Optional[Dict[str, Any]]
 
 
-class BotAPIBaseSender(IncomingRequestBaseModel):
+class BotAPIBaseSender(VerifiedPayloadBaseModel):
     ad_domain: Optional[str]
     ad_login: Optional[str]
     app_version: Optional[str]
@@ -67,7 +67,7 @@ class BotAPIUserEventSender(BotAPIBaseSender):
     user_huid: UUID
 
 
-class BotAPIBaseCommand(IncomingRequestBaseModel):
+class BotAPIBaseCommand(VerifiedPayloadBaseModel):
     bot_id: UUID
     sync_id: UUID
     proto_version: int

@@ -5,8 +5,8 @@ import httpx
 from botx.client.botx_method import BotXMethod
 from botx.client.exceptions import InvalidBotAccountError
 from botx.shared_models.api_base import (
-    IncomingRequestBaseModel,
-    OutgoingRequestBaseModel,
+    UnverifiedPayloadBaseModel,
+    VerifiedPayloadBaseModel,
 )
 
 try:
@@ -15,15 +15,15 @@ except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
-class BotXAPIGetTokenPayload(OutgoingRequestBaseModel):
+class BotXAPIGetTokenRequestPayload(UnverifiedPayloadBaseModel):
     signature: str
 
     @classmethod
-    def from_domain(cls, signature: str) -> "BotXAPIGetTokenPayload":
+    def from_domain(cls, signature: str) -> "BotXAPIGetTokenRequestPayload":
         return cls(signature=signature)
 
 
-class BotXAPIToken(IncomingRequestBaseModel):
+class BotXAPIGetTokenResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
     result: str
 
@@ -38,7 +38,10 @@ def invalid_bot_account_status_handler(response: httpx.Response) -> NoReturn:
 class GetTokenMethod(BotXMethod):
     status_handlers = {401: invalid_bot_account_status_handler}
 
-    async def execute(self, payload: BotXAPIGetTokenPayload) -> BotXAPIToken:
+    async def execute(
+        self,
+        payload: BotXAPIGetTokenRequestPayload,
+    ) -> BotXAPIGetTokenResponsePayload:
         path = f"/api/v2/botx/bots/{self._bot_id}/token"
 
         response = await self._botx_method_call(
@@ -47,4 +50,4 @@ class GetTokenMethod(BotXMethod):
             params=payload.jsonable_dict(),
         )
 
-        return self._extract_api_model(BotXAPIToken, response)
+        return self._extract_api_model(BotXAPIGetTokenResponsePayload, response)

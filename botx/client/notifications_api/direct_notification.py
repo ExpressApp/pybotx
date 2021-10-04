@@ -4,8 +4,8 @@ from uuid import UUID
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.missing import Missing
 from botx.shared_models.api_base import (
-    IncomingRequestBaseModel,
-    OutgoingRequestBaseModel,
+    UnverifiedPayloadBaseModel,
+    VerifiedPayloadBaseModel,
 )
 
 try:
@@ -14,16 +14,16 @@ except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
-class BotXAPINotification(OutgoingRequestBaseModel):
+class BotXAPIDirectNotification(UnverifiedPayloadBaseModel):
     status: Literal["ok"]
     body: str
     metadata: Missing[Dict[str, Any]]
 
 
-class BotXAPIDirectNotificationPayload(OutgoingRequestBaseModel):
+class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
     group_chat_id: UUID
     recipients: Literal["all"]
-    notification: BotXAPINotification
+    notification: BotXAPIDirectNotification
 
     @classmethod
     def from_domain(
@@ -31,11 +31,11 @@ class BotXAPIDirectNotificationPayload(OutgoingRequestBaseModel):
         chat_id: UUID,
         body: str,
         metadata: Missing[Dict[str, Any]],
-    ) -> "BotXAPIDirectNotificationPayload":
+    ) -> "BotXAPIDirectNotificationRequestPayload":
         return cls(
             group_chat_id=chat_id,
             recipients="all",
-            notification=BotXAPINotification(
+            notification=BotXAPIDirectNotification(
                 status="ok",
                 body=body,
                 metadata=metadata,
@@ -43,11 +43,11 @@ class BotXAPIDirectNotificationPayload(OutgoingRequestBaseModel):
         )
 
 
-class BotXAPISyncIdResult(IncomingRequestBaseModel):
+class BotXAPISyncIdResult(VerifiedPayloadBaseModel):
     sync_id: UUID
 
 
-class BotXAPISyncId(IncomingRequestBaseModel):
+class BotXAPIDirectNotificationResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
     result: BotXAPISyncIdResult
 
@@ -56,7 +56,10 @@ class BotXAPISyncId(IncomingRequestBaseModel):
 
 
 class DirectNotificationMethod(AuthorizedBotXMethod):
-    async def execute(self, payload: BotXAPIDirectNotificationPayload) -> BotXAPISyncId:
+    async def execute(
+        self,
+        payload: BotXAPIDirectNotificationRequestPayload,
+    ) -> BotXAPIDirectNotificationResponsePayload:
         path = "/api/v3/botx/notification/callback/direct"
 
         response = await self._botx_method_call(
@@ -65,4 +68,7 @@ class DirectNotificationMethod(AuthorizedBotXMethod):
             json=payload.jsonable_dict(),
         )
 
-        return self._extract_api_model(BotXAPISyncId, response)
+        return self._extract_api_model(
+            BotXAPIDirectNotificationResponsePayload,
+            response,
+        )

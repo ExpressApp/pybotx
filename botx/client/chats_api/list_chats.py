@@ -4,7 +4,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
-from botx.shared_models.api_base import IncomingRequestBaseModel
+from botx.shared_models.api_base import VerifiedPayloadBaseModel
 from botx.shared_models.chat_types import (
     APIChatTypes,
     ChatTypes,
@@ -28,7 +28,7 @@ class ChatListItem:
     updated_at: datetime
 
 
-class BotXAPIListChatResult(IncomingRequestBaseModel):
+class BotXAPIListChatResult(VerifiedPayloadBaseModel):
     group_chat_id: UUID
     chat_type: APIChatTypes
     name: str
@@ -38,7 +38,7 @@ class BotXAPIListChatResult(IncomingRequestBaseModel):
     updated_at: datetime
 
 
-class BotXAPIListChatResponse(IncomingRequestBaseModel):
+class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
     result: List[BotXAPIListChatResult]
 
@@ -58,7 +58,7 @@ class BotXAPIListChatResponse(IncomingRequestBaseModel):
 
 
 class ListChatsMethod(AuthorizedBotXMethod):
-    async def execute(self) -> BotXAPIListChatResponse:
+    async def execute(self) -> BotXAPIListChatResponsePayload:
         path = "/api/v3/botx/chats/list"
 
         response = await self._botx_method_call(
@@ -66,4 +66,4 @@ class ListChatsMethod(AuthorizedBotXMethod):
             self._build_url(path),
         )
 
-        return self._extract_api_model(BotXAPIListChatResponse, response)
+        return self._extract_api_model(BotXAPIListChatResponsePayload, response)
