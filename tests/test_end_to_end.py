@@ -1,6 +1,7 @@
 from http import HTTPStatus
 from uuid import UUID
 
+import httpx
 import pytest
 from loguru import logger
 from starlette.applications import Starlette
@@ -18,6 +19,25 @@ from botx import (
     build_bot_disabled_response,
 )
 
+
+# - httpx -
+async def log_request(request: httpx.Request) -> None:
+    logger.debug(
+        f"Request: {request.method} {request.url}\n"
+        f"Headers: {request.headers}\n"
+        f"Payload: {request.content!r}",
+    )
+
+
+async def log_response(response: httpx.Response) -> None:
+    request = response.request
+    logger.debug(
+        f"Response: {request.method} {request.url}\n"
+        f"Headers: {response.headers}\n"
+        f"Code: {response.status_code}\n",
+    )
+
+
 # - pybotx -
 collector = HandlerCollector()
 
@@ -28,6 +48,7 @@ async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
         "Works!",
         bot_id=message.bot_id,
         chat_id=message.chat.id,
+        metadata={"foo": "bar"},
     )
 
 
@@ -40,6 +61,9 @@ bot = Bot(
             secret_key="secret",
         ),
     ],
+    httpx_client=httpx.AsyncClient(
+        event_hooks={"request": [log_request], "response": [log_response]},
+    ),
 )
 
 

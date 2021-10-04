@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 import httpx
@@ -7,6 +7,7 @@ from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.chats_api.create_chat import BotXAPICreateChatPayload, CreateChatMethod
 from botx.client.chats_api.list_chats import ChatListItem, ListChatsMethod
 from botx.client.get_token import get_token
+from botx.client.missing import Missing
 from botx.client.notifications_api.direct_notification import (
     BotXAPIDirectNotificationPayload,
     DirectNotificationMethod,
@@ -34,8 +35,9 @@ class BotXAPIClient:
     async def send_direct_notification(
         self,
         bot_id: UUID,
-        body: str,
         chat_id: UUID,
+        body: str,
+        metadata: Missing[Dict[str, Any]],
     ) -> UUID:
         method = DirectNotificationMethod(
             bot_id,
@@ -44,8 +46,9 @@ class BotXAPIClient:
         )
 
         payload = BotXAPIDirectNotificationPayload.from_domain(
-            body,
             chat_id,
+            body,
+            metadata,
         )
         botx_api_sync_id = await method.execute(payload)
 

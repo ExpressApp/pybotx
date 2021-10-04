@@ -57,7 +57,7 @@ async def test__send__unknown_bot_account_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
-async def test__send__succeed(
+async def test__send__miminally_filled_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -97,6 +97,56 @@ async def test__send__succeed(
             "Hi!",
             bot_id=bot_id,
             chat_id=chat_id,
+        )
+
+    # - Assert -
+    assert message_id == sync_id
+    assert endpoint.called
+
+
+@respx.mock
+@pytest.mark.asyncio
+async def test__send__maximum_filled_succeed(
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    sync_id: UUID,
+    chat_id: UUID,
+    bot_account: BotAccount,
+    mock_authorization: None,
+) -> None:
+    # - Arrange -
+    endpoint = respx.post(
+        f"https://{host}/api/v3/botx/notification/callback/direct",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        json={
+            "group_chat_id": str(chat_id),
+            "recipients": "all",
+            "notification": {"status": "ok", "body": "Hi!", "metadata": {"foo": "bar"}},
+        },
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": str(sync_id)},
+            },
+        ),
+    )
+
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        message_id = await bot.send(
+            "Hi!",
+            bot_id=bot_id,
+            chat_id=chat_id,
+            metadata={"foo": "bar"},
         )
 
     # - Assert -
