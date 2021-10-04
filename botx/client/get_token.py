@@ -16,7 +16,7 @@ async def get_token(
 
     Moved to separate file because used in:
     * [botx.client.authorized_botx_method.AuthorizedBotXMethod][].
-    * [botx.client.botx_api_client.BotXAPIClient][].
+    * [botx.bot.bot.Bot][].
     """
 
     method = GetTokenMethod(bot_id, httpx_client, bot_accounts_storage)

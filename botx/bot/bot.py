@@ -19,10 +19,15 @@ from botx.bot.models.bot_account import BotAccount
 from botx.bot.models.commands.commands import BotCommand
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
-from botx.client.botx_api_client import BotXAPIClient
-from botx.client.chats_api.list_chats import ChatListItem
+from botx.client.chats_api.create_chat import BotXAPICreateChatPayload, CreateChatMethod
+from botx.client.chats_api.list_chats import ChatListItem, ListChatsMethod
 from botx.client.exceptions import InvalidBotAccountError
+from botx.client.get_token import get_token
 from botx.client.missing import Missing, Undefined
+from botx.client.notifications_api.direct_notification import (
+    BotXAPIDirectNotificationPayload,
+    DirectNotificationMethod,
+)
 from botx.converters import optional_sequence_to_list
 from botx.shared_models.chat_types import ChatTypes
 
@@ -45,7 +50,7 @@ class Bot:
         self._handler_collector = self._merge_collectors(collectors)
 
         self._bot_accounts_storage = BotAccountsStorage(list(bot_accounts))
-        self._botx_api_client = BotXAPIClient(httpx_client, self._bot_accounts_storage)
+        self._httpx_client = httpx_client or httpx.AsyncClient()
 
         # Can't set WeakSet[asyncio.Task] type in Python < 3.9
         self._tasks = WeakSet()  # type: ignore
@@ -97,7 +102,7 @@ class Bot:
             self._bot_accounts_storage.set_token(bot_id, token)
 
     async def shutdown(self) -> None:
-        await self._botx_api_client.shutdown()
+        await self._httpx_client.aclose()
 
         if not self._tasks:
             return
@@ -111,11 +116,24 @@ class Bot:
         for task in finished_tasks:
             task.result()
 
+    # - Bots API -
+    async def get_token(self, bot_id: UUID) -> str:
+        return await get_token(bot_id, self._httpx_client, self._bot_accounts_storage)
+
+    # - Chats API -
     async def list_chats(
         self,
         bot_id: UUID,
     ) -> List[ChatListItem]:
-        return await self._botx_api_client.list_chats(bot_id)
+        method = ListChatsMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        botx_api_list_chat = await method.execute()
+
+        return botx_api_list_chat.to_domain()
 
     async def create_chat(
         self,
@@ -126,18 +144,24 @@ class Bot:
         description: Optional[str] = None,
         shared_history: bool = False,
     ) -> UUID:
-        return await self._botx_api_client.create_chat(
+        method = CreateChatMethod(
             bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        payload = BotXAPICreateChatPayload.from_domain(
             name,
             chat_type,
             members,
             description,
             shared_history,
         )
+        botx_api_chat_id = await method.execute(payload)
 
-    async def get_token(self, bot_id: UUID) -> str:
-        return await self._botx_api_client.get_token(bot_id)
+        return botx_api_chat_id.to_domain()
 
+    # - Notifications API-
     async def send(
         self,
         body: str,
@@ -146,12 +170,20 @@ class Bot:
         chat_id: UUID,
         metadata: Missing[Dict[str, Any]] = Undefined,
     ) -> UUID:
-        return await self._botx_api_client.send_direct_notification(
+        method = DirectNotificationMethod(
             bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        payload = BotXAPIDirectNotificationPayload.from_domain(
             chat_id,
             body,
             metadata,
         )
+        botx_api_sync_id = await method.execute(payload)
+
+        return botx_api_sync_id.to_domain()
 
     def _add_exception_middleware(
         self,
