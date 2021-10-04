@@ -11,14 +11,14 @@ from botx.client.exceptions import (
     InvalidBotXResponseError,
     InvalidBotXStatusCodeError,
 )
-from botx.shared_models.api_base import APIBaseModel
+from botx.shared_models.api_base import IncomingRequestBaseModel
 
 StatusHandlers = Mapping[  # noqa: WPS221  (StatusHandler used only in this Mapping)
     int,
     Callable[[httpx.Response], NoReturn],
 ]
 
-TBotXAPIModel = TypeVar("TBotXAPIModel", bound=APIBaseModel)
+TBotXAPIModel = TypeVar("TBotXAPIModel", bound=IncomingRequestBaseModel)
 
 
 class BotXMethod:

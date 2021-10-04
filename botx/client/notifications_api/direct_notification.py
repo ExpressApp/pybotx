@@ -1,7 +1,12 @@
+from typing import Any, Dict
 from uuid import UUID
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
-from botx.shared_models.api_base import APIBaseModel
+from botx.client.missing import Missing
+from botx.shared_models.api_base import (
+    IncomingRequestBaseModel,
+    OutgoingRequestBaseModel,
+)
 
 try:
     from typing import Literal
@@ -9,12 +14,13 @@ except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
-class BotXAPINotification(APIBaseModel):
+class BotXAPINotification(OutgoingRequestBaseModel):
     status: Literal["ok"]
     body: str
+    metadata: Missing[Dict[str, Any]]
 
 
-class BotXAPIDirectNotificationPayload(APIBaseModel):
+class BotXAPIDirectNotificationPayload(OutgoingRequestBaseModel):
     group_chat_id: UUID
     recipients: Literal["all"]
     notification: BotXAPINotification
@@ -22,8 +28,9 @@ class BotXAPIDirectNotificationPayload(APIBaseModel):
     @classmethod
     def from_domain(
         cls,
-        body: str,
         chat_id: UUID,
+        body: str,
+        metadata: Missing[Dict[str, Any]],
     ) -> "BotXAPIDirectNotificationPayload":
         return cls(
             group_chat_id=chat_id,
@@ -31,15 +38,16 @@ class BotXAPIDirectNotificationPayload(APIBaseModel):
             notification=BotXAPINotification(
                 status="ok",
                 body=body,
+                metadata=metadata,
             ),
         )
 
 
-class BotXAPISyncIdResult(APIBaseModel):
+class BotXAPISyncIdResult(IncomingRequestBaseModel):
     sync_id: UUID
 
 
-class BotXAPISyncId(APIBaseModel):
+class BotXAPISyncId(IncomingRequestBaseModel):
     status: Literal["ok"]
     result: BotXAPISyncIdResult
 
@@ -54,7 +62,7 @@ class DirectNotificationMethod(AuthorizedBotXMethod):
         response = await self._botx_method_call(
             "POST",
             self._build_url(path),
-            content=payload.json(),
+            json=payload.jsonable_dict(),
         )
 
         return self._extract_api_model(BotXAPISyncId, response)

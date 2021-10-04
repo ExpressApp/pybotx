@@ -6,7 +6,10 @@ import httpx
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import StatusHandlers
 from botx.client.exceptions import ChatCreationError, ChatCreationProhibited
-from botx.shared_models.api_base import APIBaseModel
+from botx.shared_models.api_base import (
+    IncomingRequestBaseModel,
+    OutgoingRequestBaseModel,
+)
 from botx.shared_models.chat_types import (
     APIChatTypes,
     ChatTypes,
@@ -19,7 +22,7 @@ except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
-class BotXAPICreateChatPayload(APIBaseModel):
+class BotXAPICreateChatPayload(OutgoingRequestBaseModel):
     name: str
     description: Optional[str]
     chat_type: APIChatTypes
@@ -35,7 +38,7 @@ class BotXAPICreateChatPayload(APIBaseModel):
         description: Optional[str] = None,
         shared_history: bool = False,
     ) -> "BotXAPICreateChatPayload":
-        return cls.construct(
+        return cls(
             name=name,
             chat_type=convert_chat_type_from_domain(chat_type),
             members=members,
@@ -44,11 +47,11 @@ class BotXAPICreateChatPayload(APIBaseModel):
         )
 
 
-class BotXAPIChatIdResult(APIBaseModel):
+class BotXAPIChatIdResult(IncomingRequestBaseModel):
     chat_id: UUID
 
 
-class BotXAPIChatId(APIBaseModel):
+class BotXAPIChatId(IncomingRequestBaseModel):
     status: Literal["ok"]
     result: BotXAPIChatIdResult
 
@@ -77,7 +80,7 @@ class CreateChatMethod(AuthorizedBotXMethod):
         response = await self._botx_method_call(
             "POST",
             self._build_url(path),
-            content=payload.json(),
+            json=payload.jsonable_dict(),
         )
 
         return self._extract_api_model(BotXAPIChatId, response)

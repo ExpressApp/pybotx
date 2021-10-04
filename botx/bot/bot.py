@@ -22,6 +22,7 @@ from botx.bot.models.status.recipient import StatusRecipient
 from botx.client.botx_api_client import BotXAPIClient
 from botx.client.chats_api.list_chats import ChatListItem
 from botx.client.exceptions import InvalidBotAccountError
+from botx.client.missing import Missing, Undefined
 from botx.converters import optional_sequence_to_list
 from botx.shared_models.chat_types import ChatTypes
 
@@ -137,11 +138,19 @@ class Bot:
     async def get_token(self, bot_id: UUID) -> str:
         return await self._botx_api_client.get_token(bot_id)
 
-    async def send(self, body: str, *, bot_id: UUID, chat_id: UUID) -> UUID:
+    async def send(
+        self,
+        body: str,
+        *,
+        bot_id: UUID,
+        chat_id: UUID,
+        metadata: Missing[Dict[str, Any]] = Undefined,
+    ) -> UUID:
         return await self._botx_api_client.send_direct_notification(
             bot_id,
-            body,
             chat_id,
+            body,
+            metadata,
         )
 
     def _add_exception_middleware(

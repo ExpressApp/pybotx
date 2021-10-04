@@ -4,7 +4,10 @@ import httpx
 
 from botx.client.botx_method import BotXMethod
 from botx.client.exceptions import InvalidBotAccountError
-from botx.shared_models.api_base import APIBaseModel
+from botx.shared_models.api_base import (
+    IncomingRequestBaseModel,
+    OutgoingRequestBaseModel,
+)
 
 try:
     from typing import Literal
@@ -12,15 +15,15 @@ except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
-class BotXAPIGetTokenPayload(APIBaseModel):
+class BotXAPIGetTokenPayload(OutgoingRequestBaseModel):
     signature: str
 
     @classmethod
     def from_domain(cls, signature: str) -> "BotXAPIGetTokenPayload":
-        return cls.construct(signature=signature)
+        return cls(signature=signature)
 
 
-class BotXAPIToken(APIBaseModel):
+class BotXAPIToken(IncomingRequestBaseModel):
     status: Literal["ok"]
     result: str
 
