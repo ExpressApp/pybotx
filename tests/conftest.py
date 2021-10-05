@@ -1,9 +1,12 @@
+import logging
 from http import HTTPStatus
+from typing import Generator
 from uuid import UUID
 
 import httpx
 import pytest
 import respx
+from loguru import logger
 
 from botx import BotAccount
 
@@ -55,3 +58,23 @@ def mock_authorization(
 @pytest.fixture
 def bot_signature() -> str:
     return "E050AEEA197E0EF0A6E1653E18B7D41C7FDEC0FCFBA44C44FCCD2A88CEABD130"
+
+
+@pytest.fixture()
+def loguru_caplog(
+    caplog: pytest.LogCaptureFixture,
+) -> Generator[pytest.LogCaptureFixture, None, None]:
+    # https://github.com/Delgan/loguru/issues/59
+
+    class PropogateHandler(logging.Handler):  # noqa: WPS431
+        def emit(self, record: logging.LogRecord) -> None:
+            logging.getLogger(record.name).handle(record)
+
+    handler_id = logger.add(PropogateHandler(), format="{message}")
+    yield caplog
+    logger.remove(handler_id)
+
+
+@pytest.fixture
+def sync_id() -> UUID:
+    return UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")

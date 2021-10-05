@@ -22,7 +22,7 @@ async def test__raw_get_status__invalid_query() -> None:
             await bot.raw_get_status(query)
 
     # - Assert -
-    assert "validation error" in str(exc)
+    assert "validation error" in str(exc.value)
 
 
 @pytest.mark.asyncio

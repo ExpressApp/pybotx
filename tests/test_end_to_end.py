@@ -18,25 +18,7 @@ from botx import (
     build_accepted_response,
     build_bot_disabled_response,
 )
-
-
-# - httpx -
-async def log_request(request: httpx.Request) -> None:
-    logger.debug(
-        f"Request: {request.method} {request.url}\n"
-        f"Headers: {request.headers}\n"
-        f"Payload: {request.content!r}",
-    )
-
-
-async def log_response(response: httpx.Response) -> None:
-    request = response.request
-    logger.debug(
-        f"Response: {request.method} {request.url}\n"
-        f"Headers: {response.headers}\n"
-        f"Code: {response.status_code}\n",
-    )
-
+from tests.client.conftest import log_request, log_response
 
 # - pybotx -
 collector = HandlerCollector()
@@ -88,10 +70,16 @@ async def status_handler(request: Request) -> JSONResponse:
     return JSONResponse(status)
 
 
+async def callback_handler(request: Request) -> JSONResponse:
+    logger.info(await request.json())
+    return JSONResponse(build_accepted_response(), status_code=HTTPStatus.ACCEPTED)
+
+
 app = Starlette(
     routes=[
         Route("/command", endpoint=command_handler, methods=["POST"]),
         Route("/status", endpoint=status_handler, methods=["GET"]),
+        Route("/notification/callback", endpoint=callback_handler, methods=["POST"]),
     ],
     on_startup=[bot.startup],
     on_shutdown=[bot.shutdown],

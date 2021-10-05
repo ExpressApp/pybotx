@@ -1,19 +1,6 @@
 import httpx
 
 
-class ExceptionNotRaisedInStatusHandlerError(Exception):
-    def __init__(self, status_code: int, status_handler_name: str) -> None:
-        self.status_code = status_code
-        self.status_handler_name = status_handler_name
-        # TODO: Add request's body
-
-        self.message = (
-            f"`{status_handler_name}` should raise exception "
-            f"for status code {status_code}"
-        )
-        super().__init__(self.message)
-
-
 class BaseBotXAPIError(Exception):
     def __init__(self, response: httpx.Response) -> None:
         self.method = response.request.method
@@ -41,9 +28,5 @@ class InvalidBotAccountError(BaseBotXAPIError):
     """Can't get token with given bot account."""
 
 
-class ChatCreationProhibited(BaseBotXAPIError):
-    """Bot doesn't have permissions to create chat."""
-
-
-class ChatCreationError(BaseBotXAPIError):
-    """Error while chat creation."""
+class RateLimitReachedError(BaseBotXAPIError):
+    """Too many method requests."""

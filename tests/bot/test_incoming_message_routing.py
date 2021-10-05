@@ -204,7 +204,7 @@ async def test__handler_collector__handler_not_found_error_raised(
             bot.async_execute_bot_command(user_command)
 
     # - Assert -
-    assert "/command" in str(exc)
+    assert "/command" in str(exc.value)
 
 
 @pytest.mark.asyncio

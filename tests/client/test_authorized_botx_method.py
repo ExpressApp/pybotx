@@ -8,20 +8,26 @@ import respx
 from botx import BotAccount
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
-from tests.client.test_botx_method import BotXAPIFooBar, BotXAPIFooBarPayload
+from tests.client.test_botx_method import (
+    BotXAPIFooBarRequestPayload,
+    BotXAPIFooBarResponsePayload,
+)
 
 
 class FooBarMethod(AuthorizedBotXMethod):
-    async def execute(self, payload: BotXAPIFooBarPayload) -> BotXAPIFooBar:
+    async def execute(
+        self,
+        payload: BotXAPIFooBarRequestPayload,
+    ) -> BotXAPIFooBarResponsePayload:
         path = "/foo/bar"
 
         response = await self._botx_method_call(
-            "GET",
+            "POST",
             self._build_url(path),
-            params=payload.jsonable_dict(),
+            json=payload.jsonable_dict(),
         )
 
-        return self._extract_api_model(BotXAPIFooBar, response)
+        return self._extract_api_model(BotXAPIFooBarResponsePayload, response)
 
 
 @respx.mock
@@ -32,6 +38,7 @@ async def test__authorized_botx_method__succeed(
     bot_id: UUID,
     bot_signature: str,
     bot_account: BotAccount,
+    sync_id: UUID,
 ) -> None:
     # - Arrange -
     token_endpoint = respx.get(
@@ -47,15 +54,16 @@ async def test__authorized_botx_method__succeed(
         ),
     )
 
-    foo_bar_endpoint = respx.get(
+    foo_bar_endpoint = respx.post(
         f"https://{host}/foo/bar",
-        params={"baz": 1},
+        json={"baz": 1},
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.OK,
             json={
-                "quux": 3,
+                "status": "ok",
+                "result": {"sync_id": str(sync_id)},
             },
         ),
     )
@@ -65,13 +73,13 @@ async def test__authorized_botx_method__succeed(
         httpx_client,
         BotAccountsStorage([bot_account]),
     )
-    payload = BotXAPIFooBarPayload.from_domain(baz=1)
+    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 
     # - Act -
     botx_api_foo_bar = await method.execute(payload)
 
     # - Assert -
-    assert botx_api_foo_bar.to_domain() == 3
+    assert botx_api_foo_bar.to_domain() == sync_id
     assert token_endpoint.called
     assert foo_bar_endpoint.called
 
@@ -82,20 +90,20 @@ async def test__authorized_botx_method__with_prepared_token(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_signature: str,
-    bot_account: BotAccount,
     prepared_bot_accounts_storage: BotAccountsStorage,
+    sync_id: UUID,
 ) -> None:
     # - Arrange -
-    endpoint = respx.get(
+    endpoint = respx.post(
         f"https://{host}/foo/bar",
-        params={"baz": 1},
+        json={"baz": 1},
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.OK,
             json={
-                "quux": 3,
+                "status": "ok",
+                "result": {"sync_id": str(sync_id)},
             },
         ),
     )
@@ -106,11 +114,11 @@ async def test__authorized_botx_method__with_prepared_token(
         prepared_bot_accounts_storage,
     )
 
-    payload = BotXAPIFooBarPayload.from_domain(baz=1)
+    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 
     # - Act -
     botx_api_foo_bar = await method.execute(payload)
 
     # - Assert -
-    assert botx_api_foo_bar.to_domain() == 3
+    assert botx_api_foo_bar.to_domain() == sync_id
     assert endpoint.called

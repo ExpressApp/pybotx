@@ -15,7 +15,7 @@ async def test__async_execute_raw_bot_command__invalid_payload_value_error_raise
             bot.async_execute_raw_bot_command(payload)
 
     # - Assert -
-    assert "validation" in str(exc)
+    assert "validation" in str(exc.value)
 
 
 @pytest.mark.asyncio
@@ -30,5 +30,5 @@ async def test__async_execute_raw_bot_command__unsupported_bot_api_version_error
             bot.async_execute_raw_bot_command(payload)
 
     # - Assert -
-    assert "Unsupported" in str(exc)
-    assert "expected `4`" in str(exc)
+    assert "Unsupported" in str(exc.value)
+    assert "expected `4`" in str(exc.value)

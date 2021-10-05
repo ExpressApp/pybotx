@@ -26,8 +26,7 @@ from botx.bot.models.commands.system_events.chat_created import (
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 from botx.bot.testing import lifespan_wrapper
-from botx.client.exceptions import (
-    ExceptionNotRaisedInStatusHandlerError,
+from botx.client.exceptions.http import (
     InvalidBotAccountError,
     InvalidBotXResponseError,
     InvalidBotXStatusCodeError,
@@ -44,7 +43,6 @@ __all__ = (
     "ChatCreatedMember",
     "ChatTypes",
     "ClientPlatforms",
-    "ExceptionNotRaisedInStatusHandlerError",
     "ExpressApp",
     "HandlerCollector",
     "HandlerNotFoundError",

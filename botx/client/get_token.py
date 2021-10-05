@@ -19,7 +19,11 @@ async def get_token(
     * [botx.bot.bot.Bot][].
     """
 
-    method = GetTokenMethod(bot_id, httpx_client, bot_accounts_storage)
+    method = GetTokenMethod(
+        bot_id,
+        httpx_client,
+        bot_accounts_storage,
+    )
 
     signature = bot_accounts_storage.build_signature(bot_id)
     payload = BotXAPIGetTokenRequestPayload.from_domain(signature)

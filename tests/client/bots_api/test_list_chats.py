@@ -36,7 +36,7 @@ async def test__list_chats__succeed(
     # - Arrange -
     endpoint = respx.get(
         f"https://{host}/api/v3/botx/chats/list",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        headers={"Authorization": "Bearer token"},
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.OK,
