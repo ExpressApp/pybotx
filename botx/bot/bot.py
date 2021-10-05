@@ -45,6 +45,11 @@ class Bot:
         httpx_client: Optional[httpx.AsyncClient] = None,
         exception_handlers: Optional[ExceptionHandlersDict] = None,
     ) -> None:
+        if not collectors:
+            logger.warning("Bot should have at least one `HandlerCollector`")
+        if not bot_accounts:
+            logger.warning("Bot should have at least one `BotAccount`")
+
         self.state: SimpleNamespace = SimpleNamespace()
 
         self._middlewares = optional_sequence_to_list(middlewares)
@@ -199,10 +204,6 @@ class Bot:
         self,
         collectors: Sequence[HandlerCollector],
     ) -> HandlerCollector:
-        collectors_count = len(collectors)
-        if collectors_count == 0:
-            raise ValueError("Bot should have at least one `HandlerCollector`")
-
         main_collector = HandlerCollector(middlewares=self._middlewares)
         main_collector.include(*collectors)
 
