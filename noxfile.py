@@ -4,7 +4,7 @@ import pathlib
 import nox
 from nox.sessions import Session
 
-TARGETS = ("botx", "tests")
+TARGETS = ("botx",)
 
 
 def _process_add_single_comma_path(session: Session, path: pathlib.Path) -> None:
@@ -41,18 +41,19 @@ def run_formatters(session: Session) -> None:
     # we need to run isort here, since autoflake is unable to understand unused imports
     # when they are multiline.
     # see https://github.com/myint/autoflake/issues/8
-    session.run("isort", "--recursive", "--force-single-line-imports", *TARGETS)
+    session.run("isort", "--recursive", "--force-single-line-imports", "tests", *TARGETS)
     session.run(
         "autoflake",
         "--recursive",
         "--remove-all-unused-imports",
         "--remove-unused-variables",
         "--in-place",
+        "tests",
         *TARGETS,
     )
-    session.run("black", *TARGETS)
-    _process_add_single_comma(session, *TARGETS)
-    session.run("isort", "--recursive", *TARGETS)
+    session.run("black", "tests", *TARGETS)
+    _process_add_single_comma(session, "tests", *TARGETS)
+    session.run("isort", "--recursive", "tests", *TARGETS)
 
 
 @nox.session(python=False)

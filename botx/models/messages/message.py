@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, List, Optional, Type
 from uuid import UUID
 
 from botx.bots import bots
@@ -11,7 +11,7 @@ from botx.models.chats import ChatTypes
 from botx.models.datastructures import State
 from botx.models.entities import EntityList
 from botx.models.enums import CommandTypes
-from botx.models.files import File
+from botx.models.files import File, MetaFile
 from botx.models.messages.incoming_message import Command, IncomingMessage, Sender
 from botx.models.messages.sending.credentials import SendingCredentials
 
@@ -72,6 +72,9 @@ class Message:
 
     #: file from message.
     file: Optional[File] = _message_proxy_property()
+
+    #: Meta for download files.
+    async_files: List[MetaFile] = _message_proxy_property()
 
     #: attachment from message v4+
     attachments: AttachList = _message_proxy_property()
