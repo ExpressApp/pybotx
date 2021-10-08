@@ -59,7 +59,7 @@ class BotXAPICreateChatResponsePayload(VerifiedPayloadBaseModel):
         return self.result.chat_id
 
 
-def chat_creation_prohibited_status_error(response: httpx.Response) -> NoReturn:
+def chat_creation_prohibited_error_status_handler(response: httpx.Response) -> NoReturn:
     raise ChatCreationProhibited(response)
 
 
@@ -70,7 +70,7 @@ def chat_creation_error_status_handler(response: httpx.Response) -> NoReturn:
 class CreateChatMethod(AuthorizedBotXMethod):
     status_handlers: StatusHandlers = {
         **AuthorizedBotXMethod.status_handlers,
-        403: chat_creation_prohibited_status_error,
+        403: chat_creation_prohibited_error_status_handler,
         422: chat_creation_error_status_handler,
     }
 

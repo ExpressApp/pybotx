@@ -31,12 +31,12 @@ class BotXAPIGetTokenResponsePayload(VerifiedPayloadBaseModel):
         return self.result
 
 
-def invalid_bot_account_status_handler(response: httpx.Response) -> NoReturn:
+def invalid_bot_account_error_status_handler(response: httpx.Response) -> NoReturn:
     raise InvalidBotAccountError(response)
 
 
 class GetTokenMethod(BotXMethod):
-    status_handlers = {401: invalid_bot_account_status_handler}
+    status_handlers = {401: invalid_bot_account_error_status_handler}
 
     async def execute(
         self,
