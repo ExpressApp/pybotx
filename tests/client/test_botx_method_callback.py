@@ -7,21 +7,24 @@ import httpx
 import pytest
 import respx
 
-from botx import Bot, BotAccount, HandlerCollector, lifespan_wrapper
-from botx.bot.models.botx_method_callbacks import BotXMethodCallbackFailed
-from botx.client.botx_method import BotXMethod, ErrorCallbackHandlers
-from botx.client.exceptions.callbacks import (
-    BotXMethodCallbackFailedReceived,
+from botx import (
+    Bot,
+    BotAccount,
+    BotXMethodFailedCallbackReceivedError,
     CallbackNotReceivedError,
+    HandlerCollector,
+    lifespan_wrapper,
 )
+from botx.bot.models.botx_method_callbacks import BotXMethodFailedCallback
+from botx.client.botx_method import BotXMethod, ErrorCallbackHandlers
 from tests.client.test_botx_method import (
     BotXAPIFooBarRequestPayload,
     BotXAPIFooBarResponsePayload,
 )
 
 
-def error_callback_handler(callback: BotXMethodCallbackFailed) -> NoReturn:
-    raise BotXMethodCallbackFailedReceived(callback)
+def error_callback_handler(callback: BotXMethodFailedCallback) -> NoReturn:
+    raise BotXMethodFailedCallbackReceivedError(callback)
 
 
 class FooBarCallbackMethod(BotXMethod):
@@ -113,7 +116,7 @@ async def test__botx_method_callback__error_callback_error_handler_called(
             },
         )
 
-        with pytest.raises(BotXMethodCallbackFailedReceived) as exc:
+        with pytest.raises(BotXMethodFailedCallbackReceivedError) as exc:
             await task
 
     # - Assert -
@@ -181,7 +184,7 @@ async def test__botx_method_callback__error_callback_received(
             },
         )
 
-        with pytest.raises(BotXMethodCallbackFailedReceived) as exc:
+        with pytest.raises(BotXMethodFailedCallbackReceivedError) as exc:
             await task
 
     # - Assert -

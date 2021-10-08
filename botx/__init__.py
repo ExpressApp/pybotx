@@ -11,6 +11,7 @@ from botx.bot.bot import Bot
 from botx.bot.exceptions import HandlerNotFoundError, UnknownBotAccountError
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.models.bot_account import BotAccount
+from botx.bot.models.botx_method_callbacks import BotXMethodFailedCallback
 from botx.bot.models.commands.enums import ClientPlatforms, UserKinds
 from botx.bot.models.commands.incoming_message import (
     Chat,
@@ -26,21 +27,35 @@ from botx.bot.models.commands.system_events.chat_created import (
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 from botx.bot.testing import lifespan_wrapper
+from botx.client.chats_api.list_chats import ChatListItem
+from botx.client.exceptions.callbacks import (
+    BotXMethodFailedCallbackReceivedError,
+    CallbackNotReceivedError,
+)
+from botx.client.exceptions.chats import ChatCreationError, ChatCreationProhibited
 from botx.client.exceptions.http import (
     InvalidBotAccountError,
     InvalidBotXResponseError,
     InvalidBotXStatusCodeError,
+    RateLimitReachedError,
 )
 from botx.shared_models.chat_types import ChatTypes
 
 __all__ = (
+    "RateLimitReachedError",
+    "CallbackNotReceivedError",
+    "BotXMethodFailedCallbackReceivedError",
     "Bot",
-    "BotAPIBotDisabledResponse",
     "BotAccount",
+    "BotAPIBotDisabledResponse",
+    "BotXMethodFailedCallback",
     "BotMenu",
     "Chat",
     "ChatCreatedEvent",
+    "ChatCreationError",
+    "ChatCreationProhibited",
     "ChatCreatedMember",
+    "ChatListItem",
     "ChatTypes",
     "ClientPlatforms",
     "ExpressApp",
@@ -51,12 +66,12 @@ __all__ = (
     "InvalidBotXResponseError",
     "InvalidBotXStatusCodeError",
     "StatusRecipient",
+    "UnknownBotAccountError",
     "UnsupportedBotAPIVersionError",
     "UserDevice",
     "UserEventSender",
     "UserKinds",
     "build_accepted_response",
     "build_bot_disabled_response",
-    "UnknownBotAccountError",
     "lifespan_wrapper",
 )

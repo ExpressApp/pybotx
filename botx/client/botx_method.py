@@ -10,9 +10,9 @@ from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.bot.botx_methods_callbacks_manager import BotXMethodsCallbacksManager
 from botx.bot.models.botx_method_callbacks import (
     BotXMethodCallback,
-    BotXMethodCallbackFailed,
+    BotXMethodFailedCallback,
 )
-from botx.client.exceptions.callbacks import BotXMethodCallbackFailedReceived
+from botx.client.exceptions.callbacks import BotXMethodFailedCallbackReceivedError
 from botx.client.exceptions.http import (
     InvalidBotXResponseError,
     InvalidBotXStatusCodeError,
@@ -27,7 +27,7 @@ StatusHandlers = Mapping[  # noqa: WPS221  (StatusHandler used only in this Mapp
 ErrorCallbackHandlers = (
     Mapping[  # noqa: WPS221  (StatusHandler used only in this Mapping)
         str,
-        Callable[[BotXMethodCallbackFailed], NoReturn],
+        Callable[[BotXMethodFailedCallback], NoReturn],
     ]
 )
 TBotXAPIModel = TypeVar("TBotXAPIModel", bound=VerifiedPayloadBaseModel)
@@ -106,7 +106,7 @@ class BotXMethod:
         if callback.status == "error":
             error_handler = self.error_callback_handlers.get(callback.reason)
             if not error_handler:
-                raise BotXMethodCallbackFailedReceived(callback)
+                raise BotXMethodFailedCallbackReceivedError(callback)
 
             error_handler(callback)  # Handler should raise an exception
 

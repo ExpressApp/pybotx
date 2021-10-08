@@ -8,8 +8,14 @@ import pytest
 import respx
 from pydantic import BaseModel
 
-from botx import Bot, BotAccount, ChatTypes, HandlerCollector, lifespan_wrapper
-from botx.client.chats_api.list_chats import ChatListItem
+from botx import (
+    Bot,
+    BotAccount,
+    ChatListItem,
+    ChatTypes,
+    HandlerCollector,
+    lifespan_wrapper,
+)
 
 
 @pytest.fixture

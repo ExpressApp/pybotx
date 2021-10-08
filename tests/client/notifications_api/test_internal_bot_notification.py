@@ -6,8 +6,13 @@ import httpx
 import pytest
 import respx
 
-from botx import Bot, BotAccount, HandlerCollector, lifespan_wrapper
-from botx.client.exceptions.http import RateLimitReachedError
+from botx import (
+    Bot,
+    BotAccount,
+    HandlerCollector,
+    RateLimitReachedError,
+    lifespan_wrapper,
+)
 
 
 @respx.mock
