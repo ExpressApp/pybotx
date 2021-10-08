@@ -25,9 +25,9 @@ StatusHandlers = Mapping[  # noqa: WPS221  (StatusHandler used only in this Mapp
 ]
 
 ErrorCallbackHandlers = (
-    Mapping[  # noqa: WPS221  (StatusHandler used only in this Mapping)
+    Mapping[  # noqa: WPS221  (ErrorCallbackHandlers used only in this Mapping)
         str,
-        Callable[[BotXMethodFailedCallback], NoReturn],
+        Callable[[Arg(BotXMethodFailedCallback, "callback")], NoReturn],  # noqa: F821
     ]
 )
 TBotXAPIModel = TypeVar("TBotXAPIModel", bound=VerifiedPayloadBaseModel)

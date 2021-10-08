@@ -27,34 +27,44 @@ from botx.bot.models.commands.system_events.chat_created import (
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 from botx.bot.testing import lifespan_wrapper
+from botx.client.chats_api.exceptions import (
+    ChatCreationError,
+    ChatCreationProhibitedError,
+)
 from botx.client.chats_api.list_chats import ChatListItem
 from botx.client.exceptions.callbacks import (
     BotXMethodFailedCallbackReceivedError,
     CallbackNotReceivedError,
 )
-from botx.client.exceptions.chats import ChatCreationError, ChatCreationProhibited
+from botx.client.exceptions.common import InvalidBotAccountError, RateLimitReachedError
 from botx.client.exceptions.http import (
-    InvalidBotAccountError,
     InvalidBotXResponseError,
     InvalidBotXStatusCodeError,
-    RateLimitReachedError,
+)
+from botx.client.notifications_api.exceptions import (
+    BotIsNotChatMemberError,
+    ChatNotFoundError,
+    FinalRecipientsListEmptyError,
 )
 from botx.shared_models.chat_types import ChatTypes
 
 __all__ = (
-    "RateLimitReachedError",
-    "CallbackNotReceivedError",
-    "BotXMethodFailedCallbackReceivedError",
     "Bot",
-    "BotAccount",
+    "FinalRecipientsListEmptyError",
+    "ChatNotFoundError",
     "BotAPIBotDisabledResponse",
-    "BotXMethodFailedCallback",
+    "FinalRecipientsListEmptyError",
+    "BotAccount",
+    "BotIsNotChatMemberError",
     "BotMenu",
+    "BotXMethodFailedCallback",
+    "BotXMethodFailedCallbackReceivedError",
+    "CallbackNotReceivedError",
     "Chat",
     "ChatCreatedEvent",
-    "ChatCreationError",
-    "ChatCreationProhibited",
     "ChatCreatedMember",
+    "ChatCreationError",
+    "ChatCreationProhibitedError",
     "ChatListItem",
     "ChatTypes",
     "ClientPlatforms",
@@ -65,6 +75,7 @@ __all__ = (
     "InvalidBotAccountError",
     "InvalidBotXResponseError",
     "InvalidBotXStatusCodeError",
+    "RateLimitReachedError",
     "StatusRecipient",
     "UnknownBotAccountError",
     "UnsupportedBotAPIVersionError",

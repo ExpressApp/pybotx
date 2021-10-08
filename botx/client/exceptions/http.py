@@ -22,11 +22,3 @@ class InvalidBotXStatusCodeError(BaseBotXAPIError):
 
 class InvalidBotXResponseError(BaseBotXAPIError):
     """Received invalid response."""
-
-
-class InvalidBotAccountError(BaseBotXAPIError):
-    """Can't get token with given bot account."""
-
-
-class RateLimitReachedError(BaseBotXAPIError):
-    """Too many method requests."""

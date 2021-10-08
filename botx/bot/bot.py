@@ -26,7 +26,7 @@ from botx.client.chats_api.create_chat import (
     CreateChatMethod,
 )
 from botx.client.chats_api.list_chats import ChatListItem, ListChatsMethod
-from botx.client.exceptions.http import InvalidBotAccountError
+from botx.client.exceptions.common import InvalidBotAccountError
 from botx.client.get_token import get_token
 from botx.client.missing import Missing, Undefined
 from botx.client.notifications_api.direct_notification import (

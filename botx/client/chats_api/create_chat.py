@@ -4,7 +4,10 @@ from uuid import UUID
 import httpx
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
-from botx.client.exceptions.chats import ChatCreationError, ChatCreationProhibited
+from botx.client.chats_api.exceptions import (
+    ChatCreationError,
+    ChatCreationProhibitedError,
+)
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,
@@ -59,7 +62,7 @@ class BotXAPICreateChatResponsePayload(VerifiedPayloadBaseModel):
 
 
 def chat_creation_prohibited_error_status_handler(response: httpx.Response) -> NoReturn:
-    raise ChatCreationProhibited(response)
+    raise ChatCreationProhibitedError(response)
 
 
 def chat_creation_error_status_handler(response: httpx.Response) -> NoReturn:

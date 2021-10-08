@@ -3,9 +3,15 @@ from uuid import UUID
 
 import httpx
 
+from botx.bot.models.botx_method_callbacks import BotXMethodFailedCallback
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
-from botx.client.exceptions.http import RateLimitReachedError
+from botx.client.exceptions.common import RateLimitReachedError
 from botx.client.missing import Missing, MissingOptional
+from botx.client.notifications_api.exceptions import (
+    BotIsNotChatMemberError,
+    ChatNotFoundError,
+    FinalRecipientsListEmptyError,
+)
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,
@@ -55,10 +61,37 @@ def rate_limit_reached_error_status_handler(response: httpx.Response) -> NoRetur
     raise RateLimitReachedError(response)
 
 
+def chat_not_found_error_callback_handler(
+    callback: BotXMethodFailedCallback,
+) -> NoReturn:
+    raise ChatNotFoundError(callback)
+
+
+def bot_is_not_chat_member_error_callback_handler(
+    callback: BotXMethodFailedCallback,
+) -> NoReturn:
+    raise BotIsNotChatMemberError(callback)
+
+
+def final_recipients_list_empty_error_callback_handler(  # noqa: WPS118
+    callback: BotXMethodFailedCallback,
+) -> NoReturn:
+    raise FinalRecipientsListEmptyError(callback)
+
+
 class InternalBotNotificationMethod(AuthorizedBotXMethod):
     status_handlers = {
         **AuthorizedBotXMethod.status_handlers,
         429: rate_limit_reached_error_status_handler,
+    }
+
+    error_callback_handlers = {
+        **AuthorizedBotXMethod.error_callback_handlers,
+        "chat_not_found": chat_not_found_error_callback_handler,
+        "bot_is_not_a_chat_member": bot_is_not_chat_member_error_callback_handler,
+        "event_recipients_list_is_empty": (
+            final_recipients_list_empty_error_callback_handler
+        ),
     }
 
     async def execute(

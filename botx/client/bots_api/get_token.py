@@ -3,7 +3,7 @@ from typing import NoReturn
 import httpx
 
 from botx.client.botx_method import BotXMethod
-from botx.client.exceptions.http import InvalidBotAccountError
+from botx.client.exceptions.common import InvalidBotAccountError
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,

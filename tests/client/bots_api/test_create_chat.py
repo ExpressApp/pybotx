@@ -9,7 +9,7 @@ from botx import (
     Bot,
     BotAccount,
     ChatCreationError,
-    ChatCreationProhibited,
+    ChatCreationProhibitedError,
     ChatTypes,
     HandlerCollector,
     lifespan_wrapper,
@@ -58,7 +58,7 @@ async def test__create_chat__bot_have_no_permissions_raised(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(ChatCreationProhibited) as exc:
+        with pytest.raises(ChatCreationProhibitedError) as exc:
             await bot.create_chat(
                 bot_id,
                 "Test chat name",
