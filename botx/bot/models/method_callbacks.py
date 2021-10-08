@@ -10,13 +10,13 @@ from uuid import UUID
 from botx.shared_models.api_base import VerifiedPayloadBaseModel
 
 
-class BotXMethodSuccessfulCallback(VerifiedPayloadBaseModel):
+class BotAPIMethodSuccessfulCallback(VerifiedPayloadBaseModel):
     sync_id: UUID
     status: Literal["ok"]
     result: Dict[str, Any]
 
 
-class BotXMethodFailedCallback(VerifiedPayloadBaseModel):
+class BotAPIMethodFailedCallback(VerifiedPayloadBaseModel):
     sync_id: UUID
     status: Literal["error"]
     reason: str
@@ -24,4 +24,4 @@ class BotXMethodFailedCallback(VerifiedPayloadBaseModel):
     error_data: Dict[str, Any]
 
 
-BotXMethodCallback = Union[BotXMethodSuccessfulCallback, BotXMethodFailedCallback]
+BotXMethodCallback = Union[BotAPIMethodSuccessfulCallback, BotAPIMethodFailedCallback]

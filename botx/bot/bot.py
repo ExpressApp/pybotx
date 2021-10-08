@@ -12,15 +12,16 @@ from botx.bot.api.commands.commands import BotAPICommand
 from botx.bot.api.status.recipient import BotAPIStatusRecipient
 from botx.bot.api.status.response import build_bot_status_response
 from botx.bot.bot_accounts_storage import BotAccountsStorage
-from botx.bot.botx_methods_callbacks_manager import BotXMethodsCallbacksManager
+from botx.bot.callbacks_manager import CallbacksManager
 from botx.bot.handler import Middleware
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.middlewares.exceptions import ExceptionHandlersDict, ExceptionMiddleware
 from botx.bot.models.bot_account import BotAccount
-from botx.bot.models.botx_method_callbacks import BotXMethodCallback
 from botx.bot.models.commands.commands import BotCommand
+from botx.bot.models.method_callbacks import BotXMethodCallback
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
+from botx.client.chats_api.add_user import AddUserMethod, BotXAPIAddUserRequestPayload
 from botx.client.chats_api.create_chat import (
     BotXAPICreateChatRequestPayload,
     CreateChatMethod,
@@ -68,7 +69,7 @@ class Bot:
 
         self._tasks: "WeakSet[asyncio.Task[None]]" = WeakSet()
 
-        self._botx_methods_callbacks_manager = BotXMethodsCallbacksManager()
+        self._callback_manager = CallbacksManager()
 
     def async_execute_raw_bot_command(self, raw_bot_command: Dict[str, Any]) -> None:
         try:
@@ -112,7 +113,7 @@ class Bot:
             BotXMethodCallback,  # type: ignore[arg-type]
             raw_botx_method_result,
         )
-        self._botx_methods_callbacks_manager.set_botx_method_callback_result(callback)
+        self._callback_manager.set_botx_method_callback_result(callback)
 
     async def startup(self) -> None:
         for host, bot_id in self._bot_accounts_storage.iter_host_and_bot_id_pairs():
@@ -129,6 +130,7 @@ class Bot:
 
     async def shutdown(self) -> None:
         await self._httpx_client.aclose()
+        self._callback_manager.stop_callbacks_waiting()
 
         if not self._tasks:
             return
@@ -155,12 +157,23 @@ class Bot:
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
-            self._botx_methods_callbacks_manager,
+            self._callback_manager,
         )
 
         botx_api_list_chat = await method.execute()
 
         return botx_api_list_chat.to_domain()
+
+    async def add_user_to_chat(
+        self,
+        bot_id: UUID,
+        chat_id: UUID,
+        huids: List[UUID],
+    ) -> None:
+        method = AddUserMethod(bot_id, self._httpx_client, self._bot_accounts_storage)
+
+        payload = BotXAPIAddUserRequestPayload.from_domain(chat_id, huids)
+        await method.execute(payload)
 
     async def create_chat(
         self,
@@ -175,7 +188,7 @@ class Bot:
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
-            self._botx_methods_callbacks_manager,
+            self._callback_manager,
         )
 
         payload = BotXAPICreateChatRequestPayload.from_domain(
@@ -202,7 +215,7 @@ class Bot:
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
-            self._botx_methods_callbacks_manager,
+            self._callback_manager,
         )
 
         payload = BotXAPIDirectNotificationRequestPayload.from_domain(
@@ -228,7 +241,7 @@ class Bot:
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
-            self._botx_methods_callbacks_manager,
+            self._callback_manager,
         )
 
         payload = BotXAPIInternalBotNotificationRequestPayload.from_domain(

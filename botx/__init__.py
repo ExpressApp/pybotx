@@ -8,10 +8,13 @@ from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
 
 # - Domains -
 from botx.bot.bot import Bot
-from botx.bot.exceptions import HandlerNotFoundError, UnknownBotAccountError
+from botx.bot.exceptions import (
+    BotShuttignDownError,
+    HandlerNotFoundError,
+    UnknownBotAccountError,
+)
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.models.bot_account import BotAccount
-from botx.bot.models.botx_method_callbacks import BotXMethodFailedCallback
 from botx.bot.models.commands.enums import ClientPlatforms, UserKinds
 from botx.bot.models.commands.incoming_message import (
     Chat,
@@ -20,10 +23,12 @@ from botx.bot.models.commands.incoming_message import (
     UserDevice,
     UserEventSender,
 )
+from botx.bot.models.commands.system_events.added_to_chat import AddedToChatEvent
 from botx.bot.models.commands.system_events.chat_created import (
     ChatCreatedEvent,
     ChatCreatedMember,
 )
+from botx.bot.models.method_callbacks import BotAPIMethodFailedCallback
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 from botx.bot.testing import lifespan_wrapper
@@ -49,15 +54,14 @@ from botx.client.notifications_api.exceptions import (
 from botx.shared_models.chat_types import ChatTypes
 
 __all__ = (
+    "AddedToChatEvent",
     "Bot",
-    "FinalRecipientsListEmptyError",
-    "ChatNotFoundError",
     "BotAPIBotDisabledResponse",
-    "FinalRecipientsListEmptyError",
+    "BotAPIMethodFailedCallback",
     "BotAccount",
     "BotIsNotChatMemberError",
     "BotMenu",
-    "BotXMethodFailedCallback",
+    "BotShuttignDownError",
     "BotXMethodFailedCallbackReceivedError",
     "CallbackNotReceivedError",
     "Chat",
@@ -66,9 +70,12 @@ __all__ = (
     "ChatCreationError",
     "ChatCreationProhibitedError",
     "ChatListItem",
+    "ChatNotFoundError",
     "ChatTypes",
     "ClientPlatforms",
     "ExpressApp",
+    "FinalRecipientsListEmptyError",
+    "FinalRecipientsListEmptyError",
     "HandlerCollector",
     "HandlerNotFoundError",
     "IncomingMessage",

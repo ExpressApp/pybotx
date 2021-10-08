@@ -26,11 +26,10 @@ collector = HandlerCollector()
 
 @collector.command("/debug", description="Simple debug command")
 async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
-    await bot.send(
-        "Works!",
+    await bot.send_internal_bot_notification(
         bot_id=message.bot_id,
         chat_id=message.chat.id,
-        metadata={"foo": "bar"},
+        data={"foo": "bar"},
     )
 
 
@@ -38,9 +37,9 @@ bot = Bot(
     collectors=[collector],
     bot_accounts=[
         BotAccount(
-            host="cts.example.com",
-            bot_id=UUID("bc7f96e2-91a5-5de4-8bde-23765450cac8"),
-            secret_key="secret",
+            host="cts31st.ccsteam.ru",
+            bot_id=UUID("33891bbd-b12c-5f88-a9b4-e7b3568661a2"),
+            secret_key="6bce97f550fda05b1537e6ec2e77950a",
         ),
     ],
     httpx_client=httpx.AsyncClient(

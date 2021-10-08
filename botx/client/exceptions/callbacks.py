@@ -1,10 +1,10 @@
 from uuid import UUID
 
-from botx.bot.models.botx_method_callbacks import BotXMethodFailedCallback
+from botx.bot.models.method_callbacks import BotAPIMethodFailedCallback
 
 
 class BotXMethodFailedCallbackReceivedError(Exception):
-    def __init__(self, callback: BotXMethodFailedCallback) -> None:
+    def __init__(self, callback: BotAPIMethodFailedCallback) -> None:
         self.callback = callback
         self.message = (
             f"BotX method call with sync_id `{callback.sync_id!s}` "

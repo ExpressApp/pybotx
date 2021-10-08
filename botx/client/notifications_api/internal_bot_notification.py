@@ -3,7 +3,7 @@ from uuid import UUID
 
 import httpx
 
-from botx.bot.models.botx_method_callbacks import BotXMethodFailedCallback
+from botx.bot.models.method_callbacks import BotAPIMethodFailedCallback
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.exceptions.common import RateLimitReachedError
 from botx.client.missing import Missing, MissingOptional
@@ -62,19 +62,19 @@ def rate_limit_reached_error_status_handler(response: httpx.Response) -> NoRetur
 
 
 def chat_not_found_error_callback_handler(
-    callback: BotXMethodFailedCallback,
+    callback: BotAPIMethodFailedCallback,
 ) -> NoReturn:
     raise ChatNotFoundError(callback)
 
 
 def bot_is_not_chat_member_error_callback_handler(
-    callback: BotXMethodFailedCallback,
+    callback: BotAPIMethodFailedCallback,
 ) -> NoReturn:
     raise BotIsNotChatMemberError(callback)
 
 
 def final_recipients_list_empty_error_callback_handler(  # noqa: WPS118
-    callback: BotXMethodFailedCallback,
+    callback: BotAPIMethodFailedCallback,
 ) -> NoReturn:
     raise FinalRecipientsListEmptyError(callback)
 
