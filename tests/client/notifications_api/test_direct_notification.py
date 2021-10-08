@@ -14,17 +14,11 @@ from botx import (
 )
 
 
-@pytest.fixture
-def sync_id() -> UUID:
-    return UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
-
-
 @respx.mock
 @pytest.mark.asyncio
 async def test__send__unknown_bot_account_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
-    sync_id: UUID,
     chat_id: UUID,
     bot_account: BotAccount,
     mock_authorization: None,
@@ -52,7 +46,7 @@ async def test__send__unknown_bot_account_error_raised(
 
     # - Assert -
     assert not direct_notification_endpoint.called
-    assert str(unknown_bot_id) in str(exc)
+    assert str(unknown_bot_id) in str(exc.value)
 
 
 @respx.mock

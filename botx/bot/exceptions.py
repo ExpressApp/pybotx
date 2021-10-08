@@ -17,5 +17,12 @@ class HandlerNotFoundError(Exception):
 class UnknownBotAccountError(Exception):
     def __init__(self, bot_id: UUID) -> None:
         self.bot_id = bot_id
-        self.message = f"No bot account with bot_id: `{bot_id}`"
+        self.message = f"No bot account with bot_id: `{bot_id!s}`"
+        super().__init__(self.message)
+
+
+class BotXMethodCallbackNotFound(Exception):
+    def __init__(self, sync_id: UUID) -> None:
+        self.sync_id = sync_id
+        self.message = f"No callback found with sync_id: `{sync_id!s}`"
         super().__init__(self.message)

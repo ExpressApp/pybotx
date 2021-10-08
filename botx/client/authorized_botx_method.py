@@ -22,11 +22,6 @@ class AuthorizedBotXMethod(BotXMethod):
             self._bot_accounts_storage.set_token(self._bot_id, token)
 
         headers = kwargs.pop("headers", {})
-        headers.update(
-            {
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/json",
-            },
-        )
+        headers.update({"Authorization": f"Bearer {token}"})
 
         return await super()._botx_method_call(*args, headers=headers, **kwargs)

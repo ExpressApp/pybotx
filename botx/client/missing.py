@@ -9,3 +9,4 @@ RequiredType = TypeVar("RequiredType")
 Undefined = _UndefinedType()
 
 Missing = Union[RequiredType, _UndefinedType]
+MissingOptional = Union[RequiredType, None, _UndefinedType]

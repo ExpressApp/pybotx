@@ -19,7 +19,7 @@ def test__handler_collector__command_with_space_error_raised(
             pass
 
     # - Assert -
-    assert "include space" in str(exc)
+    assert "include space" in str(exc.value)
 
 
 def test__handler_collector__command_without_leading_slash_error_raised(
@@ -33,7 +33,7 @@ def test__handler_collector__command_without_leading_slash_error_raised(
             pass
 
     # - Assert -
-    assert "should start with '/'" in str(exc)
+    assert "should start with '/'" in str(exc.value)
 
 
 def test__handler_collector__visible_command_without_description_error_raised(
@@ -47,7 +47,7 @@ def test__handler_collector__visible_command_without_description_error_raised(
             pass
 
     # - Assert -
-    assert "Description is required" in str(exc)
+    assert "Description is required" in str(exc.value)
 
 
 def test__handler_collector__two_same_commands_error_raised(
@@ -66,8 +66,8 @@ def test__handler_collector__two_same_commands_error_raised(
             pass
 
     # - Assert -
-    assert "already registered" in str(exc)
-    assert "/command" in str(exc)
+    assert "already registered" in str(exc.value)
+    assert "/command" in str(exc.value)
 
 
 def test__handler_collector__two_default_handlers_error_raised(
@@ -86,8 +86,8 @@ def test__handler_collector__two_default_handlers_error_raised(
             pass
 
     # - Assert -
-    assert "already registered" in str(exc)
-    assert "Default" in str(exc)
+    assert "already registered" in str(exc.value)
+    assert "Default" in str(exc.value)
 
 
 def test__handler_collector__two_same_system_events_handlers_error_raised(
@@ -106,8 +106,8 @@ def test__handler_collector__two_same_system_events_handlers_error_raised(
             pass
 
     # - Assert -
-    assert "already registered" in str(exc)
-    assert "Event" in str(exc)
+    assert "already registered" in str(exc.value)
+    assert "Event" in str(exc.value)
 
 
 def test___handler_collector__merge_collectors_with_same_command_error_raised(
@@ -129,8 +129,8 @@ def test___handler_collector__merge_collectors_with_same_command_error_raised(
         collector.include(other_collector)
 
     # - Assert -
-    assert "already registered" in str(exc)
-    assert "/command" in str(exc)
+    assert "already registered" in str(exc.value)
+    assert "/command" in str(exc.value)
 
 
 def test__handler_collector__merge_collectors_with_default_handlers_error_raised(
@@ -152,8 +152,8 @@ def test__handler_collector__merge_collectors_with_default_handlers_error_raised
         collector.include(other_collector)
 
     # - Assert -
-    assert "already registered" in str(exc)
-    assert "Default" in str(exc)
+    assert "already registered" in str(exc.value)
+    assert "Default" in str(exc.value)
 
 
 def test__handler_collector__merge_collectors_with_same_system_events_handlers_error_raised(
@@ -175,5 +175,5 @@ def test__handler_collector__merge_collectors_with_same_system_events_handlers_e
         collector.include(other_collector)
 
     # - Assert -
-    assert "already registered" in str(exc)
-    assert "event" in str(exc)
+    assert "already registered" in str(exc.value)
+    assert "event" in str(exc.value)

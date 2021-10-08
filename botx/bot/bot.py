@@ -12,10 +12,12 @@ from botx.bot.api.commands.commands import BotAPICommand
 from botx.bot.api.status.recipient import BotAPIStatusRecipient
 from botx.bot.api.status.response import build_bot_status_response
 from botx.bot.bot_accounts_storage import BotAccountsStorage
+from botx.bot.botx_methods_callbacks_manager import BotXMethodsCallbacksManager
 from botx.bot.handler import Middleware
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.middlewares.exceptions import ExceptionHandlersDict, ExceptionMiddleware
 from botx.bot.models.bot_account import BotAccount
+from botx.bot.models.botx_method_callbacks import BotXMethodCallback
 from botx.bot.models.commands.commands import BotCommand
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
@@ -24,12 +26,16 @@ from botx.client.chats_api.create_chat import (
     CreateChatMethod,
 )
 from botx.client.chats_api.list_chats import ChatListItem, ListChatsMethod
-from botx.client.exceptions import InvalidBotAccountError
+from botx.client.exceptions.http import InvalidBotAccountError
 from botx.client.get_token import get_token
 from botx.client.missing import Missing, Undefined
 from botx.client.notifications_api.direct_notification import (
     BotXAPIDirectNotificationRequestPayload,
     DirectNotificationMethod,
+)
+from botx.client.notifications_api.internal_bot_notification import (
+    BotXAPIInternalBotNotificationRequestPayload,
+    InternalBotNotificationMethod,
 )
 from botx.converters import optional_sequence_to_list
 from botx.shared_models.chat_types import ChatTypes
@@ -60,8 +66,9 @@ class Bot:
         self._bot_accounts_storage = BotAccountsStorage(list(bot_accounts))
         self._httpx_client = httpx_client or httpx.AsyncClient()
 
-        # Can't set WeakSet[asyncio.Task] type in Python < 3.9
-        self._tasks = WeakSet()  # type: ignore
+        self._tasks: "WeakSet[asyncio.Task[None]]" = WeakSet()
+
+        self._botx_methods_callbacks_manager = BotXMethodsCallbacksManager()
 
     def async_execute_raw_bot_command(self, raw_bot_command: Dict[str, Any]) -> None:
         try:
@@ -95,6 +102,17 @@ class Bot:
 
     async def get_status(self, status_recipient: StatusRecipient) -> BotMenu:
         return await self._handler_collector.get_bot_menu(status_recipient, self)
+
+    def set_raw_botx_method_result(
+        self,
+        raw_botx_method_result: Dict[str, Any],
+    ) -> None:
+        callback: BotXMethodCallback = parse_obj_as(
+            # Same ignore as in pydantic
+            BotXMethodCallback,  # type: ignore[arg-type]
+            raw_botx_method_result,
+        )
+        self._botx_methods_callbacks_manager.set_botx_method_callback_result(callback)
 
     async def startup(self) -> None:
         for host, bot_id in self._bot_accounts_storage.iter_host_and_bot_id_pairs():
@@ -137,6 +155,7 @@ class Bot:
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
+            self._botx_methods_callbacks_manager,
         )
 
         botx_api_list_chat = await method.execute()
@@ -156,6 +175,7 @@ class Bot:
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
+            self._botx_methods_callbacks_manager,
         )
 
         payload = BotXAPICreateChatRequestPayload.from_domain(
@@ -182,6 +202,7 @@ class Bot:
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
+            self._botx_methods_callbacks_manager,
         )
 
         payload = BotXAPIDirectNotificationRequestPayload.from_domain(
@@ -190,6 +211,37 @@ class Bot:
             metadata,
         )
         botx_api_sync_id = await method.execute(payload)
+
+        return botx_api_sync_id.to_domain()
+
+    async def send_internal_bot_notification(
+        self,
+        bot_id: UUID,
+        chat_id: UUID,
+        data: Dict[str, Any],
+        opts: Missing[Dict[str, Any]] = Undefined,
+        recipients: Missing[List[UUID]] = Undefined,
+        wait_callback: bool = True,
+        callback_timeout: Optional[int] = None,
+    ) -> UUID:
+        method = InternalBotNotificationMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+            self._botx_methods_callbacks_manager,
+        )
+
+        payload = BotXAPIInternalBotNotificationRequestPayload.from_domain(
+            chat_id,
+            data,
+            opts,
+            recipients,
+        )
+        botx_api_sync_id = await method.execute(
+            payload,
+            wait_callback,
+            callback_timeout,
+        )
 
         return botx_api_sync_id.to_domain()
 

@@ -5,7 +5,7 @@ import httpx
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import StatusHandlers
-from botx.client.exceptions import ChatCreationError, ChatCreationProhibited
+from botx.client.exceptions.chats import ChatCreationError, ChatCreationProhibited
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,
@@ -68,8 +68,8 @@ def chat_creation_error_status_handler(response: httpx.Response) -> NoReturn:
 
 
 class CreateChatMethod(AuthorizedBotXMethod):
-    status_handlers: StatusHandlers = {  # TODO: Fix this ignore
-        **AuthorizedBotXMethod.status_handlers,  # type: ignore
+    status_handlers: StatusHandlers = {
+        **AuthorizedBotXMethod.status_handlers,
         403: chat_creation_prohibited_status_error,
         422: chat_creation_error_status_handler,
     }

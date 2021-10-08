@@ -30,7 +30,6 @@ async def test__system_event_handler__called(
 @pytest.mark.asyncio
 async def test__system_event_handler__no_handler_for_system_event(
     chat_created: ChatCreatedEvent,
-    correct_handler_trigger: Mock,
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()

@@ -6,7 +6,7 @@ import pytest
 import respx
 
 from botx import Bot, BotAccount, ChatTypes, HandlerCollector, lifespan_wrapper
-from botx.client.exceptions import ChatCreationError, ChatCreationProhibited
+from botx.client.exceptions.chats import ChatCreationError, ChatCreationProhibited
 
 
 @respx.mock

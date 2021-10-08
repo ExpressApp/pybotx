@@ -43,7 +43,7 @@ async def test__get_token__invalid_bot_account_error_raised(
             await bot.get_token(bot_id)
 
     # - Assert -
-    assert "failed with code 401" in str(exc)
+    assert "failed with code 401" in str(exc.value)
     assert endpoint.called
 
 
