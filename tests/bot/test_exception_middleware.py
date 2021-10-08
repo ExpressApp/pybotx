@@ -35,7 +35,7 @@ async def test__exception_middleware__handler_called(
 
     # - Assert -
     assert len(value_error_handler.mock_calls) == 1
-    assert value_error_handler.mock_calls[0] == call(exc, user_command, built_bot)
+    assert value_error_handler.mock_calls[0] == call(user_command, built_bot, exc)
 
 
 @pytest.mark.asyncio
@@ -72,9 +72,9 @@ async def test__exception_middleware__error_in_handler_logs(
     user_command = incoming_message_factory(body="/command")
 
     async def exception_handler(
-        exc: Exception,
         message: IncomingMessage,
         bot: Bot,
+        exc: Exception,
     ) -> None:
         raise ValueError("Nested error")
 

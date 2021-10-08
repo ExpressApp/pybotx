@@ -9,7 +9,7 @@ if TYPE_CHECKING:  # To avoid circular import
     from botx.bot.bot import Bot
 
 ExceptionHandler = Callable[
-    [Exception, IncomingMessage, "Bot"],
+    [IncomingMessage, "Bot", Exception],
     Awaitable[None],
 ]
 ExceptionHandlersDict = Dict[Type[Exception], ExceptionHandler]
@@ -40,7 +40,7 @@ class ExceptionMiddleware:
                 return
 
             try:  # noqa: WPS505
-                await exception_handler(message_handler_exc, message, bot)
+                await exception_handler(message, bot, message_handler_exc)
             except Exception as error_handler_exc:
                 exc_name = type(message_handler_exc).__name__
                 logger.exception(
