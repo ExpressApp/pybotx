@@ -5,7 +5,7 @@ import httpx
 import pytest
 import respx
 
-from botx import BotAccount
+from botx import BotAccount, InvalidBotAccountError
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from tests.client.test_botx_method import (
@@ -28,6 +28,54 @@ class FooBarMethod(AuthorizedBotXMethod):
         )
 
         return self._extract_api_model(BotXAPIFooBarResponsePayload, response)
+
+
+@respx.mock
+@pytest.mark.asyncio
+async def test__authorized_botx_method__unauthorized(
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    bot_signature: str,
+    bot_account: BotAccount,
+) -> None:
+    # - Arrange -
+    token_endpoint = respx.get(
+        f"https://{host}/api/v2/botx/bots/{bot_id}/token",
+        params={"signature": bot_signature},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.OK,
+            json={
+                "status": "ok",
+                "result": "token",
+            },
+        ),
+    )
+
+    foo_bar_endpoint = respx.post(
+        f"https://{host}/foo/bar",
+        json={"baz": 1},
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+    ).mock(
+        return_value=httpx.Response(HTTPStatus.UNAUTHORIZED),
+    )
+
+    method = FooBarMethod(
+        bot_id,
+        httpx_client,
+        BotAccountsStorage([bot_account]),
+    )
+    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+
+    # - Act -
+    with pytest.raises(InvalidBotAccountError) as exc:
+        await method.execute(payload)
+
+    # - Assert -
+    assert "failed with code 401" in str(exc.value)
+    assert token_endpoint.called
+    assert foo_bar_endpoint.called
 
 
 @respx.mock
