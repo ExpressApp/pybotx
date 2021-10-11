@@ -1,9 +1,9 @@
-from botx.client.exceptions.http import BaseBotXAPIError
+from botx.client.exceptions.http import InvalidBotXStatusCodeError
 
 
-class InvalidBotAccountError(BaseBotXAPIError):
+class InvalidBotAccountError(InvalidBotXStatusCodeError):
     """Can't get token with given bot account."""
 
 
-class RateLimitReachedError(BaseBotXAPIError):
+class RateLimitReachedError(InvalidBotXStatusCodeError):
     """Too many method requests."""
