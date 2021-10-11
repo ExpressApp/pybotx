@@ -1,9 +1,8 @@
-from typing import List, NoReturn, Optional
+from typing import List, Optional
 from uuid import UUID
 
-import httpx
-
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
+from botx.client.botx_method import response_exception_thrower
 from botx.client.chats_api.exceptions import (
     ChatCreationError,
     ChatCreationProhibitedError,
@@ -61,19 +60,11 @@ class BotXAPICreateChatResponsePayload(VerifiedPayloadBaseModel):
         return self.result.chat_id
 
 
-def chat_creation_prohibited_error_status_handler(response: httpx.Response) -> NoReturn:
-    raise ChatCreationProhibitedError(response)
-
-
-def chat_creation_error_status_handler(response: httpx.Response) -> NoReturn:
-    raise ChatCreationError(response)
-
-
 class CreateChatMethod(AuthorizedBotXMethod):
     status_handlers = {
         **AuthorizedBotXMethod.status_handlers,
-        403: chat_creation_prohibited_error_status_handler,
-        422: chat_creation_error_status_handler,
+        403: response_exception_thrower(ChatCreationProhibitedError),
+        422: response_exception_thrower(ChatCreationError),
     }
 
     async def execute(

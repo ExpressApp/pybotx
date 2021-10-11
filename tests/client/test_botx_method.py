@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from typing import NoReturn
 from uuid import UUID
 
 import httpx
@@ -8,7 +7,7 @@ import respx
 
 from botx import BotAccount, InvalidBotXResponseError, InvalidBotXStatusCodeError
 from botx.bot.bot_accounts_storage import BotAccountsStorage
-from botx.client.botx_method import BotXMethod
+from botx.client.botx_method import BotXMethod, response_exception_thrower
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,
@@ -18,10 +17,6 @@ try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
-
-
-def error_handler(response: httpx.Response) -> NoReturn:
-    raise ValueError("Some error")
 
 
 class BotXAPIFooBarRequestPayload(UnverifiedPayloadBaseModel):
@@ -46,8 +41,7 @@ class BotXAPIFooBarResponsePayload(VerifiedPayloadBaseModel):
 
 class FooBarMethod(BotXMethod):
     status_handlers = {
-        # Wrong type just for test
-        403: error_handler,
+        403: response_exception_thrower(ValueError),
     }
 
     async def execute(
@@ -162,7 +156,7 @@ async def test__botx_method__status_handler_called(
         await method.execute(payload)
 
     # - Assert -
-    assert "Some error" in str(exc.value)
+    assert "403" in str(exc.value)
     assert endpoint.called
 
 

@@ -19,18 +19,33 @@ from botx.client.exceptions.http import (
 )
 from botx.shared_models.api_base import VerifiedPayloadBaseModel
 
-StatusHandlers = Mapping[  # noqa: WPS221  (StatusHandler used only in this Mapping)
-    int,
-    Callable[[Arg(httpx.Response, "response")], NoReturn],  # noqa: F821
-]
+StatusHandler = Callable[[Arg(httpx.Response, "response")], NoReturn]  # noqa: F821
+StatusHandlers = Mapping[int, StatusHandler]
 
-ErrorCallbackHandlers = (
-    Mapping[  # noqa: WPS221  (ErrorCallbackHandlers used only in this Mapping)
-        str,
-        Callable[[Arg(BotAPIMethodFailedCallback, "callback")], NoReturn],  # noqa: F821
-    ]
-)
+CallbackExceptionHandler = Callable[
+    [Arg(BotAPIMethodFailedCallback, "callback")],  # noqa: F821
+    NoReturn,
+]
+ErrorCallbackHandlers = Mapping[str, CallbackExceptionHandler]
 TBotXAPIModel = TypeVar("TBotXAPIModel", bound=VerifiedPayloadBaseModel)
+
+
+def response_exception_thrower(
+    exc: Type[Exception],
+) -> StatusHandler:
+    def factory(response: httpx.Response) -> NoReturn:
+        raise exc(response)
+
+    return factory
+
+
+def callback_exception_thrower(
+    exc: Type[Exception],
+) -> CallbackExceptionHandler:  # noqa: F821
+    def factory(callback: BotAPIMethodFailedCallback) -> NoReturn:
+        raise exc(callback)
+
+    return factory
 
 
 class BotXMethod:

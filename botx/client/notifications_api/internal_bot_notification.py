@@ -1,10 +1,11 @@
-from typing import Any, Dict, List, NoReturn, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
-import httpx
-
-from botx.bot.models.method_callbacks import BotAPIMethodFailedCallback
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
+from botx.client.botx_method import (
+    callback_exception_thrower,
+    response_exception_thrower,
+)
 from botx.client.exceptions.common import RateLimitReachedError
 from botx.client.missing import Missing, MissingOptional
 from botx.client.notifications_api.exceptions import (
@@ -57,40 +58,18 @@ class BotXAPIInternalBotNotificationResponsePayload(VerifiedPayloadBaseModel):
         return self.result.sync_id
 
 
-def rate_limit_reached_error_status_handler(response: httpx.Response) -> NoReturn:
-    raise RateLimitReachedError(response)
-
-
-def chat_not_found_error_callback_handler(
-    callback: BotAPIMethodFailedCallback,
-) -> NoReturn:
-    raise ChatNotFoundError(callback)
-
-
-def bot_is_not_chat_member_error_callback_handler(
-    callback: BotAPIMethodFailedCallback,
-) -> NoReturn:
-    raise BotIsNotChatMemberError(callback)
-
-
-def final_recipients_list_empty_error_callback_handler(  # noqa: WPS118
-    callback: BotAPIMethodFailedCallback,
-) -> NoReturn:
-    raise FinalRecipientsListEmptyError(callback)
-
-
 class InternalBotNotificationMethod(AuthorizedBotXMethod):
     status_handlers = {
         **AuthorizedBotXMethod.status_handlers,
-        429: rate_limit_reached_error_status_handler,
+        429: response_exception_thrower(RateLimitReachedError),
     }
 
     error_callback_handlers = {
         **AuthorizedBotXMethod.error_callback_handlers,
-        "chat_not_found": chat_not_found_error_callback_handler,
-        "bot_is_not_a_chat_member": bot_is_not_chat_member_error_callback_handler,
-        "event_recipients_list_is_empty": (
-            final_recipients_list_empty_error_callback_handler
+        "chat_not_found": callback_exception_thrower(ChatNotFoundError),
+        "bot_is_not_a_chat_member": callback_exception_thrower(BotIsNotChatMemberError),
+        "event_recipients_list_is_empty": callback_exception_thrower(
+            FinalRecipientsListEmptyError,
         ),
     }
 

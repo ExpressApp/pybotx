@@ -3,7 +3,7 @@
 import asyncio
 import types
 from http import HTTPStatus
-from typing import NoReturn, Optional
+from typing import Optional
 from uuid import UUID
 
 import httpx
@@ -19,21 +19,22 @@ from botx import (
     HandlerCollector,
     lifespan_wrapper,
 )
-from botx.bot.models.method_callbacks import BotAPIMethodFailedCallback
-from botx.client.botx_method import BotXMethod, ErrorCallbackHandlers
+from botx.client.botx_method import (
+    BotXMethod,
+    ErrorCallbackHandlers,
+    callback_exception_thrower,
+)
 from tests.client.test_botx_method import (
     BotXAPIFooBarRequestPayload,
     BotXAPIFooBarResponsePayload,
 )
 
 
-def error_callback_handler(callback: BotAPIMethodFailedCallback) -> NoReturn:
-    raise BotXMethodFailedCallbackReceivedError(callback)
-
-
 class FooBarCallbackMethod(BotXMethod):
     error_callback_handlers: ErrorCallbackHandlers = {
-        "foo_bar_error": error_callback_handler,
+        "foo_bar_error": callback_exception_thrower(
+            BotXMethodFailedCallbackReceivedError,
+        ),
     }
 
     async def execute(
