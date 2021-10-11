@@ -1,3 +1,4 @@
+from typing import Any
 from uuid import UUID
 
 
@@ -25,4 +26,11 @@ class BotXMethodCallbackNotFound(Exception):
     def __init__(self, sync_id: UUID) -> None:
         self.sync_id = sync_id
         self.message = f"No callback found with sync_id: `{sync_id!s}`"
+        super().__init__(self.message)
+
+
+class BotShuttignDownError(Exception):
+    def __init__(self, context: Any) -> None:
+        self.context = context
+        self.message = f"Bot is shutting down: {context}"
         super().__init__(self.message)

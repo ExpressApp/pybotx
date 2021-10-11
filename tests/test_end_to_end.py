@@ -26,11 +26,10 @@ collector = HandlerCollector()
 
 @collector.command("/debug", description="Simple debug command")
 async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
-    await bot.send(
-        "Works!",
+    await bot.send_internal_bot_notification(
         bot_id=message.bot_id,
         chat_id=message.chat.id,
-        metadata={"foo": "bar"},
+        data={"foo": "bar"},
     )
 
 

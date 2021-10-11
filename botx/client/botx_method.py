@@ -7,10 +7,10 @@ from mypy_extensions import Arg
 from pydantic import ValidationError
 
 from botx.bot.bot_accounts_storage import BotAccountsStorage
-from botx.bot.botx_methods_callbacks_manager import BotXMethodsCallbacksManager
-from botx.bot.models.botx_method_callbacks import (
+from botx.bot.callbacks_manager import CallbacksManager
+from botx.bot.models.method_callbacks import (
+    BotAPIMethodFailedCallback,
     BotXMethodCallback,
-    BotXMethodFailedCallback,
 )
 from botx.client.exceptions.callbacks import BotXMethodFailedCallbackReceivedError
 from botx.client.exceptions.http import (
@@ -27,7 +27,7 @@ StatusHandlers = Mapping[  # noqa: WPS221  (StatusHandler used only in this Mapp
 ErrorCallbackHandlers = (
     Mapping[  # noqa: WPS221  (ErrorCallbackHandlers used only in this Mapping)
         str,
-        Callable[[Arg(BotXMethodFailedCallback, "callback")], NoReturn],  # noqa: F821
+        Callable[[Arg(BotAPIMethodFailedCallback, "callback")], NoReturn],  # noqa: F821
     ]
 )
 TBotXAPIModel = TypeVar("TBotXAPIModel", bound=VerifiedPayloadBaseModel)
@@ -42,7 +42,7 @@ class BotXMethod:
         sender_bot_id: UUID,
         httpx_client: httpx.AsyncClient,
         bot_accounts_storage: BotAccountsStorage,
-        callbacks_manager: Optional[BotXMethodsCallbacksManager] = None,
+        callbacks_manager: Optional[CallbacksManager] = None,
     ) -> None:
         self._bot_id = sender_bot_id
         self._httpx_client = httpx_client

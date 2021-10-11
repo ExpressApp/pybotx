@@ -2,8 +2,10 @@ from dataclasses import dataclass
 from functools import partial
 from typing import TYPE_CHECKING, Awaitable, Callable, List, TypeVar, Union
 
-from botx.bot.models.commands.commands import BotCommand, SystemEvent
+from botx.bot.models.commands.commands import BotCommand
 from botx.bot.models.commands.incoming_message import IncomingMessage
+from botx.bot.models.commands.system_events.added_to_chat import AddedToChatEvent
+from botx.bot.models.commands.system_events.chat_created import ChatCreatedEvent
 from botx.bot.models.status.recipient import StatusRecipient
 
 try:
@@ -18,7 +20,10 @@ TBotCommand = TypeVar("TBotCommand", bound=BotCommand)
 HandlerFunc = Callable[[TBotCommand, "Bot"], Awaitable[None]]
 
 IncomingMessageHandlerFunc = HandlerFunc[IncomingMessage]
-SystemEventHandlerFunc = HandlerFunc[SystemEvent]
+SystemEventHandlerFunc = Union[
+    HandlerFunc[AddedToChatEvent],
+    HandlerFunc[ChatCreatedEvent],
+]
 
 VisibleFunc = Callable[[StatusRecipient, "Bot"], Awaitable[bool]]
 

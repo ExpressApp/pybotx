@@ -15,6 +15,7 @@ from botx.bot.handler import (
 )
 from botx.bot.models.commands.commands import BotCommand, SystemEvent
 from botx.bot.models.commands.incoming_message import IncomingMessage
+from botx.bot.models.commands.system_events.added_to_chat import AddedToChatEvent
 from botx.bot.models.commands.system_events.chat_created import ChatCreatedEvent
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
@@ -45,7 +46,11 @@ class HandlerCollector:
             message_handler = self._get_incoming_message_handler(bot_command)
             await message_handler(bot_command, bot)
 
-        elif isinstance(bot_command, SystemEvent):
+        elif isinstance(
+            bot_command,
+            # TODO: Replace `__args__` with `typing.get_origin` on python 3.7 drop.
+            SystemEvent.__args__,  # type: ignore [attr-defined]  # noqa: WPS609
+        ):
             event_handler = self._get_system_event_handler_or_none(bot_command)
             if event_handler:
                 await event_handler(bot_command, bot)
@@ -117,6 +122,14 @@ class HandlerCollector:
         handler_func: HandlerFunc[ChatCreatedEvent],
     ) -> HandlerFunc[ChatCreatedEvent]:
         self._system_event(ChatCreatedEvent, handler_func)
+
+        return handler_func
+
+    def added_to_chat(
+        self,
+        handler_func: HandlerFunc[AddedToChatEvent],
+    ) -> HandlerFunc[AddedToChatEvent]:
+        self._system_event(AddedToChatEvent, handler_func)
 
         return handler_func
 
@@ -224,8 +237,8 @@ class HandlerCollector:
     def _system_event(
         self,
         event_cls_name: Type[BotCommand],
-        handler_func: HandlerFunc[SystemEvent],
-    ) -> HandlerFunc[SystemEvent]:
+        handler_func: SystemEventHandlerFunc,
+    ) -> SystemEventHandlerFunc:
         if event_cls_name in self._system_events_handlers:
             raise ValueError(f"Handler for {event_cls_name} already registered")
 
