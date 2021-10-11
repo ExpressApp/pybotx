@@ -1,4 +1,7 @@
+# type: ignore [attr-defined]
+
 import asyncio
+import types
 from http import HTTPStatus
 from typing import NoReturn, Optional
 from uuid import UUID
@@ -10,12 +13,13 @@ import respx
 from botx import (
     Bot,
     BotAccount,
+    BotShuttignDownError,
     BotXMethodFailedCallbackReceivedError,
     CallbackNotReceivedError,
     HandlerCollector,
     lifespan_wrapper,
 )
-from botx.bot.models.botx_method_callbacks import BotXMethodFailedCallback
+from botx.bot.models.method_callbacks import BotAPIMethodFailedCallback
 from botx.client.botx_method import BotXMethod, ErrorCallbackHandlers
 from tests.client.test_botx_method import (
     BotXAPIFooBarRequestPayload,
@@ -23,7 +27,7 @@ from tests.client.test_botx_method import (
 )
 
 
-def error_callback_handler(callback: BotXMethodFailedCallback) -> NoReturn:
+def error_callback_handler(callback: BotAPIMethodFailedCallback) -> NoReturn:
     raise BotXMethodFailedCallbackReceivedError(callback)
 
 
@@ -56,6 +60,30 @@ class FooBarCallbackMethod(BotXMethod):
         return api_model
 
 
+async def call_foo_bar(
+    self: Bot,
+    bot_id: UUID,
+    baz: int,
+    wait_callback: bool = True,
+    callback_timeout: Optional[int] = None,
+) -> UUID:
+    method = FooBarCallbackMethod(
+        bot_id,
+        self._httpx_client,
+        self._bot_accounts_storage,
+        self._callback_manager,
+    )
+
+    payload = BotXAPIFooBarRequestPayload.from_domain(baz=baz)
+    botx_api_foo_bar = await method.execute(
+        payload,
+        wait_callback=wait_callback,
+        callback_timeout=callback_timeout,
+    )
+
+    return botx_api_foo_bar.to_domain()
+
+
 @respx.mock
 @pytest.mark.asyncio
 async def test__botx_method_callback__error_callback_error_handler_called(
@@ -86,18 +114,12 @@ async def test__botx_method_callback__error_callback_error_handler_called(
         httpx_client=httpx_client,
     )
 
-    method = FooBarCallbackMethod(
-        bot_id,
-        built_bot._httpx_client,  # noqa: WPS437 (Attaching method to bot in runtime)
-        built_bot._bot_accounts_storage,  # noqa: WPS437
-        built_bot._botx_methods_callbacks_manager,  # noqa: WPS437
-    )
-    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+    built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
-            method.execute(payload, wait_callback=True, callback_timeout=None),
+            bot.call_foo_bar(bot_id, baz=1),
         )
         await asyncio.sleep(0)  # Return control to event loop
 
@@ -154,18 +176,12 @@ async def test__botx_method_callback__error_callback_received(
         httpx_client=httpx_client,
     )
 
-    method = FooBarCallbackMethod(
-        bot_id,
-        built_bot._httpx_client,  # noqa: WPS437 (Attaching method to bot in runtime)
-        built_bot._bot_accounts_storage,  # noqa: WPS437
-        built_bot._botx_methods_callbacks_manager,  # noqa: WPS437
-    )
-    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+    built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
-            method.execute(payload, wait_callback=True, callback_timeout=None),
+            bot.call_foo_bar(bot_id, baz=1),
         )
         await asyncio.sleep(0)  # Return control to event loop
 
@@ -189,6 +205,48 @@ async def test__botx_method_callback__error_callback_received(
 
     # - Assert -
     assert "failed with" in str(exc.value)
+    assert endpoint.called
+
+
+@respx.mock
+@pytest.mark.asyncio
+async def test__botx_method_callback__cancelled_callback_future_during_shutdown(
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccount,
+    sync_id: UUID,
+    mock_authorization: None,
+) -> None:
+    # - Arrange -
+    endpoint = respx.post(
+        f"https://{host}/foo/bar",
+        json={"baz": 1},
+        headers={"Content-Type": "application/json"},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": str(sync_id)},
+            },
+        ),
+    )
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
+
+    built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        with pytest.raises(CallbackNotReceivedError):
+            await bot.call_foo_bar(bot_id, baz=1, callback_timeout=0)
+
+    # - Assert -
+    # This test is considered as passed if no exception was raised
     assert endpoint.called
 
 
@@ -223,18 +281,12 @@ async def test__botx_method_callback__callback_received_after_timeout(
         httpx_client=httpx_client,
     )
 
-    method = FooBarCallbackMethod(
-        bot_id,
-        built_bot._httpx_client,  # noqa: WPS437 (Attaching method to bot in runtime)
-        built_bot._bot_accounts_storage,  # noqa: WPS437
-        built_bot._botx_methods_callbacks_manager,  # noqa: WPS437
-    )
-    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+    built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(CallbackNotReceivedError) as exc:
-            await method.execute(payload, wait_callback=True, callback_timeout=0)
+            await bot.call_foo_bar(bot_id, baz=1, callback_timeout=0)
 
         bot.set_raw_botx_method_result(
             {
@@ -287,24 +339,61 @@ async def test__botx_method_callback__dont_wait_for_callback(
         httpx_client=httpx_client,
     )
 
-    method = FooBarCallbackMethod(
-        bot_id,
-        built_bot._httpx_client,  # noqa: WPS437 (Attaching method to bot in runtime)
-        built_bot._bot_accounts_storage,  # noqa: WPS437
-        built_bot._botx_methods_callbacks_manager,  # noqa: WPS437
-    )
-    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+    built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
     # - Act -
-    async with lifespan_wrapper(built_bot):
-        botx_api_foo_bar = await method.execute(
-            payload,
-            wait_callback=False,
-            callback_timeout=None,
-        )
+    async with lifespan_wrapper(built_bot) as bot:
+        foo_bar = await bot.call_foo_bar(bot_id, baz=1, wait_callback=False)
 
     # - Assert -
-    assert botx_api_foo_bar.to_domain() == sync_id
+    assert foo_bar == sync_id
+    assert endpoint.called
+
+
+@respx.mock
+@pytest.mark.asyncio
+async def test__botx_method_callback__pending_callback_future_during_shutdown(
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccount,
+    sync_id: UUID,
+    mock_authorization: None,
+) -> None:
+    # - Arrange -
+    endpoint = respx.post(
+        f"https://{host}/foo/bar",
+        json={"baz": 1},
+        headers={"Content-Type": "application/json"},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": str(sync_id)},
+            },
+        ),
+    )
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
+
+    built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        task = asyncio.create_task(
+            bot.call_foo_bar(bot_id, baz=1),
+        )
+        await asyncio.sleep(0)  # HTTP-client should have time to make request
+
+    with pytest.raises(BotShuttignDownError) as exc:
+        await task
+
+    # - Assert -
+    assert str(sync_id) in str(exc.value)
     assert endpoint.called
 
 
@@ -338,18 +427,12 @@ async def test__botx_method_callback__callback_successful_received(
         httpx_client=httpx_client,
     )
 
-    method = FooBarCallbackMethod(
-        bot_id,
-        built_bot._httpx_client,  # noqa: WPS437 (Attaching method to bot in runtime)
-        built_bot._bot_accounts_storage,  # noqa: WPS437
-        built_bot._botx_methods_callbacks_manager,  # noqa: WPS437
-    )
-    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+    built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
-            method.execute(payload, wait_callback=True, callback_timeout=None),
+            bot.call_foo_bar(bot_id, baz=1),
         )
         await asyncio.sleep(0)  # Return control to event loop
 
@@ -362,5 +445,5 @@ async def test__botx_method_callback__callback_successful_received(
         )
 
     # - Assert -
-    assert (await task).to_domain() == sync_id
+    assert await task == sync_id
     assert endpoint.called
