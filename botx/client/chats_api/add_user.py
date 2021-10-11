@@ -2,6 +2,8 @@ from typing import List
 from uuid import UUID
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
+from botx.client.botx_method import response_exception_thrower
+from botx.client.exceptions.common import PermissionDeniedError
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,
@@ -32,6 +34,11 @@ class BotXAPIAddUserResponsePayload(VerifiedPayloadBaseModel):
 
 
 class AddUserMethod(AuthorizedBotXMethod):
+    status_handlers = {
+        **AuthorizedBotXMethod.status_handlers,
+        403: response_exception_thrower(PermissionDeniedError),
+    }
+
     async def execute(
         self,
         payload: BotXAPIAddUserRequestPayload,
