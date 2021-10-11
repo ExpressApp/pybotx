@@ -41,7 +41,11 @@ from botx.client.exceptions.callbacks import (
     BotXMethodFailedCallbackReceivedError,
     CallbackNotReceivedError,
 )
-from botx.client.exceptions.common import InvalidBotAccountError, RateLimitReachedError
+from botx.client.exceptions.common import (
+    InvalidBotAccountError,
+    PermissionDeniedError,
+    RateLimitReachedError,
+)
 from botx.client.exceptions.http import (
     InvalidBotXResponseError,
     InvalidBotXStatusCodeError,
@@ -56,9 +60,9 @@ from botx.shared_models.chat_types import ChatTypes
 __all__ = (
     "AddedToChatEvent",
     "Bot",
+    "BotAccount",
     "BotAPIBotDisabledResponse",
     "BotAPIMethodFailedCallback",
-    "BotAccount",
     "BotIsNotChatMemberError",
     "BotMenu",
     "BotShuttignDownError",
@@ -82,6 +86,7 @@ __all__ = (
     "InvalidBotAccountError",
     "InvalidBotXResponseError",
     "InvalidBotXStatusCodeError",
+    "PermissionDeniedError",
     "RateLimitReachedError",
     "StatusRecipient",
     "UnknownBotAccountError",

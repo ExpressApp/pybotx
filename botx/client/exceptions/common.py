@@ -7,3 +7,7 @@ class InvalidBotAccountError(InvalidBotXStatusCodeError):
 
 class RateLimitReachedError(InvalidBotXStatusCodeError):
     """Too many method requests."""
+
+
+class PermissionDeniedError(InvalidBotXStatusCodeError):
+    """Bot can't perform this action."""
