@@ -157,7 +157,6 @@ class Bot:
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
-            self._callback_manager,
         )
 
         botx_api_list_chat = await method.execute()
@@ -188,7 +187,6 @@ class Bot:
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
-            self._callback_manager,
         )
 
         payload = BotXAPICreateChatRequestPayload.from_domain(
@@ -215,7 +213,6 @@ class Bot:
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
-            self._callback_manager,
         )
 
         payload = BotXAPIDirectNotificationRequestPayload.from_domain(
