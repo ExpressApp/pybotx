@@ -169,6 +169,14 @@ class Bot:
         chat_id: UUID,
         huids: List[UUID],
     ) -> None:
+        """Add user to chat.
+
+        Arguments:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            huids: List of eXpress account ids.
+        """
+
         method = AddUserMethod(bot_id, self._httpx_client, self._bot_accounts_storage)
 
         payload = BotXAPIAddUserRequestPayload.from_domain(chat_id, huids)

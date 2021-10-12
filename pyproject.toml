@@ -37,10 +37,9 @@ pytest-cov = "~2.12"
 respx = "~0.17"
 requests = "~2.26.0"
 
-mkdocs = "*"
-mkdocstrings = "*"
-mkdocs-material = "^5.2.1"
-livereload = "^2.6.3"
+mkdocs = "~1.2.2"
+mkdocstrings = "~0.16.0"
+mkdocs-material = "~5.2.1"
 
 [build-system]
 requires = ["poetry>=0.12"]

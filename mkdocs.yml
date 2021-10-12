@@ -12,7 +12,9 @@ edit_uri: ''
 nav:
   - Introduction: 'index.md'
   - API Reference:
-      - bot:
+      - bot: 
+        - Bot: 'reference/bot/bot.md'
+        - HandlerCollector: 'reference/bot/handler_collector.md'
         - api:
           - commands: 'reference/bot/api/commands.md'
 
