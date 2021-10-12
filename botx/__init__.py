@@ -58,7 +58,7 @@ from botx.client.notifications_api.exceptions import (
     ChatNotFoundError,
     FinalRecipientsListEmptyError,
 )
-from botx.shared_models.chat_types import ChatTypes
+from botx.shared_models.domain.enums import ChatTypes
 
 __all__ = (
     "AddedToChatEvent",

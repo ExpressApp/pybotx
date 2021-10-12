@@ -15,12 +15,13 @@ repository = "https://github.com/ExpressApp/pybotx"
 [tool.poetry.dependencies]
 python = "^3.7"
 
-httpx = "~0.19"
-pydantic = "~1.8"
+aiofiles = "~0.7.0"
+httpx = "~0.19.0"
+loguru = "~0.5.3"
+pydantic = "~1.8.2"
+starlette = "~0.16.0"
 typing-extensions = { version = "^3.10", python = "<3.8" }
-starlette = "^0.16.0"
-uvicorn = "^0.15.0"
-loguru = "^0.5.3"
+uvicorn = "~0.15.0"
 
 
 [tool.poetry.dev-dependencies]

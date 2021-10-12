@@ -4,12 +4,9 @@ from typing import List, Optional
 from uuid import UUID
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
+from botx.shared_models.api.enums import APIChatTypes, convert_chat_type_to_domain
 from botx.shared_models.api_base import VerifiedPayloadBaseModel
-from botx.shared_models.chat_types import (
-    APIChatTypes,
-    ChatTypes,
-    convert_chat_type_to_domain,
-)
+from botx.shared_models.domain.enums import ChatTypes
 
 try:
     from typing import Literal

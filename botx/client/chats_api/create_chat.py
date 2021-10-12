@@ -7,15 +7,12 @@ from botx.client.chats_api.exceptions import (
     ChatCreationError,
     ChatCreationProhibitedError,
 )
+from botx.shared_models.api.enums import APIChatTypes, convert_chat_type_from_domain
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,
 )
-from botx.shared_models.chat_types import (
-    APIChatTypes,
-    ChatTypes,
-    convert_chat_type_from_domain,
-)
+from botx.shared_models.domain.enums import ChatTypes
 
 try:
     from typing import Literal

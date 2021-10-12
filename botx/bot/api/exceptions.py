@@ -1,4 +1,4 @@
-from botx.bot.api.constants import BOT_API_VERSION
+from botx.constants import BOT_API_VERSION
 
 
 class UnsupportedBotAPIVersionError(Exception):

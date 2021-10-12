@@ -1,6 +1,6 @@
 import asyncio
 from types import SimpleNamespace
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence, Union
 from uuid import UUID
 from weakref import WeakSet
 
@@ -13,11 +13,13 @@ from botx.bot.api.status.recipient import BotAPIStatusRecipient
 from botx.bot.api.status.response import build_bot_status_response
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.bot.callbacks_manager import CallbacksManager
+from botx.bot.contextvars import bot_id_var, bot_var, chat_id_var
 from botx.bot.handler import Middleware
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.middlewares.exceptions import ExceptionHandlersDict, ExceptionMiddleware
 from botx.bot.models.bot_account import BotAccount
 from botx.bot.models.commands.commands import BotCommand
+from botx.bot.models.file import OutgoingFile
 from botx.bot.models.method_callbacks import BotXMethodCallback
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
@@ -32,6 +34,11 @@ from botx.client.chats_api.remove_user import (
     RemoveUserMethod,
 )
 from botx.client.exceptions.common import InvalidBotAccountError
+from botx.client.files_api.download_file import (
+    AsyncBufferWritable,
+    BotXAPIDownloadFileRequestPayload,
+    DownloadFileMethod,
+)
 from botx.client.get_token import get_token
 from botx.client.missing import Missing, Undefined
 from botx.client.notifications_api.direct_notification import (
@@ -43,7 +50,9 @@ from botx.client.notifications_api.internal_bot_notification import (
     InternalBotNotificationMethod,
 )
 from botx.converters import optional_sequence_to_list
-from botx.shared_models.chat_types import ChatTypes
+from botx.feature_toggles import fill_feature_toggles
+from botx.shared_models.domain.attachments import IncomingFile
+from botx.shared_models.domain.enums import ChatTypes
 
 
 class Bot:
@@ -55,6 +64,7 @@ class Bot:
         middlewares: Optional[Sequence[Middleware]] = None,
         httpx_client: Optional[httpx.AsyncClient] = None,
         exception_handlers: Optional[ExceptionHandlersDict] = None,
+        _feature_toggles: Optional[Dict[str, bool]] = None,
     ) -> None:
         if not collectors:
             logger.warning("Bot has no connected collectors")
@@ -72,8 +82,13 @@ class Bot:
         self._httpx_client = httpx_client or httpx.AsyncClient()
 
         self._tasks: "WeakSet[asyncio.Task[None]]" = WeakSet()
-
         self._callback_manager = CallbacksManager()
+
+        default_feature_toggles = {"async_files": False}
+        if _feature_toggles:
+            default_feature_toggles.update(_feature_toggles)
+
+        fill_feature_toggles(default_feature_toggles)
 
     def async_execute_raw_bot_command(self, raw_bot_command: Dict[str, Any]) -> None:
         try:
@@ -84,6 +99,8 @@ class Bot:
             )
         except ValidationError as validation_exc:
             raise ValueError("Bot command validation error") from validation_exc
+
+        self._fill_contextvars(bot_api_command)
 
         bot_command = bot_api_command.to_domain(raw_bot_command)
         self.async_execute_bot_command(bot_command)
@@ -243,6 +260,7 @@ class Bot:
         bot_id: UUID,
         chat_id: UUID,
         metadata: Missing[Dict[str, Any]] = Undefined,
+        attachment: Missing[Union[IncomingFile, OutgoingFile]] = Undefined,
     ) -> UUID:
         method = DirectNotificationMethod(
             bot_id,
@@ -254,6 +272,7 @@ class Bot:
             chat_id,
             body,
             metadata,
+            attachment,
         )
         botx_api_sync_id = await method.execute(payload)
 
@@ -290,6 +309,22 @@ class Bot:
 
         return botx_api_sync_id.to_domain()
 
+    # - Files API -
+    async def download_file(
+        self,
+        bot_id: UUID,
+        chat_id: UUID,
+        file_id: UUID,
+        async_buffer: AsyncBufferWritable,
+    ) -> None:
+        payload = BotXAPIDownloadFileRequestPayload.from_domain(chat_id, file_id)
+        method = DownloadFileMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        await method.execute(payload, async_buffer)
+
     def _add_exception_middleware(
         self,
         exception_handlers: Optional[ExceptionHandlersDict] = None,
@@ -305,3 +340,10 @@ class Bot:
         main_collector.include(*collectors)
 
         return main_collector
+
+    def _fill_contextvars(self, bot_api_command: BotAPICommand) -> None:
+        bot_var.set(self)
+        bot_id_var.set(bot_api_command.bot_id)
+
+        if bot_api_command.sender.group_chat_id:
+            chat_id_var.set(bot_api_command.sender.group_chat_id)

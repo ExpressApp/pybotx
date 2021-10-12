@@ -28,6 +28,8 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
             "data": {},
             "metadata": {},
         },
+        "attachments": [],
+        "async_files": [],
         "source_sync_id": None,
         "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
         "from": {
@@ -122,6 +124,8 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message()
             "data": {"message": "data"},
             "metadata": {"message": "metadata"},
         },
+        "attachments": [],
+        "async_files": [],
         "source_sync_id": "bc3d06ed-7b2e-41ad-99f9-ca28adc2c88d",
         "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
         "from": {

@@ -18,7 +18,6 @@ from botx import (
     build_accepted_response,
     build_bot_disabled_response,
 )
-from tests.client.conftest import log_request, log_response
 
 # - pybotx -
 collector = HandlerCollector()
@@ -26,11 +25,50 @@ collector = HandlerCollector()
 
 @collector.command("/debug", description="Simple debug command")
 async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
-    await bot.send_internal_bot_notification(
+    import aiofiles
+
+    from botx.bot.models.file import OutgoingFile
+
+    async with aiofiles.open("/home/lxmnk/Downloads/test_file.txt", "rb") as fo:
+        file = await OutgoingFile.from_async_buffer(fo)
+
+    await bot.send(
+        "test",
         bot_id=message.bot_id,
         chat_id=message.chat.id,
-        data={"foo": "bar"},
+        attachment=file,
     )
+
+    # if message.attachment:
+    #     await bot.send("test", bot_id=message.bot_id, chat_id=message.chat.id, attachment=message.attachment)
+
+    # from botx.client.files_api.upload_file import BotXAPIUploadFileRequestPayload, UploadFileMethod
+
+    # payload = BotXAPIUploadFileRequestPayload.from_domain(
+    #     message.chat.id,
+    # )
+    # async with aiofiles.open("/home/dnomin/Downloads/Telegram Desktop/image_2021-09-17_11-33-29.png", "rb") as fo:
+    #     r = await UploadFileMethod(
+    #         message.bot_id,
+    #         bot._httpx_client,
+    #         bot._bot_accounts_storage,
+    #         bot._callback_manager,
+    #     ).execute(payload, fo)
+    #     print(f"{r=}")
+
+    # async with TemporaryFile() as tmp:
+    #     await bot.download_file(
+    #         message.bot_id,
+    #         UUID("b072ea7a-4067-0efe-1486-2da69986b515"),
+    #         UUID("6106b1b2-8ae9-4a7c-a93f-3cce95a6837f"),
+    #         tmp,
+    #     )
+    #     print(f"{await tmp.read()=}")
+
+    # if message.attachment:
+    #     print("Attachment:", message.attachment)
+    #     async with message.attachment.open() as fo:
+    #         print(await fo.read())
 
 
 bot = Bot(
@@ -43,8 +81,11 @@ bot = Bot(
         ),
     ],
     httpx_client=httpx.AsyncClient(
-        event_hooks={"request": [log_request], "response": [log_response]},
+        # event_hooks={"request": [log_request], "response": [log_response]},
+        proxies={"all://": "http://localhost:5555"},
+        verify=False,
     ),
+    _feature_toggles={"async_files": False},
 )
 
 
@@ -130,6 +171,8 @@ def test__web_app__bot_command(
             "data": {},
             "metadata": {},
         },
+        "attachments": [],
+        "async_files": [],
         "source_sync_id": None,
         "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
         "from": {
