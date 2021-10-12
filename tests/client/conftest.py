@@ -41,3 +41,8 @@ def prepared_bot_accounts_storage(
     bot_accounts_storage.set_token(bot_id, "token")
 
     return bot_accounts_storage
+
+
+@pytest.fixture
+def user_huid() -> UUID:
+    return UUID("f837dff4-d3ad-4b8d-a0a3-5c6ca9c747d1")

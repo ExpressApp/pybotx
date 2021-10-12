@@ -14,11 +14,6 @@ from botx import (
 )
 
 
-@pytest.fixture
-def user_huid() -> UUID:
-    return UUID("f837dff4-d3ad-4b8d-a0a3-5c6ca9c747d1")
-
-
 @respx.mock
 @pytest.mark.asyncio
 async def test__add_user_to_chat__succeed(
