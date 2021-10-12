@@ -6,6 +6,9 @@ from botx.bot.models.commands.commands import BotCommand
 from botx.bot.models.commands.incoming_message import IncomingMessage
 from botx.bot.models.commands.system_events.added_to_chat import AddedToChatEvent
 from botx.bot.models.commands.system_events.chat_created import ChatCreatedEvent
+from botx.bot.models.commands.system_events.deleted_from_chat import (
+    DeletedFromChatEvent,
+)
 from botx.bot.models.status.recipient import StatusRecipient
 
 try:
@@ -23,6 +26,7 @@ IncomingMessageHandlerFunc = HandlerFunc[IncomingMessage]
 SystemEventHandlerFunc = Union[
     HandlerFunc[AddedToChatEvent],
     HandlerFunc[ChatCreatedEvent],
+    HandlerFunc[DeletedFromChatEvent],
 ]
 
 VisibleFunc = Callable[[StatusRecipient, "Bot"], Awaitable[bool]]

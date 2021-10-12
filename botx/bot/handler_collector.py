@@ -17,6 +17,9 @@ from botx.bot.models.commands.commands import BotCommand, SystemEvent
 from botx.bot.models.commands.incoming_message import IncomingMessage
 from botx.bot.models.commands.system_events.added_to_chat import AddedToChatEvent
 from botx.bot.models.commands.system_events.chat_created import ChatCreatedEvent
+from botx.bot.models.commands.system_events.deleted_from_chat import (
+    DeletedFromChatEvent,
+)
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 from botx.converters import optional_sequence_to_list
@@ -132,6 +135,16 @@ class HandlerCollector:
         """Decorate `added_to_chat` event handler."""
 
         self._system_event(AddedToChatEvent, handler_func)
+
+        return handler_func
+
+    def deleted_from_chat(
+        self,
+        handler_func: HandlerFunc[DeletedFromChatEvent],
+    ) -> HandlerFunc[DeletedFromChatEvent]:
+        """Decorate `deleted_from_chat` event handler."""
+
+        self._system_event(DeletedFromChatEvent, handler_func)
 
         return handler_func
 
