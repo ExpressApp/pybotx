@@ -9,4 +9,5 @@ def build_accepted_response() -> Dict[str, Any]:
     Returns:
         built accepted response.
     """
+
     return {"result": "accepted"}

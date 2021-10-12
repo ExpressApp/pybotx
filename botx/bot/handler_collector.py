@@ -129,6 +129,8 @@ class HandlerCollector:
         self,
         handler_func: HandlerFunc[AddedToChatEvent],
     ) -> HandlerFunc[AddedToChatEvent]:
+        """Decorate `added_to_chat` event handler."""
+
         self._system_event(AddedToChatEvent, handler_func)
 
         return handler_func
