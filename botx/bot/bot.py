@@ -27,6 +27,10 @@ from botx.client.chats_api.create_chat import (
     CreateChatMethod,
 )
 from botx.client.chats_api.list_chats import ChatListItem, ListChatsMethod
+from botx.client.chats_api.remove_user import (
+    BotXAPIRemoveUserRequestPayload,
+    RemoveUserMethod,
+)
 from botx.client.exceptions.common import InvalidBotAccountError
 from botx.client.get_token import get_token
 from botx.client.missing import Missing, Undefined
@@ -180,6 +184,29 @@ class Bot:
         method = AddUserMethod(bot_id, self._httpx_client, self._bot_accounts_storage)
 
         payload = BotXAPIAddUserRequestPayload.from_domain(chat_id, huids)
+        await method.execute(payload)
+
+    async def remove_users_from_chat(
+        self,
+        bot_id: UUID,
+        chat_id: UUID,
+        huids: List[UUID],
+    ) -> None:
+        """Remove eXpress accounts from chat.
+
+        Arguments:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            huids: List of eXpress account ids.
+        """
+
+        method = RemoveUserMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        payload = BotXAPIRemoveUserRequestPayload.from_domain(chat_id, huids)
         await method.execute(payload)
 
     async def create_chat(

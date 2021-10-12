@@ -28,6 +28,9 @@ from botx.bot.models.commands.system_events.chat_created import (
     ChatCreatedEvent,
     ChatCreatedMember,
 )
+from botx.bot.models.commands.system_events.deleted_from_chat import (
+    DeletedFromChatEvent,
+)
 from botx.bot.models.method_callbacks import BotAPIMethodFailedCallback
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
@@ -77,6 +80,7 @@ __all__ = (
     "ChatNotFoundError",
     "ChatTypes",
     "ClientPlatforms",
+    "DeletedFromChatEvent",
     "ExpressApp",
     "FinalRecipientsListEmptyError",
     "FinalRecipientsListEmptyError",
