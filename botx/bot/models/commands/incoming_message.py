@@ -6,6 +6,8 @@ from uuid import UUID
 from botx.bot.models.commands.base import BotCommandBase
 from botx.bot.models.commands.enums import ClientPlatforms
 from botx.shared_models.chat_types import ChatTypes
+from botx.shared_models.domain.attachments import IncomingAttachment
+from botx.shared_models.domain.files import File
 
 
 @dataclass
@@ -62,5 +64,7 @@ class IncomingMessage(BotCommandBase):
     metadata: Dict[str, Any]
     sender: UserEventSender
     chat: Chat
+    file: Optional[File] = None
+    attachment: Optional[IncomingAttachment] = None
 
     state: SimpleNamespace = field(default_factory=SimpleNamespace)

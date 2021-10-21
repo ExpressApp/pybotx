@@ -15,6 +15,9 @@ from botx import (
     UserEventSender,
     lifespan_wrapper,
 )
+from botx.bot.models.commands.enums import AttachmentTypes
+from botx.shared_models.domain.attachments import AttachmentDocument
+from botx.shared_models.domain.files import Image
 
 
 @pytest.mark.asyncio
@@ -28,6 +31,8 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
             "data": {},
             "metadata": {},
         },
+        "attachments": [],
+        "async_files": [],
         "source_sync_id": None,
         "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
         "from": {
@@ -122,6 +127,31 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message()
             "data": {"message": "data"},
             "metadata": {"message": "metadata"},
         },
+        "attachments": [
+            {
+                "data": {
+                    "content": "data:text/plain;base64,SGVsbG8sIHdvcmxkIQo=",
+                    "file_name": "test_file.txt",
+                },
+                "type": "document",
+            },
+        ],
+        "async_files": [
+            {
+                "type": "image",
+                "file": "https://link.to/file",
+                "file_mime_type": "image/png",
+                "file_name": "pass.png",
+                "file_preview": "https://link.to/preview",
+                "file_preview_height": 300,
+                "file_preview_width": 300,
+                "file_size": 1502345,
+                "file_hash": "Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+                "file_encryption_algo": "stream",
+                "chunk_size": 2097152,
+                "file_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
+            },
+        ],
         "source_sync_id": "bc3d06ed-7b2e-41ad-99f9-ca28adc2c88d",
         "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
         "from": {
@@ -205,4 +235,16 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message()
             host="cts.example.com",
         ),
         raw_command=None,
+        attachment=AttachmentDocument(
+            type=AttachmentTypes.DOCUMENT,
+            filename="test_file.txt",
+            size=len(b"Hello, world!\n"),
+            content=b"Hello, world!\n",
+        ),
+        file=Image(
+            type=AttachmentTypes.IMAGE,
+            filename="pass.png",
+            size=1502345,
+            _file_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
+        ),
     )

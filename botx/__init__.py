@@ -32,6 +32,7 @@ from botx.bot.models.commands.system_events.deleted_from_chat import (
     DeletedFromChatEvent,
 )
 from botx.bot.models.method_callbacks import BotAPIMethodFailedCallback
+from botx.bot.models.outgoing_attachment import OutgoingAttachment
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 from botx.bot.testing import lifespan_wrapper
@@ -90,6 +91,7 @@ __all__ = (
     "InvalidBotAccountError",
     "InvalidBotXResponseError",
     "InvalidBotXStatusCodeError",
+    "OutgoingAttachment",
     "PermissionDeniedError",
     "RateLimitReachedError",
     "StatusRecipient",
