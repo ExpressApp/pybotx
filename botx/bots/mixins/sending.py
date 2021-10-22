@@ -120,6 +120,7 @@ class SendingMixin:
         file: Optional[Union[BinaryIO, TextIO, File]] = None,
         markup: Optional[MessageMarkup] = None,
         options: Optional[MessageOptions] = None,
+        embed_mentions: bool = False,
     ) -> UUID:
         """Answer on incoming message and return id of new message..
 
@@ -133,7 +134,8 @@ class SendingMixin:
             markup: bubbles and keyboard that can be attached to the message.
             options: additional message options, like mentions or notifications
                 configuration.
-            metadata: dict of message metadata
+            metadata: dict of message metadata.
+            embed_mentions: get mentions from text.
 
         Returns:
             `UUID` of sent event.
@@ -144,6 +146,7 @@ class SendingMixin:
             markup=markup,
             options=options,
             metadata=metadata,
+            embed_mentions=embed_mentions,
         )
         if file:
             sending_message.add_file(file)
