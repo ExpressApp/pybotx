@@ -4,7 +4,7 @@ from typing import Union
 
 from botx.bot.models.outgoing_attachment import OutgoingAttachment
 from botx.shared_models.api_base import UnverifiedPayloadBaseModel
-from botx.shared_models.domain.attachments import IncomingContentAttachment
+from botx.shared_models.domain.attachments import IncomingFileAttachment
 
 EXTENSIONS_TO_MIMETYPES = MappingProxyType(
     {
@@ -125,7 +125,7 @@ class BotXAPIAttachment(UnverifiedPayloadBaseModel):
     @classmethod
     def from_file_attachment(
         cls,
-        attachment: Union[IncomingContentAttachment, OutgoingAttachment],
+        attachment: Union[IncomingFileAttachment, OutgoingAttachment],
     ) -> "BotXAPIAttachment":
         assert attachment.content is not None
 

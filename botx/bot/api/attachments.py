@@ -123,6 +123,7 @@ def convert_api_attachment_to_domain(
             type=attachment_type,
             filename=api_attachment.data.file_name,
             size=len(content),
+            is_async_file=False,
             content=content,
         )
 
@@ -135,6 +136,7 @@ def convert_api_attachment_to_domain(
             type=attachment_type,
             filename=api_attachment.data.file_name,
             size=len(content),
+            is_async_file=False,
             content=content,
             duration=api_attachment.data.duration,
         )
@@ -148,6 +150,7 @@ def convert_api_attachment_to_domain(
             type=attachment_type,
             filename=api_attachment.data.file_name,
             size=len(content),
+            is_async_file=False,
             content=content,
         )
 
@@ -160,6 +163,7 @@ def convert_api_attachment_to_domain(
             type=attachment_type,
             filename="record.mp3",
             size=len(content),
+            is_async_file=False,
             content=content,
             duration=api_attachment.data.duration,
         )

@@ -13,6 +13,7 @@ async def test__attachment__open() -> None:
         type=AttachmentTypes.IMAGE,
         filename="test.png",
         content=content,
+        is_async_file=False,
         size=len(content),
     )
 

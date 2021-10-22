@@ -55,7 +55,7 @@ from botx.client.notifications_api.internal_bot_notification import (
 from botx.converters import optional_sequence_to_list
 from botx.shared_models.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from botx.shared_models.chat_types import ChatTypes
-from botx.shared_models.domain.attachments import IncomingContentAttachment
+from botx.shared_models.domain.attachments import IncomingFileAttachment
 from botx.shared_models.domain.files import File
 
 
@@ -258,7 +258,7 @@ class Bot:
         bot_id: UUID,
         chat_id: UUID,
         metadata: Missing[Dict[str, Any]] = Undefined,
-        file: Missing[Union[IncomingContentAttachment, OutgoingAttachment]] = Undefined,
+        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
     ) -> UUID:
         method = DirectNotificationMethod(
             bot_id,

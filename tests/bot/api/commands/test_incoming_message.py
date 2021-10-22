@@ -16,7 +16,6 @@ from botx import (
     lifespan_wrapper,
 )
 from botx.bot.models.commands.enums import AttachmentTypes
-from botx.shared_models.domain.attachments import AttachmentDocument
 from botx.shared_models.domain.files import Image
 
 
@@ -127,15 +126,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message()
             "data": {"message": "data"},
             "metadata": {"message": "metadata"},
         },
-        "attachments": [
-            {
-                "data": {
-                    "content": "data:text/plain;base64,SGVsbG8sIHdvcmxkIQo=",
-                    "file_name": "test_file.txt",
-                },
-                "type": "document",
-            },
-        ],
+        "attachments": [],
         "async_files": [
             {
                 "type": "image",
@@ -235,16 +226,11 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message()
             host="cts.example.com",
         ),
         raw_command=None,
-        attachment=AttachmentDocument(
-            type=AttachmentTypes.DOCUMENT,
-            filename="test_file.txt",
-            size=len(b"Hello, world!\n"),
-            content=b"Hello, world!\n",
-        ),
         file=Image(
             type=AttachmentTypes.IMAGE,
             filename="pass.png",
             size=1502345,
+            is_async_file=True,
             _file_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
         ),
     )

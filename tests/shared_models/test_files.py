@@ -37,6 +37,7 @@ async def test__attachment__open(
         type=AttachmentTypes.IMAGE,
         filename="test.png",
         size=10,
+        is_async_file=True,
         _file_id=file_id,
     )
 

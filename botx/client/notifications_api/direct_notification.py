@@ -9,7 +9,7 @@ from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,
 )
-from botx.shared_models.domain.attachments import IncomingContentAttachment
+from botx.shared_models.domain.attachments import IncomingFileAttachment
 
 try:
     from typing import Literal
@@ -35,8 +35,11 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
         chat_id: UUID,
         body: str,
         metadata: Missing[Dict[str, Any]],
-        file: Missing[Union[IncomingContentAttachment, OutgoingAttachment]],
+        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]],
     ) -> "BotXAPIDirectNotificationRequestPayload":
+        if file:
+            assert not file.is_async_file, "async_files not supported"
+
         return cls(
             group_chat_id=chat_id,
             recipients="all",

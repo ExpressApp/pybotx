@@ -42,6 +42,7 @@ def convert_async_file_to_file(async_file: APIAsyncFile) -> File:
             type=attachment_type,
             filename=async_file.file_name,
             size=async_file.file_size,
+            is_async_file=True,
             _file_id=async_file.file_id,
         )
 
@@ -54,6 +55,7 @@ def convert_async_file_to_file(async_file: APIAsyncFile) -> File:
             filename=async_file.file_name,
             size=async_file.file_size,
             duration=async_file.duration,
+            is_async_file=True,
             _file_id=async_file.file_id,
         )
 
@@ -64,6 +66,7 @@ def convert_async_file_to_file(async_file: APIAsyncFile) -> File:
             type=attachment_type,
             filename=async_file.file_name,
             size=async_file.file_size,
+            is_async_file=True,
             _file_id=async_file.file_id,
         )
 
@@ -76,6 +79,7 @@ def convert_async_file_to_file(async_file: APIAsyncFile) -> File:
             filename=async_file.file_name,
             size=async_file.file_size,
             duration=async_file.duration,
+            is_async_file=True,
             _file_id=async_file.file_id,
         )
 

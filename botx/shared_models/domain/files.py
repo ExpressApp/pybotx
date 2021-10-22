@@ -21,6 +21,8 @@ class AsyncFileBase:
     filename: str
     size: int
 
+    is_async_file: Literal[True]
+
     _file_id: UUID
 
     @asynccontextmanager  # TODO: SpooledTemporaryFile

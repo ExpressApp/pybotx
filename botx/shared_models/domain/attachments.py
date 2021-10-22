@@ -14,10 +14,12 @@ except ImportError:
 
 
 @dataclass
-class ContentAttachmentBase:
+class FileAttachmentBase:
     type: AttachmentTypes
     filename: str
     size: int
+
+    is_async_file: Literal[False]
 
     content: bytes
 
@@ -31,24 +33,24 @@ class ContentAttachmentBase:
 
 
 @dataclass
-class AttachmentImage(ContentAttachmentBase):
+class AttachmentImage(FileAttachmentBase):
     type: Literal[AttachmentTypes.IMAGE]
 
 
 @dataclass
-class AttachmentVideo(ContentAttachmentBase):
+class AttachmentVideo(FileAttachmentBase):
     type: Literal[AttachmentTypes.VIDEO]
 
     duration: int
 
 
 @dataclass
-class AttachmentDocument(ContentAttachmentBase):
+class AttachmentDocument(FileAttachmentBase):
     type: Literal[AttachmentTypes.DOCUMENT]
 
 
 @dataclass
-class AttachmentVoice(ContentAttachmentBase):
+class AttachmentVoice(FileAttachmentBase):
     type: Literal[AttachmentTypes.VOICE]
 
     duration: int
@@ -81,14 +83,14 @@ class AttachmentLink:
     text: str
 
 
-IncomingContentAttachment = Union[
+IncomingFileAttachment = Union[
     AttachmentImage,
     AttachmentVideo,
     AttachmentDocument,
     AttachmentVoice,
 ]
 IncomingAttachment = Union[
-    IncomingContentAttachment,
+    IncomingFileAttachment,
     AttachmentLocation,
     AttachmentContact,
     AttachmentLink,

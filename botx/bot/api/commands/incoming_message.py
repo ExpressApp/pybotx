@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
 from pydantic import Field
@@ -19,7 +19,11 @@ from botx.bot.models.commands.incoming_message import (
 )
 from botx.shared_models.api.async_file import APIAsyncFile, convert_async_file_to_file
 from botx.shared_models.chat_types import convert_chat_type_to_domain
-from botx.shared_models.domain.attachments import IncomingAttachment
+from botx.shared_models.domain.attachments import (
+    FileAttachmentBase,
+    IncomingAttachment,
+    IncomingFileAttachment,
+)
 from botx.shared_models.domain.files import File
 
 
@@ -67,15 +71,19 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             host=self.sender.host,
         )
 
-        file: Optional[File] = None
+        file: Optional[Union[File, IncomingFileAttachment]] = None
+        attachment: Optional[IncomingAttachment] = None
         if self.async_files:
             # Always one async file per-message
             file = convert_async_file_to_file(self.async_files[0])
-
-        attachment: Optional[IncomingAttachment] = None
-        if self.attachments:
+        elif self.attachments:
             # Always one attachment per-message
-            attachment = convert_api_attachment_to_domain(self.attachments[0])
+            domain = convert_api_attachment_to_domain(self.attachments[0])
+            if isinstance(domain, FileAttachmentBase):
+                file = domain
+            else:
+                # TODO: Location -> message.location, etc
+                attachment = domain
 
         return IncomingMessage(
             bot_id=self.bot_id,
