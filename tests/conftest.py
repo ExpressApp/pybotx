@@ -9,8 +9,7 @@ import respx
 from aiofiles.tempfile import NamedTemporaryFile
 from loguru import logger
 
-from botx import Bot, BotAccount, HandlerCollector
-from botx.bot.contextvars import bot_id_var, bot_var, chat_id_var
+from botx import BotAccount
 
 
 @pytest.fixture
@@ -116,24 +115,6 @@ async def httpx_client() -> AsyncGenerator[httpx.AsyncClient, None]:
         event_hooks={"request": [log_request], "response": [log_response]},
     ) as client:
         yield client
-
-
-@pytest.fixture
-def set_contexvars(
-    httpx_client: httpx.AsyncClient,
-    bot_account: BotAccount,
-    bot_id: UUID,
-    chat_id: UUID,
-) -> None:
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
-
-    bot_var.set(built_bot)
-    bot_id_var.set(bot_id)
-    chat_id_var.set(chat_id)
 
 
 @pytest.fixture

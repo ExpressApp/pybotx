@@ -25,7 +25,7 @@ class AsyncFileBase:
 
     _file_id: UUID
 
-    @asynccontextmanager  # TODO: SpooledTemporaryFile
+    @asynccontextmanager
     async def open(self) -> AsyncGenerator[SpooledTemporaryFile, None]:
         bot = bot_var.get()
 
