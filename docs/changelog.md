@@ -1,3 +1,10 @@
+## 0.25.1 (Oct 22, 2021)
+
+### Changed
+
+* Add `embed_mentions` argument in `answer_message` method.
+
+
 ## 0.25.0 (Sep 17, 2021)
 
 ### Added
