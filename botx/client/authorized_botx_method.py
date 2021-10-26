@@ -1,4 +1,5 @@
-from typing import Any
+from contextlib import asynccontextmanager
+from typing import Any, AsyncGenerator, Dict
 
 import httpx
 
@@ -15,6 +16,28 @@ class AuthorizedBotXMethod(BotXMethod):
         *args: Any,
         **kwargs: Any,
     ) -> httpx.Response:
+        headers = kwargs.pop("headers", {})
+        await self._add_authorization_headers(headers)
+
+        return await super()._botx_method_call(*args, headers=headers, **kwargs)
+
+    @asynccontextmanager
+    async def _botx_method_stream(
+        self,
+        *args: Any,
+        **kwargs: Any,
+    ) -> AsyncGenerator[httpx.Response, None]:
+        headers = kwargs.pop("headers", {})
+        await self._add_authorization_headers(headers)
+
+        async with super()._botx_method_stream(
+            *args,
+            headers=headers,
+            **kwargs,
+        ) as response:
+            yield response
+
+    async def _add_authorization_headers(self, headers: Dict[str, Any]) -> None:
         token = self._bot_accounts_storage.get_token_or_none(self._bot_id)
         if not token:
             token = await get_token(
@@ -24,7 +47,4 @@ class AuthorizedBotXMethod(BotXMethod):
             )
             self._bot_accounts_storage.set_token(self._bot_id, token)
 
-        headers = kwargs.pop("headers", {})
         headers.update({"Authorization": f"Bearer {token}"})
-
-        return await super()._botx_method_call(*args, headers=headers, **kwargs)

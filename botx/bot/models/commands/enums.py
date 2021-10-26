@@ -22,3 +22,13 @@ class ClientPlatforms(AutoName):
     ANDROID = auto()
     IOS = auto()
     DESKTOP = auto()
+
+
+class AttachmentTypes(AutoName):
+    IMAGE = auto()
+    VIDEO = auto()
+    DOCUMENT = auto()
+    VOICE = auto()
+    LOCATION = auto()
+    CONTACT = auto()
+    LINK = auto()

@@ -4,6 +4,7 @@ from uuid import UUID
 import httpx
 import pytest
 import respx
+from aiofiles.tempfile import NamedTemporaryFile
 
 from botx import (
     Bot,
@@ -12,6 +13,7 @@ from botx import (
     UnknownBotAccountError,
     lifespan_wrapper,
 )
+from botx.bot.models.outgoing_attachment import OutgoingAttachment
 
 
 @respx.mock
@@ -117,6 +119,10 @@ async def test__send__maximum_filled_succeed(
             "group_chat_id": str(chat_id),
             "recipients": "all",
             "notification": {"status": "ok", "body": "Hi!", "metadata": {"foo": "bar"}},
+            "file": {
+                "file_name": "test.txt",
+                "data": "data:application/octet-stream;base64,SGVsbG8sIHdvcmxkIQo=",
+            },
         },
     ).mock(
         return_value=httpx.Response(
@@ -134,6 +140,12 @@ async def test__send__maximum_filled_succeed(
         httpx_client=httpx_client,
     )
 
+    async with NamedTemporaryFile("wb+") as async_buffer:
+        await async_buffer.write(b"Hello, world!\n")
+        await async_buffer.seek(0)
+
+        file = await OutgoingAttachment.from_async_buffer(async_buffer, "test.txt")
+
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         message_id = await bot.send(
@@ -141,6 +153,7 @@ async def test__send__maximum_filled_succeed(
             bot_id=bot_id,
             chat_id=chat_id,
             metadata={"foo": "bar"},
+            file=file,
         )
 
     # - Assert -
