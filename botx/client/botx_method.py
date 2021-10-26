@@ -98,15 +98,7 @@ class BotXMethod:
 
     async def _botx_method_call(self, *args: Any, **kwargs: Any) -> httpx.Response:
         response = await self._httpx_client.request(*args, **kwargs)
-
-        handler = self.status_handlers.get(response.status_code)
-        if handler:
-            handler(response)  # Handler should raise an exception
-
-        try:
-            response.raise_for_status()
-        except httpx.HTTPStatusError as exc:
-            raise InvalidBotXStatusCodeError(exc.response)
+        await self._raise_for_status(response)
 
         return response
 
@@ -117,7 +109,28 @@ class BotXMethod:
         **kwargs: Any,
     ) -> AsyncGenerator[httpx.Response, None]:
         async with self._httpx_client.stream(*args, **kwargs) as response:
+            await self._raise_for_status(response)
             yield response
+
+    async def _raise_for_status(self, response: httpx.Response) -> None:
+        handler = self.status_handlers.get(response.status_code)
+        if handler:
+            if not response.is_closed:
+                await response.aread()
+
+            handler(response)  # Handler should raise an exception
+
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            if not response.is_closed:
+                await response.aread()
+
+            raise InvalidBotXStatusCodeError(exc.response)
+
+    async def _read_response(self, response: httpx.Response) -> None:
+        if not response.is_closed:
+            await response.aread()
 
     async def _process_callback(
         self,
