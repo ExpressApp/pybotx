@@ -1,10 +1,22 @@
-from typing import Any, Awaitable, Callable, Mapping, NoReturn, Optional, Type, TypeVar
+from contextlib import asynccontextmanager
+from json.decoder import JSONDecodeError
+from typing import (
+    Any,
+    AsyncGenerator,
+    Awaitable,
+    Callable,
+    Mapping,
+    NoReturn,
+    Optional,
+    Type,
+    TypeVar,
+)
 from urllib.parse import urljoin
 from uuid import UUID
 
 import httpx
 from mypy_extensions import Arg
-from pydantic import ValidationError
+from pydantic import ValidationError, parse_raw_as
 
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.bot.callbacks_manager import CallbacksManager
@@ -80,8 +92,8 @@ class BotXMethod:
         response: httpx.Response,
     ) -> TBotXAPIModel:
         try:
-            return model_cls.parse_raw(response.content)
-        except ValidationError as exc:
+            return parse_raw_as(model_cls, response.content)
+        except (ValidationError, JSONDecodeError) as exc:
             raise InvalidBotXResponseError(response) from exc
 
     async def _botx_method_call(self, *args: Any, **kwargs: Any) -> httpx.Response:
@@ -97,6 +109,15 @@ class BotXMethod:
             raise InvalidBotXStatusCodeError(exc.response)
 
         return response
+
+    @asynccontextmanager
+    async def _botx_method_stream(
+        self,
+        *args: Any,
+        **kwargs: Any,
+    ) -> AsyncGenerator[httpx.Response, None]:
+        async with self._httpx_client.stream(*args, **kwargs) as response:
+            yield response
 
     async def _process_callback(
         self,

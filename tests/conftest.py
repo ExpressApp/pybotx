@@ -1,11 +1,12 @@
 import logging
 from http import HTTPStatus
-from typing import Generator
+from typing import AsyncGenerator, Generator
 from uuid import UUID
 
 import httpx
 import pytest
 import respx
+from aiofiles.tempfile import NamedTemporaryFile
 from loguru import logger
 
 from botx import BotAccount
@@ -24,6 +25,11 @@ def chat_id() -> UUID:
 @pytest.fixture
 def bot_id() -> UUID:
     return UUID("24348246-6791-4ac0-9d86-b948cd6a0e46")
+
+
+@pytest.fixture
+def file_id() -> UUID:
+    return UUID("c3b9def2-b2c8-4732-b61f-99b9b110fa80")
 
 
 @pytest.fixture
@@ -78,3 +84,40 @@ def loguru_caplog(
 @pytest.fixture
 def sync_id() -> UUID:
     return UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+
+
+async def log_request(request: httpx.Request) -> None:
+    if isinstance(
+        request.stream,  # type: ignore
+        httpx._multipart.MultipartStream,  # noqa: WPS437
+    ):
+        content = b"<stream>"
+    else:
+        content = request.content
+
+    logger.debug(
+        "\n"
+        f"Endpoint: {request.method} {request.url}\n"
+        f"Headers: {request.headers}\n"
+        f"Payload: {content!r}",
+    )
+
+
+async def log_response(response: httpx.Response) -> None:
+    logger.debug(
+        f"\nHeaders: {response.headers}\nStatus code: {response.status_code}\n",
+    )
+
+
+@pytest.fixture
+async def httpx_client() -> AsyncGenerator[httpx.AsyncClient, None]:
+    async with httpx.AsyncClient(
+        event_hooks={"request": [log_request], "response": [log_response]},
+    ) as client:
+        yield client
+
+
+@pytest.fixture
+async def async_buffer() -> AsyncGenerator[NamedTemporaryFile, None]:
+    async with NamedTemporaryFile("wb+") as async_buffer:
+        yield async_buffer

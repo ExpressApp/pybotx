@@ -1,12 +1,15 @@
-from typing import Any, Dict
+from typing import Any, Dict, Union
 from uuid import UUID
 
+from botx.bot.models.outgoing_attachment import OutgoingAttachment
+from botx.client.attachments import BotXAPIAttachment
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
-from botx.client.missing import Missing
+from botx.client.missing import Missing, Undefined
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,
 )
+from botx.shared_models.domain.attachments import IncomingFileAttachment
 
 try:
     from typing import Literal
@@ -24,6 +27,7 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
     group_chat_id: UUID
     recipients: Literal["all"]
     notification: BotXAPIDirectNotification
+    file: Missing[BotXAPIAttachment]
 
     @classmethod
     def from_domain(
@@ -31,7 +35,13 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
         chat_id: UUID,
         body: str,
         metadata: Missing[Dict[str, Any]],
+        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]],
     ) -> "BotXAPIDirectNotificationRequestPayload":
+        api_file: Missing[BotXAPIAttachment] = Undefined
+        if file:
+            assert not file.is_async_file, "async_files not supported"
+            api_file = BotXAPIAttachment.from_file_attachment(file)
+
         return cls(
             group_chat_id=chat_id,
             recipients="all",
@@ -40,6 +50,7 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
                 body=body,
                 metadata=metadata,
             ),
+            file=api_file,
         )
 
 

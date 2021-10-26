@@ -1,7 +1,6 @@
 from http import HTTPStatus
 from uuid import UUID
 
-import httpx
 import pytest
 from loguru import logger
 from starlette.applications import Starlette
@@ -18,7 +17,6 @@ from botx import (
     build_accepted_response,
     build_bot_disabled_response,
 )
-from tests.client.conftest import log_request, log_response
 
 # - pybotx -
 collector = HandlerCollector()
@@ -26,11 +24,7 @@ collector = HandlerCollector()
 
 @collector.command("/debug", description="Simple debug command")
 async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
-    await bot.send_internal_bot_notification(
-        bot_id=message.bot_id,
-        chat_id=message.chat.id,
-        data={"foo": "bar"},
-    )
+    pass
 
 
 bot = Bot(
@@ -42,9 +36,6 @@ bot = Bot(
             secret_key="secret",
         ),
     ],
-    httpx_client=httpx.AsyncClient(
-        event_hooks={"request": [log_request], "response": [log_response]},
-    ),
 )
 
 
@@ -130,6 +121,8 @@ def test__web_app__bot_command(
             "data": {},
             "metadata": {},
         },
+        "attachments": [],
+        "async_files": [],
         "source_sync_id": None,
         "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
         "from": {

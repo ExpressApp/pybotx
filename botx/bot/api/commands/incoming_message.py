@@ -1,8 +1,9 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
 from pydantic import Field
 
+from botx.bot.api.attachments import BotAPIAttachment, convert_api_attachment_to_domain
 from botx.bot.api.commands.base import (
     BotAPIBaseCommand,
     BotAPICommandPayload,
@@ -16,13 +17,23 @@ from botx.bot.models.commands.incoming_message import (
     UserDevice,
     UserEventSender,
 )
+from botx.shared_models.api.async_file import APIAsyncFile, convert_async_file_to_file
 from botx.shared_models.chat_types import convert_chat_type_to_domain
+from botx.shared_models.domain.attachments import (
+    FileAttachmentBase,
+    IncomingAttachment,
+    IncomingFileAttachment,
+)
+from botx.shared_models.domain.files import File
 
 
 class BotAPIIncomingMessage(BotAPIBaseCommand):
     payload: BotAPICommandPayload = Field(..., alias="command")
     sender: BotAPIUserEventSender = Field(..., alias="from")
+
     source_sync_id: Optional[UUID]
+    attachments: List[BotAPIAttachment]
+    async_files: List[APIAsyncFile]
 
     def to_domain(self, raw_command: Dict[str, Any]) -> IncomingMessage:
         device = UserDevice(
@@ -60,6 +71,20 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             host=self.sender.host,
         )
 
+        file: Optional[Union[File, IncomingFileAttachment]] = None
+        attachment: Optional[IncomingAttachment] = None
+        if self.async_files:
+            # Always one async file per-message
+            file = convert_async_file_to_file(self.async_files[0])
+        elif self.attachments:
+            # Always one attachment per-message
+            domain = convert_api_attachment_to_domain(self.attachments[0])
+            if isinstance(domain, FileAttachmentBase):
+                file = domain
+            else:
+                # TODO: Location -> message.location, etc
+                attachment = domain
+
         return IncomingMessage(
             bot_id=self.bot_id,
             sync_id=self.sync_id,
@@ -70,4 +95,6 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             sender=sender,
             chat=chat,
             raw_command=raw_command,
+            file=file,
+            attachment=attachment,
         )
