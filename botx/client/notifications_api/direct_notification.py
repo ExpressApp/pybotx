@@ -37,8 +37,10 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
         metadata: Missing[Dict[str, Any]],
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]],
     ) -> "BotXAPIDirectNotificationRequestPayload":
+        api_file: Missing[BotXAPIAttachment] = Undefined
         if file:
             assert not file.is_async_file, "async_files not supported"
+            api_file = BotXAPIAttachment.from_file_attachment(file)
 
         return cls(
             group_chat_id=chat_id,
@@ -48,7 +50,7 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
                 body=body,
                 metadata=metadata,
             ),
-            file=(BotXAPIAttachment.from_file_attachment(file) if file else Undefined),
+            file=api_file,
         )
 
 

@@ -205,4 +205,5 @@ def convert_api_attachment_to_domain(
 
 
 def decode_rfc2397(encoded_content: str) -> bytes:
+    # "data:image/gif;base64,aGVsbG8=" -> b"hello"
     return base64.b64decode(encoded_content.split(",", 1)[1].encode())
