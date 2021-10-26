@@ -1,6 +1,8 @@
 from uuid import UUID
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
+from botx.client.botx_method import response_exception_thrower
+from botx.client.files_api.exceptions import FileDeletedError
 from botx.shared_models.api_base import UnverifiedPayloadBaseModel
 from botx.shared_models.async_buffer import AsyncBufferWritable
 
@@ -26,7 +28,7 @@ class BotXAPIDownloadFileRequestPayload(UnverifiedPayloadBaseModel):
 class DownloadFileMethod(AuthorizedBotXMethod):
     status_handlers = {
         **AuthorizedBotXMethod.status_handlers,
-        # TODO: find a way to catch errors in streaming response
+        204: response_exception_thrower(FileDeletedError),
     }
 
     async def execute(

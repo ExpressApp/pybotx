@@ -11,7 +11,6 @@ from botx import Bot, HandlerCollector, IncomingMessage, lifespan_wrapper
 from botx.bot.models.bot_account import BotAccount
 
 
-@pytest.mark.wip
 @respx.mock
 @pytest.mark.asyncio
 async def test__async_file__open(
