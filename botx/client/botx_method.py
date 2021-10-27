@@ -128,10 +128,6 @@ class BotXMethod:
 
             raise InvalidBotXStatusCodeError(exc.response)
 
-    async def _read_response(self, response: httpx.Response) -> None:
-        if not response.is_closed:
-            await response.aread()
-
     async def _process_callback(
         self,
         sync_id: UUID,

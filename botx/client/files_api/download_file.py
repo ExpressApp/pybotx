@@ -43,7 +43,8 @@ class DownloadFileMethod(AuthorizedBotXMethod):
             self._build_url(path),
             params=payload.jsonable_dict(),
         ) as response:
-            async for chunk in response.aiter_bytes():
+            # https://github.com/nedbat/coveragepy/issues/1223
+            async for chunk in response.aiter_bytes():  # pragma: no cover
                 await async_buffer.write(chunk)
 
         await async_buffer.seek(0)
