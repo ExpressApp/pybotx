@@ -11,6 +11,7 @@ from botx.bot.bot import Bot
 from botx.bot.exceptions import (
     BotShuttignDownError,
     HandlerNotFoundError,
+    NoIncomingMessageError,
     UnknownBotAccountError,
 )
 from botx.bot.handler_collector import HandlerCollector
@@ -95,6 +96,7 @@ __all__ = (
     "InvalidBotAccountError",
     "InvalidBotXResponseError",
     "InvalidBotXStatusCodeError",
+    "NoIncomingMessageError",
     "OutgoingAttachment",
     "PermissionDeniedError",
     "RateLimitReachedError",

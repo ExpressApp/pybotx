@@ -14,6 +14,7 @@ from botx.bot.api.status.response import build_bot_status_response
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.bot.callbacks_manager import CallbacksManager
 from botx.bot.contextvars import bot_id_var, bot_var, chat_id_var
+from botx.bot.exceptions import NoIncomingMessageError
 from botx.bot.handler import Middleware
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.middlewares.exceptions import ExceptionHandlersDict, ExceptionMiddleware
@@ -251,6 +252,27 @@ class Bot:
         return botx_api_chat_id.to_domain()
 
     # - Notifications API-
+    async def answer(
+        self,
+        body: str,
+        *,
+        metadata: Missing[Dict[str, Any]] = Undefined,
+        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+    ) -> UUID:
+        try:  # noqa: WPS229
+            bot_id = bot_id_var.get()
+            chat_id = chat_id_var.get()
+        except LookupError as exc:
+            raise NoIncomingMessageError from exc
+
+        return await self.send(
+            body,
+            bot_id=bot_id,
+            chat_id=chat_id,
+            metadata=metadata,
+            file=file,
+        )
+
     async def send(
         self,
         body: str,

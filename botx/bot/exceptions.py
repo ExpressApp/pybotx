@@ -34,3 +34,9 @@ class BotShuttignDownError(Exception):
         self.context = context
         self.message = f"Bot is shutting down: {context}"
         super().__init__(self.message)
+
+
+class NoIncomingMessageError(Exception):
+    def __init__(self) -> None:
+        self.message = "No IncomingMessage received. Use `Bot.send` instead"
+        super().__init__(self.message)

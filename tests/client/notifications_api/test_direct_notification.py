@@ -1,3 +1,4 @@
+import asyncio
 from http import HTTPStatus
 from uuid import UUID
 
@@ -10,10 +11,115 @@ from botx import (
     Bot,
     BotAccount,
     HandlerCollector,
+    NoIncomingMessageError,
     OutgoingAttachment,
     UnknownBotAccountError,
     lifespan_wrapper,
 )
+
+
+@pytest.mark.asyncio
+async def test__answer__no_incoming_message_error_raised(
+    chat_id: UUID,
+    host: str,
+    sync_id: UUID,
+    bot_account: BotAccount,
+    bot_id: UUID,
+    mock_authorization: None,
+) -> None:
+    # - Arrange -
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        with pytest.raises(NoIncomingMessageError) as exc:
+            await bot.answer("Hi!")
+
+    # - Assert -
+    assert "No IncomingMessage received" in str(exc.value)
+
+
+@respx.mock
+@pytest.mark.asyncio
+async def test__answer__succeed(
+    chat_id: UUID,
+    host: str,
+    sync_id: UUID,
+    bot_account: BotAccount,
+    bot_id: UUID,
+    mock_authorization: None,
+) -> None:
+    # - Arrange -
+    endpoint = respx.post(
+        f"https://{host}/api/v3/botx/notification/callback/direct",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        json={
+            "group_chat_id": str(chat_id),
+            "recipients": "all",
+            "notification": {"status": "ok", "body": "Hi!"},
+        },
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": str(sync_id)},
+            },
+        ),
+    )
+
+    payload = {
+        "bot_id": bot_id,
+        "command": {
+            "body": "/hello",
+            "command_type": "user",
+            "data": {"message": "data"},
+            "metadata": {"message": "metadata"},
+        },
+        "async_files": [],
+        "attachments": [],
+        "source_sync_id": "bc3d06ed-7b2e-41ad-99f9-ca28adc2c88d",
+        "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
+        "from": {
+            "ad_domain": "domain",
+            "ad_login": "login",
+            "app_version": "1.21.9",
+            "chat_type": "chat",
+            "device": "Firefox 91.0",
+            "device_meta": {
+                "permissions": {
+                    "microphone": True,
+                    "notifications": False,
+                },
+                "pushes": False,
+                "timezone": "Europe/Moscow",
+            },
+            "device_software": "Linux",
+            "group_chat_id": chat_id,
+            "host": host,
+            "is_admin": True,
+            "is_creator": True,
+            "locale": "en",
+            "manufacturer": "Mozilla",
+            "platform": "web",
+            "platform_package_id": "ru.unlimitedtech.express",
+            "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
+            "username": "Ivanov Ivan Ivanovich",
+        },
+        "proto_version": 4,
+    }
+
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        bot.async_execute_raw_bot_command(payload)
+
+        await asyncio.sleep(0)  # Return control to event loop
+        await bot.answer("Hi!")
+
+    # - Assert -
+    assert endpoint.called
 
 
 @respx.mock
