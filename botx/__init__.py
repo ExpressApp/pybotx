@@ -46,6 +46,7 @@ from botx.client.exceptions.callbacks import (
     CallbackNotReceivedError,
 )
 from botx.client.exceptions.common import (
+    ChatNotFoundError,
     InvalidBotAccountError,
     PermissionDeniedError,
     RateLimitReachedError,
@@ -54,10 +55,11 @@ from botx.client.exceptions.http import (
     InvalidBotXResponseError,
     InvalidBotXStatusCodeError,
 )
+from botx.client.files_api.exceptions import FileDeletedError
 from botx.client.notifications_api.exceptions import (
-    BotIsNotChatMemberError,
-    ChatNotFoundError,
-    FinalRecipientsListEmptyError,
+    BotIsNotChatMemberCallbackError,
+    ChatNotFoundCallbackError,
+    FinalRecipientsListEmptyCallbackError,
 )
 from botx.shared_models.chat_types import ChatTypes
 
@@ -67,7 +69,7 @@ __all__ = (
     "BotAccount",
     "BotAPIBotDisabledResponse",
     "BotAPIMethodFailedCallback",
-    "BotIsNotChatMemberError",
+    "BotIsNotChatMemberCallbackError",
     "BotMenu",
     "BotShuttignDownError",
     "BotXMethodFailedCallbackReceivedError",
@@ -78,13 +80,15 @@ __all__ = (
     "ChatCreationError",
     "ChatCreationProhibitedError",
     "ChatListItem",
+    "ChatNotFoundCallbackError",
     "ChatNotFoundError",
     "ChatTypes",
     "ClientPlatforms",
     "DeletedFromChatEvent",
     "ExpressApp",
-    "FinalRecipientsListEmptyError",
-    "FinalRecipientsListEmptyError",
+    "FileDeletedError",
+    "FinalRecipientsListEmptyCallbackError",
+    "FinalRecipientsListEmptyCallbackError",
     "HandlerCollector",
     "HandlerNotFoundError",
     "IncomingMessage",

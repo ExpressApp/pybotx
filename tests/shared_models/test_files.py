@@ -7,8 +7,7 @@ import httpx
 import pytest
 import respx
 
-from botx import Bot, HandlerCollector, IncomingMessage, lifespan_wrapper
-from botx.bot.models.bot_account import BotAccount
+from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wrapper
 
 
 @respx.mock

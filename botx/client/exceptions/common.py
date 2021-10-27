@@ -11,3 +11,7 @@ class RateLimitReachedError(InvalidBotXStatusCodeError):
 
 class PermissionDeniedError(InvalidBotXStatusCodeError):
     """Bot can't perform this action."""
+
+
+class ChatNotFoundError(InvalidBotXStatusCodeError):
+    """Chat with specified groip_chat_id not found.."""

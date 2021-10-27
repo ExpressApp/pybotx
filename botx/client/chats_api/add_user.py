@@ -3,7 +3,7 @@ from uuid import UUID
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
-from botx.client.exceptions.common import PermissionDeniedError
+from botx.client.exceptions.common import ChatNotFoundError, PermissionDeniedError
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,
@@ -37,6 +37,7 @@ class AddUserMethod(AuthorizedBotXMethod):
     status_handlers = {
         **AuthorizedBotXMethod.status_handlers,
         403: response_exception_thrower(PermissionDeniedError),
+        404: response_exception_thrower(ChatNotFoundError),
     }
 
     async def execute(

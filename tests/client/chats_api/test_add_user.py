@@ -12,11 +12,12 @@ from botx import (
     PermissionDeniedError,
     lifespan_wrapper,
 )
+from botx.client.exceptions.common import ChatNotFoundError
 
 
 @respx.mock
 @pytest.mark.asyncio
-async def test__add_user_to_chat__succeed(
+async def test__add_user_to_chat__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -35,8 +36,15 @@ async def test__add_user_to_chat__succeed(
         },
     ).mock(
         return_value=httpx.Response(
-            HTTPStatus.OK,
-            json={"status": "ok", "result": True},
+            HTTPStatus.NOT_FOUND,
+            json={
+                "status": "error",
+                "reason": "chat_not_found",
+                "errors": ["Chat not found"],
+                "error_data": {
+                    "group_chat_id": "dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4",
+                },
+            },
         ),
     )
 
@@ -48,9 +56,11 @@ async def test__add_user_to_chat__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        await bot.add_user_to_chat(bot_id, chat_id, huids=[user_huid])
+        with pytest.raises(ChatNotFoundError) as exc:
+            await bot.add_user_to_chat(bot_id, chat_id, huids=[user_huid])
 
     # - Assert -
+    assert "chat_not_found" in str(exc.value)
     assert endpoint.called
 
 
@@ -101,4 +111,44 @@ async def test__add_user_to_chat__permission_denied_error_raised(
 
     # - Assert -
     assert "no_permission_for_operation" in str(exc.value)
+    assert endpoint.called
+
+
+@respx.mock
+@pytest.mark.asyncio
+async def test__add_user_to_chat__succeed(
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    chat_id: UUID,
+    user_huid: UUID,
+    bot_account: BotAccount,
+    mock_authorization: None,
+) -> None:
+    # - Arrange -
+    endpoint = respx.post(
+        f"https://{host}/api/v3/botx/chats/add_user",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        json={
+            "group_chat_id": str(chat_id),
+            "user_huids": [str(user_huid)],
+        },
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.OK,
+            json={"status": "ok", "result": True},
+        ),
+    )
+
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        await bot.add_user_to_chat(bot_id, chat_id, huids=[user_huid])
+
+    # - Assert -
     assert endpoint.called

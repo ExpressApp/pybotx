@@ -1,13 +1,13 @@
 from botx.client.exceptions.callbacks import BotXMethodFailedCallbackReceivedError
 
 
-class ChatNotFoundError(BotXMethodFailedCallbackReceivedError):
+class ChatNotFoundCallbackError(BotXMethodFailedCallbackReceivedError):
     """Invalid chat id."""
 
 
-class BotIsNotChatMemberError(BotXMethodFailedCallbackReceivedError):
+class BotIsNotChatMemberCallbackError(BotXMethodFailedCallbackReceivedError):
     """Bot is not in the list of chat members."""
 
 
-class FinalRecipientsListEmptyError(BotXMethodFailedCallbackReceivedError):
+class FinalRecipientsListEmptyCallbackError(BotXMethodFailedCallbackReceivedError):
     """Resulting event recipients list is empty."""

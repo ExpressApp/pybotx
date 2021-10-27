@@ -10,10 +10,10 @@ from botx import (
     Bot,
     BotAccount,
     HandlerCollector,
+    OutgoingAttachment,
     UnknownBotAccountError,
     lifespan_wrapper,
 )
-from botx.bot.models.outgoing_attachment import OutgoingAttachment
 
 
 @respx.mock
