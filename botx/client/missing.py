@@ -12,6 +12,9 @@ class _UndefinedType:
     def __bool__(self) -> Literal[False]:
         return False
 
+    def __repr__(self) -> str:
+        return "Undefined"
+
 
 RequiredType = TypeVar("RequiredType")
 Undefined = _UndefinedType()

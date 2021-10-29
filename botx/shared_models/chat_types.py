@@ -5,6 +5,14 @@ from botx.shared_models.api_base import StrEnum
 
 
 class ChatTypes(AutoName):
+    """BotX chat types.
+
+    Attributes:
+        PERSONAL_CHAT: Personal chat with user.
+        PERSONAL_CHAT: Group chat.
+        CHANNEL: Public channel.
+    """
+
     PERSONAL_CHAT = auto()
     GROUP_CHAT = auto()
     CHANNEL = auto()

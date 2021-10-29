@@ -19,6 +19,18 @@ except ImportError:
 
 @dataclass
 class ChatListItem:
+    """Chat from list.
+
+    Attributes:
+        chat_id: Chat id.
+        chat_type: [Chat Type][botx.shared_models.chat_types.ChatTypes].
+        name: Chat name.
+        description: Chat description.
+        members: Chat members.
+        inserted_at: Chat creation datetime.
+        updated_at: Last chat update datetime.
+    """
+
     chat_id: UUID
     chat_type: ChatTypes
     name: str

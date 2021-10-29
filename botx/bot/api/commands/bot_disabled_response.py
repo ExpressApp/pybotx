@@ -31,7 +31,8 @@ def build_bot_disabled_response(status_message: str) -> Dict[str, Any]:
     It should be send if the bot can't process the command.
 
     If you would like to build complex response, see
-    [botx.bot.api.commands.bot_disabled_response.BotAPIBotDisabledResponse][].
+    [BotAPIBotDisabledResponse]
+    [botx.bot.api.commands.bot_disabled_response.BotAPIBotDisabledResponse].
 
     Arguments:
         status_message: Status message.

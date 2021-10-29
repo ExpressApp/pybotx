@@ -35,14 +35,14 @@ class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
         cls,
         name: str,
         chat_type: ChatTypes,
-        members: List[UUID],
+        huids: List[UUID],
         description: Optional[str] = None,
         shared_history: bool = False,
     ) -> "BotXAPICreateChatRequestPayload":
         return cls(
             name=name,
             chat_type=convert_chat_type_from_domain(chat_type),
-            members=members,
+            members=huids,
             description=description,
             shared_history=shared_history,
         )

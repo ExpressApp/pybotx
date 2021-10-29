@@ -11,12 +11,15 @@ edit_uri: ''
 
 nav:
   - Introduction: 'index.md'
-  - API Reference:
+  - Reference:
       - bot: 
-        - Bot: 'reference/bot/bot.md'
-        - HandlerCollector: 'reference/bot/handler_collector.md'
-        - api:
-          - commands: 'reference/bot/api/commands.md'
+        - Bot API: 'reference/bot/bot.md'
+        - System events: 'reference/bot/system_events.md'
+        - Handler collector: 'reference/bot/handler_collector.md'
+        # - api:
+        #   - commands: 'reference/bot/api/commands.md'
+      - models: 'reference/models.md'
+
 
 plugins:
   - search
