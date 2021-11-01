@@ -1,7 +1,10 @@
+import os
 from http import HTTPStatus
+from typing import List
 from uuid import UUID
 
 import pytest
+from dotenv import load_dotenv
 from loguru import logger
 from starlette.applications import Starlette
 from starlette.requests import Request
@@ -18,6 +21,20 @@ from botx import (
     build_bot_disabled_response,
 )
 
+
+def build_bot_accounts_from_env() -> List[BotAccount]:
+    load_dotenv()
+
+    bot_accounts = []
+    for raw_credentials in os.environ["BOT_CREDENTIALS"].split(","):
+        host, raw_bot_id, secret_key = raw_credentials.replace("|", "@").split("@")
+        bot_accounts.append(
+            BotAccount(host=host, bot_id=UUID(raw_bot_id), secret_key=secret_key),
+        )
+
+    return bot_accounts
+
+
 # - pybotx -
 collector = HandlerCollector()
 
@@ -27,16 +44,7 @@ async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
     pass
 
 
-bot = Bot(
-    collectors=[collector],
-    bot_accounts=[
-        BotAccount(
-            host="cts.example.com",
-            bot_id=UUID("bc7f96e2-91a5-5de4-8bde-23765450cac8"),
-            secret_key="secret",
-        ),
-    ],
-)
+bot = Bot(collectors=[collector], bot_accounts=build_bot_accounts_from_env())
 
 
 # - Starlette -

@@ -17,6 +17,8 @@ jobs:
           poetry-version: "1.1.6"
 
       - name: Run tests
+        env:
+          BOT_CREDENTIALS: ${{ secrets.END_TO_END_TESTS_BOT_CREDENTIALS }}
         run: |
           source .venv/bin/activate
           ./scripts/test --cov-report=xml
