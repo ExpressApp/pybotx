@@ -1,3 +1,10 @@
+## 0.26.0 (Nov 1, 2021)
+
+### Added
+
+* Added methods for interacting with sticker pack/stickers - `get_sticker_pack_list`, `get_sticker_pack`. `get_sticker_from_pack`, `create_sticker_pack`, `add_sticker`, `edit_sticker_pack`, `delete_sticker_pack`, `delete_sticker`.
+
+
 ## 0.25.1 (Oct 22, 2021)
 
 ### Changed

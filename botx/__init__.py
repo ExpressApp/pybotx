@@ -52,6 +52,14 @@ from botx.models.messages.sending.message import SendingMessage
 from botx.models.messages.sending.options import MessageOptions, NotificationOptions
 from botx.models.messages.sending.payload import MessagePayload, UpdatePayload
 from botx.models.status import StatusRecipient
+from botx.models.stickers import (
+    Pagination,
+    Sticker,
+    StickerFromPack,
+    StickerPack,
+    StickerPackList,
+    StickerPackPreview,
+)
 from botx.testing.building.builder import MessageBuilder
 
 try:
@@ -75,7 +83,7 @@ __all__ = (
     # DI
     "Depends",
     # models
-    # murkup
+    # markup
     "BubbleElement",
     "KeyboardElement",
     # credentials
@@ -131,6 +139,13 @@ __all__ = (
     "MessagePayload",
     "UpdatePayload",
     "InternalBotNotificationPayload",
+    # Stickers
+    "Pagination",
+    "Sticker",
+    "StickerPack",
+    "StickerPackList",
+    "StickerFromPack",
+    "StickerPackPreview",
     # testing
     "TestClient",
     "MessageBuilder",

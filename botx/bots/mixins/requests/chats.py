@@ -61,7 +61,7 @@ class ChatsRequestsMixin:
         credentials: SendingCredentials,
         chat_id: UUID,
     ) -> ChatFromSearch:
-        """Create new chat.
+        """Return chat's info.
 
         Arguments:
             credentials: credentials for making request.

@@ -6,7 +6,7 @@ from molten import App, JSONParser, Route, Settings, SettingsComponent
 
 from botx.clients.methods.base import BotXMethod
 from botx.testing.botx_mock.wsgi.errors import error_middleware
-from botx.testing.botx_mock.wsgi.routes import (
+from botx.testing.botx_mock.wsgi.routes import (  # noqa: WPS235
     bots,
     chats,
     command,
@@ -14,6 +14,7 @@ from botx.testing.botx_mock.wsgi.routes import (
     files,
     notification,
     notifications,
+    stickers,
     users,
 )
 from botx.testing.typing import APIMessage, APIRequest
@@ -48,6 +49,15 @@ _ENDPOINTS: Tuple[Callable[..., Any], ...] = (
     # files
     files.upload_file,
     files.download_file,
+    # stickers
+    stickers.get_sticker_pack_list,
+    stickers.get_sticker_pack,
+    stickers.get_sticker_from_sticker_pack,
+    stickers.post_add_sticker_into_sticker_pack,
+    stickers.post_delete_sticker_pack,
+    stickers.delete_sticker_from_sticker_pack,
+    stickers.post_create_sticker_pack,
+    stickers.post_edit_sticker_pack,
 )
 
 
