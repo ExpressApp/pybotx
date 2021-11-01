@@ -1,6 +1,6 @@
 import asyncio
 from http import HTTPStatus
-from typing import Optional
+from typing import Any, Callable, Dict, Optional
 from uuid import UUID
 
 import httpx
@@ -18,6 +18,7 @@ async def test__async_file__open(
     file_id: UUID,
     bot_account: BotAccount,
     bot_id: UUID,
+    incoming_message_payload_factory: Callable[..., Dict[str, Any]],
     mock_authorization: None,
 ) -> None:
     # - Arrange -
@@ -35,61 +36,25 @@ async def test__async_file__open(
         ),
     )
 
-    payload = {
-        "bot_id": bot_id,
-        "command": {
-            "body": "/hello",
-            "command_type": "user",
-            "data": {"message": "data"},
-            "metadata": {"message": "metadata"},
+    payload = incoming_message_payload_factory(
+        bot_id=bot_id,
+        async_file={
+            "type": "image",
+            "file": "https://link.to/file",
+            "file_mime_type": "image/png",
+            "file_name": "pass.png",
+            "file_preview": "https://link.to/preview",
+            "file_preview_height": 300,
+            "file_preview_width": 300,
+            "file_size": 1502345,
+            "file_hash": "Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+            "file_encryption_algo": "stream",
+            "chunk_size": 2097152,
+            "file_id": file_id,
         },
-        "async_files": [
-            {
-                "type": "image",
-                "file": "https://link.to/file",
-                "file_mime_type": "image/png",
-                "file_name": "pass.png",
-                "file_preview": "https://link.to/preview",
-                "file_preview_height": 300,
-                "file_preview_width": 300,
-                "file_size": 1502345,
-                "file_hash": "Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
-                "file_encryption_algo": "stream",
-                "chunk_size": 2097152,
-                "file_id": file_id,
-            },
-        ],
-        "attachments": [],
-        "source_sync_id": "bc3d06ed-7b2e-41ad-99f9-ca28adc2c88d",
-        "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
-        "from": {
-            "ad_domain": "domain",
-            "ad_login": "login",
-            "app_version": "1.21.9",
-            "chat_type": "chat",
-            "device": "Firefox 91.0",
-            "device_meta": {
-                "permissions": {
-                    "microphone": True,
-                    "notifications": False,
-                },
-                "pushes": False,
-                "timezone": "Europe/Moscow",
-            },
-            "device_software": "Linux",
-            "group_chat_id": chat_id,
-            "host": host,
-            "is_admin": True,
-            "is_creator": True,
-            "locale": "en",
-            "manufacturer": "Mozilla",
-            "platform": "web",
-            "platform_package_id": "ru.unlimitedtech.express",
-            "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
-            "username": "Ivanov Ivan Ivanovich",
-        },
-        "proto_version": 4,
-    }
+        group_chat_id=chat_id,
+        host=host,
+    )
 
     collector = HandlerCollector()
     incoming_message: Optional[IncomingMessage] = None

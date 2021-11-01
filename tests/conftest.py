@@ -1,6 +1,6 @@
 import logging
 from http import HTTPStatus
-from typing import AsyncGenerator, Generator
+from typing import Any, AsyncGenerator, Callable, Dict, Generator, Optional
 from uuid import UUID
 
 import httpx
@@ -121,3 +121,63 @@ async def httpx_client() -> AsyncGenerator[httpx.AsyncClient, None]:
 async def async_buffer() -> AsyncGenerator[NamedTemporaryFile, None]:
     async with NamedTemporaryFile("wb+") as async_buffer:
         yield async_buffer
+
+
+@pytest.fixture
+def incoming_message_payload_factory() -> Callable[..., Dict[str, Any]]:
+    def decorator(
+        *,
+        bot_id: Optional[UUID] = None,
+        group_chat_id: Optional[UUID] = None,
+        user_huid: Optional[UUID] = None,
+        host: Optional[str] = None,
+        attachment: Optional[Dict[str, Any]] = None,
+        async_file: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        return {
+            "bot_id": str(bot_id) if bot_id else "c1b0c5df-075c-55ff-a931-bfa39ddfd424",
+            "command": {
+                "body": "/hello",
+                "command_type": "user",
+                "data": {},
+                "metadata": {},
+            },
+            "attachments": [attachment] if attachment else [],
+            "async_files": [async_file] if async_file else [],
+            "source_sync_id": None,
+            "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
+            "from": {
+                "ad_domain": None,
+                "ad_login": None,
+                "app_version": None,
+                "chat_type": "chat",
+                "device": None,
+                "device_meta": {
+                    "permissions": None,
+                    "pushes": False,
+                    "timezone": "Europe/Moscow",
+                },
+                "device_software": None,
+                "group_chat_id": (
+                    str(group_chat_id)
+                    if group_chat_id
+                    else "30dc1980-643a-00ad-37fc-7cc10d74e935"
+                ),
+                "host": host or "cts.example.com",
+                "is_admin": True,
+                "is_creator": True,
+                "locale": "en",
+                "manufacturer": None,
+                "platform": None,
+                "platform_package_id": None,
+                "user_huid": (
+                    str(user_huid)
+                    if user_huid
+                    else "f16cdc5f-6366-5552-9ecd-c36290ab3d11"
+                ),
+                "username": None,
+            },
+            "proto_version": 4,
+        }
+
+    return decorator

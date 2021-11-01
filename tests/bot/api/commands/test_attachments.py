@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
 import pytest
 
@@ -15,7 +15,7 @@ from botx.shared_models.domain.attachments import (
     IncomingAttachment,
 )
 
-API_AND_DOMAIN_ATTACHMENTS = (
+API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
     (
         {
             "type": "location",
@@ -74,57 +74,17 @@ API_AND_DOMAIN_ATTACHMENTS = (
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "attachment_json,attachment,attr_name",
-    API_AND_DOMAIN_ATTACHMENTS,
+    "api_attachment,domain_attachment,attr_name",
+    API_AND_DOMAIN_NON_FILE_ATTACHMENTS,
 )
-async def test__async_execute_raw_bot_command__different_attachment_types(
-    attachment_json: Dict[str, Any],
-    attachment: IncomingAttachment,
+async def test__async_execute_raw_bot_command__non_file_attachments_types(
+    api_attachment: Dict[str, Any],
+    domain_attachment: IncomingAttachment,
     attr_name: str,
+    incoming_message_payload_factory: Callable[..., Dict[str, Any]],
 ) -> None:
     # - Arrange -
-    payload = {
-        "bot_id": "c1b0c5df-075c-55ff-a931-bfa39ddfd424",
-        "command": {
-            "body": "/hello",
-            "command_type": "user",
-            "data": {"message": "data"},
-            "metadata": {"message": "metadata"},
-        },
-        "attachments": [
-            attachment_json,
-        ],
-        "async_files": [],
-        "source_sync_id": "bc3d06ed-7b2e-41ad-99f9-ca28adc2c88d",
-        "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
-        "from": {
-            "ad_domain": "domain",
-            "ad_login": "login",
-            "app_version": "1.21.9",
-            "chat_type": "chat",
-            "device": "Firefox 91.0",
-            "device_meta": {
-                "permissions": {
-                    "microphone": True,
-                    "notifications": False,
-                },
-                "pushes": False,
-                "timezone": "Europe/Moscow",
-            },
-            "device_software": "Linux",
-            "group_chat_id": "30dc1980-643a-00ad-37fc-7cc10d74e935",
-            "host": "cts.example.com",
-            "is_admin": True,
-            "is_creator": True,
-            "locale": "en",
-            "manufacturer": "Mozilla",
-            "platform": "web",
-            "platform_package_id": "ru.unlimitedtech.express",
-            "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
-            "username": "Ivanov Ivan Ivanovich",
-        },
-        "proto_version": 4,
-    }
+    payload = incoming_message_payload_factory(attachment=api_attachment)
 
     collector = HandlerCollector()
     incoming_message: Optional[IncomingMessage] = None
@@ -143,10 +103,10 @@ async def test__async_execute_raw_bot_command__different_attachment_types(
         bot.async_execute_raw_bot_command(payload)
 
     # - Assert -
-    assert getattr(incoming_message, attr_name) == attachment
+    assert getattr(incoming_message, attr_name) == domain_attachment
 
 
-JSONS_WITH_DOMAINS_FILES = (
+API_AND_DOMAIN_FILE_ATTACHMENTS = (
     (
         {
             "data": {
@@ -219,56 +179,16 @@ JSONS_WITH_DOMAINS_FILES = (
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "file_json,file",
-    JSONS_WITH_DOMAINS_FILES,
+    "api_attachment,domain_attachment",
+    API_AND_DOMAIN_FILE_ATTACHMENTS,
 )
-async def test__async_execute_raw_bot_command__different_file_types(
-    file_json: Dict[str, Any],
-    file: IncomingAttachment,
+async def test__async_execute_raw_bot_command__file_attachments_types(
+    api_attachment: Dict[str, Any],
+    domain_attachment: IncomingAttachment,
+    incoming_message_payload_factory: Callable[..., Dict[str, Any]],
 ) -> None:
     # - Arrange -
-    payload = {
-        "bot_id": "c1b0c5df-075c-55ff-a931-bfa39ddfd424",
-        "command": {
-            "body": "/hello",
-            "command_type": "user",
-            "data": {"message": "data"},
-            "metadata": {"message": "metadata"},
-        },
-        "attachments": [
-            file_json,
-        ],
-        "async_files": [],
-        "source_sync_id": "bc3d06ed-7b2e-41ad-99f9-ca28adc2c88d",
-        "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
-        "from": {
-            "ad_domain": "domain",
-            "ad_login": "login",
-            "app_version": "1.21.9",
-            "chat_type": "chat",
-            "device": "Firefox 91.0",
-            "device_meta": {
-                "permissions": {
-                    "microphone": True,
-                    "notifications": False,
-                },
-                "pushes": False,
-                "timezone": "Europe/Moscow",
-            },
-            "device_software": "Linux",
-            "group_chat_id": "30dc1980-643a-00ad-37fc-7cc10d74e935",
-            "host": "cts.example.com",
-            "is_admin": True,
-            "is_creator": True,
-            "locale": "en",
-            "manufacturer": "Mozilla",
-            "platform": "web",
-            "platform_package_id": "ru.unlimitedtech.express",
-            "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
-            "username": "Ivanov Ivan Ivanovich",
-        },
-        "proto_version": 4,
-    }
+    payload = incoming_message_payload_factory(attachment=api_attachment)
 
     collector = HandlerCollector()
     incoming_message: Optional[IncomingMessage] = None
@@ -287,4 +207,4 @@ async def test__async_execute_raw_bot_command__different_file_types(
         bot.async_execute_raw_bot_command(payload)
 
     # - Assert -
-    assert incoming_message.file == file  # type: ignore [union-attr]
+    assert incoming_message.file == domain_attachment  # type: ignore [union-attr]
