@@ -18,7 +18,7 @@ from botx import (
 from botx.bot.models.commands.enums import AttachmentTypes
 from botx.shared_models.domain.files import Document, File, Image, Video, Voice
 
-JSONS_WITH_DOMAINS = (
+API_AND_DOMAIN_FILES = (
     (
         {
             "type": "image",
@@ -121,7 +121,7 @@ JSONS_WITH_DOMAINS = (
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "async_file_json,file",
-    JSONS_WITH_DOMAINS,
+    API_AND_DOMAIN_FILES,
 )
 async def test__async_execute_raw_bot_command__different_file_types(
     async_file_json: Dict[str, Any],
@@ -223,6 +223,8 @@ async def test__async_execute_raw_bot_command__different_file_types(
             host="cts.example.com",
         ),
         raw_command=None,
-        attachment=None,
         file=file,
+        location=None,
+        contact=None,
+        link=None,
     )

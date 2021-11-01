@@ -10,6 +10,7 @@ from botx.bot.api.commands.base import (
     BotAPIUserEventSender,
 )
 from botx.bot.api.enums import convert_client_platform
+from botx.bot.models.commands.enums import AttachmentTypes
 from botx.bot.models.commands.incoming_message import (
     Chat,
     ExpressApp,
@@ -20,8 +21,10 @@ from botx.bot.models.commands.incoming_message import (
 from botx.shared_models.api.async_file import APIAsyncFile, convert_async_file_to_file
 from botx.shared_models.chat_types import convert_chat_type_to_domain
 from botx.shared_models.domain.attachments import (
+    AttachmentContact,
+    AttachmentLink,
+    AttachmentLocation,
     FileAttachmentBase,
-    IncomingAttachment,
     IncomingFileAttachment,
 )
 from botx.shared_models.domain.files import File
@@ -35,7 +38,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
     attachments: List[BotAPIAttachment]
     async_files: List[APIAsyncFile]
 
-    def to_domain(self, raw_command: Dict[str, Any]) -> IncomingMessage:
+    def to_domain(self, raw_command: Dict[str, Any]) -> IncomingMessage:  # noqa: WPS231
         device = UserDevice(
             manufacturer=self.sender.manufacturer,
             name=self.sender.device,
@@ -72,7 +75,9 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
         )
 
         file: Optional[Union[File, IncomingFileAttachment]] = None
-        attachment: Optional[IncomingAttachment] = None
+        location: Optional[AttachmentLocation] = None
+        contact: Optional[AttachmentContact] = None
+        link: Optional[AttachmentLink] = None
         if self.async_files:
             # Always one async file per-message
             file = convert_async_file_to_file(self.async_files[0])
@@ -81,9 +86,14 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             domain = convert_api_attachment_to_domain(self.attachments[0])
             if isinstance(domain, FileAttachmentBase):
                 file = domain
+            elif domain.type == AttachmentTypes.LOCATION:
+                location = domain
+            elif domain.type == AttachmentTypes.CONTACT:
+                contact = domain
+            elif domain.type == AttachmentTypes.LINK:
+                link = domain
             else:
-                # TODO: Location -> message.location, etc
-                attachment = domain
+                raise NotImplementedError
 
         return IncomingMessage(
             bot_id=self.bot_id,
@@ -96,5 +106,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             chat=chat,
             raw_command=raw_command,
             file=file,
-            attachment=attachment,
+            location=location,
+            contact=contact,
+            link=link,
         )

@@ -15,7 +15,7 @@ from botx.shared_models.domain.attachments import (
     IncomingAttachment,
 )
 
-JSONS_WITH_DOMAINS_ATTACHMENTS = (
+API_AND_DOMAIN_ATTACHMENTS = (
     (
         {
             "type": "location",
@@ -33,6 +33,7 @@ JSONS_WITH_DOMAINS_ATTACHMENTS = (
             latitude="58.04861",
             longitude="34.28833",
         ),
+        "location",
     ),
     (
         {
@@ -47,6 +48,7 @@ JSONS_WITH_DOMAINS_ATTACHMENTS = (
             type=AttachmentTypes.CONTACT,
             name="Иванов Иван",
         ),
+        "contact",
     ),
     (
         {
@@ -65,18 +67,20 @@ JSONS_WITH_DOMAINS_ATTACHMENTS = (
             preview="http://ya.ru/xxx.jpg",
             text="Some text in link",
         ),
+        "link",
     ),
 )
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "attachment_json,attachment",
-    JSONS_WITH_DOMAINS_ATTACHMENTS,
+    "attachment_json,attachment,attr_name",
+    API_AND_DOMAIN_ATTACHMENTS,
 )
 async def test__async_execute_raw_bot_command__different_attachment_types(
     attachment_json: Dict[str, Any],
     attachment: IncomingAttachment,
+    attr_name: str,
 ) -> None:
     # - Arrange -
     payload = {
@@ -139,7 +143,7 @@ async def test__async_execute_raw_bot_command__different_attachment_types(
         bot.async_execute_raw_bot_command(payload)
 
     # - Assert -
-    assert incoming_message.attachment == attachment  # type: ignore [union-attr]
+    assert getattr(incoming_message, attr_name) == attachment
 
 
 JSONS_WITH_DOMAINS_FILES = (

@@ -7,7 +7,9 @@ from botx.bot.models.commands.base import BotCommandBase
 from botx.bot.models.commands.enums import ClientPlatforms
 from botx.shared_models.chat_types import ChatTypes
 from botx.shared_models.domain.attachments import (
-    IncomingAttachment,
+    AttachmentContact,
+    AttachmentLink,
+    AttachmentLocation,
     IncomingFileAttachment,
 )
 from botx.shared_models.domain.files import File
@@ -68,6 +70,8 @@ class IncomingMessage(BotCommandBase):
     sender: UserEventSender
     chat: Chat
     file: Optional[Union[File, IncomingFileAttachment]] = None
-    attachment: Optional[IncomingAttachment] = None
+    location: Optional[AttachmentLocation] = None
+    contact: Optional[AttachmentContact] = None
+    link: Optional[AttachmentLink] = None
 
     state: SimpleNamespace = field(default_factory=SimpleNamespace)

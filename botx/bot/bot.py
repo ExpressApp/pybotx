@@ -297,9 +297,9 @@ class Bot:
         but `bot_id` and `chat_id` is taken from the incoming message.
 
         Arguments:
-            body: message text.
-            metadata: additional message payload.
-            file: Sync attachment.
+            body: Message text.
+            metadata: Additional message payload.
+            file: Attachment.
 
         Returns:
             UUID: Message sync_id.
@@ -331,11 +331,11 @@ class Bot:
         """Send message to chat.
 
         Arguments:
-            body: message text.
+            body: Message text.
             bot_id: Bot which should perform the request.
             chat_id: Target chat id.
-            metadata: additional message payload.
-            file: Sync attachment.
+            metadata: Additional message payload.
+            file: Attachment.
 
         Returns:
             UUID: Message sync_id.
