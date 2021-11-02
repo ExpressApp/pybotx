@@ -10,9 +10,9 @@ from botx.bot.api.commands.base import (
     BotAPIUserEventSender,
 )
 from botx.bot.api.enums import convert_client_platform
+from botx.bot.models.commands.chat import Chat
 from botx.bot.models.commands.enums import AttachmentTypes
 from botx.bot.models.commands.incoming_message import (
-    Chat,
     ExpressApp,
     IncomingMessage,
     UserDevice,

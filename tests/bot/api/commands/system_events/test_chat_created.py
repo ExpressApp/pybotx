@@ -5,6 +5,7 @@ import pytest
 
 from botx import (
     Bot,
+    Chat,
     ChatCreatedEvent,
     ChatCreatedMember,
     ChatTypes,
@@ -91,11 +92,13 @@ async def test__chat_created__succeed() -> None:
     # - Assert -
     assert chat_created == ChatCreatedEvent(
         sync_id=UUID("2c1a31d6-f47f-5f54-aee2-d0c526bb1d54"),
-        chat_id=UUID("dea55ee4-7a9f-5da0-8c73-079f400ee517"),
         bot_id=UUID("bc7f96e2-91a5-5de4-8bde-23765450cac8"),
-        host="cts.example.com",
         chat_name="Feature-party",
-        chat_type=ChatTypes.GROUP_CHAT,
+        chat=Chat(
+            id=UUID("dea55ee4-7a9f-5da0-8c73-079f400ee517"),
+            type=ChatTypes.GROUP_CHAT,
+            host="cts.example.com",
+        ),
         creator_id=UUID("83fbf1c7-f14b-5176-bd32-ca15cf00d4b7"),
         members=[
             ChatCreatedMember(

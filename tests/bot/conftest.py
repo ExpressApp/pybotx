@@ -79,14 +79,19 @@ def incoming_message_factory(
 
 
 @pytest.fixture
-def chat_created() -> ChatCreatedEvent:
+def chat_created(
+    bot_id: UUID,
+    chat_id: UUID,
+) -> ChatCreatedEvent:
     return ChatCreatedEvent(
-        bot_id=uuid4(),
+        bot_id=bot_id,
         sync_id=uuid4(),
-        chat_id=uuid4(),
         chat_name="Test",
-        chat_type=ChatTypes.PERSONAL_CHAT,
-        host="cts.example.com",
+        chat=Chat(
+            id=chat_id,
+            type=ChatTypes.PERSONAL_CHAT,
+            host="cts.example.com",
+        ),
         creator_id=uuid4(),
         members=[
             ChatCreatedMember(

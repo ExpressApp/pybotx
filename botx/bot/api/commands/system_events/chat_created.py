@@ -5,6 +5,7 @@ from pydantic import Field
 
 from botx.bot.api.commands.base import BotAPIBaseCommand, BotAPIChatEventSender
 from botx.bot.api.enums import BotAPICommandTypes, BotAPIUserKinds, convert_user_kind
+from botx.bot.models.commands.chat import Chat
 from botx.bot.models.commands.system_events.chat_created import (
     ChatCreatedEvent,
     ChatCreatedMember,
@@ -55,13 +56,17 @@ class BotAPIChatCreated(BotAPIBaseCommand):
             for member in self.payload.data.members
         ]
 
+        chat = Chat(
+            id=self.payload.data.group_chat_id,
+            type=convert_chat_type_to_domain(self.payload.data.chat_type),
+            host=self.sender.host,
+        )
+
         return ChatCreatedEvent(
             sync_id=self.sync_id,
-            chat_id=self.payload.data.group_chat_id,
             bot_id=self.bot_id,
-            host=self.sender.host,
+            chat=chat,
             chat_name=self.payload.data.name,
-            chat_type=convert_chat_type_to_domain(self.payload.data.chat_type),
             creator_id=self.payload.data.creator,
             members=members,
             raw_command=raw_command,

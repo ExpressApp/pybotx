@@ -4,8 +4,8 @@ from typing import Any, Dict, Optional, Union
 from uuid import UUID
 
 from botx.bot.models.commands.base import BotCommandBase
+from botx.bot.models.commands.chat import Chat
 from botx.bot.models.commands.enums import ClientPlatforms
-from botx.shared_models.chat_types import ChatTypes
 from botx.shared_models.domain.attachments import (
     AttachmentContact,
     AttachmentLink,
@@ -51,13 +51,6 @@ class UserEventSender:
             return None
 
         return f"{self.ad_login}@{self.ad_domain}"
-
-
-@dataclass
-class Chat:
-    id: UUID
-    type: ChatTypes
-    host: str
 
 
 @dataclass

@@ -3,8 +3,8 @@ from typing import List, Optional
 from uuid import UUID
 
 from botx.bot.models.commands.base import BotCommandBase
+from botx.bot.models.commands.chat import Chat
 from botx.bot.models.commands.enums import UserKinds
-from botx.shared_models.chat_types import ChatTypes
 
 
 @dataclass
@@ -39,10 +39,8 @@ class ChatCreatedEvent(BotCommandBase):
 [botx.bot.models.commands.system_events.chat_created.ChatCreatedMember].
     """
 
+    chat: Chat
     sync_id: UUID
-    chat_id: UUID
     chat_name: str
-    chat_type: ChatTypes
-    host: str
     creator_id: UUID
     members: List[ChatCreatedMember]
