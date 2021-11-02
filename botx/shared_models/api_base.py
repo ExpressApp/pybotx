@@ -43,15 +43,15 @@ class UnverifiedPayloadBaseModel(BaseModel):
         arbitrary_types_allowed = True
 
     def jsonable_dict(self) -> Dict[str, Any]:
-        new_dict = _remove_undefined_from_dict(self.dict())
-
         # https://github.com/samuelcolvin/pydantic/issues/1409
         return cast(  # Pydantic model is always dict
             Dict[str, Any],
-            json.loads(
-                json.dumps(new_dict, default=pydantic_encoder),
-            ),
+            json.loads(self.json()),
         )
+
+    def json(self) -> str:  # type: ignore [override]
+        new_dict = _remove_undefined_from_dict(self.dict())
+        return json.dumps(new_dict, default=pydantic_encoder)
 
 
 class StrEnum(str, Enum):  # noqa: WPS600 (pydantic needs this inheritance)

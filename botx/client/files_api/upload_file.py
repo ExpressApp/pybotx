@@ -1,8 +1,8 @@
 import tempfile
-from typing import Optional
 from uuid import UUID
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
+from botx.client.missing import Missing
 from botx.constants import CHUNK_SIZE
 from botx.shared_models.api.async_file import APIAsyncFile, convert_async_file_to_file
 from botx.shared_models.api_base import (
@@ -19,8 +19,8 @@ except ImportError:
 
 
 class BotXAPIUploadFileMeta(UnverifiedPayloadBaseModel):
-    duration: Optional[int] = None
-    caption: Optional[str] = None
+    duration: Missing[int]
+    caption: Missing[str]
 
 
 class BotXAPIUploadFileRequestPayload(UnverifiedPayloadBaseModel):
@@ -31,8 +31,8 @@ class BotXAPIUploadFileRequestPayload(UnverifiedPayloadBaseModel):
     def from_domain(
         cls,
         chat_id: UUID,
-        duration: Optional[int] = None,
-        caption: Optional[str] = None,
+        duration: Missing[int],
+        caption: Missing[str],
     ) -> "BotXAPIUploadFileRequestPayload":
         return cls(
             group_chat_id=chat_id,

@@ -432,6 +432,8 @@ class Bot:
         chat_id: UUID,
         async_buffer: AsyncBufferReadable,
         filename: str,
+        duration: Missing[int] = Undefined,
+        caption: Missing[str] = Undefined,
     ) -> File:
         """Upload file to file service.
 
@@ -444,7 +446,11 @@ class Bot:
         Returns
             File: Meta info of uploaded file.
         """
-        payload = BotXAPIUploadFileRequestPayload.from_domain(chat_id)
+        payload = BotXAPIUploadFileRequestPayload.from_domain(
+            chat_id,
+            duration,
+            caption,
+        )
         method = UploadFileMethod(
             bot_id,
             self._httpx_client,
