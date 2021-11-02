@@ -9,9 +9,9 @@ from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
 # - Domains -
 from botx.bot.bot import Bot
 from botx.bot.exceptions import (
+    AnswerDestinationLookupError,
     BotShuttignDownError,
     HandlerNotFoundError,
-    NoIncomingMessageError,
     UnknownBotAccountError,
 )
 from botx.bot.handler_collector import HandlerCollector
@@ -96,7 +96,7 @@ __all__ = (
     "InvalidBotAccountError",
     "InvalidBotXResponseError",
     "InvalidBotXStatusCodeError",
-    "NoIncomingMessageError",
+    "AnswerDestinationLookupError",
     "OutgoingAttachment",
     "PermissionDeniedError",
     "RateLimitReachedError",

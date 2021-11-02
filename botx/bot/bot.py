@@ -14,7 +14,7 @@ from botx.bot.api.status.response import build_bot_status_response
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.bot.callbacks_manager import CallbacksManager
 from botx.bot.contextvars import bot_id_var, bot_var, chat_id_var
-from botx.bot.exceptions import NoIncomingMessageError
+from botx.bot.exceptions import AnswerDestinationLookupError
 from botx.bot.handler import Middleware
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.middlewares.exceptions import ExceptionHandlersDict, ExceptionMiddleware
@@ -309,7 +309,7 @@ class Bot:
             bot_id = bot_id_var.get()
             chat_id = chat_id_var.get()
         except LookupError as exc:
-            raise NoIncomingMessageError from exc
+            raise AnswerDestinationLookupError from exc
 
         return await self.send(
             body,

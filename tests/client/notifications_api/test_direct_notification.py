@@ -8,10 +8,10 @@ import respx
 from aiofiles.tempfile import NamedTemporaryFile
 
 from botx import (
+    AnswerDestinationLookupError,
     Bot,
     BotAccount,
     HandlerCollector,
-    NoIncomingMessageError,
     OutgoingAttachment,
     UnknownBotAccountError,
     lifespan_wrapper,
@@ -32,7 +32,7 @@ async def test__answer__no_incoming_message_error_raised(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(NoIncomingMessageError) as exc:
+        with pytest.raises(AnswerDestinationLookupError) as exc:
             await bot.answer("Hi!")
 
     # - Assert -
