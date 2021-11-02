@@ -23,7 +23,7 @@ class ChatListItem:
 
     Attributes:
         chat_id: Chat id.
-        chat_type: [Chat Type][botx.shared_models.chat_types.ChatTypes].
+        chat_type: Chat Type.
         name: Chat name.
         description: Chat description.
         members: Chat members.

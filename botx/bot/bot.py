@@ -168,12 +168,15 @@ class Bot:
     async def get_token(self, bot_id: UUID) -> str:
         """Get bot auth token.
 
-        Arguments:
-            bot_id: Bot which should perform the request.
+        **Arguments:**
 
-        Returns:
-            str: Auth token
+        * `bot_id: UUID` - Bot which should perform the request.
+
+        **Returns:**
+
+        `str` - Auth token.
         """
+
         return await get_token(bot_id, self._httpx_client, self._bot_accounts_storage)
 
     # - Chats API -
@@ -183,12 +186,13 @@ class Bot:
     ) -> List[ChatListItem]:
         """Get all bot chats.
 
-        Arguments:
-            bot_id: Bot which should perform the request.
+        **Arguments:**
 
-        Returns:
-            List[ChatListItem]: List of
-                [chats][botx.client.chats_api.list_chats.ChatListItem].
+        * `bot_id: UUID` - Bot which should perform the request.
+
+        **Returns:**
+
+        `List[ChatListItem]` - List of chats info.
         """
 
         method = ListChatsMethod(
@@ -209,10 +213,11 @@ class Bot:
     ) -> None:
         """Add user to chat.
 
-        Arguments:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            huids: List of eXpress account ids.
+        **Arguments:**
+
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `chat_id: UUID` - Target chat id.
+        * `huids: List[UUID]` - List of eXpress account ids.
         """
 
         method = AddUserMethod(bot_id, self._httpx_client, self._bot_accounts_storage)
@@ -228,10 +233,11 @@ class Bot:
     ) -> None:
         """Remove eXpress accounts from chat.
 
-        Arguments:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            huids: List of eXpress account ids.
+        **Arguments:**
+
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `chat_id: UUID` - Target chat id.
+        * `huids: List[UUID]` - List of eXpress account ids.
         """
 
         method = RemoveUserMethod(
@@ -254,16 +260,18 @@ class Bot:
     ) -> UUID:
         """Create chat.
 
-        Arguments:
-            bot_id: Bot which should perform the request.
-            name: Chat visible name.
-            chat_type: [Chat Type][botx.shared_models.chat_types.ChatTypes].
-            huids: List of eXpress account ids.
-            description: Chat description.
-            shared_history: Open old chat history for new added users.
+        **Arguments:**
 
-        Returns:
-            UUID: Created chat uuid.
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `name: str` - Chat visible name.
+        * `chat_type: ChatTypes` - Chat type.
+        * `huids: List[UUID]` - List of eXpress account ids.
+        * `description: Optional[str]` - Chat description.
+        * `shared_history: bool` - Open old chat history for new added users.
+
+        **Returns:**
+
+        `UUID` - Created chat uuid.
         """
 
         method = CreateChatMethod(
@@ -293,16 +301,18 @@ class Bot:
     ) -> UUID:
         """Answer to incoming message.
 
-        Works just like [Bot.send][botx.bot.bot.Bot.send],
-        but `bot_id` and `chat_id` is taken from the incoming message.
+        Works just like `Bot.send`, but `bot_id` and `chat_id` are
+        taken from the incoming message.
 
-        Arguments:
-            body: Message text.
-            metadata: Additional message payload.
-            file: Attachment.
+        **Arguments:**
 
-        Returns:
-            UUID: Message sync_id.
+        * `metadata: Missing[Dict[str, Any]]` - Notification options.
+        * `file: Missing[Union[IncomingFileAttachment,
+        OutgoingAttachment]]` - Attachment.
+
+        **Returns:**
+
+        `UUID` - Notification sync_id.
         """
 
         try:  # noqa: WPS229
@@ -330,15 +340,17 @@ class Bot:
     ) -> UUID:
         """Send message to chat.
 
-        Arguments:
-            body: Message text.
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            metadata: Additional message payload.
-            file: Attachment.
+        **Arguments:**
 
-        Returns:
-            UUID: Message sync_id.
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `chat_id: UUID` - Target chat id.
+        * `metadata: Missing[Dict[str, Any]]` - Notification options.
+        * `file: Missing[Union[IncomingFileAttachment,
+        OutgoingAttachment]]` - Attachment.
+
+        **Returns:**
+
+        `UUID` - Notification sync_id.
         """
 
         method = DirectNotificationMethod(
@@ -369,18 +381,21 @@ class Bot:
     ) -> UUID:
         """Send internal notification.
 
-        Arguments:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            data: Notification payload.
-            opts: Notification options.
-            recipients: List of bot uuids, empty for all in chat.
-            wait_callback: Wait for callback.
-            callback_timeout: Timeout for waiting for callback.
+        **Arguments:**
 
-        Returns:
-            UUID: Notification sync_id.
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `chat_id: UUID` - Target chat id.
+        * `data: Dict[str, Any]` - Notification payload.
+        * `opts: Missing[Dict[str, Any]]` - Notification options.
+        * `recipients: Missing[List[UUID]]` - List of bot uuids, empty for all in chat.
+        * `wait_callback: bool` - Wait for callback.
+        * `callback_timeout: Optional[int]` - Timeout for waiting for callback.
+
+        **Returns:**
+
+        `UUID` - Notification sync_id.
         """
+
         method = InternalBotNotificationMethod(
             bot_id,
             self._httpx_client,
@@ -412,12 +427,14 @@ class Bot:
     ) -> None:
         """Download file form file service.
 
-        Arguments:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            file_id: Async file id.
-            async_buffer: Buffer to write downloaded file.
+        **Arguments:**
+
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `chat_id: UUID` - Target chat id.
+        * `file_id: UUID` - Async file id.
+        * `async_buffer: AsyncBufferWritable` - Buffer to write downloaded file.
         """
+
         payload = BotXAPIDownloadFileRequestPayload.from_domain(chat_id, file_id)
         method = DownloadFileMethod(
             bot_id,
@@ -437,15 +454,21 @@ class Bot:
     ) -> File:
         """Upload file to file service.
 
-        Arguments:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            async_buffer: Buffer from where to read file.
-            filename: File name.
+        **Arguments:**
 
-        Returns
-            File: Meta info of uploaded file.
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `chat_id: UUID` - Target chat id.
+        * `file_id: UUID` - Async file id.
+        * `async_buffer: AsyncBufferReadable` - Buffer to write downloaded file.
+        * `filename: str` - File name.
+        * `duration: Missing[str]` - Video duration.
+        * `caption: Missing[str]` - Text under file.
+
+        **Returns:**
+
+        * `File` - Meta info of uploaded file.
         """
+
         payload = BotXAPIUploadFileRequestPayload.from_domain(
             chat_id,
             duration,

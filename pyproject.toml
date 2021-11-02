@@ -22,6 +22,7 @@ starlette = "^0.16.0"
 uvicorn = "^0.15.0"
 loguru = "^0.5.3"
 aiofiles = "^0.7.0"
+mkautodoc = "^0.1.0"
 
 
 [tool.poetry.dev-dependencies]
@@ -40,7 +41,6 @@ requests = "~2.26.0"
 respx = "~0.17"
 
 mkdocs = "~1.2.2"
-mkdocstrings = "~0.16.0"
 mkdocs-material = "~5.2.1"
 
 [build-system]

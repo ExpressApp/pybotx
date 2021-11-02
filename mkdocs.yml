@@ -11,16 +11,16 @@ edit_uri: ''
 
 nav:
   - Introduction: 'index.md'
-  - Reference:
-      - bot: 
-        - Bot API: 'reference/bot/bot.md'
-        - System events: 'reference/bot/system_events.md'
-        - Handler collector: 'reference/bot/handler_collector.md'
-        # - api:
-        #   - commands: 'reference/bot/api/commands.md'
-      - models: 'reference/models.md'
-
+  - BotX API: 'botx_api.md'
 
 plugins:
   - search
-  - mkdocstrings
+
+markdown_extensions:
+  - admonition
+  - codehilite:
+      css_class: highlight
+  - mkautodoc
+
+extra_css:
+  - css/custom.css

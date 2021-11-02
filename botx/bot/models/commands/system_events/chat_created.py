@@ -14,8 +14,8 @@ class ChatCreatedMember:
     Attributes:
         is_admin: Is user admin.
         huid: User huid.
-        username: User name.
-        kind: User type. TODO: link to UserKinds
+        username: Username.
+        kind: User type.
     """
 
     is_admin: bool
@@ -35,8 +35,7 @@ class ChatCreatedEvent(BotCommandBase):
         chat_type: Created chat type.
         host: Created chat cts host.
         creator_id: Creator huid.
-        members: List of [members]\
-[botx.bot.models.commands.system_events.chat_created.ChatCreatedMember].
+        members: List of created chat members.
     """
 
     chat: Chat

@@ -42,6 +42,7 @@ class HandlerCollector:
 
     def include(self, *others: "HandlerCollector") -> None:
         """Include other `HandlerCollector`."""
+
         for collector in others:
             self._include_collector(collector)
 
@@ -86,6 +87,7 @@ class HandlerCollector:
         middlewares: Optional[Sequence[Middleware]] = None,
     ) -> Callable[[IncomingMessageHandlerFunc], IncomingMessageHandlerFunc]:
         """Decorate command handler."""
+
         if not self.VALID_COMMAND_NAME_RE.match(command_name):
             raise ValueError("Command should start with '/' and doesn't include spaces")
 
@@ -112,7 +114,8 @@ class HandlerCollector:
         self,
         handler_func: IncomingMessageHandlerFunc,
     ) -> IncomingMessageHandlerFunc:
-        """Decorate uncaught messages handler."""
+        """Decorate fallback messages handler."""
+
         if self._default_message_handler:
             raise ValueError("Default command handler already registered")
 
@@ -127,11 +130,8 @@ class HandlerCollector:
         self,
         handler_func: HandlerFunc[ChatCreatedEvent],
     ) -> HandlerFunc[ChatCreatedEvent]:
-        """Decorate `chat_created` event handler.
+        """Decorate `chat_created` event handler."""
 
-        [ChatCreatedEvent reference]
-        [botx.bot.models.commands.system_events.chat_created]
-        """
         self._system_event(ChatCreatedEvent, handler_func)
 
         return handler_func
@@ -140,11 +140,8 @@ class HandlerCollector:
         self,
         handler_func: HandlerFunc[AddedToChatEvent],
     ) -> HandlerFunc[AddedToChatEvent]:
-        """Decorate `added_to_chat` event handler.
+        """Decorate `added_to_chat` event handler."""
 
-        [AddedToChatEvent reference]
-        [botx.bot.models.commands.system_events.added_to_chat]
-        """
         self._system_event(AddedToChatEvent, handler_func)
 
         return handler_func
@@ -153,11 +150,8 @@ class HandlerCollector:
         self,
         handler_func: HandlerFunc[DeletedFromChatEvent],
     ) -> HandlerFunc[DeletedFromChatEvent]:
-        """Decorate `deleted_from_chat` event handler.
+        """Decorate `deleted_from_chat` event handler."""
 
-        [DeletedFromChatEvent reference]
-        [botx.bot.models.commands.system_events.deleted_from_chat]
-        """
         self._system_event(DeletedFromChatEvent, handler_func)
 
         return handler_func
