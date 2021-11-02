@@ -9,9 +9,9 @@ import respx
 from botx import (
     Bot,
     BotAccount,
-    BotIsNotChatMemberCallbackError,
-    ChatNotFoundCallbackError,
-    FinalRecipientsListEmptyCallbackError,
+    BotIsNotChatMemberError,
+    ChatNotFoundError,
+    FinalRecipientsListEmptyError,
     HandlerCollector,
     RateLimitReachedError,
     lifespan_wrapper,
@@ -130,7 +130,7 @@ async def test__send_internal_bot_notification__chat_not_found_error_raised(
             },
         )
 
-    with pytest.raises(ChatNotFoundCallbackError) as exc:
+    with pytest.raises(ChatNotFoundError) as exc:
         await task
 
     # - Assert -
@@ -198,7 +198,7 @@ async def test__send_internal_bot_notification__bot_is_not_chat_member_error_rai
             },
         )
 
-    with pytest.raises(BotIsNotChatMemberCallbackError) as exc:
+    with pytest.raises(BotIsNotChatMemberError) as exc:
         await task
 
     # - Assert -
@@ -267,7 +267,7 @@ async def test__send_internal_bot_notification__final_recipients_list_empty_erro
             },
         )
 
-    with pytest.raises(FinalRecipientsListEmptyCallbackError) as exc:
+    with pytest.raises(FinalRecipientsListEmptyError) as exc:
         await task
 
     # - Assert -

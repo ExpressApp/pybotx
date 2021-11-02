@@ -24,16 +24,21 @@ from botx.client.botx_method import (
     ErrorCallbackHandlers,
     callback_exception_thrower,
 )
+from botx.client.exceptions.base import BaseClientException
 from tests.client.test_botx_method import (
     BotXAPIFooBarRequestPayload,
     BotXAPIFooBarResponsePayload,
 )
 
 
+class FooBarError(BaseClientException):
+    """Test exception."""
+
+
 class FooBarCallbackMethod(BotXMethod):
     error_callback_handlers: ErrorCallbackHandlers = {
         "foo_bar_error": callback_exception_thrower(
-            BotXMethodFailedCallbackReceivedError,
+            FooBarError,
         ),
     }
 
@@ -139,7 +144,7 @@ async def test__botx_method_callback__error_callback_error_handler_called(
             },
         )
 
-        with pytest.raises(BotXMethodFailedCallbackReceivedError) as exc:
+        with pytest.raises(FooBarError) as exc:
             await task
 
     # - Assert -

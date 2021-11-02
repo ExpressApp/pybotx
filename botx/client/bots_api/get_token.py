@@ -1,8 +1,4 @@
-from typing import NoReturn
-
-import httpx
-
-from botx.client.botx_method import BotXMethod
+from botx.client.botx_method import BotXMethod, response_exception_thrower
 from botx.client.exceptions.common import InvalidBotAccountError
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
@@ -31,12 +27,8 @@ class BotXAPIGetTokenResponsePayload(VerifiedPayloadBaseModel):
         return self.result
 
 
-def invalid_bot_account_error_status_handler(response: httpx.Response) -> NoReturn:
-    raise InvalidBotAccountError(response)
-
-
 class GetTokenMethod(BotXMethod):
-    status_handlers = {401: invalid_bot_account_error_status_handler}
+    status_handlers = {401: response_exception_thrower(InvalidBotAccountError)}
 
     async def execute(
         self,

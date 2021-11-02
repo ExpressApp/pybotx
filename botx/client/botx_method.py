@@ -24,9 +24,10 @@ from botx.bot.models.method_callbacks import (
     BotAPIMethodFailedCallback,
     BotXMethodCallback,
 )
+from botx.client.exceptions.base import BaseClientException
 from botx.client.exceptions.callbacks import BotXMethodFailedCallbackReceivedError
 from botx.client.exceptions.http import (
-    InvalidBotXResponseError,
+    InvalidBotXResponsePayloadError,
     InvalidBotXStatusCodeError,
 )
 from botx.shared_models.api_base import VerifiedPayloadBaseModel
@@ -43,19 +44,19 @@ TBotXAPIModel = TypeVar("TBotXAPIModel", bound=VerifiedPayloadBaseModel)
 
 
 def response_exception_thrower(
-    exc: Type[Exception],
+    exc: Type[BaseClientException],
 ) -> StatusHandler:
     def factory(response: httpx.Response) -> NoReturn:
-        raise exc(response)
+        raise exc.from_response(response)
 
     return factory
 
 
 def callback_exception_thrower(
-    exc: Type[Exception],
+    exc: Type[BaseClientException],
 ) -> CallbackExceptionHandler:  # noqa: F821
     def factory(callback: BotAPIMethodFailedCallback) -> NoReturn:
-        raise exc(callback)
+        raise exc.from_callback(callback)
 
     return factory
 
@@ -94,7 +95,7 @@ class BotXMethod:
         try:
             return parse_raw_as(model_cls, response.content)
         except (ValidationError, JSONDecodeError) as exc:
-            raise InvalidBotXResponseError(response) from exc
+            raise InvalidBotXResponsePayloadError(response) from exc
 
     async def _botx_method_call(self, *args: Any, **kwargs: Any) -> httpx.Response:
         response = await self._httpx_client.request(*args, **kwargs)

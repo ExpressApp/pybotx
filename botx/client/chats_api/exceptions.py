@@ -1,9 +1,9 @@
-from botx.client.exceptions.http import InvalidBotXStatusCodeError
+from botx.client.exceptions.base import BaseClientException
 
 
-class ChatCreationProhibitedError(InvalidBotXStatusCodeError):
+class ChatCreationProhibitedError(BaseClientException):
     """Bot doesn't have permissions to create chat."""
 
 
-class ChatCreationError(InvalidBotXStatusCodeError):
+class ChatCreationError(BaseClientException):
     """Error while chat creation."""

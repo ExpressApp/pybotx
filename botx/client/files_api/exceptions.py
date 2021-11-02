@@ -1,5 +1,5 @@
-from botx.client.exceptions.http import InvalidBotXStatusCodeError
+from botx.client.exceptions.base import BaseClientException
 
 
-class FileDeletedError(InvalidBotXStatusCodeError):
+class FileDeletedError(BaseClientException):
     """File deleted."""

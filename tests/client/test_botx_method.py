@@ -5,9 +5,10 @@ import httpx
 import pytest
 import respx
 
-from botx import BotAccount, InvalidBotXResponseError, InvalidBotXStatusCodeError
+from botx import BotAccount, InvalidBotXResponsePayloadError, InvalidBotXStatusCodeError
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.botx_method import BotXMethod, response_exception_thrower
+from botx.client.exceptions.base import BaseClientException
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,
@@ -17,6 +18,10 @@ try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
+
+
+class FooBarError(BaseClientException):
+    """Test exception."""
 
 
 class BotXAPIFooBarRequestPayload(UnverifiedPayloadBaseModel):
@@ -41,7 +46,7 @@ class BotXAPIFooBarResponsePayload(VerifiedPayloadBaseModel):
 
 class FooBarMethod(BotXMethod):
     status_handlers = {
-        403: response_exception_thrower(ValueError),
+        403: response_exception_thrower(FooBarError),
     }
 
     async def execute(
@@ -120,10 +125,11 @@ async def test__botx_method__invalid_botx_response_error_raised(
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 
     # - Act -
-    with pytest.raises(InvalidBotXResponseError):
+    with pytest.raises(InvalidBotXResponsePayloadError) as exc:
         await method.execute(payload)
 
     # - Assert -
+    assert '{"invalid": "json' in str(exc.value)
     assert endpoint.called
 
 
@@ -152,7 +158,7 @@ async def test__botx_method__status_handler_called(
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 
     # - Act -
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(FooBarError) as exc:
         await method.execute(payload)
 
     # - Assert -

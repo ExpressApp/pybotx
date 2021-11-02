@@ -9,13 +9,18 @@ from aiofiles.tempfile import NamedTemporaryFile
 from botx import BotAccount, InvalidBotXStatusCodeError
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.botx_method import BotXMethod, response_exception_thrower
+from botx.client.exceptions.base import BaseClientException
 from botx.shared_models.async_buffer import AsyncBufferWritable
 from tests.client.test_botx_method import BotXAPIFooBarRequestPayload
 
 
+class FooBarError(BaseClientException):
+    """Test exception."""
+
+
 class FooBarStreamMethod(BotXMethod):
     status_handlers = {
-        403: response_exception_thrower(ValueError),
+        403: response_exception_thrower(FooBarError),
     }
 
     async def execute(
@@ -88,7 +93,7 @@ async def test__botx_method_stream__status_handler_called(
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 
     # - Act -
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(FooBarError) as exc:
         await method.execute(payload, async_buffer)
 
     # - Assert -
