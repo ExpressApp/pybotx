@@ -1,12 +1,13 @@
 from dataclasses import dataclass, field
 from types import SimpleNamespace
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Union
 from uuid import UUID
 
 from botx.bot.models.commands.base import BotCommandBase
 from botx.bot.models.commands.chat import Chat
-from botx.bot.models.commands.entities import Forward, Mention, Reply
+from botx.bot.models.commands.entities import Forward, Reply
 from botx.bot.models.commands.enums import ClientPlatforms
+from botx.bot.models.commands.mentions import MentionList
 from botx.shared_models.domain.attachments import (
     AttachmentContact,
     AttachmentLink,
@@ -63,7 +64,7 @@ class IncomingMessage(BotCommandBase):
     metadata: Dict[str, Any]
     sender: UserEventSender
     chat: Chat
-    mentions: List[Mention] = field(default_factory=list)
+    mentions: MentionList = field(default_factory=MentionList)
     forward: Optional[Forward] = None
     reply: Optional[Reply] = None
     file: Optional[Union[File, IncomingFileAttachment]] = None

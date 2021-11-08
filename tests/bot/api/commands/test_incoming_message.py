@@ -18,6 +18,7 @@ from botx import (
 )
 from botx.bot.models.commands.entities import Forward, Mention, Reply
 from botx.bot.models.commands.enums import AttachmentTypes, MentionTypes
+from botx.bot.models.commands.mentions import MentionList
 from botx.shared_models.domain.files import Image
 
 
@@ -276,13 +277,15 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
             is_async_file=True,
             _file_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
         ),
-        mentions=[
-            Mention(
-                type=MentionTypes.CONTACT,
-                huid=UUID("ab103983-6001-44e9-889e-d55feb295494"),
-                name="Вася Иванов",
-            ),
-        ],
+        mentions=MentionList(
+            [
+                Mention(
+                    type=MentionTypes.CONTACT,
+                    huid=UUID("ab103983-6001-44e9-889e-d55feb295494"),
+                    name="Вася Иванов",
+                ),
+            ],
+        ),
         forward=Forward(
             chat_id=UUID("918da23a-1c9a-506e-8a6f-1328f1499ee8"),
             huid=UUID("c06a96fa-7881-0bb6-0e0b-0af72fe3683f"),
