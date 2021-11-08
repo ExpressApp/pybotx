@@ -6,7 +6,6 @@ from uuid import UUID
 import httpx
 import pytest
 import respx
-from pydantic import BaseModel
 
 from botx import (
     Bot,
@@ -16,17 +15,6 @@ from botx import (
     HandlerCollector,
     lifespan_wrapper,
 )
-
-
-@pytest.fixture
-def datetime_formatter() -> Callable[[str], datetime]:
-    class DateTimeFormatter(BaseModel):  # noqa: WPS431
-        value: datetime
-
-    def factory(dt_str: str) -> datetime:
-        return DateTimeFormatter(value=dt_str).value
-
-    return factory
 
 
 @respx.mock

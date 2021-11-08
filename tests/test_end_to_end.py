@@ -131,6 +131,7 @@ def test__web_app__bot_command(
         },
         "attachments": [],
         "async_files": [],
+        "entities": [],
         "source_sync_id": None,
         "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
         "from": {

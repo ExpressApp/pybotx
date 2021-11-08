@@ -1,5 +1,6 @@
 import asyncio
 from http import HTTPStatus
+from typing import Any, Callable, Dict
 from uuid import UUID
 
 import httpx
@@ -47,6 +48,7 @@ async def test__answer__succeed(
     sync_id: UUID,
     bot_account: BotAccount,
     bot_id: UUID,
+    incoming_message_payload_factory: Callable[..., Dict[str, Any]],
     mock_authorization: None,
 ) -> None:
     # - Arrange -
@@ -68,46 +70,11 @@ async def test__answer__succeed(
         ),
     )
 
-    payload = {
-        "bot_id": bot_id,
-        "command": {
-            "body": "/hello",
-            "command_type": "user",
-            "data": {"message": "data"},
-            "metadata": {"message": "metadata"},
-        },
-        "async_files": [],
-        "attachments": [],
-        "source_sync_id": "bc3d06ed-7b2e-41ad-99f9-ca28adc2c88d",
-        "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
-        "from": {
-            "ad_domain": "domain",
-            "ad_login": "login",
-            "app_version": "1.21.9",
-            "chat_type": "chat",
-            "device": "Firefox 91.0",
-            "device_meta": {
-                "permissions": {
-                    "microphone": True,
-                    "notifications": False,
-                },
-                "pushes": False,
-                "timezone": "Europe/Moscow",
-            },
-            "device_software": "Linux",
-            "group_chat_id": chat_id,
-            "host": host,
-            "is_admin": True,
-            "is_creator": True,
-            "locale": "en",
-            "manufacturer": "Mozilla",
-            "platform": "web",
-            "platform_package_id": "ru.unlimitedtech.express",
-            "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
-            "username": "Ivanov Ivan Ivanovich",
-        },
-        "proto_version": 4,
-    }
+    payload = incoming_message_payload_factory(
+        bot_id=bot_id,
+        host=host,
+        group_chat_id=chat_id,
+    )
 
     built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 

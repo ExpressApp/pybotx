@@ -32,3 +32,10 @@ class AttachmentTypes(AutoName):
     LOCATION = auto()
     CONTACT = auto()
     LINK = auto()
+
+
+class MentionTypes(AutoName):
+    CONTACT = auto()
+    CHAT = auto()
+    CHANNEL = auto()
+    USER = auto()

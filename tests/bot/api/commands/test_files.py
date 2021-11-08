@@ -1,20 +1,9 @@
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 from uuid import UUID
 
 import pytest
 
-from botx import (
-    Bot,
-    Chat,
-    ChatTypes,
-    ClientPlatforms,
-    ExpressApp,
-    HandlerCollector,
-    IncomingMessage,
-    UserDevice,
-    UserEventSender,
-    lifespan_wrapper,
-)
+from botx import Bot, HandlerCollector, IncomingMessage, lifespan_wrapper
 from botx.bot.models.commands.enums import AttachmentTypes
 from botx.shared_models.domain.files import Document, File, Image, Video, Voice
 
@@ -120,56 +109,16 @@ API_AND_DOMAIN_FILES = (
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "async_file_json,file",
+    "api_async_file,domain_async_file",
     API_AND_DOMAIN_FILES,
 )
 async def test__async_execute_raw_bot_command__different_file_types(
-    async_file_json: Dict[str, Any],
-    file: File,
+    api_async_file: Dict[str, Any],
+    domain_async_file: File,
+    incoming_message_payload_factory: Callable[..., Dict[str, Any]],
 ) -> None:
     # - Arrange -
-    payload = {
-        "bot_id": "c1b0c5df-075c-55ff-a931-bfa39ddfd424",
-        "command": {
-            "body": "/hello",
-            "command_type": "user",
-            "data": {"message": "data"},
-            "metadata": {"message": "metadata"},
-        },
-        "async_files": [
-            async_file_json,
-        ],
-        "attachments": [],
-        "source_sync_id": "bc3d06ed-7b2e-41ad-99f9-ca28adc2c88d",
-        "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
-        "from": {
-            "ad_domain": "domain",
-            "ad_login": "login",
-            "app_version": "1.21.9",
-            "chat_type": "chat",
-            "device": "Firefox 91.0",
-            "device_meta": {
-                "permissions": {
-                    "microphone": True,
-                    "notifications": False,
-                },
-                "pushes": False,
-                "timezone": "Europe/Moscow",
-            },
-            "device_software": "Linux",
-            "group_chat_id": "30dc1980-643a-00ad-37fc-7cc10d74e935",
-            "host": "cts.example.com",
-            "is_admin": True,
-            "is_creator": True,
-            "locale": "en",
-            "manufacturer": "Mozilla",
-            "platform": "web",
-            "platform_package_id": "ru.unlimitedtech.express",
-            "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
-            "username": "Ivanov Ivan Ivanovich",
-        },
-        "proto_version": 4,
-    }
+    payload = incoming_message_payload_factory(async_file=api_async_file)
 
     collector = HandlerCollector()
     incoming_message: Optional[IncomingMessage] = None
@@ -188,43 +137,4 @@ async def test__async_execute_raw_bot_command__different_file_types(
         bot.async_execute_raw_bot_command(payload)
 
     # - Assert -
-    assert incoming_message == IncomingMessage(
-        bot_id=UUID("c1b0c5df-075c-55ff-a931-bfa39ddfd424"),
-        sync_id=UUID("6f40a492-4b5f-54f3-87ee-77126d825b51"),
-        source_sync_id=UUID("bc3d06ed-7b2e-41ad-99f9-ca28adc2c88d"),
-        body="/hello",
-        data={"message": "data"},
-        metadata={"message": "metadata"},
-        sender=UserEventSender(
-            huid=UUID("f16cdc5f-6366-5552-9ecd-c36290ab3d11"),
-            ad_login="login",
-            ad_domain="domain",
-            username="Ivanov Ivan Ivanovich",
-            is_chat_admin=True,
-            is_chat_creator=True,
-            locale="en",
-            device=UserDevice(
-                manufacturer="Mozilla",
-                name="Firefox 91.0",
-                os="Linux",
-            ),
-            express_app=ExpressApp(
-                pushes=False,
-                timezone="Europe/Moscow",
-                permissions={"microphone": True, "notifications": False},
-                platform=ClientPlatforms.WEB,
-                platform_package_id="ru.unlimitedtech.express",
-                version="1.21.9",
-            ),
-        ),
-        chat=Chat(
-            id=UUID("30dc1980-643a-00ad-37fc-7cc10d74e935"),
-            type=ChatTypes.PERSONAL_CHAT,
-            host="cts.example.com",
-        ),
-        raw_command=None,
-        file=file,
-        location=None,
-        contact=None,
-        link=None,
-    )
+    assert incoming_message.file == domain_async_file  # type: ignore [union-attr]
