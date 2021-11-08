@@ -20,6 +20,7 @@ from botx.bot.models.commands.incoming_message import (
     UserDevice,
     UserEventSender,
 )
+from botx.bot.models.commands.mentions import MentionList
 from botx.shared_models.api.async_file import APIAsyncFile, convert_async_file_to_file
 from botx.shared_models.chat_types import convert_chat_type_to_domain
 from botx.shared_models.domain.attachments import (
@@ -98,7 +99,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             else:
                 raise NotImplementedError
 
-        mentions: List[Mention] = []
+        mentions: MentionList = MentionList()
         forward: Optional[Forward] = None
         reply: Optional[Reply] = None
         for entity in self.entities:

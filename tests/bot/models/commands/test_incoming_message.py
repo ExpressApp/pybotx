@@ -3,7 +3,7 @@ from typing import Callable
 from botx import IncomingMessage
 
 
-def test__upn_propetry__not_filled(
+def test__upn_property__not_filled(
     incoming_message_factory: Callable[..., IncomingMessage],
 ) -> None:
     # - Arrange -
@@ -13,7 +13,7 @@ def test__upn_propetry__not_filled(
     assert message.sender.upn is None
 
 
-def test__upn_propetry__filled(
+def test__upn_property__filled(
     incoming_message_factory: Callable[..., IncomingMessage],
 ) -> None:
     # - Arrange -
