@@ -6,8 +6,8 @@ from molten import App, JSONParser, Route, Settings, SettingsComponent
 
 from botx.clients.methods.base import BotXMethod
 from botx.testing.botx_mock.wsgi.errors import error_middleware
-from botx.testing.botx_mock.wsgi.routes import (  # noqa: WPS235
-    bots,
+from botx.testing.botx_mock.wsgi.routes import bots  # noqa: WPS235
+from botx.testing.botx_mock.wsgi.routes import (
     chats,
     command,
     events,
@@ -33,6 +33,8 @@ _ENDPOINTS: Tuple[Callable[..., Any], ...] = (
     chats.post_stealth_set,
     chats.post_stealth_disable,
     chats.post_create,
+    chats.post_pin_message,
+    chats.post_unpin_message,
     # command
     command.post_command_result,
     # events

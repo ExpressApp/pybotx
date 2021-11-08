@@ -5,15 +5,17 @@ from datetime import datetime as dt
 from starlette import requests, responses
 
 from botx.clients.methods.base import APIResponse
-from botx.clients.methods.v3.chats import (
+from botx.clients.methods.v3.chats import (  # noqa: WPS235
     add_admin_role,
     add_user,
     chat_list,
     create,
     info,
+    pin_message,
     remove_user,
     stealth_disable,
     stealth_set,
+    unpin_message,
 )
 from botx.clients.types.response_results import ChatCreatedResult
 from botx.models import chats, enums, users
@@ -180,3 +182,33 @@ async def post_add_admin_role(request: requests.Request) -> responses.Response:
     payload = add_admin_role.AddAdminRole.parse_obj(await request.json())
     add_request_to_collection(request, payload)
     return PydanticResponse(APIResponse[bool](result=True))
+
+
+@bind_implementation_to_method(pin_message.PinMessage)
+async def post_pin_message(request: requests.Request) -> responses.Response:
+    """Handle pinning message in chat request.
+
+    Arguments:
+        request: HTTP request from Starlette.
+
+    Returns:
+        Response with result of pinning.
+    """
+    payload = pin_message.PinMessage.parse_obj(await request.json())
+    add_request_to_collection(request, payload)
+    return PydanticResponse(APIResponse[str](result="pinned"))
+
+
+@bind_implementation_to_method(unpin_message.UnpinMessage)
+async def post_unpin_message(request: requests.Request) -> responses.Response:
+    """Handle unpinning message in chat request.
+
+    Arguments:
+        request: HTTP request from Starlette.
+
+    Returns:
+        Response with result of unpinning.
+    """
+    payload = unpin_message.UnpinMessage.parse_obj(await request.json())
+    add_request_to_collection(request, payload)
+    return PydanticResponse(APIResponse[str](result="unpinned"))

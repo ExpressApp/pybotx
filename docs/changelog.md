@@ -1,3 +1,10 @@
+## 0.27.0 (Nov 8, 2021)
+
+### Added
+
+* `pin_message` and `unpin_message` methods.
+
+
 ## 0.26.0 (Nov 1, 2021)
 
 ### Added

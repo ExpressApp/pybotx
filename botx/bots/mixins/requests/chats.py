@@ -9,9 +9,11 @@ from botx.clients.methods.v3.chats.add_user import AddUser
 from botx.clients.methods.v3.chats.chat_list import ChatList
 from botx.clients.methods.v3.chats.create import Create
 from botx.clients.methods.v3.chats.info import Info
+from botx.clients.methods.v3.chats.pin_message import PinMessage
 from botx.clients.methods.v3.chats.remove_user import RemoveUser
 from botx.clients.methods.v3.chats.stealth_disable import StealthDisable
 from botx.clients.methods.v3.chats.stealth_set import StealthSet
+from botx.clients.methods.v3.chats.unpin_message import UnpinMessage
 from botx.models.chats import BotChatList, ChatFromSearch
 from botx.models.enums import ChatTypes
 from botx.models.messages.sending.credentials import SendingCredentials
@@ -186,5 +188,39 @@ class ChatsRequestsMixin:
         """
         await self.call_method(
             AddAdminRole(group_chat_id=chat_id, user_huids=user_huids),
+            credentials=credentials,
+        )
+
+    async def pin_message(
+        self: BotXMethodCallProtocol,
+        credentials: SendingCredentials,
+        chat_id: UUID,
+        sync_id: UUID,
+    ) -> None:
+        """Pin message in chat.
+
+        Arguments:
+            credentials: credentials for making request.
+            chat_id: ID of chat where message should be pinned.
+            sync_id: ID of message that should be pinned.
+        """
+        await self.call_method(
+            PinMessage(chat_id=chat_id, sync_id=sync_id),
+            credentials=credentials,
+        )
+
+    async def unpin_message(
+        self: BotXMethodCallProtocol,
+        credentials: SendingCredentials,
+        chat_id: UUID,
+    ) -> None:
+        """Unpin message in chat.
+
+        Arguments:
+            credentials: credentials for making request.
+            chat_id: ID of chat where message should be unpinned.
+        """
+        await self.call_method(
+            UnpinMessage(chat_id=chat_id),
             credentials=credentials,
         )
