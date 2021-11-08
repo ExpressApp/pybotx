@@ -9,8 +9,10 @@ from botx.bot.api.commands.base import (
     BotAPICommandPayload,
     BotAPIUserEventSender,
 )
+from botx.bot.api.entities import BotAPIEntity, convert_bot_api_entity_to_domain
 from botx.bot.api.enums import convert_client_platform
 from botx.bot.models.commands.chat import Chat
+from botx.bot.models.commands.entities import Forward, Mention, Reply
 from botx.bot.models.commands.enums import AttachmentTypes
 from botx.bot.models.commands.incoming_message import (
     ExpressApp,
@@ -37,6 +39,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
     source_sync_id: Optional[UUID]
     attachments: List[BotAPIAttachment]
     async_files: List[APIAsyncFile]
+    entities: List[BotAPIEntity]
 
     def to_domain(self, raw_command: Dict[str, Any]) -> IncomingMessage:  # noqa: WPS231
         device = UserDevice(
@@ -83,15 +86,31 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             file = convert_async_file_to_file(self.async_files[0])
         elif self.attachments:
             # Always one attachment per-message
-            domain = convert_api_attachment_to_domain(self.attachments[0])
-            if isinstance(domain, FileAttachmentBase):
-                file = domain
-            elif domain.type == AttachmentTypes.LOCATION:
-                location = domain
-            elif domain.type == AttachmentTypes.CONTACT:
-                contact = domain
-            elif domain.type == AttachmentTypes.LINK:
-                link = domain
+            attachment_domain = convert_api_attachment_to_domain(self.attachments[0])
+            if isinstance(attachment_domain, FileAttachmentBase):
+                file = attachment_domain
+            elif attachment_domain.type == AttachmentTypes.LOCATION:
+                location = attachment_domain
+            elif attachment_domain.type == AttachmentTypes.CONTACT:
+                contact = attachment_domain
+            elif attachment_domain.type == AttachmentTypes.LINK:
+                link = attachment_domain
+            else:
+                raise NotImplementedError
+
+        mentions: List[Mention] = []
+        forward: Optional[Forward] = None
+        reply: Optional[Reply] = None
+        for entity in self.entities:
+            entity_domain = convert_bot_api_entity_to_domain(entity)
+            if isinstance(entity_domain, Mention):
+                mentions.append(entity_domain)
+            elif isinstance(entity_domain, Forward):
+                # Max one forward per message
+                forward = entity_domain
+            elif isinstance(entity_domain, Reply):
+                # Max one reply per message
+                reply = entity_domain
             else:
                 raise NotImplementedError
 
@@ -109,4 +128,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             location=location,
             contact=contact,
             link=link,
+            mentions=mentions,
+            forward=forward,
+            reply=reply,
         )

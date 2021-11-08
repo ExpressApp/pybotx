@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from http import HTTPStatus
 from typing import Any, AsyncGenerator, Callable, Dict, Generator, Optional
 from uuid import UUID
@@ -8,8 +9,20 @@ import pytest
 import respx
 from aiofiles.tempfile import NamedTemporaryFile
 from loguru import logger
+from pydantic import BaseModel
 
 from botx import BotAccount
+
+
+@pytest.fixture
+def datetime_formatter() -> Callable[[str], datetime]:
+    class DateTimeFormatter(BaseModel):  # noqa: WPS431
+        value: datetime
+
+    def factory(dt_str: str) -> datetime:
+        return DateTimeFormatter(value=dt_str).value
+
+    return factory
 
 
 @pytest.fixture
@@ -178,6 +191,7 @@ def incoming_message_payload_factory() -> Callable[..., Dict[str, Any]]:
                 "username": None,
             },
             "proto_version": 4,
+            "entities": [],
         }
 
     return decorator

@@ -1,4 +1,4 @@
-from botx.bot.models.commands.enums import ClientPlatforms, UserKinds
+from botx.bot.models.commands.enums import ClientPlatforms, MentionTypes, UserKinds
 from botx.shared_models.api_base import StrEnum
 
 
@@ -18,6 +18,19 @@ class BotAPIUserKinds(StrEnum):
     USER = "user"
     CTS_USER = "cts_user"
     BOTX = "botx"
+
+
+class BotAPIEntityTypes(StrEnum):
+    MENTION = "mention"
+    FORWARD = "forward"
+    REPLY = "reply"
+
+
+class BotAPIMentionTypes(StrEnum):
+    CONTACT = "contact"
+    CHAT = "chat"
+    CHANNEL = "channel"
+    USER = "user"
 
 
 def convert_client_platform(client_platform: BotAPIClientPlatforms) -> ClientPlatforms:
@@ -45,5 +58,20 @@ def convert_user_kind(user_kind: BotAPIUserKinds) -> UserKinds:
     converted_type = user_kinds_mapping.get(user_kind)
     if converted_type is None:
         raise NotImplementedError(f"Unsupported user kind: {user_kind}")
+
+    return converted_type
+
+
+def convert_mention_type_to_domain(mention_type: BotAPIMentionTypes) -> MentionTypes:
+    mention_types_mapping = {
+        BotAPIMentionTypes.CONTACT: MentionTypes.CONTACT,
+        BotAPIMentionTypes.CHAT: MentionTypes.CHAT,
+        BotAPIMentionTypes.CHANNEL: MentionTypes.CHANNEL,
+        BotAPIMentionTypes.USER: MentionTypes.USER,
+    }
+
+    converted_type = mention_types_mapping.get(mention_type)
+    if converted_type is None:
+        raise NotImplementedError(f"Unsupported user kind: {mention_type}")
 
     return converted_type
