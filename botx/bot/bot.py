@@ -25,6 +25,11 @@ from botx.bot.models.outgoing_attachment import OutgoingAttachment
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 from botx.client.chats_api.add_users import AddUserMethod, BotXAPIAddUserRequestPayload
+from botx.client.chats_api.chat_info import (
+    BotXAPIChatInfoRequestPayload,
+    ChatInfo,
+    ChatInfoMethod,
+)
 from botx.client.chats_api.create_chat import (
     BotXAPICreateChatRequestPayload,
     CreateChatMethod,
@@ -204,6 +209,25 @@ class Bot:
         botx_api_list_chat = await method.execute()
 
         return botx_api_list_chat.to_domain()
+
+    async def chat_info(self, bot_id: UUID, chat_id: UUID) -> ChatInfo:
+        """Get chat information.
+
+        **Arguments:**
+
+        * `chat_id: UUID` - Target chat id.
+
+        **Returns:**
+
+        `ChatInfo` - Chat information.
+        """
+
+        method = ChatInfoMethod(bot_id, self._httpx_client, self._bot_accounts_storage)
+
+        payload = BotXAPIChatInfoRequestPayload.from_domain(chat_id)
+        botx_api_chat_info = await method.execute(payload)
+
+        return botx_api_chat_info.to_domain()
 
     async def add_users_to_chat(
         self,

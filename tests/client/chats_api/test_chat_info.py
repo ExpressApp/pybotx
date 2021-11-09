@@ -1,0 +1,147 @@
+from datetime import datetime as dt
+from http import HTTPStatus
+from typing import Callable
+from uuid import UUID
+
+import httpx
+import pytest
+import respx
+
+from botx import (
+    Bot,
+    BotAccount,
+    ChatNotFoundError,
+    ChatTypes,
+    HandlerCollector,
+    UserKinds,
+    lifespan_wrapper,
+)
+from botx.client.chats_api.chat_info import ChatInfo, ChatInfoMember
+
+
+@respx.mock
+@pytest.mark.asyncio
+async def test__chat_info__chat_not_found_error_raised(
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    chat_id: UUID,
+    bot_account: BotAccount,
+    mock_authorization: None,
+) -> None:
+    # - Arrange -
+    endpoint = respx.get(
+        f"https://{host}/api/v3/botx/chats/info",
+        headers={"Authorization": "Bearer token"},
+        params={"group_chat_id": str(chat_id)},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.NOT_FOUND,
+            json={
+                "status": "error",
+                "reason": "chat_not_found",
+                "errors": [],
+                "error_data": {
+                    "group_chat_id": str(chat_id),
+                    "error_description": f"Chat with id {chat_id} not found",
+                },
+            },
+        ),
+    )
+
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        with pytest.raises(ChatNotFoundError) as exc:
+            await bot.chat_info(bot_id, chat_id)
+
+    # - Assert -
+    assert "chat_not_found" in str(exc.value)
+    assert endpoint.called
+
+
+@respx.mock
+@pytest.mark.asyncio
+async def test__chat_info__succeed(
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    chat_id: UUID,
+    datetime_formatter: Callable[[str], dt],
+    bot_account: BotAccount,
+    mock_authorization: None,
+) -> None:
+    # - Arrange -
+    result = {
+        "chat_type": "group_chat",
+        "creator": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+        "description": None,
+        "group_chat_id": str(chat_id),
+        "inserted_at": "2019-08-29T11:22:48.358586Z",
+        "members": [
+            {
+                "admin": True,
+                "server_id": "32bb051e-cee9-5c5c-9c35-f213ec18d11e",
+                "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+                "user_kind": "user",
+            },
+            {
+                "admin": False,
+                "server_id": "32bb051e-cee9-5c5c-9c35-f213ec18d11e",
+                "user_huid": "705df263-6bfd-536a-9d51-13524afaab5c",
+                "user_kind": "botx",
+            },
+        ],
+        "name": "Group Chat Example",
+    }
+    endpoint = respx.get(
+        f"https://{host}/api/v3/botx/chats/info",
+        headers={"Authorization": "Bearer token"},
+        params={"group_chat_id": str(chat_id)},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.OK,
+            json={"status": "ok", "result": result},
+        ),
+    )
+
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        chat_info = await bot.chat_info(bot_id, chat_id)
+
+    # - Assert -
+    assert chat_info == ChatInfo(
+        chat_type=ChatTypes.GROUP_CHAT,
+        creator=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
+        description=None,
+        chat_id=chat_id,
+        inserted_at=datetime_formatter("2019-08-29T11:22:48.358586Z"),
+        members=[
+            ChatInfoMember(
+                is_admin=True,
+                server_id=UUID("32bb051e-cee9-5c5c-9c35-f213ec18d11e"),
+                huid=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
+                kind=UserKinds.RTS_USER,
+            ),
+            ChatInfoMember(
+                is_admin=False,
+                server_id=UUID("32bb051e-cee9-5c5c-9c35-f213ec18d11e"),
+                huid=UUID("705df263-6bfd-536a-9d51-13524afaab5c"),
+                kind=UserKinds.BOT,
+            ),
+        ],
+        name="Group Chat Example",
+    )
+
+    assert endpoint.called
