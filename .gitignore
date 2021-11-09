@@ -1,6 +1,9 @@
 .coverage
 .env
 .venv/
+venv/
 __pycache__
 htmlcov
 site
+.idea/
+

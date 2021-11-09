@@ -24,13 +24,13 @@ from botx.bot.models.method_callbacks import BotXMethodCallback
 from botx.bot.models.outgoing_attachment import OutgoingAttachment
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
-from botx.client.chats_api.add_user import AddUserMethod, BotXAPIAddUserRequestPayload
+from botx.client.chats_api.add_users import AddUserMethod, BotXAPIAddUserRequestPayload
 from botx.client.chats_api.create_chat import (
     BotXAPICreateChatRequestPayload,
     CreateChatMethod,
 )
 from botx.client.chats_api.list_chats import ChatListItem, ListChatsMethod
-from botx.client.chats_api.remove_user import (
+from botx.client.chats_api.remove_users import (
     BotXAPIRemoveUserRequestPayload,
     RemoveUserMethod,
 )
@@ -205,7 +205,7 @@ class Bot:
 
         return botx_api_list_chat.to_domain()
 
-    async def add_user_to_chat(
+    async def add_users_to_chat(
         self,
         bot_id: UUID,
         chat_id: UUID,

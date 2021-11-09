@@ -17,7 +17,7 @@ from botx.client.exceptions.common import ChatNotFoundError
 
 @respx.mock
 @pytest.mark.asyncio
-async def test__add_user_to_chat__chat_not_found_error_raised(
+async def test__add_users_to_chat__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -57,7 +57,7 @@ async def test__add_user_to_chat__chat_not_found_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(ChatNotFoundError) as exc:
-            await bot.add_user_to_chat(bot_id, chat_id, huids=[user_huid])
+            await bot.add_users_to_chat(bot_id, chat_id, huids=[user_huid])
 
     # - Assert -
     assert "chat_not_found" in str(exc.value)
@@ -66,7 +66,7 @@ async def test__add_user_to_chat__chat_not_found_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
-async def test__add_user_to_chat__permission_denied_error_raised(
+async def test__add_users_to_chat__permission_denied_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -107,7 +107,7 @@ async def test__add_user_to_chat__permission_denied_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(PermissionDeniedError) as exc:
-            await bot.add_user_to_chat(bot_id, chat_id, huids=[user_huid])
+            await bot.add_users_to_chat(bot_id, chat_id, huids=[user_huid])
 
     # - Assert -
     assert "no_permission_for_operation" in str(exc.value)
@@ -116,7 +116,7 @@ async def test__add_user_to_chat__permission_denied_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
-async def test__add_user_to_chat__succeed(
+async def test__add_users_to_chat__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -148,7 +148,7 @@ async def test__add_user_to_chat__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        await bot.add_user_to_chat(bot_id, chat_id, huids=[user_huid])
+        await bot.add_users_to_chat(bot_id, chat_id, huids=[user_huid])
 
     # - Assert -
     assert endpoint.called
