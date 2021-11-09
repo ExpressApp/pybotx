@@ -30,13 +30,11 @@ class ChatInfoMember:
 
     Attributes:
         is_admin: Is user admin.
-        server_id: User server id.
         huid: User huid.
         kind: User type.
     """
 
     is_admin: bool
-    server_id: UUID
     huid: UUID
     kind: UserKinds
 
@@ -47,19 +45,19 @@ class ChatInfo:
 
     Attributes:
         chat_type: Chat type.
-        creator: Chat creator.
+        creator_id: Chat creator id.
         description: Chat description.
         chat_id: Chat id.
-        inserted_at: Chat creation datetime.
+        created_at: Chat creation datetime.
         members: Chat members.
         name: Chat name.
     """
 
     chat_type: ChatTypes
-    creator: UUID
+    creator_id: UUID
     description: Optional[str]
     chat_id: UUID
-    inserted_at: dt
+    created_at: dt
     members: List[ChatInfoMember]
     name: str
 
@@ -74,7 +72,6 @@ class BotXAPIChatInfoRequestPayload(UnverifiedPayloadBaseModel):
 
 class BotXAPIChatInfoMember(VerifiedPayloadBaseModel):
     admin: bool
-    server_id: UUID
     user_huid: UUID
     user_kind: BotAPIUserKinds
 
@@ -97,7 +94,6 @@ class BotXAPIChatInfoResponsePayload(VerifiedPayloadBaseModel):
         members = [
             ChatInfoMember(
                 is_admin=member.admin,
-                server_id=member.server_id,
                 huid=member.user_huid,
                 kind=convert_user_kind(member.user_kind),
             )
@@ -106,10 +102,10 @@ class BotXAPIChatInfoResponsePayload(VerifiedPayloadBaseModel):
 
         return ChatInfo(
             chat_type=convert_chat_type_to_domain(self.result.chat_type),
-            creator=self.result.creator,
+            creator_id=self.result.creator,
             description=self.result.description,
             chat_id=self.result.group_chat_id,
-            inserted_at=self.result.inserted_at,
+            created_at=self.result.inserted_at,
             members=members,
             name=self.result.name,
         )

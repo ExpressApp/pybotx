@@ -86,13 +86,11 @@ async def test__chat_info__succeed(
         "members": [
             {
                 "admin": True,
-                "server_id": "32bb051e-cee9-5c5c-9c35-f213ec18d11e",
                 "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
                 "user_kind": "user",
             },
             {
                 "admin": False,
-                "server_id": "32bb051e-cee9-5c5c-9c35-f213ec18d11e",
                 "user_huid": "705df263-6bfd-536a-9d51-13524afaab5c",
                 "user_kind": "botx",
             },
@@ -123,20 +121,18 @@ async def test__chat_info__succeed(
     # - Assert -
     assert chat_info == ChatInfo(
         chat_type=ChatTypes.GROUP_CHAT,
-        creator=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
+        creator_id=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
         description=None,
         chat_id=chat_id,
-        inserted_at=datetime_formatter("2019-08-29T11:22:48.358586Z"),
+        created_at=datetime_formatter("2019-08-29T11:22:48.358586Z"),
         members=[
             ChatInfoMember(
                 is_admin=True,
-                server_id=UUID("32bb051e-cee9-5c5c-9c35-f213ec18d11e"),
                 huid=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
                 kind=UserKinds.RTS_USER,
             ),
             ChatInfoMember(
                 is_admin=False,
-                server_id=UUID("32bb051e-cee9-5c5c-9c35-f213ec18d11e"),
                 huid=UUID("705df263-6bfd-536a-9d51-13524afaab5c"),
                 kind=UserKinds.BOT,
             ),
