@@ -3,11 +3,11 @@ from datetime import datetime as dt
 from typing import List, Optional
 from uuid import UUID
 
-from botx.bot.api.enums import BotAPIUserKinds, convert_user_kind
 from botx.bot.models.commands.enums import UserKinds
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
 from botx.client.exceptions.common import ChatNotFoundError
+from botx.shared_models.api.enums import APIUserKinds, convert_user_kind
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,
@@ -73,7 +73,7 @@ class BotXAPIChatInfoRequestPayload(UnverifiedPayloadBaseModel):
 class BotXAPIChatInfoMember(VerifiedPayloadBaseModel):
     admin: bool
     user_huid: UUID
-    user_kind: BotAPIUserKinds
+    user_kind: APIUserKinds
 
 
 class BotXAPIChatInfoResult(VerifiedPayloadBaseModel):
