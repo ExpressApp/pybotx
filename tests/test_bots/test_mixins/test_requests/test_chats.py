@@ -92,3 +92,30 @@ async def test_promoting_users_to_admins(bot, client, message):
     assert request.group_chat_id == message.group_chat_id
 
     assert request.user_huids == users
+
+
+async def test_pinning_message(bot, client, message):
+    chat_id = uuid.uuid4()
+    sync_id = uuid.uuid4()
+
+    await bot.pin_message(
+        message.credentials,
+        chat_id=chat_id,
+        sync_id=sync_id,
+    )
+    request = client.requests[0]
+
+    assert request.chat_id == chat_id
+    assert request.sync_id == sync_id
+
+
+async def test_unpinning_message(bot, client, message):
+    chat_id = uuid.uuid4()
+
+    await bot.unpin_message(
+        message.credentials,
+        chat_id=chat_id,
+    )
+    request = client.requests[0]
+
+    assert request.chat_id == chat_id

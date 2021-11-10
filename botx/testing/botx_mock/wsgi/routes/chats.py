@@ -5,15 +5,17 @@ from datetime import datetime as dt
 from molten import Request, RequestData, Response, Settings
 
 from botx.clients.methods.base import APIResponse
-from botx.clients.methods.v3.chats import (
+from botx.clients.methods.v3.chats import (  # noqa: WPS235
     add_admin_role,
     add_user,
     chat_list,
     create,
     info,
+    pin_message,
     remove_user,
     stealth_disable,
     stealth_set,
+    unpin_message,
 )
 from botx.clients.types.response_results import ChatCreatedResult
 from botx.models import chats, enums, users
@@ -188,3 +190,35 @@ def post_add_admin_role(request_data: RequestData, settings: Settings) -> Respon
     payload = add_admin_role.AddAdminRole.parse_obj(request_data)
     add_request_to_collection(settings, payload)
     return PydanticResponse(APIResponse[bool](result=True))
+
+
+@bind_implementation_to_method(pin_message.PinMessage)
+def post_pin_message(request_data: RequestData, settings: Settings) -> Response:
+    """Handle pinning message in chat request.
+
+    Arguments:
+        request_data: parsed json data from request.
+        settings: application settings with storage.
+
+    Returns:
+        Response with result of pinning.
+    """
+    payload = pin_message.PinMessage.parse_obj(request_data)
+    add_request_to_collection(settings, payload)
+    return PydanticResponse(APIResponse[str](result="pinned"))
+
+
+@bind_implementation_to_method(unpin_message.UnpinMessage)
+def post_unpin_message(request_data: RequestData, settings: Settings) -> Response:
+    """Handle unpinning message in chat request.
+
+    Arguments:
+        request_data: parsed json data from request.
+        settings: application settings with storage.
+
+    Returns:
+        Response with result of unpinning.
+    """
+    payload = unpin_message.UnpinMessage.parse_obj(request_data)
+    add_request_to_collection(settings, payload)
+    return PydanticResponse(APIResponse[str](result="pinned"))

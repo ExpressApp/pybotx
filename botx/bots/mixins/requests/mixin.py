@@ -4,8 +4,8 @@ from uuid import UUID
 
 from loguru import logger
 
-from botx.bots.mixins.requests import (  # noqa: WPS235
-    bots,
+from botx.bots.mixins.requests import bots  # noqa: WPS235
+from botx.bots.mixins.requests import (
     chats,
     command,
     events,
