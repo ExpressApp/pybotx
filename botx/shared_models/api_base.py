@@ -3,7 +3,6 @@ from enum import Enum
 from typing import Any, Dict, Optional, Set, cast
 
 from pydantic import BaseModel
-from pydantic.json import pydantic_encoder
 
 from botx.client.missing import Undefined
 
@@ -49,9 +48,8 @@ class UnverifiedPayloadBaseModel(BaseModel):
             json.loads(self.json()),
         )
 
-    def json(self) -> str:  # type: ignore [override]
-        new_dict = _remove_undefined_from_dict(self.dict())
-        return json.dumps(new_dict, default=pydantic_encoder)
+    def dict(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
+        return _remove_undefined_from_dict(super().dict(*args, **kwargs))
 
 
 class StrEnum(str, Enum):  # noqa: WPS600 (pydantic needs this inheritance)

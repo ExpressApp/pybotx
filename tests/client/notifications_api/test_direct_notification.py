@@ -12,7 +12,10 @@ from botx import (
     AnswerDestinationLookupError,
     Bot,
     BotAccount,
+    BubbleMarkup,
     HandlerCollector,
+    IncomingMessage,
+    KeyboardMarkup,
     OutgoingAttachment,
     UnknownBotAccountError,
     lifespan_wrapper,
@@ -43,6 +46,7 @@ async def test__answer__no_incoming_message_error_raised(
 @respx.mock
 @pytest.mark.asyncio
 async def test__answer__succeed(
+    httpx_client: httpx.AsyncClient,
     chat_id: UUID,
     host: str,
     sync_id: UUID,
@@ -58,7 +62,35 @@ async def test__answer__succeed(
         json={
             "group_chat_id": str(chat_id),
             "recipients": "all",
-            "notification": {"status": "ok", "body": "Hi!"},
+            "notification": {
+                "status": "ok",
+                "body": "Hi!",
+                "metadata": {"foo": "bar"},
+                "bubbles": [
+                    [
+                        {
+                            "command": "/bubble-button",
+                            "label": "Bubble button",
+                            "data": {},
+                            "opts": {"silent": True},
+                        },
+                    ],
+                ],
+                "keyboard": [
+                    [
+                        {
+                            "command": "/keyboard-button",
+                            "label": "Keyboard button",
+                            "data": {},
+                            "opts": {"silent": True},
+                        },
+                    ],
+                ],
+            },
+            "file": {
+                "file_name": "test.txt",
+                "data": "data:application/octet-stream;base64,SGVsbG8sIHdvcmxkIQo=",
+            },
         },
     ).mock(
         return_value=httpx.Response(
@@ -76,14 +108,47 @@ async def test__answer__succeed(
         group_chat_id=chat_id,
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    bubbles = BubbleMarkup()
+    bubbles.add_button(
+        command="/bubble-button",
+        label="Bubble button",
+    )
+
+    keyboard = KeyboardMarkup()
+    keyboard.add_button(
+        command="/keyboard-button",
+        label="Keyboard button",
+    )
+
+    async with NamedTemporaryFile("wb+") as async_buffer:
+        await async_buffer.write(b"Hello, world!\n")
+        await async_buffer.seek(0)
+
+        file = await OutgoingAttachment.from_async_buffer(async_buffer, "test.txt")
+
+    collector = HandlerCollector()
+
+    @collector.command("/hello", description="Hello command")
+    async def hello_handler(message: IncomingMessage, bot: Bot) -> None:
+        await bot.answer(
+            "Hi!",
+            metadata={"foo": "bar"},
+            bubbles=bubbles,
+            keyboard=keyboard,
+            file=file,
+        )
+
+    built_bot = Bot(
+        collectors=[collector],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         bot.async_execute_raw_bot_command(payload)
 
         await asyncio.sleep(0)  # Return control to event loop
-        await bot.answer("Hi!")
 
     # - Assert -
     assert endpoint.called
@@ -191,7 +256,42 @@ async def test__send__maximum_filled_succeed(
         json={
             "group_chat_id": str(chat_id),
             "recipients": "all",
-            "notification": {"status": "ok", "body": "Hi!", "metadata": {"foo": "bar"}},
+            "notification": {
+                "status": "ok",
+                "body": "Hi!",
+                "metadata": {"foo": "bar"},
+                "bubbles": [
+                    [
+                        {
+                            "command": "/bubble-button",
+                            "label": "Bubble button",
+                            "data": {"foo": "bar"},
+                            "opts": {
+                                "silent": False,
+                                "h_size": 1,
+                                "alert_text": "Alert text 1",
+                                "show_alert": True,
+                                "handler": "client",
+                            },
+                        },
+                    ],
+                ],
+                "keyboard": [
+                    [
+                        {
+                            "command": "/keyboard-button",
+                            "label": "Keyboard button",
+                            "data": {"baz": "quux"},
+                            "opts": {
+                                "silent": True,
+                                "h_size": 2,
+                                "alert_text": "Alert text 2",
+                                "show_alert": True,
+                            },
+                        },
+                    ],
+                ],
+            },
             "file": {
                 "file_name": "test.txt",
                 "data": "data:application/octet-stream;base64,SGVsbG8sIHdvcmxkIQo=",
@@ -219,6 +319,28 @@ async def test__send__maximum_filled_succeed(
 
         file = await OutgoingAttachment.from_async_buffer(async_buffer, "test.txt")
 
+    bubbles = BubbleMarkup()
+    bubbles.add_button(
+        command="/bubble-button",
+        label="Bubble button",
+        data={"foo": "bar"},
+        silent=False,
+        width_ratio=1,
+        alert="Alert text 1",
+        process_on_client=True,
+    )
+
+    keyboard = KeyboardMarkup()
+    keyboard.add_button(
+        command="/keyboard-button",
+        label="Keyboard button",
+        data={"baz": "quux"},
+        silent=True,
+        width_ratio=2,
+        alert="Alert text 2",
+        process_on_client=False,
+    )
+
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         message_id = await bot.send(
@@ -226,6 +348,8 @@ async def test__send__maximum_filled_succeed(
             bot_id=bot_id,
             chat_id=chat_id,
             metadata={"foo": "bar"},
+            bubbles=bubbles,
+            keyboard=keyboard,
             file=file,
         )
 
