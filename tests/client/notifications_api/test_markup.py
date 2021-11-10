@@ -11,13 +11,100 @@ from botx import (
     BubbleMarkup,
     Button,
     HandlerCollector,
+    KeyboardMarkup,
     lifespan_wrapper,
 )
 
 
 @respx.mock
 @pytest.mark.asyncio
-async def test__markup__build_succeed(
+async def test__markup__defaults_filled(
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    sync_id: UUID,
+    chat_id: UUID,
+    bot_account: BotAccount,
+    mock_authorization: None,
+) -> None:
+    # - Arrange -
+    endpoint = respx.post(
+        f"https://{host}/api/v3/botx/notification/callback/direct",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        json={
+            "group_chat_id": str(chat_id),
+            "recipients": "all",
+            "notification": {
+                "status": "ok",
+                "body": "Hi!",
+                "bubbles": [
+                    [
+                        {
+                            "command": "/bubble-button",
+                            "label": "Bubble button",
+                            "data": {},
+                            "opts": {"silent": True},
+                        },
+                    ],
+                ],
+                "keyboard": [
+                    [
+                        {
+                            "command": "/keyboard-button",
+                            "label": "Keyboard button",
+                            "data": {},
+                            "opts": {"silent": True},
+                        },
+                    ],
+                ],
+            },
+        },
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": str(sync_id)},
+            },
+        ),
+    )
+
+    bubbles = BubbleMarkup()
+    bubbles.add_button(
+        command="/bubble-button",
+        label="Bubble button",
+    )
+
+    keyboard = KeyboardMarkup()
+    keyboard.add_button(
+        command="/keyboard-button",
+        label="Keyboard button",
+    )
+
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        message_id = await bot.send(
+            "Hi!",
+            bot_id=bot_id,
+            chat_id=chat_id,
+            bubbles=bubbles,
+            keyboard=keyboard,
+        )
+
+    # - Assert -
+    assert message_id == sync_id
+    assert endpoint.called
+
+
+@respx.mock
+@pytest.mark.asyncio
+async def test__markup__correctly_built(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -86,12 +173,6 @@ async def test__markup__build_succeed(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
-
     bubbles = BubbleMarkup()
 
     bubbles.add_button(
@@ -118,6 +199,12 @@ async def test__markup__build_succeed(
         label="Bubble button 5",
     )
     bubbles.add_row([button_4, button_5])
+
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
