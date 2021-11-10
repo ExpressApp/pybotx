@@ -9,7 +9,7 @@ class ChatTypes(AutoName):
 
     Attributes:
         PERSONAL_CHAT: Personal chat with user.
-        PERSONAL_CHAT: Group chat.
+        GROUP_CHAT: Group chat.
         CHANNEL: Public channel.
     """
 

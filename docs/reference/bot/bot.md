@@ -19,7 +19,7 @@
     selection:
       members:
         - list_chats
-        - add_user_to_chat
+        - add_users_to_chat
         - remove_users_from_chat
         - create_chat
 

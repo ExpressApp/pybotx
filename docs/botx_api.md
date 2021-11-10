@@ -14,7 +14,7 @@
 
 ::: botx.bot.bot.Bot
     :docstring:
-    :members: list_chats add_user_to_chat remove_users_from_chat create_chat
+    :members: list_chats add_users_to_chat remove_users_from_chat create_chat
 
 ---
 
