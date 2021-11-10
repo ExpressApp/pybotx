@@ -5,6 +5,12 @@ from botx.bot.models.outgoing_attachment import OutgoingAttachment
 from botx.client.attachments import BotXAPIAttachment
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.missing import Missing, Undefined
+from botx.client.notifications_api.markup import (
+    BotXAPIMarkup,
+    BubbleMarkup,
+    KeyboardMarkup,
+    api_markup_from_domain,
+)
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,
@@ -21,6 +27,8 @@ class BotXAPIDirectNotification(UnverifiedPayloadBaseModel):
     status: Literal["ok"]
     body: str
     metadata: Missing[Dict[str, Any]]
+    bubbles: Missing[BotXAPIMarkup]
+    keyboard: Missing[BotXAPIMarkup]
 
 
 class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
@@ -35,6 +43,8 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
         chat_id: UUID,
         body: str,
         metadata: Missing[Dict[str, Any]],
+        bubbles: Missing[BubbleMarkup],
+        keyboard: Missing[KeyboardMarkup],
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]],
     ) -> "BotXAPIDirectNotificationRequestPayload":
         api_file: Missing[BotXAPIAttachment] = Undefined
@@ -49,6 +59,8 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
                 status="ok",
                 body=body,
                 metadata=metadata,
+                bubbles=api_markup_from_domain(bubbles) if bubbles else bubbles,
+                keyboard=api_markup_from_domain(keyboard) if keyboard else keyboard,
             ),
             file=api_file,
         )

@@ -1,12 +1,9 @@
-# - Bot API -
 from botx.bot.api.commands.accepted_response import build_accepted_response
 from botx.bot.api.commands.bot_disabled_response import (
     BotAPIBotDisabledResponse,
     build_bot_disabled_response,
 )
 from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
-
-# - Domains -
 from botx.bot.bot import Bot
 from botx.bot.exceptions import (
     AnswerDestinationLookupError,
@@ -61,18 +58,22 @@ from botx.client.notifications_api.exceptions import (
     BotIsNotChatMemberError,
     FinalRecipientsListEmptyError,
 )
+from botx.client.notifications_api.markup import BubbleMarkup, Button, KeyboardMarkup
 from botx.shared_models.chat_types import ChatTypes
 
 __all__ = (
     "AddedToChatEvent",
+    "AnswerDestinationLookupError",
     "Bot",
-    "BotAccount",
     "BotAPIBotDisabledResponse",
     "BotAPIMethodFailedCallback",
+    "BotAccount",
     "BotIsNotChatMemberError",
     "BotMenu",
     "BotShuttignDownError",
     "BotXMethodFailedCallbackReceivedError",
+    "BubbleMarkup",
+    "Button",
     "CallbackNotReceivedError",
     "Chat",
     "ChatCreatedEvent",
@@ -94,7 +95,7 @@ __all__ = (
     "InvalidBotAccountError",
     "InvalidBotXResponsePayloadError",
     "InvalidBotXStatusCodeError",
-    "AnswerDestinationLookupError",
+    "KeyboardMarkup",
     "OutgoingAttachment",
     "PermissionDeniedError",
     "RateLimitReachedError",

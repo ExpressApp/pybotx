@@ -58,6 +58,7 @@ from botx.client.notifications_api.internal_bot_notification import (
     BotXAPIInternalBotNotificationRequestPayload,
     InternalBotNotificationMethod,
 )
+from botx.client.notifications_api.markup import BubbleMarkup, KeyboardMarkup
 from botx.converters import optional_sequence_to_list
 from botx.shared_models.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from botx.shared_models.chat_types import ChatTypes
@@ -321,6 +322,8 @@ class Bot:
         body: str,
         *,
         metadata: Missing[Dict[str, Any]] = Undefined,
+        bubbles: Missing[BubbleMarkup] = Undefined,
+        keyboard: Missing[KeyboardMarkup] = Undefined,
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
     ) -> UUID:
         """Answer to incoming message.
@@ -331,6 +334,10 @@ class Bot:
         **Arguments:**
 
         * `metadata: Missing[Dict[str, Any]]` - Notification options.
+        * `bubbles: Missing[BubbleMarkup
+        ]` - Bubbles (buttons attached to message) markup.
+        * `keyboard: Missing[KeyboardMarkup
+        ]` - Keyboard (buttons below message input) markup.
         * `file: Missing[Union[IncomingFileAttachment,
         OutgoingAttachment]]` - Attachment.
 
@@ -350,6 +357,8 @@ class Bot:
             bot_id=bot_id,
             chat_id=chat_id,
             metadata=metadata,
+            bubbles=bubbles,
+            keyboard=keyboard,
             file=file,
         )
 
@@ -360,6 +369,8 @@ class Bot:
         bot_id: UUID,
         chat_id: UUID,
         metadata: Missing[Dict[str, Any]] = Undefined,
+        bubbles: Missing[BubbleMarkup] = Undefined,
+        keyboard: Missing[KeyboardMarkup] = Undefined,
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
     ) -> UUID:
         """Send message to chat.
@@ -369,6 +380,10 @@ class Bot:
         * `bot_id: UUID` - Bot which should perform the request.
         * `chat_id: UUID` - Target chat id.
         * `metadata: Missing[Dict[str, Any]]` - Notification options.
+        * `bubbles: Missing[BubbleMarkup
+        ]` - Bubbles (buttons attached to message) markup.
+        * `keyboard: Missing[KeyboardMarkup
+        ]` - Keyboard (buttons below message input) markup.
         * `file: Missing[Union[IncomingFileAttachment,
         OutgoingAttachment]]` - Attachment.
 
@@ -387,6 +402,8 @@ class Bot:
             chat_id,
             body,
             metadata,
+            bubbles,
+            keyboard,
             file,
         )
         botx_api_sync_id = await method.execute(payload)
