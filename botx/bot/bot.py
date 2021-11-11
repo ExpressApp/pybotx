@@ -59,6 +59,19 @@ from botx.client.notifications_api.internal_bot_notification import (
     InternalBotNotificationMethod,
 )
 from botx.client.notifications_api.markup import BubbleMarkup, KeyboardMarkup
+from botx.client.users_api.search_user_by_email import (
+    BotXAPISearchUserByEmailRequestPayload,
+    SearchUserByEmailMethod,
+)
+from botx.client.users_api.search_user_by_huid import (
+    BotXAPISearchUserByHUIDRequestPayload,
+    SearchUserByHUIDMethod,
+)
+from botx.client.users_api.search_user_by_login import (
+    BotXAPISearchUserByLoginRequestPayload,
+    SearchUserByLoginMethod,
+)
+from botx.client.users_api.user_from_search import UserFromSearch
 from botx.converters import optional_sequence_to_list
 from botx.shared_models.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from botx.shared_models.chat_types import ChatTypes
@@ -315,6 +328,85 @@ class Bot:
         botx_api_chat_id = await method.execute(payload)
 
         return botx_api_chat_id.to_domain()
+
+    # Users API.
+    async def search_user_by_email(self, bot_id: UUID, email: str) -> UserFromSearch:
+        """Search user by email for search.
+
+        **Arguments:**
+
+        * `email: str` - User email.
+
+        **Returns:**
+
+        `UserFromSearch` - User information.
+        """
+
+        method = SearchUserByEmailMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPISearchUserByEmailRequestPayload.from_domain(email)
+
+        botx_api_user_from_search = await method.execute(payload)
+
+        return botx_api_user_from_search.to_domain()
+
+    async def search_user_by_huid(self, bot_id: UUID, huid: UUID) -> UserFromSearch:
+        """Search user by huid for search.
+
+        **Arguments:**
+
+        * `huid: UUID` - User huid.
+
+        **Returns:**
+
+        `UserFromSearch` - User information.
+        """
+
+        method = SearchUserByHUIDMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPISearchUserByHUIDRequestPayload.from_domain(huid)
+
+        botx_api_user_from_search = await method.execute(payload)
+
+        return botx_api_user_from_search.to_domain()
+
+    async def search_user_by_ad(
+        self,
+        bot_id: UUID,
+        ad_login: str,
+        ad_domain: str,
+    ) -> UserFromSearch:
+        """Search user by AD login and AD domain for search.
+
+        **Arguments:**
+
+        * `ad_login: str` - User AD login.
+        * `ad_domain: str` - User AD domain.
+
+        **Returns:**
+
+        `UserFromSearch` - User information.
+        """
+
+        method = SearchUserByLoginMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPISearchUserByLoginRequestPayload.from_domain(
+            ad_login,
+            ad_domain,
+        )
+
+        botx_api_user_from_search = await method.execute(payload)
+
+        return botx_api_user_from_search.to_domain()
 
     # - Notifications API-
     async def answer(

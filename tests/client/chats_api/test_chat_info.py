@@ -42,8 +42,8 @@ async def test__chat_info__chat_not_found_error_raised(
                 "reason": "chat_not_found",
                 "errors": [],
                 "error_data": {
-                    "group_chat_id": str(chat_id),
-                    "error_description": f"Chat with id {chat_id} not found",
+                    "group_chat_id": "dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4",
+                    "error_description": "Chat with id dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4 not found",
                 },
             },
         ),
@@ -77,26 +77,6 @@ async def test__chat_info__succeed(
     mock_authorization: None,
 ) -> None:
     # - Arrange -
-    result = {
-        "chat_type": "group_chat",
-        "creator": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
-        "description": None,
-        "group_chat_id": str(chat_id),
-        "inserted_at": "2019-08-29T11:22:48.358586Z",
-        "members": [
-            {
-                "admin": True,
-                "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
-                "user_kind": "user",
-            },
-            {
-                "admin": False,
-                "user_huid": "705df263-6bfd-536a-9d51-13524afaab5c",
-                "user_kind": "botx",
-            },
-        ],
-        "name": "Group Chat Example",
-    }
     endpoint = respx.get(
         f"https://{host}/api/v3/botx/chats/info",
         headers={"Authorization": "Bearer token"},
@@ -104,7 +84,29 @@ async def test__chat_info__succeed(
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.OK,
-            json={"status": "ok", "result": result},
+            json={
+                "status": "ok",
+                "result": {
+                    "chat_type": "group_chat",
+                    "creator": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+                    "description": None,
+                    "group_chat_id": str(chat_id),
+                    "inserted_at": "2019-08-29T11:22:48.358586Z",
+                    "members": [
+                        {
+                            "admin": True,
+                            "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+                            "user_kind": "user",
+                        },
+                        {
+                            "admin": False,
+                            "user_huid": "705df263-6bfd-536a-9d51-13524afaab5c",
+                            "user_kind": "botx",
+                        },
+                    ],
+                    "name": "Group Chat Example",
+                },
+            },
         ),
     )
 
