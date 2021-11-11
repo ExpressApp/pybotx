@@ -1,3 +1,10 @@
+## 0.28.0 (Nov 11, 2021)
+
+### Added
+
+* SmartApps main functionality.
+
+
 ## 0.27.0 (Nov 8, 2021)
 
 ### Added

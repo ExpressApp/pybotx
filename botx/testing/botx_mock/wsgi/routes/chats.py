@@ -5,8 +5,8 @@ from datetime import datetime as dt
 from molten import Request, RequestData, Response, Settings
 
 from botx.clients.methods.base import APIResponse
-from botx.clients.methods.v3.chats import (  # noqa: WPS235
-    add_admin_role,
+from botx.clients.methods.v3.chats import add_admin_role  # noqa: WPS235
+from botx.clients.methods.v3.chats import (
     add_user,
     chat_list,
     create,

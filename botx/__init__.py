@@ -51,6 +51,7 @@ from botx.models.messages.sending.markup import MessageMarkup
 from botx.models.messages.sending.message import SendingMessage
 from botx.models.messages.sending.options import MessageOptions, NotificationOptions
 from botx.models.messages.sending.payload import MessagePayload, UpdatePayload
+from botx.models.smartapps import SendingSmartAppEvent, SendingSmartAppNotification
 from botx.models.status import StatusRecipient
 from botx.models.stickers import (
     Pagination,
@@ -146,6 +147,8 @@ __all__ = (
     "StickerPackList",
     "StickerFromPack",
     "StickerPackPreview",
+    "SendingSmartAppEvent",
+    "SendingSmartAppNotification",
     # testing
     "TestClient",
     "MessageBuilder",

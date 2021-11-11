@@ -32,6 +32,9 @@ class SystemEvents(Enum):
     #: `system:cts_logout` event.
     cts_logout = "system:cts_logout"
 
+    #: `system:smartapp_event` event.
+    smartapp_event = "system:smartapp_event"
+
     #: `file_transfer` message.
     file_transfer = "file_transfer"
 

@@ -19,6 +19,7 @@ def test_registration_handler_for_several_system_events(
         SystemEvents.internal_bot_notification,
         SystemEvents.cts_login,
         SystemEvents.cts_logout,
+        SystemEvents.smartapp_event,
     }
     collector = collector_cls()
     collector.system_event(
@@ -39,6 +40,7 @@ def test_registration_handler_for_several_system_events(
         SystemEvents.left_from_chat,
         SystemEvents.cts_login,
         SystemEvents.cts_logout,
+        SystemEvents.smartapp_event,
     ],
 )
 def test_defining_system_handler_in_collector_as_decorator(

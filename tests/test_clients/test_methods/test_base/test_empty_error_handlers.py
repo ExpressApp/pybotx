@@ -2,6 +2,8 @@ from botx.clients.methods.base import BotXMethod
 
 
 class TestMethod(BotXMethod):
+    __test__ = False
+
     __url__ = "/path/to/example"
     __method__ = "GET"
     __returning__ = str
