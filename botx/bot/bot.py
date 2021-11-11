@@ -59,6 +59,11 @@ from botx.client.notifications_api.internal_bot_notification import (
     InternalBotNotificationMethod,
 )
 from botx.client.notifications_api.markup import BubbleMarkup, KeyboardMarkup
+from botx.client.users_api.models import UserFromSearch
+from botx.client.users_api.search_user_by_email import (
+    BotXAPISearchUserByEmailRequestPayload,
+    SearchUserByEmailMethod,
+)
 from botx.converters import optional_sequence_to_list
 from botx.shared_models.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from botx.shared_models.chat_types import ChatTypes
@@ -315,6 +320,30 @@ class Bot:
         botx_api_chat_id = await method.execute(payload)
 
         return botx_api_chat_id.to_domain()
+
+    # Users API.
+    async def search_user_by_email(self, bot_id: UUID, email: str) -> UserFromSearch:
+        """Search user by email for search.
+
+        **Arguments:**
+
+        * `email: str` - User email.
+
+        **Returns:**
+
+        `UserFromSearch`- User information.
+        """
+
+        method = SearchUserByEmailMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPISearchUserByEmailRequestPayload.from_domain(email)
+
+        botx_api_user_from_search = await method.execute(payload)
+
+        return botx_api_user_from_search.to_domain()
 
     # - Notifications API-
     async def answer(
