@@ -68,6 +68,10 @@ from botx.client.users_api.search_user_by_huid import (
     BotXAPISearchUserByHUIDRequestPayload,
     SearchUserByHUIDMethod,
 )
+from botx.client.users_api.search_user_by_login import (
+    BotXAPISearchUserByLoginRequestPayload,
+    SearchUserByLoginMethod,
+)
 from botx.converters import optional_sequence_to_list
 from botx.shared_models.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from botx.shared_models.chat_types import ChatTypes
@@ -367,6 +371,38 @@ class Bot:
             self._bot_accounts_storage,
         )
         payload = BotXAPISearchUserByHUIDRequestPayload.from_domain(huid)
+
+        botx_api_user_from_search = await method.execute(payload)
+
+        return botx_api_user_from_search.to_domain()
+
+    async def search_user_by_ad(
+        self,
+        bot_id: UUID,
+        ad_login: str,
+        ad_domain: str,
+    ) -> UserFromSearch:
+        """Search user by AD login and AD domain for search.
+
+        **Arguments:**
+
+        * ad_login: str - User AD login.
+        * ad_domain: str - User AD domain.
+
+        **Returns:**
+
+        UserFromSearch- User information.
+        """
+
+        method = SearchUserByLoginMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPISearchUserByLoginRequestPayload.from_domain(
+            ad_login,
+            ad_domain,
+        )
 
         botx_api_user_from_search = await method.execute(payload)
 
