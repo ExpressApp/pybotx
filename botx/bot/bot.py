@@ -59,7 +59,6 @@ from botx.client.notifications_api.internal_bot_notification import (
     InternalBotNotificationMethod,
 )
 from botx.client.notifications_api.markup import BubbleMarkup, KeyboardMarkup
-from botx.client.users_api.models import UserFromSearch
 from botx.client.users_api.search_user_by_email import (
     BotXAPISearchUserByEmailRequestPayload,
     SearchUserByEmailMethod,
@@ -72,6 +71,7 @@ from botx.client.users_api.search_user_by_login import (
     BotXAPISearchUserByLoginRequestPayload,
     SearchUserByLoginMethod,
 )
+from botx.client.users_api.user_from_search import UserFromSearch
 from botx.converters import optional_sequence_to_list
 from botx.shared_models.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from botx.shared_models.chat_types import ChatTypes
@@ -339,7 +339,7 @@ class Bot:
 
         **Returns:**
 
-        `UserFromSearch`- User information.
+        `UserFromSearch` - User information.
         """
 
         method = SearchUserByEmailMethod(
@@ -358,11 +358,11 @@ class Bot:
 
         **Arguments:**
 
-        * huid: UUID - User huid.
+        * `huid: UUID` - User huid.
 
         **Returns:**
 
-        UserFromSearch- User information.
+        `UserFromSearch` - User information.
         """
 
         method = SearchUserByHUIDMethod(
@@ -386,12 +386,12 @@ class Bot:
 
         **Arguments:**
 
-        * ad_login: str - User AD login.
-        * ad_domain: str - User AD domain.
+        * `ad_login: str` - User AD login.
+        * `ad_domain: str` - User AD domain.
 
         **Returns:**
 
-        UserFromSearch- User information.
+        `UserFromSearch` - User information.
         """
 
         method = SearchUserByLoginMethod(

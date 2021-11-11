@@ -7,7 +7,7 @@ import respx
 
 from botx import Bot, BotAccount, HandlerCollector, lifespan_wrapper
 from botx.client.users_api.exceptions import UserNotFoundError
-from botx.client.users_api.models import UserFromSearch
+from botx.client.users_api.user_from_search import UserFromSearch
 
 
 @respx.mock
@@ -64,16 +64,6 @@ async def test__search_user_by_huid__succeed(
     mock_authorization: None,
 ) -> None:
     # - Arrange -
-    result = {
-        "user_huid": str(huid),
-        "ad_login": "ad_user_login",
-        "ad_domain": "cts.com",
-        "name": "Bob",
-        "company": "Bobs Co",
-        "company_position": "Director",
-        "department": "Owners",
-        "emails": ["ad_user@cts.com"],
-    }
     endpoint = respx.get(
         f"https://{host}/api/v3/botx/users/by_huid",
         headers={"Authorization": "Bearer token"},
@@ -81,7 +71,19 @@ async def test__search_user_by_huid__succeed(
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.OK,
-            json={"status": "ok", "result": result},
+            json={
+                "status": "ok",
+                "result": {
+                    "user_huid": str(huid),
+                    "ad_login": "ad_user_login",
+                    "ad_domain": "cts.com",
+                    "name": "Bob",
+                    "company": "Bobs Co",
+                    "company_position": "Director",
+                    "department": "Owners",
+                    "emails": ["ad_user@cts.com"],
+                },
+            },
         ),
     )
 

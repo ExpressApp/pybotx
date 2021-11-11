@@ -7,7 +7,7 @@ import respx
 
 from botx import Bot, BotAccount, HandlerCollector, lifespan_wrapper
 from botx.client.users_api.exceptions import UserNotFoundError
-from botx.client.users_api.models import UserFromSearch
+from botx.client.users_api.user_from_search import UserFromSearch
 
 
 @respx.mock
@@ -20,12 +20,10 @@ async def test__search_user_by_email__user_not_found_error_raised(
     mock_authorization: None,
 ) -> None:
     # - Arrange -
-    user_email = "ad_user@cts.com"
-
     endpoint = respx.get(
         f"https://{host}/api/v3/botx/users/by_email",
         headers={"Authorization": "Bearer token"},
-        params={"email": user_email},
+        params={"email": "ad_user@cts.com"},
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.NOT_FOUND,
@@ -47,7 +45,7 @@ async def test__search_user_by_email__user_not_found_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UserNotFoundError) as exc:
-            await bot.search_user_by_email(bot_id, user_email)
+            await bot.search_user_by_email(bot_id, "ad_user@cts.com")
 
     # - Assert -
     assert "user_not_found" in str(exc.value)
@@ -64,25 +62,26 @@ async def test__search_user_by_email__succeed(
     mock_authorization: None,
 ) -> None:
     # - Arrange -
-    user_email = "ad_user@cts.com"
-    result = {
-        "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
-        "ad_login": "ad_user_login",
-        "ad_domain": "cts.com",
-        "name": "Bob",
-        "company": "Bobs Co",
-        "company_position": "Director",
-        "department": "Owners",
-        "emails": [user_email],
-    }
     endpoint = respx.get(
         f"https://{host}/api/v3/botx/users/by_email",
         headers={"Authorization": "Bearer token"},
-        params={"email": user_email},
+        params={"email": "ad_user@cts.com"},
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.OK,
-            json={"status": "ok", "result": result},
+            json={
+                "status": "ok",
+                "result": {
+                    "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+                    "ad_login": "ad_user_login",
+                    "ad_domain": "cts.com",
+                    "name": "Bob",
+                    "company": "Bobs Co",
+                    "company_position": "Director",
+                    "department": "Owners",
+                    "emails": ["ad_user@cts.com"],
+                },
+            },
         ),
     )
 
@@ -94,7 +93,7 @@ async def test__search_user_by_email__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        user = await bot.search_user_by_email(bot_id, user_email)
+        user = await bot.search_user_by_email(bot_id, "ad_user@cts.com")
 
     # - Assert -
     assert user == UserFromSearch(
@@ -105,7 +104,7 @@ async def test__search_user_by_email__succeed(
         company="Bobs Co",
         company_position="Director",
         department="Owners",
-        emails=[user_email],
+        emails=["ad_user@cts.com"],
     )
 
     assert endpoint.called

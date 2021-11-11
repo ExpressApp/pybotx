@@ -7,7 +7,7 @@ import respx
 
 from botx import Bot, BotAccount, HandlerCollector, lifespan_wrapper
 from botx.client.users_api.exceptions import UserNotFoundError
-from botx.client.users_api.models import UserFromSearch
+from botx.client.users_api.user_from_search import UserFromSearch
 
 
 @respx.mock
@@ -20,11 +20,10 @@ async def test__search_user_by_login__user_not_found_error_raised(
     mock_authorization: None,
 ) -> None:
     # - Arrange -
-    ad_login, ad_domain = "ad_user_login", "cts.com"
     endpoint = respx.get(
         f"https://{host}/api/v3/botx/users/by_login",
         headers={"Authorization": "Bearer token"},
-        params={"ad_login": ad_login, "ad_domain": ad_domain},
+        params={"ad_login": "ad_user_login", "ad_domain": "cts.com"},
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.NOT_FOUND,
@@ -46,7 +45,7 @@ async def test__search_user_by_login__user_not_found_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UserNotFoundError) as exc:
-            await bot.search_user_by_ad(bot_id, ad_login, ad_domain)
+            await bot.search_user_by_ad(bot_id, "ad_user_login", "cts.com")
 
     # - Assert -
     assert "user_not_found" in str(exc.value)
@@ -63,25 +62,26 @@ async def test__search_user_by_login__succeed(
     mock_authorization: None,
 ) -> None:
     # - Arrange -
-    ad_login, ad_domain = "ad_user_login", "cts.com"
-    result = {
-        "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
-        "ad_login": ad_login,
-        "ad_domain": ad_domain,
-        "name": "Bob",
-        "company": "Bobs Co",
-        "company_position": "Director",
-        "department": "Owners",
-        "emails": ["ad_user@cts.com"],
-    }
     endpoint = respx.get(
         f"https://{host}/api/v3/botx/users/by_login",
         headers={"Authorization": "Bearer token"},
-        params={"ad_login": ad_login, "ad_domain": ad_domain},
+        params={"ad_login": "ad_user_login", "ad_domain": "cts.com"},
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.OK,
-            json={"status": "ok", "result": result},
+            json={
+                "status": "ok",
+                "result": {
+                    "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+                    "ad_login": "ad_user_login",
+                    "ad_domain": "cts.com",
+                    "name": "Bob",
+                    "company": "Bobs Co",
+                    "company_position": "Director",
+                    "department": "Owners",
+                    "emails": ["ad_user@cts.com"],
+                },
+            },
         ),
     )
 
@@ -93,13 +93,13 @@ async def test__search_user_by_login__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        user = await bot.search_user_by_ad(bot_id, ad_login, ad_domain)
+        user = await bot.search_user_by_ad(bot_id, "ad_user_login", "cts.com")
 
     # - Assert -
     assert user == UserFromSearch(
         huid=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
-        ad_login=ad_login,
-        ad_domain=ad_domain,
+        ad_login="ad_user_login",
+        ad_domain="cts.com",
         username="Bob",
         company="Bobs Co",
         company_position="Director",
