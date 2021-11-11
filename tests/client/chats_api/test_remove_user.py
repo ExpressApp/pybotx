@@ -22,7 +22,7 @@ async def test__remove_users_from_chat__permission_denied_error_raised(
     host: str,
     bot_id: UUID,
     chat_id: UUID,
-    user_huid: UUID,
+    huid: UUID,
     bot_account: BotAccount,
     mock_authorization: None,
 ) -> None:
@@ -32,7 +32,7 @@ async def test__remove_users_from_chat__permission_denied_error_raised(
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
             "group_chat_id": str(chat_id),
-            "user_huids": [str(user_huid)],
+            "user_huids": [str(huid)],
         },
     ).mock(
         return_value=httpx.Response(
@@ -58,7 +58,7 @@ async def test__remove_users_from_chat__permission_denied_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(PermissionDeniedError) as exc:
-            await bot.remove_users_from_chat(bot_id, chat_id, huids=[user_huid])
+            await bot.remove_users_from_chat(bot_id, chat_id, huids=[huid])
 
     # - Assert -
     assert "no_permission_for_operation" in str(exc.value)
@@ -72,7 +72,7 @@ async def test__remove_users_from_chat__chat_noy_found_error_raised(
     host: str,
     bot_id: UUID,
     chat_id: UUID,
-    user_huid: UUID,
+    huid: UUID,
     bot_account: BotAccount,
     mock_authorization: None,
 ) -> None:
@@ -82,7 +82,7 @@ async def test__remove_users_from_chat__chat_noy_found_error_raised(
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
             "group_chat_id": str(chat_id),
-            "user_huids": [str(user_huid)],
+            "user_huids": [str(huid)],
         },
     ).mock(
         return_value=httpx.Response(
@@ -107,7 +107,7 @@ async def test__remove_users_from_chat__chat_noy_found_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(ChatNotFoundError) as exc:
-            await bot.remove_users_from_chat(bot_id, chat_id, huids=[user_huid])
+            await bot.remove_users_from_chat(bot_id, chat_id, huids=[huid])
 
     # - Assert -
     assert "chat_not_found" in str(exc.value)
@@ -121,7 +121,7 @@ async def test__remove_users_from_chat__succeed(
     host: str,
     bot_id: UUID,
     chat_id: UUID,
-    user_huid: UUID,
+    huid: UUID,
     bot_account: BotAccount,
     mock_authorization: None,
 ) -> None:
@@ -131,7 +131,7 @@ async def test__remove_users_from_chat__succeed(
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
             "group_chat_id": str(chat_id),
-            "user_huids": [str(user_huid)],
+            "user_huids": [str(huid)],
         },
     ).mock(
         return_value=httpx.Response(
@@ -148,7 +148,7 @@ async def test__remove_users_from_chat__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        await bot.remove_users_from_chat(bot_id, chat_id, huids=[user_huid])
+        await bot.remove_users_from_chat(bot_id, chat_id, huids=[huid])
 
     # - Assert -
     assert endpoint.called
