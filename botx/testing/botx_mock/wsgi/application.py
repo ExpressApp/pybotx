@@ -14,6 +14,7 @@ from botx.testing.botx_mock.wsgi.routes import (
     files,
     notification,
     notifications,
+    smartapps,
     stickers,
     users,
 )
@@ -60,6 +61,9 @@ _ENDPOINTS: Tuple[Callable[..., Any], ...] = (
     stickers.delete_sticker_from_sticker_pack,
     stickers.post_create_sticker_pack,
     stickers.post_edit_sticker_pack,
+    # smartapps
+    smartapps.post_smartapp_event,
+    smartapps.post_smartapp_notification,
 )
 
 

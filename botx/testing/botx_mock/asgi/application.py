@@ -16,6 +16,7 @@ from botx.testing.botx_mock.asgi.routes import (
     files,
     notification,
     notifications,
+    smartapps,
     stickers,
     users,
 )
@@ -63,6 +64,9 @@ _ENDPOINTS: Tuple[RequestResponseEndpoint, ...] = (
     stickers.post_delete_sticker_from_sticker_pack,
     stickers.post_create_sticker_pack,
     stickers.post_edit_sticker_pack,
+    # smartapps
+    smartapps.post_smartapp_event,
+    smartapps.post_smartapp_notification,
 )
 
 

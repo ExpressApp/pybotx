@@ -1,6 +1,6 @@
 """Definition of messages received by bot or sent by it."""
 
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 from uuid import UUID
 
 from pydantic import BaseConfig, BaseModel, Field, validator
@@ -9,7 +9,7 @@ from botx.models import events
 from botx.models.attachments import AttachList
 from botx.models.entities import EntityList
 from botx.models.enums import ChatTypes, ClientPlatformEnum, CommandTypes
-from botx.models.files import File
+from botx.models.files import File, MetaFile
 
 CommandDataType = Union[
     events.ChatCreatedEvent,
@@ -19,6 +19,7 @@ CommandDataType = Union[
     events.InternalBotNotificationEvent,
     events.CTSLoginEvent,
     events.CTSLogoutEvent,
+    events.SmartAppEvent,
     Dict[str, Any],
 ]
 
@@ -160,6 +161,9 @@ class IncomingMessage(BaseModel):
 
     #: file attached to message.
     file: Optional[File] = None
+
+    #: meta info for downloading files
+    async_files: List[MetaFile] = Field(default_factory=list)
 
     #: information about user from which message was received.
     user: Sender = Field(..., alias="from")

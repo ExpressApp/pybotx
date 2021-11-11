@@ -1,0 +1,1 @@
+"""Definition for smartapp methods."""
