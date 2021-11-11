@@ -75,7 +75,7 @@ async def test__list_chats__succeed(
                 UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
                 UUID("705df263-6bfd-536a-9d51-13524afaab5c"),
             ],
-            inserted_at=datetime_formatter("2019-08-29T11:22:48.358586Z"),
+            created_at=datetime_formatter("2019-08-29T11:22:48.358586Z"),
             updated_at=datetime_formatter("2019-08-30T21:02:10.453786Z"),
         ),
     ]

@@ -27,7 +27,7 @@ class ChatListItem:
         name: Chat name.
         description: Chat description.
         members: Chat members.
-        inserted_at: Chat creation datetime.
+        created_at: Chat creation datetime.
         updated_at: Last chat update datetime.
     """
 
@@ -36,7 +36,7 @@ class ChatListItem:
     name: str
     description: Optional[str]
     members: List[UUID]
-    inserted_at: datetime
+    created_at: datetime
     updated_at: datetime
 
 
@@ -62,7 +62,7 @@ class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
                 name=chat_item.name,
                 description=chat_item.description,
                 members=chat_item.members,
-                inserted_at=chat_item.inserted_at,
+                created_at=chat_item.inserted_at,
                 updated_at=chat_item.updated_at,
             )
             for chat_item in self.result
