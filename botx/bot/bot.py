@@ -39,6 +39,10 @@ from botx.client.chats_api.remove_user import (
     BotXAPIRemoveUserRequestPayload,
     RemoveUserMethod,
 )
+from botx.client.chats_api.set_stealth import (
+    BotXAPISetStealthRequestPayload,
+    SetStealthMethod,
+)
 from botx.client.exceptions.common import InvalidBotAccountError
 from botx.client.files_api.download_file import (
     BotXAPIDownloadFileRequestPayload,
@@ -232,6 +236,7 @@ class Bot:
 
         **Arguments:**
 
+        * `bot_id: UUID` - Bot which should perform the request.
         * `chat_id: UUID` - Target chat id.
 
         **Returns:**
@@ -288,6 +293,40 @@ class Bot:
         )
 
         payload = BotXAPIRemoveUserRequestPayload.from_domain(chat_id, huids)
+        await method.execute(payload)
+
+    async def enable_stealth(
+        self,
+        bot_id: UUID,
+        chat_id: UUID,
+        is_disable_web: bool = False,
+        active_time_for_read: Optional[int] = None,
+        active_time: Optional[int] = None,
+    ) -> None:
+        """Enable stealth mode. After the expiration of the time all messages will be
+         hidden.
+
+        **Arguments:**
+
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `chat_id: UUID` - ID of chat where stealth should be enabled.
+        * `is_disable_web: bool` - should messages be shown in web.
+        * `active_time_for_read: Optional[int]` - time of messages burning after read.
+        * `active_time: Optional[int]` - time of messages burning after send.
+        """
+
+        method = SetStealthMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPISetStealthRequestPayload.from_domain(
+            chat_id,
+            is_disable_web,
+            active_time_for_read,
+            active_time,
+        )
+
         await method.execute(payload)
 
     async def create_chat(
