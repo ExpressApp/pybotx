@@ -25,6 +25,7 @@ from botx.client.botx_method import (
     callback_exception_thrower,
 )
 from botx.client.exceptions.base import BaseClientException
+from botx.missing import MissingOptional, Undefined, not_undefined
 from tests.client.test_botx_method import (
     BotXAPIFooBarRequestPayload,
     BotXAPIFooBarResponsePayload,
@@ -46,7 +47,7 @@ class FooBarCallbackMethod(BotXMethod):
         self,
         payload: BotXAPIFooBarRequestPayload,
         wait_callback: bool,
-        callback_timeout: Optional[int],
+        callback_timeout: MissingOptional[int] = Undefined,
     ) -> BotXAPIFooBarResponsePayload:
         path = "/foo/bar"
 
@@ -86,8 +87,8 @@ async def call_foo_bar(
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=baz)
     botx_api_foo_bar = await method.execute(
         payload,
-        wait_callback=wait_callback,
-        callback_timeout=callback_timeout,
+        wait_callback,
+        not_undefined(callback_timeout, self.default_callback_timeout),
     )
 
     return botx_api_foo_bar.to_domain()

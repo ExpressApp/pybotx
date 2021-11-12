@@ -49,7 +49,6 @@ from botx.client.files_api.upload_file import (
     UploadFileMethod,
 )
 from botx.client.get_token import get_token
-from botx.client.missing import Missing, Undefined
 from botx.client.notifications_api.direct_notification import (
     BotXAPIDirectNotificationRequestPayload,
     DirectNotificationMethod,
@@ -73,6 +72,7 @@ from botx.client.users_api.search_user_by_login import (
 )
 from botx.client.users_api.user_from_search import UserFromSearch
 from botx.converters import optional_sequence_to_list
+from botx.missing import Missing, MissingOptional, Undefined, not_undefined
 from botx.shared_models.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from botx.shared_models.chat_types import ChatTypes
 from botx.shared_models.domain.attachments import IncomingFileAttachment
@@ -88,6 +88,7 @@ class Bot:
         middlewares: Optional[Sequence[Middleware]] = None,
         httpx_client: Optional[httpx.AsyncClient] = None,
         exception_handlers: Optional[ExceptionHandlersDict] = None,
+        default_callback_timeout: Optional[int] = None,
     ) -> None:
         if not collectors:
             logger.warning("Bot has no connected collectors")
@@ -95,6 +96,8 @@ class Bot:
             logger.warning("Bot has no bot accounts")
 
         self.state: SimpleNamespace = SimpleNamespace()
+
+        self.default_callback_timeout = default_callback_timeout
 
         self._middlewares = optional_sequence_to_list(middlewares)
         self._add_exception_middleware(exception_handlers)
@@ -510,7 +513,7 @@ class Bot:
         opts: Missing[Dict[str, Any]] = Undefined,
         recipients: Missing[List[UUID]] = Undefined,
         wait_callback: bool = True,
-        callback_timeout: Optional[int] = None,
+        callback_timeout: MissingOptional[int] = Undefined,
     ) -> UUID:
         """Send internal notification.
 
@@ -545,7 +548,7 @@ class Bot:
         botx_api_sync_id = await method.execute(
             payload,
             wait_callback,
-            callback_timeout,
+            not_undefined(callback_timeout, self.default_callback_timeout),
         )
 
         return botx_api_sync_id.to_domain()

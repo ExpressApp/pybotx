@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict, Iterator, List, Optional, Union
 
-from botx.client.missing import Missing, Undefined
+from botx.missing import Missing, Undefined
 from botx.shared_models.api_base import UnverifiedPayloadBaseModel
 
 try:

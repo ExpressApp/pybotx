@@ -1,4 +1,4 @@
-from typing import TypeVar, Union
+from typing import Any, TypeVar, Union
 
 try:
     from typing import Literal
@@ -21,3 +21,11 @@ Undefined = _UndefinedType()
 
 Missing = Union[RequiredType, _UndefinedType]
 MissingOptional = Union[RequiredType, None, _UndefinedType]
+
+
+def not_undefined(*args: Any) -> Any:
+    for arg in args:
+        if arg is not Undefined:
+            return arg
+
+    raise ValueError("All arguments have `Undefined` type")

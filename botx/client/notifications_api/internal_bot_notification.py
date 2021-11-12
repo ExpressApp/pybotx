@@ -7,11 +7,11 @@ from botx.client.botx_method import (
     response_exception_thrower,
 )
 from botx.client.exceptions.common import ChatNotFoundError, RateLimitReachedError
-from botx.client.missing import Missing, MissingOptional
 from botx.client.notifications_api.exceptions import (
     BotIsNotChatMemberError,
     FinalRecipientsListEmptyError,
 )
+from botx.missing import Missing, MissingOptional
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,

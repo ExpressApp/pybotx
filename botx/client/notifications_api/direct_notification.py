@@ -4,13 +4,13 @@ from uuid import UUID
 from botx.bot.models.outgoing_attachment import OutgoingAttachment
 from botx.client.attachments import BotXAPIAttachment
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
-from botx.client.missing import Missing, Undefined
 from botx.client.notifications_api.markup import (
     BotXAPIMarkup,
     BubbleMarkup,
     KeyboardMarkup,
     api_markup_from_domain,
 )
+from botx.missing import Missing, Undefined
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,

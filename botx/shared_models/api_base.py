@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional, Set, cast
 
 from pydantic import BaseModel
 
-from botx.client.missing import Undefined
+from botx.missing import Undefined
 
 
 def _remove_undefined_from_dict(origin_dict: Any) -> Dict[str, Any]:
