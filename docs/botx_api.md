@@ -24,7 +24,7 @@
 
 ::: botx.bot.bot.Bot
     :docstring:
-    :members: search_user_by_email, search_user_by_huid, search_user_by_ad
+    :members: search_user_by_email search_user_by_huid search_user_by_ad
 
 ---
 

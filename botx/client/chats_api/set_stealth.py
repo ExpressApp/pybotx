@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -9,7 +10,7 @@ from botx.shared_models.api_base import (
 )
 
 try:
-    from typing import Literal, Optional
+    from typing import Literal
 except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
