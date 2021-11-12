@@ -34,6 +34,10 @@ from botx.client.chats_api.create_chat import (
     BotXAPICreateChatRequestPayload,
     CreateChatMethod,
 )
+from botx.client.chats_api.disable_stealth import (
+    BotXAPIDisableStealthRequestPayload,
+    DisableStealthMethod,
+)
 from botx.client.chats_api.list_chats import ChatListItem, ListChatsMethod
 from botx.client.chats_api.remove_user import (
     BotXAPIRemoveUserRequestPayload,
@@ -303,8 +307,7 @@ class Bot:
         active_time_for_read: Optional[int] = None,
         active_time: Optional[int] = None,
     ) -> None:
-        """Enable stealth mode. After the expiration of the time all messages will be
-         hidden.
+        """Enable stealth mode. After the expiration of the time all messages will be hidden.
 
         **Arguments:**
 
@@ -371,12 +374,31 @@ class Bot:
 
         return botx_api_chat_id.to_domain()
 
+    async def disable_stealth(self, bot_id: UUID, chat_id: UUID) -> None:
+        """Disable stealth model. Hides all messages that were in stealth.
+
+        **Arguments:**
+
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `chat_id: UUID` - ID of chat where stealth should be disable.
+        """
+
+        method = DisableStealthMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPIDisableStealthRequestPayload.from_domain(chat_id)
+
+        await method.execute(payload)
+
     # Users API.
     async def search_user_by_email(self, bot_id: UUID, email: str) -> UserFromSearch:
         """Search user by email for search.
 
         **Arguments:**
 
+        * `bot_id: UUID` - Bot which should perform the request.
         * `email: str` - User email.
 
         **Returns:**
@@ -400,6 +422,7 @@ class Bot:
 
         **Arguments:**
 
+        * `bot_id: UUID` - Bot which should perform the request.
         * `huid: UUID` - User huid.
 
         **Returns:**
@@ -428,6 +451,7 @@ class Bot:
 
         **Arguments:**
 
+        * `bot_id: UUID` - Bot which should perform the request.
         * `ad_login: str` - User AD login.
         * `ad_domain: str` - User AD domain.
 
