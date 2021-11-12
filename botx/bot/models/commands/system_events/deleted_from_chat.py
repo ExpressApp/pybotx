@@ -11,6 +11,8 @@ class DeletedFromChatEvent(BotCommandBase):
 
     Attributes:
         huids: List of deleted from chat user huids.
+        chat_id: Chat where the user was deleted from.
     """
 
     huids: List[UUID]
+    chat_id: UUID

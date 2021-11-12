@@ -35,4 +35,5 @@ class BotAPIDeletedFromChat(BotAPIBaseCommand):
             bot_id=self.bot_id,
             raw_command=raw_command,
             huids=self.payload.data.deleted_members,
+            chat_id=self.sender.group_chat_id,
         )

@@ -74,6 +74,7 @@ async def test__deleted_from_chat__succeed() -> None:
             UUID("ab103983-6001-44e9-889e-d55feb295494"),
             UUID("dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4"),
         ],
+        chat_id=UUID("dea55ee4-7a9f-5da0-8c73-079f400ee517"),
         bot_id=UUID("bc7f96e2-91a5-5de4-8bde-23765450cac8"),
         raw_command=None,
     )
