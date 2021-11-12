@@ -32,8 +32,6 @@ async def test__enable_stealth__permission_denied_error_raised(
         json={
             "group_chat_id": str(chat_id),
             "disable_web": False,
-            "burn_in": None,
-            "expire_in": None,
         },
     ).mock(
         return_value=httpx.Response(
@@ -84,8 +82,6 @@ async def test__enable_stealth__chat_not_found_raised(
         json={
             "group_chat_id": str(chat_id),
             "disable_web": False,
-            "burn_in": None,
-            "expire_in": None,
         },
     ).mock(
         return_value=httpx.Response(
@@ -134,8 +130,6 @@ async def test__enable_stealth__succeed(
         json={
             "group_chat_id": str(chat_id),
             "disable_web": False,
-            "burn_in": None,
-            "expire_in": None,
         },
     ).mock(
         return_value=httpx.Response(

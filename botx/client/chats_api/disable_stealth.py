@@ -48,4 +48,7 @@ class DisableStealthMethod(AuthorizedBotXMethod):
             json=payload.jsonable_dict(),
         )
 
-        self._extract_api_model(BotXAPIDisableStealthResponsePayload, response)
+        self._verify_and_extract_api_model(
+            BotXAPIDisableStealthResponsePayload,
+            response,
+        )
