@@ -1,9 +1,13 @@
+from typing import NoReturn
 from uuid import UUID
+
+import httpx
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
 from botx.client.exceptions.common import ChatNotFoundError
-from botx.client.files_api.exceptions import FileDeletedError
+from botx.client.exceptions.http import InvalidBotXStatusCodeError
+from botx.client.files_api.exceptions import FileDeletedError, FileMetadataNotFound
 from botx.shared_models.api_base import UnverifiedPayloadBaseModel
 from botx.shared_models.async_buffer import AsyncBufferWritable
 
@@ -26,11 +30,22 @@ class BotXAPIDownloadFileRequestPayload(UnverifiedPayloadBaseModel):
         )
 
 
+def not_found_error_handler(response: httpx.Response) -> NoReturn:
+    reason = response.json().get("reason")
+
+    if reason == "file_metadata_not_found":
+        raise FileMetadataNotFound.from_response(response)
+    elif reason == "chat_not_found":
+        raise ChatNotFoundError.from_response(response)
+
+    raise InvalidBotXStatusCodeError(response)
+
+
 class DownloadFileMethod(AuthorizedBotXMethod):
     status_handlers = {
         **AuthorizedBotXMethod.status_handlers,
         204: response_exception_thrower(FileDeletedError),
-        404: response_exception_thrower(ChatNotFoundError),
+        404: not_found_error_handler,
     }
 
     async def execute(

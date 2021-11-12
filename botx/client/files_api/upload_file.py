@@ -2,6 +2,8 @@ import tempfile
 from uuid import UUID
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
+from botx.client.botx_method import response_exception_thrower
+from botx.client.exceptions.common import ChatNotFoundError
 from botx.client.missing import Missing
 from botx.constants import CHUNK_SIZE
 from botx.shared_models.api.async_file import APIAsyncFile, convert_async_file_to_file
@@ -52,6 +54,11 @@ class BotXAPIUploadFileResponsePayload(VerifiedPayloadBaseModel):
 
 
 class UploadFileMethod(AuthorizedBotXMethod):
+    status_handlers = {
+        **AuthorizedBotXMethod.status_handlers,
+        404: response_exception_thrower(ChatNotFoundError),
+    }
+
     async def execute(
         self,
         payload: BotXAPIUploadFileRequestPayload,

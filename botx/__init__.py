@@ -53,7 +53,7 @@ from botx.client.exceptions.http import (
     InvalidBotXResponsePayloadError,
     InvalidBotXStatusCodeError,
 )
-from botx.client.files_api.exceptions import FileDeletedError
+from botx.client.files_api.exceptions import FileDeletedError, FileMetadataNotFound
 from botx.client.notifications_api.exceptions import (
     BotIsNotChatMemberError,
     FinalRecipientsListEmptyError,
@@ -87,6 +87,7 @@ __all__ = (
     "DeletedFromChatEvent",
     "ExpressApp",
     "FileDeletedError",
+    "FileMetadataNotFound",
     "FinalRecipientsListEmptyError",
     "FinalRecipientsListEmptyError",
     "HandlerCollector",
