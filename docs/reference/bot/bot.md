@@ -19,9 +19,24 @@
     selection:
       members:
         - list_chats
+        - chat_info
         - add_users_to_chat
         - remove_users_from_chat
+        - enable_stealth 
+        - disable_stealth
         - create_chat
+
+---
+
+## **Users API**
+
+::: botx.bot.bot.Bot
+    handler: python
+    selection:
+      members:
+        - search_user_by_email
+        - search_user_by_huid
+        - search_user_by_ad
 
 ---
 
