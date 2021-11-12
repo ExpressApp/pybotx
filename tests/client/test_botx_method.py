@@ -61,7 +61,10 @@ class FooBarMethod(BotXMethod):
             json=payload.jsonable_dict(),
         )
 
-        return self._extract_api_model(BotXAPIFooBarResponsePayload, response)
+        return self._verify_and_extract_api_model(
+            BotXAPIFooBarResponsePayload,
+            response,
+        )
 
 
 @respx.mock

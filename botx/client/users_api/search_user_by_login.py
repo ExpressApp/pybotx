@@ -36,4 +36,7 @@ class SearchUserByLoginMethod(AuthorizedBotXMethod):
             params=payload.jsonable_dict(),
         )
 
-        return self._extract_api_model(BotXAPISearchUserResponsePayload, response)
+        return self._verify_and_extract_api_model(
+            BotXAPISearchUserResponsePayload,
+            response,
+        )

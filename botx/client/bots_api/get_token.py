@@ -42,4 +42,7 @@ class GetTokenMethod(BotXMethod):
             params=payload.jsonable_dict(),
         )
 
-        return self._extract_api_model(BotXAPIGetTokenResponsePayload, response)
+        return self._verify_and_extract_api_model(
+            BotXAPIGetTokenResponsePayload,
+            response,
+        )

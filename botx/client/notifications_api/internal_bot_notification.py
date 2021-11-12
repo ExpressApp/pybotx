@@ -87,7 +87,7 @@ class InternalBotNotificationMethod(AuthorizedBotXMethod):
             self._build_url(path),
             json=payload.jsonable_dict(),
         )
-        api_model = self._extract_api_model(
+        api_model = self._verify_and_extract_api_model(
             BotXAPIInternalBotNotificationResponsePayload,
             response,
         )

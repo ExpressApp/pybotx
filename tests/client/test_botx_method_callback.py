@@ -55,7 +55,10 @@ class FooBarCallbackMethod(BotXMethod):
             self._build_url(path),
             json=payload.jsonable_dict(),
         )
-        api_model = self._extract_api_model(BotXAPIFooBarResponsePayload, response)
+        api_model = self._verify_and_extract_api_model(
+            BotXAPIFooBarResponsePayload,
+            response,
+        )
 
         await self._process_callback(
             api_model.result.sync_id,

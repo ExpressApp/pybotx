@@ -91,7 +91,7 @@ class DirectNotificationMethod(AuthorizedBotXMethod):
             json=payload.jsonable_dict(),
         )
 
-        return self._extract_api_model(
+        return self._verify_and_extract_api_model(
             BotXAPIDirectNotificationResponsePayload,
             response,
         )

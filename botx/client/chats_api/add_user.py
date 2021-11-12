@@ -51,7 +51,7 @@ class AddUserMethod(AuthorizedBotXMethod):
             self._build_url(path),
             json=payload.jsonable_dict(),
         )
-        self._extract_api_model(
+        self._verify_and_extract_api_model(
             BotXAPIAddUserResponsePayload,
             response,
         )

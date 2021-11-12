@@ -82,7 +82,7 @@ class UploadFileMethod(AuthorizedBotXMethod):
                 files={"content": (filename, tmp_file)},
             )
 
-        return self._extract_api_model(
+        return self._verify_and_extract_api_model(
             BotXAPIUploadFileResponsePayload,
             response,
         )

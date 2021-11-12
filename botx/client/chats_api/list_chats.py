@@ -78,4 +78,7 @@ class ListChatsMethod(AuthorizedBotXMethod):
             self._build_url(path),
         )
 
-        return self._extract_api_model(BotXAPIListChatResponsePayload, response)
+        return self._verify_and_extract_api_model(
+            BotXAPIListChatResponsePayload,
+            response,
+        )

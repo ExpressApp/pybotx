@@ -87,7 +87,7 @@ class BotXMethod:
         host = self._bot_accounts_storage.get_host(self._bot_id)
         return urljoin(f"https://{host}", path)
 
-    def _extract_api_model(
+    def _verify_and_extract_api_model(
         self,
         model_cls: Type[TBotXAPIModel],
         response: httpx.Response,

@@ -52,4 +52,4 @@ class RemoveUserMethod(AuthorizedBotXMethod):
             json=payload.jsonable_dict(),
         )
 
-        self._extract_api_model(BotXAPIRemoveUserResponsePayload, response)
+        self._verify_and_extract_api_model(BotXAPIRemoveUserResponsePayload, response)
