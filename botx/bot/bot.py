@@ -24,6 +24,10 @@ from botx.bot.models.method_callbacks import BotXMethodCallback
 from botx.bot.models.outgoing_attachment import OutgoingAttachment
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
+from botx.client.chats_api.add_admin import (
+    AddAdminMethod,
+    BotXAPIAddAdminRequestPayload,
+)
 from botx.client.chats_api.add_user import AddUserMethod, BotXAPIAddUserRequestPayload
 from botx.client.chats_api.chat_info import (
     BotXAPIChatInfoRequestPayload,
@@ -299,6 +303,30 @@ class Bot:
         payload = BotXAPIRemoveUserRequestPayload.from_domain(chat_id, huids)
         await method.execute(payload)
 
+    async def add_admin_roles(
+        self,
+        bot_id: UUID,
+        chat_id: UUID,
+        huids: List[UUID],
+    ) -> None:
+        """Promote users in chat to admins.
+
+        **Arguments:**
+
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `chat_id: UUID` - Target chat id.
+        * `huids: List[UUID]` - List of eXpress account ids.
+        """
+
+        method = AddAdminMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        payload = BotXAPIAddAdminRequestPayload.from_domain(chat_id, huids)
+        await method.execute(payload)
+
     async def enable_stealth(
         self,
         bot_id: UUID,
@@ -338,7 +366,7 @@ class Bot:
         **Arguments:**
 
         * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id..
+        * `chat_id: UUID` - Target chat id.
         """
 
         method = DisableStealthMethod(

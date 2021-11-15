@@ -35,8 +35,10 @@ from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 from botx.bot.testing import lifespan_wrapper
 from botx.client.chats_api.exceptions import (
+    AdministratorsNotChangedError,
     ChatCreationError,
     ChatCreationProhibitedError,
+    ChatMembersNotModifiableError,
 )
 from botx.client.chats_api.list_chats import ChatListItem
 from botx.client.exceptions.callbacks import (
@@ -59,10 +61,12 @@ from botx.client.notifications_api.exceptions import (
     FinalRecipientsListEmptyError,
 )
 from botx.client.notifications_api.markup import BubbleMarkup, Button, KeyboardMarkup
+from botx.client.users_api.exceptions import UserNotFoundError
 from botx.shared_models.chat_types import ChatTypes
 
 __all__ = (
     "AddedToChatEvent",
+    "AdministratorsNotChangedError",
     "AnswerDestinationLookupError",
     "Bot",
     "BotAPIBotDisabledResponse",
@@ -81,6 +85,7 @@ __all__ = (
     "ChatCreationError",
     "ChatCreationProhibitedError",
     "ChatListItem",
+    "ChatMembersNotModifiableError",
     "ChatNotFoundError",
     "ChatTypes",
     "ClientPlatforms",
@@ -106,6 +111,7 @@ __all__ = (
     "UserDevice",
     "UserEventSender",
     "UserKinds",
+    "UserNotFoundError",
     "build_accepted_response",
     "build_bot_disabled_response",
     "lifespan_wrapper",
