@@ -12,7 +12,7 @@ from botx.client.users_api.user_from_search import UserFromSearch
 
 @respx.mock
 @pytest.mark.asyncio
-async def test__search_user_by_login__user_not_found_error_raised(
+async def test__search_user_by_ad__user_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -54,7 +54,7 @@ async def test__search_user_by_login__user_not_found_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
-async def test__search_user_by_login__succeed(
+async def test__search_user_by_ad__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,

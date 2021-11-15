@@ -34,10 +34,18 @@ from botx.client.chats_api.create_chat import (
     BotXAPICreateChatRequestPayload,
     CreateChatMethod,
 )
+from botx.client.chats_api.disable_stealth import (
+    BotXAPIDisableStealthRequestPayload,
+    DisableStealthMethod,
+)
 from botx.client.chats_api.list_chats import ChatListItem, ListChatsMethod
 from botx.client.chats_api.remove_user import (
     BotXAPIRemoveUserRequestPayload,
     RemoveUserMethod,
+)
+from botx.client.chats_api.set_stealth import (
+    BotXAPISetStealthRequestPayload,
+    SetStealthMethod,
 )
 from botx.client.exceptions.common import InvalidBotAccountError
 from botx.client.files_api.download_file import (
@@ -232,6 +240,7 @@ class Bot:
 
         **Arguments:**
 
+        * `bot_id: UUID` - Bot which should perform the request.
         * `chat_id: UUID` - Target chat id.
 
         **Returns:**
@@ -290,6 +299,57 @@ class Bot:
         payload = BotXAPIRemoveUserRequestPayload.from_domain(chat_id, huids)
         await method.execute(payload)
 
+    async def enable_stealth(
+        self,
+        bot_id: UUID,
+        chat_id: UUID,
+        disable_in_web_client: bool = False,
+        ttl_after_read: Missing[int] = Undefined,
+        total_ttl: Missing[int] = Undefined,
+    ) -> None:
+        """Enable stealth mode. After the expiration of the time all messages will be hidden.
+
+        **Arguments:**
+
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `chat_id: UUID` - Target chat id.
+        * `disable_in_web_client: bool` - should messages be shown in web.
+        * `ttl_after_read: Missing[int]` - time of messages burning after read.
+        * `total_ttl: Missing[int]` - time of messages burning after send.
+        """
+
+        method = SetStealthMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPISetStealthRequestPayload.from_domain(
+            chat_id,
+            disable_in_web_client,
+            ttl_after_read,
+            total_ttl,
+        )
+
+        await method.execute(payload)
+
+    async def disable_stealth(self, bot_id: UUID, chat_id: UUID) -> None:
+        """Disable stealth model. Hides all messages that were in stealth.
+
+        **Arguments:**
+
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `chat_id: UUID` - Target chat id..
+        """
+
+        method = DisableStealthMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPIDisableStealthRequestPayload.from_domain(chat_id)
+
+        await method.execute(payload)
+
     async def create_chat(
         self,
         bot_id: UUID,
@@ -338,6 +398,7 @@ class Bot:
 
         **Arguments:**
 
+        * `bot_id: UUID` - Bot which should perform the request.
         * `email: str` - User email.
 
         **Returns:**
@@ -361,6 +422,7 @@ class Bot:
 
         **Arguments:**
 
+        * `bot_id: UUID` - Bot which should perform the request.
         * `huid: UUID` - User huid.
 
         **Returns:**
@@ -389,6 +451,7 @@ class Bot:
 
         **Arguments:**
 
+        * `bot_id: UUID` - Bot which should perform the request.
         * `ad_login: str` - User AD login.
         * `ad_domain: str` - User AD domain.
 
