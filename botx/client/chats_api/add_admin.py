@@ -6,8 +6,8 @@ import httpx
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
 from botx.client.chats_api.exceptions import (
-    AdministratorsNotChangedError,
-    ChatMembersNotModifiableError,
+    CantUpdatePersonalChatError,
+    InvalidUsersListError,
 )
 from botx.client.exceptions.common import ChatNotFoundError, PermissionDeniedError
 from botx.client.exceptions.http import InvalidBotXStatusCodeError
@@ -44,9 +44,9 @@ def bad_request_error_handler(response: httpx.Response) -> NoReturn:
     reason = response.json().get("reason")
 
     if reason == "chat_members_not_modifiable":
-        raise ChatMembersNotModifiableError.from_response(response)
+        raise CantUpdatePersonalChatError.from_response(response)
     elif reason == "admins_not_changed":
-        raise AdministratorsNotChangedError.from_response(response)
+        raise InvalidUsersListError.from_response(response)
 
     raise InvalidBotXStatusCodeError(response)
 

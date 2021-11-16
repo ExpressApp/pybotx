@@ -303,7 +303,7 @@ class Bot:
         payload = BotXAPIRemoveUserRequestPayload.from_domain(chat_id, huids)
         await method.execute(payload)
 
-    async def add_admin_roles(
+    async def promote_to_chat_admins(
         self,
         bot_id: UUID,
         chat_id: UUID,

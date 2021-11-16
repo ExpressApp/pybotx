@@ -1,12 +1,12 @@
 from botx.client.exceptions.base import BaseClientException
 
 
-class ChatMembersNotModifiableError(BaseClientException):
-    """Can't edit a list of personal chat administrators."""
+class CantUpdatePersonalChatError(BaseClientException):
+    """Can't edit a personal chat."""
 
 
-class AdministratorsNotChangedError(BaseClientException):
-    """Can't change administrators."""
+class InvalidUsersListError(BaseClientException):
+    """Users list isn't correct."""
 
 
 class ChatCreationProhibitedError(BaseClientException):

@@ -35,10 +35,10 @@ from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 from botx.bot.testing import lifespan_wrapper
 from botx.client.chats_api.exceptions import (
-    AdministratorsNotChangedError,
+    CantUpdatePersonalChatError,
     ChatCreationError,
     ChatCreationProhibitedError,
-    ChatMembersNotModifiableError,
+    InvalidUsersListError,
 )
 from botx.client.chats_api.list_chats import ChatListItem
 from botx.client.exceptions.callbacks import (
@@ -66,7 +66,6 @@ from botx.shared_models.chat_types import ChatTypes
 
 __all__ = (
     "AddedToChatEvent",
-    "AdministratorsNotChangedError",
     "AnswerDestinationLookupError",
     "Bot",
     "BotAPIBotDisabledResponse",
@@ -79,13 +78,13 @@ __all__ = (
     "BubbleMarkup",
     "Button",
     "CallbackNotReceivedError",
+    "CantUpdatePersonalChatError",
     "Chat",
     "ChatCreatedEvent",
     "ChatCreatedMember",
     "ChatCreationError",
     "ChatCreationProhibitedError",
     "ChatListItem",
-    "ChatMembersNotModifiableError",
     "ChatNotFoundError",
     "ChatTypes",
     "ClientPlatforms",
@@ -101,6 +100,7 @@ __all__ = (
     "InvalidBotAccountError",
     "InvalidBotXResponsePayloadError",
     "InvalidBotXStatusCodeError",
+    "InvalidUsersListError",
     "KeyboardMarkup",
     "OutgoingAttachment",
     "PermissionDeniedError",
