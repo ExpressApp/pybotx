@@ -67,7 +67,7 @@ async def test__remove_users_from_chat__permission_denied_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
-async def test__remove_users_from_chat__chat_noy_found_error_raised(
+async def test__remove_users_from_chat__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
