@@ -43,6 +43,10 @@ from botx.client.chats_api.disable_stealth import (
     DisableStealthMethod,
 )
 from botx.client.chats_api.list_chats import ChatListItem, ListChatsMethod
+from botx.client.chats_api.pin_message import (
+    BotXAPIPinMessageRequestPayload,
+    PinMessageMethod,
+)
 from botx.client.chats_api.remove_user import (
     BotXAPIRemoveUserRequestPayload,
     RemoveUserMethod,
@@ -50,6 +54,10 @@ from botx.client.chats_api.remove_user import (
 from botx.client.chats_api.set_stealth import (
     BotXAPISetStealthRequestPayload,
     SetStealthMethod,
+)
+from botx.client.chats_api.unpin_message import (
+    BotXAPIUnpinMessageRequestPayload,
+    UnpinMessageMethod,
 )
 from botx.client.exceptions.common import InvalidBotAccountError
 from botx.client.files_api.download_file import (
@@ -420,7 +428,42 @@ class Bot:
 
         return botx_api_chat_id.to_domain()
 
-    # Users API.
+    async def pin_message(self, bot_id: UUID, chat_id: UUID, sync_id: UUID) -> None:
+        """Pin message in chat.
+
+        **Arguments:**
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `chat_id: UUID` - Target chat id.
+        * `sync_id: UUID` - Target sync id.
+        """
+
+        method = PinMessageMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPIPinMessageRequestPayload.from_domain(chat_id, sync_id)
+
+        await method.execute(payload)
+
+    async def unpin_message(self, bot_id: UUID, chat_id: UUID) -> None:
+        """Unpin message in chat.
+
+        **Arguments:**
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `chat_id: UUID` - Target chat id.
+        """
+
+        method = UnpinMessageMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPIUnpinMessageRequestPayload.from_domain(chat_id)
+
+        await method.execute(payload)
+
+    # - Users API -
     async def search_user_by_email(self, bot_id: UUID, email: str) -> UserFromSearch:
         """Search user by email for search.
 

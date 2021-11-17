@@ -1,0 +1,153 @@
+from http import HTTPStatus
+from uuid import UUID
+
+import httpx
+import pytest
+import respx
+
+from botx import (
+    Bot,
+    BotAccount,
+    ChatNotFoundError,
+    HandlerCollector,
+    PermissionDeniedError,
+    lifespan_wrapper,
+)
+
+
+@respx.mock
+@pytest.mark.asyncio
+async def test__unpin_message__permission_denied_error_raised(
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    chat_id: UUID,
+    sync_id: UUID,
+    bot_account: BotAccount,
+    mock_authorization: None,
+) -> None:
+    # - Arrange -
+    endpoint = respx.post(
+        f"https://{host}/api/v3/botx/chats/unpin_message",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        json={
+            "chat_id": str(chat_id),
+        },
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.FORBIDDEN,
+            json={
+                "error_data": {
+                    "bot_id": "f9e1c958-bf81-564e-bff2-a2943869af15",
+                    "error_description": "Bot doesn't have permission for this operation in current chat",
+                    "group_chat_id": "5680c26a-07a5-5b40-a6ff-f5e7e68fed25",
+                },
+                "errors": [],
+                "reason": "no_permission_for_operation",
+                "status": "error",
+            },
+        ),
+    )
+
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        with pytest.raises(PermissionDeniedError) as exc:
+            await bot.unpin_message(bot_id, chat_id)
+
+    # - Assert -
+    assert "no_permission_for_operation" in str(exc.value)
+    assert endpoint.called
+
+
+@respx.mock
+@pytest.mark.asyncio
+async def test__unpin_message__chat_not_found_error_raised(
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    chat_id: UUID,
+    sync_id: UUID,
+    bot_account: BotAccount,
+    mock_authorization: None,
+) -> None:
+    # - Arrange -
+    endpoint = respx.post(
+        f"https://{host}/api/v3/botx/chats/unpin_message",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        json={
+            "chat_id": str(chat_id),
+        },
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.NOT_FOUND,
+            json={
+                "status": "error",
+                "reason": "chat_not_found",
+                "errors": [],
+                "error_data": {
+                    "error_description": "Chat with specified id not found",
+                    "group_chat_id": "dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4",
+                },
+            },
+        ),
+    )
+
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        with pytest.raises(ChatNotFoundError) as exc:
+            await bot.unpin_message(bot_id, chat_id)
+
+    # - Assert -
+    assert "chat_not_found" in str(exc.value)
+    assert endpoint.called
+
+
+@respx.mock
+@pytest.mark.asyncio
+async def test__unpin_message__succeed(
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    chat_id: UUID,
+    sync_id: UUID,
+    bot_account: BotAccount,
+    mock_authorization: None,
+) -> None:
+    # - Arrange -
+    endpoint = respx.post(
+        f"https://{host}/api/v3/botx/chats/unpin_message",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        json={
+            "chat_id": str(chat_id),
+        },
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.OK,
+            json={"status": "ok", "result": "message_unpinned"},
+        ),
+    )
+
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        await bot.unpin_message(bot_id, chat_id)
+
+    # - Assert -
+    assert endpoint.called
