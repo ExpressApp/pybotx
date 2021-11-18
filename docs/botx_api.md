@@ -14,8 +14,7 @@
 
 ::: botx.bot.bot.Bot
     :docstring:
-    :members: list_chats chat_info add_users_to_chat remove_users_from_chat 
-        enable_stealth disable_stealth create_chat
+    :members: list_chats chat_info add_users_to_chat remove_users_from_chat promote_to_chat_admins  enable_stealth disable_stealth create_chat pin_message unpin_message
         
 
 ---

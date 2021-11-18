@@ -14,4 +14,4 @@ class PermissionDeniedError(BaseClientException):
 
 
 class ChatNotFoundError(BaseClientException):
-    """Chat with specified group_chat_id not found."""
+    """Chat with specified chat_id not found."""

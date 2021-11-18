@@ -210,13 +210,12 @@ class Bot:
     async def get_token(self, bot_id: UUID) -> str:
         """Get bot auth token.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
 
-        * `bot_id: UUID` - Bot which should perform the request.
+        Returns:
+            Auth token.
 
-        **Returns:**
-
-        `str` - Auth token.
         """
 
         return await get_token(bot_id, self._httpx_client, self._bot_accounts_storage)
@@ -228,13 +227,12 @@ class Bot:
     ) -> List[ChatListItem]:
         """Get all bot chats.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
 
-        * `bot_id: UUID` - Bot which should perform the request.
+        Returns:
+            List of chats info.
 
-        **Returns:**
-
-        `List[ChatListItem]` - List of chats info.
         """
 
         method = ListChatsMethod(
@@ -250,14 +248,13 @@ class Bot:
     async def chat_info(self, bot_id: UUID, chat_id: UUID) -> ChatInfo:
         """Get chat information.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
+        Returns:
+            ChatInfo: Chat information.
 
-        **Returns:**
-
-        `ChatInfo` - Chat information.
         """
 
         method = ChatInfoMethod(bot_id, self._httpx_client, self._bot_accounts_storage)
@@ -275,11 +272,11 @@ class Bot:
     ) -> None:
         """Add user to chat.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            huids: List of eXpress account ids.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `huids: List[UUID]` - List of eXpress account ids.
         """
 
         method = AddUserMethod(bot_id, self._httpx_client, self._bot_accounts_storage)
@@ -295,11 +292,11 @@ class Bot:
     ) -> None:
         """Remove eXpress accounts from chat.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            huids: List of eXpress account ids.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `huids: List[UUID]` - List of eXpress account ids.
         """
 
         method = RemoveUserMethod(
@@ -319,11 +316,11 @@ class Bot:
     ) -> None:
         """Promote users in chat to admins.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            huids: List of eXpress account ids.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `huids: List[UUID]` - List of eXpress account ids.
         """
 
         method = AddAdminMethod(
@@ -345,13 +342,13 @@ class Bot:
     ) -> None:
         """Enable stealth mode. After the expiration of the time all messages will be hidden.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            disable_in_web_client: Should messages be shown in web.
+            ttl_after_read: Time of messages burning after read.
+            total_ttl: Time of messages burning after send.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `disable_in_web_client: bool` - should messages be shown in web.
-        * `ttl_after_read: Missing[int]` - time of messages burning after read.
-        * `total_ttl: Missing[int]` - time of messages burning after send.
         """
 
         method = SetStealthMethod(
@@ -371,10 +368,10 @@ class Bot:
     async def disable_stealth(self, bot_id: UUID, chat_id: UUID) -> None:
         """Disable stealth model. Hides all messages that were in stealth.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
         """
 
         method = DisableStealthMethod(
@@ -397,18 +394,17 @@ class Bot:
     ) -> UUID:
         """Create chat.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            name: Chat visible name.
+            chat_type: Chat type.
+            huids: List of eXpress account ids.
+            description: Chat description.
+            shared_history: Open old chat history for new added users.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `name: str` - Chat visible name.
-        * `chat_type: ChatTypes` - Chat type.
-        * `huids: List[UUID]` - List of eXpress account ids.
-        * `description: Optional[str]` - Chat description.
-        * `shared_history: bool` - Open old chat history for new added users.
+        Returns:
+            Created chat uuid.
 
-        **Returns:**
-
-        `UUID` - Created chat uuid.
         """
 
         method = CreateChatMethod(
@@ -431,10 +427,11 @@ class Bot:
     async def pin_message(self, bot_id: UUID, chat_id: UUID, sync_id: UUID) -> None:
         """Pin message in chat.
 
-        **Arguments:**
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `sync_id: UUID` - Target sync id.
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            sync_id: Target sync id.
+
         """
 
         method = PinMessageMethod(
@@ -449,9 +446,10 @@ class Bot:
     async def unpin_message(self, bot_id: UUID, chat_id: UUID) -> None:
         """Unpin message in chat.
 
-        **Arguments:**
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+
         """
 
         method = UnpinMessageMethod(
@@ -467,14 +465,13 @@ class Bot:
     async def search_user_by_email(self, bot_id: UUID, email: str) -> UserFromSearch:
         """Search user by email for search.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            email: User email.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `email: str` - User email.
+        Returns:
+            User information.
 
-        **Returns:**
-
-        `UserFromSearch` - User information.
         """
 
         method = SearchUserByEmailMethod(
@@ -491,14 +488,13 @@ class Bot:
     async def search_user_by_huid(self, bot_id: UUID, huid: UUID) -> UserFromSearch:
         """Search user by huid for search.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            huid: User huid.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `huid: UUID` - User huid.
+        Returns:
+            User information.
 
-        **Returns:**
-
-        `UserFromSearch` - User information.
         """
 
         method = SearchUserByHUIDMethod(
@@ -520,15 +516,14 @@ class Bot:
     ) -> UserFromSearch:
         """Search user by AD login and AD domain for search.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            ad_login: User AD login.
+            ad_domain: User AD domain.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `ad_login: str` - User AD login.
-        * `ad_domain: str` - User AD domain.
+        Returns:
+            User information.
 
-        **Returns:**
-
-        `UserFromSearch` - User information.
         """
 
         method = SearchUserByLoginMethod(
@@ -560,19 +555,19 @@ class Bot:
         Works just like `Bot.send`, but `bot_id` and `chat_id` are
         taken from the incoming message.
 
-        **Arguments:**
+        Args:
+            body: text that should be sent in message.
+            metadata: Notification options.
+            bubbles: Bubbles (buttons attached to message) markup.
+            keyboard: Keyboard (buttons below message input) markup.
+            file: Attachment.
 
-        * `metadata: Missing[Dict[str, Any]]` - Notification options.
-        * `bubbles: Missing[BubbleMarkup
-        ]` - Bubbles (buttons attached to message) markup.
-        * `keyboard: Missing[KeyboardMarkup
-        ]` - Keyboard (buttons below message input) markup.
-        * `file: Missing[Union[IncomingFileAttachment,
-        OutgoingAttachment]]` - Attachment.
+        Returns:
+            Notification sync_id.
 
-        **Returns:**
+        Raises:
+            AnswerDestinationLookupError: No IncomingMessage received.
 
-        `UUID` - Notification sync_id.
         """
 
         try:  # noqa: WPS229
@@ -604,21 +599,18 @@ class Bot:
     ) -> UUID:
         """Send message to chat.
 
-        **Arguments:**
+        Args:
+            body: text that should be sent in message.
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            metadata: Notification options.
+            bubbles: Bubbles (buttons attached to message) markup.
+            keyboard: Keyboard (buttons below message input) markup.
+            file: Attachment.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `metadata: Missing[Dict[str, Any]]` - Notification options.
-        * `bubbles: Missing[BubbleMarkup
-        ]` - Bubbles (buttons attached to message) markup.
-        * `keyboard: Missing[KeyboardMarkup
-        ]` - Keyboard (buttons below message input) markup.
-        * `file: Missing[Union[IncomingFileAttachment,
-        OutgoingAttachment]]` - Attachment.
+        Returns:
+            Notification sync_id.
 
-        **Returns:**
-
-        `UUID` - Notification sync_id.
         """
 
         method = DirectNotificationMethod(
@@ -651,19 +643,18 @@ class Bot:
     ) -> UUID:
         """Send internal notification.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            data: Notification payload.
+            opts: Notification options.
+            recipients: List of bot uuids, empty for all in chat.
+            wait_callback: Wait for callback.
+            callback_timeout: Timeout for waiting for callback.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `data: Dict[str, Any]` - Notification payload.
-        * `opts: Missing[Dict[str, Any]]` - Notification options.
-        * `recipients: Missing[List[UUID]]` - List of bot uuids, empty for all in chat.
-        * `wait_callback: bool` - Wait for callback.
-        * `callback_timeout: Optional[int]` - Timeout for waiting for callback.
+        Returns:
+            Notification sync_id.
 
-        **Returns:**
-
-        `UUID` - Notification sync_id.
         """
 
         method = InternalBotNotificationMethod(
@@ -697,12 +688,12 @@ class Bot:
     ) -> None:
         """Download file form file service.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            file_id: Async file id.
+            async_buffer: Buffer to write downloaded file.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `file_id: UUID` - Async file id.
-        * `async_buffer: AsyncBufferWritable` - Buffer to write downloaded file.
         """
 
         payload = BotXAPIDownloadFileRequestPayload.from_domain(chat_id, file_id)
@@ -724,19 +715,17 @@ class Bot:
     ) -> File:
         """Upload file to file service.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            async_buffer: Buffer to write downloaded file.
+            filename: File name.
+            duration: Video duration.
+            caption: Text under file.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `file_id: UUID` - Async file id.
-        * `async_buffer: AsyncBufferReadable` - Buffer to write downloaded file.
-        * `filename: str` - File name.
-        * `duration: Missing[str]` - Video duration.
-        * `caption: Missing[str]` - Text under file.
+        Returns:
+            Meta info of uploaded file.
 
-        **Returns:**
-
-        * `File` - Meta info of uploaded file.
         """
 
         payload = BotXAPIUploadFileRequestPayload.from_domain(
