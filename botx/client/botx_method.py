@@ -45,18 +45,20 @@ TBotXAPIModel = TypeVar("TBotXAPIModel", bound=VerifiedPayloadBaseModel)
 
 def response_exception_thrower(
     exc: Type[BaseClientException],
+    comment: Optional[str] = None,
 ) -> StatusHandler:
     def factory(response: httpx.Response) -> NoReturn:
-        raise exc.from_response(response)
+        raise exc.from_response(response, comment)
 
     return factory
 
 
 def callback_exception_thrower(
     exc: Type[BaseClientException],
+    comment: Optional[str] = None,
 ) -> CallbackExceptionHandler:  # noqa: F821
     def factory(callback: BotAPIMethodFailedCallback) -> NoReturn:
-        raise exc.from_callback(callback)
+        raise exc.from_callback(callback, comment)
 
     return factory
 

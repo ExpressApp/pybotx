@@ -40,6 +40,7 @@ class FooBarCallbackMethod(BotXMethod):
     error_callback_handlers: ErrorCallbackHandlers = {
         "foo_bar_error": callback_exception_thrower(
             FooBarError,
+            "FooBar comment",
         ),
     }
 
@@ -153,6 +154,7 @@ async def test__botx_method_callback__error_callback_error_handler_called(
 
     # - Assert -
     assert "foo_bar_error" in str(exc.value)
+    assert "FooBar comment" in str(exc.value)
     assert endpoint.called
 
 

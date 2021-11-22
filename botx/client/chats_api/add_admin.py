@@ -44,9 +44,15 @@ def bad_request_error_handler(response: httpx.Response) -> NoReturn:
     reason = response.json().get("reason")
 
     if reason == "chat_members_not_modifiable":
-        raise CantUpdatePersonalChatError.from_response(response)
+        raise CantUpdatePersonalChatError.from_response(
+            response,
+            "Personal chat couldn't have admins",
+        )
     elif reason == "admins_not_changed":
-        raise InvalidUsersListError.from_response(response)
+        raise InvalidUsersListError.from_response(
+            response,
+            "Specified users are already admins or missing from chat",
+        )
 
     raise InvalidBotXStatusCodeError(response)
 
