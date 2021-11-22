@@ -109,6 +109,7 @@ async def test__promote_to_chat_admins__cant_update_personal_chat_error_raised(
 
     # - Assert -
     assert "chat_members_not_modifiable" in str(exc.value)
+    assert "Personal chat couldn't have admins" in str(exc.value)
     assert endpoint.called
 
 
@@ -158,6 +159,7 @@ async def test__promote_to_chat_admins__invalid_users_list_error_raised(
 
     # - Assert -
     assert "admins_not_changed" in str(exc.value)
+    assert "Specified users are already admins or missing from chat" in str(exc.value)
     assert endpoint.called
 
 
