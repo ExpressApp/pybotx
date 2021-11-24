@@ -46,7 +46,7 @@ class BotXAPIFooBarResponsePayload(VerifiedPayloadBaseModel):
 
 class FooBarMethod(BotXMethod):
     status_handlers = {
-        403: response_exception_thrower(FooBarError),
+        403: response_exception_thrower(FooBarError, "FooBar comment"),
     }
 
     async def execute(
@@ -166,6 +166,7 @@ async def test__botx_method__status_handler_called(
 
     # - Assert -
     assert "403" in str(exc.value)
+    assert "FooBar comment" in str(exc.value)
     assert endpoint.called
 
 
