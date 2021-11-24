@@ -1,4 +1,4 @@
-from typing import Any, Dict, Union
+from typing import Any, Dict, List, Union
 from uuid import UUID
 
 from botx.bot.models.outgoing_attachment import OutgoingAttachment
@@ -9,6 +9,10 @@ from botx.client.notifications_api.markup import (
     BubbleMarkup,
     KeyboardMarkup,
     api_markup_from_domain,
+)
+from botx.client.notifications_api.mentions import (
+    BotXAPIMention,
+    find_and_replace_embed_mentions,
 )
 from botx.missing import Missing, Undefined
 from botx.shared_models.api_base import (
@@ -29,6 +33,11 @@ class BotXAPIDirectNotification(UnverifiedPayloadBaseModel):
     metadata: Missing[Dict[str, Any]]
     bubbles: Missing[BotXAPIMarkup]
     keyboard: Missing[BotXAPIMarkup]
+    mentions: Missing[List[BotXAPIMention]]
+
+
+class BotXAPIDirectNotificationOptions(UnverifiedPayloadBaseModel):
+    raw_mentions: bool = False  # TODO: Delete in v4
 
 
 class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
@@ -36,6 +45,7 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
     recipients: Literal["all"]
     notification: BotXAPIDirectNotification
     file: Missing[BotXAPIAttachment]
+    opts: Missing[BotXAPIDirectNotificationOptions]
 
     @classmethod
     def from_domain(
@@ -52,6 +62,12 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
             assert not file.is_async_file, "async_files not supported"
             api_file = BotXAPIAttachment.from_file_attachment(file)
 
+        body, mentions = find_and_replace_embed_mentions(body)
+
+        opts: Missing[BotXAPIDirectNotificationOptions] = Undefined
+        if mentions:
+            opts = BotXAPIDirectNotificationOptions(raw_mentions=True)
+
         return cls(
             group_chat_id=chat_id,
             recipients="all",
@@ -61,8 +77,10 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
                 metadata=metadata,
                 bubbles=api_markup_from_domain(bubbles) if bubbles else bubbles,
                 keyboard=api_markup_from_domain(keyboard) if keyboard else keyboard,
+                mentions=mentions or Undefined,
             ),
             file=api_file,
+            opts=opts,
         )
 
 

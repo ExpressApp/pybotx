@@ -16,6 +16,7 @@ from botx import (
     HandlerCollector,
     IncomingMessage,
     KeyboardMarkup,
+    Mention,
     OutgoingAttachment,
     UnknownBotAccountError,
     lifespan_wrapper,
@@ -247,9 +248,18 @@ async def test__send__maximum_filled_succeed(
     sync_id: UUID,
     chat_id: UUID,
     bot_account: BotAccount,
+    monkeypatch: pytest.MonkeyPatch,
     mock_authorization: None,
 ) -> None:
     # - Arrange -
+    monkeypatch.setattr(
+        "botx.client.notifications_api.mentions.uuid4",
+        lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
+    )
+
+    body = f"Hi, {Mention.user(UUID('8f3abcc8-ba00-4c89-88e0-b786beb8ec24'))}!"
+    formatted_body = "Hi, @{mention:f3e176d5-ff46-4b18-b260-25008338c06e}!"
+
     endpoint = respx.post(
         f"https://{host}/api/v3/botx/notification/callback/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
@@ -258,7 +268,7 @@ async def test__send__maximum_filled_succeed(
             "recipients": "all",
             "notification": {
                 "status": "ok",
-                "body": "Hi!",
+                "body": formatted_body,
                 "metadata": {"foo": "bar"},
                 "bubbles": [
                     [
@@ -291,11 +301,21 @@ async def test__send__maximum_filled_succeed(
                         },
                     ],
                 ],
+                "mentions": [
+                    {
+                        "mention_type": "user",
+                        "mention_id": "f3e176d5-ff46-4b18-b260-25008338c06e",
+                        "mention_data": {
+                            "user_huid": "8f3abcc8-ba00-4c89-88e0-b786beb8ec24",
+                        },
+                    },
+                ],
             },
             "file": {
                 "file_name": "test.txt",
                 "data": "data:application/octet-stream;base64,SGVsbG8sIHdvcmxkIQo=",
             },
+            "opts": {"raw_mentions": True},
         },
     ).mock(
         return_value=httpx.Response(
@@ -344,13 +364,135 @@ async def test__send__maximum_filled_succeed(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         message_id = await bot.send(
-            "Hi!",
+            body,
             bot_id=bot_id,
             chat_id=chat_id,
             metadata={"foo": "bar"},
             bubbles=bubbles,
             keyboard=keyboard,
             file=file,
+        )
+
+    # - Assert -
+    assert message_id == sync_id
+    assert endpoint.called
+
+
+@respx.mock
+@pytest.mark.asyncio
+async def test__send__all_mentions_types_succeed(
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    sync_id: UUID,
+    chat_id: UUID,
+    bot_account: BotAccount,
+    monkeypatch: pytest.MonkeyPatch,
+    mock_authorization: None,
+) -> None:
+    # - Arrange -
+    monkeypatch.setattr(
+        "botx.client.notifications_api.mentions.uuid4",
+        lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
+    )
+
+    mentioned_user_huid = UUID("8f3abcc8-ba00-4c89-88e0-b786beb8ec24")
+    user_mention = Mention.user(mentioned_user_huid)
+    mentioned_contact_huid = UUID("1e0529fd-f091-4be9-93cc-6704a8957432")
+    contact_mention = Mention.contact(mentioned_contact_huid)
+    mentioned_chat_huid = UUID("454d73ad-1d32-4939-a708-e14b77414e86")
+    chat_mention = Mention.chat(mentioned_chat_huid, "Our chat")
+    mentioned_channel_huid = UUID("78198bec-3285-48d0-9fe2-c0eb3afaffd7")
+    channel_mention = Mention.channel(mentioned_channel_huid)
+    all_mention = Mention.all()
+
+    body = (
+        f"Hi, {user_mention}, want you to know, "
+        f"that I and {contact_mention} are getting married in a week. "
+        f"Here's a chat for all the invitees: {chat_mention}. "
+        f"And here is the news channel just in case: {channel_mention}. "
+        "In case of something incredible, "
+        f"I will notify you with {all_mention}, so you won't miss it."
+    )
+
+    formatted_body = (
+        "Hi, @{mention:f3e176d5-ff46-4b18-b260-25008338c06e}, want you to know, "
+        "that I and @@{mention:f3e176d5-ff46-4b18-b260-25008338c06e} are getting married in a week. "
+        "Here's a chat for all the invitees: ##{mention:f3e176d5-ff46-4b18-b260-25008338c06e}. "
+        "And here is the news channel just in case: ##{mention:f3e176d5-ff46-4b18-b260-25008338c06e}. "
+        "In case of something incredible, "
+        "I will notify you with @{mention:f3e176d5-ff46-4b18-b260-25008338c06e}, so you won't miss it."
+    )
+
+    endpoint = respx.post(
+        f"https://{host}/api/v3/botx/notification/callback/direct",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        json={
+            "group_chat_id": str(chat_id),
+            "recipients": "all",
+            "notification": {
+                "status": "ok",
+                "body": formatted_body,
+                "mentions": [
+                    {
+                        "mention_type": "user",
+                        "mention_id": "f3e176d5-ff46-4b18-b260-25008338c06e",
+                        "mention_data": {
+                            "user_huid": "8f3abcc8-ba00-4c89-88e0-b786beb8ec24",
+                        },
+                    },
+                    {
+                        "mention_type": "contact",
+                        "mention_id": "f3e176d5-ff46-4b18-b260-25008338c06e",
+                        "mention_data": {
+                            "user_huid": "1e0529fd-f091-4be9-93cc-6704a8957432",
+                        },
+                    },
+                    {
+                        "mention_type": "chat",
+                        "mention_id": "f3e176d5-ff46-4b18-b260-25008338c06e",
+                        "mention_data": {
+                            "group_chat_id": "454d73ad-1d32-4939-a708-e14b77414e86",
+                            "name": "Our chat",
+                        },
+                    },
+                    {
+                        "mention_type": "channel",
+                        "mention_id": "f3e176d5-ff46-4b18-b260-25008338c06e",
+                        "mention_data": {
+                            "group_chat_id": "78198bec-3285-48d0-9fe2-c0eb3afaffd7",
+                        },
+                    },
+                    {
+                        "mention_type": "all",
+                        "mention_id": "f3e176d5-ff46-4b18-b260-25008338c06e",
+                    },
+                ],
+            },
+            "opts": {"raw_mentions": True},
+        },
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": str(sync_id)},
+            },
+        ),
+    )
+
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        message_id = await bot.send(
+            body,
+            bot_id=bot_id,
+            chat_id=chat_id,
         )
 
     # - Assert -

@@ -281,7 +281,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
             [
                 Mention(
                     type=MentionTypes.CONTACT,
-                    huid=UUID("ab103983-6001-44e9-889e-d55feb295494"),
+                    entity_id=UUID("ab103983-6001-44e9-889e-d55feb295494"),
                     name="Вася Иванов",
                 ),
             ],
