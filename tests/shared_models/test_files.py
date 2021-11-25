@@ -73,8 +73,10 @@ async def test__async_file__open(
     async with lifespan_wrapper(built_bot) as bot:
         bot.async_execute_raw_bot_command(payload)
 
-        await asyncio.sleep(0)
-        async with incoming_message.file.open() as fo:  # type: ignore [union-attr]
+        await asyncio.sleep(0)  # Return control to event loop
+
+        assert incoming_message and incoming_message.file
+        async with incoming_message.file.open() as fo:
             read_content = await fo.read()
 
     # - Assert -
