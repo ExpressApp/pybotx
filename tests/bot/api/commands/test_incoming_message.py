@@ -12,12 +12,13 @@ from botx import (
     ExpressApp,
     HandlerCollector,
     IncomingMessage,
+    MentionTypes,
     UserDevice,
     UserEventSender,
     lifespan_wrapper,
 )
 from botx.bot.models.commands.entities import Forward, Mention, Reply
-from botx.bot.models.commands.enums import AttachmentTypes, MentionTypes
+from botx.bot.models.commands.enums import AttachmentTypes
 from botx.bot.models.commands.mentions import MentionList
 from botx.shared_models.domain.files import Image
 
@@ -302,4 +303,149 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
             sync_id=UUID("a7ffba12-8d0a-534e-8896-a0aa2d93a434"),
             body="все равно документацию никто не читает...",
         ),
+    )
+
+
+@pytest.mark.asyncio
+async def test__async_execute_raw_bot_command__all_mention_types() -> None:
+    # - Arrange -
+    payload = {
+        "bot_id": "c1b0c5df-075c-55ff-a931-bfa39ddfd424",
+        "command": {
+            "body": "/hello",
+            "command_type": "user",
+            "data": {},
+            "metadata": {},
+        },
+        "attachments": [],
+        "async_files": [],
+        "entities": [
+            {
+                "type": "mention",
+                "data": {
+                    "mention_type": "contact",
+                    "mention_id": "c06a96fa-7881-0bb6-0e0b-0af72fe3683f",
+                    "mention_data": {
+                        "user_huid": "ab103983-6001-44e9-889e-d55feb295494",
+                        "name": "Вася Иванов",
+                        "conn_type": "cts",
+                    },
+                },
+            },
+            {
+                "type": "mention",
+                "data": {
+                    "mention_type": "user",
+                    "mention_id": "c06a96fa-7881-0bb6-0e0b-0af72fe3683f",
+                    "mention_data": {
+                        "user_huid": "ab103983-6001-44e9-889e-d55feb295494",
+                        "name": "Вася Иванов",
+                        "conn_type": "cts",
+                    },
+                },
+            },
+            {
+                "type": "mention",
+                "data": {
+                    "mention_type": "channel",
+                    "mention_id": "c06a96fa-7881-0bb6-0e0b-0af72fe3683f",
+                    "mention_data": {
+                        "group_chat_id": "ab103983-6001-44e9-889e-d55feb295494",
+                        "name": "Вася Иванов",
+                    },
+                },
+            },
+            {
+                "type": "mention",
+                "data": {
+                    "mention_type": "chat",
+                    "mention_id": "c06a96fa-7881-0bb6-0e0b-0af72fe3683f",
+                    "mention_data": {
+                        "group_chat_id": "ab103983-6001-44e9-889e-d55feb295494",
+                        "name": "Вася Иванов",
+                    },
+                },
+            },
+            {
+                "type": "mention",
+                "data": {
+                    "mention_type": "all",
+                    "mention_id": "c06a96fa-7881-0bb6-0e0b-0af72fe3683f",
+                    "mention_data": {},
+                },
+            },
+        ],
+        "source_sync_id": None,
+        "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
+        "from": {
+            "ad_domain": None,
+            "ad_login": None,
+            "app_version": None,
+            "chat_type": "chat",
+            "device": None,
+            "device_meta": {
+                "permissions": None,
+                "pushes": False,
+                "timezone": "Europe/Moscow",
+            },
+            "device_software": None,
+            "group_chat_id": "30dc1980-643a-00ad-37fc-7cc10d74e935",
+            "host": "cts.example.com",
+            "is_admin": True,
+            "is_creator": True,
+            "locale": "en",
+            "manufacturer": None,
+            "platform": None,
+            "platform_package_id": None,
+            "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
+            "username": None,
+        },
+        "proto_version": 4,
+    }
+
+    collector = HandlerCollector()
+    incoming_message: Optional[IncomingMessage] = None
+
+    @collector.default_message_handler
+    async def default_handler(message: IncomingMessage, bot: Bot) -> None:
+        nonlocal incoming_message
+        incoming_message = message
+        # Drop `raw_command` from asserting
+        incoming_message.raw_command = None
+
+    built_bot = Bot(collectors=[collector], bot_accounts=[])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        bot.async_execute_raw_bot_command(payload)
+
+    # - Assert -
+    assert incoming_message.mentions == MentionList(  # type: ignore [union-attr]
+        [
+            Mention(
+                type=MentionTypes.CONTACT,
+                entity_id=UUID("ab103983-6001-44e9-889e-d55feb295494"),
+                name="Вася Иванов",
+            ),
+            Mention(
+                type=MentionTypes.USER,
+                entity_id=UUID("ab103983-6001-44e9-889e-d55feb295494"),
+                name="Вася Иванов",
+            ),
+            Mention(
+                type=MentionTypes.CHANNEL,
+                entity_id=UUID("ab103983-6001-44e9-889e-d55feb295494"),
+                name="Вася Иванов",
+            ),
+            Mention(
+                type=MentionTypes.CHAT,
+                entity_id=UUID("ab103983-6001-44e9-889e-d55feb295494"),
+                name="Вася Иванов",
+            ),
+            Mention(
+                type=MentionTypes.ALL,
+                entity_id=None,
+                name=None,
+            ),
+        ],
     )

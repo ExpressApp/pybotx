@@ -1,6 +1,8 @@
 from datetime import datetime
-from typing import Union, cast
+from typing import Dict, Optional, Union, cast
 from uuid import UUID
+
+from pydantic import Field, validator
 
 from botx.bot.api.enums import (
     BotAPIEntityTypes,
@@ -17,16 +19,39 @@ except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
-class BotAPINestedMentionData(VerifiedPayloadBaseModel):
-    user_huid: UUID
+class BotAPINestedPersonalMentionData(VerifiedPayloadBaseModel):
+    entity_id: UUID = Field(alias="user_huid")
     name: str
     conn_type: str
+
+
+class BotAPINestedGroupMentionData(VerifiedPayloadBaseModel):
+    entity_id: UUID = Field(alias="group_chat_id")
+    name: str
+
+
+BotAPINestedMentionData = Union[
+    BotAPINestedPersonalMentionData,
+    BotAPINestedGroupMentionData,
+]
 
 
 class BotAPIMentionData(VerifiedPayloadBaseModel):
     mention_type: BotAPIMentionTypes
     mention_id: UUID
-    mention_data: BotAPINestedMentionData
+    mention_data: Optional[BotAPINestedMentionData]
+
+    @validator("mention_data", pre=True)
+    @classmethod
+    def validate_mention_data(
+        cls,
+        mention_data: Dict[str, str],
+    ) -> Optional[Dict[str, str]]:
+        # Mention data can be an empty dict
+        if not mention_data:
+            return None
+
+        return mention_data
 
 
 class BotAPIMention(VerifiedPayloadBaseModel):
@@ -71,10 +96,17 @@ def convert_bot_api_entity_to_domain(api_entity: BotAPIEntity) -> Entity:
     if api_entity.type == BotAPIEntityTypes.MENTION:
         api_entity = cast(BotAPIMention, api_entity)
 
+        entity_id: Optional[UUID] = None
+        name: Optional[str] = None
+        if api_entity.data.mention_type != BotAPIMentionTypes.ALL:
+            mention_data = cast(BotAPINestedMentionData, api_entity.data.mention_data)
+            entity_id = mention_data.entity_id
+            name = mention_data.name
+
         return Mention(
             type=convert_mention_type_to_domain(api_entity.data.mention_type),
-            entity_id=api_entity.data.mention_data.user_huid,
-            name=api_entity.data.mention_data.name,
+            entity_id=entity_id,
+            name=name,
         )
 
     if api_entity.type == BotAPIEntityTypes.FORWARD:
