@@ -49,7 +49,9 @@ async def test__attachment__open(
         bot.async_execute_raw_bot_command(payload)
 
         await asyncio.sleep(0)  # Return control to event loop
-        async with incoming_message.file.open() as fo:  # type: ignore [union-attr]
+
+        assert incoming_message and incoming_message.file
+        async with incoming_message.file.open() as fo:
             read_content = await fo.read()
 
     # - Assert -

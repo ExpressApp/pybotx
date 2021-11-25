@@ -420,7 +420,8 @@ async def test__async_execute_raw_bot_command__all_mention_types() -> None:
         bot.async_execute_raw_bot_command(payload)
 
     # - Assert -
-    assert incoming_message.mentions == MentionList(  # type: ignore [union-attr]
+    assert incoming_message
+    assert incoming_message.mentions == MentionList(
         [
             Mention(
                 type=MentionTypes.CONTACT,

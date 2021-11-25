@@ -207,4 +207,5 @@ async def test__async_execute_raw_bot_command__file_attachments_types(
         bot.async_execute_raw_bot_command(payload)
 
     # - Assert -
-    assert incoming_message.file == domain_attachment  # type: ignore [union-attr]
+    assert incoming_message
+    assert incoming_message.file == domain_attachment
