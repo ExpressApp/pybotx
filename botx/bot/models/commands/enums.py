@@ -39,3 +39,4 @@ class MentionTypes(AutoName):
     CHAT = auto()
     CHANNEL = auto()
     USER = auto()
+    ALL = auto()

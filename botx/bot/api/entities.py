@@ -73,7 +73,7 @@ def convert_bot_api_entity_to_domain(api_entity: BotAPIEntity) -> Entity:
 
         return Mention(
             type=convert_mention_type_to_domain(api_entity.data.mention_type),
-            huid=api_entity.data.mention_data.user_huid,
+            entity_id=api_entity.data.mention_data.user_huid,
             name=api_entity.data.mention_data.name,
         )
 

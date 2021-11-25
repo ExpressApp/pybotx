@@ -17,7 +17,7 @@ def mention_factory() -> Callable[..., Mention]:
     ) -> Mention:
         return Mention(
             type=mention_type,
-            huid=huid,
+            entity_id=huid,
             name=name,
         )
 

@@ -25,6 +25,7 @@ class BotAPIMentionTypes(StrEnum):
     CHAT = "chat"
     CHANNEL = "channel"
     USER = "user"
+    ALL = "all"
 
 
 def convert_client_platform(client_platform: BotAPIClientPlatforms) -> ClientPlatforms:
@@ -48,10 +49,29 @@ def convert_mention_type_to_domain(mention_type: BotAPIMentionTypes) -> MentionT
         BotAPIMentionTypes.CHAT: MentionTypes.CHAT,
         BotAPIMentionTypes.CHANNEL: MentionTypes.CHANNEL,
         BotAPIMentionTypes.USER: MentionTypes.USER,
+        BotAPIMentionTypes.ALL: MentionTypes.ALL,
     }
 
     converted_type = mention_types_mapping.get(mention_type)
     if converted_type is None:
-        raise NotImplementedError(f"Unsupported user kind: {mention_type}")
+        raise NotImplementedError(f"Unsupported mention type: {mention_type}")
+
+    return converted_type
+
+
+def convert_mention_type_from_domain(
+    mention_type: MentionTypes,
+) -> BotAPIMentionTypes:
+    embed_mention_types_mapping = {
+        MentionTypes.USER: BotAPIMentionTypes.USER,
+        MentionTypes.CONTACT: BotAPIMentionTypes.CONTACT,
+        MentionTypes.CHAT: BotAPIMentionTypes.CHAT,
+        MentionTypes.CHANNEL: BotAPIMentionTypes.CHANNEL,
+        MentionTypes.ALL: BotAPIMentionTypes.ALL,
+    }
+
+    converted_type = embed_mention_types_mapping.get(mention_type)
+    if converted_type is None:
+        raise NotImplementedError(f"Unsupported mention type: {mention_type}")
 
     return converted_type

@@ -41,7 +41,7 @@ collector = HandlerCollector()
 
 @collector.command("/debug", description="Simple debug command")
 async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
-    pass
+    await bot.answer(f"Hi, {message.mentions[0]}")
 
 
 bot = Bot(collectors=[collector], bot_accounts=build_bot_accounts_from_env())
