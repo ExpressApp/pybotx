@@ -15,7 +15,7 @@ from botx.bot.handler_collector import HandlerCollector
 from botx.bot.models.bot_account import BotAccount
 from botx.bot.models.commands.chat import Chat
 from botx.bot.models.commands.entities import Mention
-from botx.bot.models.commands.enums import ClientPlatforms, UserKinds
+from botx.bot.models.commands.enums import ClientPlatforms, MentionTypes, UserKinds
 from botx.bot.models.commands.incoming_message import (
     ExpressApp,
     IncomingMessage,
@@ -104,6 +104,7 @@ __all__ = (
     "InvalidUsersListError",
     "KeyboardMarkup",
     "Mention",
+    "MentionTypes",
     "OutgoingAttachment",
     "PermissionDeniedError",
     "RateLimitReachedError",
