@@ -68,3 +68,17 @@ def test__mentions_list_properties__filled(
     assert mentions.chats == chats
     assert mentions.channels == channels
     assert mentions.users == users
+
+
+def test__mentions_list_all_users_mentioned__filled() -> None:
+    # - Arrange -
+    all_mention = Mention(type=MentionTypes.ALL)
+
+    one_all_mention = MentionList([all_mention])
+    two_all_mentions = MentionList([all_mention, all_mention])
+
+    # - Assert -
+    assert one_all_mention.all_users_mentioned
+    assert two_all_mentions.all_users_mentioned
+
+    assert not MentionList([]).all_users_mentioned
