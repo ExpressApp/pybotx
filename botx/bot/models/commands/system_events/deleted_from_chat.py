@@ -3,6 +3,7 @@ from typing import List
 from uuid import UUID
 
 from botx.bot.models.commands.base import BotCommandBase
+from botx.bot.models.commands.chat import Chat
 
 
 @dataclass
@@ -15,4 +16,4 @@ class DeletedFromChatEvent(BotCommandBase):
     """
 
     huids: List[UUID]
-    chat_id: UUID
+    chat: Chat
