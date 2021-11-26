@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Dict, Optional, Union, cast
 from uuid import UUID
 
@@ -11,7 +10,6 @@ from botx.bot.api.enums import (
 )
 from botx.bot.models.commands.entities import Entity, Forward, Mention, Reply
 from botx.shared_models.api_base import VerifiedPayloadBaseModel
-from botx.shared_models.chat_types import APIChatTypes, convert_chat_type_to_domain
 
 try:
     from typing import Literal
@@ -62,10 +60,7 @@ class BotAPIMention(VerifiedPayloadBaseModel):
 class BotAPIForwardData(VerifiedPayloadBaseModel):
     group_chat_id: UUID
     sender_huid: UUID
-    forward_type: APIChatTypes
-    source_chat_name: str
     source_sync_id: UUID
-    source_inserted_at: datetime
 
 
 class BotAPIForward(VerifiedPayloadBaseModel):
@@ -79,9 +74,6 @@ class BotAPIReplyData(VerifiedPayloadBaseModel):
     body: str
     # TODO: Mentions
     # TODO: Attachment
-    reply_type: APIChatTypes
-    source_group_chat_id: UUID
-    source_chat_name: str
 
 
 class BotAPIReply(VerifiedPayloadBaseModel):
@@ -114,21 +106,15 @@ def convert_bot_api_entity_to_domain(api_entity: BotAPIEntity) -> Entity:
 
         return Forward(
             chat_id=api_entity.data.group_chat_id,
-            huid=api_entity.data.sender_huid,
-            type=convert_chat_type_to_domain(api_entity.data.forward_type),
-            chat_name=api_entity.data.source_chat_name,
+            author_id=api_entity.data.sender_huid,
             sync_id=api_entity.data.source_sync_id,
-            created_at=api_entity.data.source_inserted_at,
         )
 
     if api_entity.type == BotAPIEntityTypes.REPLY:
         api_entity = cast(BotAPIReply, api_entity)
 
         return Reply(
-            chat_id=api_entity.data.source_group_chat_id,
-            huid=api_entity.data.sender,
-            type=convert_chat_type_to_domain(api_entity.data.reply_type),
-            chat_name=api_entity.data.source_chat_name,
+            author_id=api_entity.data.sender,
             sync_id=api_entity.data.source_sync_id,
             body=api_entity.data.body,
         )
