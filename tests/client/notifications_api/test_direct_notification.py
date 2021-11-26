@@ -67,7 +67,7 @@ async def test__answer__succeed(
                 "status": "ok",
                 "body": "Hi!",
                 "metadata": {"foo": "bar"},
-                "bubbles": [
+                "bubble": [
                     [
                         {
                             "command": "/bubble-button",
@@ -270,7 +270,7 @@ async def test__send__maximum_filled_succeed(
                 "status": "ok",
                 "body": formatted_body,
                 "metadata": {"foo": "bar"},
-                "bubbles": [
+                "bubble": [
                     [
                         {
                             "command": "/bubble-button",

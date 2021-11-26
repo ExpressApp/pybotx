@@ -31,7 +31,7 @@ class BotXAPIDirectNotification(UnverifiedPayloadBaseModel):
     status: Literal["ok"]
     body: str
     metadata: Missing[Dict[str, Any]]
-    bubbles: Missing[BotXAPIMarkup]
+    bubble: Missing[BotXAPIMarkup]
     keyboard: Missing[BotXAPIMarkup]
     mentions: Missing[List[BotXAPIMention]]
 
@@ -75,7 +75,7 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
                 status="ok",
                 body=body,
                 metadata=metadata,
-                bubbles=api_markup_from_domain(bubbles) if bubbles else bubbles,
+                bubble=api_markup_from_domain(bubbles) if bubbles else bubbles,
                 keyboard=api_markup_from_domain(keyboard) if keyboard else keyboard,
                 mentions=mentions or Undefined,
             ),
