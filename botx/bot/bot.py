@@ -13,7 +13,7 @@ from botx.bot.api.status.recipient import BotAPIStatusRecipient
 from botx.bot.api.status.response import build_bot_status_response
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.bot.callbacks_manager import CallbacksManager
-from botx.bot.contextvars import bot_id_var, bot_var, chat_id_var
+from botx.bot.contextvars import bot_id_var, chat_id_var
 from botx.bot.exceptions import AnswerDestinationLookupError
 from botx.bot.handler import Middleware
 from botx.bot.handler_collector import HandlerCollector
@@ -141,8 +141,6 @@ class Bot:
         except ValidationError as validation_exc:
             raise ValueError("Bot command validation error") from validation_exc
 
-        self._fill_contextvars(bot_api_command)
-
         bot_command = bot_api_command.to_domain(raw_bot_command)
         self.async_execute_bot_command(bot_command)
 
@@ -191,20 +189,19 @@ class Bot:
             self._bot_accounts_storage.set_token(bot_id, token)
 
     async def shutdown(self) -> None:
-        await self._httpx_client.aclose()
         self._callback_manager.stop_callbacks_waiting()
 
-        if not self._tasks:
-            return
+        if self._tasks:
+            finished_tasks, _ = await asyncio.wait(
+                self._tasks,
+                return_when=asyncio.ALL_COMPLETED,
+            )
 
-        finished_tasks, _ = await asyncio.wait(
-            self._tasks,
-            return_when=asyncio.ALL_COMPLETED,
-        )
+            # Raise handlers exceptions
+            for task in finished_tasks:
+                task.result()
 
-        # Raise handlers exceptions
-        for task in finished_tasks:
-            task.result()
+        await self._httpx_client.aclose()
 
     # - Bots API -
     async def get_token(self, bot_id: UUID) -> str:
@@ -768,8 +765,3 @@ class Bot:
         main_collector.include(*collectors)
 
         return main_collector
-
-    def _fill_contextvars(self, bot_api_command: BotAPICommand) -> None:
-        bot_var.set(self)
-        bot_id_var.set(bot_api_command.bot_id)
-        chat_id_var.set(bot_api_command.sender.group_chat_id)

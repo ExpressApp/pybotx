@@ -1,4 +1,3 @@
-import asyncio
 from http import HTTPStatus
 from typing import Any, Callable, Dict, Optional
 from uuid import UUID
@@ -13,6 +12,7 @@ from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wr
 @respx.mock
 @pytest.mark.asyncio
 async def test__async_file__open(
+    httpx_client: httpx.AsyncClient,
     chat_id: UUID,
     host: str,
     file_id: UUID,
@@ -57,27 +57,25 @@ async def test__async_file__open(
     )
 
     collector = HandlerCollector()
-    incoming_message: Optional[IncomingMessage] = None
+    read_content: Optional[bytes] = None
 
     @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
-        nonlocal incoming_message
-        incoming_message = message
+        nonlocal read_content
 
-        # Drop `raw_command` from asserting
-        incoming_message.raw_command = None
+        assert message.file
+        async with message.file.open() as fo:
+            read_content = await fo.read()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = Bot(
+        collectors=[collector],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         bot.async_execute_raw_bot_command(payload)
-
-        await asyncio.sleep(0)  # Return control to event loop
-
-        assert incoming_message and incoming_message.file
-        async with incoming_message.file.open() as fo:
-            read_content = await fo.read()
 
     # - Assert -
     assert read_content == b"Hello, world!\n"

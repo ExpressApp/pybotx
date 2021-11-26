@@ -1,6 +1,7 @@
 import re
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Sequence, Type, Union
 
+from botx.bot.contextvars import bot_id_var, bot_var, chat_id_var
 from botx.bot.exceptions import HandlerNotFoundError
 from botx.bot.handler import (
     CommandHandler,
@@ -49,6 +50,8 @@ class HandlerCollector:
     async def handle_bot_command(self, bot_command: BotCommand, bot: "Bot") -> None:
         if isinstance(bot_command, IncomingMessage):
             message_handler = self._get_incoming_message_handler(bot_command)
+
+            self._fill_contextvars(bot_command, bot)
             await message_handler(bot_command, bot)
 
         elif isinstance(
@@ -58,6 +61,7 @@ class HandlerCollector:
         ):
             event_handler = self._get_system_event_handler_or_none(bot_command)
             if event_handler:
+                self._fill_contextvars(bot_command, bot)
                 await event_handler(bot_command, bot)
 
         else:
@@ -268,3 +272,11 @@ class HandlerCollector:
         self._system_events_handlers[event_cls_name] = handler_func
 
         return handler_func
+
+    def _fill_contextvars(self, bot_command: BotCommand, bot: "Bot") -> None:
+        bot_var.set(bot)
+        bot_id_var.set(bot_command.bot_id)
+
+        chat = getattr(bot_command, "chat", None)
+        if chat:
+            chat_id_var.set(chat.id)
