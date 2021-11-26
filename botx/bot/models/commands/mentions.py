@@ -20,3 +20,11 @@ class MentionList(List[Mention]):
     @property
     def users(self) -> List[Mention]:
         return [mention for mention in self if mention.type == MentionTypes.USER]
+
+    @property
+    def all_users_mentioned(self) -> bool:
+        for mention in self:
+            if mention.type == MentionTypes.ALL:
+                return True
+
+        return False
