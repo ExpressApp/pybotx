@@ -37,7 +37,7 @@ async def test__markup__defaults_filled(
             "notification": {
                 "status": "ok",
                 "body": "Hi!",
-                "bubbles": [
+                "bubble": [
                     [
                         {
                             "command": "/bubble-button",
@@ -123,7 +123,7 @@ async def test__markup__correctly_built(
             "notification": {
                 "status": "ok",
                 "body": "Hi!",
-                "bubbles": [
+                "bubble": [
                     [
                         {
                             "command": "/bubble-button-1",
