@@ -3,8 +3,14 @@ from uuid import UUID
 
 import pytest
 
-from botx import Bot, HandlerCollector, lifespan_wrapper
-from botx.bot.models.commands.system_events.added_to_chat import AddedToChatEvent
+from botx import (
+    AddedToChatEvent,
+    Bot,
+    Chat,
+    ChatTypes,
+    HandlerCollector,
+    lifespan_wrapper,
+)
 
 
 @pytest.mark.asyncio
@@ -69,10 +75,15 @@ async def test__added_to_chat__succeed() -> None:
 
     # - Assert -
     assert added_to_chat == AddedToChatEvent(
+        bot_id=UUID("bc7f96e2-91a5-5de4-8bde-23765450cac8"),
+        raw_command=None,
         huids=[
             UUID("ab103983-6001-44e9-889e-d55feb295494"),
             UUID("dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4"),
         ],
-        bot_id=UUID("bc7f96e2-91a5-5de4-8bde-23765450cac8"),
-        raw_command=None,
+        chat=Chat(
+            id=UUID("dea55ee4-7a9f-5da0-8c73-079f400ee517"),
+            type=ChatTypes.GROUP_CHAT,
+            host="cts.example.com",
+        ),
     )
