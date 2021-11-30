@@ -4,12 +4,13 @@ from unittest.mock import MagicMock, call
 
 import pytest
 
-from botx import Bot, HandlerCollector, IncomingMessage, lifespan_wrapper
+from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wrapper
 
 
 @pytest.mark.asyncio
 async def test__exception_middleware__handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     exc = ValueError("test_error")
@@ -25,7 +26,7 @@ async def test__exception_middleware__handler_called(
 
     built_bot = Bot(
         collectors=[collector],
-        bot_accounts=[],
+        bot_accounts=[bot_account],
         exception_handlers={ValueError: value_error_handler},
     )
 
@@ -42,6 +43,7 @@ async def test__exception_middleware__handler_called(
 async def test__exception_middleware__without_handler_logs(
     incoming_message_factory: Callable[..., IncomingMessage],
     loguru_caplog: pytest.LogCaptureFixture,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -52,7 +54,7 @@ async def test__exception_middleware__without_handler_logs(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         raise ValueError("Testing exception middleware")
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -67,6 +69,7 @@ async def test__exception_middleware__without_handler_logs(
 async def test__exception_middleware__error_in_handler_logs(
     incoming_message_factory: Callable[..., IncomingMessage],
     loguru_caplog: pytest.LogCaptureFixture,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -86,7 +89,7 @@ async def test__exception_middleware__error_in_handler_logs(
 
     built_bot = Bot(
         collectors=[collector],
-        bot_accounts=[],
+        bot_accounts=[bot_account],
         exception_handlers={Exception: exception_handler},
     )
 

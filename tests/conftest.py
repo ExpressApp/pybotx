@@ -148,7 +148,7 @@ def incoming_message_payload_factory() -> Callable[..., Dict[str, Any]]:
         async_file: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         return {
-            "bot_id": str(bot_id) if bot_id else "c1b0c5df-075c-55ff-a931-bfa39ddfd424",
+            "bot_id": str(bot_id) if bot_id else "24348246-6791-4ac0-9d86-b948cd6a0e46",
             "command": {
                 "body": "/hello",
                 "command_type": "user",

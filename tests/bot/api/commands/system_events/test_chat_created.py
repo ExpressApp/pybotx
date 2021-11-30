@@ -5,6 +5,7 @@ import pytest
 
 from botx import (
     Bot,
+    BotAccount,
     Chat,
     ChatCreatedEvent,
     ChatCreatedMember,
@@ -16,10 +17,10 @@ from botx import (
 
 
 @pytest.mark.asyncio
-async def test__chat_created__succeed() -> None:
+async def test__chat_created__succeed(bot_account: BotAccount) -> None:
     # - Arrange -
     payload = {
-        "bot_id": "bc7f96e2-91a5-5de4-8bde-23765450cac8",
+        "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
         "command": {
             "body": "system:chat_created",
             "command_type": "system",
@@ -30,7 +31,7 @@ async def test__chat_created__succeed() -> None:
                 "members": [
                     {
                         "admin": True,
-                        "huid": "bc7f96e2-91a5-5de4-8bde-23765450cac8",
+                        "huid": "24348246-6791-4ac0-9d86-b948cd6a0e46",
                         "name": "Feature bot",
                         "user_kind": "botx",
                     },
@@ -83,7 +84,7 @@ async def test__chat_created__succeed() -> None:
         # Drop `raw_command` from asserting
         chat_created.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -92,7 +93,7 @@ async def test__chat_created__succeed() -> None:
     # - Assert -
     assert chat_created == ChatCreatedEvent(
         sync_id=UUID("2c1a31d6-f47f-5f54-aee2-d0c526bb1d54"),
-        bot_id=UUID("bc7f96e2-91a5-5de4-8bde-23765450cac8"),
+        bot_id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
         chat_name="Feature-party",
         chat=Chat(
             id=UUID("dea55ee4-7a9f-5da0-8c73-079f400ee517"),
@@ -103,7 +104,7 @@ async def test__chat_created__succeed() -> None:
         members=[
             ChatCreatedMember(
                 is_admin=True,
-                huid=UUID("bc7f96e2-91a5-5de4-8bde-23765450cac8"),
+                huid=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
                 username="Feature bot",
                 kind=UserKinds.BOT,
             ),

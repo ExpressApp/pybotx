@@ -5,6 +5,7 @@ import pytest
 
 from botx import (
     Bot,
+    BotAccount,
     HandlerCollector,
     HandlerNotFoundError,
     IncomingMessage,
@@ -16,6 +17,7 @@ from botx import (
 async def test__handler_collector__command_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -25,7 +27,7 @@ async def test__handler_collector__command_handler_called(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -39,6 +41,7 @@ async def test__handler_collector__command_handler_called(
 async def test__handler_collector__unicode_command_error_raised(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     russian_command = incoming_message_factory(body="/команда")
@@ -48,7 +51,7 @@ async def test__handler_collector__unicode_command_error_raised(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -63,6 +66,7 @@ async def test__handler_collector__correct_command_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
     incorrect_handler_trigger: Mock,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -76,7 +80,7 @@ async def test__handler_collector__correct_command_handler_called(
     async def incorrect_handler(message: IncomingMessage, bot: Bot) -> None:
         incorrect_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -92,6 +96,7 @@ async def test__handler_collector__correct_command_handler_called_in_merged_coll
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
     incorrect_handler_trigger: Mock,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -107,7 +112,7 @@ async def test__handler_collector__correct_command_handler_called_in_merged_coll
     async def incorrect_handler(message: IncomingMessage, bot: Bot) -> None:
         incorrect_handler_trigger()
 
-    built_bot = Bot(collectors=[collector_1, collector_2], bot_accounts=[])
+    built_bot = Bot(collectors=[collector_1, collector_2], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -122,6 +127,7 @@ async def test__handler_collector__correct_command_handler_called_in_merged_coll
 async def test__handler_collector__default_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -131,7 +137,7 @@ async def test__handler_collector__default_handler_called(
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -145,6 +151,7 @@ async def test__handler_collector__default_handler_called(
 async def test__handler_collector__empty_command_goes_to_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     empty_command = incoming_message_factory(body="")
@@ -154,7 +161,7 @@ async def test__handler_collector__empty_command_goes_to_default_handler(
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -168,6 +175,7 @@ async def test__handler_collector__empty_command_goes_to_default_handler(
 async def test__handler_collector__invalid_command_goes_to_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     empty_command = incoming_message_factory(body="/")
@@ -177,7 +185,7 @@ async def test__handler_collector__invalid_command_goes_to_default_handler(
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -190,12 +198,13 @@ async def test__handler_collector__invalid_command_goes_to_default_handler(
 @pytest.mark.asyncio
 async def test__handler_collector__handler_not_found_error_raised(
     incoming_message_factory: Callable[..., IncomingMessage],
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
     collector = HandlerCollector()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     # Exception throws in background task so we need to wrap lifespan
@@ -211,6 +220,7 @@ async def test__handler_collector__handler_not_found_error_raised(
 async def test__handler_collector__default_handler_in_first_collector_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -222,7 +232,7 @@ async def test__handler_collector__default_handler_in_first_collector_called(
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector_1, collector_2], bot_accounts=[])
+    built_bot = Bot(collectors=[collector_1, collector_2], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -236,6 +246,7 @@ async def test__handler_collector__default_handler_in_first_collector_called(
 async def test__handler_collector__default_handler_in_second_collector_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -247,7 +258,7 @@ async def test__handler_collector__default_handler_in_second_collector_called(
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector_1, collector_2], bot_accounts=[])
+    built_bot = Bot(collectors=[collector_1, collector_2], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

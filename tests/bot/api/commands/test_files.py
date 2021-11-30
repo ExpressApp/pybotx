@@ -3,7 +3,7 @@ from uuid import UUID
 
 import pytest
 
-from botx import Bot, HandlerCollector, IncomingMessage, lifespan_wrapper
+from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wrapper
 from botx.bot.models.commands.enums import AttachmentTypes
 from botx.shared_models.domain.files import Document, File, Image, Video, Voice
 
@@ -116,6 +116,7 @@ async def test__async_execute_raw_bot_command__different_file_types(
     api_async_file: Dict[str, Any],
     domain_async_file: File,
     incoming_message_payload_factory: Callable[..., Dict[str, Any]],
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     payload = incoming_message_payload_factory(async_file=api_async_file)
@@ -130,7 +131,7 @@ async def test__async_execute_raw_bot_command__different_file_types(
         # Drop `raw_command` from asserting
         incoming_message.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

@@ -2,7 +2,7 @@ from typing import Any, Callable, Dict, Optional
 
 import pytest
 
-from botx import Bot, HandlerCollector, IncomingMessage, lifespan_wrapper
+from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wrapper
 from botx.bot.models.commands.enums import AttachmentTypes
 from botx.shared_models.domain.attachments import (
     AttachmentContact,
@@ -82,6 +82,7 @@ async def test__async_execute_raw_bot_command__non_file_attachments_types(
     domain_attachment: IncomingAttachment,
     attr_name: str,
     incoming_message_payload_factory: Callable[..., Dict[str, Any]],
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     payload = incoming_message_payload_factory(attachment=api_attachment)
@@ -96,7 +97,7 @@ async def test__async_execute_raw_bot_command__non_file_attachments_types(
         # Drop `raw_command` from asserting
         incoming_message.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -186,6 +187,7 @@ async def test__async_execute_raw_bot_command__file_attachments_types(
     api_attachment: Dict[str, Any],
     domain_attachment: IncomingAttachment,
     incoming_message_payload_factory: Callable[..., Dict[str, Any]],
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     payload = incoming_message_payload_factory(attachment=api_attachment)
@@ -200,7 +202,7 @@ async def test__async_execute_raw_bot_command__file_attachments_types(
         # Drop `raw_command` from asserting
         incoming_message.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
