@@ -28,43 +28,33 @@ class BotAPIDeviceMeta(VerifiedPayloadBaseModel):
     permissions: Optional[Dict[str, Any]]
 
 
-class BotAPIBaseSender(VerifiedPayloadBaseModel):
+class BaseBotAPIContext(VerifiedPayloadBaseModel):
+    host: str
+
+
+class BotAPIUserContext(BaseBotAPIContext):
+    user_huid: UUID
     ad_domain: Optional[str]
     ad_login: Optional[str]
+    username: Optional[str]
+    is_admin: Optional[bool]
+    is_creator: Optional[bool]
+
+
+class BotAPIChatContext(BaseBotAPIContext):
+    group_chat_id: UUID
+    chat_type: APIChatTypes
+
+
+class BotAPIDeviceContext(BaseBotAPIContext):
     app_version: Optional[str]
+    platform: Optional[BotAPIClientPlatforms]
+    platform_package_id: Optional[str]
     device: Optional[str]
     device_meta: BotAPIDeviceMeta
     device_software: Optional[str]
-    host: str
-    locale: Optional[str]
     manufacturer: Optional[str]
-    platform: Optional[BotAPIClientPlatforms]
-    platform_package_id: Optional[str]
-    username: Optional[str]
-
-
-class BotAPIServerEventSender(BotAPIBaseSender):
-    is_admin: Literal[None]
-    is_creator: Literal[None]
-    chat_type: Optional[APIChatTypes]
-    group_chat_id: Optional[UUID]
-    user_huid: Optional[UUID]
-
-
-class BotAPIChatEventSender(BotAPIBaseSender):
-    is_admin: Literal[None]
-    is_creator: Literal[None]
-    chat_type: APIChatTypes
-    group_chat_id: UUID
-    user_huid: Optional[UUID]
-
-
-class BotAPIUserEventSender(BotAPIBaseSender):
-    is_admin: bool
-    is_creator: bool
-    chat_type: APIChatTypes
-    group_chat_id: UUID
-    user_huid: UUID
+    locale: Optional[str]
 
 
 class BotAPIBaseCommand(VerifiedPayloadBaseModel):

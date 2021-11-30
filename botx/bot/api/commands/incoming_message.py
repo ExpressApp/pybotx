@@ -6,8 +6,10 @@ from pydantic import Field
 from botx.bot.api.attachments import BotAPIAttachment, convert_api_attachment_to_domain
 from botx.bot.api.commands.base import (
     BotAPIBaseCommand,
+    BotAPIChatContext,
     BotAPICommandPayload,
-    BotAPIUserEventSender,
+    BotAPIDeviceContext,
+    BotAPIUserContext,
 )
 from botx.bot.api.entities import BotAPIEntity, convert_bot_api_entity_to_domain
 from botx.bot.api.enums import convert_client_platform
@@ -33,9 +35,17 @@ from botx.shared_models.domain.attachments import (
 from botx.shared_models.domain.files import File
 
 
+class BotAPIIncomingMessageContext(
+    BotAPIUserContext,
+    BotAPIChatContext,
+    BotAPIDeviceContext,
+):
+    """Class for merging contexts."""
+
+
 class BotAPIIncomingMessage(BotAPIBaseCommand):
     payload: BotAPICommandPayload = Field(..., alias="command")
-    sender: BotAPIUserEventSender = Field(..., alias="from")
+    sender: BotAPIIncomingMessageContext = Field(..., alias="from")
 
     source_sync_id: Optional[UUID]
     attachments: List[BotAPIAttachment]
