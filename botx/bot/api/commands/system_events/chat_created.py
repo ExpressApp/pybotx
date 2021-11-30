@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import Field
 
-from botx.bot.api.commands.base import BotAPIBaseCommand, BotAPIChatEventSender
+from botx.bot.api.commands.base import BotAPIBaseCommand, BotAPIChatContext
 from botx.bot.api.enums import BotAPICommandTypes
 from botx.bot.models.commands.chat import Chat
 from botx.bot.models.commands.system_events.chat_created import (
@@ -44,7 +44,7 @@ class BotAPIChatCreatedPayload(VerifiedPayloadBaseModel):
 
 class BotAPIChatCreated(BotAPIBaseCommand):
     payload: BotAPIChatCreatedPayload = Field(..., alias="command")
-    sender: BotAPIChatEventSender = Field(..., alias="from")
+    sender: BotAPIChatContext = Field(..., alias="from")
 
     def to_domain(self, raw_command: Dict[str, Any]) -> ChatCreatedEvent:
         members = [

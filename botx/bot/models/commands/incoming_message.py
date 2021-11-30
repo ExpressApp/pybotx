@@ -40,8 +40,8 @@ class UserEventSender:
     ad_login: Optional[str]
     ad_domain: Optional[str]
     username: Optional[str]
-    is_chat_admin: bool
-    is_chat_creator: bool
+    is_chat_admin: Optional[bool]
+    is_chat_creator: Optional[bool]
     locale: Optional[str]
     express_app: ExpressApp
     device: UserDevice

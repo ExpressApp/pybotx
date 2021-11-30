@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import Field
 
-from botx.bot.api.commands.base import BotAPIBaseCommand, BotAPIChatEventSender
+from botx.bot.api.commands.base import BotAPIBaseCommand, BotAPIChatContext
 from botx.bot.api.enums import BotAPICommandTypes
 from botx.bot.models.commands.chat import Chat
 from botx.bot.models.commands.system_events.deleted_from_chat import (
@@ -30,7 +30,7 @@ class BotAPIDeletedFromChatPayload(VerifiedPayloadBaseModel):
 
 class BotAPIDeletedFromChat(BotAPIBaseCommand):
     payload: BotAPIDeletedFromChatPayload = Field(..., alias="command")
-    sender: BotAPIChatEventSender = Field(..., alias="from")
+    sender: BotAPIChatContext = Field(..., alias="from")
 
     def to_domain(self, raw_command: Dict[str, Any]) -> DeletedFromChatEvent:
         return DeletedFromChatEvent(
