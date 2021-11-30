@@ -2,13 +2,14 @@ from typing import Callable, Optional
 
 import pytest
 
-from botx import Bot, HandlerCollector, IncomingMessage, lifespan_wrapper
+from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wrapper
 from botx.bot.handler import IncomingMessageHandlerFunc
 
 
 @pytest.mark.asyncio
 async def test__bot_state__save_changes_between_middleware_and_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -28,7 +29,11 @@ async def test__bot_state__save_changes_between_middleware_and_handler(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         pass
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[], middlewares=[middleware])
+    built_bot = Bot(
+        collectors=[collector],
+        bot_accounts=[bot_account],
+        middlewares=[middleware],
+    )
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -41,6 +46,7 @@ async def test__bot_state__save_changes_between_middleware_and_handler(
 @pytest.mark.asyncio
 async def test__message_state__save_changes_between_middleware_and_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     incoming_message: Optional[IncomingMessage] = None
@@ -62,7 +68,11 @@ async def test__message_state__save_changes_between_middleware_and_handler(
         nonlocal incoming_message
         incoming_message = message
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[], middlewares=[middleware])
+    built_bot = Bot(
+        collectors=[collector],
+        bot_accounts=[bot_account],
+        middlewares=[middleware],
+    )
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

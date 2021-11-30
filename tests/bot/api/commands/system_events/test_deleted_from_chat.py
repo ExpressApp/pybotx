@@ -5,6 +5,7 @@ import pytest
 
 from botx import (
     Bot,
+    BotAccount,
     Chat,
     ChatTypes,
     DeletedFromChatEvent,
@@ -14,10 +15,10 @@ from botx import (
 
 
 @pytest.mark.asyncio
-async def test__deleted_from_chat__succeed() -> None:
+async def test__deleted_from_chat__succeed(bot_account: BotAccount) -> None:
     # - Arrange -
     payload = {
-        "bot_id": "bc7f96e2-91a5-5de4-8bde-23765450cac8",
+        "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
         "command": {
             "body": "system:deleted_from_chat",
             "command_type": "system",
@@ -66,7 +67,7 @@ async def test__deleted_from_chat__succeed() -> None:
         # Drop `raw_command` from asserting
         deleted_from_chat.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -74,7 +75,7 @@ async def test__deleted_from_chat__succeed() -> None:
 
     # - Assert -
     assert deleted_from_chat == DeletedFromChatEvent(
-        bot_id=UUID("bc7f96e2-91a5-5de4-8bde-23765450cac8"),
+        bot_id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
         raw_command=None,
         huids=[
             UUID("ab103983-6001-44e9-889e-d55feb295494"),

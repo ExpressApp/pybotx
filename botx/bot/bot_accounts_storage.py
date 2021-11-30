@@ -39,6 +39,9 @@ class BotAccountsStorage:
 
         return base64.b16encode(signed_bot_id).decode()
 
+    def ensure_bot_id_exists(self, bot_id: UUID) -> None:
+        self._get_bot_account(bot_id)
+
     def _get_bot_account(self, bot_id: UUID) -> BotAccount:
         for bot_account in self._bot_accounts:
             if bot_account.bot_id == bot_id:

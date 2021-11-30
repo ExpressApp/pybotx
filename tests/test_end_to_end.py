@@ -17,6 +17,7 @@ from botx import (
     BotAccount,
     HandlerCollector,
     IncomingMessage,
+    UnknownBotAccountError,
     build_accepted_response,
     build_bot_disabled_response,
 )
@@ -44,7 +45,8 @@ async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
     await bot.answer(f"Hi, {message.mentions[0]}")
 
 
-bot = Bot(collectors=[collector], bot_accounts=build_bot_accounts_from_env())
+bot_accounts = build_bot_accounts_from_env()
+bot = Bot(collectors=[collector], bot_accounts=bot_accounts)
 
 
 # - Starlette -
@@ -54,6 +56,14 @@ async def command_handler(request: Request) -> JSONResponse:
     except ValueError:
         error_label = "Bot command validation error"
         logger.exception(error_label)
+
+        return JSONResponse(
+            build_bot_disabled_response(error_label),
+            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
+        )
+    except UnknownBotAccountError as exc:
+        error_label = f"No credentials for bot {exc.bot_id}"
+        logger.warning(error_label)
 
         return JSONResponse(
             build_bot_disabled_response(error_label),
@@ -121,8 +131,9 @@ def test__web_app__bot_status(
 def test__web_app__bot_command(
     test_client: TestClient,
 ) -> None:
+    bot_id = str(bot_accounts[0].bot_id)
     payload = {
-        "bot_id": "c1b0c5df-075c-55ff-a931-bfa39ddfd424",
+        "bot_id": bot_id,
         "command": {
             "body": "/hello",
             "command_type": "user",
@@ -165,6 +176,55 @@ def test__web_app__bot_command(
     )
 
     assert response.status_code == HTTPStatus.ACCEPTED
+
+
+def test__web_app__unknown_bot_response(
+    test_client: TestClient,
+) -> None:
+    payload = {
+        "bot_id": "123e4567-e89b-12d3-a456-426655440000",
+        "command": {
+            "body": "/hello",
+            "command_type": "user",
+            "data": {},
+            "metadata": {},
+        },
+        "attachments": [],
+        "async_files": [],
+        "entities": [],
+        "source_sync_id": None,
+        "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
+        "from": {
+            "ad_domain": None,
+            "ad_login": None,
+            "app_version": None,
+            "chat_type": "chat",
+            "device": None,
+            "device_meta": {
+                "permissions": None,
+                "pushes": False,
+                "timezone": "Europe/Moscow",
+            },
+            "device_software": None,
+            "group_chat_id": "30dc1980-643a-00ad-37fc-7cc10d74e935",
+            "host": "cts.example.com",
+            "is_admin": True,
+            "is_creator": True,
+            "locale": "en",
+            "manufacturer": None,
+            "platform": None,
+            "platform_package_id": None,
+            "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
+            "username": None,
+        },
+        "proto_version": 4,
+    }
+    response = test_client.post(
+        "/command",
+        json=payload,
+    )
+
+    assert response.status_code == HTTPStatus.SERVICE_UNAVAILABLE
 
 
 def test__web_app__disabled_bot_response(

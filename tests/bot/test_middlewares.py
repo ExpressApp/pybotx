@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from botx import Bot, HandlerCollector, IncomingMessage, lifespan_wrapper
+from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wrapper
 from botx.bot.handler import IncomingMessageHandlerFunc, Middleware
 
 
@@ -11,6 +11,7 @@ from botx.bot.handler import IncomingMessageHandlerFunc, Middleware
 async def test__middlewares__correct_order(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
@@ -43,7 +44,7 @@ async def test__middlewares__correct_order(
 
     built_bot = Bot(
         collectors=[collector],
-        bot_accounts=[],
+        bot_accounts=[bot_account],
         middlewares=[middleware_factory(1), middleware_factory(2)],
     )
 
@@ -60,6 +61,7 @@ async def test__middlewares__correct_order(
 @pytest.mark.asyncio
 async def test__middlewares__called_in_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
@@ -88,7 +90,7 @@ async def test__middlewares__called_in_default_handler(
 
     built_bot = Bot(
         collectors=[collector],
-        bot_accounts=[],
+        bot_accounts=[bot_account],
         middlewares=[middleware_factory(1), middleware_factory(2)],
     )
 
@@ -103,6 +105,7 @@ async def test__middlewares__called_in_default_handler(
 @pytest.mark.asyncio
 async def test__middlewares__correct_child_collector_middlewares(
     incoming_message_factory: Callable[..., IncomingMessage],
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
@@ -138,7 +141,7 @@ async def test__middlewares__correct_child_collector_middlewares(
         pass
 
     collector_1.include(collector_2)
-    built_bot = Bot(collectors=[collector_1], bot_accounts=[])
+    built_bot = Bot(collectors=[collector_1], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -151,6 +154,7 @@ async def test__middlewares__correct_child_collector_middlewares(
 @pytest.mark.asyncio
 async def test__middlewares__correct_parent_collector_middlewares(
     incoming_message_factory: Callable[..., IncomingMessage],
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
@@ -186,7 +190,7 @@ async def test__middlewares__correct_parent_collector_middlewares(
         pass
 
     collector_1.include(collector_2)
-    built_bot = Bot(collectors=[collector_1], bot_accounts=[])
+    built_bot = Bot(collectors=[collector_1], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

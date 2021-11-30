@@ -6,6 +6,7 @@ import pytest
 
 from botx import (
     Bot,
+    BotAccount,
     Chat,
     ChatTypes,
     ClientPlatforms,
@@ -24,10 +25,12 @@ from botx.shared_models.domain.files import Image
 
 
 @pytest.mark.asyncio
-async def test__async_execute_raw_bot_command__minimally_filled_incoming_message() -> None:
+async def test__async_execute_raw_bot_command__minimally_filled_incoming_message(
+    bot_account: BotAccount,
+) -> None:
     # - Arrange -
     payload = {
-        "bot_id": "c1b0c5df-075c-55ff-a931-bfa39ddfd424",
+        "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
         "command": {
             "body": "/hello",
             "command_type": "user",
@@ -75,7 +78,7 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
         # Drop `raw_command` from asserting
         incoming_message.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -83,7 +86,7 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
 
     # - Assert -
     assert incoming_message == IncomingMessage(
-        bot_id=UUID("c1b0c5df-075c-55ff-a931-bfa39ddfd424"),
+        bot_id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
         sync_id=UUID("6f40a492-4b5f-54f3-87ee-77126d825b51"),
         source_sync_id=None,
         body="/hello",
@@ -123,10 +126,11 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
 @pytest.mark.asyncio
 async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
     datetime_formatter: Callable[[str], datetime],
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     payload = {
-        "bot_id": "c1b0c5df-075c-55ff-a931-bfa39ddfd424",
+        "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
         "command": {
             "body": "/hello",
             "command_type": "user",
@@ -229,7 +233,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
         # Drop `raw_command` from asserting
         incoming_message.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -237,7 +241,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
 
     # - Assert -
     assert incoming_message == IncomingMessage(
-        bot_id=UUID("c1b0c5df-075c-55ff-a931-bfa39ddfd424"),
+        bot_id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
         sync_id=UUID("6f40a492-4b5f-54f3-87ee-77126d825b51"),
         source_sync_id=UUID("bc3d06ed-7b2e-41ad-99f9-ca28adc2c88d"),
         body="/hello",
@@ -301,10 +305,12 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
 
 
 @pytest.mark.asyncio
-async def test__async_execute_raw_bot_command__all_mention_types() -> None:
+async def test__async_execute_raw_bot_command__all_mention_types(
+    bot_account: BotAccount,
+) -> None:
     # - Arrange -
     payload = {
-        "bot_id": "c1b0c5df-075c-55ff-a931-bfa39ddfd424",
+        "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
         "command": {
             "body": "/hello",
             "command_type": "user",
@@ -407,7 +413,7 @@ async def test__async_execute_raw_bot_command__all_mention_types() -> None:
         # Drop `raw_command` from asserting
         incoming_message.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

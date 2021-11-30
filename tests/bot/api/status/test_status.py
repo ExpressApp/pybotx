@@ -50,7 +50,7 @@ async def test__raw_get_status__maximum_filled_succeed() -> None:
     query = {
         "ad_domain": "domain",
         "ad_login": "login",
-        "bot_id": "c1b0c5df-075c-55ff-a931-bfa39ddfd424",
+        "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
         "chat_type": "chat",
         "is_admin": "true",
         "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",

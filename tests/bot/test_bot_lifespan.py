@@ -12,6 +12,7 @@ from botx import Bot, BotAccount, HandlerCollector, IncomingMessage
 async def test__shutdown__wait_for_active_handlers(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
+    bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -22,7 +23,7 @@ async def test__shutdown__wait_for_active_handlers(
         await asyncio.sleep(0)  # Return control to event loop
         correct_handler_trigger()
 
-    bot = Bot(collectors=[collector], bot_accounts=[])
+    bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     bot.async_execute_bot_command(user_command)
