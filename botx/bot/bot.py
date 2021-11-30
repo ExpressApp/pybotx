@@ -554,6 +554,8 @@ class Bot:
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        wait_callback: bool = True,
+        callback_timeout: MissingOptional[int] = Undefined,
     ) -> UUID:
         """Answer to incoming message.
 
@@ -589,6 +591,8 @@ class Bot:
             bubbles=bubbles,
             keyboard=keyboard,
             file=file,
+            wait_callback=wait_callback,
+            callback_timeout=callback_timeout,
         )
 
     async def send(
@@ -601,6 +605,8 @@ class Bot:
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        wait_callback: bool = True,
+        callback_timeout: MissingOptional[int] = Undefined,
     ) -> UUID:
         """Send message to chat.
 
@@ -625,6 +631,7 @@ class Bot:
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
+            self._callback_manager,
         )
 
         payload = BotXAPIDirectNotificationRequestPayload.from_domain(
@@ -635,7 +642,11 @@ class Bot:
             keyboard,
             file,
         )
-        botx_api_sync_id = await method.execute(payload)
+        botx_api_sync_id = await method.execute(
+            payload,
+            wait_callback,
+            not_undefined(callback_timeout, self.default_callback_timeout),
+        )
 
         return botx_api_sync_id.to_domain()
 

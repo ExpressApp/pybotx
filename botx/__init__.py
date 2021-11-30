@@ -60,6 +60,7 @@ from botx.client.files_api.exceptions import FileDeletedError, FileMetadataNotFo
 from botx.client.notifications_api.exceptions import (
     BotIsNotChatMemberError,
     FinalRecipientsListEmptyError,
+    StealthModeDisabledError,
 )
 from botx.client.notifications_api.markup import BubbleMarkup, Button, KeyboardMarkup
 from botx.client.users_api.exceptions import UserNotFoundError
@@ -69,9 +70,9 @@ __all__ = (
     "AddedToChatEvent",
     "AnswerDestinationLookupError",
     "Bot",
+    "BotAccount",
     "BotAPIBotDisabledResponse",
     "BotAPIMethodFailedCallback",
-    "BotAccount",
     "BotIsNotChatMemberError",
     "BotMenu",
     "BotShuttignDownError",
@@ -109,6 +110,7 @@ __all__ = (
     "PermissionDeniedError",
     "RateLimitReachedError",
     "StatusRecipient",
+    "StealthModeDisabledError",
     "UnknownBotAccountError",
     "UnsupportedBotAPIVersionError",
     "UserDevice",

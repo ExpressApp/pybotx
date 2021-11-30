@@ -7,3 +7,7 @@ class BotIsNotChatMemberError(BaseClientException):
 
 class FinalRecipientsListEmptyError(BaseClientException):
     """Resulting event recipients list is empty."""
+
+
+class StealthModeDisabledError(BaseClientException):
+    """Requested stealth mode disabled in specified chat."""
