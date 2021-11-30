@@ -42,7 +42,7 @@ collector = HandlerCollector()
 
 @collector.command("/debug", description="Simple debug command")
 async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
-    await bot.answer(f"Hi, {message.mentions[0]}")
+    await bot.answer("Hi!")
 
 
 bot_accounts = build_bot_accounts_from_env()
@@ -79,7 +79,7 @@ async def status_handler(request: Request) -> JSONResponse:
 
 
 async def callback_handler(request: Request) -> JSONResponse:
-    logger.info(await request.json())
+    bot.set_raw_botx_method_result(await request.json())
     return JSONResponse(build_accepted_response(), status_code=HTTPStatus.ACCEPTED)
 
 

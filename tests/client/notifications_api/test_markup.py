@@ -1,3 +1,4 @@
+import asyncio
 from http import HTTPStatus
 from uuid import UUID
 
@@ -29,11 +30,10 @@ async def test__markup__defaults_filled(
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
-        f"https://{host}/api/v3/botx/notification/callback/direct",
+        f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
             "group_chat_id": str(chat_id),
-            "recipients": "all",
             "notification": {
                 "status": "ok",
                 "body": "Hi!",
@@ -89,16 +89,28 @@ async def test__markup__defaults_filled(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        message_id = await bot.send(
-            "Hi!",
-            bot_id=bot_id,
-            chat_id=chat_id,
-            bubbles=bubbles,
-            keyboard=keyboard,
+        task = asyncio.create_task(
+            bot.send(
+                "Hi!",
+                bot_id=bot_id,
+                chat_id=chat_id,
+                bubbles=bubbles,
+                keyboard=keyboard,
+            ),
+        )
+
+        await asyncio.sleep(0)  # Return control to event loop
+
+        bot.set_raw_botx_method_result(
+            {
+                "status": "ok",
+                "sync_id": str(sync_id),
+                "result": {},
+            },
         )
 
     # - Assert -
-    assert message_id == sync_id
+    assert (await task) == sync_id
     assert endpoint.called
 
 
@@ -115,11 +127,10 @@ async def test__markup__correctly_built(
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
-        f"https://{host}/api/v3/botx/notification/callback/direct",
+        f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
             "group_chat_id": str(chat_id),
-            "recipients": "all",
             "notification": {
                 "status": "ok",
                 "body": "Hi!",
@@ -208,13 +219,25 @@ async def test__markup__correctly_built(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        message_id = await bot.send(
-            "Hi!",
-            bot_id=bot_id,
-            chat_id=chat_id,
-            bubbles=bubbles,
+        task = asyncio.create_task(
+            bot.send(
+                "Hi!",
+                bot_id=bot_id,
+                chat_id=chat_id,
+                bubbles=bubbles,
+            ),
+        )
+
+        await asyncio.sleep(0)  # Return control to event loop
+
+        bot.set_raw_botx_method_result(
+            {
+                "status": "ok",
+                "sync_id": str(sync_id),
+                "result": {},
+            },
         )
 
     # - Assert -
-    assert message_id == sync_id
+    assert (await task) == sync_id
     assert endpoint.called

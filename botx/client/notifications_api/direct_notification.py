@@ -1,9 +1,16 @@
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
 from botx.bot.models.outgoing_attachment import OutgoingAttachment
 from botx.client.attachments import BotXAPIAttachment
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
+from botx.client.botx_method import callback_exception_thrower
+from botx.client.exceptions.common import ChatNotFoundError
+from botx.client.notifications_api.exceptions import (
+    BotIsNotChatMemberError,
+    FinalRecipientsListEmptyError,
+    StealthModeDisabledError,
+)
 from botx.client.notifications_api.markup import (
     BotXAPIMarkup,
     BubbleMarkup,
@@ -36,16 +43,10 @@ class BotXAPIDirectNotification(UnverifiedPayloadBaseModel):
     mentions: Missing[List[BotXAPIMention]]
 
 
-class BotXAPIDirectNotificationOptions(UnverifiedPayloadBaseModel):
-    raw_mentions: bool = False  # TODO: Delete in v4
-
-
 class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
     group_chat_id: UUID
-    recipients: Literal["all"]
     notification: BotXAPIDirectNotification
     file: Missing[BotXAPIAttachment]
-    opts: Missing[BotXAPIDirectNotificationOptions]
 
     @classmethod
     def from_domain(
@@ -64,13 +65,8 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
 
         body, mentions = find_and_replace_embed_mentions(body)
 
-        opts: Missing[BotXAPIDirectNotificationOptions] = Undefined
-        if mentions:
-            opts = BotXAPIDirectNotificationOptions(raw_mentions=True)
-
         return cls(
             group_chat_id=chat_id,
-            recipients="all",
             notification=BotXAPIDirectNotification(
                 status="ok",
                 body=body,
@@ -80,7 +76,6 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
                 mentions=mentions or Undefined,
             ),
             file=api_file,
-            opts=opts,
         )
 
 
@@ -97,11 +92,25 @@ class BotXAPIDirectNotificationResponsePayload(VerifiedPayloadBaseModel):
 
 
 class DirectNotificationMethod(AuthorizedBotXMethod):
+    error_callback_handlers = {
+        **AuthorizedBotXMethod.error_callback_handlers,
+        "chat_not_found": callback_exception_thrower(ChatNotFoundError),
+        "bot_is_not_a_chat_member": callback_exception_thrower(
+            BotIsNotChatMemberError,
+        ),
+        "event_recipients_list_is_empty": callback_exception_thrower(
+            FinalRecipientsListEmptyError,
+        ),
+        "stealth_mode_disabled": callback_exception_thrower(StealthModeDisabledError),
+    }
+
     async def execute(
         self,
         payload: BotXAPIDirectNotificationRequestPayload,
+        wait_callback: bool,
+        callback_timeout: Optional[int],
     ) -> BotXAPIDirectNotificationResponsePayload:
-        path = "/api/v3/botx/notification/callback/direct"
+        path = "/api/v4/botx/notifications/direct"
 
         response = await self._botx_method_call(
             "POST",
@@ -109,7 +118,14 @@ class DirectNotificationMethod(AuthorizedBotXMethod):
             json=payload.jsonable_dict(),
         )
 
-        return self._verify_and_extract_api_model(
+        api_model = self._verify_and_extract_api_model(
             BotXAPIDirectNotificationResponsePayload,
             response,
         )
+
+        await self._process_callback(
+            api_model.result.sync_id,
+            wait_callback,
+            callback_timeout,
+        )
+        return api_model
