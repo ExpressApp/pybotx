@@ -18,9 +18,8 @@ from botx import (
     UserEventSender,
     lifespan_wrapper,
 )
-from botx.bot.models.commands.entities import Forward, Mention, Reply
+from botx.bot.models.commands.entities import Forward, Mention, MentionList, Reply
 from botx.bot.models.commands.enums import AttachmentTypes
-from botx.bot.models.commands.mentions import MentionList
 from botx.shared_models.domain.files import Image
 
 
@@ -163,7 +162,17 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
                     "source_sync_id": "a7ffba12-8d0a-534e-8896-a0aa2d93a434",
                     "sender": "c06a96fa-7881-0bb6-0e0b-0af72fe3683f",
                     "body": "все равно документацию никто не читает...",
-                    "mentions": [],
+                    "mentions": [
+                        {
+                            "mention_type": "contact",
+                            "mention_id": "c06a96fa-7881-0bb6-0e0b-0af72fe3683f",
+                            "mention_data": {
+                                "user_huid": "ab103983-6001-44e9-889e-d55feb295494",
+                                "name": "Вася Иванов",
+                                "conn_type": "cts",
+                            },
+                        },
+                    ],
                     "attachment": None,
                     "reply_type": "chat",
                     "source_group_chat_id": "918da23a-1c9a-506e-8a6f-1328f1499ee8",
@@ -302,6 +311,15 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
             author_id=UUID("c06a96fa-7881-0bb6-0e0b-0af72fe3683f"),
             sync_id=UUID("a7ffba12-8d0a-534e-8896-a0aa2d93a434"),
             body="все равно документацию никто не читает...",
+            mentions=MentionList(
+                [
+                    Mention(
+                        type=MentionTypes.CONTACT,
+                        entity_id=UUID("ab103983-6001-44e9-889e-d55feb295494"),
+                        name="Вася Иванов",
+                    ),
+                ],
+            ),
         ),
     )
 

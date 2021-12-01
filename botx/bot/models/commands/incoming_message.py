@@ -5,9 +5,8 @@ from uuid import UUID
 
 from botx.bot.models.commands.base import BotCommandBase
 from botx.bot.models.commands.chat import Chat
-from botx.bot.models.commands.entities import Forward, Reply
+from botx.bot.models.commands.entities import Forward, MentionList, Reply
 from botx.bot.models.commands.enums import ClientPlatforms
-from botx.bot.models.commands.mentions import MentionList
 from botx.shared_models.domain.attachments import (
     AttachmentContact,
     AttachmentLink,
