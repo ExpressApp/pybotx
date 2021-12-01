@@ -13,6 +13,7 @@ async def test__shutdown__wait_for_active_handlers(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
     bot_account: BotAccount,
+    mock_authorization: None,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")

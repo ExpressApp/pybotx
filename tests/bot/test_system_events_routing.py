@@ -10,6 +10,7 @@ async def test__system_event_handler__called(
     chat_created: ChatCreatedEvent,
     correct_handler_trigger: Mock,
     bot_account: BotAccount,
+    mock_authorization: None,
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -32,6 +33,7 @@ async def test__system_event_handler__called(
 async def test__system_event_handler__no_handler_for_system_event(
     chat_created: ChatCreatedEvent,
     bot_account: BotAccount,
+    mock_authorization: None,
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -51,6 +53,7 @@ async def test__system_event_handler__handler_in_first_collector(
     chat_created: ChatCreatedEvent,
     correct_handler_trigger: Mock,
     bot_account: BotAccount,
+    mock_authorization: None,
 ) -> None:
     # - Arrange -
     collector_1 = HandlerCollector()
@@ -75,6 +78,7 @@ async def test__system_event_handler__handler_in_second_collector(
     chat_created: ChatCreatedEvent,
     correct_handler_trigger: Mock,
     bot_account: BotAccount,
+    mock_authorization: None,
 ) -> None:
     # - Arrange -
     collector_1 = HandlerCollector()

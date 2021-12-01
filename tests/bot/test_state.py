@@ -10,6 +10,7 @@ from botx.bot.handler import IncomingMessageHandlerFunc
 async def test__bot_state__save_changes_between_middleware_and_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
     bot_account: BotAccount,
+    mock_authorization: None,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -47,6 +48,7 @@ async def test__bot_state__save_changes_between_middleware_and_handler(
 async def test__message_state__save_changes_between_middleware_and_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
     bot_account: BotAccount,
+    mock_authorization: None,
 ) -> None:
     # - Arrange -
     incoming_message: Optional[IncomingMessage] = None

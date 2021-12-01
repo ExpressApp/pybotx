@@ -20,6 +20,6 @@ class BotAPIStatusRecipient(VerifiedPayloadBaseModel):
             huid=self.user_huid,
             ad_login=self.ad_login,
             ad_domain=self.ad_domain,
-            is_admin=bool(self.is_admin),
+            is_admin=self.is_admin,
             chat_type=convert_chat_type_to_domain(self.chat_type),
         )

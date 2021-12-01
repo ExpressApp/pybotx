@@ -12,6 +12,7 @@ async def test__middlewares__correct_order(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
     bot_account: BotAccount,
+    mock_authorization: None,
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
@@ -62,6 +63,7 @@ async def test__middlewares__correct_order(
 async def test__middlewares__called_in_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
     bot_account: BotAccount,
+    mock_authorization: None,
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
@@ -106,6 +108,7 @@ async def test__middlewares__called_in_default_handler(
 async def test__middlewares__correct_child_collector_middlewares(
     incoming_message_factory: Callable[..., IncomingMessage],
     bot_account: BotAccount,
+    mock_authorization: None,
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
@@ -155,6 +158,7 @@ async def test__middlewares__correct_child_collector_middlewares(
 async def test__middlewares__correct_parent_collector_middlewares(
     incoming_message_factory: Callable[..., IncomingMessage],
     bot_account: BotAccount,
+    mock_authorization: None,
 ) -> None:
     # - Arrange -
     middlewares_called_order = []

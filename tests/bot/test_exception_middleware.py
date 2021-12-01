@@ -11,6 +11,7 @@ from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wr
 async def test__exception_middleware__handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     bot_account: BotAccount,
+    mock_authorization: None,
 ) -> None:
     # - Arrange -
     exc = ValueError("test_error")
@@ -44,6 +45,7 @@ async def test__exception_middleware__without_handler_logs(
     incoming_message_factory: Callable[..., IncomingMessage],
     loguru_caplog: pytest.LogCaptureFixture,
     bot_account: BotAccount,
+    mock_authorization: None,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -70,6 +72,7 @@ async def test__exception_middleware__error_in_handler_logs(
     incoming_message_factory: Callable[..., IncomingMessage],
     loguru_caplog: pytest.LogCaptureFixture,
     bot_account: BotAccount,
+    mock_authorization: None,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
