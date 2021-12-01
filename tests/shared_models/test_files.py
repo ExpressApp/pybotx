@@ -50,7 +50,7 @@ async def test__async_file__open(
             "file_hash": "Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
             "file_encryption_algo": "stream",
             "chunk_size": 2097152,
-            "file_id": file_id,
+            "file_id": str(file_id),
         },
         group_chat_id=chat_id,
         host=host,

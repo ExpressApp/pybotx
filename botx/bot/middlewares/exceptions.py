@@ -1,9 +1,8 @@
 from typing import TYPE_CHECKING, Awaitable, Callable, Dict, Optional, Type
 
-from loguru import logger
-
 from botx.bot.handler import IncomingMessageHandlerFunc
 from botx.bot.models.commands.incoming_message import IncomingMessage
+from botx.logger import logger
 
 if TYPE_CHECKING:  # To avoid circular import
     from botx.bot.bot import Bot

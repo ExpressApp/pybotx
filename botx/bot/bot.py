@@ -5,7 +5,6 @@ from uuid import UUID
 from weakref import WeakSet
 
 import httpx
-from loguru import logger
 from pydantic import ValidationError, parse_obj_as
 
 from botx.bot.api.commands.commands import BotAPICommand
@@ -92,6 +91,7 @@ from botx.client.users_api.search_user_by_login import (
 )
 from botx.client.users_api.user_from_search import UserFromSearch
 from botx.converters import optional_sequence_to_list
+from botx.logger import logger, pformat_jsonable_obj
 from botx.missing import Missing, MissingOptional, Undefined, not_undefined
 from botx.shared_models.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from botx.shared_models.chat_types import ChatTypes
@@ -141,6 +141,11 @@ class Bot:
         except ValidationError as validation_exc:
             raise ValueError("Bot command validation error") from validation_exc
 
+        logger.opt(lazy=True).debug(
+            "Got command: {command}",
+            command=lambda: pformat_jsonable_obj(raw_bot_command),
+        )
+
         bot_command = bot_api_command.to_domain(raw_bot_command)
         self.async_execute_bot_command(bot_command)
 
@@ -154,6 +159,11 @@ class Bot:
         self._tasks.add(task)
 
     async def raw_get_status(self, query_params: Dict[str, str]) -> Dict[str, Any]:
+        logger.opt(lazy=True).debug(
+            "Got status: {status}",
+            status=lambda: pformat_jsonable_obj(query_params),
+        )
+
         try:
             bot_api_status_recipient = BotAPIStatusRecipient.parse_obj(query_params)
         except ValidationError as exc:
@@ -171,11 +181,14 @@ class Bot:
         self,
         raw_botx_method_result: Dict[str, Any],
     ) -> None:
+        logger.debug("Got callback: {callback}", callback=raw_botx_method_result)
+
         callback: BotXMethodCallback = parse_obj_as(
             # Same ignore as in pydantic
             BotXMethodCallback,  # type: ignore[arg-type]
             raw_botx_method_result,
         )
+
         self._callback_manager.set_botx_method_callback_result(callback)
 
     async def startup(self) -> None:

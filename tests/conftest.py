@@ -8,10 +8,10 @@ import httpx
 import pytest
 import respx
 from aiofiles.tempfile import NamedTemporaryFile
-from loguru import logger
 from pydantic import BaseModel
 
 from botx import BotAccount
+from botx.logger import logger
 
 
 @pytest.fixture
