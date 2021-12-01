@@ -2,6 +2,7 @@ from typing import Optional
 from uuid import UUID
 
 import pytest
+import respx
 
 from botx import (
     AddedToChatEvent,
@@ -14,6 +15,7 @@ from botx import (
 )
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__added_to_chat__succeed(
     bot_account: BotAccount,

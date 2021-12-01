@@ -27,6 +27,7 @@ from botx import (
 )
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__answer__no_incoming_message_error_raised(
     chat_id: UUID,

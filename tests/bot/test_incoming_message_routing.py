@@ -2,6 +2,7 @@ from typing import Callable
 from unittest.mock import Mock
 
 import pytest
+import respx
 
 from botx import (
     Bot,
@@ -13,6 +14,7 @@ from botx import (
 )
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__handler_collector__command_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -38,6 +40,7 @@ async def test__handler_collector__command_handler_called(
     correct_handler_trigger.assert_called_once()
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__handler_collector__unicode_command_error_raised(
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -63,6 +66,7 @@ async def test__handler_collector__unicode_command_error_raised(
     correct_handler_trigger.assert_called_once()
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__handler_collector__correct_command_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -94,6 +98,7 @@ async def test__handler_collector__correct_command_handler_called(
     incorrect_handler_trigger.assert_not_called()
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__handler_collector__correct_command_handler_called_in_merged_collectors(
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -127,6 +132,7 @@ async def test__handler_collector__correct_command_handler_called_in_merged_coll
     incorrect_handler_trigger.assert_not_called()
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__handler_collector__default_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -152,6 +158,7 @@ async def test__handler_collector__default_handler_called(
     correct_handler_trigger.assert_called_once()
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__handler_collector__empty_command_goes_to_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -177,6 +184,7 @@ async def test__handler_collector__empty_command_goes_to_default_handler(
     correct_handler_trigger.assert_called_once()
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__handler_collector__invalid_command_goes_to_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -202,6 +210,7 @@ async def test__handler_collector__invalid_command_goes_to_default_handler(
     correct_handler_trigger.assert_called_once()
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__handler_collector__handler_not_found_error_raised(
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -224,6 +233,7 @@ async def test__handler_collector__handler_not_found_error_raised(
     assert "/command" in str(exc.value)
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__handler_collector__default_handler_in_first_collector_called(
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -251,6 +261,7 @@ async def test__handler_collector__default_handler_in_first_collector_called(
     correct_handler_trigger.assert_called_once()
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__handler_collector__default_handler_in_second_collector_called(
     incoming_message_factory: Callable[..., IncomingMessage],

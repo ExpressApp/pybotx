@@ -1,10 +1,12 @@
 from unittest.mock import Mock
 
 import pytest
+import respx
 
 from botx import Bot, BotAccount, ChatCreatedEvent, HandlerCollector, lifespan_wrapper
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__system_event_handler__called(
     chat_created: ChatCreatedEvent,
@@ -29,6 +31,7 @@ async def test__system_event_handler__called(
     correct_handler_trigger.assert_called_once()
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__system_event_handler__no_handler_for_system_event(
     chat_created: ChatCreatedEvent,
@@ -48,6 +51,7 @@ async def test__system_event_handler__no_handler_for_system_event(
     # This test is considered as passed if no exception was raised
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__system_event_handler__handler_in_first_collector(
     chat_created: ChatCreatedEvent,
@@ -73,6 +77,7 @@ async def test__system_event_handler__handler_in_first_collector(
     correct_handler_trigger.assert_called_once()
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__system_event_handler__handler_in_second_collector(
     chat_created: ChatCreatedEvent,

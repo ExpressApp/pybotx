@@ -2,11 +2,13 @@ from typing import Callable
 from unittest.mock import Mock
 
 import pytest
+import respx
 
 from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wrapper
 from botx.bot.handler import IncomingMessageHandlerFunc, Middleware
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__middlewares__correct_order(
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -59,6 +61,7 @@ async def test__middlewares__correct_order(
     assert middlewares_called_order == [1, 2, 3, 4, 5, 6]
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__middlewares__called_in_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -104,6 +107,7 @@ async def test__middlewares__called_in_default_handler(
     assert middlewares_called_order == [1, 2, 3, 4]
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__middlewares__correct_child_collector_middlewares(
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -154,6 +158,7 @@ async def test__middlewares__correct_child_collector_middlewares(
     assert middlewares_called_order == [1, 2, 3, 4]
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__middlewares__correct_parent_collector_middlewares(
     incoming_message_factory: Callable[..., IncomingMessage],

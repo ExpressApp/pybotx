@@ -2,6 +2,7 @@ from typing import Any, Callable, Dict, Optional
 from uuid import UUID
 
 import pytest
+import respx
 
 from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wrapper
 from botx.bot.models.commands.enums import AttachmentTypes
@@ -107,6 +108,7 @@ API_AND_DOMAIN_FILES = (
 )
 
 
+@respx.mock
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "api_async_file,domain_async_file",
