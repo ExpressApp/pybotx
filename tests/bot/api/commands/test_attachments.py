@@ -1,6 +1,7 @@
 from typing import Any, Callable, Dict, Optional
 
 import pytest
+import respx
 
 from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wrapper
 from botx.bot.models.commands.enums import AttachmentTypes
@@ -72,6 +73,7 @@ API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
 )
 
 
+@respx.mock
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "api_attachment,domain_attachment,attr_name",
@@ -179,6 +181,7 @@ API_AND_DOMAIN_FILE_ATTACHMENTS = (
 )
 
 
+@respx.mock
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "api_attachment,domain_attachment",

@@ -3,6 +3,7 @@ from typing import Callable, Optional
 from uuid import UUID
 
 import pytest
+import respx
 
 from botx import (
     Bot,
@@ -24,6 +25,7 @@ from botx.bot.models.commands.mentions import MentionList
 from botx.shared_models.domain.files import Image
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__async_execute_raw_bot_command__minimally_filled_incoming_message(
     bot_account: BotAccount,
@@ -124,6 +126,7 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
     )
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
     datetime_formatter: Callable[[str], datetime],
@@ -306,6 +309,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
     )
 
 
+@respx.mock
 @pytest.mark.asyncio
 async def test__async_execute_raw_bot_command__all_mention_types(
     bot_account: BotAccount,
