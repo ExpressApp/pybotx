@@ -22,14 +22,23 @@ def _remove_undefined_from_dict(origin_dict: Any) -> Dict[str, Any]:
     return new_dict
 
 
-class VerifiedPayloadBaseModel(BaseModel):
+class PayloadBaseModel(BaseModel):
+    def jsonable_dict(self) -> Dict[str, Any]:
+        # https://github.com/samuelcolvin/pydantic/issues/1409
+        return cast(  # Pydantic model is always dict
+            Dict[str, Any],
+            json.loads(self.json()),
+        )
+
+
+class VerifiedPayloadBaseModel(PayloadBaseModel):
     """Pydantic base model for API models."""
 
     class Config:
         use_enum_values = True
 
 
-class UnverifiedPayloadBaseModel(BaseModel):
+class UnverifiedPayloadBaseModel(PayloadBaseModel):
     def __init__(
         self,
         _fields_set: Optional[Set[str]] = None,
@@ -40,13 +49,6 @@ class UnverifiedPayloadBaseModel(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
-
-    def jsonable_dict(self) -> Dict[str, Any]:
-        # https://github.com/samuelcolvin/pydantic/issues/1409
-        return cast(  # Pydantic model is always dict
-            Dict[str, Any],
-            json.loads(self.json()),
-        )
 
     def dict(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
         return _remove_undefined_from_dict(super().dict(*args, **kwargs))

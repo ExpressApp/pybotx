@@ -1,3 +1,4 @@
+import json
 from contextlib import asynccontextmanager
 from json.decoder import JSONDecodeError
 from typing import (
@@ -16,7 +17,7 @@ from uuid import UUID
 
 import httpx
 from mypy_extensions import Arg
-from pydantic import ValidationError, parse_raw_as
+from pydantic import ValidationError, parse_obj_as
 
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.bot.callbacks_manager import CallbacksManager
@@ -30,6 +31,7 @@ from botx.client.exceptions.http import (
     InvalidBotXResponsePayloadError,
     InvalidBotXStatusCodeError,
 )
+from botx.logger import logger, pformat_jsonable_obj
 from botx.shared_models.api_base import VerifiedPayloadBaseModel
 
 StatusHandler = Callable[[Arg(httpx.Response, "response")], NoReturn]  # noqa: F821
@@ -95,11 +97,25 @@ class BotXMethod:
         response: httpx.Response,
     ) -> TBotXAPIModel:
         try:
-            return parse_raw_as(model_cls, response.content)
-        except (ValidationError, JSONDecodeError) as exc:
-            raise InvalidBotXResponsePayloadError(response) from exc
+            raw_model = json.loads(response.content)
+        except JSONDecodeError as decoding_exc:
+            raise InvalidBotXResponsePayloadError(response) from decoding_exc
+
+        logger.opt(lazy=True).debug(
+            "Got response from BotX: {json}",
+            json=lambda: pformat_jsonable_obj(raw_model),
+        )
+
+        try:
+            api_model = parse_obj_as(model_cls, raw_model)
+        except ValidationError as validation_exc:
+            raise InvalidBotXResponsePayloadError(response) from validation_exc
+
+        return api_model
 
     async def _botx_method_call(self, *args: Any, **kwargs: Any) -> httpx.Response:
+        self._log_outgoing_request(*args, **kwargs)
+
         response = await self._httpx_client.request(*args, **kwargs)
         await self._raise_for_status(response)
 
@@ -111,6 +127,8 @@ class BotXMethod:
         *args: Any,
         **kwargs: Any,
     ) -> AsyncGenerator[httpx.Response, None]:
+        self._log_outgoing_request(*args, **kwargs)
+
         async with self._httpx_client.stream(*args, **kwargs) as response:
             await self._raise_for_status(response)
             yield response
@@ -159,3 +177,26 @@ class BotXMethod:
             error_handler(callback)  # Handler should raise an exception
 
         return callback
+
+    def _log_outgoing_request(
+        self,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
+        method, url = args
+        query_params = kwargs.get("params")
+        json_body = kwargs.get("json")
+
+        log_template = "Performing request to BotX:\n{method} {url}"
+        if query_params:
+            log_template += "\nquery: {params}"
+        if json_body is not None:
+            log_template += "\njson: {json}"
+
+        logger.opt(lazy=True).debug(
+            log_template,
+            method=lambda: method,  # If `lazy` enabled, all kwargs should be callable
+            url=lambda: url,  # If `lazy` enabled, all kwargs should be callable
+            params=lambda: pformat_jsonable_obj(query_params),
+            json=lambda: pformat_jsonable_obj(json_body),
+        )

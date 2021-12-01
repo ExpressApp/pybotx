@@ -5,7 +5,6 @@ from uuid import UUID
 
 import pytest
 from dotenv import load_dotenv
-from loguru import logger
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -21,6 +20,7 @@ from botx import (
     build_accepted_response,
     build_bot_disabled_response,
 )
+from botx.logger import logger
 
 
 def build_bot_accounts_from_env() -> List[BotAccount]:

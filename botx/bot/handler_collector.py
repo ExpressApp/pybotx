@@ -24,6 +24,7 @@ from botx.bot.models.commands.system_events.deleted_from_chat import (
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 from botx.converters import optional_sequence_to_list
+from botx.logger import logger
 
 if TYPE_CHECKING:  # To avoid circular import
     from botx.bot.bot import Bot
@@ -211,22 +212,26 @@ class HandlerCollector:
         command_name = self._get_command_name(message.body)
         if command_name:
             handler = self._user_commands_handlers.get(command_name)
+            if handler:
+                logger.info(f"Found handler for command `{command_name}`")
+                return handler
 
-        if handler is None:
-            if self._default_message_handler:
-                handler = self._default_message_handler
-            else:
-                raise HandlerNotFoundError(message.body)
+        if self._default_message_handler:
+            self._log_default_handler_call(command_name)
+            return self._default_message_handler
 
-        return handler
+        raise HandlerNotFoundError(message.body)
 
     def _get_system_event_handler_or_none(
         self,
         event: SystemEvent,
     ) -> Optional[SystemEventHandlerFunc]:
-        event_cls_name = event.__class__
+        event_cls = event.__class__
 
-        return self._system_events_handlers.get(event_cls_name)
+        handler = self._system_events_handlers.get(event_cls)
+        self._log_system_event_handler_call(event_cls.__name__, handler)
+
+        return handler
 
     def _get_command_name(self, body: str) -> Optional[str]:
         if not body:
@@ -280,3 +285,22 @@ class HandlerCollector:
         chat = getattr(bot_command, "chat", None)
         if chat:
             chat_id_var.set(chat.id)
+
+    def _log_system_event_handler_call(
+        self,
+        event_cls_name: str,
+        handler: Optional[SystemEventHandlerFunc],
+    ) -> None:
+        if handler:
+            logger.info(f"Found handler for `{event_cls_name}`")
+        else:
+            logger.info(f"Handler for `{event_cls_name}` not found")
+
+    def _log_default_handler_call(self, command_name: Optional[str]) -> None:
+        if command_name:
+            logger.info(
+                f"Handler for command `{command_name}` not found, "
+                "using default handler",
+            )
+        else:
+            logger.info("No command found, using default handler")
