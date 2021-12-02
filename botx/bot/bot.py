@@ -7,8 +7,6 @@ from weakref import WeakSet
 import httpx
 from pydantic import ValidationError, parse_obj_as
 
-from botx.bot.api.status.recipient import BotAPIStatusRecipient
-from botx.bot.api.status.response import build_bot_status_response
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.bot.callbacks_manager import CallbacksManager
 from botx.bot.contextvars import bot_id_var, chat_id_var
@@ -19,8 +17,6 @@ from botx.bot.middlewares.exceptions import ExceptionHandlersDict, ExceptionMidd
 from botx.bot.models.bot_account import BotAccount
 from botx.bot.models.method_callbacks import BotXMethodCallback
 from botx.bot.models.outgoing_attachment import OutgoingAttachment
-from botx.bot.models.status.bot_menu import BotMenu
-from botx.bot.models.status.recipient import StatusRecipient
 from botx.client.chats_api.add_admin import (
     AddAdminMethod,
     BotXAPIAddAdminRequestPayload,
@@ -93,6 +89,12 @@ from botx.logger import logger, pformat_jsonable_obj
 from botx.missing import Missing, MissingOptional, Undefined, not_undefined
 from botx.models.commands import BotAPICommand, BotCommand
 from botx.models.enums import ChatTypes
+from botx.models.status import (
+    BotAPIStatusRecipient,
+    BotMenu,
+    StatusRecipient,
+    build_bot_status_response,
+)
 from botx.shared_models.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from botx.shared_models.domain.attachments import IncomingFileAttachment
 from botx.shared_models.domain.files import File

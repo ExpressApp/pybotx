@@ -1,0 +1,92 @@
+from dataclasses import asdict, dataclass
+from typing import Any, Dict, List, NewType, Optional
+from uuid import UUID
+
+from botx.models.enums import APIChatTypes, ChatTypes, convert_chat_type_to_domain
+from botx.models.message.incoming_message import IncomingMessage
+from botx.shared_models.api_base import VerifiedPayloadBaseModel
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
+
+BotMenu = NewType("BotMenu", Dict[str, str])
+
+
+@dataclass
+class StatusRecipient:
+    bot_id: UUID
+    huid: UUID
+    ad_login: Optional[str]
+    ad_domain: Optional[str]
+    is_admin: Optional[bool]
+    chat_type: ChatTypes
+
+    @classmethod
+    def from_incoming_message(
+        cls,
+        incoming_message: IncomingMessage,
+    ) -> "StatusRecipient":
+        return StatusRecipient(
+            bot_id=incoming_message.bot_id,
+            huid=incoming_message.sender.huid,
+            ad_login=incoming_message.sender.ad_login,
+            ad_domain=incoming_message.sender.ad_domain,
+            is_admin=incoming_message.sender.is_chat_admin,
+            chat_type=incoming_message.chat.type,
+        )
+
+
+@dataclass
+class BotAPIBotMenuItem:
+    description: str
+    body: str
+    name: str
+
+
+BotAPIBotMenu = List[BotAPIBotMenuItem]
+
+
+@dataclass
+class BotAPIStatusResult:
+    commands: BotAPIBotMenu
+    enabled: Literal[True] = True
+    status_message: Optional[str] = None
+
+
+@dataclass
+class BotAPIStatus:
+    result: BotAPIStatusResult
+    status: Literal["ok"] = "ok"
+
+
+def build_bot_status_response(bot_menu: BotMenu) -> Dict[str, Any]:
+    commands = [
+        BotAPIBotMenuItem(body=command, name=command, description=description)
+        for command, description in bot_menu.items()
+    ]
+
+    status = BotAPIStatus(
+        result=BotAPIStatusResult(status_message="Bot is working", commands=commands),
+    )
+    return asdict(status)
+
+
+class BotAPIStatusRecipient(VerifiedPayloadBaseModel):
+    bot_id: UUID
+    user_huid: UUID
+    ad_login: Optional[str]
+    ad_domain: Optional[str]
+    is_admin: Optional[bool]
+    chat_type: APIChatTypes
+
+    def to_domain(self) -> StatusRecipient:
+        return StatusRecipient(
+            bot_id=self.bot_id,
+            huid=self.user_huid,
+            ad_login=self.ad_login,
+            ad_domain=self.ad_domain,
+            is_admin=self.is_admin,
+            chat_type=convert_chat_type_to_domain(self.chat_type),
+        )

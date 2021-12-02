@@ -15,8 +15,6 @@ from botx.bot.handler_collector import HandlerCollector
 from botx.bot.models.bot_account import BotAccount
 from botx.bot.models.method_callbacks import BotAPIMethodFailedCallback
 from botx.bot.models.outgoing_attachment import OutgoingAttachment
-from botx.bot.models.status.bot_menu import BotMenu
-from botx.bot.models.status.recipient import StatusRecipient
 from botx.bot.testing import lifespan_wrapper
 from botx.client.chats_api.exceptions import (
     CantUpdatePersonalChatError,
@@ -56,11 +54,13 @@ from botx.models.message.incoming_message import (
     UserDevice,
     UserEventSender,
 )
+from botx.models.status import BotMenu, StatusRecipient
 from botx.models.system_events.added_to_chat import AddedToChatEvent
 from botx.models.system_events.chat_created import ChatCreatedEvent, ChatCreatedMember
 from botx.models.system_events.deleted_from_chat import DeletedFromChatEvent
 
 __all__ = (
+    "BotMenu",
     "MentionTypes",
     "IncomingMessage",
     "ClientPlatforms",
@@ -79,7 +79,6 @@ __all__ = (
     "BotAPIBotDisabledResponse",
     "BotAPIMethodFailedCallback",
     "BotIsNotChatMemberError",
-    "BotMenu",
     "BotShuttignDownError",
     "BotXMethodFailedCallbackReceivedError",
     "BubbleMarkup",
