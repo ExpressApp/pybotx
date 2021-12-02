@@ -19,13 +19,13 @@ from botx import (
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__list_chats__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
     bot_account: BotAccount,
     datetime_formatter: Callable[[str], datetime],
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(

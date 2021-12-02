@@ -75,6 +75,7 @@ API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 @pytest.mark.parametrize(
     "api_attachment,domain_attachment,attr_name",
     API_AND_DOMAIN_NON_FILE_ATTACHMENTS,
@@ -85,7 +86,6 @@ async def test__async_execute_raw_bot_command__non_file_attachments_types(
     attr_name: str,
     incoming_message_payload_factory: Callable[..., Dict[str, Any]],
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     payload = incoming_message_payload_factory(attachment=api_attachment)
@@ -183,6 +183,7 @@ API_AND_DOMAIN_FILE_ATTACHMENTS = (
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 @pytest.mark.parametrize(
     "api_attachment,domain_attachment",
     API_AND_DOMAIN_FILE_ATTACHMENTS,
@@ -192,7 +193,6 @@ async def test__async_execute_raw_bot_command__file_attachments_types(
     domain_attachment: IncomingAttachment,
     incoming_message_payload_factory: Callable[..., Dict[str, Any]],
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     payload = incoming_message_payload_factory(attachment=api_attachment)

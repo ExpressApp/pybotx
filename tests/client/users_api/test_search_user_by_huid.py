@@ -12,13 +12,13 @@ from botx.client.users_api.user_from_search import UserFromSearch
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__search_user_by_huid__user_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
     huid: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(
@@ -55,13 +55,13 @@ async def test__search_user_by_huid__user_not_found_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__search_user_by_huid__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
     huid: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(

@@ -17,6 +17,7 @@ from botx.client.exceptions.common import ChatNotFoundError
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__add_users_to_chat__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -24,7 +25,6 @@ async def test__add_users_to_chat__chat_not_found_error_raised(
     chat_id: UUID,
     huid: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -66,6 +66,7 @@ async def test__add_users_to_chat__chat_not_found_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__add_users_to_chat__permission_denied_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -73,7 +74,6 @@ async def test__add_users_to_chat__permission_denied_error_raised(
     chat_id: UUID,
     huid: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -116,6 +116,7 @@ async def test__add_users_to_chat__permission_denied_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__add_users_to_chat__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -123,7 +124,6 @@ async def test__add_users_to_chat__succeed(
     chat_id: UUID,
     huid: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(

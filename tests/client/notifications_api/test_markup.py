@@ -19,6 +19,7 @@ from botx import (
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__markup__defaults_filled(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -26,7 +27,6 @@ async def test__markup__defaults_filled(
     sync_id: UUID,
     chat_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -116,6 +116,7 @@ async def test__markup__defaults_filled(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__markup__correctly_built(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -123,7 +124,6 @@ async def test__markup__correctly_built(
     sync_id: UUID,
     chat_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(

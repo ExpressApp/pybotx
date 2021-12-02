@@ -20,6 +20,7 @@ from botx import (
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__send_internal_bot_notification__rate_limit_reached_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -27,7 +28,6 @@ async def test__send_internal_bot_notification__rate_limit_reached_error_raised(
     sync_id: UUID,
     chat_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -73,6 +73,7 @@ async def test__send_internal_bot_notification__rate_limit_reached_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__send_internal_bot_notification__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -80,7 +81,6 @@ async def test__send_internal_bot_notification__chat_not_found_error_raised(
     sync_id: UUID,
     chat_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -140,6 +140,7 @@ async def test__send_internal_bot_notification__chat_not_found_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__send_internal_bot_notification__bot_is_not_chat_member_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -147,7 +148,6 @@ async def test__send_internal_bot_notification__bot_is_not_chat_member_error_rai
     sync_id: UUID,
     chat_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -208,6 +208,7 @@ async def test__send_internal_bot_notification__bot_is_not_chat_member_error_rai
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__send_internal_bot_notification__final_recipients_list_empty_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -215,7 +216,6 @@ async def test__send_internal_bot_notification__final_recipients_list_empty_erro
     sync_id: UUID,
     chat_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -277,6 +277,7 @@ async def test__send_internal_bot_notification__final_recipients_list_empty_erro
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__send_internal_bot_notification__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -284,7 +285,6 @@ async def test__send_internal_bot_notification__succeed(
     sync_id: UUID,
     chat_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(

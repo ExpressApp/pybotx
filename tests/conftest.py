@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from http import HTTPStatus
-from typing import Any, AsyncGenerator, Callable, Dict, Generator, Optional
+from typing import Any, AsyncGenerator, Callable, Dict, Generator, List, Optional
 from uuid import UUID
 
 import httpx
@@ -60,6 +60,7 @@ def mock_authorization(
     bot_id: UUID,
     bot_signature: str,
 ) -> None:
+    """Fixture should be used as a marker."""
     respx.get(
         f"https://{host}/api/v2/botx/bots/{bot_id}/token",
         params={"signature": bot_signature},
@@ -72,6 +73,13 @@ def mock_authorization(
             },
         ),
     )
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_collection_modifyitems(items: List[pytest.Function]) -> None:
+    for item in items:
+        if item.get_closest_marker("mock_authorization"):
+            item.fixturenames.append("mock_authorization")
 
 
 @pytest.fixture

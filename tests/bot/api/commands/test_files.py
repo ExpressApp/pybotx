@@ -110,6 +110,7 @@ API_AND_DOMAIN_FILES = (
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 @pytest.mark.parametrize(
     "api_async_file,domain_async_file",
     API_AND_DOMAIN_FILES,
@@ -119,7 +120,6 @@ async def test__async_execute_raw_bot_command__different_file_types(
     domain_async_file: File,
     incoming_message_payload_factory: Callable[..., Dict[str, Any]],
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     payload = incoming_message_payload_factory(async_file=api_async_file)

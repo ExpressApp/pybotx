@@ -21,13 +21,13 @@ from botx.client.chats_api.chat_info import ChatInfo, ChatInfoMember
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__chat_info__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
     chat_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(
@@ -67,6 +67,7 @@ async def test__chat_info__chat_not_found_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__chat_info__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -74,7 +75,6 @@ async def test__chat_info__succeed(
     chat_id: UUID,
     datetime_formatter: Callable[[str], dt],
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(

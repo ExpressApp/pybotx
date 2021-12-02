@@ -20,6 +20,7 @@ from botx import (
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__promote_to_chat_admins__unexpected_bad_request_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -27,7 +28,6 @@ async def test__promote_to_chat_admins__unexpected_bad_request_error_raised(
     chat_id: UUID,
     huid: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -67,6 +67,7 @@ async def test__promote_to_chat_admins__unexpected_bad_request_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__promote_to_chat_admins__cant_update_personal_chat_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -74,7 +75,6 @@ async def test__promote_to_chat_admins__cant_update_personal_chat_error_raised(
     chat_id: UUID,
     huid: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -115,6 +115,7 @@ async def test__promote_to_chat_admins__cant_update_personal_chat_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__promote_to_chat_admins__invalid_users_list_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -122,7 +123,6 @@ async def test__promote_to_chat_admins__invalid_users_list_error_raised(
     chat_id: UUID,
     huid: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -165,6 +165,7 @@ async def test__promote_to_chat_admins__invalid_users_list_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__promote_to_chat_admins__permission_denied_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -172,7 +173,6 @@ async def test__promote_to_chat_admins__permission_denied_error_raised(
     chat_id: UUID,
     huid: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -215,6 +215,7 @@ async def test__promote_to_chat_admins__permission_denied_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__promote_to_chat_admins__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -222,7 +223,6 @@ async def test__promote_to_chat_admins__chat_not_found_error_raised(
     chat_id: UUID,
     huid: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -264,6 +264,7 @@ async def test__promote_to_chat_admins__chat_not_found_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__promote_to_chat_admins__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -271,7 +272,6 @@ async def test__promote_to_chat_admins__succeed(
     chat_id: UUID,
     huid: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
