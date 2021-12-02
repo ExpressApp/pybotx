@@ -20,7 +20,11 @@ from botx.client.notifications_api.mentions import (
     find_and_replace_embed_mentions,
 )
 from botx.missing import Missing, Undefined
-from botx.models.attachments import BotXAPIAttachment, IncomingFileAttachment, OutgoingAttachment
+from botx.models.attachments import (
+    BotXAPIAttachment,
+    IncomingFileAttachment,
+    OutgoingAttachment,
+)
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,

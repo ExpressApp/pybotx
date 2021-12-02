@@ -1,7 +1,7 @@
 from uuid import UUID
 
-from botx.bot.models.method_callbacks import BotAPIMethodFailedCallback
 from botx.client.exceptions.base import BaseClientException
+from botx.models.method_callbacks import BotAPIMethodFailedCallback
 
 
 class BotXMethodFailedCallbackReceivedError(BaseClientException):

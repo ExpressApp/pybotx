@@ -14,8 +14,6 @@ from botx.bot.exceptions import AnswerDestinationLookupError
 from botx.bot.handler import Middleware
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.middlewares.exceptions import ExceptionHandlersDict, ExceptionMiddleware
-from botx.bot.models.bot_account import BotAccount
-from botx.bot.models.method_callbacks import BotXMethodCallback
 from botx.client.chats_api.add_admin import (
     AddAdminMethod,
     BotXAPIAddAdminRequestPayload,
@@ -88,8 +86,10 @@ from botx.logger import logger, pformat_jsonable_obj
 from botx.missing import Missing, MissingOptional, Undefined, not_undefined
 from botx.models.async_files import File
 from botx.models.attachments import IncomingFileAttachment, OutgoingAttachment
+from botx.models.bot_account import BotAccount
 from botx.models.commands import BotAPICommand, BotCommand
 from botx.models.enums import ChatTypes
+from botx.models.method_callbacks import BotXMethodCallback
 from botx.models.status import (
     BotAPIStatusRecipient,
     BotMenu,
