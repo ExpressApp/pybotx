@@ -6,13 +6,12 @@ from botx.client.botx_method import response_exception_thrower
 from botx.client.exceptions.common import ChatNotFoundError
 from botx.constants import CHUNK_SIZE
 from botx.missing import Missing
-from botx.shared_models.api.async_file import APIAsyncFile, convert_async_file_to_file
+from botx.models.async_files import APIAsyncFile, File, convert_async_file_to_file
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,
 )
 from botx.shared_models.async_buffer import AsyncBufferReadable
-from botx.shared_models.domain.files import File
 
 try:
     from typing import Literal

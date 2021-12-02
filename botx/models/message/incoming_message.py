@@ -5,7 +5,16 @@ from uuid import UUID
 
 from pydantic import Field
 
-from botx.bot.api.attachments import BotAPIAttachment, convert_api_attachment_to_domain
+from botx.models.async_files import APIAsyncFile, File, convert_async_file_to_file
+from botx.models.attachments import (
+    AttachmentContact,
+    AttachmentLink,
+    AttachmentLocation,
+    BotAPIAttachment,
+    FileAttachmentBase,
+    IncomingFileAttachment,
+    convert_api_attachment_to_domain,
+)
 from botx.models.base_command import (
     BotAPIBaseCommand,
     BotAPIChatContext,
@@ -29,15 +38,6 @@ from botx.models.message.entities import (
     Reply,
     convert_bot_api_entity_to_domain,
 )
-from botx.shared_models.api.async_file import APIAsyncFile, convert_async_file_to_file
-from botx.shared_models.domain.attachments import (
-    AttachmentContact,
-    AttachmentLink,
-    AttachmentLocation,
-    FileAttachmentBase,
-    IncomingFileAttachment,
-)
-from botx.shared_models.domain.files import File
 
 
 @dataclass

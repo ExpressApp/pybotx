@@ -5,8 +5,8 @@ import pytest
 import respx
 
 from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wrapper
+from botx.models.async_files import Document, File, Image, Video, Voice
 from botx.models.enums import AttachmentTypes
-from botx.shared_models.domain.files import Document, File, Image, Video, Voice
 
 API_AND_DOMAIN_FILES = (
     (

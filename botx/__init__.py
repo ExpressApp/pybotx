@@ -14,7 +14,6 @@ from botx.bot.exceptions import (
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.models.bot_account import BotAccount
 from botx.bot.models.method_callbacks import BotAPIMethodFailedCallback
-from botx.bot.models.outgoing_attachment import OutgoingAttachment
 from botx.bot.testing import lifespan_wrapper
 from botx.client.chats_api.exceptions import (
     CantUpdatePersonalChatError,
@@ -45,6 +44,7 @@ from botx.client.notifications_api.exceptions import (
 )
 from botx.client.notifications_api.markup import BubbleMarkup, Button, KeyboardMarkup
 from botx.client.users_api.exceptions import UserNotFoundError
+from botx.models.attachments import OutgoingAttachment
 from botx.models.chat import Chat
 from botx.models.enums import ChatTypes, ClientPlatforms, MentionTypes, UserKinds
 from botx.models.message.entities import Mention
@@ -62,6 +62,7 @@ from botx.models.system_events.deleted_from_chat import DeletedFromChatEvent
 __all__ = (
     "BotMenu",
     "MentionTypes",
+    "OutgoingAttachment",
     "IncomingMessage",
     "ClientPlatforms",
     "ChatTypes",
@@ -102,7 +103,6 @@ __all__ = (
     "InvalidUsersListError",
     "KeyboardMarkup",
     "Mention",
-    "OutgoingAttachment",
     "PermissionDeniedError",
     "RateLimitReachedError",
     "StatusRecipient",

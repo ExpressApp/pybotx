@@ -16,7 +16,6 @@ from botx.bot.handler_collector import HandlerCollector
 from botx.bot.middlewares.exceptions import ExceptionHandlersDict, ExceptionMiddleware
 from botx.bot.models.bot_account import BotAccount
 from botx.bot.models.method_callbacks import BotXMethodCallback
-from botx.bot.models.outgoing_attachment import OutgoingAttachment
 from botx.client.chats_api.add_admin import (
     AddAdminMethod,
     BotXAPIAddAdminRequestPayload,
@@ -87,6 +86,8 @@ from botx.client.users_api.user_from_search import UserFromSearch
 from botx.converters import optional_sequence_to_list
 from botx.logger import logger, pformat_jsonable_obj
 from botx.missing import Missing, MissingOptional, Undefined, not_undefined
+from botx.models.async_files import File
+from botx.models.attachments import IncomingFileAttachment, OutgoingAttachment
 from botx.models.commands import BotAPICommand, BotCommand
 from botx.models.enums import ChatTypes
 from botx.models.status import (
@@ -96,8 +97,6 @@ from botx.models.status import (
     build_bot_status_response,
 )
 from botx.shared_models.async_buffer import AsyncBufferReadable, AsyncBufferWritable
-from botx.shared_models.domain.attachments import IncomingFileAttachment
-from botx.shared_models.domain.files import File
 
 
 class Bot:

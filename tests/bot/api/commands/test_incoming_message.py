@@ -19,9 +19,9 @@ from botx import (
     UserEventSender,
     lifespan_wrapper,
 )
+from botx.models.async_files import Image
 from botx.models.enums import AttachmentTypes
 from botx.models.message.entities import Forward, Mention, MentionList, Reply
-from botx.shared_models.domain.files import Image
 
 
 @respx.mock

@@ -4,8 +4,7 @@ import pytest
 import respx
 
 from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wrapper
-from botx.models.enums import AttachmentTypes
-from botx.shared_models.domain.attachments import (
+from botx.models.attachments import (
     AttachmentContact,
     AttachmentDocument,
     AttachmentImage,
@@ -15,6 +14,7 @@ from botx.shared_models.domain.attachments import (
     AttachmentVoice,
     IncomingAttachment,
 )
+from botx.models.enums import AttachmentTypes
 
 API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
     (
