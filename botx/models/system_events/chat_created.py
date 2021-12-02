@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
@@ -5,11 +6,9 @@ from pydantic import Field
 
 from botx.bot.api.commands.base import BotAPIBaseCommand, BotAPIChatContext
 from botx.bot.api.enums import BotAPICommandTypes
+from botx.bot.models.commands.base import BotCommandBase
 from botx.bot.models.commands.chat import Chat
-from botx.bot.models.commands.system_events.chat_created import (
-    ChatCreatedEvent,
-    ChatCreatedMember,
-)
+from botx.bot.models.commands.enums import UserKinds
 from botx.shared_models.api.enums import APIUserKinds, convert_user_kind
 from botx.shared_models.api_base import VerifiedPayloadBaseModel
 from botx.shared_models.chat_types import APIChatTypes, convert_chat_type_to_domain
@@ -18,6 +17,44 @@ try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
+
+
+@dataclass
+class ChatCreatedMember:
+    """ChatCreatedEvent member.
+
+    Attributes:
+        is_admin: Is user admin.
+        huid: User huid.
+        username: Username.
+        kind: User type.
+    """
+
+    is_admin: bool
+    huid: UUID
+    username: Optional[str]
+    kind: UserKinds
+
+
+@dataclass
+class ChatCreatedEvent(BotCommandBase):
+    """Event `system:chat_created`.
+
+    Attributes:
+        sync_id: Event sync id.
+        chat_id: Created chat id.
+        chat_name: Created chat name.
+        chat_type: Created chat type.
+        host: Created chat cts host.
+        creator_id: Creator huid.
+        members: List of created chat members.
+    """
+
+    chat: Chat
+    sync_id: UUID
+    chat_name: str
+    creator_id: UUID
+    members: List[ChatCreatedMember]
 
 
 class BotAPIChatMember(VerifiedPayloadBaseModel):

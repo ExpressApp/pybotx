@@ -16,15 +16,13 @@ from botx.bot.handler import (
 )
 from botx.bot.models.commands.commands import BotCommand, SystemEvent
 from botx.bot.models.commands.incoming_message import IncomingMessage
-from botx.bot.models.commands.system_events.added_to_chat import AddedToChatEvent
-from botx.bot.models.commands.system_events.chat_created import ChatCreatedEvent
-from botx.bot.models.commands.system_events.deleted_from_chat import (
-    DeletedFromChatEvent,
-)
 from botx.bot.models.status.bot_menu import BotMenu
 from botx.bot.models.status.recipient import StatusRecipient
 from botx.converters import optional_sequence_to_list
 from botx.logger import logger
+from botx.models.system_events.added_to_chat import AddedToChatEvent
+from botx.models.system_events.chat_created import ChatCreatedEvent
+from botx.models.system_events.deleted_from_chat import DeletedFromChatEvent
 
 if TYPE_CHECKING:  # To avoid circular import
     from botx.bot.bot import Bot
