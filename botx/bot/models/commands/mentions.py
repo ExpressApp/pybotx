@@ -1,7 +1,7 @@
 from typing import List
 
-from botx.bot.models.commands.entities import Mention
 from botx.bot.models.commands.enums import MentionTypes
+from botx.models.message.entities import Mention
 
 
 class MentionList(List[Mention]):

@@ -19,8 +19,8 @@ from botx import (
     UserEventSender,
     lifespan_wrapper,
 )
-from botx.bot.models.commands.entities import Forward, Mention, MentionList, Reply
 from botx.bot.models.commands.enums import AttachmentTypes
+from botx.models.message.entities import Forward, Mention, MentionList, Reply
 from botx.shared_models.domain.files import Image
 
 

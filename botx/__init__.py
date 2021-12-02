@@ -14,7 +14,6 @@ from botx.bot.exceptions import (
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.models.bot_account import BotAccount
 from botx.bot.models.commands.chat import Chat
-from botx.bot.models.commands.entities import Mention
 from botx.bot.models.commands.enums import ClientPlatforms, MentionTypes, UserKinds
 from botx.bot.models.commands.incoming_message import (
     ExpressApp,
@@ -64,6 +63,7 @@ from botx.client.notifications_api.exceptions import (
 )
 from botx.client.notifications_api.markup import BubbleMarkup, Button, KeyboardMarkup
 from botx.client.users_api.exceptions import UserNotFoundError
+from botx.models.message.entities import Mention
 from botx.shared_models.chat_types import ChatTypes
 
 __all__ = (

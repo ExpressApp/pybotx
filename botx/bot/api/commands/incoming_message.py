@@ -11,16 +11,22 @@ from botx.bot.api.commands.base import (
     BotAPIDeviceContext,
     BotAPIUserContext,
 )
-from botx.bot.api.entities import BotAPIEntity, convert_bot_api_entity_to_domain
 from botx.bot.api.enums import convert_client_platform
 from botx.bot.models.commands.chat import Chat
-from botx.bot.models.commands.entities import Forward, Mention, MentionList, Reply
 from botx.bot.models.commands.enums import AttachmentTypes
 from botx.bot.models.commands.incoming_message import (
     ExpressApp,
     IncomingMessage,
     UserDevice,
     UserEventSender,
+)
+from botx.models.message.entities import (
+    BotAPIEntity,
+    Forward,
+    Mention,
+    MentionList,
+    Reply,
+    convert_bot_api_entity_to_domain,
 )
 from botx.shared_models.api.async_file import APIAsyncFile, convert_async_file_to_file
 from botx.shared_models.chat_types import convert_chat_type_to_domain
