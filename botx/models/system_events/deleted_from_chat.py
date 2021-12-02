@@ -4,10 +4,13 @@ from uuid import UUID
 
 from pydantic import Field
 
-from botx.bot.api.commands.base import BotAPIBaseCommand, BotAPIChatContext
 from botx.bot.api.enums import BotAPICommandTypes
-from botx.bot.models.commands.base import BotCommandBase
 from botx.bot.models.commands.chat import Chat
+from botx.models.base_command import (
+    BotAPIBaseCommand,
+    BotAPIChatContext,
+    BotCommandBase,
+)
 from botx.shared_models.api_base import VerifiedPayloadBaseModel
 from botx.shared_models.chat_types import convert_chat_type_to_domain
 

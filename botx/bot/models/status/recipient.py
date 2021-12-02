@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 from uuid import UUID
 
-from botx.bot.models.commands.incoming_message import IncomingMessage
+from botx.models.message.incoming_message import IncomingMessage
 from botx.shared_models.chat_types import ChatTypes
 
 

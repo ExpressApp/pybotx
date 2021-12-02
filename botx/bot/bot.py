@@ -7,7 +7,6 @@ from weakref import WeakSet
 import httpx
 from pydantic import ValidationError, parse_obj_as
 
-from botx.bot.api.commands.commands import BotAPICommand
 from botx.bot.api.status.recipient import BotAPIStatusRecipient
 from botx.bot.api.status.response import build_bot_status_response
 from botx.bot.bot_accounts_storage import BotAccountsStorage
@@ -18,7 +17,6 @@ from botx.bot.handler import Middleware
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.middlewares.exceptions import ExceptionHandlersDict, ExceptionMiddleware
 from botx.bot.models.bot_account import BotAccount
-from botx.bot.models.commands.commands import BotCommand
 from botx.bot.models.method_callbacks import BotXMethodCallback
 from botx.bot.models.outgoing_attachment import OutgoingAttachment
 from botx.bot.models.status.bot_menu import BotMenu
@@ -93,6 +91,7 @@ from botx.client.users_api.user_from_search import UserFromSearch
 from botx.converters import optional_sequence_to_list
 from botx.logger import logger, pformat_jsonable_obj
 from botx.missing import Missing, MissingOptional, Undefined, not_undefined
+from botx.models.commands import BotAPICommand, BotCommand
 from botx.shared_models.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from botx.shared_models.chat_types import ChatTypes
 from botx.shared_models.domain.attachments import IncomingFileAttachment

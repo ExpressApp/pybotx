@@ -1,24 +1,21 @@
-from typing import Any, Dict, List, Optional, Union
+from dataclasses import dataclass, field
+from types import SimpleNamespace
+from typing import Any, Dict, List, Optional, Tuple, Union
 from uuid import UUID
 
 from pydantic import Field
 
 from botx.bot.api.attachments import BotAPIAttachment, convert_api_attachment_to_domain
-from botx.bot.api.commands.base import (
+from botx.bot.api.enums import convert_client_platform
+from botx.bot.models.commands.chat import Chat
+from botx.bot.models.commands.enums import AttachmentTypes, ClientPlatforms
+from botx.models.base_command import (
     BotAPIBaseCommand,
     BotAPIChatContext,
     BotAPICommandPayload,
     BotAPIDeviceContext,
     BotAPIUserContext,
-)
-from botx.bot.api.enums import convert_client_platform
-from botx.bot.models.commands.chat import Chat
-from botx.bot.models.commands.enums import AttachmentTypes
-from botx.bot.models.commands.incoming_message import (
-    ExpressApp,
-    IncomingMessage,
-    UserDevice,
-    UserEventSender,
+    BotCommandBase,
 )
 from botx.models.message.entities import (
     BotAPIEntity,
@@ -38,6 +35,77 @@ from botx.shared_models.domain.attachments import (
     IncomingFileAttachment,
 )
 from botx.shared_models.domain.files import File
+
+
+@dataclass
+class ExpressApp:
+    pushes: Optional[bool]
+    timezone: Optional[str]
+    permissions: Optional[Dict[str, Any]]
+    platform: Optional[ClientPlatforms]
+    platform_package_id: Optional[str]
+    version: Optional[str]
+
+
+@dataclass
+class UserDevice:
+    manufacturer: Optional[str]
+    name: Optional[str]
+    os: Optional[str]
+
+
+@dataclass
+class UserEventSender:
+    huid: UUID
+    ad_login: Optional[str]
+    ad_domain: Optional[str]
+    username: Optional[str]
+    is_chat_admin: Optional[bool]
+    is_chat_creator: Optional[bool]
+    locale: Optional[str]
+    express_app: ExpressApp
+    device: UserDevice
+
+    @property
+    def upn(self) -> Optional[str]:
+        # https://docs.microsoft.com/en-us/windows/win32/secauthn/user-name-formats
+        if not (self.ad_login and self.ad_domain):
+            return None
+
+        return f"{self.ad_login}@{self.ad_domain}"
+
+
+@dataclass
+class IncomingMessage(BotCommandBase):
+    sync_id: UUID
+    source_sync_id: Optional[UUID]
+    body: str
+    data: Dict[str, Any]
+    metadata: Dict[str, Any]
+    sender: UserEventSender
+    chat: Chat
+    mentions: MentionList = field(default_factory=MentionList)
+    forward: Optional[Forward] = None
+    reply: Optional[Reply] = None
+    file: Optional[Union[File, IncomingFileAttachment]] = None
+    location: Optional[AttachmentLocation] = None
+    contact: Optional[AttachmentContact] = None
+    link: Optional[AttachmentLink] = None
+
+    state: SimpleNamespace = field(default_factory=SimpleNamespace)
+
+    @property
+    def argument(self) -> str:
+        split_body = self.body.split()
+        if not split_body:
+            return ""
+
+        command_len = len(split_body[0])
+        return self.body[command_len:].strip()
+
+    @property
+    def arguments(self) -> Tuple[str, ...]:
+        return tuple(arg.strip() for arg in self.argument.split())
 
 
 class BotAPIIncomingMessageContext(
