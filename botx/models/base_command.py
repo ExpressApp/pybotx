@@ -4,11 +4,10 @@ from uuid import UUID
 
 from pydantic import validator
 
-from botx.bot.api.constants import BOT_API_VERSION
-from botx.bot.api.enums import BotAPIClientPlatforms, BotAPICommandTypes
 from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
+from botx.constants import BOT_API_VERSION
+from botx.models.enums import APIChatTypes, BotAPIClientPlatforms, BotAPICommandTypes
 from botx.shared_models.api_base import VerifiedPayloadBaseModel
-from botx.shared_models.chat_types import APIChatTypes
 
 try:
     from typing import Literal

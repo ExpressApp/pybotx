@@ -1,9 +1,9 @@
 from typing import Union, cast
 from uuid import UUID
 
-from botx.bot.models.commands.enums import AttachmentTypes
-from botx.shared_models.api.enums import (
+from botx.models.enums import (
     APIAttachmentTypes,
+    AttachmentTypes,
     convert_attachment_type_to_domain,
 )
 from botx.shared_models.api_base import VerifiedPayloadBaseModel

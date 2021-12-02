@@ -4,12 +4,12 @@ from uuid import UUID
 
 from pydantic import Field, validator
 
-from botx.bot.api.enums import (
+from botx.models.enums import (
     BotAPIEntityTypes,
     BotAPIMentionTypes,
+    MentionTypes,
     convert_mention_type_to_domain,
 )
-from botx.bot.models.commands.enums import MentionTypes
 from botx.shared_models.api_base import VerifiedPayloadBaseModel
 
 try:

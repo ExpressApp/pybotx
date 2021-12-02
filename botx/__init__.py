@@ -13,8 +13,6 @@ from botx.bot.exceptions import (
 )
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.models.bot_account import BotAccount
-from botx.bot.models.commands.chat import Chat
-from botx.bot.models.commands.enums import ClientPlatforms, MentionTypes, UserKinds
 from botx.bot.models.method_callbacks import BotAPIMethodFailedCallback
 from botx.bot.models.outgoing_attachment import OutgoingAttachment
 from botx.bot.models.status.bot_menu import BotMenu
@@ -49,6 +47,8 @@ from botx.client.notifications_api.exceptions import (
 )
 from botx.client.notifications_api.markup import BubbleMarkup, Button, KeyboardMarkup
 from botx.client.users_api.exceptions import UserNotFoundError
+from botx.models.chat import Chat
+from botx.models.enums import ChatTypes, ClientPlatforms, MentionTypes, UserKinds
 from botx.models.message.entities import Mention
 from botx.models.message.incoming_message import (
     ExpressApp,
@@ -59,12 +59,15 @@ from botx.models.message.incoming_message import (
 from botx.models.system_events.added_to_chat import AddedToChatEvent
 from botx.models.system_events.chat_created import ChatCreatedEvent, ChatCreatedMember
 from botx.models.system_events.deleted_from_chat import DeletedFromChatEvent
-from botx.shared_models.chat_types import ChatTypes
 
 __all__ = (
+    "MentionTypes",
     "IncomingMessage",
+    "ClientPlatforms",
+    "ChatTypes",
     "ExpressApp",
     "UserDevice",
+    "UserKinds",
     "UserEventSender",
     "AnswerDestinationLookupError",
     "AddedToChatEvent",
@@ -88,8 +91,6 @@ __all__ = (
     "ChatCreationProhibitedError",
     "ChatListItem",
     "ChatNotFoundError",
-    "ChatTypes",
-    "ClientPlatforms",
     "FileDeletedError",
     "FileMetadataNotFound",
     "FinalRecipientsListEmptyError",
@@ -102,7 +103,6 @@ __all__ = (
     "InvalidUsersListError",
     "KeyboardMarkup",
     "Mention",
-    "MentionTypes",
     "OutgoingAttachment",
     "PermissionDeniedError",
     "RateLimitReachedError",
@@ -110,7 +110,6 @@ __all__ = (
     "StealthModeDisabledError",
     "UnknownBotAccountError",
     "UnsupportedBotAPIVersionError",
-    "UserKinds",
     "UserNotFoundError",
     "build_accepted_response",
     "build_bot_disabled_response",

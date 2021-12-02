@@ -92,8 +92,8 @@ from botx.converters import optional_sequence_to_list
 from botx.logger import logger, pformat_jsonable_obj
 from botx.missing import Missing, MissingOptional, Undefined, not_undefined
 from botx.models.commands import BotAPICommand, BotCommand
+from botx.models.enums import ChatTypes
 from botx.shared_models.async_buffer import AsyncBufferReadable, AsyncBufferWritable
-from botx.shared_models.chat_types import ChatTypes
 from botx.shared_models.domain.attachments import IncomingFileAttachment
 from botx.shared_models.domain.files import File
 

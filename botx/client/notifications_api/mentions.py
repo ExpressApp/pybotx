@@ -2,9 +2,12 @@ import re
 from typing import Dict, List, Tuple, Union
 from uuid import UUID, uuid4
 
-from botx.bot.api.enums import BotAPIMentionTypes, convert_mention_type_from_domain
-from botx.bot.models.commands.enums import MentionTypes
 from botx.missing import Missing, Undefined
+from botx.models.enums import (
+    BotAPIMentionTypes,
+    MentionTypes,
+    convert_mention_type_from_domain,
+)
 from botx.shared_models.api_base import UnverifiedPayloadBaseModel
 
 try:

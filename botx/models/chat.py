@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from botx.shared_models.chat_types import ChatTypes
+from botx.models.enums import ChatTypes
 
 
 @dataclass

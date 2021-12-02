@@ -6,8 +6,8 @@ from uuid import UUID
 from aiofiles.tempfile import SpooledTemporaryFile
 
 from botx.bot.contextvars import bot_id_var, bot_var, chat_id_var
-from botx.bot.models.commands.enums import AttachmentTypes
 from botx.constants import CHUNK_SIZE
+from botx.models.enums import AttachmentTypes
 
 try:
     from typing import Literal

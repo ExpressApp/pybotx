@@ -6,9 +6,6 @@ from uuid import UUID
 from pydantic import Field
 
 from botx.bot.api.attachments import BotAPIAttachment, convert_api_attachment_to_domain
-from botx.bot.api.enums import convert_client_platform
-from botx.bot.models.commands.chat import Chat
-from botx.bot.models.commands.enums import AttachmentTypes, ClientPlatforms
 from botx.models.base_command import (
     BotAPIBaseCommand,
     BotAPIChatContext,
@@ -16,6 +13,13 @@ from botx.models.base_command import (
     BotAPIDeviceContext,
     BotAPIUserContext,
     BotCommandBase,
+)
+from botx.models.chat import Chat
+from botx.models.enums import (
+    AttachmentTypes,
+    ClientPlatforms,
+    convert_chat_type_to_domain,
+    convert_client_platform,
 )
 from botx.models.message.entities import (
     BotAPIEntity,
@@ -26,7 +30,6 @@ from botx.models.message.entities import (
     convert_bot_api_entity_to_domain,
 )
 from botx.shared_models.api.async_file import APIAsyncFile, convert_async_file_to_file
-from botx.shared_models.chat_types import convert_chat_type_to_domain
 from botx.shared_models.domain.attachments import (
     AttachmentContact,
     AttachmentLink,

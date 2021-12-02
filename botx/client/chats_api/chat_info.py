@@ -3,19 +3,20 @@ from datetime import datetime as dt
 from typing import List, Optional
 from uuid import UUID
 
-from botx.bot.models.commands.enums import UserKinds
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
 from botx.client.exceptions.common import ChatNotFoundError
-from botx.shared_models.api.enums import APIUserKinds, convert_user_kind
+from botx.models.enums import (
+    APIChatTypes,
+    APIUserKinds,
+    ChatTypes,
+    UserKinds,
+    convert_chat_type_to_domain,
+    convert_user_kind,
+)
 from botx.shared_models.api_base import (
     UnverifiedPayloadBaseModel,
     VerifiedPayloadBaseModel,
-)
-from botx.shared_models.chat_types import (
-    APIChatTypes,
-    ChatTypes,
-    convert_chat_type_to_domain,
 )
 
 try:

@@ -4,17 +4,21 @@ from uuid import UUID
 
 from pydantic import Field
 
-from botx.bot.api.enums import BotAPICommandTypes
-from botx.bot.models.commands.chat import Chat
-from botx.bot.models.commands.enums import UserKinds
 from botx.models.base_command import (
     BotAPIBaseCommand,
     BotAPIChatContext,
     BotCommandBase,
 )
-from botx.shared_models.api.enums import APIUserKinds, convert_user_kind
+from botx.models.chat import Chat
+from botx.models.enums import (
+    APIChatTypes,
+    APIUserKinds,
+    BotAPICommandTypes,
+    UserKinds,
+    convert_chat_type_to_domain,
+    convert_user_kind,
+)
 from botx.shared_models.api_base import VerifiedPayloadBaseModel
-from botx.shared_models.chat_types import APIChatTypes, convert_chat_type_to_domain
 
 try:
     from typing import Literal

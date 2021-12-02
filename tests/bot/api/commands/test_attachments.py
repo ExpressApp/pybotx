@@ -4,7 +4,7 @@ import pytest
 import respx
 
 from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wrapper
-from botx.bot.models.commands.enums import AttachmentTypes
+from botx.models.enums import AttachmentTypes
 from botx.shared_models.domain.attachments import (
     AttachmentContact,
     AttachmentDocument,

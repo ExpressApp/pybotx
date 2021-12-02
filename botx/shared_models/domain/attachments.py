@@ -4,8 +4,8 @@ from typing import AsyncGenerator, Union
 
 from aiofiles.tempfile import SpooledTemporaryFile
 
-from botx.bot.models.commands.enums import AttachmentTypes
 from botx.constants import CHUNK_SIZE
+from botx.models.enums import AttachmentTypes
 
 try:
     from typing import Literal

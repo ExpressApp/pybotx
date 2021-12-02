@@ -3,7 +3,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from botx.bot.models.commands.enums import MentionTypes
+from botx import MentionTypes
 from botx.models.message.entities import Mention, MentionList
 
 
