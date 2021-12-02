@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from types import SimpleNamespace
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Tuple, Union
 from uuid import UUID
 
 from botx.bot.models.commands.base import BotCommandBase
@@ -72,3 +72,16 @@ class IncomingMessage(BotCommandBase):
     link: Optional[AttachmentLink] = None
 
     state: SimpleNamespace = field(default_factory=SimpleNamespace)
+
+    @property
+    def argument(self) -> str:
+        split_body = self.body.split()
+        if not split_body:
+            return ""
+
+        command_len = len(split_body[0])
+        return self.body[command_len:].strip()
+
+    @property
+    def arguments(self) -> Tuple[str, ...]:
+        return tuple(arg.strip() for arg in self.argument.split())
