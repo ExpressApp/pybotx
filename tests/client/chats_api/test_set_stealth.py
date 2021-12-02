@@ -17,13 +17,13 @@ from botx import (
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__enable_stealth__permission_denied_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
     chat_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -66,6 +66,7 @@ async def test__enable_stealth__permission_denied_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__enable_stealth__chat_not_found_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -73,7 +74,6 @@ async def test__enable_stealth__chat_not_found_raised(
     chat_id: UUID,
     huid: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -115,13 +115,13 @@ async def test__enable_stealth__chat_not_found_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__enable_stealth__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
     chat_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(

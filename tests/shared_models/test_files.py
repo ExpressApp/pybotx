@@ -11,6 +11,7 @@ from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wr
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__async_file__open(
     httpx_client: httpx.AsyncClient,
     chat_id: UUID,
@@ -19,7 +20,6 @@ async def test__async_file__open(
     bot_account: BotAccount,
     bot_id: UUID,
     incoming_message_payload_factory: Callable[..., Dict[str, Any]],
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(

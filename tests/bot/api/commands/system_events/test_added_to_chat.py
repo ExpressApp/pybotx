@@ -17,9 +17,9 @@ from botx import (
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__added_to_chat__succeed(
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     payload = {

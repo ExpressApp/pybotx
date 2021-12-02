@@ -18,12 +18,12 @@ from botx import (
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__create_chat__bot_have_no_permissions_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -73,12 +73,12 @@ async def test__create_chat__bot_have_no_permissions_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__create_chat__botx_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -126,13 +126,13 @@ async def test__create_chat__botx_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__create_chat__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
     bot_account: BotAccount,
     chat_id: UUID,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(

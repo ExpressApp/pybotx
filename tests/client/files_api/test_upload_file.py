@@ -11,6 +11,7 @@ from botx import Bot, BotAccount, ChatNotFoundError, HandlerCollector, lifespan_
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__download_file__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -19,7 +20,6 @@ async def test__download_file__chat_not_found_error_raised(
     file_id: UUID,
     bot_account: BotAccount,
     async_buffer: NamedTemporaryFile,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     await async_buffer.write(b"Hello, world!\n")
@@ -63,6 +63,7 @@ async def test__download_file__chat_not_found_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__download_file__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -71,7 +72,6 @@ async def test__download_file__succeed(
     file_id: UUID,
     bot_account: BotAccount,
     async_buffer: NamedTemporaryFile,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     await async_buffer.write(b"Hello, world!\n")

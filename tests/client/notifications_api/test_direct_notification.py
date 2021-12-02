@@ -29,13 +29,13 @@ from botx import (
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__answer__no_incoming_message_error_raised(
     chat_id: UUID,
     host: str,
     sync_id: UUID,
     bot_account: BotAccount,
     bot_id: UUID,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
@@ -51,6 +51,7 @@ async def test__answer__no_incoming_message_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__answer__succeed(
     httpx_client: httpx.AsyncClient,
     chat_id: UUID,
@@ -59,7 +60,6 @@ async def test__answer__succeed(
     bot_account: BotAccount,
     bot_id: UUID,
     incoming_message_payload_factory: Callable[..., Dict[str, Any]],
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -169,12 +169,12 @@ async def test__answer__succeed(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__send__unknown_bot_account_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     chat_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     unknown_bot_id = UUID("51550ccc-dfd1-4d22-9b6f-a330145192b0")
@@ -204,6 +204,7 @@ async def test__send__unknown_bot_account_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__send__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -211,7 +212,6 @@ async def test__send__chat_not_found_error_raised(
     sync_id: UUID,
     chat_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -272,6 +272,7 @@ async def test__send__chat_not_found_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__send__bot_is_not_a_chat_member_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -279,7 +280,6 @@ async def test__send__bot_is_not_a_chat_member_error_raised(
     sync_id: UUID,
     chat_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -341,6 +341,7 @@ async def test__send__bot_is_not_a_chat_member_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__send__event_recipients_list_is_empty_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -348,7 +349,6 @@ async def test__send__event_recipients_list_is_empty_error_raised(
     sync_id: UUID,
     chat_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -411,6 +411,7 @@ async def test__send__event_recipients_list_is_empty_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__send__stealth_mode_disabled_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -418,7 +419,6 @@ async def test__send__stealth_mode_disabled_error_raised(
     sync_id: UUID,
     chat_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -480,6 +480,7 @@ async def test__send__stealth_mode_disabled_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__send__miminally_filled_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -487,7 +488,6 @@ async def test__send__miminally_filled_succeed(
     sync_id: UUID,
     chat_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -540,6 +540,7 @@ async def test__send__miminally_filled_succeed(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__send__maximum_filled_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -548,7 +549,6 @@ async def test__send__maximum_filled_succeed(
     chat_id: UUID,
     bot_account: BotAccount,
     monkeypatch: pytest.MonkeyPatch,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     monkeypatch.setattr(
@@ -689,6 +689,7 @@ async def test__send__maximum_filled_succeed(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__send__all_mentions_types_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -697,7 +698,6 @@ async def test__send__all_mentions_types_succeed(
     chat_id: UUID,
     bot_account: BotAccount,
     monkeypatch: pytest.MonkeyPatch,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     monkeypatch.setattr(

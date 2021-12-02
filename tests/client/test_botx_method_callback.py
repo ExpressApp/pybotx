@@ -97,13 +97,13 @@ async def call_foo_bar(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__botx_method_callback__error_callback_error_handler_called(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
     sync_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -160,13 +160,13 @@ async def test__botx_method_callback__error_callback_error_handler_called(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__botx_method_callback__error_callback_received(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
     sync_id: UUID,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -222,13 +222,13 @@ async def test__botx_method_callback__error_callback_received(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__botx_method_callback__cancelled_callback_future_during_shutdown(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
     bot_account: BotAccount,
     sync_id: UUID,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -264,6 +264,7 @@ async def test__botx_method_callback__cancelled_callback_future_during_shutdown(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__botx_method_callback__callback_received_after_timeout(
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -271,7 +272,6 @@ async def test__botx_method_callback__callback_received_after_timeout(
     bot_account: BotAccount,
     sync_id: UUID,
     loguru_caplog: pytest.LogCaptureFixture,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -323,13 +323,13 @@ async def test__botx_method_callback__callback_received_after_timeout(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__botx_method_callback__dont_wait_for_callback(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
     bot_account: BotAccount,
     sync_id: UUID,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -364,13 +364,13 @@ async def test__botx_method_callback__dont_wait_for_callback(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__botx_method_callback__pending_callback_future_during_shutdown(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
     bot_account: BotAccount,
     sync_id: UUID,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -411,13 +411,13 @@ async def test__botx_method_callback__pending_callback_future_during_shutdown(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__botx_method_callback__callback_successful_received(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
     bot_account: BotAccount,
     sync_id: UUID,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(

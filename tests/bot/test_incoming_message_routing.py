@@ -16,11 +16,11 @@ from botx import (
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__handler_collector__command_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -42,11 +42,11 @@ async def test__handler_collector__command_handler_called(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__handler_collector__unicode_command_error_raised(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     russian_command = incoming_message_factory(body="/команда")
@@ -68,12 +68,12 @@ async def test__handler_collector__unicode_command_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__handler_collector__correct_command_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
     incorrect_handler_trigger: Mock,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -100,12 +100,12 @@ async def test__handler_collector__correct_command_handler_called(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__handler_collector__correct_command_handler_called_in_merged_collectors(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
     incorrect_handler_trigger: Mock,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -134,11 +134,11 @@ async def test__handler_collector__correct_command_handler_called_in_merged_coll
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__handler_collector__default_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -160,11 +160,11 @@ async def test__handler_collector__default_handler_called(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__handler_collector__empty_command_goes_to_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     empty_command = incoming_message_factory(body="")
@@ -186,11 +186,11 @@ async def test__handler_collector__empty_command_goes_to_default_handler(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__handler_collector__invalid_command_goes_to_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     empty_command = incoming_message_factory(body="/")
@@ -212,10 +212,10 @@ async def test__handler_collector__invalid_command_goes_to_default_handler(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__handler_collector__handler_not_found_error_raised(
     incoming_message_factory: Callable[..., IncomingMessage],
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -235,11 +235,11 @@ async def test__handler_collector__handler_not_found_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__handler_collector__default_handler_in_first_collector_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -263,11 +263,11 @@ async def test__handler_collector__default_handler_in_first_collector_called(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__handler_collector__default_handler_in_second_collector_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")

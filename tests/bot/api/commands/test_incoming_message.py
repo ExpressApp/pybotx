@@ -26,9 +26,9 @@ from botx.shared_models.domain.files import Image
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__async_execute_raw_bot_command__minimally_filled_incoming_message(
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     payload = {
@@ -127,10 +127,10 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
     datetime_formatter: Callable[[str], datetime],
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     payload = {
@@ -329,9 +329,9 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
 async def test__async_execute_raw_bot_command__all_mention_types(
     bot_account: BotAccount,
-    mock_authorization: None,
 ) -> None:
     # - Arrange -
     payload = {

@@ -96,7 +96,8 @@ app = Starlette(
 
 # - tests -
 @pytest.fixture
-def test_client(mock_authorization: None) -> TestClient:
+@pytest.mark.mock_authorization
+def test_client() -> TestClient:
     return TestClient(app)
 
 
