@@ -30,10 +30,15 @@ except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
+class BotXAPIDirectNotificationOpts(UnverifiedPayloadBaseModel):
+    buttons_auto_adjust: bool
+
+
 class BotXAPIDirectNotification(UnverifiedPayloadBaseModel):
     status: Literal["ok"]
     body: str
     metadata: Missing[Dict[str, Any]]
+    opts: BotXAPIDirectNotificationOpts
     bubble: Missing[BotXAPIMarkup]
     keyboard: Missing[BotXAPIMarkup]
     mentions: Missing[List[BotXAPIMention]]
@@ -53,6 +58,7 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
         bubbles: Missing[BubbleMarkup],
         keyboard: Missing[KeyboardMarkup],
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]],
+        markup_auto_adjust: bool,
     ) -> "BotXAPIDirectNotificationRequestPayload":
         api_file: Missing[BotXAPIAttachment] = Undefined
         if file:
@@ -67,6 +73,9 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
                 status="ok",
                 body=body,
                 metadata=metadata,
+                opts=BotXAPIDirectNotificationOpts(
+                    buttons_auto_adjust=markup_auto_adjust,
+                ),
                 bubble=api_markup_from_domain(bubbles) if bubbles else bubbles,
                 keyboard=api_markup_from_domain(keyboard) if keyboard else keyboard,
                 mentions=mentions or Undefined,
