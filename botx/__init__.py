@@ -44,7 +44,6 @@ from botx.models.attachments import OutgoingAttachment
 from botx.models.bot_account import BotAccount
 from botx.models.chats import Chat, ChatListItem
 from botx.models.enums import ChatTypes, ClientPlatforms, MentionTypes, UserKinds
-from botx.models.message.entities import Mention
 from botx.models.message.incoming_message import (
     ExpressApp,
     IncomingMessage,
@@ -52,6 +51,7 @@ from botx.models.message.incoming_message import (
     UserEventSender,
 )
 from botx.models.message.markup import BubbleMarkup, Button, KeyboardMarkup
+from botx.models.message.mentions import Mention
 from botx.models.method_callbacks import BotAPIMethodFailedCallback
 from botx.models.status import BotMenu, StatusRecipient
 from botx.models.system_events.added_to_chat import AddedToChatEvent

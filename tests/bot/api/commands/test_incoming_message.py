@@ -21,7 +21,9 @@ from botx import (
 )
 from botx.models.async_files import Image
 from botx.models.enums import AttachmentTypes
-from botx.models.message.entities import Forward, Mention, MentionList, Reply
+from botx.models.message.forward import Forward
+from botx.models.message.mentions import Mention, MentionList
+from botx.models.message.reply import Reply
 
 
 @respx.mock

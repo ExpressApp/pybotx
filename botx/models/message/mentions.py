@@ -1,10 +1,14 @@
 import re
-from typing import Dict, List, Tuple, Union
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple, Union
 from uuid import UUID, uuid4
 
+from pydantic import Field, validator
+
 from botx.missing import Missing, Undefined
-from botx.models.api_base import UnverifiedPayloadBaseModel
+from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from botx.models.enums import (
+    BotAPIEntityTypes,
     BotAPIMentionTypes,
     MentionTypes,
     convert_mention_type_from_domain,
@@ -14,6 +18,121 @@ try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
+
+
+@dataclass
+class Mention:
+    type: MentionTypes
+    entity_id: Optional[UUID] = None
+    name: Optional[str] = None
+
+    def __str__(self) -> str:
+        name = self.name or ""
+        entity_id = self.entity_id or ""
+        mention_type = self.type.value
+        return f"<embed_mention>{mention_type}:{entity_id}:{name}</embed_mention>"
+
+    @classmethod
+    def user(cls, huid: UUID, name: Optional[str] = None) -> "Mention":
+        return cls(
+            type=MentionTypes.USER,
+            entity_id=huid,
+            name=name,
+        )
+
+    @classmethod
+    def contact(cls, huid: UUID, name: Optional[str] = None) -> "Mention":
+        return cls(
+            type=MentionTypes.CONTACT,
+            entity_id=huid,
+            name=name,
+        )
+
+    @classmethod
+    def chat(cls, chat_id: UUID, name: Optional[str] = None) -> "Mention":
+        return cls(
+            type=MentionTypes.CHAT,
+            entity_id=chat_id,
+            name=name,
+        )
+
+    @classmethod
+    def channel(cls, chat_id: UUID, name: Optional[str] = None) -> "Mention":
+        return cls(
+            type=MentionTypes.CHANNEL,
+            entity_id=chat_id,
+            name=name,
+        )
+
+    @classmethod
+    def all(cls) -> "Mention":
+        return cls(type=MentionTypes.ALL)
+
+
+class MentionList(List[Mention]):
+    @property
+    def contacts(self) -> List[Mention]:
+        return [mention for mention in self if mention.type == MentionTypes.CONTACT]
+
+    @property
+    def chats(self) -> List[Mention]:
+        return [mention for mention in self if mention.type == MentionTypes.CHAT]
+
+    @property
+    def channels(self) -> List[Mention]:
+        return [mention for mention in self if mention.type == MentionTypes.CHANNEL]
+
+    @property
+    def users(self) -> List[Mention]:
+        return [mention for mention in self if mention.type == MentionTypes.USER]
+
+    @property
+    def all_users_mentioned(self) -> bool:
+        for mention in self:
+            if mention.type == MentionTypes.ALL:
+                return True
+
+        return False
+
+
+class BotAPINestedPersonalMentionData(VerifiedPayloadBaseModel):
+    entity_id: UUID = Field(alias="user_huid")
+    name: str
+    conn_type: str
+
+
+class BotAPINestedGroupMentionData(VerifiedPayloadBaseModel):
+    entity_id: UUID = Field(alias="group_chat_id")
+    name: str
+
+
+BotAPINestedMentionData = Union[
+    BotAPINestedPersonalMentionData,
+    BotAPINestedGroupMentionData,
+]
+
+
+class BotAPIMentionData(VerifiedPayloadBaseModel):
+    mention_type: BotAPIMentionTypes
+    mention_id: UUID
+    mention_data: Optional[BotAPINestedMentionData]
+
+    @validator("mention_data", pre=True)
+    @classmethod
+    def validate_mention_data(
+        cls,
+        mention_data: Dict[str, str],
+    ) -> Optional[Dict[str, str]]:
+        # Mention data can be an empty dict
+        if not mention_data:
+            return None
+
+        return mention_data
+
+
+class BotAPIMention(VerifiedPayloadBaseModel):
+    type: Literal[BotAPIEntityTypes.MENTION]
+    data: BotAPIMentionData
 
 
 class BotXAPIPersonalMentionData(UnverifiedPayloadBaseModel):

@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from types import SimpleNamespace
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 from uuid import UUID
 
 from pydantic import Field
@@ -26,18 +26,22 @@ from botx.models.base_command import (
 from botx.models.chats import Chat
 from botx.models.enums import (
     AttachmentTypes,
+    BotAPIEntityTypes,
+    BotAPIMentionTypes,
     ClientPlatforms,
     convert_chat_type_to_domain,
     convert_client_platform,
+    convert_mention_type_to_domain,
 )
-from botx.models.message.entities import (
-    BotAPIEntity,
-    Forward,
+from botx.models.message.forward import BotAPIForward, Forward
+from botx.models.message.mentions import (
+    BotAPIMention,
+    BotAPIMentionData,
+    BotAPINestedMentionData,
     Mention,
     MentionList,
-    Reply,
-    convert_bot_api_entity_to_domain,
 )
+from botx.models.message.reply import BotAPIReply, Reply
 
 
 @dataclass
@@ -109,6 +113,57 @@ class IncomingMessage(BotCommandBase):
     @property
     def arguments(self) -> Tuple[str, ...]:
         return tuple(arg.strip() for arg in self.argument.split())
+
+
+BotAPIEntity = Union[BotAPIMention, BotAPIForward, BotAPIReply]
+Entity = Union[Mention, Forward, Reply]
+
+
+def _convert_bot_api_mention_to_domain(api_mention_data: BotAPIMentionData) -> Mention:
+    entity_id: Optional[UUID] = None
+    name: Optional[str] = None
+
+    if api_mention_data.mention_type != BotAPIMentionTypes.ALL:
+        mention_data = cast(BotAPINestedMentionData, api_mention_data.mention_data)
+        entity_id = mention_data.entity_id
+        name = mention_data.name
+
+    return Mention(
+        type=convert_mention_type_to_domain(api_mention_data.mention_type),
+        entity_id=entity_id,
+        name=name,
+    )
+
+
+def convert_bot_api_entity_to_domain(api_entity: BotAPIEntity) -> Entity:
+    if api_entity.type == BotAPIEntityTypes.MENTION:
+        api_entity = cast(BotAPIMention, api_entity)
+        return _convert_bot_api_mention_to_domain(api_entity.data)
+
+    if api_entity.type == BotAPIEntityTypes.FORWARD:
+        api_entity = cast(BotAPIForward, api_entity)
+
+        return Forward(
+            chat_id=api_entity.data.group_chat_id,
+            author_id=api_entity.data.sender_huid,
+            sync_id=api_entity.data.source_sync_id,
+        )
+
+    if api_entity.type == BotAPIEntityTypes.REPLY:
+        api_entity = cast(BotAPIReply, api_entity)
+
+        mentions = MentionList()
+        for api_mention_data in api_entity.data.mentions:
+            mentions.append(_convert_bot_api_mention_to_domain(api_mention_data))
+
+        return Reply(
+            author_id=api_entity.data.sender,
+            sync_id=api_entity.data.source_sync_id,
+            body=api_entity.data.body,
+            mentions=mentions,
+        )
+
+    raise NotImplementedError(f"Unsupported entity type: {api_entity.type}")
 
 
 class BotAPIIncomingMessageContext(
