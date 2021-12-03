@@ -570,6 +570,7 @@ class Bot:
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        markup_auto_adjust: bool = False,
         wait_callback: bool = True,
         callback_timeout: MissingOptional[int] = Undefined,
     ) -> UUID:
@@ -607,6 +608,7 @@ class Bot:
             bubbles=bubbles,
             keyboard=keyboard,
             file=file,
+            markup_auto_adjust=markup_auto_adjust,
             wait_callback=wait_callback,
             callback_timeout=callback_timeout,
         )
@@ -621,6 +623,7 @@ class Bot:
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        markup_auto_adjust: bool = False,
         wait_callback: bool = True,
         callback_timeout: MissingOptional[int] = Undefined,
     ) -> UUID:
@@ -657,6 +660,7 @@ class Bot:
             bubbles,
             keyboard,
             file,
+            markup_auto_adjust,
         )
         botx_api_sync_id = await method.execute(
             payload,
