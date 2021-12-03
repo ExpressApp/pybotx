@@ -4,8 +4,15 @@ from unittest.mock import Mock
 import pytest
 import respx
 
-from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wrapper
-from botx.bot.handler import IncomingMessageHandlerFunc, Middleware
+from botx import (
+    Bot,
+    BotAccount,
+    HandlerCollector,
+    IncomingMessage,
+    IncomingMessageHandlerFunc,
+    Middleware,
+    lifespan_wrapper,
+)
 
 
 @respx.mock

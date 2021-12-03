@@ -10,13 +10,14 @@ import respx
 from botx import (
     Bot,
     BotAccount,
+    ChatInfo,
+    ChatInfoMember,
     ChatNotFoundError,
     ChatTypes,
     HandlerCollector,
     UserKinds,
     lifespan_wrapper,
 )
-from botx.models.chats import ChatInfo, ChatInfoMember
 
 
 @respx.mock

@@ -3,8 +3,14 @@ from typing import Callable, Optional
 import pytest
 import respx
 
-from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wrapper
-from botx.bot.handler import IncomingMessageHandlerFunc
+from botx import (
+    Bot,
+    BotAccount,
+    HandlerCollector,
+    IncomingMessage,
+    IncomingMessageHandlerFunc,
+    lifespan_wrapper,
+)
 
 
 @respx.mock

@@ -6,24 +6,25 @@ import pytest
 import respx
 
 from botx import (
+    AttachmentTypes,
     Bot,
     BotAccount,
     Chat,
     ChatTypes,
     ClientPlatforms,
     ExpressApp,
+    Forward,
     HandlerCollector,
+    Image,
     IncomingMessage,
+    Mention,
+    MentionList,
     MentionTypes,
+    Reply,
     UserDevice,
     UserEventSender,
     lifespan_wrapper,
 )
-from botx.models.async_files import Image
-from botx.models.enums import AttachmentTypes
-from botx.models.message.forward import Forward
-from botx.models.message.mentions import Mention, MentionList
-from botx.models.message.reply import Reply
 
 
 @respx.mock

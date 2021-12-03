@@ -2,8 +2,7 @@ from uuid import UUID
 
 import pytest
 
-from botx import Bot, HandlerCollector, lifespan_wrapper
-from botx.bot.exceptions import BotXMethodCallbackNotFound
+from botx import Bot, BotXMethodCallbackNotFound, HandlerCollector, lifespan_wrapper
 
 
 @pytest.mark.asyncio

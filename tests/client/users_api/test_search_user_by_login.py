@@ -5,9 +5,14 @@ import httpx
 import pytest
 import respx
 
-from botx import Bot, BotAccount, HandlerCollector, lifespan_wrapper
-from botx.client.exceptions.users import UserNotFoundError
-from botx.models.users import UserFromSearch
+from botx import (
+    Bot,
+    BotAccount,
+    HandlerCollector,
+    UserFromSearch,
+    UserNotFoundError,
+    lifespan_wrapper,
+)
 
 
 @respx.mock

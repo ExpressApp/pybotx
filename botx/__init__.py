@@ -8,9 +8,11 @@ from botx.bot.bot import Bot
 from botx.bot.exceptions import (
     AnswerDestinationLookupError,
     BotShuttignDownError,
+    BotXMethodCallbackNotFound,
     HandlerNotFoundError,
     UnknownBotAccountError,
 )
+from botx.bot.handler import IncomingMessageHandlerFunc, Middleware
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.testing import lifespan_wrapper
 from botx.client.exceptions.callbacks import (
@@ -40,10 +42,18 @@ from botx.client.exceptions.notifications import (
     StealthModeDisabledError,
 )
 from botx.client.exceptions.users import UserNotFoundError
+from botx.models.async_files import Document, File, Image, Video, Voice
 from botx.models.attachments import OutgoingAttachment
 from botx.models.bot_account import BotAccount
-from botx.models.chats import Chat, ChatListItem
-from botx.models.enums import ChatTypes, ClientPlatforms, MentionTypes, UserKinds
+from botx.models.chats import Chat, ChatInfo, ChatInfoMember, ChatListItem
+from botx.models.enums import (
+    AttachmentTypes,
+    ChatTypes,
+    ClientPlatforms,
+    MentionTypes,
+    UserKinds,
+)
+from botx.models.message.forward import Forward
 from botx.models.message.incoming_message import (
     ExpressApp,
     IncomingMessage,
@@ -51,16 +61,19 @@ from botx.models.message.incoming_message import (
     UserEventSender,
 )
 from botx.models.message.markup import BubbleMarkup, Button, KeyboardMarkup
-from botx.models.message.mentions import Mention
+from botx.models.message.mentions import Mention, MentionList
+from botx.models.message.reply import Reply
 from botx.models.method_callbacks import BotAPIMethodFailedCallback
 from botx.models.status import BotMenu, StatusRecipient
 from botx.models.system_events.added_to_chat import AddedToChatEvent
 from botx.models.system_events.chat_created import ChatCreatedEvent, ChatCreatedMember
 from botx.models.system_events.deleted_from_chat import DeletedFromChatEvent
+from botx.models.users import UserFromSearch
 
 __all__ = (
     "AddedToChatEvent",
     "AnswerDestinationLookupError",
+    "AttachmentTypes",
     "Bot",
     "BotAPIBotDisabledResponse",
     "BotAPIMethodFailedCallback",
@@ -68,6 +81,7 @@ __all__ = (
     "BotIsNotChatMemberError",
     "BotMenu",
     "BotShuttignDownError",
+    "BotXMethodCallbackNotFound",
     "BotXMethodFailedCallbackReceivedError",
     "BubbleMarkup",
     "Button",
@@ -78,37 +92,49 @@ __all__ = (
     "ChatCreatedMember",
     "ChatCreationError",
     "ChatCreationProhibitedError",
+    "ChatInfo",
+    "ChatInfoMember",
     "ChatListItem",
     "ChatNotFoundError",
     "ChatTypes",
     "ClientPlatforms",
     "DeletedFromChatEvent",
+    "Document",
     "ExpressApp",
+    "File",
     "FileDeletedError",
     "FileMetadataNotFound",
     "FinalRecipientsListEmptyError",
-    "FinalRecipientsListEmptyError",
+    "Forward",
     "HandlerCollector",
     "HandlerNotFoundError",
+    "Image",
     "IncomingMessage",
+    "IncomingMessageHandlerFunc",
     "InvalidBotAccountError",
     "InvalidBotXResponsePayloadError",
     "InvalidBotXStatusCodeError",
     "InvalidUsersListError",
     "KeyboardMarkup",
     "Mention",
+    "MentionList",
     "MentionTypes",
+    "Middleware",
     "OutgoingAttachment",
     "PermissionDeniedError",
     "RateLimitReachedError",
+    "Reply",
     "StatusRecipient",
     "StealthModeDisabledError",
     "UnknownBotAccountError",
     "UnsupportedBotAPIVersionError",
     "UserDevice",
     "UserEventSender",
+    "UserFromSearch",
     "UserKinds",
     "UserNotFoundError",
+    "Video",
+    "Voice",
     "build_bot_disabled_response",
     "build_command_accepted_response",
     "lifespan_wrapper",
