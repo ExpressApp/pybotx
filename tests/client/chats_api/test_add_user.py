@@ -8,11 +8,11 @@ import respx
 from botx import (
     Bot,
     BotAccount,
+    ChatNotFoundError,
     HandlerCollector,
     PermissionDeniedError,
     lifespan_wrapper,
 )
-from botx.client.exceptions.common import ChatNotFoundError
 
 
 @respx.mock

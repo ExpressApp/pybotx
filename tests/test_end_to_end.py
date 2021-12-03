@@ -20,7 +20,7 @@ from botx import (
     build_bot_disabled_response,
     build_command_accepted_response,
 )
-from botx.logger import logger
+from botx.logger import logger  # TODO: Implement separate logger here
 
 
 def build_bot_accounts_from_env() -> List[BotAccount]:

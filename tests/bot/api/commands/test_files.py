@@ -4,9 +4,19 @@ from uuid import UUID
 import pytest
 import respx
 
-from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wrapper
-from botx.models.async_files import Document, File, Image, Video, Voice
-from botx.models.enums import AttachmentTypes
+from botx import (
+    AttachmentTypes,
+    Bot,
+    BotAccount,
+    Document,
+    File,
+    HandlerCollector,
+    Image,
+    IncomingMessage,
+    Video,
+    Voice,
+    lifespan_wrapper,
+)
 
 API_AND_DOMAIN_FILES = (
     (

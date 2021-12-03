@@ -3,7 +3,14 @@ from typing import Any, Callable, Dict, Optional
 import pytest
 import respx
 
-from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wrapper
+from botx import (
+    AttachmentTypes,
+    Bot,
+    BotAccount,
+    HandlerCollector,
+    IncomingMessage,
+    lifespan_wrapper,
+)
 from botx.models.attachments import (
     AttachmentContact,
     AttachmentDocument,
@@ -14,7 +21,6 @@ from botx.models.attachments import (
     AttachmentVoice,
     IncomingAttachment,
 )
-from botx.models.enums import AttachmentTypes
 
 API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
     (
