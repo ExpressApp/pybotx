@@ -1,9 +1,6 @@
 from botx.client.botx_method import BotXMethod, response_exception_thrower
 from botx.client.exceptions.common import InvalidBotAccountError
-from botx.shared_models.api_base import (
-    UnverifiedPayloadBaseModel,
-    VerifiedPayloadBaseModel,
-)
+from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 
 try:
     from typing import Literal

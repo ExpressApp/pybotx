@@ -11,10 +11,7 @@ from botx.client.chats_api.exceptions import (
 )
 from botx.client.exceptions.common import ChatNotFoundError, PermissionDeniedError
 from botx.client.exceptions.http import InvalidBotXStatusCodeError
-from botx.shared_models.api_base import (
-    UnverifiedPayloadBaseModel,
-    VerifiedPayloadBaseModel,
-)
+from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 
 try:
     from typing import Literal

@@ -9,26 +9,20 @@ from botx.client.notifications_api.exceptions import (
     FinalRecipientsListEmptyError,
     StealthModeDisabledError,
 )
-from botx.client.notifications_api.markup import (
-    BotXAPIMarkup,
-    BubbleMarkup,
-    KeyboardMarkup,
-    api_markup_from_domain,
-)
-from botx.client.notifications_api.mentions import (
-    BotXAPIMention,
-    find_and_replace_embed_mentions,
-)
 from botx.missing import Missing, Undefined
+from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from botx.models.attachments import (
     BotXAPIAttachment,
     IncomingFileAttachment,
     OutgoingAttachment,
 )
-from botx.shared_models.api_base import (
-    UnverifiedPayloadBaseModel,
-    VerifiedPayloadBaseModel,
+from botx.models.message.markup import (
+    BotXAPIMarkup,
+    BubbleMarkup,
+    KeyboardMarkup,
+    api_markup_from_domain,
 )
+from botx.models.message.mentions import BotXAPIMention, find_and_replace_embed_mentions
 
 try:
     from typing import Literal

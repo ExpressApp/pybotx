@@ -7,6 +7,7 @@ from weakref import WeakSet
 import httpx
 from pydantic import ValidationError, parse_obj_as
 
+from botx.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.bot.callbacks_manager import CallbacksManager
 from botx.bot.contextvars import bot_id_var, chat_id_var
@@ -21,7 +22,6 @@ from botx.client.chats_api.add_admin import (
 from botx.client.chats_api.add_user import AddUserMethod, BotXAPIAddUserRequestPayload
 from botx.client.chats_api.chat_info import (
     BotXAPIChatInfoRequestPayload,
-    ChatInfo,
     ChatInfoMethod,
 )
 from botx.client.chats_api.create_chat import (
@@ -32,7 +32,7 @@ from botx.client.chats_api.disable_stealth import (
     BotXAPIDisableStealthRequestPayload,
     DisableStealthMethod,
 )
-from botx.client.chats_api.list_chats import ChatListItem, ListChatsMethod
+from botx.client.chats_api.list_chats import ListChatsMethod
 from botx.client.chats_api.pin_message import (
     BotXAPIPinMessageRequestPayload,
     PinMessageMethod,
@@ -67,7 +67,6 @@ from botx.client.notifications_api.internal_bot_notification import (
     BotXAPIInternalBotNotificationRequestPayload,
     InternalBotNotificationMethod,
 )
-from botx.client.notifications_api.markup import BubbleMarkup, KeyboardMarkup
 from botx.client.users_api.search_user_by_email import (
     BotXAPISearchUserByEmailRequestPayload,
     SearchUserByEmailMethod,
@@ -80,15 +79,16 @@ from botx.client.users_api.search_user_by_login import (
     BotXAPISearchUserByLoginRequestPayload,
     SearchUserByLoginMethod,
 )
-from botx.client.users_api.user_from_search import UserFromSearch
 from botx.converters import optional_sequence_to_list
 from botx.logger import logger, pformat_jsonable_obj
 from botx.missing import Missing, MissingOptional, Undefined, not_undefined
 from botx.models.async_files import File
 from botx.models.attachments import IncomingFileAttachment, OutgoingAttachment
 from botx.models.bot_account import BotAccount
+from botx.models.chats import ChatInfo, ChatListItem
 from botx.models.commands import BotAPICommand, BotCommand
 from botx.models.enums import ChatTypes
+from botx.models.message.markup import BubbleMarkup, KeyboardMarkup
 from botx.models.method_callbacks import BotXMethodCallback
 from botx.models.status import (
     BotAPIStatusRecipient,
@@ -96,7 +96,7 @@ from botx.models.status import (
     StatusRecipient,
     build_bot_status_response,
 )
-from botx.shared_models.async_buffer import AsyncBufferReadable, AsyncBufferWritable
+from botx.models.users import UserFromSearch
 
 
 class Bot:

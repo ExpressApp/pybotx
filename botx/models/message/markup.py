@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, Iterator, List, Optional, Union
 
 from botx.missing import Missing, Undefined
-from botx.shared_models.api_base import UnverifiedPayloadBaseModel
+from botx.models.api_base import UnverifiedPayloadBaseModel
 
 try:
     from typing import Literal

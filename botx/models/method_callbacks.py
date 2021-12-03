@@ -7,7 +7,7 @@ except ImportError:
 
 from uuid import UUID
 
-from botx.shared_models.api_base import VerifiedPayloadBaseModel
+from botx.models.api_base import VerifiedPayloadBaseModel
 
 
 class BotAPIMethodSuccessfulCallback(VerifiedPayloadBaseModel):

@@ -3,12 +3,12 @@ from typing import Dict, List, Tuple, Union
 from uuid import UUID, uuid4
 
 from botx.missing import Missing, Undefined
+from botx.models.api_base import UnverifiedPayloadBaseModel
 from botx.models.enums import (
     BotAPIMentionTypes,
     MentionTypes,
     convert_mention_type_from_domain,
 )
-from botx.shared_models.api_base import UnverifiedPayloadBaseModel
 
 try:
     from typing import Literal

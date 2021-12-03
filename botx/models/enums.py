@@ -1,6 +1,6 @@
 from enum import Enum, auto
 
-from botx.shared_models.api_base import StrEnum
+from botx.models.api_base import StrEnum
 
 
 class AutoName(Enum):

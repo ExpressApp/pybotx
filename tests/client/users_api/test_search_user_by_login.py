@@ -7,7 +7,7 @@ import respx
 
 from botx import Bot, BotAccount, HandlerCollector, lifespan_wrapper
 from botx.client.users_api.exceptions import UserNotFoundError
-from botx.client.users_api.user_from_search import UserFromSearch
+from botx.models.users import UserFromSearch
 
 
 @respx.mock

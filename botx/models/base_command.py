@@ -6,8 +6,8 @@ from pydantic import validator
 
 from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
 from botx.constants import BOT_API_VERSION
+from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.enums import APIChatTypes, BotAPIClientPlatforms, BotAPICommandTypes
-from botx.shared_models.api_base import VerifiedPayloadBaseModel
 
 try:
     from typing import Literal

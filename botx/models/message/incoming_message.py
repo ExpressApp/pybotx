@@ -23,7 +23,7 @@ from botx.models.base_command import (
     BotAPIUserContext,
     BotCommandBase,
 )
-from botx.models.chat import Chat
+from botx.models.chats import Chat
 from botx.models.enums import (
     AttachmentTypes,
     ClientPlatforms,

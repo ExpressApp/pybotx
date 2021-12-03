@@ -7,12 +7,12 @@ from aiofiles.tempfile import SpooledTemporaryFile
 
 from botx.bot.contextvars import bot_id_var, bot_var, chat_id_var
 from botx.constants import CHUNK_SIZE
+from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.enums import (
     APIAttachmentTypes,
     AttachmentTypes,
     convert_attachment_type_to_domain,
 )
-from botx.shared_models.api_base import VerifiedPayloadBaseModel
 
 try:
     from typing import Literal

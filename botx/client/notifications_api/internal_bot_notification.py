@@ -12,10 +12,7 @@ from botx.client.notifications_api.exceptions import (
     FinalRecipientsListEmptyError,
 )
 from botx.missing import Missing, MissingOptional
-from botx.shared_models.api_base import (
-    UnverifiedPayloadBaseModel,
-    VerifiedPayloadBaseModel,
-)
+from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 
 try:
     from typing import Literal

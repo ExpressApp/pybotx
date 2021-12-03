@@ -28,8 +28,8 @@ from botx.client.exceptions.http import (
     InvalidBotXStatusCodeError,
 )
 from botx.logger import logger, pformat_jsonable_obj
+from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.method_callbacks import BotAPIMethodFailedCallback, BotXMethodCallback
-from botx.shared_models.api_base import VerifiedPayloadBaseModel
 
 StatusHandler = Callable[[Arg(httpx.Response, "response")], NoReturn]  # noqa: F821
 StatusHandlers = Mapping[int, StatusHandler]

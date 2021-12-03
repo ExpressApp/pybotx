@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import datetime as dt
 from typing import List, Optional
 from uuid import UUID
@@ -6,61 +5,19 @@ from uuid import UUID
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
 from botx.client.exceptions.common import ChatNotFoundError
+from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
+from botx.models.chats import ChatInfo, ChatInfoMember
 from botx.models.enums import (
     APIChatTypes,
     APIUserKinds,
-    ChatTypes,
-    UserKinds,
     convert_chat_type_to_domain,
     convert_user_kind,
-)
-from botx.shared_models.api_base import (
-    UnverifiedPayloadBaseModel,
-    VerifiedPayloadBaseModel,
 )
 
 try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
-
-
-@dataclass
-class ChatInfoMember:
-    """Chat member.
-
-    Attributes:
-        is_admin: Is user admin.
-        huid: User huid.
-        kind: User type.
-    """
-
-    is_admin: bool
-    huid: UUID
-    kind: UserKinds
-
-
-@dataclass
-class ChatInfo:
-    """Chat information.
-
-    Attributes:
-        chat_type: Chat type.
-        creator_id: Chat creator id.
-        description: Chat description.
-        chat_id: Chat id.
-        created_at: Chat creation datetime.
-        members: Chat members.
-        name: Chat name.
-    """
-
-    chat_type: ChatTypes
-    creator_id: UUID
-    description: Optional[str]
-    chat_id: UUID
-    created_at: dt
-    members: List[ChatInfoMember]
-    name: str
 
 
 class BotXAPIChatInfoRequestPayload(UnverifiedPayloadBaseModel):

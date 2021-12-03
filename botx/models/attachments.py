@@ -6,17 +6,14 @@ from typing import AsyncGenerator, Union, cast
 
 from aiofiles.tempfile import SpooledTemporaryFile
 
+from botx.async_buffer import AsyncBufferReadable
 from botx.constants import CHUNK_SIZE
+from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from botx.models.enums import (
     APIAttachmentTypes,
     AttachmentTypes,
     convert_attachment_type_to_domain,
 )
-from botx.shared_models.api_base import (
-    UnverifiedPayloadBaseModel,
-    VerifiedPayloadBaseModel,
-)
-from botx.shared_models.async_buffer import AsyncBufferReadable
 
 try:
     from typing import Literal

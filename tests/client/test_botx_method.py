@@ -9,10 +9,7 @@ from botx import BotAccount, InvalidBotXResponsePayloadError, InvalidBotXStatusC
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.botx_method import BotXMethod, response_exception_thrower
 from botx.client.exceptions.base import BaseClientException
-from botx.shared_models.api_base import (
-    UnverifiedPayloadBaseModel,
-    VerifiedPayloadBaseModel,
-)
+from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 
 try:
     from typing import Literal

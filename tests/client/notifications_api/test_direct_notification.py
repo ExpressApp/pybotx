@@ -552,7 +552,7 @@ async def test__send__maximum_filled_succeed(
 ) -> None:
     # - Arrange -
     monkeypatch.setattr(
-        "botx.client.notifications_api.mentions.uuid4",
+        "botx.models.message.mentions.uuid4",
         lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
     )
 
@@ -701,7 +701,7 @@ async def test__send__all_mentions_types_succeed(
 ) -> None:
     # - Arrange -
     monkeypatch.setattr(
-        "botx.client.notifications_api.mentions.uuid4",
+        "botx.models.message.mentions.uuid4",
         lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
     )
 
