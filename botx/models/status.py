@@ -38,6 +38,25 @@ class StatusRecipient:
         )
 
 
+class BotAPIStatusRecipient(VerifiedPayloadBaseModel):
+    bot_id: UUID
+    user_huid: UUID
+    ad_login: Optional[str]
+    ad_domain: Optional[str]
+    is_admin: Optional[bool]
+    chat_type: APIChatTypes
+
+    def to_domain(self) -> StatusRecipient:
+        return StatusRecipient(
+            bot_id=self.bot_id,
+            huid=self.user_huid,
+            ad_login=self.ad_login,
+            ad_domain=self.ad_domain,
+            is_admin=self.is_admin,
+            chat_type=convert_chat_type_to_domain(self.chat_type),
+        )
+
+
 @dataclass
 class BotAPIBotMenuItem:
     description: str
@@ -71,22 +90,3 @@ def build_bot_status_response(bot_menu: BotMenu) -> Dict[str, Any]:
         result=BotAPIStatusResult(status_message="Bot is working", commands=commands),
     )
     return asdict(status)
-
-
-class BotAPIStatusRecipient(VerifiedPayloadBaseModel):
-    bot_id: UUID
-    user_huid: UUID
-    ad_login: Optional[str]
-    ad_domain: Optional[str]
-    is_admin: Optional[bool]
-    chat_type: APIChatTypes
-
-    def to_domain(self) -> StatusRecipient:
-        return StatusRecipient(
-            bot_id=self.bot_id,
-            huid=self.user_huid,
-            ad_login=self.ad_login,
-            ad_domain=self.ad_domain,
-            is_admin=self.is_admin,
-            chat_type=convert_chat_type_to_domain(self.chat_type),
-        )

@@ -6,7 +6,7 @@ import pytest
 import respx
 
 from botx import Bot, BotAccount, HandlerCollector, lifespan_wrapper
-from botx.client.users_api.exceptions import UserNotFoundError
+from botx.client.exceptions.users import UserNotFoundError
 from botx.models.users import UserFromSearch
 
 

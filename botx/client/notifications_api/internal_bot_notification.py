@@ -7,7 +7,7 @@ from botx.client.botx_method import (
     response_exception_thrower,
 )
 from botx.client.exceptions.common import ChatNotFoundError, RateLimitReachedError
-from botx.client.notifications_api.exceptions import (
+from botx.client.exceptions.notifications import (
     BotIsNotChatMemberError,
     FinalRecipientsListEmptyError,
 )

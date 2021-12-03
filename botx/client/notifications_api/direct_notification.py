@@ -4,7 +4,7 @@ from uuid import UUID
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import callback_exception_thrower
 from botx.client.exceptions.common import ChatNotFoundError
-from botx.client.notifications_api.exceptions import (
+from botx.client.exceptions.notifications import (
     BotIsNotChatMemberError,
     FinalRecipientsListEmptyError,
     StealthModeDisabledError,

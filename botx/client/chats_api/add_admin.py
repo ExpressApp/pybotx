@@ -5,7 +5,7 @@ import httpx
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
-from botx.client.chats_api.exceptions import (
+from botx.client.exceptions.chats import (
     CantUpdatePersonalChatError,
     InvalidUsersListError,
 )

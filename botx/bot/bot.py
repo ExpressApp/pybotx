@@ -14,7 +14,10 @@ from botx.bot.contextvars import bot_id_var, chat_id_var
 from botx.bot.exceptions import AnswerDestinationLookupError
 from botx.bot.handler import Middleware
 from botx.bot.handler_collector import HandlerCollector
-from botx.bot.middlewares.exceptions import ExceptionHandlersDict, ExceptionMiddleware
+from botx.bot.middlewares.exception_middleware import (
+    ExceptionHandlersDict,
+    ExceptionMiddleware,
+)
 from botx.client.chats_api.add_admin import (
     AddAdminMethod,
     BotXAPIAddAdminRequestPayload,

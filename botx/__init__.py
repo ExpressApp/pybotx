@@ -3,7 +3,7 @@ from botx.bot.api.responses.bot_disabled import (
     BotAPIBotDisabledResponse,
     build_bot_disabled_response,
 )
-from botx.bot.api.responses.command_accepted import build_accepted_response
+from botx.bot.api.responses.command_accepted import build_command_accepted_response
 from botx.bot.bot import Bot
 from botx.bot.exceptions import (
     AnswerDestinationLookupError,
@@ -13,15 +13,15 @@ from botx.bot.exceptions import (
 )
 from botx.bot.handler_collector import HandlerCollector
 from botx.bot.testing import lifespan_wrapper
-from botx.client.chats_api.exceptions import (
+from botx.client.exceptions.callbacks import (
+    BotXMethodFailedCallbackReceivedError,
+    CallbackNotReceivedError,
+)
+from botx.client.exceptions.chats import (
     CantUpdatePersonalChatError,
     ChatCreationError,
     ChatCreationProhibitedError,
     InvalidUsersListError,
-)
-from botx.client.exceptions.callbacks import (
-    BotXMethodFailedCallbackReceivedError,
-    CallbackNotReceivedError,
 )
 from botx.client.exceptions.common import (
     ChatNotFoundError,
@@ -29,17 +29,17 @@ from botx.client.exceptions.common import (
     PermissionDeniedError,
     RateLimitReachedError,
 )
+from botx.client.exceptions.files import FileDeletedError, FileMetadataNotFound
 from botx.client.exceptions.http import (
     InvalidBotXResponsePayloadError,
     InvalidBotXStatusCodeError,
 )
-from botx.client.files_api.exceptions import FileDeletedError, FileMetadataNotFound
-from botx.client.notifications_api.exceptions import (
+from botx.client.exceptions.notifications import (
     BotIsNotChatMemberError,
     FinalRecipientsListEmptyError,
     StealthModeDisabledError,
 )
-from botx.client.users_api.exceptions import UserNotFoundError
+from botx.client.exceptions.users import UserNotFoundError
 from botx.models.attachments import OutgoingAttachment
 from botx.models.bot_account import BotAccount
 from botx.models.chats import Chat, ChatListItem
@@ -59,27 +59,14 @@ from botx.models.system_events.chat_created import ChatCreatedEvent, ChatCreated
 from botx.models.system_events.deleted_from_chat import DeletedFromChatEvent
 
 __all__ = (
-    "BotMenu",
-    "ChatListItem",
-    "MentionTypes",
-    "OutgoingAttachment",
-    "IncomingMessage",
-    "ClientPlatforms",
-    "ChatTypes",
-    "ExpressApp",
-    "UserDevice",
-    "UserKinds",
-    "UserEventSender",
-    "AnswerDestinationLookupError",
     "AddedToChatEvent",
-    "DeletedFromChatEvent",
-    "ChatCreatedEvent",
-    "ChatCreatedMember",
+    "AnswerDestinationLookupError",
     "Bot",
-    "BotAccount",
     "BotAPIBotDisabledResponse",
     "BotAPIMethodFailedCallback",
+    "BotAccount",
     "BotIsNotChatMemberError",
+    "BotMenu",
     "BotShuttignDownError",
     "BotXMethodFailedCallbackReceivedError",
     "BubbleMarkup",
@@ -87,29 +74,42 @@ __all__ = (
     "CallbackNotReceivedError",
     "CantUpdatePersonalChatError",
     "Chat",
+    "ChatCreatedEvent",
+    "ChatCreatedMember",
     "ChatCreationError",
     "ChatCreationProhibitedError",
+    "ChatListItem",
     "ChatNotFoundError",
+    "ChatTypes",
+    "ClientPlatforms",
+    "DeletedFromChatEvent",
+    "ExpressApp",
     "FileDeletedError",
     "FileMetadataNotFound",
     "FinalRecipientsListEmptyError",
     "FinalRecipientsListEmptyError",
     "HandlerCollector",
     "HandlerNotFoundError",
+    "IncomingMessage",
     "InvalidBotAccountError",
     "InvalidBotXResponsePayloadError",
     "InvalidBotXStatusCodeError",
     "InvalidUsersListError",
     "KeyboardMarkup",
     "Mention",
+    "MentionTypes",
+    "OutgoingAttachment",
     "PermissionDeniedError",
     "RateLimitReachedError",
     "StatusRecipient",
     "StealthModeDisabledError",
     "UnknownBotAccountError",
     "UnsupportedBotAPIVersionError",
+    "UserDevice",
+    "UserEventSender",
+    "UserKinds",
     "UserNotFoundError",
-    "build_accepted_response",
     "build_bot_disabled_response",
+    "build_command_accepted_response",
     "lifespan_wrapper",
 )

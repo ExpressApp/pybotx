@@ -17,8 +17,8 @@ from botx import (
     HandlerCollector,
     IncomingMessage,
     UnknownBotAccountError,
-    build_accepted_response,
     build_bot_disabled_response,
+    build_command_accepted_response,
 )
 from botx.logger import logger
 
@@ -70,7 +70,10 @@ async def command_handler(request: Request) -> JSONResponse:
             status_code=HTTPStatus.SERVICE_UNAVAILABLE,
         )
 
-    return JSONResponse(build_accepted_response(), status_code=HTTPStatus.ACCEPTED)
+    return JSONResponse(
+        build_command_accepted_response(),
+        status_code=HTTPStatus.ACCEPTED,
+    )
 
 
 async def status_handler(request: Request) -> JSONResponse:
@@ -80,7 +83,10 @@ async def status_handler(request: Request) -> JSONResponse:
 
 async def callback_handler(request: Request) -> JSONResponse:
     bot.set_raw_botx_method_result(await request.json())
-    return JSONResponse(build_accepted_response(), status_code=HTTPStatus.ACCEPTED)
+    return JSONResponse(
+        build_command_accepted_response(),
+        status_code=HTTPStatus.ACCEPTED,
+    )
 
 
 app = Starlette(
