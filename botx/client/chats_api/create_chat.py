@@ -3,19 +3,9 @@ from uuid import UUID
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
-from botx.client.chats_api.exceptions import (
-    ChatCreationError,
-    ChatCreationProhibitedError,
-)
-from botx.shared_models.api_base import (
-    UnverifiedPayloadBaseModel,
-    VerifiedPayloadBaseModel,
-)
-from botx.shared_models.chat_types import (
-    APIChatTypes,
-    ChatTypes,
-    convert_chat_type_from_domain,
-)
+from botx.client.exceptions.chats import ChatCreationError, ChatCreationProhibitedError
+from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
+from botx.models.enums import APIChatTypes, ChatTypes, convert_chat_type_from_domain
 
 try:
     from typing import Literal

@@ -3,8 +3,8 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from botx.bot.models.commands.entities import Mention, MentionList
-from botx.bot.models.commands.enums import MentionTypes
+from botx import Mention, MentionTypes
+from botx.models.message.mentions import MentionList
 
 
 @pytest.fixture

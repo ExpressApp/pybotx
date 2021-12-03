@@ -2,9 +2,9 @@ from uuid import UUID
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
-from botx.client.users_api.exceptions import UserNotFoundError
+from botx.client.exceptions.users import UserNotFoundError
 from botx.client.users_api.user_from_search import BotXAPISearchUserResponsePayload
-from botx.shared_models.api_base import UnverifiedPayloadBaseModel
+from botx.models.api_base import UnverifiedPayloadBaseModel
 
 
 class BotXAPISearchUserByHUIDRequestPayload(UnverifiedPayloadBaseModel):

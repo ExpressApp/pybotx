@@ -4,10 +4,7 @@ from uuid import UUID
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
 from botx.client.exceptions.common import ChatNotFoundError, PermissionDeniedError
-from botx.shared_models.api_base import (
-    UnverifiedPayloadBaseModel,
-    VerifiedPayloadBaseModel,
-)
+from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 
 try:
     from typing import Literal

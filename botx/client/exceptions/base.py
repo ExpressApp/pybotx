@@ -2,7 +2,7 @@ from typing import Optional
 
 import httpx
 
-from botx.bot.models.method_callbacks import BotAPIMethodFailedCallback
+from botx.models.method_callbacks import BotAPIMethodFailedCallback
 
 
 class BaseClientException(Exception):

@@ -3,9 +3,9 @@ from typing import TYPE_CHECKING, Dict, Optional
 from uuid import UUID
 
 from botx.bot.exceptions import BotShuttignDownError, BotXMethodCallbackNotFound
-from botx.bot.models.method_callbacks import BotXMethodCallback
 from botx.client.exceptions.callbacks import CallbackNotReceivedError
 from botx.logger import logger
+from botx.models.method_callbacks import BotXMethodCallback
 
 if TYPE_CHECKING:
     from asyncio import Future  # noqa: WPS458

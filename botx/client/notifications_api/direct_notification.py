@@ -1,32 +1,28 @@
 from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
-from botx.bot.models.outgoing_attachment import OutgoingAttachment
-from botx.client.attachments import BotXAPIAttachment
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import callback_exception_thrower
 from botx.client.exceptions.common import ChatNotFoundError
-from botx.client.notifications_api.exceptions import (
+from botx.client.exceptions.notifications import (
     BotIsNotChatMemberError,
     FinalRecipientsListEmptyError,
     StealthModeDisabledError,
 )
-from botx.client.notifications_api.markup import (
+from botx.missing import Missing, Undefined
+from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
+from botx.models.attachments import (
+    BotXAPIAttachment,
+    IncomingFileAttachment,
+    OutgoingAttachment,
+)
+from botx.models.message.markup import (
     BotXAPIMarkup,
     BubbleMarkup,
     KeyboardMarkup,
     api_markup_from_domain,
 )
-from botx.client.notifications_api.mentions import (
-    BotXAPIMention,
-    find_and_replace_embed_mentions,
-)
-from botx.missing import Missing, Undefined
-from botx.shared_models.api_base import (
-    UnverifiedPayloadBaseModel,
-    VerifiedPayloadBaseModel,
-)
-from botx.shared_models.domain.attachments import IncomingFileAttachment
+from botx.models.message.mentions import BotXAPIMention, find_and_replace_embed_mentions
 
 try:
     from typing import Literal

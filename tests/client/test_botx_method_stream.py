@@ -7,10 +7,10 @@ import respx
 from aiofiles.tempfile import NamedTemporaryFile
 
 from botx import BotAccount, InvalidBotXStatusCodeError
+from botx.async_buffer import AsyncBufferWritable
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.botx_method import BotXMethod, response_exception_thrower
 from botx.client.exceptions.base import BaseClientException
-from botx.shared_models.async_buffer import AsyncBufferWritable
 from tests.client.test_botx_method import BotXAPIFooBarRequestPayload
 
 

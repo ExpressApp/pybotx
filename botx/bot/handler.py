@@ -2,14 +2,12 @@ from dataclasses import dataclass
 from functools import partial
 from typing import TYPE_CHECKING, Awaitable, Callable, List, TypeVar, Union
 
-from botx.bot.models.commands.commands import BotCommand
-from botx.bot.models.commands.incoming_message import IncomingMessage
-from botx.bot.models.commands.system_events.added_to_chat import AddedToChatEvent
-from botx.bot.models.commands.system_events.chat_created import ChatCreatedEvent
-from botx.bot.models.commands.system_events.deleted_from_chat import (
-    DeletedFromChatEvent,
-)
-from botx.bot.models.status.recipient import StatusRecipient
+from botx.models.commands import BotCommand
+from botx.models.message.incoming_message import IncomingMessage
+from botx.models.status import StatusRecipient
+from botx.models.system_events.added_to_chat import AddedToChatEvent
+from botx.models.system_events.chat_created import ChatCreatedEvent
+from botx.models.system_events.deleted_from_chat import DeletedFromChatEvent
 
 try:
     from typing import Literal

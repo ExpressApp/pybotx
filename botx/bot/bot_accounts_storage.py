@@ -5,7 +5,7 @@ from typing import Dict, Iterator, List, Optional, Tuple
 from uuid import UUID
 
 from botx.bot.exceptions import UnknownBotAccountError
-from botx.bot.models.bot_account import BotAccount
+from botx.models.bot_account import BotAccount
 
 
 class BotAccountsStorage:

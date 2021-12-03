@@ -1,18 +1,14 @@
 import tempfile
 from uuid import UUID
 
+from botx.async_buffer import AsyncBufferReadable
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
 from botx.client.exceptions.common import ChatNotFoundError
 from botx.constants import CHUNK_SIZE
 from botx.missing import Missing
-from botx.shared_models.api.async_file import APIAsyncFile, convert_async_file_to_file
-from botx.shared_models.api_base import (
-    UnverifiedPayloadBaseModel,
-    VerifiedPayloadBaseModel,
-)
-from botx.shared_models.async_buffer import AsyncBufferReadable
-from botx.shared_models.domain.files import File
+from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
+from botx.models.async_files import APIAsyncFile, File, convert_async_file_to_file
 
 try:
     from typing import Literal

@@ -16,7 +16,7 @@ from botx import (
     UserKinds,
     lifespan_wrapper,
 )
-from botx.client.chats_api.chat_info import ChatInfo, ChatInfoMember
+from botx.models.chats import ChatInfo, ChatInfoMember
 
 
 @respx.mock

@@ -3,13 +3,13 @@ from uuid import UUID
 
 import httpx
 
+from botx.async_buffer import AsyncBufferWritable
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
 from botx.client.exceptions.common import ChatNotFoundError
+from botx.client.exceptions.files import FileDeletedError, FileMetadataNotFound
 from botx.client.exceptions.http import InvalidBotXStatusCodeError
-from botx.client.files_api.exceptions import FileDeletedError, FileMetadataNotFound
-from botx.shared_models.api_base import UnverifiedPayloadBaseModel
-from botx.shared_models.async_buffer import AsyncBufferWritable
+from botx.models.api_base import UnverifiedPayloadBaseModel
 
 
 class BotXAPIDownloadFileRequestPayload(UnverifiedPayloadBaseModel):

@@ -1,43 +1,16 @@
-from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
-from botx.shared_models.api_base import VerifiedPayloadBaseModel
-from botx.shared_models.chat_types import (
-    APIChatTypes,
-    ChatTypes,
-    convert_chat_type_to_domain,
-)
+from botx.models.api_base import VerifiedPayloadBaseModel
+from botx.models.chats import ChatListItem
+from botx.models.enums import APIChatTypes, convert_chat_type_to_domain
 
 try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
-
-
-@dataclass
-class ChatListItem:
-    """Chat from list.
-
-    Attributes:
-        chat_id: Chat id.
-        chat_type: Chat Type.
-        name: Chat name.
-        description: Chat description.
-        members: Chat members.
-        created_at: Chat creation datetime.
-        updated_at: Last chat update datetime.
-    """
-
-    chat_id: UUID
-    chat_type: ChatTypes
-    name: str
-    description: Optional[str]
-    members: List[UUID]
-    created_at: datetime
-    updated_at: datetime
 
 
 class BotXAPIListChatResult(VerifiedPayloadBaseModel):

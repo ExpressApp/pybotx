@@ -21,10 +21,6 @@ from pydantic import ValidationError, parse_obj_as
 
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.bot.callbacks_manager import CallbacksManager
-from botx.bot.models.method_callbacks import (
-    BotAPIMethodFailedCallback,
-    BotXMethodCallback,
-)
 from botx.client.exceptions.base import BaseClientException
 from botx.client.exceptions.callbacks import BotXMethodFailedCallbackReceivedError
 from botx.client.exceptions.http import (
@@ -32,7 +28,8 @@ from botx.client.exceptions.http import (
     InvalidBotXStatusCodeError,
 )
 from botx.logger import logger, pformat_jsonable_obj
-from botx.shared_models.api_base import VerifiedPayloadBaseModel
+from botx.models.api_base import VerifiedPayloadBaseModel
+from botx.models.method_callbacks import BotAPIMethodFailedCallback, BotXMethodCallback
 
 StatusHandler = Callable[[Arg(httpx.Response, "response")], NoReturn]  # noqa: F821
 StatusHandlers = Mapping[int, StatusHandler]
