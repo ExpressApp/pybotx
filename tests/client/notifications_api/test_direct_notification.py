@@ -76,7 +76,6 @@ async def test__answer__succeed(
                         {
                             "command": "/bubble-button",
                             "label": "Bubble button",
-                            "data": {},
                             "opts": {"silent": True},
                         },
                     ],
@@ -86,7 +85,6 @@ async def test__answer__succeed(
                         {
                             "command": "/keyboard-button",
                             "label": "Keyboard button",
-                            "data": {},
                             "opts": {"silent": True},
                         },
                     ],

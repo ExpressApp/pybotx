@@ -42,7 +42,6 @@ async def test__markup__defaults_filled(
                         {
                             "command": "/bubble-button",
                             "label": "Bubble button",
-                            "data": {},
                             "opts": {"silent": True},
                         },
                     ],
@@ -52,7 +51,6 @@ async def test__markup__defaults_filled(
                         {
                             "command": "/keyboard-button",
                             "label": "Keyboard button",
-                            "data": {},
                             "opts": {"silent": True},
                         },
                     ],
@@ -139,13 +137,11 @@ async def test__markup__correctly_built(
                         {
                             "command": "/bubble-button-1",
                             "label": "Bubble button 1",
-                            "data": {},
                             "opts": {"silent": True},
                         },
                         {
                             "command": "/bubble-button-2",
                             "label": "Bubble button 2",
-                            "data": {},
                             "opts": {"silent": True},
                         },
                     ],
@@ -153,7 +149,6 @@ async def test__markup__correctly_built(
                         {
                             "command": "/bubble-button-3",
                             "label": "Bubble button 3",
-                            "data": {},
                             "opts": {"silent": True},
                         },
                     ],
@@ -161,13 +156,11 @@ async def test__markup__correctly_built(
                         {
                             "command": "/bubble-button-4",
                             "label": "Bubble button 4",
-                            "data": {},
                             "opts": {"silent": True},
                         },
                         {
                             "command": "/bubble-button-5",
                             "label": "Bubble button 5",
-                            "data": {},
                             "opts": {"silent": True},
                         },
                     ],
