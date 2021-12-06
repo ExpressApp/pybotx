@@ -34,7 +34,6 @@ async def test__create_chat__bot_have_no_permissions_raised(
             "description": None,
             "chat_type": "group_chat",
             "members": [],
-            "shared_history": False,
         },
     ).mock(
         return_value=httpx.Response(
@@ -89,7 +88,6 @@ async def test__create_chat__botx_error_raised(
             "description": None,
             "chat_type": "group_chat",
             "members": [],
-            "shared_history": False,
         },
     ).mock(
         return_value=httpx.Response(
@@ -127,7 +125,7 @@ async def test__create_chat__botx_error_raised(
 @respx.mock
 @pytest.mark.asyncio
 @pytest.mark.mock_authorization
-async def test__create_chat__succeed(
+async def test__create_chat__maximum_filled_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -140,10 +138,10 @@ async def test__create_chat__succeed(
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
             "name": "Test chat name",
-            "description": None,
+            "description": "Test description",
             "chat_type": "group_chat",
-            "members": [],
-            "shared_history": False,
+            "members": ["2fc83441-366a-49ba-81fc-6c39f065bb58"],
+            "shared_history": True,
         },
     ).mock(
         return_value=httpx.Response(
@@ -167,7 +165,9 @@ async def test__create_chat__succeed(
             bot_id,
             "Test chat name",
             ChatTypes.GROUP_CHAT,
-            [],
+            [UUID("2fc83441-366a-49ba-81fc-6c39f065bb58")],
+            "Test description",
+            shared_history=True,
         )
 
     # - Assert -
