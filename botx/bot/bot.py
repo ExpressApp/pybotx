@@ -355,7 +355,7 @@ class Bot:
         self,
         bot_id: UUID,
         chat_id: UUID,
-        disable_in_web_client: Missing[bool] = Undefined,
+        disable_web_client: Missing[bool] = Undefined,
         ttl_after_read: Missing[int] = Undefined,
         total_ttl: Missing[int] = Undefined,
     ) -> None:
@@ -365,7 +365,7 @@ class Bot:
 
         * `bot_id: UUID` - Bot which should perform the request.
         * `chat_id: UUID` - Target chat id.
-        * `disable_in_web_client: bool` - should messages be shown in web.
+        * `disable_web_client: bool` - should messages be shown in web.
         * `ttl_after_read: Missing[int]` - time of messages burning after read.
         * `total_ttl: Missing[int]` - time of messages burning after send.
         """
@@ -377,7 +377,7 @@ class Bot:
         )
         payload = BotXAPISetStealthRequestPayload.from_domain(
             chat_id,
-            disable_in_web_client,
+            disable_web_client,
             ttl_after_read,
             total_ttl,
         )

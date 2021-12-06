@@ -152,7 +152,7 @@ async def test__enable_stealth__maximum_filled_succeed(
         await bot.enable_stealth(
             bot_id,
             chat_id,
-            disable_in_web_client=True,
+            disable_web_client=True,
             ttl_after_read=100,
             total_ttl=1000,
         )

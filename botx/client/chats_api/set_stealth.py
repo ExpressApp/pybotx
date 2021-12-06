@@ -22,13 +22,13 @@ class BotXAPISetStealthRequestPayload(UnverifiedPayloadBaseModel):
     def from_domain(
         cls,
         chat_id: UUID,
-        disable_in_web_client: Missing[bool],
+        disable_web_client: Missing[bool],
         ttl_after_read: Missing[int],
         total_ttl: Missing[int],
     ) -> "BotXAPISetStealthRequestPayload":
         return cls(
             group_chat_id=chat_id,
-            disable_web=disable_in_web_client,
+            disable_web=disable_web_client,
             burn_in=ttl_after_read,
             expire_in=total_ttl,
         )
