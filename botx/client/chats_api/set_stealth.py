@@ -14,7 +14,7 @@ except ImportError:
 
 class BotXAPISetStealthRequestPayload(UnverifiedPayloadBaseModel):
     group_chat_id: UUID
-    disable_web: bool
+    disable_web: Missing[bool]
     burn_in: Missing[int]
     expire_in: Missing[int]
 
@@ -22,7 +22,7 @@ class BotXAPISetStealthRequestPayload(UnverifiedPayloadBaseModel):
     def from_domain(
         cls,
         chat_id: UUID,
-        disable_in_web_client: bool,
+        disable_in_web_client: Missing[bool],
         ttl_after_read: Missing[int],
         total_ttl: Missing[int],
     ) -> "BotXAPISetStealthRequestPayload":
