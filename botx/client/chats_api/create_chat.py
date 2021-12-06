@@ -4,6 +4,7 @@ from uuid import UUID
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
 from botx.client.exceptions.chats import ChatCreationError, ChatCreationProhibitedError
+from botx.missing import Missing
 from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from botx.models.enums import APIChatTypes, ChatTypes, convert_chat_type_from_domain
 
@@ -18,7 +19,7 @@ class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
     description: Optional[str]
     chat_type: APIChatTypes
     members: List[UUID]
-    shared_history: bool
+    shared_history: Missing[bool]
 
     @classmethod
     def from_domain(
@@ -26,8 +27,8 @@ class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
         name: str,
         chat_type: ChatTypes,
         huids: List[UUID],
+        shared_history: Missing[bool],
         description: Optional[str] = None,
-        shared_history: bool = False,
     ) -> "BotXAPICreateChatRequestPayload":
         return cls(
             name=name,

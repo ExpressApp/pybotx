@@ -409,7 +409,7 @@ class Bot:
         chat_type: ChatTypes,
         huids: List[UUID],
         description: Optional[str] = None,
-        shared_history: bool = False,
+        shared_history: Missing[bool] = Undefined,
     ) -> UUID:
         """Create chat.
 
@@ -437,8 +437,8 @@ class Bot:
             name,
             chat_type,
             huids,
-            description,
             shared_history,
+            description,
         )
         botx_api_chat_id = await method.execute(payload)
 
