@@ -31,14 +31,14 @@ except ImportError:
 
 
 class BotXAPIDirectNotificationOpts(UnverifiedPayloadBaseModel):
-    buttons_auto_adjust: bool
+    buttons_auto_adjust: Missing[bool]
 
 
 class BotXAPIDirectNotification(UnverifiedPayloadBaseModel):
     status: Literal["ok"]
     body: str
     metadata: Missing[Dict[str, Any]]
-    opts: BotXAPIDirectNotificationOpts
+    opts: Missing[BotXAPIDirectNotificationOpts]
     bubble: Missing[BotXAPIMarkup]
     keyboard: Missing[BotXAPIMarkup]
     mentions: Missing[List[BotXAPIMention]]
@@ -58,7 +58,7 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
         bubbles: Missing[BubbleMarkup],
         keyboard: Missing[KeyboardMarkup],
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]],
-        markup_auto_adjust: bool,
+        markup_auto_adjust: Missing[bool],
     ) -> "BotXAPIDirectNotificationRequestPayload":
         api_file: Missing[BotXAPIAttachment] = Undefined
         if file:

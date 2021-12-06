@@ -7,14 +7,18 @@ from pydantic import BaseModel
 from botx.missing import Undefined
 
 
-def _remove_undefined_from_dict(origin_dict: Any) -> Dict[str, Any]:
+def _remove_undefined_from_dict(origin_dict: Any) -> Dict[str, Any]:  # noqa: WPS231
     new_dict = {}
     for key, value in origin_dict.items():  # noqa: WPS110 (Normal name in this case)
         if value is Undefined:
             continue
 
         elif isinstance(value, dict):
-            new_dict[key] = _remove_undefined_from_dict(value)
+            nested_dict = _remove_undefined_from_dict(value)
+
+            if nested_dict:
+                new_dict[key] = nested_dict
+
             continue
 
         new_dict[key] = value

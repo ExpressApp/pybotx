@@ -570,7 +570,7 @@ class Bot:
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
-        markup_auto_adjust: bool = False,
+        markup_auto_adjust: Missing[bool] = Undefined,
         wait_callback: bool = True,
         callback_timeout: MissingOptional[int] = Undefined,
     ) -> UUID:
@@ -623,7 +623,7 @@ class Bot:
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
-        markup_auto_adjust: bool = False,
+        markup_auto_adjust: Missing[bool] = Undefined,
         wait_callback: bool = True,
         callback_timeout: MissingOptional[int] = Undefined,
     ) -> UUID:
