@@ -355,7 +355,7 @@ class Bot:
         self,
         bot_id: UUID,
         chat_id: UUID,
-        disable_in_web_client: bool = False,
+        disable_in_web_client: Missing[bool] = Undefined,
         ttl_after_read: Missing[int] = Undefined,
         total_ttl: Missing[int] = Undefined,
     ) -> None:

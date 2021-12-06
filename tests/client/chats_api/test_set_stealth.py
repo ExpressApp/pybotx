@@ -31,7 +31,6 @@ async def test__enable_stealth__permission_denied_error_raised(
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
             "group_chat_id": str(chat_id),
-            "disable_web": False,
         },
     ).mock(
         return_value=httpx.Response(
@@ -81,7 +80,6 @@ async def test__enable_stealth__chat_not_found_raised(
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
             "group_chat_id": str(chat_id),
-            "disable_web": False,
         },
     ).mock(
         return_value=httpx.Response(
@@ -116,7 +114,7 @@ async def test__enable_stealth__chat_not_found_raised(
 @respx.mock
 @pytest.mark.asyncio
 @pytest.mark.mock_authorization
-async def test__enable_stealth__succeed(
+async def test__enable_stealth__maximum_filled_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -129,7 +127,9 @@ async def test__enable_stealth__succeed(
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
             "group_chat_id": str(chat_id),
-            "disable_web": False,
+            "disable_web": True,
+            "burn_in": 100,
+            "expire_in": 1000,
         },
     ).mock(
         return_value=httpx.Response(
@@ -149,7 +149,13 @@ async def test__enable_stealth__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        await bot.enable_stealth(bot_id, chat_id)
+        await bot.enable_stealth(
+            bot_id,
+            chat_id,
+            disable_in_web_client=True,
+            ttl_after_read=100,
+            total_ttl=1000,
+        )
 
     # - Assert -
     assert endpoint.called
