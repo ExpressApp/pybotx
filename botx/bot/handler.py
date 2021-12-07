@@ -8,6 +8,7 @@ from botx.models.status import StatusRecipient
 from botx.models.system_events.added_to_chat import AddedToChatEvent
 from botx.models.system_events.chat_created import ChatCreatedEvent
 from botx.models.system_events.deleted_from_chat import DeletedFromChatEvent
+from botx.models.system_events.left_from_chat import LeftFromChatEvent
 
 try:
     from typing import Literal
@@ -25,6 +26,7 @@ SystemEventHandlerFunc = Union[
     HandlerFunc[AddedToChatEvent],
     HandlerFunc[ChatCreatedEvent],
     HandlerFunc[DeletedFromChatEvent],
+    HandlerFunc[LeftFromChatEvent],
 ]
 
 VisibleFunc = Callable[[StatusRecipient, "Bot"], Awaitable[bool]]
