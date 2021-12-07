@@ -189,10 +189,18 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             name=self.sender.device,
             os=self.sender.device_software,
         )
+
+        if self.sender.device_meta:
+            pushes = self.sender.device_meta.pushes
+            timezone = self.sender.device_meta.timezone
+            permissions = self.sender.device_meta.permissions
+        else:
+            pushes, timezone, permissions = None, None, None
+
         express_app = ExpressApp(
-            pushes=self.sender.device_meta.pushes,
-            timezone=self.sender.device_meta.timezone,
-            permissions=self.sender.device_meta.permissions,
+            pushes=pushes,
+            timezone=timezone,
+            permissions=permissions,
             platform=(
                 convert_client_platform(self.sender.platform)
                 if self.sender.platform
