@@ -216,9 +216,14 @@ class Bot:
                 return_when=asyncio.ALL_COMPLETED,
             )
 
-            # Raise handlers exceptions
+            # Log exceptions
             for task in finished_tasks:
-                task.result()
+                exception = task.exception()
+                if exception:
+                    exc_name = type(exception).__name__
+                    logger.opt(exception=exception).error(
+                        f"Uncaught exception {exc_name}:",
+                    )
 
         await self._httpx_client.aclose()
 
