@@ -240,6 +240,7 @@ def incoming_message_factory(
     ) -> IncomingMessage:
         return IncomingMessage(
             bot_id=bot_id,
+            host="cts.example.com",
             sync_id=uuid4(),
             source_sync_id=None,
             body=body,
@@ -270,7 +271,6 @@ def incoming_message_factory(
             chat=Chat(
                 id=chat_id,
                 type=ChatTypes.PERSONAL_CHAT,
-                host="cts.example.com",
             ),
             raw_command=None,
         )
@@ -285,12 +285,12 @@ def chat_created(
 ) -> ChatCreatedEvent:
     return ChatCreatedEvent(
         bot_id=bot_id,
+        host="cts.example.com",
         sync_id=uuid4(),
         chat_name="Test",
         chat=Chat(
             id=chat_id,
             type=ChatTypes.PERSONAL_CHAT,
-            host="cts.example.com",
         ),
         creator_id=uuid4(),
         members=[

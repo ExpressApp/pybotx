@@ -74,4 +74,5 @@ class BotAPIBaseCommand(VerifiedPayloadBaseModel):
 @dataclass
 class BotCommandBase:
     bot_id: UUID
+    host: str
     raw_command: Optional[Dict[str, Any]]

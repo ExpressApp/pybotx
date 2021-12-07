@@ -11,7 +11,6 @@ from botx.models.enums import ChatTypes, UserKinds
 class Chat:
     id: UUID
     type: ChatTypes
-    host: str
 
 
 @dataclass

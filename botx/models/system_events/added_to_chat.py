@@ -49,11 +49,11 @@ class BotAPIAddedToChat(BotAPIBaseCommand):
     def to_domain(self, raw_command: Dict[str, Any]) -> AddedToChatEvent:
         return AddedToChatEvent(
             bot_id=self.bot_id,
+            host=self.sender.host,
             raw_command=raw_command,
             huids=self.payload.data.added_members,
             chat=Chat(
                 id=self.sender.group_chat_id,
                 type=convert_chat_type_to_domain(self.sender.chat_type),
-                host=self.sender.host,
             ),
         )

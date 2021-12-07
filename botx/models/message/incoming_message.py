@@ -224,7 +224,6 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
         chat = Chat(
             id=self.sender.group_chat_id,
             type=convert_chat_type_to_domain(self.sender.chat_type),
-            host=self.sender.host,
         )
 
         file: Optional[Union[File, IncomingFileAttachment]] = None
@@ -266,6 +265,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
 
         return IncomingMessage(
             bot_id=self.bot_id,
+            host=self.sender.host,
             sync_id=self.sync_id,
             source_sync_id=self.source_sync_id,
             body=self.payload.body,
