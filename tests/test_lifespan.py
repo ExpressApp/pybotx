@@ -40,6 +40,37 @@ async def test__shutdown__wait_for_active_handlers(
 
 @respx.mock
 @pytest.mark.asyncio
+@pytest.mark.mock_authorization
+async def test__shutdown__all_handler_exceptions_logged(
+    incoming_message_factory: Callable[..., IncomingMessage],
+    bot_account: BotAccount,
+    loguru_caplog: pytest.LogCaptureFixture,
+) -> None:
+    # - Arrange -
+    collector = HandlerCollector()
+
+    @collector.command("/command", description="My command")
+    async def handler_1(message: IncomingMessage, bot: Bot) -> None:
+        raise ValueError("Some error")
+
+    @collector.command("/command-two", description="My second command")
+    async def handler_2(message: IncomingMessage, bot: Bot) -> None:
+        raise ValueError("Other error")
+
+    bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+
+    # - Act -
+    bot.async_execute_bot_command(incoming_message_factory(body="/command"))
+    bot.async_execute_bot_command(incoming_message_factory(body="/command-two"))
+    await bot.shutdown()
+
+    # - Assert -
+    assert "Some error" in loguru_caplog.text
+    assert "Other error" in loguru_caplog.text
+
+
+@respx.mock
+@pytest.mark.asyncio
 async def test__startup__authorize_cant_get_token(
     loguru_caplog: pytest.LogCaptureFixture,
     bot_account: BotAccount,

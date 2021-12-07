@@ -9,7 +9,6 @@ from botx.bot.exceptions import (
     AnswerDestinationLookupError,
     BotShuttignDownError,
     BotXMethodCallbackNotFound,
-    HandlerNotFoundError,
     UnknownBotAccountError,
 )
 from botx.bot.handler import IncomingMessageHandlerFunc, Middleware
@@ -107,7 +106,6 @@ __all__ = (
     "FinalRecipientsListEmptyError",
     "Forward",
     "HandlerCollector",
-    "HandlerNotFoundError",
     "Image",
     "IncomingMessage",
     "IncomingMessageHandlerFunc",
