@@ -1,3 +1,4 @@
+import asyncio
 from typing import Callable
 from unittest.mock import Mock
 
@@ -389,7 +390,7 @@ async def test__handler_collector__invalid_command_goes_to_default_handler(
 @respx.mock
 @pytest.mark.asyncio
 @pytest.mark.mock_authorization
-async def test__handler_collector__handler_not_found_error_raised(
+async def test__handler_collector__handler_not_found_logged(
     incoming_message_factory: Callable[..., IncomingMessage],
     bot_account: BotAccount,
     loguru_caplog: pytest.LogCaptureFixture,
@@ -403,9 +404,10 @@ async def test__handler_collector__handler_not_found_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         bot.async_execute_bot_command(user_command)
+        await asyncio.sleep(0)  # Return control to event loop
 
     # - Assert -
-    assert "/command" in loguru_caplog.text
+    assert "`/command` not found" in loguru_caplog.text
 
 
 @respx.mock
