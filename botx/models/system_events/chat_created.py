@@ -104,12 +104,12 @@ class BotAPIChatCreated(BotAPIBaseCommand):
         chat = Chat(
             id=self.payload.data.group_chat_id,
             type=convert_chat_type_to_domain(self.payload.data.chat_type),
-            host=self.sender.host,
         )
 
         return ChatCreatedEvent(
             sync_id=self.sync_id,
             bot_id=self.bot_id,
+            host=self.sender.host,
             chat=chat,
             chat_name=self.payload.data.name,
             creator_id=self.payload.data.creator,
