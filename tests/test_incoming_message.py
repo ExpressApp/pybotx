@@ -53,11 +53,7 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
             "app_version": None,
             "chat_type": "chat",
             "device": None,
-            "device_meta": {
-                "permissions": None,
-                "pushes": False,
-                "timezone": "Europe/Moscow",
-            },
+            "device_meta": None,
             "device_software": None,
             "group_chat_id": "30dc1980-643a-00ad-37fc-7cc10d74e935",
             "host": "cts.example.com",
@@ -111,8 +107,8 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
                 os=None,
             ),
             express_app=ExpressApp(
-                pushes=False,
-                timezone="Europe/Moscow",
+                pushes=None,
+                timezone=None,
                 permissions=None,
                 platform=None,
                 platform_package_id=None,

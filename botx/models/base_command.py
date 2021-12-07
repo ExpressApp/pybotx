@@ -51,7 +51,7 @@ class BotAPIDeviceContext(BaseBotAPIContext):
     platform: Optional[BotAPIClientPlatforms]
     platform_package_id: Optional[str]
     device: Optional[str]
-    device_meta: BotAPIDeviceMeta
+    device_meta: Optional[BotAPIDeviceMeta]
     device_software: Optional[str]
     manufacturer: Optional[str]
     locale: Optional[str]
