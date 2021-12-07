@@ -9,7 +9,6 @@ from botx import (
     BotAccount,
     ChatCreatedEvent,
     HandlerCollector,
-    HandlerNotFoundError,
     IncomingMessage,
     lifespan_wrapper,
 )
@@ -393,6 +392,7 @@ async def test__handler_collector__invalid_command_goes_to_default_handler(
 async def test__handler_collector__handler_not_found_error_raised(
     incoming_message_factory: Callable[..., IncomingMessage],
     bot_account: BotAccount,
+    loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -401,13 +401,11 @@ async def test__handler_collector__handler_not_found_error_raised(
     built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
-    # Exception throws in background task so we need to wrap lifespan
-    with pytest.raises(HandlerNotFoundError) as exc:
-        async with lifespan_wrapper(built_bot) as bot:
-            bot.async_execute_bot_command(user_command)
+    async with lifespan_wrapper(built_bot) as bot:
+        bot.async_execute_bot_command(user_command)
 
     # - Assert -
-    assert "/command" in str(exc.value)
+    assert "/command" in loguru_caplog.text
 
 
 @respx.mock
