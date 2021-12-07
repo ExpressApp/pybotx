@@ -21,6 +21,7 @@ from botx.models.status import BotMenu, StatusRecipient
 from botx.models.system_events.added_to_chat import AddedToChatEvent
 from botx.models.system_events.chat_created import ChatCreatedEvent
 from botx.models.system_events.deleted_from_chat import DeletedFromChatEvent
+from botx.models.system_events.left_from_chat import LeftFromChatEvent
 
 if TYPE_CHECKING:  # To avoid circular import
     from botx.bot.bot import Bot
@@ -154,6 +155,16 @@ class HandlerCollector:
         """Decorate `deleted_from_chat` event handler."""
 
         self._system_event(DeletedFromChatEvent, handler_func)
+
+        return handler_func
+
+    def left_from_chat(
+        self,
+        handler_func: HandlerFunc[LeftFromChatEvent],
+    ) -> HandlerFunc[LeftFromChatEvent]:
+        """Decorate `left_from_chat` event handler."""
+
+        self._system_event(LeftFromChatEvent, handler_func)
 
         return handler_func
 
