@@ -66,6 +66,8 @@ from botx.models.method_callbacks import BotAPIMethodFailedCallback
 from botx.models.status import BotMenu, StatusRecipient
 from botx.models.system_events.added_to_chat import AddedToChatEvent
 from botx.models.system_events.chat_created import ChatCreatedEvent, ChatCreatedMember
+from botx.models.system_events.cts_login import CTSLoginEvent
+from botx.models.system_events.cts_logout import CTSLogoutEvent
 from botx.models.system_events.deleted_from_chat import DeletedFromChatEvent
 from botx.models.system_events.left_from_chat import LeftFromChatEvent
 from botx.models.users import UserFromSearch
@@ -98,6 +100,8 @@ __all__ = (
     "ChatNotFoundError",
     "ChatTypes",
     "ClientPlatforms",
+    "CTSLoginEvent",
+    "CTSLogoutEvent",
     "DeletedFromChatEvent",
     "Document",
     "ExpressApp",

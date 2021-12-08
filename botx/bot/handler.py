@@ -7,6 +7,8 @@ from botx.models.message.incoming_message import IncomingMessage
 from botx.models.status import StatusRecipient
 from botx.models.system_events.added_to_chat import AddedToChatEvent
 from botx.models.system_events.chat_created import ChatCreatedEvent
+from botx.models.system_events.cts_login import CTSLoginEvent
+from botx.models.system_events.cts_logout import CTSLogoutEvent
 from botx.models.system_events.deleted_from_chat import DeletedFromChatEvent
 from botx.models.system_events.left_from_chat import LeftFromChatEvent
 
@@ -27,6 +29,8 @@ SystemEventHandlerFunc = Union[
     HandlerFunc[ChatCreatedEvent],
     HandlerFunc[DeletedFromChatEvent],
     HandlerFunc[LeftFromChatEvent],
+    HandlerFunc[CTSLoginEvent],
+    HandlerFunc[CTSLogoutEvent],
 ]
 
 VisibleFunc = Callable[[StatusRecipient, "Bot"], Awaitable[bool]]
