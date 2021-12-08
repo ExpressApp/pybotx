@@ -11,6 +11,7 @@ from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.enums import (
     APIAttachmentTypes,
     AttachmentTypes,
+    convert_attachment_type_from_domain,
     convert_attachment_type_to_domain,
 )
 
@@ -29,6 +30,9 @@ class AsyncFileBase:
     is_async_file: Literal[True]
 
     _file_id: UUID
+    _file_url: str
+    _file_mimetype: str
+    _file_hash: str
 
     @asynccontextmanager
     async def open(self) -> AsyncGenerator[SpooledTemporaryFile, None]:
@@ -71,9 +75,12 @@ class Voice(AsyncFileBase):
 
 class APIAsyncFileBase(VerifiedPayloadBaseModel):
     type: APIAttachmentTypes
+    file: str
+    file_mime_type: str
     file_id: UUID
     file_name: str
     file_size: int
+    file_hash: str
 
     class Config:
         """BotX sends extra fields which are used by client only.
@@ -115,6 +122,70 @@ APIAsyncFile = Union[
 File = Union[Image, Video, Document, Voice]
 
 
+def convert_async_file_from_domain(file: File) -> APIAsyncFile:
+    attachment_type = convert_attachment_type_from_domain(file.type)
+
+    if attachment_type == APIAttachmentTypes.IMAGE:
+        attachment_type = cast(Literal[APIAttachmentTypes.IMAGE], attachment_type)
+        file = cast(Image, file)
+
+        return ApiAsyncFileImage(
+            type=attachment_type,
+            file_name=file.filename,
+            file_size=file.size,
+            file_id=file._file_id,
+            file=file._file_url,
+            file_mime_type=file._file_mimetype,
+            file_hash=file._file_hash,
+        )
+
+    if attachment_type == APIAttachmentTypes.VIDEO:
+        attachment_type = cast(Literal[APIAttachmentTypes.VIDEO], attachment_type)
+        file = cast(Video, file)
+
+        return ApiAsyncFileVideo(
+            type=attachment_type,
+            file_name=file.filename,
+            file_size=file.size,
+            duration=file.duration,
+            file_id=file._file_id,
+            file=file._file_url,
+            file_mime_type=file._file_mimetype,
+            file_hash=file._file_hash,
+        )
+
+    if attachment_type == APIAttachmentTypes.DOCUMENT:
+        attachment_type = cast(Literal[APIAttachmentTypes.DOCUMENT], attachment_type)
+        file = cast(Document, file)
+
+        return ApiAsyncFileDocument(
+            type=attachment_type,
+            file_name=file.filename,
+            file_size=file.size,
+            file_id=file._file_id,
+            file=file._file_url,
+            file_mime_type=file._file_mimetype,
+            file_hash=file._file_hash,
+        )
+
+    if attachment_type == APIAttachmentTypes.VOICE:
+        attachment_type = cast(Literal[APIAttachmentTypes.VOICE], attachment_type)
+        file = cast(Voice, file)
+
+        return ApiAsyncFileVoice(
+            type=attachment_type,
+            file_name=file.filename,
+            file_size=file.size,
+            duration=file.duration,
+            file_id=file._file_id,
+            file=file._file_url,
+            file_mime_type=file._file_mimetype,
+            file_hash=file._file_hash,
+        )
+
+    raise NotImplementedError(f"Unsupported attachment type: {attachment_type}")
+
+
 def convert_async_file_to_file(async_file: APIAsyncFile) -> File:
     attachment_type = convert_attachment_type_to_domain(async_file.type)
 
@@ -128,6 +199,9 @@ def convert_async_file_to_file(async_file: APIAsyncFile) -> File:
             size=async_file.file_size,
             is_async_file=True,
             _file_id=async_file.file_id,
+            _file_mimetype=async_file.file_mime_type,
+            _file_url=async_file.file,
+            _file_hash=async_file.file_hash,
         )
 
     if attachment_type == AttachmentTypes.VIDEO:
@@ -141,6 +215,9 @@ def convert_async_file_to_file(async_file: APIAsyncFile) -> File:
             duration=async_file.duration,
             is_async_file=True,
             _file_id=async_file.file_id,
+            _file_mimetype=async_file.file_mime_type,
+            _file_url=async_file.file,
+            _file_hash=async_file.file_hash,
         )
 
     if attachment_type == AttachmentTypes.DOCUMENT:
@@ -153,6 +230,9 @@ def convert_async_file_to_file(async_file: APIAsyncFile) -> File:
             size=async_file.file_size,
             is_async_file=True,
             _file_id=async_file.file_id,
+            _file_mimetype=async_file.file_mime_type,
+            _file_url=async_file.file,
+            _file_hash=async_file.file_hash,
         )
 
     if attachment_type == AttachmentTypes.VOICE:
@@ -166,6 +246,9 @@ def convert_async_file_to_file(async_file: APIAsyncFile) -> File:
             duration=async_file.duration,
             is_async_file=True,
             _file_id=async_file.file_id,
+            _file_mimetype=async_file.file_mime_type,
+            _file_url=async_file.file,
+            _file_hash=async_file.file_hash,
         )
 
     raise NotImplementedError(f"Unsupported attachment type: {attachment_type}")
