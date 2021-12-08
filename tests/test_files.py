@@ -116,6 +116,9 @@ API_AND_DOMAIN_FILES = (
             size=1502345,
             is_async_file=True,
             _file_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
+            _file_url="https://link.to/file",
+            _file_mimetype="image/png",
+            _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
         ),
     ),
     (
@@ -141,6 +144,9 @@ API_AND_DOMAIN_FILES = (
             is_async_file=True,
             duration=10,
             _file_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
+            _file_url="https://link.to/file",
+            _file_mimetype="video/mp4",
+            _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
         ),
     ),
     (
@@ -164,6 +170,9 @@ API_AND_DOMAIN_FILES = (
             size=1502345,
             is_async_file=True,
             _file_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
+            _file_url="https://link.to/file",
+            _file_mimetype="plain/text",
+            _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
         ),
     ),
     (
@@ -189,6 +198,9 @@ API_AND_DOMAIN_FILES = (
             is_async_file=True,
             duration=10,
             _file_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
+            _file_url="https://link.to/file",
+            _file_mimetype="audio/mp3",
+            _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
         ),
     ),
 )

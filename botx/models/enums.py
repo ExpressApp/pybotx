@@ -189,6 +189,26 @@ def convert_attachment_type_to_domain(
     return converted_type
 
 
+def convert_attachment_type_from_domain(
+    attachment_type: AttachmentTypes,
+) -> APIAttachmentTypes:
+    attachment_types_mapping = {
+        AttachmentTypes.IMAGE: APIAttachmentTypes.IMAGE,
+        AttachmentTypes.VIDEO: APIAttachmentTypes.VIDEO,
+        AttachmentTypes.DOCUMENT: APIAttachmentTypes.DOCUMENT,
+        AttachmentTypes.VOICE: APIAttachmentTypes.VOICE,
+        AttachmentTypes.LOCATION: APIAttachmentTypes.LOCATION,
+        AttachmentTypes.CONTACT: APIAttachmentTypes.CONTACT,
+        AttachmentTypes.LINK: APIAttachmentTypes.LINK,
+    }
+
+    converted_type = attachment_types_mapping.get(attachment_type)
+    if converted_type is None:
+        raise NotImplementedError(f"Unsupported attachment type: {attachment_type}")
+
+    return converted_type
+
+
 def convert_chat_type_from_domain(chat_type: ChatTypes) -> APIChatTypes:
     chat_types_mapping = {
         ChatTypes.PERSONAL_CHAT: APIChatTypes.CHAT,

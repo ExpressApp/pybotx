@@ -70,6 +70,10 @@ from botx.client.notifications_api.internal_bot_notification import (
     BotXAPIInternalBotNotificationRequestPayload,
     InternalBotNotificationMethod,
 )
+from botx.client.smartapps_api.smartapp_event import (
+    BotXAPISmartappEventRequestPayload,
+    SmartappEventMethod,
+)
 from botx.client.users_api.search_user_by_email import (
     BotXAPISearchUserByEmailRequestPayload,
     SearchUserByEmailMethod,
@@ -566,7 +570,44 @@ class Bot:
 
         return botx_api_user_from_search.to_domain()
 
-    # - Notifications API-
+    # - SmartApps API -
+    async def send_smartapp_event(
+        self,
+        bot_id: UUID,
+        chat_id: UUID,
+        data: Dict[str, Any],
+        ref: MissingOptional[UUID] = Undefined,
+        opts: Missing[Dict[str, Any]] = Undefined,
+        files: Missing[List[File]] = Undefined,
+    ) -> None:
+        """Send SmartApp event.
+
+        **Arguments:**
+
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `ref: Optional[UUID]` - Request identifier.
+        * `data: Dict[str, Any]` - Event payload.
+        * `opts: Optional[Dict[str, Any]]` - Event options.
+        * `files: Optional[List[File]]` - Files.
+        """
+
+        method = SmartappEventMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPISmartappEventRequestPayload.from_domain(
+            ref,
+            bot_id,
+            chat_id,
+            data,
+            opts,
+            files,
+        )
+
+        await method.execute(payload)
+
+    # - Notifications API -
     async def answer(
         self,
         body: str,

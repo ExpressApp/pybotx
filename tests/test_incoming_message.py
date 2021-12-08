@@ -294,6 +294,9 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
             size=1502345,
             is_async_file=True,
             _file_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
+            _file_url="https://link.to/file",
+            _file_mimetype="image/png",
+            _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
         ),
         mentions=MentionList(
             [
