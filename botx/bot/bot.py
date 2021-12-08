@@ -52,6 +52,10 @@ from botx.client.chats_api.unpin_message import (
     BotXAPIUnpinMessageRequestPayload,
     UnpinMessageMethod,
 )
+from botx.client.events_api.edit_event import (
+    BotXAPIEditEventRequestPayload,
+    EditEventMethod,
+)
 from botx.client.exceptions.common import InvalidBotAccountError
 from botx.client.files_api.download_file import (
     BotXAPIDownloadFileRequestPayload,
@@ -100,6 +104,10 @@ from botx.models.status import (
     build_bot_status_response,
 )
 from botx.models.users import UserFromSearch
+
+MissingOptionalAttachment = MissingOptional[
+    Union[IncomingFileAttachment, OutgoingAttachment]
+]
 
 
 class Bot:
@@ -722,6 +730,54 @@ class Bot:
         )
 
         return botx_api_sync_id.to_domain()
+
+    # - Events API -
+    async def edit_message(
+        self,
+        *,
+        bot_id: UUID,
+        sync_id: UUID,
+        body: Missing[str] = Undefined,
+        metadata: Missing[Dict[str, Any]] = Undefined,
+        bubbles: Missing[BubbleMarkup] = Undefined,
+        keyboard: Missing[KeyboardMarkup] = Undefined,
+        file: MissingOptionalAttachment = Undefined,
+        markup_auto_adjust: Missing[bool] = Undefined,
+    ) -> None:
+        """Send internal notification.
+
+        **Arguments:**
+
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `sync_id: UUID` - `sync_id` of message to update.
+        * `body: Missing[str]` - New message body. Skip to leave
+        previous body or pass "" to clean it.
+        * `metadata: Missing[Dict[str, Any]]` - Notification options.
+        Skip to leave previous metadata.
+        * `bubbles: Missing[BubbleMarkup]` - Bubbles (buttons attached
+        to message) markup. Skip to leave previous bubbles.
+        * `keyboard: Missing[KeyboardMarkup]` - Keyboard (buttons below
+        message input) markup. Skip to leave previous keyboard.
+        * `file: Missing[Union[IncomingFileAttachment,
+        OutgoingAttachment]]` - Attachment. Skip to leave previous file
+        or pass `None` to clean it.
+        """
+
+        payload = BotXAPIEditEventRequestPayload.from_domain(
+            sync_id,
+            body,
+            metadata,
+            bubbles,
+            keyboard,
+            file,
+            markup_auto_adjust,
+        )
+        method = EditEventMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        await method.execute(payload)
 
     # - Files API -
     async def download_file(
