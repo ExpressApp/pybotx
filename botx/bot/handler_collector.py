@@ -20,6 +20,8 @@ from botx.models.message.incoming_message import IncomingMessage
 from botx.models.status import BotMenu, StatusRecipient
 from botx.models.system_events.added_to_chat import AddedToChatEvent
 from botx.models.system_events.chat_created import ChatCreatedEvent
+from botx.models.system_events.cts_login import CTSLoginEvent
+from botx.models.system_events.cts_logout import CTSLogoutEvent
 from botx.models.system_events.deleted_from_chat import DeletedFromChatEvent
 from botx.models.system_events.left_from_chat import LeftFromChatEvent
 
@@ -165,6 +167,26 @@ class HandlerCollector:
         """Decorate `left_from_chat` event handler."""
 
         self._system_event(LeftFromChatEvent, handler_func)
+
+        return handler_func
+
+    def cts_login(
+        self,
+        handler_func: HandlerFunc[CTSLoginEvent],
+    ) -> HandlerFunc[CTSLoginEvent]:
+        """Decorate `cts_login` event handler."""
+
+        self._system_event(CTSLoginEvent, handler_func)
+
+        return handler_func
+
+    def cts_logout(
+        self,
+        handler_func: HandlerFunc[CTSLogoutEvent],
+    ) -> HandlerFunc[CTSLogoutEvent]:
+        """Decorate `cts_logout` event handler."""
+
+        self._system_event(CTSLogoutEvent, handler_func)
 
         return handler_func
 
