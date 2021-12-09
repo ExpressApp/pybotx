@@ -26,7 +26,6 @@ class BotXAPIPinMessageRequestPayload(UnverifiedPayloadBaseModel):
 
 class BotXAPIPinMessageResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
-    result: Literal["message_pinned"]
 
 
 class PinMessageMethod(AuthorizedBotXMethod):

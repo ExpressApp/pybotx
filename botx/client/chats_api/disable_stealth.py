@@ -26,7 +26,6 @@ class BotXAPIDisableStealthRequestPayload(UnverifiedPayloadBaseModel):
 
 class BotXAPIDisableStealthResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
-    result: Literal[True]
 
 
 class DisableStealthMethod(AuthorizedBotXMethod):

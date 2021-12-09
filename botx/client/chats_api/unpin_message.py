@@ -24,7 +24,6 @@ class BotXAPIUnpinMessageRequestPayload(UnverifiedPayloadBaseModel):
 
 class BotXAPIUnpinMessageResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
-    result: Literal["message_unpinned"]
 
 
 class UnpinMessageMethod(AuthorizedBotXMethod):

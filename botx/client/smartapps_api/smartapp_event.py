@@ -49,7 +49,6 @@ class BotXAPISmartappEventRequestPayload(UnverifiedPayloadBaseModel):
 
 class BotXAPISmartappEventResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
-    result: Literal["smartapp_event_pushed"]
 
 
 class SmartappEventMethod(AuthorizedBotXMethod):

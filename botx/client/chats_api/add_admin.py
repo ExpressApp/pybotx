@@ -34,7 +34,6 @@ class BotXAPIAddAdminRequestPayload(UnverifiedPayloadBaseModel):
 
 class BotXAPIAddAdminResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
-    result: Literal[True]
 
 
 def bad_request_error_handler(response: httpx.Response) -> NoReturn:

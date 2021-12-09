@@ -27,7 +27,6 @@ class BotXAPIRemoveUserRequestPayload(UnverifiedPayloadBaseModel):
 
 class BotXAPIRemoveUserResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
-    result: Literal[True]
 
 
 class RemoveUserMethod(AuthorizedBotXMethod):
