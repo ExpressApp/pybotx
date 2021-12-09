@@ -27,7 +27,6 @@ class BotXAPIAddUserRequestPayload(UnverifiedPayloadBaseModel):
 
 class BotXAPIAddUserResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
-    result: Literal[True]
 
 
 class AddUserMethod(AuthorizedBotXMethod):

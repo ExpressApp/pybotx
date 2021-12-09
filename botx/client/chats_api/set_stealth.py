@@ -36,7 +36,6 @@ class BotXAPISetStealthRequestPayload(UnverifiedPayloadBaseModel):
 
 class BotXAPISetStealthResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
-    result: Literal[True]
 
 
 class SetStealthMethod(AuthorizedBotXMethod):
