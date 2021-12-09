@@ -30,7 +30,7 @@ async def test__async_file__open(
     file_id: UUID,
     bot_account: BotAccount,
     bot_id: UUID,
-    incoming_message_payload_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., Dict[str, Any]],
 ) -> None:
     # - Arrange -
     endpoint = respx.get(
@@ -47,7 +47,7 @@ async def test__async_file__open(
         ),
     )
 
-    payload = incoming_message_payload_factory(
+    payload = api_incoming_message_factory(
         bot_id=bot_id,
         async_file={
             "type": "image",
@@ -215,11 +215,11 @@ API_AND_DOMAIN_FILES = (
 async def test__async_execute_raw_bot_command__different_file_types(
     api_async_file: Dict[str, Any],
     domain_async_file: File,
-    incoming_message_payload_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., Dict[str, Any]],
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
-    payload = incoming_message_payload_factory(async_file=api_async_file)
+    payload = api_incoming_message_factory(async_file=api_async_file)
 
     collector = HandlerCollector()
     incoming_message: Optional[IncomingMessage] = None

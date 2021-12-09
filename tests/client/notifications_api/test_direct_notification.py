@@ -55,7 +55,7 @@ async def test__answer__succeed(
     host: str,
     bot_account: BotAccount,
     bot_id: UUID,
-    incoming_message_payload_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., Dict[str, Any]],
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -103,7 +103,7 @@ async def test__answer__succeed(
         ),
     )
 
-    payload = incoming_message_payload_factory(
+    payload = api_incoming_message_factory(
         bot_id=bot_id,
         host=host,
         group_chat_id="054af49e-5e18-4dca-ad73-4f96b6de63fa",
