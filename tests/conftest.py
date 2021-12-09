@@ -155,7 +155,7 @@ async def async_buffer() -> AsyncGenerator[NamedTemporaryFile, None]:
 
 
 @pytest.fixture
-def incoming_message_payload_factory() -> Callable[..., Dict[str, Any]]:
+def api_incoming_message_factory() -> Callable[..., Dict[str, Any]]:
     def decorator(
         *,
         bot_id: Optional[UUID] = None,

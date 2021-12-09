@@ -32,10 +32,10 @@ async def test__attachment__open(
     host: str,
     bot_account: BotAccount,
     bot_id: UUID,
-    incoming_message_payload_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., Dict[str, Any]],
 ) -> None:
     # - Arrange -
-    payload = incoming_message_payload_factory(
+    payload = api_incoming_message_factory(
         bot_id=bot_id,
         attachment={
             "data": {
@@ -142,11 +142,11 @@ async def test__async_execute_raw_bot_command__non_file_attachments_types(
     api_attachment: Dict[str, Any],
     domain_attachment: IncomingAttachment,
     attr_name: str,
-    incoming_message_payload_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., Dict[str, Any]],
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
-    payload = incoming_message_payload_factory(attachment=api_attachment)
+    payload = api_incoming_message_factory(attachment=api_attachment)
 
     collector = HandlerCollector()
     incoming_message: Optional[IncomingMessage] = None
@@ -249,11 +249,11 @@ API_AND_DOMAIN_FILE_ATTACHMENTS = (
 async def test__async_execute_raw_bot_command__file_attachments_types(
     api_attachment: Dict[str, Any],
     domain_attachment: IncomingAttachment,
-    incoming_message_payload_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., Dict[str, Any]],
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
-    payload = incoming_message_payload_factory(attachment=api_attachment)
+    payload = api_incoming_message_factory(attachment=api_attachment)
 
     collector = HandlerCollector()
     incoming_message: Optional[IncomingMessage] = None
