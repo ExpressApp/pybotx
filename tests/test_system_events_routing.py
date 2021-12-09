@@ -1,9 +1,46 @@
 from unittest.mock import Mock
+from uuid import UUID, uuid4
 
 import pytest
 import respx
 
-from botx import Bot, BotAccount, ChatCreatedEvent, HandlerCollector, lifespan_wrapper
+from botx import (
+    Bot,
+    BotAccount,
+    Chat,
+    ChatCreatedEvent,
+    ChatCreatedMember,
+    ChatTypes,
+    HandlerCollector,
+    UserKinds,
+    lifespan_wrapper,
+)
+
+
+@pytest.fixture
+def chat_created(
+    bot_id: UUID,
+) -> ChatCreatedEvent:
+    return ChatCreatedEvent(
+        bot_id=bot_id,
+        host="cts.example.com",
+        sync_id=uuid4(),
+        chat_name="Test",
+        chat=Chat(
+            id=uuid4(),
+            type=ChatTypes.PERSONAL_CHAT,
+        ),
+        creator_id=uuid4(),
+        members=[
+            ChatCreatedMember(
+                is_admin=False,
+                huid=uuid4(),
+                username="Ivanov Ivan Ivanovich",
+                kind=UserKinds.CTS_USER,
+            ),
+        ],
+        raw_command=None,
+    )
 
 
 @respx.mock
