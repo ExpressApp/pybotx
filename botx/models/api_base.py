@@ -1,35 +1,56 @@
 import json
 from enum import Enum
-from typing import Any, Dict, Optional, Set, cast
+from typing import Any, Dict, List, Optional, Set, Union, cast
 
 from pydantic import BaseModel
+from pydantic.json import pydantic_encoder
 
 from botx.missing import Undefined
 
 
-def _remove_undefined_from_dict(origin_dict: Any) -> Dict[str, Any]:  # noqa: WPS231
-    new_dict = {}
-    for key, value in origin_dict.items():  # noqa: WPS110 (Normal name in this case)
-        if value is Undefined:
-            continue
+def _remove_undefined(
+    origin_obj: Union[Dict[str, Any], List[Any]],
+) -> Union[Dict[str, Any], List[Any]]:
+    if isinstance(origin_obj, dict):
+        new_dict = {}
 
-        elif isinstance(value, dict):
-            nested_dict = _remove_undefined_from_dict(value)
+        for key, value in origin_obj.items():
+            if value is Undefined:
+                continue
 
-            if nested_dict:
-                new_dict[key] = nested_dict
+            if isinstance(value, (list, dict)):
+                new_value = _remove_undefined(value)
+                if new_value or len(new_value) == len(value):
+                    new_dict[key] = new_value
+            else:
+                new_dict[key] = value
 
-            continue
+        return new_dict
 
-        new_dict[key] = value
+    elif isinstance(origin_obj, list):
+        new_list = []
 
-    return new_dict
+        for value in origin_obj:
+            if value is Undefined:
+                continue
+
+            if isinstance(value, (list, dict)):
+                new_value = _remove_undefined(value)
+                if new_value or len(new_value) == len(value):
+                    new_list.append(new_value)
+            else:
+                new_list.append(value)
+
+        return new_list
 
 
 class PayloadBaseModel(BaseModel):
+    def json(self) -> str:  # type: ignore [override]
+        clean_dict = _remove_undefined(self.dict())
+        return json.dumps(clean_dict, default=pydantic_encoder)
+
     def jsonable_dict(self) -> Dict[str, Any]:
-        # https://github.com/samuelcolvin/pydantic/issues/1409
-        return cast(  # Pydantic model is always dict
+        return cast(
             Dict[str, Any],
             json.loads(self.json()),
         )
@@ -53,9 +74,6 @@ class UnverifiedPayloadBaseModel(PayloadBaseModel):
 
     class Config:
         arbitrary_types_allowed = True
-
-    def dict(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
-        return _remove_undefined_from_dict(super().dict(*args, **kwargs))
 
 
 class StrEnum(str, Enum):  # noqa: WPS600 (pydantic needs this inheritance)
