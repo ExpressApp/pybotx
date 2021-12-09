@@ -17,7 +17,6 @@ from botx import (
     ChatCreatedEvent,
     ChatCreatedMember,
     ChatTypes,
-    ExpressApp,
     IncomingMessage,
     UserDevice,
     UserEventSender,
@@ -256,16 +255,14 @@ def incoming_message_factory(
                 locale=None,
                 device=UserDevice(
                     manufacturer=None,
-                    name=None,
+                    device_name=None,
                     os=None,
-                ),
-                express_app=ExpressApp(
                     pushes=None,
                     timezone=None,
                     permissions=None,
                     platform=None,
                     platform_package_id=None,
-                    version=None,
+                    app_version=None,
                 ),
             ),
             chat=Chat(

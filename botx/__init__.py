@@ -54,7 +54,6 @@ from botx.models.enums import (
 )
 from botx.models.message.forward import Forward
 from botx.models.message.incoming_message import (
-    ExpressApp,
     IncomingMessage,
     UserDevice,
     UserEventSender,
@@ -104,7 +103,6 @@ __all__ = (
     "CTSLogoutEvent",
     "DeletedFromChatEvent",
     "Document",
-    "ExpressApp",
     "File",
     "FileDeletedError",
     "FileMetadataNotFound",
