@@ -39,7 +39,6 @@ class BotAPIAddedToChatPayload(VerifiedPayloadBaseModel):
     body: Literal["system:added_to_chat"] = "system:added_to_chat"
     command_type: Literal[BotAPICommandTypes.SYSTEM]
     data: BotAPIAddedToChatData
-    metadata: Dict[str, Any]
 
 
 class BotAPIAddedToChat(BotAPIBaseCommand):
