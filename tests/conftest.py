@@ -14,13 +14,10 @@ from pydantic import BaseModel
 from botx import (
     BotAccount,
     Chat,
-    ChatCreatedEvent,
-    ChatCreatedMember,
     ChatTypes,
     IncomingMessage,
     UserDevice,
     UserEventSender,
-    UserKinds,
 )
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.logger import logger
@@ -219,16 +216,6 @@ def incoming_message_payload_factory() -> Callable[..., Dict[str, Any]]:
 
 
 @pytest.fixture
-def correct_handler_trigger() -> Mock:
-    return Mock()
-
-
-@pytest.fixture
-def incorrect_handler_trigger() -> Mock:
-    return Mock()
-
-
-@pytest.fixture
 def incoming_message_factory(
     bot_id: UUID,
 ) -> Callable[..., IncomingMessage]:
@@ -277,26 +264,10 @@ def incoming_message_factory(
 
 
 @pytest.fixture
-def chat_created(
-    bot_id: UUID,
-) -> ChatCreatedEvent:
-    return ChatCreatedEvent(
-        bot_id=bot_id,
-        host="cts.example.com",
-        sync_id=uuid4(),
-        chat_name="Test",
-        chat=Chat(
-            id=uuid4(),
-            type=ChatTypes.PERSONAL_CHAT,
-        ),
-        creator_id=uuid4(),
-        members=[
-            ChatCreatedMember(
-                is_admin=False,
-                huid=uuid4(),
-                username="Ivanov Ivan Ivanovich",
-                kind=UserKinds.CTS_USER,
-            ),
-        ],
-        raw_command=None,
-    )
+def correct_handler_trigger() -> Mock:
+    return Mock()
+
+
+@pytest.fixture
+def incorrect_handler_trigger() -> Mock:
+    return Mock()
