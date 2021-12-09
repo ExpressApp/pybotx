@@ -38,11 +38,6 @@ def prepared_bot_accounts_storage(
 
 
 @pytest.fixture
-def huid() -> UUID:
-    return UUID("f837dff4-d3ad-4b8d-a0a3-5c6ca9c747d1")
-
-
-@pytest.fixture
 def datetime_formatter() -> Callable[[str], datetime]:
     class DateTimeFormatter(BaseModel):  # noqa: WPS431
         value: datetime
@@ -56,11 +51,6 @@ def datetime_formatter() -> Callable[[str], datetime]:
 @pytest.fixture
 def host() -> str:
     return "cts.example.com"
-
-
-@pytest.fixture
-def chat_id() -> UUID:
-    return UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa")
 
 
 @pytest.fixture
@@ -80,6 +70,11 @@ def bot_account(host: str, bot_id: UUID) -> BotAccount:
         bot_id=bot_id,
         secret_key="bee001",
     )
+
+
+@pytest.fixture
+def bot_signature() -> str:
+    return "E050AEEA197E0EF0A6E1653E18B7D41C7FDEC0FCFBA44C44FCCD2A88CEABD130"
 
 
 @pytest.fixture
@@ -110,11 +105,6 @@ def pytest_collection_modifyitems(items: List[pytest.Function]) -> None:
             item.fixturenames.append("mock_authorization")
 
 
-@pytest.fixture
-def bot_signature() -> str:
-    return "E050AEEA197E0EF0A6E1653E18B7D41C7FDEC0FCFBA44C44FCCD2A88CEABD130"
-
-
 @pytest.fixture()
 def loguru_caplog(
     caplog: pytest.LogCaptureFixture,
@@ -128,11 +118,6 @@ def loguru_caplog(
     handler_id = logger.add(PropogateHandler(), format="{message}")
     yield caplog
     logger.remove(handler_id)
-
-
-@pytest.fixture
-def sync_id() -> UUID:
-    return UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
 
 
 async def log_request(request: httpx.Request) -> None:
@@ -246,7 +231,6 @@ def incorrect_handler_trigger() -> Mock:
 @pytest.fixture
 def incoming_message_factory(
     bot_id: UUID,
-    chat_id: UUID,
 ) -> Callable[..., IncomingMessage]:
     def decorator(
         *,
@@ -283,7 +267,7 @@ def incoming_message_factory(
                 ),
             ),
             chat=Chat(
-                id=chat_id,
+                id=uuid4(),
                 type=ChatTypes.PERSONAL_CHAT,
             ),
             raw_command=None,
@@ -295,7 +279,6 @@ def incoming_message_factory(
 @pytest.fixture
 def chat_created(
     bot_id: UUID,
-    chat_id: UUID,
 ) -> ChatCreatedEvent:
     return ChatCreatedEvent(
         bot_id=bot_id,
@@ -303,7 +286,7 @@ def chat_created(
         sync_id=uuid4(),
         chat_name="Test",
         chat=Chat(
-            id=chat_id,
+            id=uuid4(),
             type=ChatTypes.PERSONAL_CHAT,
         ),
         creator_id=uuid4(),

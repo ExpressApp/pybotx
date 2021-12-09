@@ -27,14 +27,13 @@ async def test__chat_info__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    chat_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(
         f"https://{host}/api/v3/botx/chats/info",
         headers={"Authorization": "Bearer token"},
-        params={"group_chat_id": str(chat_id)},
+        params={"group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa"},
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.NOT_FOUND,
@@ -59,7 +58,10 @@ async def test__chat_info__chat_not_found_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(ChatNotFoundError) as exc:
-            await bot.chat_info(bot_id, chat_id)
+            await bot.chat_info(
+                bot_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+            )
 
     # - Assert -
     assert "chat_not_found" in str(exc.value)
@@ -73,7 +75,6 @@ async def test__chat_info__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    chat_id: UUID,
     datetime_formatter: Callable[[str], dt],
     bot_account: BotAccount,
 ) -> None:
@@ -81,7 +82,7 @@ async def test__chat_info__succeed(
     endpoint = respx.get(
         f"https://{host}/api/v3/botx/chats/info",
         headers={"Authorization": "Bearer token"},
-        params={"group_chat_id": str(chat_id)},
+        params={"group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa"},
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.OK,
@@ -91,7 +92,7 @@ async def test__chat_info__succeed(
                     "chat_type": "group_chat",
                     "creator": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
                     "description": None,
-                    "group_chat_id": str(chat_id),
+                    "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
                     "inserted_at": "2019-08-29T11:22:48.358586Z",
                     "members": [
                         {
@@ -119,14 +120,17 @@ async def test__chat_info__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        chat_info = await bot.chat_info(bot_id, chat_id)
+        chat_info = await bot.chat_info(
+            bot_id,
+            chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+        )
 
     # - Assert -
     assert chat_info == ChatInfo(
         chat_type=ChatTypes.GROUP_CHAT,
         creator_id=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
         description=None,
-        chat_id=chat_id,
+        chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
         created_at=datetime_formatter("2019-08-29T11:22:48.358586Z"),
         members=[
             ChatInfoMember(

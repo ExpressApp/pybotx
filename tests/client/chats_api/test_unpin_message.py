@@ -22,8 +22,6 @@ async def test__unpin_message__permission_denied_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    chat_id: UUID,
-    sync_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -31,7 +29,7 @@ async def test__unpin_message__permission_denied_error_raised(
         f"https://{host}/api/v3/botx/chats/unpin_message",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "chat_id": str(chat_id),
+            "chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
         },
     ).mock(
         return_value=httpx.Response(
@@ -58,7 +56,10 @@ async def test__unpin_message__permission_denied_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(PermissionDeniedError) as exc:
-            await bot.unpin_message(bot_id, chat_id)
+            await bot.unpin_message(
+                bot_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+            )
 
     # - Assert -
     assert "no_permission_for_operation" in str(exc.value)
@@ -72,8 +73,6 @@ async def test__unpin_message__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    chat_id: UUID,
-    sync_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -81,7 +80,7 @@ async def test__unpin_message__chat_not_found_error_raised(
         f"https://{host}/api/v3/botx/chats/unpin_message",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "chat_id": str(chat_id),
+            "chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
         },
     ).mock(
         return_value=httpx.Response(
@@ -107,7 +106,10 @@ async def test__unpin_message__chat_not_found_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(ChatNotFoundError) as exc:
-            await bot.unpin_message(bot_id, chat_id)
+            await bot.unpin_message(
+                bot_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+            )
 
     # - Assert -
     assert "chat_not_found" in str(exc.value)
@@ -121,8 +123,6 @@ async def test__unpin_message__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    chat_id: UUID,
-    sync_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -130,7 +130,7 @@ async def test__unpin_message__succeed(
         f"https://{host}/api/v3/botx/chats/unpin_message",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "chat_id": str(chat_id),
+            "chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
         },
     ).mock(
         return_value=httpx.Response(
@@ -147,7 +147,10 @@ async def test__unpin_message__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        await bot.unpin_message(bot_id, chat_id)
+        await bot.unpin_message(
+            bot_id,
+            chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+        )
 
     # - Assert -
     assert endpoint.called

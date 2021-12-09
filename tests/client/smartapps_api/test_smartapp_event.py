@@ -17,8 +17,6 @@ async def test__send_smartapp_event__miminally_filled_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    sync_id: UUID,
-    chat_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -28,7 +26,7 @@ async def test__send_smartapp_event__miminally_filled_succeed(
         json={
             "ref": "921763b3-77e8-4f37-b97e-20f4517949b8",
             "smartapp_id": str(bot_id),
-            "group_chat_id": str(chat_id),
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "data": {"key": "value"},
             "opts": {},
             "smartapp_api_version": 1,
@@ -53,7 +51,7 @@ async def test__send_smartapp_event__miminally_filled_succeed(
     async with lifespan_wrapper(built_bot) as bot:
         await bot.send_smartapp_event(
             bot_id=bot_id,
-            chat_id=chat_id,
+            chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             data={"key": "value"},
             ref=UUID("921763b3-77e8-4f37-b97e-20f4517949b8"),
         )
@@ -69,8 +67,6 @@ async def test__send_smartapp_event__maximum_filled_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    sync_id: UUID,
-    chat_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -80,7 +76,7 @@ async def test__send_smartapp_event__maximum_filled_succeed(
         json={
             "ref": "921763b3-77e8-4f37-b97e-20f4517949b8",
             "smartapp_id": str(bot_id),
-            "group_chat_id": str(chat_id),
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "data": {"key": "value"},
             "opts": {"option": True},
             "smartapp_api_version": 1,
@@ -116,7 +112,7 @@ async def test__send_smartapp_event__maximum_filled_succeed(
     async with lifespan_wrapper(built_bot) as bot:
         await bot.send_smartapp_event(
             bot_id=bot_id,
-            chat_id=chat_id,
+            chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             ref=UUID("921763b3-77e8-4f37-b97e-20f4517949b8"),
             data={"key": "value"},
             opts={"option": True},

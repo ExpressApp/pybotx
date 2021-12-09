@@ -102,7 +102,6 @@ async def test__botx_method_callback__error_callback_error_handler_called(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    sync_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -115,7 +114,7 @@ async def test__botx_method_callback__error_callback_error_handler_called(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -137,7 +136,7 @@ async def test__botx_method_callback__error_callback_error_handler_called(
         bot.set_raw_botx_method_result(
             {
                 "status": "error",
-                "sync_id": str(sync_id),
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "reason": "foo_bar_error",
                 "errors": [],
                 "error_data": {
@@ -165,7 +164,6 @@ async def test__botx_method_callback__error_callback_received(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    sync_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -178,7 +176,7 @@ async def test__botx_method_callback__error_callback_received(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -200,7 +198,7 @@ async def test__botx_method_callback__error_callback_received(
         bot.set_raw_botx_method_result(
             {
                 "status": "error",
-                "sync_id": str(sync_id),
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "reason": "quux_error",
                 "errors": [],
                 "error_data": {
@@ -228,7 +226,6 @@ async def test__botx_method_callback__cancelled_callback_future_during_shutdown(
     host: str,
     bot_id: UUID,
     bot_account: BotAccount,
-    sync_id: UUID,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -240,7 +237,7 @@ async def test__botx_method_callback__cancelled_callback_future_during_shutdown(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -270,7 +267,6 @@ async def test__botx_method_callback__callback_received_after_timeout(
     host: str,
     bot_id: UUID,
     bot_account: BotAccount,
-    sync_id: UUID,
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     # - Arrange -
@@ -283,7 +279,7 @@ async def test__botx_method_callback__callback_received_after_timeout(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -303,7 +299,7 @@ async def test__botx_method_callback__callback_received_after_timeout(
         bot.set_raw_botx_method_result(
             {
                 "status": "error",
-                "sync_id": str(sync_id),
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "reason": "quux_error",
                 "errors": [],
                 "error_data": {
@@ -329,7 +325,6 @@ async def test__botx_method_callback__dont_wait_for_callback(
     host: str,
     bot_id: UUID,
     bot_account: BotAccount,
-    sync_id: UUID,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -341,7 +336,7 @@ async def test__botx_method_callback__dont_wait_for_callback(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -358,7 +353,7 @@ async def test__botx_method_callback__dont_wait_for_callback(
         foo_bar = await bot.call_foo_bar(bot_id, baz=1, wait_callback=False)
 
     # - Assert -
-    assert foo_bar == sync_id
+    assert foo_bar == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
     assert endpoint.called
 
 
@@ -370,7 +365,6 @@ async def test__botx_method_callback__pending_callback_future_during_shutdown(
     host: str,
     bot_id: UUID,
     bot_account: BotAccount,
-    sync_id: UUID,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -382,7 +376,7 @@ async def test__botx_method_callback__pending_callback_future_during_shutdown(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -405,7 +399,7 @@ async def test__botx_method_callback__pending_callback_future_during_shutdown(
         await task
 
     # - Assert -
-    assert str(sync_id) in str(exc.value)
+    assert "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3" in str(exc.value)
     assert endpoint.called
 
 
@@ -417,7 +411,6 @@ async def test__botx_method_callback__callback_successful_received(
     host: str,
     bot_id: UUID,
     bot_account: BotAccount,
-    sync_id: UUID,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -429,7 +422,7 @@ async def test__botx_method_callback__callback_successful_received(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -451,11 +444,11 @@ async def test__botx_method_callback__callback_successful_received(
         bot.set_raw_botx_method_result(
             {
                 "status": "ok",
-                "sync_id": str(sync_id),
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
         )
 
     # - Assert -
-    assert await task == sync_id
+    assert await task == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
     assert endpoint.called

@@ -25,7 +25,6 @@ async def test__download_file__unexpected_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    chat_id: UUID,
     file_id: UUID,
     bot_account: BotAccount,
     async_buffer: NamedTemporaryFile,
@@ -34,7 +33,7 @@ async def test__download_file__unexpected_not_found_error_raised(
     endpoint = respx.get(
         f"https://{host}/api/v3/botx/files/download",
         params={
-            "group_chat_id": chat_id,
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "file_id": file_id,
         },
         headers={"Authorization": "Bearer token"},
@@ -62,7 +61,12 @@ async def test__download_file__unexpected_not_found_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(InvalidBotXStatusCodeError) as exc:
-            await bot.download_file(bot_id, chat_id, file_id, async_buffer)
+            await bot.download_file(
+                bot_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+                file_id=file_id,
+                async_buffer=async_buffer,
+            )
 
     # - Assert -
     assert "anything_not_found" in str(exc.value)
@@ -76,7 +80,6 @@ async def test__download_file__file_metadata_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    chat_id: UUID,
     file_id: UUID,
     bot_account: BotAccount,
     async_buffer: NamedTemporaryFile,
@@ -85,7 +88,7 @@ async def test__download_file__file_metadata_not_found_error_raised(
     endpoint = respx.get(
         f"https://{host}/api/v3/botx/files/download",
         params={
-            "group_chat_id": chat_id,
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "file_id": file_id,
         },
         headers={"Authorization": "Bearer token"},
@@ -114,7 +117,12 @@ async def test__download_file__file_metadata_not_found_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(FileMetadataNotFound) as exc:
-            await bot.download_file(bot_id, chat_id, file_id, async_buffer)
+            await bot.download_file(
+                bot_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+                file_id=file_id,
+                async_buffer=async_buffer,
+            )
 
     # - Assert -
     assert "file_metadata_not_found" in str(exc.value)
@@ -128,7 +136,6 @@ async def test__download_file__file_deleted_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    chat_id: UUID,
     file_id: UUID,
     bot_account: BotAccount,
     async_buffer: NamedTemporaryFile,
@@ -137,7 +144,7 @@ async def test__download_file__file_deleted_error_raised(
     endpoint = respx.get(
         f"https://{host}/api/v3/botx/files/download",
         params={
-            "group_chat_id": chat_id,
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "file_id": file_id,
         },
         headers={"Authorization": "Bearer token"},
@@ -165,7 +172,12 @@ async def test__download_file__file_deleted_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(FileDeletedError) as exc:
-            await bot.download_file(bot_id, chat_id, file_id, async_buffer)
+            await bot.download_file(
+                bot_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+                file_id=file_id,
+                async_buffer=async_buffer,
+            )
 
     # - Assert -
     assert "file_deleted" in str(exc.value)
@@ -179,7 +191,6 @@ async def test__download_file__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    chat_id: UUID,
     file_id: UUID,
     bot_account: BotAccount,
     async_buffer: NamedTemporaryFile,
@@ -188,7 +199,7 @@ async def test__download_file__chat_not_found_error_raised(
     endpoint = respx.get(
         f"https://{host}/api/v3/botx/files/download",
         params={
-            "group_chat_id": chat_id,
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "file_id": file_id,
         },
         headers={"Authorization": "Bearer token"},
@@ -216,7 +227,12 @@ async def test__download_file__chat_not_found_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(ChatNotFoundError) as exc:
-            await bot.download_file(bot_id, chat_id, file_id, async_buffer)
+            await bot.download_file(
+                bot_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+                file_id=file_id,
+                async_buffer=async_buffer,
+            )
 
     # - Assert -
     assert "chat_not_found" in str(exc.value)
@@ -230,7 +246,6 @@ async def test__download_file__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    chat_id: UUID,
     file_id: UUID,
     bot_account: BotAccount,
     async_buffer: NamedTemporaryFile,
@@ -239,7 +254,7 @@ async def test__download_file__succeed(
     endpoint = respx.get(
         f"https://{host}/api/v3/botx/files/download",
         params={
-            "group_chat_id": chat_id,
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "file_id": file_id,
         },
         headers={"Authorization": "Bearer token"},
@@ -258,7 +273,12 @@ async def test__download_file__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        await bot.download_file(bot_id, chat_id, file_id, async_buffer)
+        await bot.download_file(
+            bot_id,
+            chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+            file_id=file_id,
+            async_buffer=async_buffer,
+        )
 
     # - Assert -
     assert await async_buffer.read() == b"Hello, world!\n"

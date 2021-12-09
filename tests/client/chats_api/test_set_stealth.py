@@ -22,7 +22,6 @@ async def test__enable_stealth__permission_denied_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    chat_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -30,7 +29,7 @@ async def test__enable_stealth__permission_denied_error_raised(
         f"https://{host}/api/v3/botx/chats/stealth_set",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "group_chat_id": str(chat_id),
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
         },
     ).mock(
         return_value=httpx.Response(
@@ -56,7 +55,10 @@ async def test__enable_stealth__permission_denied_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(PermissionDeniedError) as exc:
-            await bot.enable_stealth(bot_id, chat_id)
+            await bot.enable_stealth(
+                bot_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+            )
 
     # - Assert -
     assert "no_permission_for_operation" in str(exc.value)
@@ -70,8 +72,6 @@ async def test__enable_stealth__chat_not_found_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    chat_id: UUID,
-    huid: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -79,7 +79,7 @@ async def test__enable_stealth__chat_not_found_raised(
         f"https://{host}/api/v3/botx/chats/stealth_set",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "group_chat_id": str(chat_id),
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
         },
     ).mock(
         return_value=httpx.Response(
@@ -104,7 +104,10 @@ async def test__enable_stealth__chat_not_found_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(ChatNotFoundError) as exc:
-            await bot.enable_stealth(bot_id, chat_id)
+            await bot.enable_stealth(
+                bot_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+            )
 
     # - Assert -
     assert "chat_not_found" in str(exc.value)
@@ -118,7 +121,6 @@ async def test__enable_stealth__maximum_filled_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    chat_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -126,7 +128,7 @@ async def test__enable_stealth__maximum_filled_succeed(
         f"https://{host}/api/v3/botx/chats/stealth_set",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "group_chat_id": str(chat_id),
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "disable_web": True,
             "burn_in": 100,
             "expire_in": 1000,
@@ -151,7 +153,7 @@ async def test__enable_stealth__maximum_filled_succeed(
     async with lifespan_wrapper(built_bot) as bot:
         await bot.enable_stealth(
             bot_id,
-            chat_id,
+            chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             disable_web_client=True,
             ttl_after_read=100,
             total_ttl=1000,

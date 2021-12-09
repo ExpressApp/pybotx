@@ -130,7 +130,6 @@ async def test__create_chat__maximum_filled_succeed(
     host: str,
     bot_id: UUID,
     bot_account: BotAccount,
-    chat_id: UUID,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -148,7 +147,7 @@ async def test__create_chat__maximum_filled_succeed(
             HTTPStatus.OK,
             json={
                 "status": "ok",
-                "result": {"chat_id": str(chat_id)},
+                "result": {"chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa"},
             },
         ),
     )
@@ -171,5 +170,5 @@ async def test__create_chat__maximum_filled_succeed(
         )
 
     # - Assert -
-    assert created_chat_id == chat_id
+    assert created_chat_id == UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa")
     assert endpoint.called
