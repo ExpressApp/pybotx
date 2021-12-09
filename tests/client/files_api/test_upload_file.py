@@ -16,7 +16,6 @@ async def test__download_file__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    file_id: UUID,
     bot_account: BotAccount,
     async_buffer: NamedTemporaryFile,
 ) -> None:
@@ -72,7 +71,6 @@ async def test__download_file__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    file_id: UUID,
     bot_account: BotAccount,
     async_buffer: NamedTemporaryFile,
 ) -> None:

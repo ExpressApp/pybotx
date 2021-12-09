@@ -56,11 +56,6 @@ def bot_id() -> UUID:
 
 
 @pytest.fixture
-def file_id() -> UUID:
-    return UUID("c3b9def2-b2c8-4732-b61f-99b9b110fa80")
-
-
-@pytest.fixture
 def bot_account(host: str, bot_id: UUID) -> BotAccount:
     return BotAccount(
         host=host,

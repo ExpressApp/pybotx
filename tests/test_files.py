@@ -27,7 +27,6 @@ from botx import (
 async def test__async_file__open(
     httpx_client: httpx.AsyncClient,
     host: str,
-    file_id: UUID,
     bot_account: BotAccount,
     bot_id: UUID,
     api_incoming_message_factory: Callable[..., Dict[str, Any]],
@@ -37,7 +36,7 @@ async def test__async_file__open(
         f"https://{host}/api/v3/botx/files/download",
         params={
             "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
-            "file_id": file_id,
+            "file_id": "c3b9def2-b2c8-4732-b61f-99b9b110fa80",
         },
         headers={"Authorization": "Bearer token"},
     ).mock(
@@ -61,7 +60,7 @@ async def test__async_file__open(
             "file_hash": "Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
             "file_encryption_algo": "stream",
             "chunk_size": 2097152,
-            "file_id": str(file_id),
+            "file_id": "c3b9def2-b2c8-4732-b61f-99b9b110fa80",
         },
         group_chat_id="054af49e-5e18-4dca-ad73-4f96b6de63fa",
         host=host,
