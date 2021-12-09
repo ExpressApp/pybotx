@@ -17,6 +17,7 @@ from botx.models.system_events.left_from_chat import (
     BotAPILeftFromChat,
     LeftFromChatEvent,
 )
+from botx.models.system_events.smartapp import BotAPISmartAppEvent, SmartAppEvent
 
 BotAPISystemEvent = Union[
     BotAPIChatCreated,
@@ -26,6 +27,7 @@ BotAPISystemEvent = Union[
     BotAPICTSLogin,
     BotAPICTSLogout,
     BotAPIInternalBotNotification,
+    BotAPISmartAppEvent,
 ]
 BotAPICommand = Union[BotAPIIncomingMessage, BotAPISystemEvent]
 
@@ -37,5 +39,6 @@ SystemEvent = Union[
     CTSLoginEvent,
     CTSLogoutEvent,
     InternalBotNotificationEvent,
+    SmartAppEvent,
 ]
 BotCommand = Union[IncomingMessage, SystemEvent]

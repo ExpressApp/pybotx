@@ -27,6 +27,7 @@ from botx.models.system_events.internal_bot_notification import (
     InternalBotNotificationEvent,
 )
 from botx.models.system_events.left_from_chat import LeftFromChatEvent
+from botx.models.system_events.smartapp import SmartAppEvent
 
 if TYPE_CHECKING:  # To avoid circular import
     from botx.bot.bot import Bot
@@ -200,6 +201,16 @@ class HandlerCollector:
         """Decorate `cts_logout` event handler."""
 
         self._system_event(CTSLogoutEvent, handler_func)
+
+        return handler_func
+
+    def smartapp(
+        self,
+        handler_func: HandlerFunc[SmartAppEvent],
+    ) -> HandlerFunc[SmartAppEvent]:
+        """Decorate `smartapp` event handler."""
+
+        self._system_event(SmartAppEvent, handler_func)
 
         return handler_func
 
