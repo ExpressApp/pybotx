@@ -12,7 +12,6 @@ from botx import (
     Chat,
     ChatTypes,
     ClientPlatforms,
-    ExpressApp,
     Forward,
     HandlerCollector,
     Image,
@@ -104,16 +103,14 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
             locale="en",
             device=UserDevice(
                 manufacturer=None,
-                name=None,
+                device_name=None,
                 os=None,
-            ),
-            express_app=ExpressApp(
                 pushes=None,
                 timezone=None,
                 permissions=None,
                 platform=None,
                 platform_package_id=None,
-                version=None,
+                app_version=None,
             ),
         ),
         chat=Chat(
@@ -271,16 +268,14 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
             locale="en",
             device=UserDevice(
                 manufacturer="Mozilla",
-                name="Firefox 91.0",
+                device_name="Firefox 91.0",
                 os="Linux",
-            ),
-            express_app=ExpressApp(
                 pushes=False,
                 timezone="Europe/Moscow",
                 permissions={"microphone": True, "notifications": False},
                 platform=ClientPlatforms.WEB,
                 platform_package_id="ru.unlimitedtech.express",
-                version="1.21.9",
+                app_version="1.21.9",
             ),
         ),
         chat=Chat(

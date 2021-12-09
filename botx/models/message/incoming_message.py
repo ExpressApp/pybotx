@@ -45,20 +45,16 @@ from botx.models.message.reply import BotAPIReply, Reply
 
 
 @dataclass
-class ExpressApp:
+class UserDevice:
+    manufacturer: Optional[str]
+    device_name: Optional[str]
+    os: Optional[str]
     pushes: Optional[bool]
     timezone: Optional[str]
     permissions: Optional[Dict[str, Any]]
     platform: Optional[ClientPlatforms]
     platform_package_id: Optional[str]
-    version: Optional[str]
-
-
-@dataclass
-class UserDevice:
-    manufacturer: Optional[str]
-    name: Optional[str]
-    os: Optional[str]
+    app_version: Optional[str]
 
 
 @dataclass
@@ -70,7 +66,6 @@ class UserEventSender:
     is_chat_admin: Optional[bool]
     is_chat_creator: Optional[bool]
     locale: Optional[str]
-    express_app: ExpressApp
     device: UserDevice
 
     @property
@@ -184,12 +179,6 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
     entities: List[BotAPIEntity]
 
     def to_domain(self, raw_command: Dict[str, Any]) -> IncomingMessage:  # noqa: WPS231
-        device = UserDevice(
-            manufacturer=self.sender.manufacturer,
-            name=self.sender.device,
-            os=self.sender.device_software,
-        )
-
         if self.sender.device_meta:
             pushes = self.sender.device_meta.pushes
             timezone = self.sender.device_meta.timezone
@@ -197,7 +186,10 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
         else:
             pushes, timezone, permissions = None, None, None
 
-        express_app = ExpressApp(
+        device = UserDevice(
+            manufacturer=self.sender.manufacturer,
+            device_name=self.sender.device,
+            os=self.sender.device_software,
             pushes=pushes,
             timezone=timezone,
             permissions=permissions,
@@ -207,8 +199,9 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
                 else None
             ),
             platform_package_id=self.sender.platform_package_id,
-            version=self.sender.app_version,
+            app_version=self.sender.app_version,
         )
+
         sender = UserEventSender(
             huid=self.sender.user_huid,
             ad_login=self.sender.ad_login,
@@ -218,7 +211,6 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             is_chat_creator=self.sender.is_creator,
             locale=self.sender.locale,
             device=device,
-            express_app=express_app,
         )
 
         chat = Chat(
