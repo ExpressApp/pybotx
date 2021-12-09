@@ -26,7 +26,6 @@ from botx import (
 @pytest.mark.mock_authorization
 async def test__async_file__open(
     httpx_client: httpx.AsyncClient,
-    chat_id: UUID,
     host: str,
     file_id: UUID,
     bot_account: BotAccount,
@@ -37,7 +36,7 @@ async def test__async_file__open(
     endpoint = respx.get(
         f"https://{host}/api/v3/botx/files/download",
         params={
-            "group_chat_id": chat_id,
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "file_id": file_id,
         },
         headers={"Authorization": "Bearer token"},
@@ -64,7 +63,7 @@ async def test__async_file__open(
             "chunk_size": 2097152,
             "file_id": str(file_id),
         },
-        group_chat_id=chat_id,
+        group_chat_id="054af49e-5e18-4dca-ad73-4f96b6de63fa",
         host=host,
     )
 

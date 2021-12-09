@@ -29,7 +29,6 @@ from botx.models.attachments import (
 @pytest.mark.asyncio
 @pytest.mark.mock_authorization
 async def test__attachment__open(
-    chat_id: UUID,
     host: str,
     bot_account: BotAccount,
     bot_id: UUID,
@@ -45,7 +44,7 @@ async def test__attachment__open(
             },
             "type": "image",
         },
-        group_chat_id=chat_id,
+        group_chat_id="054af49e-5e18-4dca-ad73-4f96b6de63fa",
         host=host,
     )
     collector = HandlerCollector()

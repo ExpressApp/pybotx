@@ -89,7 +89,6 @@ async def test__authorized_botx_method__succeed(
     bot_id: UUID,
     bot_signature: str,
     bot_account: BotAccount,
-    sync_id: UUID,
 ) -> None:
     # - Arrange -
     token_endpoint = respx.get(
@@ -114,7 +113,7 @@ async def test__authorized_botx_method__succeed(
             HTTPStatus.OK,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -130,7 +129,7 @@ async def test__authorized_botx_method__succeed(
     botx_api_foo_bar = await method.execute(payload)
 
     # - Assert -
-    assert botx_api_foo_bar.to_domain() == sync_id
+    assert botx_api_foo_bar.to_domain() == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
     assert token_endpoint.called
     assert foo_bar_endpoint.called
 
@@ -142,7 +141,6 @@ async def test__authorized_botx_method__with_prepared_token(
     host: str,
     bot_id: UUID,
     prepared_bot_accounts_storage: BotAccountsStorage,
-    sync_id: UUID,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -154,7 +152,7 @@ async def test__authorized_botx_method__with_prepared_token(
             HTTPStatus.OK,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -171,5 +169,5 @@ async def test__authorized_botx_method__with_prepared_token(
     botx_api_foo_bar = await method.execute(payload)
 
     # - Assert -
-    assert botx_api_foo_bar.to_domain() == sync_id
+    assert botx_api_foo_bar.to_domain() == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
     assert endpoint.called

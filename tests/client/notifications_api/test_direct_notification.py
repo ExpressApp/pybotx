@@ -31,9 +31,7 @@ from botx import (
 @pytest.mark.asyncio
 @pytest.mark.mock_authorization
 async def test__answer__no_incoming_message_error_raised(
-    chat_id: UUID,
     host: str,
-    sync_id: UUID,
     bot_account: BotAccount,
     bot_id: UUID,
 ) -> None:
@@ -54,9 +52,7 @@ async def test__answer__no_incoming_message_error_raised(
 @pytest.mark.mock_authorization
 async def test__answer__succeed(
     httpx_client: httpx.AsyncClient,
-    chat_id: UUID,
     host: str,
-    sync_id: UUID,
     bot_account: BotAccount,
     bot_id: UUID,
     incoming_message_payload_factory: Callable[..., Dict[str, Any]],
@@ -66,7 +62,7 @@ async def test__answer__succeed(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "group_chat_id": str(chat_id),
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "notification": {
                 "status": "ok",
                 "body": "Hi!",
@@ -102,7 +98,7 @@ async def test__answer__succeed(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -110,7 +106,7 @@ async def test__answer__succeed(
     payload = incoming_message_payload_factory(
         bot_id=bot_id,
         host=host,
-        group_chat_id=chat_id,
+        group_chat_id="054af49e-5e18-4dca-ad73-4f96b6de63fa",
     )
 
     bubbles = BubbleMarkup()
@@ -158,7 +154,7 @@ async def test__answer__succeed(
         bot.set_raw_botx_method_result(
             {
                 "status": "ok",
-                "sync_id": str(sync_id),
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
         )
@@ -173,7 +169,6 @@ async def test__answer__succeed(
 async def test__send__unknown_bot_account_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
-    chat_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -194,7 +189,7 @@ async def test__send__unknown_bot_account_error_raised(
             await bot.send(
                 "Hi!",
                 bot_id=unknown_bot_id,
-                chat_id=chat_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             )
 
     # - Assert -
@@ -209,8 +204,6 @@ async def test__send__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    sync_id: UUID,
-    chat_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -218,7 +211,7 @@ async def test__send__chat_not_found_error_raised(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "group_chat_id": str(chat_id),
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "notification": {"status": "ok", "body": "Hi!"},
         },
     ).mock(
@@ -226,7 +219,7 @@ async def test__send__chat_not_found_error_raised(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -243,7 +236,7 @@ async def test__send__chat_not_found_error_raised(
             bot.send(
                 "Hi!",
                 bot_id=bot_id,
-                chat_id=chat_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             ),
         )
 
@@ -252,11 +245,11 @@ async def test__send__chat_not_found_error_raised(
         bot.set_raw_botx_method_result(
             {
                 "status": "error",
-                "sync_id": str(sync_id),
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "reason": "chat_not_found",
                 "errors": [],
                 "error_data": {
-                    "group_chat_id": str(chat_id),
+                    "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
                     "error_description": "Chat with specified id not found",
                 },
             },
@@ -277,8 +270,6 @@ async def test__send__bot_is_not_a_chat_member_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    sync_id: UUID,
-    chat_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -286,7 +277,7 @@ async def test__send__bot_is_not_a_chat_member_error_raised(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "group_chat_id": str(chat_id),
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "notification": {"status": "ok", "body": "Hi!"},
         },
     ).mock(
@@ -294,7 +285,7 @@ async def test__send__bot_is_not_a_chat_member_error_raised(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -311,7 +302,7 @@ async def test__send__bot_is_not_a_chat_member_error_raised(
             bot.send(
                 "Hi!",
                 bot_id=bot_id,
-                chat_id=chat_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             ),
         )
 
@@ -320,11 +311,11 @@ async def test__send__bot_is_not_a_chat_member_error_raised(
         bot.set_raw_botx_method_result(
             {
                 "status": "error",
-                "sync_id": str(sync_id),
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "reason": "bot_is_not_a_chat_member",
                 "errors": [],
                 "error_data": {
-                    "group_chat_id": str(chat_id),
+                    "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
                     "bot_id": "b165f00f-3154-412c-7f11-c120164257da",
                     "error_description": "Bot is not a chat member",
                 },
@@ -346,8 +337,6 @@ async def test__send__event_recipients_list_is_empty_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    sync_id: UUID,
-    chat_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -355,7 +344,7 @@ async def test__send__event_recipients_list_is_empty_error_raised(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "group_chat_id": str(chat_id),
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "notification": {"status": "ok", "body": "Hi!"},
         },
     ).mock(
@@ -363,7 +352,7 @@ async def test__send__event_recipients_list_is_empty_error_raised(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -380,7 +369,7 @@ async def test__send__event_recipients_list_is_empty_error_raised(
             bot.send(
                 "Hi!",
                 bot_id=bot_id,
-                chat_id=chat_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             ),
         )
 
@@ -389,11 +378,11 @@ async def test__send__event_recipients_list_is_empty_error_raised(
         bot.set_raw_botx_method_result(
             {
                 "status": "error",
-                "sync_id": str(sync_id),
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "reason": "event_recipients_list_is_empty",
                 "errors": [],
                 "error_data": {
-                    "group_chat_id": str(chat_id),
+                    "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
                     "bot_id": "b165f00f-3154-412c-7f11-c120164257da",
                     "recipients_param": ["b165f00f-3154-412c-7f11-c120164257da"],
                     "error_description": "Event recipients list is empty",
@@ -416,8 +405,6 @@ async def test__send__stealth_mode_disabled_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    sync_id: UUID,
-    chat_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -425,7 +412,7 @@ async def test__send__stealth_mode_disabled_error_raised(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "group_chat_id": str(chat_id),
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "notification": {"status": "ok", "body": "Hi!"},
         },
     ).mock(
@@ -433,7 +420,7 @@ async def test__send__stealth_mode_disabled_error_raised(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -450,7 +437,7 @@ async def test__send__stealth_mode_disabled_error_raised(
             bot.send(
                 "Hi!",
                 bot_id=bot_id,
-                chat_id=chat_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             ),
         )
 
@@ -459,11 +446,11 @@ async def test__send__stealth_mode_disabled_error_raised(
         bot.set_raw_botx_method_result(
             {
                 "status": "error",
-                "sync_id": str(sync_id),
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "reason": "stealth_mode_disabled",
                 "errors": [],
                 "error_data": {
-                    "group_chat_id": str(chat_id),
+                    "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
                     "bot_id": "b165f00f-3154-412c-7f11-c120164257da",
                     "error_description": "Stealth mode disabled in specified chat",
                 },
@@ -485,8 +472,6 @@ async def test__send__miminally_filled_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    sync_id: UUID,
-    chat_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -494,7 +479,7 @@ async def test__send__miminally_filled_succeed(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "group_chat_id": str(chat_id),
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "notification": {"status": "ok", "body": "Hi!"},
         },
     ).mock(
@@ -502,7 +487,7 @@ async def test__send__miminally_filled_succeed(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -519,7 +504,7 @@ async def test__send__miminally_filled_succeed(
             bot.send(
                 "Hi!",
                 bot_id=bot_id,
-                chat_id=chat_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             ),
         )
 
@@ -528,13 +513,13 @@ async def test__send__miminally_filled_succeed(
         bot.set_raw_botx_method_result(
             {
                 "status": "ok",
-                "sync_id": str(sync_id),
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
         )
 
     # - Assert -
-    assert (await task) == sync_id
+    assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
     assert endpoint.called
 
 
@@ -545,8 +530,6 @@ async def test__send__maximum_filled_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    sync_id: UUID,
-    chat_id: UUID,
     bot_account: BotAccount,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -563,7 +546,7 @@ async def test__send__maximum_filled_succeed(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "group_chat_id": str(chat_id),
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "notification": {
                 "status": "ok",
                 "body": formatted_body,
@@ -619,7 +602,7 @@ async def test__send__maximum_filled_succeed(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -664,7 +647,7 @@ async def test__send__maximum_filled_succeed(
             bot.send(
                 body,
                 bot_id=bot_id,
-                chat_id=chat_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
                 metadata={"foo": "bar"},
                 bubbles=bubbles,
                 keyboard=keyboard,
@@ -677,13 +660,13 @@ async def test__send__maximum_filled_succeed(
         bot.set_raw_botx_method_result(
             {
                 "status": "ok",
-                "sync_id": str(sync_id),
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
         )
 
     # - Assert -
-    assert (await task) == sync_id
+    assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
     assert endpoint.called
 
 
@@ -694,8 +677,6 @@ async def test__send__all_mentions_types_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    sync_id: UUID,
-    chat_id: UUID,
     bot_account: BotAccount,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -737,7 +718,7 @@ async def test__send__all_mentions_types_succeed(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "group_chat_id": str(chat_id),
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "notification": {
                 "status": "ok",
                 "body": formatted_body,
@@ -783,7 +764,7 @@ async def test__send__all_mentions_types_succeed(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -800,7 +781,7 @@ async def test__send__all_mentions_types_succeed(
             bot.send(
                 body,
                 bot_id=bot_id,
-                chat_id=chat_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             ),
         )
 
@@ -809,11 +790,11 @@ async def test__send__all_mentions_types_succeed(
         bot.set_raw_botx_method_result(
             {
                 "status": "ok",
-                "sync_id": str(sync_id),
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
         )
 
     # - Assert -
-    assert (await task) == sync_id
+    assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
     assert endpoint.called

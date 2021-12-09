@@ -24,8 +24,6 @@ async def test__markup__defaults_filled(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    sync_id: UUID,
-    chat_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -33,7 +31,7 @@ async def test__markup__defaults_filled(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "group_chat_id": str(chat_id),
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "notification": {
                 "status": "ok",
                 "body": "Hi!",
@@ -64,7 +62,7 @@ async def test__markup__defaults_filled(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -93,7 +91,7 @@ async def test__markup__defaults_filled(
             bot.send(
                 "Hi!",
                 bot_id=bot_id,
-                chat_id=chat_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
                 bubbles=bubbles,
                 keyboard=keyboard,
             ),
@@ -104,13 +102,13 @@ async def test__markup__defaults_filled(
         bot.set_raw_botx_method_result(
             {
                 "status": "ok",
-                "sync_id": str(sync_id),
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
         )
 
     # - Assert -
-    assert (await task) == sync_id
+    assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
     assert endpoint.called
 
 
@@ -121,8 +119,6 @@ async def test__markup__correctly_built(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    sync_id: UUID,
-    chat_id: UUID,
     bot_account: BotAccount,
 ) -> None:
     # - Arrange -
@@ -130,7 +126,7 @@ async def test__markup__correctly_built(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "group_chat_id": str(chat_id),
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "notification": {
                 "status": "ok",
                 "body": "Hi!",
@@ -179,7 +175,7 @@ async def test__markup__correctly_built(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": str(sync_id)},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
             },
         ),
     )
@@ -223,7 +219,7 @@ async def test__markup__correctly_built(
             bot.send(
                 "Hi!",
                 bot_id=bot_id,
-                chat_id=chat_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
                 bubbles=bubbles,
             ),
         )
@@ -233,11 +229,11 @@ async def test__markup__correctly_built(
         bot.set_raw_botx_method_result(
             {
                 "status": "ok",
-                "sync_id": str(sync_id),
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
         )
 
     # - Assert -
-    assert (await task) == sync_id
+    assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
     assert endpoint.called
