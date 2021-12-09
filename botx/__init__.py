@@ -77,6 +77,7 @@ from botx.models.system_events.internal_bot_notification import (
     InternalBotNotificationEvent,
 )
 from botx.models.system_events.left_from_chat import LeftFromChatEvent
+from botx.models.system_events.smartapp import SmartAppEvent
 from botx.models.users import UserFromSearch
 
 __all__ = (
@@ -84,9 +85,9 @@ __all__ = (
     "AnswerDestinationLookupError",
     "AttachmentTypes",
     "Bot",
+    "BotAccount",
     "BotAPIBotDisabledResponse",
     "BotAPIMethodFailedCallback",
-    "BotAccount",
     "BotIsNotChatMemberError",
     "BotMenu",
     "BotRecipient",
@@ -122,6 +123,7 @@ __all__ = (
     "Image",
     "IncomingMessage",
     "IncomingMessageHandlerFunc",
+    "InternalBotNotificationEvent",
     "InvalidBotAccountError",
     "InvalidBotXResponsePayloadError",
     "InvalidBotXStatusCodeError",
@@ -130,7 +132,6 @@ __all__ = (
     "InvalidUsersListError",
     "KeyboardMarkup",
     "LeftFromChatEvent",
-    "InternalBotNotificationEvent",
     "Mention",
     "MentionList",
     "MentionTypes",
@@ -140,18 +141,20 @@ __all__ = (
     "PermissionDeniedError",
     "RateLimitReachedError",
     "Reply",
+    "SmartAppEvent",
+    "SmartAppEvent",
     "StatusRecipient",
+    "StealthModeDisabledError",
     "Sticker",
     "StickerPack",
-    "StealthModeDisabledError",
     "StickerPackNotFoundError",
     "UnknownBotAccountError",
     "UnsupportedBotAPIVersionError",
     "UserDevice",
-    "UserSender",
     "UserFromSearch",
     "UserKinds",
     "UserNotFoundError",
+    "UserSender",
     "Video",
     "Voice",
     "build_bot_disabled_response",

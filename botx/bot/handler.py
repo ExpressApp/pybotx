@@ -14,6 +14,7 @@ from botx.models.system_events.internal_bot_notification import (
     InternalBotNotificationEvent,
 )
 from botx.models.system_events.left_from_chat import LeftFromChatEvent
+from botx.models.system_events.smartapp import SmartAppEvent
 
 try:
     from typing import Literal
@@ -35,6 +36,7 @@ SystemEventHandlerFunc = Union[
     HandlerFunc[CTSLoginEvent],
     HandlerFunc[CTSLogoutEvent],
     HandlerFunc[InternalBotNotificationEvent],
+    HandlerFunc[SmartAppEvent],
 ]
 
 VisibleFunc = Callable[[StatusRecipient, "Bot"], Awaitable[bool]]
