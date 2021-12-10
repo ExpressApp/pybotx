@@ -10,6 +10,7 @@ from botx.models.base_command import (
     BotAPIChatContext,
     BotCommandBase,
 )
+from botx.models.bot_recipient import BotRecipient
 from botx.models.chats import Chat
 from botx.models.enums import BotAPICommandTypes, convert_chat_type_to_domain
 
@@ -47,8 +48,10 @@ class BotAPILeftFromChat(BotAPIBaseCommand):
 
     def to_domain(self, raw_command: Dict[str, Any]) -> LeftFromChatEvent:
         return LeftFromChatEvent(
-            bot_id=self.bot_id,
-            host=self.sender.host,
+            bot=BotRecipient(
+                id=self.bot_id,
+                host=self.sender.host,
+            ),
             raw_command=raw_command,
             huids=self.payload.data.left_members,
             chat=Chat(

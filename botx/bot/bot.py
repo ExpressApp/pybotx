@@ -166,7 +166,7 @@ class Bot:
 
     def async_execute_bot_command(self, bot_command: BotCommand) -> None:
         # raise UnknownBotAccountError if no bot account with this bot_id.
-        self._bot_accounts_storage.ensure_bot_id_exists(bot_command.bot_id)
+        self._bot_accounts_storage.ensure_bot_id_exists(bot_command.bot.id)
 
         task = asyncio.create_task(
             self._handler_collector.handle_bot_command(bot_command, self),

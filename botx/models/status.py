@@ -29,7 +29,7 @@ class StatusRecipient:
         incoming_message: IncomingMessage,
     ) -> "StatusRecipient":
         return StatusRecipient(
-            bot_id=incoming_message.bot_id,
+            bot_id=incoming_message.bot.id,
             huid=incoming_message.sender.huid,
             ad_login=incoming_message.sender.ad_login,
             ad_domain=incoming_message.sender.ad_domain,

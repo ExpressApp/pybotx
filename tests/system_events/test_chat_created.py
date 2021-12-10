@@ -7,6 +7,7 @@ import respx
 from botx import (
     Bot,
     BotAccount,
+    BotRecipient,
     Chat,
     ChatCreatedEvent,
     ChatCreatedMember,
@@ -98,8 +99,10 @@ async def test__chat_created__succeed(
     # - Assert -
     assert chat_created == ChatCreatedEvent(
         sync_id=UUID("2c1a31d6-f47f-5f54-aee2-d0c526bb1d54"),
-        bot_id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
-        host="cts.example.com",
+        bot=BotRecipient(
+            id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
+            host="cts.example.com",
+        ),
         chat_name="Feature-party",
         chat=Chat(
             id=UUID("dea55ee4-7a9f-5da0-8c73-079f400ee517"),

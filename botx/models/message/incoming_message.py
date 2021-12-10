@@ -23,6 +23,7 @@ from botx.models.base_command import (
     BotAPIUserContext,
     BotCommandBase,
 )
+from botx.models.bot_recipient import BotRecipient
 from botx.models.chats import Chat
 from botx.models.enums import (
     AttachmentTypes,
@@ -255,9 +256,13 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             else:
                 raise NotImplementedError
 
-        return IncomingMessage(
-            bot_id=self.bot_id,
+        bot = BotRecipient(
+            id=self.bot_id,
             host=self.sender.host,
+        )
+
+        return IncomingMessage(
+            bot=bot,
             sync_id=self.sync_id,
             source_sync_id=self.source_sync_id,
             body=self.payload.body,

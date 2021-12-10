@@ -7,6 +7,7 @@ from pydantic import validator
 from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
 from botx.constants import BOT_API_VERSION
 from botx.models.api_base import VerifiedPayloadBaseModel
+from botx.models.bot_recipient import BotRecipient
 from botx.models.enums import APIChatTypes, BotAPIClientPlatforms, BotAPICommandTypes
 
 try:
@@ -73,6 +74,5 @@ class BotAPIBaseCommand(VerifiedPayloadBaseModel):
 
 @dataclass
 class BotCommandBase:
-    bot_id: UUID
-    host: str
+    bot: BotRecipient
     raw_command: Optional[Dict[str, Any]]

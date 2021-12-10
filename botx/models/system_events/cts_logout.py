@@ -10,6 +10,7 @@ from botx.models.base_command import (
     BotAPIBaseCommand,
     BotCommandBase,
 )
+from botx.models.bot_recipient import BotRecipient
 from botx.models.enums import BotAPICommandTypes
 
 try:
@@ -45,8 +46,10 @@ class BotAPICTSLogout(BotAPIBaseCommand):
 
     def to_domain(self, raw_command: Dict[str, Any]) -> CTSLogoutEvent:
         return CTSLogoutEvent(
-            bot_id=self.bot_id,
-            host=self.sender.host,
+            bot=BotRecipient(
+                id=self.bot_id,
+                host=self.sender.host,
+            ),
             raw_command=raw_command,
             huid=self.payload.data.user_huid,
         )
