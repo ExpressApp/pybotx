@@ -4,7 +4,14 @@ from uuid import UUID
 import pytest
 import respx
 
-from botx import Bot, BotAccount, CTSLoginEvent, HandlerCollector, lifespan_wrapper
+from botx import (
+    Bot,
+    BotAccount,
+    BotRecipient,
+    CTSLoginEvent,
+    HandlerCollector,
+    lifespan_wrapper,
+)
 
 
 @respx.mock
@@ -71,8 +78,10 @@ async def test__cts_login__succeed(
 
     # - Assert -
     assert cts_login == CTSLoginEvent(
-        bot_id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
-        host="cts.example.com",
+        bot=BotRecipient(
+            id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
+            host="cts.example.com",
+        ),
         raw_command=None,
         huid=UUID("b9197d3a-d855-5d34-ba8a-eff3a975ab20"),
     )

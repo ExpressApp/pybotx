@@ -7,6 +7,7 @@ import respx
 from botx import (
     Bot,
     BotAccount,
+    BotRecipient,
     Chat,
     ChatCreatedEvent,
     ChatCreatedMember,
@@ -22,8 +23,10 @@ def chat_created(
     bot_id: UUID,
 ) -> ChatCreatedEvent:
     return ChatCreatedEvent(
-        bot_id=bot_id,
-        host="cts.example.com",
+        bot=BotRecipient(
+            id=bot_id,
+            host="cts.example.com",
+        ),
         sync_id=uuid4(),
         chat_name="Test",
         chat=Chat(

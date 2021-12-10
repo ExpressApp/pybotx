@@ -15,7 +15,7 @@ def test__status_recipient__from_message(
 
     # - Assert -
     assert status_recipient == StatusRecipient(
-        bot_id=incoming_message.bot_id,
+        bot_id=incoming_message.bot.id,
         huid=incoming_message.sender.huid,
         ad_login=incoming_message.sender.ad_login,
         ad_domain=incoming_message.sender.ad_domain,

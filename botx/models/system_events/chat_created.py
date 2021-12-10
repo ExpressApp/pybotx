@@ -10,6 +10,7 @@ from botx.models.base_command import (
     BotAPIChatContext,
     BotCommandBase,
 )
+from botx.models.bot_recipient import BotRecipient
 from botx.models.chats import Chat
 from botx.models.enums import (
     APIChatTypes,
@@ -107,8 +108,10 @@ class BotAPIChatCreated(BotAPIBaseCommand):
 
         return ChatCreatedEvent(
             sync_id=self.sync_id,
-            bot_id=self.bot_id,
-            host=self.sender.host,
+            bot=BotRecipient(
+                id=self.bot_id,
+                host=self.sender.host,
+            ),
             chat=chat,
             chat_name=self.payload.data.name,
             creator_id=self.payload.data.creator,

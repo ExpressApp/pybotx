@@ -13,6 +13,7 @@ from pydantic import BaseModel
 
 from botx import (
     BotAccount,
+    BotRecipient,
     Chat,
     ChatTypes,
     IncomingMessage,
@@ -221,8 +222,10 @@ def incoming_message_factory(
         ad_domain: Optional[str] = None,
     ) -> IncomingMessage:
         return IncomingMessage(
-            bot_id=bot_id,
-            host="cts.example.com",
+            bot=BotRecipient(
+                id=bot_id,
+                host="cts.example.com",
+            ),
             sync_id=uuid4(),
             source_sync_id=None,
             body=body,

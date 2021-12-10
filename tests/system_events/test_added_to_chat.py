@@ -8,6 +8,7 @@ from botx import (
     AddedToChatEvent,
     Bot,
     BotAccount,
+    BotRecipient,
     Chat,
     ChatTypes,
     HandlerCollector,
@@ -81,8 +82,10 @@ async def test__added_to_chat__succeed(
 
     # - Assert -
     assert added_to_chat == AddedToChatEvent(
-        bot_id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
-        host="cts.example.com",
+        bot=BotRecipient(
+            id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
+            host="cts.example.com",
+        ),
         raw_command=None,
         huids=[
             UUID("ab103983-6001-44e9-889e-d55feb295494"),

@@ -310,7 +310,7 @@ class HandlerCollector:
 
     def _fill_contextvars(self, bot_command: BotCommand, bot: "Bot") -> None:
         bot_var.set(bot)
-        bot_id_var.set(bot_command.bot_id)
+        bot_id_var.set(bot_command.bot.id)
 
         chat = getattr(bot_command, "chat", None)
         if chat:

@@ -44,6 +44,7 @@ from botx.client.exceptions.users import UserNotFoundError
 from botx.models.async_files import Document, File, Image, Video, Voice
 from botx.models.attachments import OutgoingAttachment
 from botx.models.bot_account import BotAccount
+from botx.models.bot_recipient import BotRecipient
 from botx.models.chats import Chat, ChatInfo, ChatInfoMember, ChatListItem
 from botx.models.enums import (
     AttachmentTypes,
@@ -81,6 +82,7 @@ __all__ = (
     "BotAccount",
     "BotIsNotChatMemberError",
     "BotMenu",
+    "BotRecipient",
     "BotShuttignDownError",
     "BotXMethodCallbackNotFound",
     "BotXMethodFailedCallbackReceivedError",

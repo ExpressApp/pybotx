@@ -9,6 +9,7 @@ from botx import (
     AttachmentTypes,
     Bot,
     BotAccount,
+    BotRecipient,
     Chat,
     ChatTypes,
     ClientPlatforms,
@@ -86,8 +87,10 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
 
     # - Assert -
     assert incoming_message == IncomingMessage(
-        bot_id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
-        host="cts.example.com",
+        bot=BotRecipient(
+            id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
+            host="cts.example.com",
+        ),
         sync_id=UUID("6f40a492-4b5f-54f3-87ee-77126d825b51"),
         source_sync_id=None,
         body="/hello",
@@ -251,8 +254,10 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
 
     # - Assert -
     assert incoming_message == IncomingMessage(
-        bot_id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
-        host="cts.example.com",
+        bot=BotRecipient(
+            id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
+            host="cts.example.com",
+        ),
         sync_id=UUID("6f40a492-4b5f-54f3-87ee-77126d825b51"),
         source_sync_id=UUID("bc3d06ed-7b2e-41ad-99f9-ca28adc2c88d"),
         body="/hello",
