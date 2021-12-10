@@ -56,6 +56,10 @@ from botx.client.events_api.edit_event import (
     BotXAPIEditEventRequestPayload,
     EditEventMethod,
 )
+from botx.client.events_api.reply_event import (
+    BotXAPIReplyEventRequestPayload,
+    ReplyEventMethod,
+)
 from botx.client.exceptions.common import InvalidBotAccountError
 from botx.client.files_api.download_file import (
     BotXAPIDownloadFileRequestPayload,
@@ -907,6 +911,63 @@ class Bot:
             markup_auto_adjust,
         )
         method = EditEventMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        await method.execute(payload)
+
+    async def reply_message(
+        self,
+        *,
+        bot_id: UUID,
+        sync_id: UUID,
+        body: str,
+        metadata: Missing[Dict[str, Any]] = Undefined,
+        bubbles: Missing[BubbleMarkup] = Undefined,
+        keyboard: Missing[KeyboardMarkup] = Undefined,
+        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        silent_response: Missing[bool] = Undefined,
+        markup_auto_adjust: Missing[bool] = Undefined,
+        stealth_mode: Missing[bool] = Undefined,
+        push_notification: Missing[bool] = Undefined,
+        ignore_mute: Missing[bool] = Undefined,
+    ) -> None:
+        """Reply on message by `sync_id`.
+
+        **Arguments:**
+
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `sync_id: UUID` - `sync_id` of message to reply on.
+        * `body: str` - Reply body.
+        * `metadata: Missing[Dict[str, Any]]` - Notification options.
+        * `bubbles: Missing[BubbleMarkup]` - Bubbles (buttons attached
+        to message) markup.
+        * `keyboard: Missing[KeyboardMarkup]` - Keyboard (buttons below
+        message input) markup.
+        * `file: Missing[Union[IncomingFileAttachment,
+        OutgoingAttachment]]` - Attachment.
+        * `markup_auto_adjust: Missing[bool]` - Move button to next row,
+        if its text doesn't fit.
+        * `stealth_mode: Missing[bool]` - Enable stealth mode.
+        * `push_notification: Missing[bool]` - Send push notification on devices.
+        * `ignore_mute: Missing[bool]` - Ignore mute or dnd (do not disturb).
+        """
+
+        payload = BotXAPIReplyEventRequestPayload.from_domain(
+            sync_id,
+            body,
+            metadata,
+            bubbles,
+            keyboard,
+            file,
+            silent_response,
+            markup_auto_adjust,
+            stealth_mode,
+            push_notification,
+            ignore_mute,
+        )
+        method = ReplyEventMethod(
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
