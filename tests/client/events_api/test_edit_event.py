@@ -180,7 +180,7 @@ async def test__edit_message__clean_message_succeed(
         json={
             "payload": {
                 "body": "",
-                # TODO: Test metadata
+                "metadata": {},
                 "bubble": [],
                 "keyboard": [],
                 "mentions": [],
@@ -210,7 +210,7 @@ async def test__edit_message__clean_message_succeed(
             bot_id=bot_id,
             sync_id=UUID("8ba66c5b-40bf-5c77-911d-519cb4e382e9"),
             body="",
-            # TODO: Test metadata
+            metadata={},
             bubbles=BubbleMarkup(),
             keyboard=KeyboardMarkup(),
             file=None,
