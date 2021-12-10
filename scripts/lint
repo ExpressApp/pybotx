@@ -7,3 +7,5 @@ isort --profile black --check-only botx tests
 
 mypy botx tests
 flake8 botx tests
+
+./scripts/wip_marks
