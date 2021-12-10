@@ -62,7 +62,7 @@ async def test__list_chats__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        chats = await bot.list_chats(bot_id)
+        chats = await bot.list_chats(bot_id=bot_id)
 
     # - Assert -
     assert chats == [

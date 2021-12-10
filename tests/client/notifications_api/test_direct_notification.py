@@ -187,7 +187,7 @@ async def test__send__unknown_bot_account_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnknownBotAccountError) as exc:
             await bot.send(
-                "Hi!",
+                body="Hi!",
                 bot_id=unknown_bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             )
@@ -234,7 +234,7 @@ async def test__send__chat_not_found_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
             bot.send(
-                "Hi!",
+                body="Hi!",
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             ),
@@ -300,7 +300,7 @@ async def test__send__bot_is_not_a_chat_member_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
             bot.send(
-                "Hi!",
+                body="Hi!",
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             ),
@@ -367,7 +367,7 @@ async def test__send__event_recipients_list_is_empty_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
             bot.send(
-                "Hi!",
+                body="Hi!",
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             ),
@@ -435,7 +435,7 @@ async def test__send__stealth_mode_disabled_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
             bot.send(
-                "Hi!",
+                body="Hi!",
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             ),
@@ -502,7 +502,7 @@ async def test__send__miminally_filled_succeed(
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
             bot.send(
-                "Hi!",
+                body="Hi!",
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             ),
@@ -645,7 +645,7 @@ async def test__send__maximum_filled_succeed(
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
             bot.send(
-                body,
+                body=body,
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
                 metadata={"foo": "bar"},
@@ -779,7 +779,7 @@ async def test__send__all_mentions_types_succeed(
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
             bot.send(
-                body,
+                body=body,
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             ),

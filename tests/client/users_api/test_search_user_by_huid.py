@@ -51,7 +51,7 @@ async def test__search_user_by_huid__user_not_found_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UserNotFoundError) as exc:
             await bot.search_user_by_huid(
-                bot_id,
+                bot_id=bot_id,
                 huid=UUID("f837dff4-d3ad-4b8d-a0a3-5c6ca9c747d1"),
             )
 
@@ -102,7 +102,7 @@ async def test__search_user_by_huid__succeed(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         user = await bot.search_user_by_huid(
-            bot_id,
+            bot_id=bot_id,
             huid=UUID("f837dff4-d3ad-4b8d-a0a3-5c6ca9c747d1"),
         )
 
