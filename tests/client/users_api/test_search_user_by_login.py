@@ -50,7 +50,11 @@ async def test__search_user_by_ad__user_not_found_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UserNotFoundError) as exc:
-            await bot.search_user_by_ad(bot_id, "ad_user_login", "cts.com")
+            await bot.search_user_by_ad(
+                bot_id=bot_id,
+                ad_login="ad_user_login",
+                ad_domain="cts.com",
+            )
 
     # - Assert -
     assert "user_not_found" in str(exc.value)
@@ -98,7 +102,11 @@ async def test__search_user_by_ad__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        user = await bot.search_user_by_ad(bot_id, "ad_user_login", "cts.com")
+        user = await bot.search_user_by_ad(
+            bot_id=bot_id,
+            ad_login="ad_user_login",
+            ad_domain="cts.com",
+        )
 
     # - Assert -
     assert user == UserFromSearch(

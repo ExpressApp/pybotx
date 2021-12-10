@@ -209,7 +209,7 @@ class Bot:
     async def startup(self) -> None:
         for host, bot_id in self._bot_accounts_storage.iter_host_and_bot_id_pairs():
             try:
-                token = await self.get_token(bot_id)
+                token = await self.get_token(bot_id=bot_id)
             except (InvalidBotAccountError, httpx.HTTPError):
                 logger.warning(
                     "Can't get token for bot account: "
@@ -240,7 +240,11 @@ class Bot:
         await self._httpx_client.aclose()
 
     # - Bots API -
-    async def get_token(self, bot_id: UUID) -> str:
+    async def get_token(
+        self,
+        *,
+        bot_id: UUID,
+    ) -> str:
         """Get bot auth token.
 
         **Arguments:**
@@ -257,6 +261,7 @@ class Bot:
     # - Chats API -
     async def list_chats(
         self,
+        *,
         bot_id: UUID,
     ) -> List[ChatListItem]:
         """Get all bot chats.
@@ -280,7 +285,12 @@ class Bot:
 
         return botx_api_list_chat.to_domain()
 
-    async def chat_info(self, bot_id: UUID, chat_id: UUID) -> ChatInfo:
+    async def chat_info(
+        self,
+        *,
+        bot_id: UUID,
+        chat_id: UUID,
+    ) -> ChatInfo:
         """Get chat information.
 
         **Arguments:**
@@ -302,6 +312,7 @@ class Bot:
 
     async def add_users_to_chat(
         self,
+        *,
         bot_id: UUID,
         chat_id: UUID,
         huids: List[UUID],
@@ -322,6 +333,7 @@ class Bot:
 
     async def remove_users_from_chat(
         self,
+        *,
         bot_id: UUID,
         chat_id: UUID,
         huids: List[UUID],
@@ -346,6 +358,7 @@ class Bot:
 
     async def promote_to_chat_admins(
         self,
+        *,
         bot_id: UUID,
         chat_id: UUID,
         huids: List[UUID],
@@ -370,6 +383,7 @@ class Bot:
 
     async def enable_stealth(
         self,
+        *,
         bot_id: UUID,
         chat_id: UUID,
         disable_web_client: Missing[bool] = Undefined,
@@ -401,7 +415,12 @@ class Bot:
 
         await method.execute(payload)
 
-    async def disable_stealth(self, bot_id: UUID, chat_id: UUID) -> None:
+    async def disable_stealth(
+        self,
+        *,
+        bot_id: UUID,
+        chat_id: UUID,
+    ) -> None:
         """Disable stealth model. Hides all messages that were in stealth.
 
         **Arguments:**
@@ -421,6 +440,7 @@ class Bot:
 
     async def create_chat(
         self,
+        *,
         bot_id: UUID,
         name: str,
         chat_type: ChatTypes,
@@ -461,7 +481,13 @@ class Bot:
 
         return botx_api_chat_id.to_domain()
 
-    async def pin_message(self, bot_id: UUID, chat_id: UUID, sync_id: UUID) -> None:
+    async def pin_message(
+        self,
+        *,
+        bot_id: UUID,
+        chat_id: UUID,
+        sync_id: UUID,
+    ) -> None:
         """Pin message in chat.
 
         **Arguments:**
@@ -479,7 +505,12 @@ class Bot:
 
         await method.execute(payload)
 
-    async def unpin_message(self, bot_id: UUID, chat_id: UUID) -> None:
+    async def unpin_message(
+        self,
+        *,
+        bot_id: UUID,
+        chat_id: UUID,
+    ) -> None:
         """Unpin message in chat.
 
         **Arguments:**
@@ -497,7 +528,12 @@ class Bot:
         await method.execute(payload)
 
     # - Users API -
-    async def search_user_by_email(self, bot_id: UUID, email: str) -> UserFromSearch:
+    async def search_user_by_email(
+        self,
+        *,
+        bot_id: UUID,
+        email: str,
+    ) -> UserFromSearch:
         """Search user by email for search.
 
         **Arguments:**
@@ -521,7 +557,12 @@ class Bot:
 
         return botx_api_user_from_search.to_domain()
 
-    async def search_user_by_huid(self, bot_id: UUID, huid: UUID) -> UserFromSearch:
+    async def search_user_by_huid(
+        self,
+        *,
+        bot_id: UUID,
+        huid: UUID,
+    ) -> UserFromSearch:
         """Search user by huid for search.
 
         **Arguments:**
@@ -547,6 +588,7 @@ class Bot:
 
     async def search_user_by_ad(
         self,
+        *,
         bot_id: UUID,
         ad_login: str,
         ad_domain: str,
@@ -581,6 +623,7 @@ class Bot:
     # - SmartApps API -
     async def send_smartapp_event(
         self,
+        *,
         bot_id: UUID,
         chat_id: UUID,
         data: Dict[str, Any],
@@ -655,9 +698,9 @@ class Bot:
             raise AnswerDestinationLookupError from exc
 
         return await self.send(
-            body,
             bot_id=bot_id,
             chat_id=chat_id,
+            body=body,
             metadata=metadata,
             bubbles=bubbles,
             keyboard=keyboard,
@@ -669,10 +712,10 @@ class Bot:
 
     async def send(
         self,
-        body: str,
         *,
         bot_id: UUID,
         chat_id: UUID,
+        body: str,
         metadata: Missing[Dict[str, Any]] = Undefined,
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
@@ -726,6 +769,7 @@ class Bot:
 
     async def send_internal_bot_notification(
         self,
+        *,
         bot_id: UUID,
         chat_id: UUID,
         data: Dict[str, Any],
@@ -823,6 +867,7 @@ class Bot:
     # - Files API -
     async def download_file(
         self,
+        *,
         bot_id: UUID,
         chat_id: UUID,
         file_id: UUID,
@@ -848,6 +893,7 @@ class Bot:
 
     async def upload_file(
         self,
+        *,
         bot_id: UUID,
         chat_id: UUID,
         async_buffer: AsyncBufferReadable,

@@ -59,10 +59,10 @@ async def test__create_chat__bot_have_no_permissions_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(ChatCreationProhibitedError) as exc:
             await bot.create_chat(
-                bot_id,
-                "Test chat name",
-                ChatTypes.GROUP_CHAT,
-                [],
+                bot_id=bot_id,
+                name="Test chat name",
+                chat_type=ChatTypes.GROUP_CHAT,
+                huids=[],
             )
 
     # - Assert -
@@ -111,10 +111,10 @@ async def test__create_chat__botx_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(ChatCreationError) as exc:
             await bot.create_chat(
-                bot_id,
-                "Test chat name",
-                ChatTypes.GROUP_CHAT,
-                [],
+                bot_id=bot_id,
+                name="Test chat name",
+                chat_type=ChatTypes.GROUP_CHAT,
+                huids=[],
             )
 
     # - Assert -
@@ -161,11 +161,11 @@ async def test__create_chat__maximum_filled_succeed(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         created_chat_id = await bot.create_chat(
-            bot_id,
-            "Test chat name",
-            ChatTypes.GROUP_CHAT,
-            [UUID("2fc83441-366a-49ba-81fc-6c39f065bb58")],
-            "Test description",
+            bot_id=bot_id,
+            name="Test chat name",
+            chat_type=ChatTypes.GROUP_CHAT,
+            huids=[UUID("2fc83441-366a-49ba-81fc-6c39f065bb58")],
+            description="Test description",
             shared_history=True,
         )
 

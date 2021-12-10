@@ -57,7 +57,7 @@ async def test__promote_to_chat_admins__unexpected_bad_request_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(InvalidBotXStatusCodeError) as exc:
             await bot.promote_to_chat_admins(
-                bot_id,
+                bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
                 huids=[UUID("f837dff4-d3ad-4b8d-a0a3-5c6ca9c747d1")],
             )
@@ -106,7 +106,7 @@ async def test__promote_to_chat_admins__cant_update_personal_chat_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(CantUpdatePersonalChatError) as exc:
             await bot.promote_to_chat_admins(
-                bot_id,
+                bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
                 huids=[UUID("f837dff4-d3ad-4b8d-a0a3-5c6ca9c747d1")],
             )
@@ -158,7 +158,7 @@ async def test__promote_to_chat_admins__invalid_users_list_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(InvalidUsersListError) as exc:
             await bot.promote_to_chat_admins(
-                bot_id,
+                bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
                 huids=[UUID("f837dff4-d3ad-4b8d-a0a3-5c6ca9c747d1")],
             )
@@ -211,7 +211,7 @@ async def test__promote_to_chat_admins__permission_denied_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(PermissionDeniedError) as exc:
             await bot.promote_to_chat_admins(
-                bot_id,
+                bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
                 huids=[UUID("f837dff4-d3ad-4b8d-a0a3-5c6ca9c747d1")],
             )
@@ -262,7 +262,7 @@ async def test__promote_to_chat_admins__chat_not_found_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(ChatNotFoundError) as exc:
             await bot.promote_to_chat_admins(
-                bot_id,
+                bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
                 huids=[UUID("f837dff4-d3ad-4b8d-a0a3-5c6ca9c747d1")],
             )
@@ -305,7 +305,7 @@ async def test__promote_to_chat_admins__succeed(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         await bot.promote_to_chat_admins(
-            bot_id,
+            bot_id=bot_id,
             chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             huids=[UUID("f837dff4-d3ad-4b8d-a0a3-5c6ca9c747d1")],
         )

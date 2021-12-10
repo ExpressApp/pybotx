@@ -59,7 +59,7 @@ async def test__chat_info__chat_not_found_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(ChatNotFoundError) as exc:
             await bot.chat_info(
-                bot_id,
+                bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             )
 
@@ -121,7 +121,7 @@ async def test__chat_info__succeed(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         chat_info = await bot.chat_info(
-            bot_id,
+            bot_id=bot_id,
             chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
         )
 

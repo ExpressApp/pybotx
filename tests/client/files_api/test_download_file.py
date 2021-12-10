@@ -61,7 +61,7 @@ async def test__download_file__unexpected_not_found_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(InvalidBotXStatusCodeError) as exc:
             await bot.download_file(
-                bot_id,
+                bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
                 file_id=UUID("c3b9def2-b2c8-4732-b61f-99b9b110fa80"),
                 async_buffer=async_buffer,
@@ -116,7 +116,7 @@ async def test__download_file__file_metadata_not_found_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(FileMetadataNotFound) as exc:
             await bot.download_file(
-                bot_id,
+                bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
                 file_id=UUID("c3b9def2-b2c8-4732-b61f-99b9b110fa80"),
                 async_buffer=async_buffer,
@@ -170,7 +170,7 @@ async def test__download_file__file_deleted_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(FileDeletedError) as exc:
             await bot.download_file(
-                bot_id,
+                bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
                 file_id=UUID("c3b9def2-b2c8-4732-b61f-99b9b110fa80"),
                 async_buffer=async_buffer,
@@ -224,7 +224,7 @@ async def test__download_file__chat_not_found_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(ChatNotFoundError) as exc:
             await bot.download_file(
-                bot_id,
+                bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
                 file_id=UUID("c3b9def2-b2c8-4732-b61f-99b9b110fa80"),
                 async_buffer=async_buffer,
@@ -269,7 +269,7 @@ async def test__download_file__succeed(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         await bot.download_file(
-            bot_id,
+            bot_id=bot_id,
             chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             file_id=UUID("c3b9def2-b2c8-4732-b61f-99b9b110fa80"),
             async_buffer=async_buffer,

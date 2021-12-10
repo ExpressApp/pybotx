@@ -58,7 +58,7 @@ async def test__pin_message__permission_denied_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(PermissionDeniedError) as exc:
             await bot.pin_message(
-                bot_id,
+                bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
                 sync_id=UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"),
             )
@@ -110,7 +110,7 @@ async def test__pin_message__chat_not_found_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(ChatNotFoundError) as exc:
             await bot.pin_message(
-                bot_id,
+                bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
                 sync_id=UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"),
             )
@@ -153,7 +153,7 @@ async def test__pin_message__succeed(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         await bot.pin_message(
-            bot_id,
+            bot_id=bot_id,
             chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             sync_id=UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"),
         )

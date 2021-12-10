@@ -40,7 +40,7 @@ async def test__get_token__invalid_bot_account_error_raised(
     # - Act -
     with pytest.raises(InvalidBotAccountError) as exc:
         async with lifespan_wrapper(built_bot) as bot:
-            await bot.get_token(bot_id)
+            await bot.get_token(bot_id=bot_id)
 
     # - Assert -
     assert "failed with code 401" in str(exc.value)
@@ -78,7 +78,7 @@ async def test__get_token__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        token = await bot.get_token(bot_id)
+        token = await bot.get_token(bot_id=bot_id)
 
     # - Assert -
     assert token == "token"

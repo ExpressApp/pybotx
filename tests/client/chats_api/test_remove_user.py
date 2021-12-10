@@ -57,7 +57,7 @@ async def test__remove_users_from_chat__permission_denied_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(PermissionDeniedError) as exc:
             await bot.remove_users_from_chat(
-                bot_id,
+                bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
                 huids=[UUID("f837dff4-d3ad-4b8d-a0a3-5c6ca9c747d1")],
             )
@@ -108,7 +108,7 @@ async def test__remove_users_from_chat__chat_not_found_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(ChatNotFoundError) as exc:
             await bot.remove_users_from_chat(
-                bot_id,
+                bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
                 huids=[UUID("f837dff4-d3ad-4b8d-a0a3-5c6ca9c747d1")],
             )
@@ -151,7 +151,7 @@ async def test__remove_users_from_chat__succeed(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         await bot.remove_users_from_chat(
-            bot_id,
+            bot_id=bot_id,
             chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             huids=[UUID("f837dff4-d3ad-4b8d-a0a3-5c6ca9c747d1")],
         )
