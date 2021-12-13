@@ -45,6 +45,7 @@ from botx.models.async_files import Document, File, Image, Video, Voice
 from botx.models.attachments import OutgoingAttachment
 from botx.models.bot_account import BotAccount
 from botx.models.bot_recipient import BotRecipient
+from botx.models.bot_sender import BotSender
 from botx.models.chats import Chat, ChatInfo, ChatInfoMember, ChatListItem
 from botx.models.enums import (
     AttachmentTypes,
@@ -69,6 +70,9 @@ from botx.models.system_events.chat_created import ChatCreatedEvent, ChatCreated
 from botx.models.system_events.cts_login import CTSLoginEvent
 from botx.models.system_events.cts_logout import CTSLogoutEvent
 from botx.models.system_events.deleted_from_chat import DeletedFromChatEvent
+from botx.models.system_events.internal_bot_notification import (
+    InternalBotNotificationEvent,
+)
 from botx.models.system_events.left_from_chat import LeftFromChatEvent
 from botx.models.users import UserFromSearch
 
@@ -83,6 +87,7 @@ __all__ = (
     "BotIsNotChatMemberError",
     "BotMenu",
     "BotRecipient",
+    "BotSender",
     "BotShuttignDownError",
     "BotXMethodCallbackNotFound",
     "BotXMethodFailedCallbackReceivedError",
@@ -120,6 +125,7 @@ __all__ = (
     "InvalidUsersListError",
     "KeyboardMarkup",
     "LeftFromChatEvent",
+    "InternalBotNotificationEvent",
     "Mention",
     "MentionList",
     "MentionTypes",

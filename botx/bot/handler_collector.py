@@ -23,6 +23,9 @@ from botx.models.system_events.chat_created import ChatCreatedEvent
 from botx.models.system_events.cts_login import CTSLoginEvent
 from botx.models.system_events.cts_logout import CTSLogoutEvent
 from botx.models.system_events.deleted_from_chat import DeletedFromChatEvent
+from botx.models.system_events.internal_bot_notification import (
+    InternalBotNotificationEvent,
+)
 from botx.models.system_events.left_from_chat import LeftFromChatEvent
 
 if TYPE_CHECKING:  # To avoid circular import
@@ -167,6 +170,16 @@ class HandlerCollector:
         """Decorate `left_from_chat` event handler."""
 
         self._system_event(LeftFromChatEvent, handler_func)
+
+        return handler_func
+
+    def internal_bot_notification(
+        self,
+        handler_func: HandlerFunc[InternalBotNotificationEvent],
+    ) -> HandlerFunc[InternalBotNotificationEvent]:
+        """Decorate `internal_bot_notification` event handler."""
+
+        self._system_event(InternalBotNotificationEvent, handler_func)
 
         return handler_func
 
