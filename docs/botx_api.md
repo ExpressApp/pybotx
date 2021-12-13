@@ -32,7 +32,7 @@
 
 ::: botx.bot.bot.Bot
     :docstring:
-    :members: answer send send_internal_bot_notification
+    :members: answer_message send_message send_internal_bot_notification
 
 ---
 
