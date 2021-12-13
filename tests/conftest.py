@@ -238,7 +238,6 @@ def incoming_message_factory(
                 username=None,
                 is_chat_admin=True,
                 is_chat_creator=True,
-                locale=None,
                 device=UserDevice(
                     manufacturer=None,
                     device_name=None,
@@ -249,6 +248,7 @@ def incoming_message_factory(
                     platform=None,
                     platform_package_id=None,
                     app_version=None,
+                    locale=None,
                 ),
             ),
             chat=Chat(
