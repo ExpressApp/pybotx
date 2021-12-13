@@ -30,15 +30,25 @@ except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
-class BotXAPIDirectNotificationOpts(UnverifiedPayloadBaseModel):
+class BotXAPIDirectNotificationMessageOpts(UnverifiedPayloadBaseModel):
     buttons_auto_adjust: Missing[bool]
+
+
+class BotXAPIDirectNotificationNestedOpts(UnverifiedPayloadBaseModel):
+    send: Missing[bool]
+    force_dnd: Missing[bool]
+
+
+class BotXAPIDirectNotificationOpts(UnverifiedPayloadBaseModel):
+    stealth_mode: Missing[bool]
+    notification_opts: Missing[BotXAPIDirectNotificationNestedOpts]
 
 
 class BotXAPIDirectNotification(UnverifiedPayloadBaseModel):
     status: Literal["ok"]
     body: str
     metadata: Missing[Dict[str, Any]]
-    opts: Missing[BotXAPIDirectNotificationOpts]
+    opts: Missing[BotXAPIDirectNotificationMessageOpts]
     bubble: Missing[BotXAPIMarkup]
     keyboard: Missing[BotXAPIMarkup]
     mentions: Missing[List[BotXAPIMention]]
@@ -49,6 +59,7 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
     notification: BotXAPIDirectNotification
     file: Missing[BotXAPIAttachment]
     recipients: Missing[List[UUID]]
+    opts: Missing[BotXAPIDirectNotificationOpts]
 
     @classmethod
     def from_domain(
@@ -61,6 +72,9 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]],
         markup_auto_adjust: Missing[bool],
         recipients: Missing[List[UUID]],
+        stealth_mode: Missing[bool],
+        push_notification: Missing[bool],
+        ignore_mute: Missing[bool],
     ) -> "BotXAPIDirectNotificationRequestPayload":
         api_file: Missing[BotXAPIAttachment] = Undefined
         if file:
@@ -75,7 +89,7 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
                 status="ok",
                 body=body,
                 metadata=metadata,
-                opts=BotXAPIDirectNotificationOpts(
+                opts=BotXAPIDirectNotificationMessageOpts(
                     buttons_auto_adjust=markup_auto_adjust,
                 ),
                 bubble=api_markup_from_domain(bubbles) if bubbles else bubbles,
@@ -84,6 +98,13 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
             ),
             file=api_file,
             recipients=recipients,
+            opts=BotXAPIDirectNotificationOpts(
+                stealth_mode=stealth_mode,
+                notification_opts=BotXAPIDirectNotificationNestedOpts(
+                    send=push_notification,
+                    force_dnd=ignore_mute,
+                ),
+            ),
         )
 
 

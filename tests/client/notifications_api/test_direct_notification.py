@@ -597,6 +597,13 @@ async def test__send__maximum_filled_succeed(
                 "data": "data:application/octet-stream;base64,SGVsbG8sIHdvcmxkIQo=",
             },
             "recipients": ["41af5a7b-04c1-465e-8383-e3b1d9e76126"],
+            "opts": {
+                "stealth_mode": True,
+                "notification_opts": {
+                    "send": True,
+                    "force_dnd": True,
+                },
+            },
         },
     ).mock(
         return_value=httpx.Response(
@@ -654,6 +661,9 @@ async def test__send__maximum_filled_succeed(
                 keyboard=keyboard,
                 file=file,
                 recipients=[UUID("41af5a7b-04c1-465e-8383-e3b1d9e76126")],
+                stealth_mode=True,
+                push_notification=True,
+                ignore_mute=True,
             ),
         )
 
