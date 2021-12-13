@@ -22,7 +22,7 @@ from botx import (
     MentionTypes,
     Reply,
     UserDevice,
-    UserEventSender,
+    UserSender,
     lifespan_wrapper,
 )
 
@@ -96,7 +96,7 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
         body="/hello",
         data={},
         metadata={},
-        sender=UserEventSender(
+        sender=UserSender(
             huid=UUID("f16cdc5f-6366-5552-9ecd-c36290ab3d11"),
             ad_login=None,
             ad_domain=None,
@@ -263,7 +263,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
         body="/hello",
         data={"message": "data"},
         metadata={"message": "metadata"},
-        sender=UserEventSender(
+        sender=UserSender(
             huid=UUID("f16cdc5f-6366-5552-9ecd-c36290ab3d11"),
             ad_login="login",
             ad_domain="domain",
