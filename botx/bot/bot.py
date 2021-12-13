@@ -671,6 +671,9 @@ class Bot:
         wait_callback: bool = True,
         callback_timeout: MissingOptional[int] = Undefined,
         recipients: Missing[List[UUID]] = Undefined,
+        stealth_mode: Missing[bool] = Undefined,
+        push_notification: Missing[bool] = Undefined,
+        ignore_mute: Missing[bool] = Undefined,
     ) -> UUID:
         """Answer to incoming message.
 
@@ -711,6 +714,9 @@ class Bot:
             wait_callback=wait_callback,
             callback_timeout=callback_timeout,
             recipients=recipients,
+            stealth_mode=stealth_mode,
+            push_notification=push_notification,
+            ignore_mute=ignore_mute,
         )
 
     async def send(
@@ -727,6 +733,9 @@ class Bot:
         wait_callback: bool = True,
         callback_timeout: MissingOptional[int] = Undefined,
         recipients: Missing[List[UUID]] = Undefined,
+        stealth_mode: Missing[bool] = Undefined,
+        push_notification: Missing[bool] = Undefined,
+        ignore_mute: Missing[bool] = Undefined,
     ) -> UUID:
         """Send message to chat.
 
@@ -742,6 +751,9 @@ class Bot:
         * `file: Missing[Union[IncomingFileAttachment,
         OutgoingAttachment]]` - Attachment.
         * `recipients: Missing[List[UUID]]` - List of recipients, empty for all.
+        * `stealth_mode: Missing[bool]` - Enable stealth mode.
+        * `push_notification: Missing[bool]` - Send push notification on devices.
+        * `ignore_mute: Missing[bool]` - Ignore mute or dnd (do not disturb).
 
         **Returns:**
 
@@ -764,6 +776,9 @@ class Bot:
             file,
             markup_auto_adjust,
             recipients,
+            stealth_mode,
+            push_notification,
+            ignore_mute,
         )
         botx_api_sync_id = await method.execute(
             payload,
@@ -795,6 +810,9 @@ class Bot:
         * `recipients: Missing[List[UUID]]` - List of bot uuids, empty for all in chat.
         * `wait_callback: bool` - Wait for callback.
         * `callback_timeout: Optional[int]` - Timeout for waiting for callback.
+        * `stealth_mode: Missing[bool]` - Enable stealth mode.
+        * `push_notification: Missing[bool]` - Send push notification on devices.
+        * `ignore_mute: Missing[bool]` - Ignore mute or dnd (do not disturb).
 
         **Returns:**
 
