@@ -596,6 +596,7 @@ async def test__send__maximum_filled_succeed(
                 "file_name": "test.txt",
                 "data": "data:application/octet-stream;base64,SGVsbG8sIHdvcmxkIQo=",
             },
+            "recipients": ["41af5a7b-04c1-465e-8383-e3b1d9e76126"],
         },
     ).mock(
         return_value=httpx.Response(
@@ -652,6 +653,7 @@ async def test__send__maximum_filled_succeed(
                 bubbles=bubbles,
                 keyboard=keyboard,
                 file=file,
+                recipients=[UUID("41af5a7b-04c1-465e-8383-e3b1d9e76126")],
             ),
         )
 

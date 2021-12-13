@@ -670,6 +670,7 @@ class Bot:
         markup_auto_adjust: Missing[bool] = Undefined,
         wait_callback: bool = True,
         callback_timeout: MissingOptional[int] = Undefined,
+        recipients: Missing[List[UUID]] = Undefined,
     ) -> UUID:
         """Answer to incoming message.
 
@@ -685,6 +686,7 @@ class Bot:
         ]` - Keyboard (buttons below message input) markup.
         * `file: Missing[Union[IncomingFileAttachment,
         OutgoingAttachment]]` - Attachment.
+        * `recipients: Missing[List[UUID]]` - List of recipients, empty for all.
 
         **Returns:**
 
@@ -708,6 +710,7 @@ class Bot:
             markup_auto_adjust=markup_auto_adjust,
             wait_callback=wait_callback,
             callback_timeout=callback_timeout,
+            recipients=recipients,
         )
 
     async def send(
@@ -723,6 +726,7 @@ class Bot:
         markup_auto_adjust: Missing[bool] = Undefined,
         wait_callback: bool = True,
         callback_timeout: MissingOptional[int] = Undefined,
+        recipients: Missing[List[UUID]] = Undefined,
     ) -> UUID:
         """Send message to chat.
 
@@ -737,6 +741,7 @@ class Bot:
         ]` - Keyboard (buttons below message input) markup.
         * `file: Missing[Union[IncomingFileAttachment,
         OutgoingAttachment]]` - Attachment.
+        * `recipients: Missing[List[UUID]]` - List of recipients, empty for all.
 
         **Returns:**
 
@@ -758,6 +763,7 @@ class Bot:
             keyboard,
             file,
             markup_auto_adjust,
+            recipients,
         )
         botx_api_sync_id = await method.execute(
             payload,
