@@ -48,6 +48,7 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
     group_chat_id: UUID
     notification: BotXAPIDirectNotification
     file: Missing[BotXAPIAttachment]
+    recipients: Missing[List[UUID]]
 
     @classmethod
     def from_domain(
@@ -59,6 +60,7 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
         keyboard: Missing[KeyboardMarkup],
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]],
         markup_auto_adjust: Missing[bool],
+        recipients: Missing[List[UUID]],
     ) -> "BotXAPIDirectNotificationRequestPayload":
         api_file: Missing[BotXAPIAttachment] = Undefined
         if file:
@@ -81,6 +83,7 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
                 mentions=mentions or Undefined,
             ),
             file=api_file,
+            recipients=recipients,
         )
 
 
