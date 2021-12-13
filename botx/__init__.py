@@ -54,11 +54,7 @@ from botx.models.enums import (
     UserKinds,
 )
 from botx.models.message.forward import Forward
-from botx.models.message.incoming_message import (
-    IncomingMessage,
-    UserDevice,
-    UserEventSender,
-)
+from botx.models.message.incoming_message import IncomingMessage, UserDevice, UserSender
 from botx.models.message.markup import BubbleMarkup, Button, KeyboardMarkup
 from botx.models.message.mentions import Mention, MentionList
 from botx.models.message.reply import Reply
@@ -133,7 +129,7 @@ __all__ = (
     "UnknownBotAccountError",
     "UnsupportedBotAPIVersionError",
     "UserDevice",
-    "UserEventSender",
+    "UserSender",
     "UserFromSearch",
     "UserKinds",
     "UserNotFoundError",

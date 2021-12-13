@@ -60,7 +60,7 @@ class UserDevice:
 
 
 @dataclass
-class UserEventSender:
+class UserSender:
     huid: UUID
     ad_login: Optional[str]
     ad_domain: Optional[str]
@@ -85,7 +85,7 @@ class IncomingMessage(BotCommandBase):
     body: str
     data: Dict[str, Any]
     metadata: Dict[str, Any]
-    sender: UserEventSender
+    sender: UserSender
     chat: Chat
     mentions: MentionList = field(default_factory=MentionList)
     forward: Optional[Forward] = None
@@ -204,7 +204,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             locale=self.sender.locale,
         )
 
-        sender = UserEventSender(
+        sender = UserSender(
             huid=self.sender.user_huid,
             ad_login=self.sender.ad_login,
             ad_domain=self.sender.ad_domain,

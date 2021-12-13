@@ -18,7 +18,7 @@ from botx import (
     ChatTypes,
     IncomingMessage,
     UserDevice,
-    UserEventSender,
+    UserSender,
 )
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.logger import logger
@@ -231,7 +231,7 @@ def incoming_message_factory(
             body=body,
             data={},
             metadata={},
-            sender=UserEventSender(
+            sender=UserSender(
                 huid=uuid4(),
                 ad_login=ad_login,
                 ad_domain=ad_domain,
