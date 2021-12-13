@@ -56,6 +56,7 @@ class UserDevice:
     platform: Optional[ClientPlatforms]
     platform_package_id: Optional[str]
     app_version: Optional[str]
+    locale: Optional[str]
 
 
 @dataclass
@@ -66,7 +67,6 @@ class UserEventSender:
     username: Optional[str]
     is_chat_admin: Optional[bool]
     is_chat_creator: Optional[bool]
-    locale: Optional[str]
     device: UserDevice
 
     @property
@@ -201,6 +201,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             ),
             platform_package_id=self.sender.platform_package_id,
             app_version=self.sender.app_version,
+            locale=self.sender.locale,
         )
 
         sender = UserEventSender(
@@ -210,7 +211,6 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             username=self.sender.username,
             is_chat_admin=self.sender.is_admin,
             is_chat_creator=self.sender.is_creator,
-            locale=self.sender.locale,
             device=device,
         )
 

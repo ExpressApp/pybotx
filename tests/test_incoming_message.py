@@ -103,7 +103,6 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
             username=None,
             is_chat_admin=True,
             is_chat_creator=True,
-            locale="en",
             device=UserDevice(
                 manufacturer=None,
                 device_name=None,
@@ -114,6 +113,7 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
                 platform=None,
                 platform_package_id=None,
                 app_version=None,
+                locale="en",
             ),
         ),
         chat=Chat(
@@ -270,7 +270,6 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
             username="Ivanov Ivan Ivanovich",
             is_chat_admin=True,
             is_chat_creator=True,
-            locale="en",
             device=UserDevice(
                 manufacturer="Mozilla",
                 device_name="Firefox 91.0",
@@ -281,6 +280,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
                 platform=ClientPlatforms.WEB,
                 platform_package_id="ru.unlimitedtech.express",
                 app_version="1.21.9",
+                locale="en",
             ),
         ),
         chat=Chat(
