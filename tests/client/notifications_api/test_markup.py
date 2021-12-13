@@ -88,7 +88,7 @@ async def test__markup__defaults_filled(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
-            bot.send(
+            bot.send_message(
                 body="Hi!",
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
@@ -216,7 +216,7 @@ async def test__markup__correctly_built(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
-            bot.send(
+            bot.send_message(
                 body="Hi!",
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
