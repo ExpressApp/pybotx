@@ -659,7 +659,7 @@ class Bot:
         await method.execute(payload)
 
     # - Notifications API -
-    async def answer(
+    async def answer_message(
         self,
         body: str,
         *,
@@ -702,7 +702,7 @@ class Bot:
         except LookupError as exc:
             raise AnswerDestinationLookupError from exc
 
-        return await self.send(
+        return await self.send_message(
             bot_id=bot_id,
             chat_id=chat_id,
             body=body,
@@ -719,7 +719,7 @@ class Bot:
             ignore_mute=ignore_mute,
         )
 
-    async def send(
+    async def send_message(
         self,
         *,
         bot_id: UUID,

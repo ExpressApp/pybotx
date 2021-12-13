@@ -42,7 +42,7 @@ collector = HandlerCollector()
 
 @collector.command("/debug", description="Simple debug command")
 async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
-    await bot.answer("Hi!")
+    await bot.answer_message("Hi!")
 
 
 bot_accounts = build_bot_accounts_from_env()

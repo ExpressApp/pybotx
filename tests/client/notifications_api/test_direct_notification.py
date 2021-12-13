@@ -41,7 +41,7 @@ async def test__answer__no_incoming_message_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(AnswerDestinationLookupError) as exc:
-            await bot.answer("Hi!")
+            await bot.answer_message("Hi!")
 
     # - Assert -
     assert "No IncomingMessage received" in str(exc.value)
@@ -131,7 +131,7 @@ async def test__answer__succeed(
 
     @collector.command("/hello", description="Hello command")
     async def hello_handler(message: IncomingMessage, bot: Bot) -> None:
-        await bot.answer(
+        await bot.answer_message(
             "Hi!",
             metadata={"foo": "bar"},
             bubbles=bubbles,
@@ -186,7 +186,7 @@ async def test__send__unknown_bot_account_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnknownBotAccountError) as exc:
-            await bot.send(
+            await bot.send_message(
                 body="Hi!",
                 bot_id=unknown_bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
@@ -233,7 +233,7 @@ async def test__send__chat_not_found_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
-            bot.send(
+            bot.send_message(
                 body="Hi!",
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
@@ -299,7 +299,7 @@ async def test__send__bot_is_not_a_chat_member_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
-            bot.send(
+            bot.send_message(
                 body="Hi!",
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
@@ -366,7 +366,7 @@ async def test__send__event_recipients_list_is_empty_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
-            bot.send(
+            bot.send_message(
                 body="Hi!",
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
@@ -434,7 +434,7 @@ async def test__send__stealth_mode_disabled_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
-            bot.send(
+            bot.send_message(
                 body="Hi!",
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
@@ -501,7 +501,7 @@ async def test__send__miminally_filled_succeed(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
-            bot.send(
+            bot.send_message(
                 body="Hi!",
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
@@ -652,7 +652,7 @@ async def test__send__maximum_filled_succeed(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
-            bot.send(
+            bot.send_message(
                 body=body,
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
@@ -790,7 +790,7 @@ async def test__send__all_mentions_types_succeed(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         task = asyncio.create_task(
-            bot.send(
+            bot.send_message(
                 body=body,
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
