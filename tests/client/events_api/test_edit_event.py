@@ -117,7 +117,7 @@ async def test__edit_message__maximum_edit_succeed(
             },
             "file": {
                 "file_name": "test.txt",
-                "data": "data:application/octet-stream;base64,SGVsbG8sIHdvcmxkIQo=",
+                "data": "data:text/plain;base64,SGVsbG8sIHdvcmxkIQo=",
             },
         },
     ).mock(
