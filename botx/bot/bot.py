@@ -82,6 +82,10 @@ from botx.client.smartapps_api.smartapp_event import (
     BotXAPISmartappEventRequestPayload,
     SmartappEventMethod,
 )
+from botx.client.stickers_api.add_sticker import (
+    AddStickerMethod,
+    BotXAPIAddStickerRequestPayload,
+)
 from botx.client.stickers_api.create_sticker_pack import (
     BotXAPICreateStickerPackRequestPayload,
     CreateStickerPackMethod,
@@ -99,6 +103,10 @@ from botx.client.users_api.search_user_by_login import (
     SearchUserByLoginMethod,
 )
 from botx.converters import optional_sequence_to_list
+from botx.image_validators import (
+    ensure_file_content_is_png,
+    ensure_sticker_image_size_valid,
+)
 from botx.logger import logger, pformat_jsonable_obj
 from botx.missing import Missing, MissingOptional, Undefined, not_undefined
 from botx.models.async_files import File
@@ -116,7 +124,7 @@ from botx.models.status import (
     StatusRecipient,
     build_bot_status_response,
 )
-from botx.models.stickers import StickerPack
+from botx.models.stickers import Sticker, StickerPack
 from botx.models.users import UserFromSearch
 
 MissingOptionalAttachment = MissingOptional[
@@ -1000,6 +1008,44 @@ class Bot:
         botx_api_sticker_pack = await method.execute(payload)
 
         return botx_api_sticker_pack.to_domain()
+
+    async def add_sticker(
+        self,
+        *,
+        bot_id: UUID,
+        sticker_pack_id: UUID,
+        emoji: str,
+        async_buffer: AsyncBufferReadable,
+    ) -> Sticker:
+        """Add sticker in sticker pack.
+
+        Args:
+            bot_id: Bot which should perform the request.
+            sticker_pack_id: Sticker pack id to indicate where to add.
+            emoji: Sticker emoji.
+            async_buffer: Sticker image file. Only PNG.
+
+        Returns:
+            Added sticker.
+        """
+
+        await ensure_file_content_is_png(async_buffer)
+        await ensure_sticker_image_size_valid(async_buffer)
+
+        method = AddStickerMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = await BotXAPIAddStickerRequestPayload.from_domain(
+            sticker_pack_id,
+            emoji,
+            async_buffer,
+        )
+
+        botx_api_sticker = await method.execute(payload)
+
+        return botx_api_sticker.to_domain()
 
     # - Files API -
     async def download_file(

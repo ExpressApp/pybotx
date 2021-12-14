@@ -41,6 +41,11 @@ from botx.client.exceptions.notifications import (
     StealthModeDisabledError,
 )
 from botx.client.exceptions.users import UserNotFoundError
+from botx.client.stickers_api.exceptions import (
+    InvalidEmojiError,
+    InvalidImageError,
+    StickerPackNotFoundError,
+)
 from botx.models.async_files import Document, File, Image, Video, Voice
 from botx.models.attachments import OutgoingAttachment
 from botx.models.bot_account import BotAccount
@@ -120,6 +125,8 @@ __all__ = (
     "InvalidBotAccountError",
     "InvalidBotXResponsePayloadError",
     "InvalidBotXStatusCodeError",
+    "InvalidEmojiError",
+    "InvalidImageError",
     "InvalidUsersListError",
     "KeyboardMarkup",
     "LeftFromChatEvent",
@@ -137,6 +144,7 @@ __all__ = (
     "Sticker",
     "StickerPack",
     "StealthModeDisabledError",
+    "StickerPackNotFoundError",
     "UnknownBotAccountError",
     "UnsupportedBotAPIVersionError",
     "UserDevice",
