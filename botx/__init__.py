@@ -7,7 +7,7 @@ from botx.bot.api.responses.command_accepted import build_command_accepted_respo
 from botx.bot.bot import Bot
 from botx.bot.exceptions import (
     AnswerDestinationLookupError,
-    BotShuttignDownError,
+    BotShuttingDownError,
     BotXMethodCallbackNotFound,
     UnknownBotAccountError,
 )
@@ -85,7 +85,7 @@ __all__ = (
     "BotMenu",
     "BotRecipient",
     "BotSender",
-    "BotShuttignDownError",
+    "BotShuttingDownError",
     "BotXMethodCallbackNotFound",
     "BotXMethodFailedCallbackReceivedError",
     "BubbleMarkup",

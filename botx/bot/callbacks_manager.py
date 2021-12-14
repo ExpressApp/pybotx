@@ -2,7 +2,7 @@ import asyncio
 from typing import TYPE_CHECKING, Dict, Optional
 from uuid import UUID
 
-from botx.bot.exceptions import BotShuttignDownError, BotXMethodCallbackNotFound
+from botx.bot.exceptions import BotShuttingDownError, BotXMethodCallbackNotFound
 from botx.client.exceptions.callbacks import CallbackNotReceivedError
 from botx.logger import logger
 from botx.models.method_callbacks import BotXMethodCallback
@@ -47,7 +47,7 @@ class CallbacksManager:
         for sync_id, future in self._callback_futures.items():
             if not future.done():
                 future.set_exception(
-                    BotShuttignDownError(
+                    BotShuttingDownError(
                         f"Callback with sync_id `{sync_id!s}` can't be received",
                     ),
                 )
