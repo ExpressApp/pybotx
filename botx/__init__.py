@@ -62,6 +62,7 @@ from botx.models.message.outgoing_message import OutgoingMessage
 from botx.models.message.reply import Reply
 from botx.models.method_callbacks import BotAPIMethodFailedCallback
 from botx.models.status import BotMenu, StatusRecipient
+from botx.models.stickers import Sticker, StickerPack
 from botx.models.system_events.added_to_chat import AddedToChatEvent
 from botx.models.system_events.chat_created import ChatCreatedEvent, ChatCreatedMember
 from botx.models.system_events.cts_login import CTSLoginEvent
@@ -133,6 +134,8 @@ __all__ = (
     "RateLimitReachedError",
     "Reply",
     "StatusRecipient",
+    "Sticker",
+    "StickerPack",
     "StealthModeDisabledError",
     "UnknownBotAccountError",
     "UnsupportedBotAPIVersionError",
