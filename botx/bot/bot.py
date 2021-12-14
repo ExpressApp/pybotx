@@ -100,6 +100,7 @@ from botx.models.chats import ChatInfo, ChatListItem
 from botx.models.commands import BotAPICommand, BotCommand
 from botx.models.enums import ChatTypes
 from botx.models.message.markup import BubbleMarkup, KeyboardMarkup
+from botx.models.message.outgoing_message import OutgoingMessage
 from botx.models.method_callbacks import BotXMethodCallback
 from botx.models.status import (
     BotAPIStatusRecipient,
@@ -787,6 +788,30 @@ class Bot:
         )
 
         return botx_api_sync_id.to_domain()
+
+    async def send(
+        self,
+        *,
+        message: OutgoingMessage,
+        wait_callback: bool = True,
+        callback_timeout: MissingOptional[int] = Undefined,
+    ) -> UUID:
+        return await self.send_message(
+            bot_id=message.bot_id,
+            chat_id=message.chat_id,
+            body=message.body,
+            metadata=message.metadata,
+            bubbles=message.bubbles,
+            keyboard=message.keyboard,
+            file=message.file,
+            markup_auto_adjust=message.markup_auto_adjust,
+            recipients=message.recipients,
+            stealth_mode=message.stealth_mode,
+            push_notification=message.push_notification,
+            ignore_mute=message.ignore_mute,
+            wait_callback=wait_callback,
+            callback_timeout=callback_timeout,
+        )
 
     async def send_internal_bot_notification(
         self,

@@ -57,6 +57,7 @@ from botx.models.message.forward import Forward
 from botx.models.message.incoming_message import IncomingMessage, UserDevice, UserSender
 from botx.models.message.markup import BubbleMarkup, Button, KeyboardMarkup
 from botx.models.message.mentions import Mention, MentionList
+from botx.models.message.outgoing_message import OutgoingMessage
 from botx.models.message.reply import Reply
 from botx.models.method_callbacks import BotAPIMethodFailedCallback
 from botx.models.status import BotMenu, StatusRecipient
@@ -121,6 +122,7 @@ __all__ = (
     "MentionTypes",
     "Middleware",
     "OutgoingAttachment",
+    "OutgoingMessage",
     "PermissionDeniedError",
     "RateLimitReachedError",
     "Reply",

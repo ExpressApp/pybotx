@@ -21,10 +21,147 @@ from botx import (
     KeyboardMarkup,
     Mention,
     OutgoingAttachment,
+    OutgoingMessage,
     StealthModeDisabledError,
     UnknownBotAccountError,
     lifespan_wrapper,
 )
+
+
+@respx.mock
+@pytest.mark.asyncio
+@pytest.mark.mock_authorization
+async def test__send__succeed(
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_account: BotAccount,
+    bot_id: UUID,
+    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+) -> None:
+    # - Arrange -
+    endpoint = respx.post(
+        f"https://{host}/api/v4/botx/notifications/direct",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        json={
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
+            "notification": {
+                "opts": {
+                    "buttons_auto_adjust": True,
+                },
+                "status": "ok",
+                "body": "Hi!",
+                "metadata": {"foo": "bar"},
+                "bubble": [
+                    [
+                        {
+                            "command": "/bubble-button",
+                            "data": {},
+                            "label": "Bubble button",
+                            "opts": {"silent": True},
+                        },
+                    ],
+                ],
+                "keyboard": [
+                    [
+                        {
+                            "command": "/keyboard-button",
+                            "data": {},
+                            "label": "Keyboard button",
+                            "opts": {"silent": True},
+                        },
+                    ],
+                ],
+            },
+            "file": {
+                "file_name": "test.txt",
+                "data": "data:application/octet-stream;base64,SGVsbG8sIHdvcmxkIQo=",
+            },
+            "recipients": ["0a462a79-d9a2-4fad-8a96-7074f59daba9"],
+            "opts": {
+                "stealth_mode": True,
+                "notification_opts": {
+                    "send": True,
+                    "force_dnd": True,
+                },
+            },
+        },
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        ),
+    )
+
+    payload = api_incoming_message_factory(
+        bot_id=bot_id,
+        host=host,
+        group_chat_id="054af49e-5e18-4dca-ad73-4f96b6de63fa",
+    )
+
+    bubbles = BubbleMarkup()
+    bubbles.add_button(
+        command="/bubble-button",
+        label="Bubble button",
+    )
+
+    keyboard = KeyboardMarkup()
+    keyboard.add_button(
+        command="/keyboard-button",
+        label="Keyboard button",
+    )
+
+    async with NamedTemporaryFile("wb+") as async_buffer:
+        await async_buffer.write(b"Hello, world!\n")
+        await async_buffer.seek(0)
+
+        file = await OutgoingAttachment.from_async_buffer(async_buffer, "test.txt")
+
+    collector = HandlerCollector()
+
+    outgoing_message = OutgoingMessage(
+        bot_id=bot_id,
+        chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+        body="Hi!",
+        metadata={"foo": "bar"},
+        bubbles=bubbles,
+        keyboard=keyboard,
+        file=file,
+        markup_auto_adjust=True,
+        recipients=[UUID("0a462a79-d9a2-4fad-8a96-7074f59daba9")],
+        stealth_mode=True,
+        push_notification=True,
+        ignore_mute=True,
+    )
+
+    @collector.command("/hello", description="Hello command")
+    async def hello_handler(message: IncomingMessage, bot: Bot) -> None:
+        await bot.send(message=outgoing_message)
+
+    built_bot = Bot(
+        collectors=[collector],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        bot.async_execute_raw_bot_command(payload)
+
+        await asyncio.sleep(0)  # Return control to event loop
+
+        bot.set_raw_botx_method_result(
+            {
+                "status": "ok",
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "result": {},
+            },
+        )
+
+    # - Assert -
+    assert endpoint.called
 
 
 @respx.mock
