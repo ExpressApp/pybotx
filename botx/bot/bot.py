@@ -252,13 +252,11 @@ class Bot:
     ) -> str:
         """Get bot auth token.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-
-        **Returns:**
-
-        `str` - Auth token.
+        Returns:
+            Auth token.
         """
 
         return await get_token(bot_id, self._httpx_client, self._bot_accounts_storage)
@@ -271,13 +269,11 @@ class Bot:
     ) -> List[ChatListItem]:
         """Get all bot chats.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-
-        **Returns:**
-
-        `List[ChatListItem]` - List of chats info.
+        Returns:
+            List of chats info.
         """
 
         method = ListChatsMethod(
@@ -298,14 +294,12 @@ class Bot:
     ) -> ChatInfo:
         """Get chat information.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-
-        **Returns:**
-
-        `ChatInfo` - Chat information.
+        Returns:
+            Chat information.
         """
 
         method = ChatInfoMethod(bot_id, self._httpx_client, self._bot_accounts_storage)
@@ -324,11 +318,10 @@ class Bot:
     ) -> None:
         """Add user to chat.
 
-        **Arguments:**
-
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `huids: List[UUID]` - List of eXpress account ids.
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            huids: List of eXpress account ids.
         """
 
         method = AddUserMethod(bot_id, self._httpx_client, self._bot_accounts_storage)
@@ -345,11 +338,10 @@ class Bot:
     ) -> None:
         """Remove eXpress accounts from chat.
 
-        **Arguments:**
-
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `huids: List[UUID]` - List of eXpress account ids.
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            huids: List of eXpress account ids.
         """
 
         method = RemoveUserMethod(
@@ -370,11 +362,10 @@ class Bot:
     ) -> None:
         """Promote users in chat to admins.
 
-        **Arguments:**
-
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `huids: List[UUID]` - List of eXpress account ids.
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            huids: List of eXpress account ids.
         """
 
         method = AddAdminMethod(
@@ -397,13 +388,12 @@ class Bot:
     ) -> None:
         """Enable stealth mode. After the expiration of the time all messages will be hidden.
 
-        **Arguments:**
-
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `disable_web_client: bool` - should messages be shown in web.
-        * `ttl_after_read: Missing[int]` - time of messages burning after read.
-        * `total_ttl: Missing[int]` - time of messages burning after send.
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            disable_web_client: should messages be shown in web.
+            ttl_after_read: time of messages burning after read.
+            total_ttl: time of messages burning after send.
         """
 
         method = SetStealthMethod(
@@ -428,10 +418,9 @@ class Bot:
     ) -> None:
         """Disable stealth model. Hides all messages that were in stealth.
 
-        **Arguments:**
-
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
         """
 
         method = DisableStealthMethod(
@@ -455,18 +444,16 @@ class Bot:
     ) -> UUID:
         """Create chat.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            name: Chat visible name.
+            chat_type: Chat type.
+            huids: List of eXpress account ids.
+            description: Chat description.
+            shared_history: Open old chat history for new added users.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `name: str` - Chat visible name.
-        * `chat_type: ChatTypes` - Chat type.
-        * `huids: List[UUID]` - List of eXpress account ids.
-        * `description: Optional[str]` - Chat description.
-        * `shared_history: bool` - Open old chat history for new added users.
-
-        **Returns:**
-
-        `UUID` - Created chat uuid.
+        Returns:
+            Created chat uuid.
         """
 
         method = CreateChatMethod(
@@ -495,10 +482,10 @@ class Bot:
     ) -> None:
         """Pin message in chat.
 
-        **Arguments:**
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `sync_id: UUID` - Target sync id.
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            sync_id: Target sync id.
         """
 
         method = PinMessageMethod(
@@ -518,9 +505,9 @@ class Bot:
     ) -> None:
         """Unpin message in chat.
 
-        **Arguments:**
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
         """
 
         method = UnpinMessageMethod(
@@ -541,14 +528,12 @@ class Bot:
     ) -> UserFromSearch:
         """Search user by email for search.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            email: User email.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `email: str` - User email.
-
-        **Returns:**
-
-        `UserFromSearch` - User information.
+        Returns:
+            User information.
         """
 
         method = SearchUserByEmailMethod(
@@ -570,14 +555,12 @@ class Bot:
     ) -> UserFromSearch:
         """Search user by huid for search.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            huid: User huid.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `huid: UUID` - User huid.
-
-        **Returns:**
-
-        `UserFromSearch` - User information.
+        Returns:
+            User information.
         """
 
         method = SearchUserByHUIDMethod(
@@ -600,15 +583,13 @@ class Bot:
     ) -> UserFromSearch:
         """Search user by AD login and AD domain for search.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            ad_login: User AD login.
+            ad_domain: User AD domain.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `ad_login: str` - User AD login.
-        * `ad_domain: str` - User AD domain.
-
-        **Returns:**
-
-        `UserFromSearch` - User information.
+        Returns:
+            User information.
         """
 
         method = SearchUserByLoginMethod(
@@ -638,13 +619,13 @@ class Bot:
     ) -> None:
         """Send SmartApp event.
 
-        **Arguments:**
-
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `ref: Optional[UUID]` - Request identifier.
-        * `data: Dict[str, Any]` - Event payload.
-        * `opts: Optional[Dict[str, Any]]` - Event options.
-        * `files: Optional[List[File]]` - Files.
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            data: Event payload.
+            ref: Request identifier.
+            opts: Event options.
+            files: Files.
         """
 
         method = SmartappEventMethod(
@@ -686,20 +667,29 @@ class Bot:
         Works just like `Bot.send`, but `bot_id` and `chat_id` are
         taken from the incoming message.
 
-        **Arguments:**
+        Args:
+            body: Message body.
+            metadata: Notification options.
+            bubbles: Bubbles (buttons attached to message) markup.
+            keyboard: Keyboard (buttons below message input) markup.
+            file: Attachment.
+            recipients: List of recipients, empty for all.
+            silent_response: Exclude next user messages from history.
+            markup_auto_adjust: Move button to next row, if its text
+                doesn't fit.
+            stealth_mode: Enable stealth mode.
+            send_push: Send push notification on devices.
+            ignore_mute: Ignore mute or dnd (do not disturb).
+            wait_callback: Block method call until callback received.
+            callback_timeout: Callback timeout in seconds (or `None` for
+                endless waiting).
 
-        * `metadata: Missing[Dict[str, Any]]` - Notification options.
-        * `bubbles: Missing[BubbleMarkup
-        ]` - Bubbles (buttons attached to message) markup.
-        * `keyboard: Missing[KeyboardMarkup
-        ]` - Keyboard (buttons below message input) markup.
-        * `file: Missing[Union[IncomingFileAttachment,
-        OutgoingAttachment]]` - Attachment.
-        * `recipients: Missing[List[UUID]]` - List of recipients, empty for all.
+        Raises:
+            AnswerDestinationLookupError: If you try to answer without
+                receiving incoming message.
 
-        **Returns:**
-
-        `UUID` - Notification sync_id.
+        Returns:
+            Notification sync_id.
         """
 
         try:  # noqa: WPS229
@@ -735,15 +725,13 @@ class Bot:
     ) -> UUID:
         """Send internal notification.
 
-        **Arguments:**
+        Args:
+            message: Built outgoing message.
+            wait_callback: Wait for callback.
+            callback_timeout: Timeout for waiting for callback.
 
-        * `message: OutgoingMessage` - Built outgoing message.
-        * `wait_callback: bool` - Wait for callback.
-        * `callback_timeout: Optional[int]` - Timeout for waiting for callback.
-
-        **Returns:**
-
-        `UUID` - Notification sync_id.
+        Returns:
+            Notification sync_id.
         """
 
         return await self.send_message(
@@ -785,25 +773,26 @@ class Bot:
     ) -> UUID:
         """Send message to chat.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            body: Message body.
+            metadata: Notification options.
+            bubbles: Bubbles (buttons attached to message) markup.
+            keyboard: Keyboard (buttons below message input) markup.
+            file: Attachment.
+            recipients: List of recipients, empty for all.
+            silent_response: Exclude next user messages from history.
+            markup_auto_adjust: Move button to next row, if its text
+                doesn't fit.
+            stealth_mode: Enable stealth mode.
+            send_push: Send push notification on devices.
+            ignore_mute: Ignore mute or dnd (do not disturb).
+            wait_callback: Wait for callback.
+            callback_timeout: Timeout for waiting for callback.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `metadata: Missing[Dict[str, Any]]` - Notification options.
-        * `bubbles: Missing[BubbleMarkup
-        ]` - Bubbles (buttons attached to message) markup.
-        * `keyboard: Missing[KeyboardMarkup
-        ]` - Keyboard (buttons below message input) markup.
-        * `file: Missing[Union[IncomingFileAttachment,
-        OutgoingAttachment]]` - Attachment.
-        * `recipients: Missing[List[UUID]]` - List of recipients, empty for all.
-        * `stealth_mode: Missing[bool]` - Enable stealth mode.
-        * `send_push: Missing[bool]` - Send push notification on devices.
-        * `ignore_mute: Missing[bool]` - Ignore mute or dnd (do not disturb).
-
-        **Returns:**
-
-        `UUID` - Notification sync_id.
+        Returns:
+            Notification sync_id.
         """
 
         method = DirectNotificationMethod(
@@ -848,22 +837,17 @@ class Bot:
     ) -> UUID:
         """Send internal notification.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            data: Notification payload.
+            opts: Notification options.
+            recipients: List of bot uuids, empty for all in chat.
+            wait_callback: Wait for callback.
+            callback_timeout: Timeout for waiting for callback.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `data: Dict[str, Any]` - Notification payload.
-        * `opts: Missing[Dict[str, Any]]` - Notification options.
-        * `recipients: Missing[List[UUID]]` - List of bot uuids, empty for all in chat.
-        * `wait_callback: bool` - Wait for callback.
-        * `callback_timeout: Optional[int]` - Timeout for waiting for callback.
-        * `stealth_mode: Missing[bool]` - Enable stealth mode.
-        * `send_push: Missing[bool]` - Send push notification on devices.
-        * `ignore_mute: Missing[bool]` - Ignore mute or dnd (do not disturb).
-
-        **Returns:**
-
-        `UUID` - Notification sync_id.
+        Returns:
+            Notification sync_id.
         """
 
         method = InternalBotNotificationMethod(
@@ -902,21 +886,20 @@ class Bot:
     ) -> None:
         """Send internal notification.
 
-        **Arguments:**
-
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `sync_id: UUID` - `sync_id` of message to update.
-        * `body: Missing[str]` - New message body. Skip to leave
-        previous body or pass "" to clean it.
-        * `metadata: Missing[Dict[str, Any]]` - Notification options.
-        Skip to leave previous metadata.
-        * `bubbles: Missing[BubbleMarkup]` - Bubbles (buttons attached
-        to message) markup. Skip to leave previous bubbles.
-        * `keyboard: Missing[KeyboardMarkup]` - Keyboard (buttons below
-        message input) markup. Skip to leave previous keyboard.
-        * `file: Missing[Union[IncomingFileAttachment,
-        OutgoingAttachment]]` - Attachment. Skip to leave previous file
-        or pass `None` to clean it.
+        Args:
+            bot_id: Bot which should perform the request.
+            sync_id: `sync_id` of message to update.
+            body: New message body. Skip to leave previous body or pass
+                empty string to clean it.
+            metadata: Notification options. Skip to leave previous metadata.
+            bubbles: Bubbles (buttons attached to message) markup. Skip to
+                leave previous bubbles.
+            keyboard: Keyboard (buttons below message input) markup. Skip
+                to leave previous keyboard.
+            file: Attachment. Skip to leave previous file or pass `None`
+                to clean it.
+            markup_auto_adjust: Move button to next row, if its text
+                doesn't fit.
         """
 
         payload = BotXAPIEditEventRequestPayload.from_domain(
@@ -953,23 +936,20 @@ class Bot:
     ) -> None:
         """Reply on message by `sync_id`.
 
-        **Arguments:**
-
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `sync_id: UUID` - `sync_id` of message to reply on.
-        * `body: str` - Reply body.
-        * `metadata: Missing[Dict[str, Any]]` - Notification options.
-        * `bubbles: Missing[BubbleMarkup]` - Bubbles (buttons attached
-        to message) markup.
-        * `keyboard: Missing[KeyboardMarkup]` - Keyboard (buttons below
-        message input) markup.
-        * `file: Missing[Union[IncomingFileAttachment,
-        OutgoingAttachment]]` - Attachment.
-        * `markup_auto_adjust: Missing[bool]` - Move button to next row,
-        if its text doesn't fit.
-        * `stealth_mode: Missing[bool]` - Enable stealth mode.
-        * `send_push: Missing[bool]` - Send push notification on devices.
-        * `ignore_mute: Missing[bool]` - Ignore mute or dnd (do not disturb).
+        Args:
+            bot_id: Bot which should perform the request.
+            sync_id: `sync_id` of message to reply on.
+            body: Reply body.
+            metadata: Notification options.
+            bubbles: Bubbles (buttons attached to message) markup.
+            keyboard: Keyboard (buttons below message input) markup.
+            file: Attachment.
+            silent_response: Exclude next user messages from history.
+            markup_auto_adjust: Move button to next row, if its text
+                doesn't fit.
+            stealth_mode: Enable stealth mode.
+            send_push: Send push notification on devices.
+            ignore_mute: Ignore mute or dnd (do not disturb).
         """
 
         payload = BotXAPIReplyEventRequestPayload.from_domain(
@@ -1003,12 +983,11 @@ class Bot:
     ) -> None:
         """Download file form file service.
 
-        **Arguments:**
-
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `file_id: UUID` - Async file id.
-        * `async_buffer: AsyncBufferWritable` - Buffer to write downloaded file.
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            file_id: Async file id.
+            async_buffer: Buffer to write downloaded file.
         """
 
         payload = BotXAPIDownloadFileRequestPayload.from_domain(chat_id, file_id)
@@ -1031,19 +1010,16 @@ class Bot:
     ) -> File:
         """Upload file to file service.
 
-        **Arguments:**
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            async_buffer: Buffer to write downloaded file.
+            filename: File name.
+            duration: Video duration.
+            caption: Text under file.
 
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `file_id: UUID` - Async file id.
-        * `async_buffer: AsyncBufferReadable` - Buffer to write downloaded file.
-        * `filename: str` - File name.
-        * `duration: Missing[str]` - Video duration.
-        * `caption: Missing[str]` - Text under file.
-
-        **Returns:**
-
-        * `File` - Meta info of uploaded file.
+        Returns:
+            Meta info of uploaded file.
         """
 
         payload = BotXAPIUploadFileRequestPayload.from_domain(
