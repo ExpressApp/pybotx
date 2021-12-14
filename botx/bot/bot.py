@@ -668,6 +668,7 @@ class Bot:
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        silent_response: Missing[bool] = Undefined,
         markup_auto_adjust: Missing[bool] = Undefined,
         wait_callback: bool = True,
         callback_timeout: MissingOptional[int] = Undefined,
@@ -711,6 +712,7 @@ class Bot:
             bubbles=bubbles,
             keyboard=keyboard,
             file=file,
+            silent_response=silent_response,
             markup_auto_adjust=markup_auto_adjust,
             wait_callback=wait_callback,
             callback_timeout=callback_timeout,
@@ -730,6 +732,7 @@ class Bot:
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        silent_response: Missing[bool] = Undefined,
         markup_auto_adjust: Missing[bool] = Undefined,
         wait_callback: bool = True,
         callback_timeout: MissingOptional[int] = Undefined,
@@ -775,6 +778,7 @@ class Bot:
             bubbles,
             keyboard,
             file,
+            silent_response,
             markup_auto_adjust,
             recipients,
             stealth_mode,
@@ -796,6 +800,19 @@ class Bot:
         wait_callback: bool = True,
         callback_timeout: MissingOptional[int] = Undefined,
     ) -> UUID:
+        """Send internal notification.
+
+        **Arguments:**
+
+        * `message: OutgoingMessage` - Built outgoing message.
+        * `wait_callback: bool` - Wait for callback.
+        * `callback_timeout: Optional[int]` - Timeout for waiting for callback.
+
+        **Returns:**
+
+        `UUID` - Notification sync_id.
+        """
+
         return await self.send_message(
             bot_id=message.bot_id,
             chat_id=message.chat_id,
@@ -804,6 +821,7 @@ class Bot:
             bubbles=message.bubbles,
             keyboard=message.keyboard,
             file=message.file,
+            silent_response=message.silent_response,
             markup_auto_adjust=message.markup_auto_adjust,
             recipients=message.recipients,
             stealth_mode=message.stealth_mode,

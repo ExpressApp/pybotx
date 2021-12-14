@@ -31,6 +31,7 @@ except ImportError:
 
 
 class BotXAPIDirectNotificationMessageOpts(UnverifiedPayloadBaseModel):
+    silent_response: Missing[bool]
     buttons_auto_adjust: Missing[bool]
 
 
@@ -70,6 +71,7 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
         bubbles: Missing[BubbleMarkup],
         keyboard: Missing[KeyboardMarkup],
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]],
+        silent_response: Missing[bool],
         markup_auto_adjust: Missing[bool],
         recipients: Missing[List[UUID]],
         stealth_mode: Missing[bool],
@@ -90,6 +92,7 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
                 body=body,
                 metadata=metadata,
                 opts=BotXAPIDirectNotificationMessageOpts(
+                    silent_response=silent_response,
                     buttons_auto_adjust=markup_auto_adjust,
                 ),
                 bubble=api_markup_from_domain(bubbles) if bubbles else bubbles,

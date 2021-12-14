@@ -16,6 +16,7 @@ class OutgoingMessage:
     bubbles: Missing[BubbleMarkup] = Undefined
     keyboard: Missing[KeyboardMarkup] = Undefined
     file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined
+    silent_response: Missing[bool] = Undefined
     markup_auto_adjust: Missing[bool] = Undefined
     recipients: Missing[List[UUID]] = Undefined
     stealth_mode: Missing[bool] = Undefined
