@@ -128,7 +128,7 @@ async def test__reply_message__maximum_filled_reply_succeed(
             },
             "file": {
                 "file_name": "test.txt",
-                "data": "data:application/octet-stream;base64,SGVsbG8sIHdvcmxkIQo=",
+                "data": "data:text/plain;base64,SGVsbG8sIHdvcmxkIQo=",
             },
             "opts": {
                 "raw_mentions": True,

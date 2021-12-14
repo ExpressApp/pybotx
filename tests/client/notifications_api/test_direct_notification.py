@@ -75,7 +75,7 @@ async def test__send_message__succeed(
             },
             "file": {
                 "file_name": "test.txt",
-                "data": "data:application/octet-stream;base64,SGVsbG8sIHdvcmxkIQo=",
+                "data": "data:text/plain;base64,SGVsbG8sIHdvcmxkIQo=",
             },
             "recipients": ["0a462a79-d9a2-4fad-8a96-7074f59daba9"],
             "opts": {
