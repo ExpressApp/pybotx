@@ -13,7 +13,7 @@ import respx
 from botx import (
     Bot,
     BotAccount,
-    BotShuttignDownError,
+    BotShuttingDownError,
     BotXMethodFailedCallbackReceivedError,
     CallbackNotReceivedError,
     HandlerCollector,
@@ -395,7 +395,7 @@ async def test__botx_method_callback__pending_callback_future_during_shutdown(
         )
         await asyncio.sleep(0)  # HTTP-client should have time to make request
 
-    with pytest.raises(BotShuttignDownError) as exc:
+    with pytest.raises(BotShuttingDownError) as exc:
         await task
 
     # - Assert -

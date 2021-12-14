@@ -16,7 +16,7 @@ class BotXMethodCallbackNotFound(Exception):
         super().__init__(self.message)
 
 
-class BotShuttignDownError(Exception):
+class BotShuttingDownError(Exception):
     def __init__(self, context: Any) -> None:
         self.context = context
         self.message = f"Bot is shutting down: {context}"
