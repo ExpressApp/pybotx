@@ -1032,9 +1032,9 @@ class Bot:
             self._httpx_client,
             self._bot_accounts_storage,
         )
-        api_async_file = await method.execute(payload, async_buffer, filename)
+        botx_api_async_file = await method.execute(payload, async_buffer, filename)
 
-        return api_async_file.to_domain()
+        return botx_api_async_file.to_domain()
 
     def _add_exception_middleware(
         self,
