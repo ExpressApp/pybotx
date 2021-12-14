@@ -46,6 +46,7 @@ async def test__send_message__succeed(
             "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "notification": {
                 "opts": {
+                    "silent_response": True,
                     "buttons_auto_adjust": True,
                 },
                 "status": "ok",
@@ -129,6 +130,7 @@ async def test__send_message__succeed(
         bubbles=bubbles,
         keyboard=keyboard,
         file=file,
+        silent_response=True,
         markup_auto_adjust=True,
         recipients=[UUID("0a462a79-d9a2-4fad-8a96-7074f59daba9")],
         stealth_mode=True,
@@ -685,6 +687,10 @@ async def test__send_message__maximum_filled_succeed(
         json={
             "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "notification": {
+                "opts": {
+                    "silent_response": True,
+                    "buttons_auto_adjust": True,
+                },
                 "status": "ok",
                 "body": formatted_body,
                 "metadata": {"foo": "bar"},
@@ -797,6 +803,8 @@ async def test__send_message__maximum_filled_succeed(
                 bubbles=bubbles,
                 keyboard=keyboard,
                 file=file,
+                silent_response=True,
+                markup_auto_adjust=True,
                 recipients=[UUID("41af5a7b-04c1-465e-8383-e3b1d9e76126")],
                 stealth_mode=True,
                 push_notification=True,
