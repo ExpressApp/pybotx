@@ -9,6 +9,10 @@ from botx.models.system_events.deleted_from_chat import (
     BotAPIDeletedFromChat,
     DeletedFromChatEvent,
 )
+from botx.models.system_events.internal_bot_notification import (
+    BotAPIInternalBotNotification,
+    InternalBotNotificationEvent,
+)
 from botx.models.system_events.left_from_chat import (
     BotAPILeftFromChat,
     LeftFromChatEvent,
@@ -21,6 +25,7 @@ BotAPISystemEvent = Union[
     BotAPILeftFromChat,
     BotAPICTSLogin,
     BotAPICTSLogout,
+    BotAPIInternalBotNotification,
 ]
 BotAPICommand = Union[BotAPIIncomingMessage, BotAPISystemEvent]
 
@@ -31,5 +36,6 @@ SystemEvent = Union[
     LeftFromChatEvent,
     CTSLoginEvent,
     CTSLogoutEvent,
+    InternalBotNotificationEvent,
 ]
 BotCommand = Union[IncomingMessage, SystemEvent]
