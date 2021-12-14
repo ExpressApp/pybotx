@@ -902,6 +902,11 @@ class Bot:
                 doesn't fit.
         """
 
+        method = EditEventMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
         payload = BotXAPIEditEventRequestPayload.from_domain(
             sync_id,
             body,
@@ -911,11 +916,7 @@ class Bot:
             file,
             markup_auto_adjust,
         )
-        method = EditEventMethod(
-            bot_id,
-            self._httpx_client,
-            self._bot_accounts_storage,
-        )
+
         await method.execute(payload)
 
     async def reply_message(
@@ -990,12 +991,13 @@ class Bot:
             async_buffer: Buffer to write downloaded file.
         """
 
-        payload = BotXAPIDownloadFileRequestPayload.from_domain(chat_id, file_id)
         method = DownloadFileMethod(
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
         )
+        payload = BotXAPIDownloadFileRequestPayload.from_domain(chat_id, file_id)
+
         await method.execute(payload, async_buffer)
 
     async def upload_file(
@@ -1022,16 +1024,17 @@ class Bot:
             Meta info of uploaded file.
         """
 
-        payload = BotXAPIUploadFileRequestPayload.from_domain(
-            chat_id,
-            duration,
-            caption,
-        )
         method = UploadFileMethod(
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
         )
+        payload = BotXAPIUploadFileRequestPayload.from_domain(
+            chat_id,
+            duration,
+            caption,
+        )
+
         botx_api_async_file = await method.execute(payload, async_buffer, filename)
 
         return botx_api_async_file.to_domain()
