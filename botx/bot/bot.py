@@ -82,6 +82,10 @@ from botx.client.smartapps_api.smartapp_event import (
     BotXAPISmartappEventRequestPayload,
     SmartappEventMethod,
 )
+from botx.client.stickers_api.create_sticker_pack import (
+    BotXAPICreateStickerPackRequestPayload,
+    CreateStickerPackMethod,
+)
 from botx.client.users_api.search_user_by_email import (
     BotXAPISearchUserByEmailRequestPayload,
     SearchUserByEmailMethod,
@@ -112,6 +116,7 @@ from botx.models.status import (
     StatusRecipient,
     build_bot_status_response,
 )
+from botx.models.stickers import StickerPack
 from botx.models.users import UserFromSearch
 
 MissingOptionalAttachment = MissingOptional[
@@ -972,6 +977,29 @@ class Bot:
             self._bot_accounts_storage,
         )
         await method.execute(payload)
+
+    # - Stickers API -
+    async def create_sticker_pack(self, *, bot_id: UUID, name: str) -> StickerPack:
+        """Create empty sticker pack.
+
+        Args:
+            bot_id: Bot which should perform the request.
+            name: Sticker pack name.
+
+        Returns:
+            Created sticker pack.
+        """
+
+        method = CreateStickerPackMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPICreateStickerPackRequestPayload.from_domain(name)
+
+        botx_api_sticker_pack = await method.execute(payload)
+
+        return botx_api_sticker_pack.to_domain()
 
     # - Files API -
     async def download_file(
