@@ -20,5 +20,5 @@ class OutgoingMessage:
     markup_auto_adjust: Missing[bool] = Undefined
     recipients: Missing[List[UUID]] = Undefined
     stealth_mode: Missing[bool] = Undefined
-    push_notification: Missing[bool] = Undefined
+    send_push: Missing[bool] = Undefined
     ignore_mute: Missing[bool] = Undefined

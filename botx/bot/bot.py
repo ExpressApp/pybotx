@@ -672,14 +672,14 @@ class Bot:
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        recipients: Missing[List[UUID]] = Undefined,
         silent_response: Missing[bool] = Undefined,
         markup_auto_adjust: Missing[bool] = Undefined,
+        stealth_mode: Missing[bool] = Undefined,
+        send_push: Missing[bool] = Undefined,
+        ignore_mute: Missing[bool] = Undefined,
         wait_callback: bool = True,
         callback_timeout: MissingOptional[int] = Undefined,
-        recipients: Missing[List[UUID]] = Undefined,
-        stealth_mode: Missing[bool] = Undefined,
-        push_notification: Missing[bool] = Undefined,
-        ignore_mute: Missing[bool] = Undefined,
     ) -> UUID:
         """Answer to incoming message.
 
@@ -716,86 +716,15 @@ class Bot:
             bubbles=bubbles,
             keyboard=keyboard,
             file=file,
+            recipients=recipients,
             silent_response=silent_response,
             markup_auto_adjust=markup_auto_adjust,
+            stealth_mode=stealth_mode,
+            send_push=send_push,
+            ignore_mute=ignore_mute,
             wait_callback=wait_callback,
             callback_timeout=callback_timeout,
-            recipients=recipients,
-            stealth_mode=stealth_mode,
-            push_notification=push_notification,
-            ignore_mute=ignore_mute,
         )
-
-    async def send_message(
-        self,
-        *,
-        bot_id: UUID,
-        chat_id: UUID,
-        body: str,
-        metadata: Missing[Dict[str, Any]] = Undefined,
-        bubbles: Missing[BubbleMarkup] = Undefined,
-        keyboard: Missing[KeyboardMarkup] = Undefined,
-        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
-        silent_response: Missing[bool] = Undefined,
-        markup_auto_adjust: Missing[bool] = Undefined,
-        wait_callback: bool = True,
-        callback_timeout: MissingOptional[int] = Undefined,
-        recipients: Missing[List[UUID]] = Undefined,
-        stealth_mode: Missing[bool] = Undefined,
-        push_notification: Missing[bool] = Undefined,
-        ignore_mute: Missing[bool] = Undefined,
-    ) -> UUID:
-        """Send message to chat.
-
-        **Arguments:**
-
-        * `bot_id: UUID` - Bot which should perform the request.
-        * `chat_id: UUID` - Target chat id.
-        * `metadata: Missing[Dict[str, Any]]` - Notification options.
-        * `bubbles: Missing[BubbleMarkup
-        ]` - Bubbles (buttons attached to message) markup.
-        * `keyboard: Missing[KeyboardMarkup
-        ]` - Keyboard (buttons below message input) markup.
-        * `file: Missing[Union[IncomingFileAttachment,
-        OutgoingAttachment]]` - Attachment.
-        * `recipients: Missing[List[UUID]]` - List of recipients, empty for all.
-        * `stealth_mode: Missing[bool]` - Enable stealth mode.
-        * `push_notification: Missing[bool]` - Send push notification on devices.
-        * `ignore_mute: Missing[bool]` - Ignore mute or dnd (do not disturb).
-
-        **Returns:**
-
-        `UUID` - Notification sync_id.
-        """
-
-        method = DirectNotificationMethod(
-            bot_id,
-            self._httpx_client,
-            self._bot_accounts_storage,
-            self._callback_manager,
-        )
-
-        payload = BotXAPIDirectNotificationRequestPayload.from_domain(
-            chat_id,
-            body,
-            metadata,
-            bubbles,
-            keyboard,
-            file,
-            silent_response,
-            markup_auto_adjust,
-            recipients,
-            stealth_mode,
-            push_notification,
-            ignore_mute,
-        )
-        botx_api_sync_id = await method.execute(
-            payload,
-            wait_callback,
-            not_undefined(callback_timeout, self.default_callback_timeout),
-        )
-
-        return botx_api_sync_id.to_domain()
 
     async def send(
         self,
@@ -825,15 +754,86 @@ class Bot:
             bubbles=message.bubbles,
             keyboard=message.keyboard,
             file=message.file,
+            recipients=message.recipients,
             silent_response=message.silent_response,
             markup_auto_adjust=message.markup_auto_adjust,
-            recipients=message.recipients,
             stealth_mode=message.stealth_mode,
-            push_notification=message.push_notification,
+            send_push=message.send_push,
             ignore_mute=message.ignore_mute,
             wait_callback=wait_callback,
             callback_timeout=callback_timeout,
         )
+
+    async def send_message(
+        self,
+        *,
+        bot_id: UUID,
+        chat_id: UUID,
+        body: str,
+        metadata: Missing[Dict[str, Any]] = Undefined,
+        bubbles: Missing[BubbleMarkup] = Undefined,
+        keyboard: Missing[KeyboardMarkup] = Undefined,
+        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        silent_response: Missing[bool] = Undefined,
+        markup_auto_adjust: Missing[bool] = Undefined,
+        recipients: Missing[List[UUID]] = Undefined,
+        stealth_mode: Missing[bool] = Undefined,
+        send_push: Missing[bool] = Undefined,
+        ignore_mute: Missing[bool] = Undefined,
+        wait_callback: bool = True,
+        callback_timeout: MissingOptional[int] = Undefined,
+    ) -> UUID:
+        """Send message to chat.
+
+        **Arguments:**
+
+        * `bot_id: UUID` - Bot which should perform the request.
+        * `chat_id: UUID` - Target chat id.
+        * `metadata: Missing[Dict[str, Any]]` - Notification options.
+        * `bubbles: Missing[BubbleMarkup
+        ]` - Bubbles (buttons attached to message) markup.
+        * `keyboard: Missing[KeyboardMarkup
+        ]` - Keyboard (buttons below message input) markup.
+        * `file: Missing[Union[IncomingFileAttachment,
+        OutgoingAttachment]]` - Attachment.
+        * `recipients: Missing[List[UUID]]` - List of recipients, empty for all.
+        * `stealth_mode: Missing[bool]` - Enable stealth mode.
+        * `send_push: Missing[bool]` - Send push notification on devices.
+        * `ignore_mute: Missing[bool]` - Ignore mute or dnd (do not disturb).
+
+        **Returns:**
+
+        `UUID` - Notification sync_id.
+        """
+
+        method = DirectNotificationMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+            self._callback_manager,
+        )
+
+        payload = BotXAPIDirectNotificationRequestPayload.from_domain(
+            chat_id,
+            body,
+            metadata,
+            bubbles,
+            keyboard,
+            file,
+            recipients,
+            silent_response,
+            markup_auto_adjust,
+            stealth_mode,
+            send_push,
+            ignore_mute,
+        )
+        botx_api_sync_id = await method.execute(
+            payload,
+            wait_callback,
+            not_undefined(callback_timeout, self.default_callback_timeout),
+        )
+
+        return botx_api_sync_id.to_domain()
 
     async def send_internal_bot_notification(
         self,
@@ -858,7 +858,7 @@ class Bot:
         * `wait_callback: bool` - Wait for callback.
         * `callback_timeout: Optional[int]` - Timeout for waiting for callback.
         * `stealth_mode: Missing[bool]` - Enable stealth mode.
-        * `push_notification: Missing[bool]` - Send push notification on devices.
+        * `send_push: Missing[bool]` - Send push notification on devices.
         * `ignore_mute: Missing[bool]` - Ignore mute or dnd (do not disturb).
 
         **Returns:**
@@ -948,7 +948,7 @@ class Bot:
         silent_response: Missing[bool] = Undefined,
         markup_auto_adjust: Missing[bool] = Undefined,
         stealth_mode: Missing[bool] = Undefined,
-        push_notification: Missing[bool] = Undefined,
+        send_push: Missing[bool] = Undefined,
         ignore_mute: Missing[bool] = Undefined,
     ) -> None:
         """Reply on message by `sync_id`.
@@ -968,7 +968,7 @@ class Bot:
         * `markup_auto_adjust: Missing[bool]` - Move button to next row,
         if its text doesn't fit.
         * `stealth_mode: Missing[bool]` - Enable stealth mode.
-        * `push_notification: Missing[bool]` - Send push notification on devices.
+        * `send_push: Missing[bool]` - Send push notification on devices.
         * `ignore_mute: Missing[bool]` - Ignore mute or dnd (do not disturb).
         """
 
@@ -982,7 +982,7 @@ class Bot:
             silent_response,
             markup_auto_adjust,
             stealth_mode,
-            push_notification,
+            send_push,
             ignore_mute,
         )
         method = ReplyEventMethod(

@@ -67,7 +67,7 @@ class BotXAPIReplyEventRequestPayload(UnverifiedPayloadBaseModel):
         silent_response: Missing[bool],
         markup_auto_adjust: Missing[bool],
         stealth_mode: Missing[bool],
-        push_notification: Missing[bool],
+        send_push: Missing[bool],
         ignore_mute: Missing[bool],
     ) -> "BotXAPIReplyEventRequestPayload":
         api_file: Missing[BotXAPIAttachment] = Undefined
@@ -96,7 +96,7 @@ class BotXAPIReplyEventRequestPayload(UnverifiedPayloadBaseModel):
                 raw_mentions=True,
                 stealth_mode=stealth_mode,
                 notification_opts=BotXAPIReplyEventNestedOpts(
-                    send=push_notification,
+                    send=send_push,
                     force_dnd=ignore_mute,
                 ),
             ),

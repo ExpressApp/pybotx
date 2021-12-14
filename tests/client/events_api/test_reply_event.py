@@ -177,7 +177,7 @@ async def test__reply_message__maximum_filled_reply_succeed(
             silent_response=True,
             markup_auto_adjust=True,
             stealth_mode=True,
-            push_notification=True,
+            send_push=True,
             ignore_mute=True,
         )
 

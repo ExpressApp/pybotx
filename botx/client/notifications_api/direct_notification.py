@@ -71,11 +71,11 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
         bubbles: Missing[BubbleMarkup],
         keyboard: Missing[KeyboardMarkup],
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]],
+        recipients: Missing[List[UUID]],
         silent_response: Missing[bool],
         markup_auto_adjust: Missing[bool],
-        recipients: Missing[List[UUID]],
         stealth_mode: Missing[bool],
-        push_notification: Missing[bool],
+        send_push: Missing[bool],
         ignore_mute: Missing[bool],
     ) -> "BotXAPIDirectNotificationRequestPayload":
         api_file: Missing[BotXAPIAttachment] = Undefined
@@ -104,7 +104,7 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
             opts=BotXAPIDirectNotificationOpts(
                 stealth_mode=stealth_mode,
                 notification_opts=BotXAPIDirectNotificationNestedOpts(
-                    send=push_notification,
+                    send=send_push,
                     force_dnd=ignore_mute,
                 ),
             ),
