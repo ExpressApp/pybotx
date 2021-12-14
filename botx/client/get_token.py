@@ -10,13 +10,10 @@ async def get_token(
     bot_id: UUID,
     httpx_client: httpx.AsyncClient,
     bot_accounts_storage: BotAccountsStorage,
-) -> str:
-    """
-    Request token for bot.
+) -> str:  # noqa: DAR101, DAR201
+    """Request token for bot.
 
-    Moved to separate file because used in:
-    * [botx.client.authorized_botx_method.AuthorizedBotXMethod][].
-    * [botx.bot.bot.Bot][].
+    Moved to separate file because used in `AuthorizedBotXMethod` and `Bot.get_token`.
     """
 
     method = GetTokenMethod(
