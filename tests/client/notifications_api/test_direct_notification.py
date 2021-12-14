@@ -229,7 +229,7 @@ async def test__answer_message__succeed(
             },
             "file": {
                 "file_name": "test.txt",
-                "data": "data:application/octet-stream;base64,SGVsbG8sIHdvcmxkIQo=",
+                "data": "data:text/plain;base64,SGVsbG8sIHdvcmxkIQo=",
             },
         },
     ).mock(
@@ -737,7 +737,7 @@ async def test__send_message__maximum_filled_succeed(
             },
             "file": {
                 "file_name": "test.txt",
-                "data": "data:application/octet-stream;base64,SGVsbG8sIHdvcmxkIQo=",
+                "data": "data:text/plain;base64,SGVsbG8sIHdvcmxkIQo=",
             },
             "recipients": ["41af5a7b-04c1-465e-8383-e3b1d9e76126"],
             "opts": {
