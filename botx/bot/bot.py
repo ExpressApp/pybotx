@@ -82,6 +82,10 @@ from botx.client.smartapps_api.smartapp_event import (
     BotXAPISmartappEventRequestPayload,
     SmartappEventMethod,
 )
+from botx.client.smartapps_api.smartapp_notification import (
+    BotXAPISmartappNotificationRequestPayload,
+    SmartappNotificationMethod,
+)
 from botx.client.stickers_api.add_sticker import (
     AddStickerMethod,
     BotXAPIAddStickerRequestPayload,
@@ -653,6 +657,35 @@ class Bot:
             data,
             opts,
             files,
+        )
+
+        await method.execute(payload)
+
+    async def send_smartapp_notification(
+        self,
+        bot_id: UUID,
+        chat_id: UUID,
+        smartapp_counter: int,
+        opts: Missing[Dict[str, Any]] = Undefined,
+    ) -> None:
+        """Send SmartApp notification.
+
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            smartapp_counter: Value app's counter.
+            opts: Vvent options.
+        """
+
+        method = SmartappNotificationMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPISmartappNotificationRequestPayload.from_domain(
+            chat_id=chat_id,
+            smartapp_counter=smartapp_counter,
+            opts=opts,
         )
 
         await method.execute(payload)
