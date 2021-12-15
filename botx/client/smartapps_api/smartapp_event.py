@@ -61,7 +61,6 @@ class SmartappEventMethod(AuthorizedBotXMethod):
         # TODO: Remove opts
         # UnverifiedPayloadBaseModel.jsonable_dict remove empty dicts
         json = payload.jsonable_dict()
-        json["data"] = json.get("data", {})
         json["opts"] = json.get("opts", {})
 
         response = await self._botx_method_call(
