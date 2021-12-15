@@ -1,6 +1,6 @@
 import asyncio
 from types import SimpleNamespace
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Any, AsyncIterable, Dict, List, Optional, Sequence, Union
 from uuid import UUID
 from weakref import WeakSet
 
@@ -98,6 +98,10 @@ from botx.client.stickers_api.delete_sticker import (
     BotXAPIDeleteStickerRequestPayload,
     DeleteStickerMethod,
 )
+from botx.client.stickers_api.get_sticker_packs import (
+    BotXAPIGetStickerPacksRequestPayload,
+    GetStickerPacksMethod,
+)
 from botx.client.users_api.search_user_by_email import (
     BotXAPISearchUserByEmailRequestPayload,
     SearchUserByEmailMethod,
@@ -110,6 +114,7 @@ from botx.client.users_api.search_user_by_login import (
     BotXAPISearchUserByLoginRequestPayload,
     SearchUserByLoginMethod,
 )
+from botx.constants import LIMIT
 from botx.converters import optional_sequence_to_list
 from botx.image_validators import (
     ensure_file_content_is_png,
@@ -132,7 +137,7 @@ from botx.models.status import (
     StatusRecipient,
     build_bot_status_response,
 )
-from botx.models.stickers import Sticker, StickerPack
+from botx.models.stickers import Sticker, StickerPack, StickerPackFromList
 from botx.models.users import UserFromSearch
 
 MissingOptionalAttachment = MissingOptional[
@@ -1109,6 +1114,46 @@ class Bot:
         )
 
         await method.execute(payload)
+
+    async def iterate_by_sticker_packs(
+        self,
+        *,
+        bot_id: UUID,
+        user_huid: UUID,
+    ) -> AsyncIterable[StickerPackFromList]:
+        """Iterate by user sticker packs.
+
+        Args:
+            bot_id: Bot which should perform the request.
+            user_huid: User huid.
+
+        Yields:
+            Sticker pack.
+        """
+
+        after = None
+
+        method = GetStickerPacksMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        while True:
+            payload = BotXAPIGetStickerPacksRequestPayload.from_domain(
+                user_huid,
+                LIMIT,
+                after,
+            )
+            botx_api_sticker_pack_list = await method.execute(payload)
+
+            sticker_pack_list = botx_api_sticker_pack_list.to_domain()
+            for sticker_pack in sticker_pack_list:
+                yield sticker_pack
+
+            after = botx_api_sticker_pack_list.result.pagination.after
+            if not after:
+                break
 
     # - Files API -
     async def download_file(

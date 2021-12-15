@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
 from botx.async_buffer import AsyncBufferWritable
@@ -42,7 +42,8 @@ class StickerPack:
     Attributes:
         id: Sticker pack id.
         name: Sticker pack name.
-        is_public:
+        is_public: Is public pack.
+        stickers_order: Stickers order.
         stickers: Stickers data.
 
     """
@@ -50,4 +51,25 @@ class StickerPack:
     id: UUID
     name: str
     is_public: bool
+    stickers_order: Optional[List[UUID]]
     stickers: List[Sticker]
+
+
+@dataclass
+class StickerPackFromList:
+    """Sticker pack from list.
+
+    Attributes:
+        id: Sticker pack id.
+        name: Sticker pack name.
+        is_public: Is public pack
+        stickers_count: Stickers count in pack
+        stickers_order: Stickers order in pack
+
+    """
+
+    id: UUID
+    name: str
+    is_public: bool
+    stickers_count: int
+    stickers_order: Optional[List[UUID]]

@@ -57,6 +57,7 @@ async def test__create_sticker_pack__succeed(
         id=UUID("26080153-a57d-5a8c-af0e-fdecee3c4435"),
         name="Sticker Pack",
         is_public=False,
+        stickers_order=[],
         stickers=[],
     )
 

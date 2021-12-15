@@ -33,6 +33,7 @@ class BotXAPICreateStickerPackResponsePayload(VerifiedPayloadBaseModel):
             id=self.result.id,
             name=self.result.name,
             is_public=self.result.public,
+            stickers_order=[],
             stickers=[],
         )
 
