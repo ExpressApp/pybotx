@@ -1,5 +1,3 @@
-from datetime import datetime as dt
-from typing import Any, List, Optional
 from uuid import UUID
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -24,12 +22,6 @@ class BotXAPICreateStickerPackResult(VerifiedPayloadBaseModel):
     id: UUID
     name: str
     public: bool
-    preview: Optional[str]
-    stickers: List[Any]
-    stickers_order: List[UUID]
-    inserted_at: dt
-    updated_at: dt
-    deleted_at: Optional[dt]
 
 
 class BotXAPICreateStickerPackResponsePayload(VerifiedPayloadBaseModel):
@@ -41,7 +33,7 @@ class BotXAPICreateStickerPackResponsePayload(VerifiedPayloadBaseModel):
             id=self.result.id,
             name=self.result.name,
             is_public=self.result.public,
-            stickers=self.result.stickers,
+            stickers=[],
         )
 
 

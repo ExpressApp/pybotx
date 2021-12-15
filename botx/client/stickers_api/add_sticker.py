@@ -1,5 +1,4 @@
-from datetime import datetime as dt
-from typing import NoReturn, Optional
+from typing import NoReturn
 from uuid import UUID
 
 import httpx
@@ -46,9 +45,6 @@ class BotXAPIAddStickerResult(VerifiedPayloadBaseModel):
     id: UUID
     emoji: str
     link: str
-    inserted_at: dt
-    updated_at: dt
-    deleted_at: Optional[dt]
 
 
 class BotXAPIAddStickerResponsePayload(VerifiedPayloadBaseModel):
