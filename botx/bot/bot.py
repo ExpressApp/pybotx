@@ -94,6 +94,10 @@ from botx.client.stickers_api.create_sticker_pack import (
     BotXAPICreateStickerPackRequestPayload,
     CreateStickerPackMethod,
 )
+from botx.client.stickers_api.delete_sticker import (
+    BotXAPIDeleteStickerRequestPayload,
+    DeleteStickerMethod,
+)
 from botx.client.users_api.search_user_by_email import (
     BotXAPISearchUserByEmailRequestPayload,
     SearchUserByEmailMethod,
@@ -1079,6 +1083,33 @@ class Bot:
         botx_api_sticker = await method.execute(payload)
 
         return botx_api_sticker.to_domain()
+
+    async def delete_sticker(
+        self,
+        *,
+        bot_id: UUID,
+        sticker_pack_id: UUID,
+        sticker_id: UUID,
+    ) -> None:
+        """Delete sticker from sticker pack.
+
+        Args:
+            bot_id: Bot which should perform the request.
+            sticker_pack_id: Target sticker pack id.
+            sticker_id: Sticker id which should be deleted.
+        """
+
+        method = DeleteStickerMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = await BotXAPIDeleteStickerRequestPayload.from_domain(
+            sticker_id=sticker_id,
+            sticker_pack_id=sticker_pack_id,
+        )
+
+        await method.execute(payload)
 
     # - Files API -
     async def download_file(
