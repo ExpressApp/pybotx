@@ -407,14 +407,17 @@ class Bot:
         ttl_after_read: Missing[int] = Undefined,
         total_ttl: Missing[int] = Undefined,
     ) -> None:
-        """Enable stealth mode. After the expiration of the time all messages will be hidden.
+        """Enable stealth mode.
+
+        After the expiration of the time all messages will be hidden.
 
         Args:
             bot_id: Bot which should perform the request.
             chat_id: Target chat id.
-            disable_web_client: should messages be shown in web.
-            ttl_after_read: time of messages burning after read.
-            total_ttl: time of messages burning after send.
+            disable_web_client: (BotX default: False) Should messages
+                be shown in web.
+            ttl_after_read: (BotX default: OFF) Time of messages burning after read.
+            total_ttl: (BotX default: OFF) Time of messages burning after send.
         """
 
         method = SetStealthMethod(
@@ -471,7 +474,8 @@ class Bot:
             chat_type: Chat type.
             huids: List of eXpress account ids.
             description: Chat description.
-            shared_history: Open old chat history for new added users.
+            shared_history: (BotX default: False) Open old chat history for
+                new added users.
 
         Returns:
             Created chat uuid.
@@ -723,13 +727,14 @@ class Bot:
             bubbles: Bubbles (buttons attached to message) markup.
             keyboard: Keyboard (buttons below message input) markup.
             file: Attachment.
-            recipients: List of recipients, empty for all.
-            silent_response: Exclude next user messages from history.
-            markup_auto_adjust: Move button to next row, if its text
-                doesn't fit.
-            stealth_mode: Enable stealth mode.
-            send_push: Send push notification on devices.
-            ignore_mute: Ignore mute or dnd (do not disturb).
+            recipients: List of recipients, empty for all in chat.
+            silent_response: (BotX default: False) Exclude next user
+                messages from history.
+            markup_auto_adjust: (BotX default: False) Move button to next row,
+                if its text doesn't fit.
+            stealth_mode: (BotX default: False) Enable stealth mode.
+            send_push: (BotX default: True) Send push notification on devices.
+            ignore_mute: (BotX default: False) Ignore mute or dnd (do not disturb).
             wait_callback: Block method call until callback received.
             callback_timeout: Callback timeout in seconds (or `None` for
                 endless waiting).
@@ -831,15 +836,17 @@ class Bot:
             bubbles: Bubbles (buttons attached to message) markup.
             keyboard: Keyboard (buttons below message input) markup.
             file: Attachment.
-            recipients: List of recipients, empty for all.
-            silent_response: Exclude next user messages from history.
-            markup_auto_adjust: Move button to next row, if its text
-                doesn't fit.
-            stealth_mode: Enable stealth mode.
-            send_push: Send push notification on devices.
-            ignore_mute: Ignore mute or dnd (do not disturb).
-            wait_callback: Wait for callback.
-            callback_timeout: Timeout for waiting for callback.
+            recipients: List of recipients, empty for all in chat.
+            silent_response: (BotX default: False) Exclude next user
+                messages from history.
+            markup_auto_adjust: (BotX default: False) Move button to next row,
+                if its text doesn't fit.
+            stealth_mode: (BotX default: False) Enable stealth mode.
+            send_push: (BotX default: True) Send push notification on devices.
+            ignore_mute: (BotX default: False) Ignore mute or dnd (do not disturb).
+            wait_callback: Block method call until callback received.
+            callback_timeout: Callback timeout in seconds (or `None` for
+                endless waiting).
 
         Returns:
             Notification sync_id.
@@ -948,8 +955,8 @@ class Bot:
                 to leave previous keyboard.
             file: Attachment. Skip to leave previous file or pass `None`
                 to clean it.
-            markup_auto_adjust: Move button to next row, if its text
-                doesn't fit.
+            markup_auto_adjust: (BotX default: False) Move button to next row,
+                if its text doesn't fit.
         """
 
         method = EditEventMethod(
@@ -995,12 +1002,13 @@ class Bot:
             bubbles: Bubbles (buttons attached to message) markup.
             keyboard: Keyboard (buttons below message input) markup.
             file: Attachment.
-            silent_response: Exclude next user messages from history.
-            markup_auto_adjust: Move button to next row, if its text
-                doesn't fit.
-            stealth_mode: Enable stealth mode.
-            send_push: Send push notification on devices.
-            ignore_mute: Ignore mute or dnd (do not disturb).
+            silent_response: (BotX default: False) Exclude next user
+                messages from history.
+            markup_auto_adjust: (BotX default: False) Move button to next row,
+                if its text doesn't fit.
+            stealth_mode: (BotX default: False) Enable stealth mode.
+            send_push: (BotX default: True) Send push notification on devices.
+            ignore_mute: (BotX default: False) Ignore mute or dnd (do not disturb).
         """
 
         payload = BotXAPIReplyEventRequestPayload.from_domain(
