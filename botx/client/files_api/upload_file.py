@@ -8,7 +8,7 @@ from botx.client.exceptions.common import ChatNotFoundError
 from botx.constants import CHUNK_SIZE
 from botx.missing import Missing
 from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
-from botx.models.async_files import APIAsyncFile, File, convert_async_file_to_file
+from botx.models.async_files import APIAsyncFile, File, convert_async_file_to_domain
 
 try:
     from typing import Literal
@@ -46,7 +46,7 @@ class BotXAPIUploadFileResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
 
     def to_domain(self) -> File:
-        return convert_async_file_to_file(self.result)
+        return convert_async_file_to_domain(self.result)
 
 
 class UploadFileMethod(AuthorizedBotXMethod):

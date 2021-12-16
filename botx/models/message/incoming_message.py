@@ -5,7 +5,7 @@ from uuid import UUID
 
 from pydantic import Field
 
-from botx.models.async_files import APIAsyncFile, File, convert_async_file_to_file
+from botx.models.async_files import APIAsyncFile, File, convert_async_file_to_domain
 from botx.models.attachments import (
     AttachmentContact,
     AttachmentLink,
@@ -225,7 +225,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
         link: Optional[AttachmentLink] = None
         if self.async_files:
             # Always one async file per-message
-            file = convert_async_file_to_file(self.async_files[0])
+            file = convert_async_file_to_domain(self.async_files[0])
         elif self.attachments:
             # Always one attachment per-message
             attachment_domain = convert_api_attachment_to_domain(self.attachments[0])

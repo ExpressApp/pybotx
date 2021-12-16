@@ -186,7 +186,7 @@ def convert_async_file_from_domain(file: File) -> APIAsyncFile:
     raise NotImplementedError(f"Unsupported attachment type: {attachment_type}")
 
 
-def convert_async_file_to_file(async_file: APIAsyncFile) -> File:
+def convert_async_file_to_domain(async_file: APIAsyncFile) -> File:
     attachment_type = convert_attachment_type_to_domain(async_file.type)
 
     if attachment_type == AttachmentTypes.IMAGE:
