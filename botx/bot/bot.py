@@ -93,6 +93,10 @@ from botx.client.stickers_api.delete_sticker import (
     BotXAPIDeleteStickerRequestPayload,
     DeleteStickerMethod,
 )
+from botx.client.stickers_api.delete_sticker_pack import (
+    BotXAPIDeleteStickerPackRequestPayload,
+    DeleteStickerPackMethod,
+)
 from botx.client.stickers_api.edit_sticker_pack import (
     BotXAPIEditStickerPackRequestPayload,
     EditStickerPackMethod,
@@ -1219,6 +1223,26 @@ class Bot:
         botx_api_sticker_pack = await method.execute(payload)
 
         return botx_api_sticker_pack.to_domain()
+
+    async def delete_sticker_pack(self, *, bot_id: UUID, sticker_pack_id: UUID) -> None:
+        """Delete existing sticker pack.
+
+        Args:
+            bot_id: Bot which should perform the request.
+            sticker_pack_id: Target sticker pack.
+        """
+
+        method = DeleteStickerPackMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        payload = BotXAPIDeleteStickerPackRequestPayload.from_domain(
+            sticker_pack_id=sticker_pack_id,
+        )
+
+        await method.execute(payload)
 
     async def get_sticker(
         self,
