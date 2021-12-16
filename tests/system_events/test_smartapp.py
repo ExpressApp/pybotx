@@ -5,10 +5,12 @@ import pytest
 import respx
 
 from botx import (
+    AttachmentTypes,
     Bot,
     BotAccount,
     BotRecipient,
     HandlerCollector,
+    Image,
     SmartAppEvent,
     lifespan_wrapper,
 )
@@ -41,7 +43,22 @@ async def test__smartapp__succeed(
             "command_type": "system",
             "metadata": {},
         },
-        "async_files": [],
+        "async_files": [
+            {
+                "type": "image",
+                "file": "https://link.to/file",
+                "file_mime_type": "image/png",
+                "file_name": "pass.png",
+                "file_preview": "https://link.to/preview",
+                "file_preview_height": 300,
+                "file_preview_width": 300,
+                "file_size": 1502345,
+                "file_hash": "Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+                "file_encryption_algo": "stream",
+                "chunk_size": 2097152,
+                "file_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
+            },
+        ],
         "attachments": [],
         "entities": [],
         "from": {
@@ -86,12 +103,12 @@ async def test__smartapp__succeed(
 
     # - Assert -
     assert smartapp == SmartAppEvent(
+        ref=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
+        smartapp_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
         bot=BotRecipient(
             id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
             host="cts.example.com",
         ),
-        raw_command=None,
-        smartapp_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
         data={
             "type": "smartapp_rpc",
             "method": "folders.get",
@@ -99,7 +116,19 @@ async def test__smartapp__succeed(
                 "q": 1,
             },
         },
-        smartapp_api_version=1,
         opts={"option": "test_option"},
-        ref=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
+        smartapp_api_version=1,
+        files=[
+            Image(
+                type=AttachmentTypes.IMAGE,
+                filename="pass.png",
+                size=1502345,
+                is_async_file=True,
+                _file_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
+                _file_url="https://link.to/file",
+                _file_mimetype="image/png",
+                _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+            ),
+        ],
+        raw_command=None,
     )
