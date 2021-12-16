@@ -462,3 +462,22 @@ async def test__handler_collector__default_handler_in_second_collector_called(
 
     # - Assert -
     correct_handler_trigger.assert_called_once()
+
+
+@respx.mock
+@pytest.mark.asyncio
+@pytest.mark.mock_authorization
+async def test__handler_collector__handler_not_found_exception_logged(
+    incoming_message_factory: Callable[..., IncomingMessage],
+    bot_account: BotAccount,
+    loguru_caplog: pytest.LogCaptureFixture,
+) -> None:
+    # - Arrange -
+    bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    # - Act -
+    bot.async_execute_bot_command(incoming_message_factory(body="/command"))
+    await bot.shutdown()
+
+    # - Assert -
+    assert "`/command` not found" in loguru_caplog.text

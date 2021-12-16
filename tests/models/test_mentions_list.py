@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Optional
 from uuid import UUID, uuid4
 
 import pytest
@@ -11,7 +11,7 @@ def mention_factory() -> Callable[..., Mention]:
     def factory(
         mention_type: MentionTypes,
         huid: UUID,
-        name: str,
+        name: Optional[str] = None,
     ) -> Mention:
         return Mention(
             type=mention_type,
@@ -68,11 +68,17 @@ def test__mentions_list_properties__filled(
     assert mentions.users == users
 
 
-def test__mentions_list_all_users_mentioned__filled() -> None:
+def test__mentions_list_all_users_mentioned__filled(
+    mention_factory: Callable[..., Mention],
+) -> None:
     # - Arrange -
+    user_mention = mention_factory(
+        mention_type=MentionTypes.CONTACT,
+        huid=uuid4(),
+    )
     all_mention = Mention(type=MentionTypes.ALL)
 
-    one_all_mention = MentionList([all_mention])
+    one_all_mention = MentionList([user_mention, all_mention])
     two_all_mentions = MentionList([all_mention, all_mention])
 
     # - Assert -
