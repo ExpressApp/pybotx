@@ -77,7 +77,7 @@ from botx.models.system_events.internal_bot_notification import (
     InternalBotNotificationEvent,
 )
 from botx.models.system_events.left_from_chat import LeftFromChatEvent
-from botx.models.system_events.smartapp import SmartAppEvent
+from botx.models.system_events.smartapp_event import SmartAppEvent
 from botx.models.users import UserFromSearch
 
 __all__ = (
