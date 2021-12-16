@@ -1,10 +1,11 @@
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any, Dict, List
 from uuid import UUID
 
 from pydantic import Field
 
 from botx.models.api_base import VerifiedPayloadBaseModel
+from botx.models.async_files import APIAsyncFile, File, convert_async_file_to_domain
 from botx.models.base_command import (
     BotAPIBaseCommand,
     BotAPIChatContext,
@@ -36,6 +37,7 @@ class SmartAppEvent(BotCommandBase):
     data: Dict[str, Any]  # noqa: WPS110
     opts: Dict[str, Any]
     smartapp_api_version: int
+    files: List[File]
 
 
 class BotAPISmartAppData(VerifiedPayloadBaseModel):
@@ -56,7 +58,7 @@ class BotAPISmartAppPayload(VerifiedPayloadBaseModel):
 class BotAPISmartAppEvent(BotAPIBaseCommand):
     payload: BotAPISmartAppPayload = Field(..., alias="command")
     sender: BotAPIChatContext = Field(..., alias="from")
-    # TODO: files
+    async_files: List[APIAsyncFile]
 
     def to_domain(self, raw_command: Dict[str, Any]) -> SmartAppEvent:
         return SmartAppEvent(
@@ -67,4 +69,5 @@ class BotAPISmartAppEvent(BotAPIBaseCommand):
             data=self.payload.data.data,
             opts=self.payload.data.opts,
             smartapp_api_version=self.payload.data.smartapp_api_version,
+            files=[convert_async_file_to_domain(file) for file in self.async_files],
         )
