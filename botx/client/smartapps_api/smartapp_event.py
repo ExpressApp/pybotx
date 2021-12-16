@@ -26,7 +26,7 @@ class BotXAPISmartAppEventRequestPayload(UnverifiedPayloadBaseModel):
     def from_domain(
         cls,
         ref: MissingOptional[UUID],
-        bot_id: UUID,
+        smartapp_id: UUID,
         chat_id: UUID,
         data: Dict[str, Any],
         opts: Missing[Dict[str, Any]],
@@ -38,7 +38,7 @@ class BotXAPISmartAppEventRequestPayload(UnverifiedPayloadBaseModel):
 
         return cls(
             ref=ref,
-            smartapp_id=bot_id,
+            smartapp_id=smartapp_id,
             group_chat_id=chat_id,
             data=data,
             opts=opts,
