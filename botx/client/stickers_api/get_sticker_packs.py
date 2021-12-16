@@ -19,11 +19,11 @@ class BotXAPIGetStickerPacksRequestPayload(UnverifiedPayloadBaseModel):
     @classmethod
     def from_domain(
         cls,
-        user_huid: UUID,
+        huid: UUID,
         limit: int,
         after: Optional[str],
     ) -> "BotXAPIGetStickerPacksRequestPayload":
-        return cls(user_huid=user_huid, limit=limit, after=after)
+        return cls(user_huid=huid, limit=limit, after=after)
 
 
 class BotXAPIGetPaginationResult(VerifiedPayloadBaseModel):
@@ -55,7 +55,7 @@ class BotXAPIGetStickerPacksResponsePayload(VerifiedPayloadBaseModel):
                     name=sticker_pack.name,
                     is_public=sticker_pack.public,
                     stickers_count=sticker_pack.stickers_count,
-                    stickers_ids=sticker_pack.stickers_order,
+                    sticker_ids=sticker_pack.stickers_order,
                 )
                 for sticker_pack in self.result.packs
             ],
@@ -69,6 +69,7 @@ class GetStickerPacksMethod(AuthorizedBotXMethod):
         payload: BotXAPIGetStickerPacksRequestPayload,
     ) -> BotXAPIGetStickerPacksResponsePayload:
         path = "/api/v3/botx/stickers/packs"
+
         response = await self._botx_method_call(
             "GET",
             self._build_url(path),

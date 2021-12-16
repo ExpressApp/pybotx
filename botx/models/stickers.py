@@ -64,7 +64,7 @@ class StickerPackFromList:
         name: Sticker pack name.
         is_public: Is public pack
         stickers_count: Stickers count in pack
-        stickers_ids: Stickers ids in pack
+        sticker_ids: Stickers ids in pack
 
     """
 
@@ -72,7 +72,7 @@ class StickerPackFromList:
     name: str
     is_public: bool
     stickers_count: int
-    stickers_ids: Optional[List[UUID]]
+    sticker_ids: Optional[List[UUID]]  # Can be omitted in result
 
 
 @dataclass
