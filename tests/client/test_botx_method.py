@@ -99,7 +99,7 @@ async def test__botx_method__invalid_botx_status_code_error_raised(
 
 @respx.mock
 @pytest.mark.asyncio
-async def test__botx_method__invalid_botx_response_error_raised(
+async def test__botx_method__invalid_json_raises_invalid_botx_response_payload_error(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
@@ -130,6 +130,42 @@ async def test__botx_method__invalid_botx_response_error_raised(
 
     # - Assert -
     assert '{"invalid": "json' in str(exc.value)
+    assert endpoint.called
+
+
+@respx.mock
+@pytest.mark.asyncio
+async def test__botx_method__invalid_schema_raises_invalid_botx_response_payload_error(
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccount,
+) -> None:
+    # - Arrange -
+    endpoint = respx.post(
+        f"https://{host}/foo/bar",
+        json={"baz": 1},
+        headers={"Content-Type": "application/json"},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.OK,
+            json={"invalid": "schema"},
+        ),
+    )
+
+    method = FooBarMethod(
+        bot_id,
+        httpx_client,
+        BotAccountsStorage([bot_account]),
+    )
+    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+
+    # - Act -
+    with pytest.raises(InvalidBotXResponsePayloadError) as exc:
+        await method.execute(payload)
+
+    # - Assert -
+    assert '{"invalid": "schema"}' in str(exc.value)
     assert endpoint.called
 
 
