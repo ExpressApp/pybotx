@@ -64,7 +64,7 @@ class StickerPackFromList:
         name: Sticker pack name.
         is_public: Is public pack
         stickers_count: Stickers count in pack
-        stickers_order: Stickers order in pack
+        stickers_ids: Stickers ids in pack
 
     """
 
@@ -72,4 +72,18 @@ class StickerPackFromList:
     name: str
     is_public: bool
     stickers_count: int
-    stickers_order: Optional[List[UUID]]
+    stickers_ids: Optional[List[UUID]]
+
+
+@dataclass
+class StickerPackPage:
+    """Sticker pack page.
+
+    Attributes:
+        sticker_packs: Sticker pack list.
+        after: Base64 string for pagination.
+
+    """
+
+    sticker_packs: List[StickerPackFromList]
+    after: Optional[str]

@@ -114,7 +114,7 @@ from botx.client.users_api.search_user_by_login import (
     BotXAPISearchUserByLoginRequestPayload,
     SearchUserByLoginMethod,
 )
-from botx.constants import LIMIT
+from botx.constants import STICKER_PACKS_PER_PAGE
 from botx.converters import optional_sequence_to_list
 from botx.image_validators import (
     ensure_file_content_is_png,
@@ -1142,16 +1142,17 @@ class Bot:
         while True:
             payload = BotXAPIGetStickerPacksRequestPayload.from_domain(
                 user_huid,
-                LIMIT,
+                STICKER_PACKS_PER_PAGE,
                 after,
             )
             botx_api_sticker_pack_list = await method.execute(payload)
 
-            sticker_pack_list = botx_api_sticker_pack_list.to_domain()
-            for sticker_pack in sticker_pack_list:
+            sticker_pack_page = botx_api_sticker_pack_list.to_domain()
+            after = sticker_pack_page.after
+
+            for sticker_pack in sticker_pack_page.sticker_packs:
                 yield sticker_pack
 
-            after = botx_api_sticker_pack_list.result.pagination.after
             if not after:
                 break
 

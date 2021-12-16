@@ -3,7 +3,7 @@ from uuid import UUID
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
-from botx.models.stickers import StickerPackFromList
+from botx.models.stickers import StickerPackFromList, StickerPackPage
 
 try:
     from typing import Literal
@@ -23,7 +23,6 @@ class BotXAPIGetStickerPacksRequestPayload(UnverifiedPayloadBaseModel):
         limit: int,
         after: Optional[str],
     ) -> "BotXAPIGetStickerPacksRequestPayload":
-
         return cls(user_huid=user_huid, limit=limit, after=after)
 
 
@@ -48,17 +47,20 @@ class BotXAPIGetStickerPacksResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
     result: BotXAPIGetStickerPacksResult
 
-    def to_domain(self) -> List[StickerPackFromList]:
-        return [
-            StickerPackFromList(
-                id=sticker_pack.id,
-                name=sticker_pack.name,
-                is_public=sticker_pack.public,
-                stickers_count=sticker_pack.stickers_count,
-                stickers_order=sticker_pack.stickers_order,
-            )
-            for sticker_pack in self.result.packs
-        ]
+    def to_domain(self) -> StickerPackPage:
+        return StickerPackPage(
+            [
+                StickerPackFromList(
+                    id=sticker_pack.id,
+                    name=sticker_pack.name,
+                    is_public=sticker_pack.public,
+                    stickers_count=sticker_pack.stickers_count,
+                    stickers_ids=sticker_pack.stickers_order,
+                )
+                for sticker_pack in self.result.packs
+            ],
+            self.result.pagination.after,
+        )
 
 
 class GetStickerPacksMethod(AuthorizedBotXMethod):
