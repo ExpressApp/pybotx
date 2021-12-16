@@ -13,7 +13,7 @@ except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
-class BotXAPISmartappEventRequestPayload(UnverifiedPayloadBaseModel):
+class BotXAPISmartAppEventRequestPayload(UnverifiedPayloadBaseModel):
     ref: MissingOptional[UUID]
     smartapp_id: UUID
     group_chat_id: UUID
@@ -31,7 +31,7 @@ class BotXAPISmartappEventRequestPayload(UnverifiedPayloadBaseModel):
         data: Dict[str, Any],
         opts: Missing[Dict[str, Any]],
         files: Missing[List[File]],
-    ) -> "BotXAPISmartappEventRequestPayload":
+    ) -> "BotXAPISmartAppEventRequestPayload":
         api_async_files: Missing[List[APIAsyncFile]] = Undefined
         if files:
             api_async_files = [convert_async_file_from_domain(file) for file in files]
@@ -47,14 +47,14 @@ class BotXAPISmartappEventRequestPayload(UnverifiedPayloadBaseModel):
         )
 
 
-class BotXAPISmartappEventResponsePayload(VerifiedPayloadBaseModel):
+class BotXAPISmartAppEventResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
 
 
-class SmartappEventMethod(AuthorizedBotXMethod):
+class SmartAppEventMethod(AuthorizedBotXMethod):
     async def execute(
         self,
-        payload: BotXAPISmartappEventRequestPayload,
+        payload: BotXAPISmartAppEventRequestPayload,
     ) -> None:
         path = "/api/v3/botx/smartapps/event"
 
@@ -70,6 +70,6 @@ class SmartappEventMethod(AuthorizedBotXMethod):
         )
 
         self._verify_and_extract_api_model(
-            BotXAPISmartappEventResponsePayload,
+            BotXAPISmartAppEventResponsePayload,
             response,
         )

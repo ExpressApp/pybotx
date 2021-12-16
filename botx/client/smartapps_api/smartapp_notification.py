@@ -12,7 +12,7 @@ except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
-class BotXAPISmartappNotificationRequestPayload(UnverifiedPayloadBaseModel):
+class BotXAPISmartAppNotificationRequestPayload(UnverifiedPayloadBaseModel):
     group_chat_id: UUID
     smartapp_counter: int
     opts: Missing[Dict[str, Any]]
@@ -24,7 +24,7 @@ class BotXAPISmartappNotificationRequestPayload(UnverifiedPayloadBaseModel):
         chat_id: UUID,
         smartapp_counter: int,
         opts: Missing[Dict[str, Any]],
-    ) -> "BotXAPISmartappNotificationRequestPayload":
+    ) -> "BotXAPISmartAppNotificationRequestPayload":
         return cls(
             group_chat_id=chat_id,
             smartapp_counter=smartapp_counter,
@@ -33,14 +33,14 @@ class BotXAPISmartappNotificationRequestPayload(UnverifiedPayloadBaseModel):
         )
 
 
-class BotXAPISmartappNotificationResponsePayload(VerifiedPayloadBaseModel):
+class BotXAPISmartAppNotificationResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
 
 
-class SmartappNotificationMethod(AuthorizedBotXMethod):
+class SmartAppNotificationMethod(AuthorizedBotXMethod):
     async def execute(
         self,
-        payload: BotXAPISmartappNotificationRequestPayload,
+        payload: BotXAPISmartAppNotificationRequestPayload,
     ) -> None:
         path = "/api/v3/botx/smartapps/notification"
 
@@ -56,6 +56,6 @@ class SmartappNotificationMethod(AuthorizedBotXMethod):
         )
 
         self._verify_and_extract_api_model(
-            BotXAPISmartappNotificationResponsePayload,
+            BotXAPISmartAppNotificationResponsePayload,
             response,
         )
