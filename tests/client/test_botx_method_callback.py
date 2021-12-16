@@ -393,7 +393,7 @@ async def test__botx_method_callback__pending_callback_future_during_shutdown(
         task = asyncio.create_task(
             bot.call_foo_bar(bot_id, baz=1),
         )
-        await asyncio.sleep(0)  # HTTP-client should have time to make request
+        await asyncio.sleep(0)  # Return control to event loop
 
     with pytest.raises(BotShuttingDownError) as exc:
         await task

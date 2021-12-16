@@ -1,4 +1,3 @@
-import asyncio
 from http import HTTPStatus
 from typing import Callable
 from unittest.mock import Mock
@@ -25,7 +24,6 @@ async def test__shutdown__wait_for_active_handlers(
 
     @collector.command("/command", description="My command")
     async def handler(message: IncomingMessage, bot: Bot) -> None:
-        await asyncio.sleep(0)  # Return control to event loop
         correct_handler_trigger()
 
     bot = Bot(collectors=[collector], bot_accounts=[bot_account])
