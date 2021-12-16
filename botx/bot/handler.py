@@ -14,7 +14,7 @@ from botx.models.system_events.internal_bot_notification import (
     InternalBotNotificationEvent,
 )
 from botx.models.system_events.left_from_chat import LeftFromChatEvent
-from botx.models.system_events.smartapp import SmartAppEvent
+from botx.models.system_events.smartapp_event import SmartAppEvent
 
 try:
     from typing import Literal

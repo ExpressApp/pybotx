@@ -17,7 +17,7 @@ from botx.models.system_events.left_from_chat import (
     BotAPILeftFromChat,
     LeftFromChatEvent,
 )
-from botx.models.system_events.smartapp import BotAPISmartAppEvent, SmartAppEvent
+from botx.models.system_events.smartapp_event import BotAPISmartAppEvent, SmartAppEvent
 
 BotAPISystemEvent = Union[
     BotAPIChatCreated,
