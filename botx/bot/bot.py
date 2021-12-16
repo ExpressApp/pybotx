@@ -282,6 +282,339 @@ class Bot:
 
         return await get_token(bot_id, self._httpx_client, self._bot_accounts_storage)
 
+    # - Notifications API -
+    async def answer_message(
+        self,
+        body: str,
+        *,
+        metadata: Missing[Dict[str, Any]] = Undefined,
+        bubbles: Missing[BubbleMarkup] = Undefined,
+        keyboard: Missing[KeyboardMarkup] = Undefined,
+        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        recipients: Missing[List[UUID]] = Undefined,
+        silent_response: Missing[bool] = Undefined,
+        markup_auto_adjust: Missing[bool] = Undefined,
+        stealth_mode: Missing[bool] = Undefined,
+        send_push: Missing[bool] = Undefined,
+        ignore_mute: Missing[bool] = Undefined,
+        wait_callback: bool = True,
+        callback_timeout: MissingOptional[int] = Undefined,
+    ) -> UUID:
+        """Answer to incoming message.
+
+        Works just like `Bot.send`, but `bot_id` and `chat_id` are
+        taken from the incoming message.
+
+        Args:
+            body: Message body.
+            metadata: Notification options.
+            bubbles: Bubbles (buttons attached to message) markup.
+            keyboard: Keyboard (buttons below message input) markup.
+            file: Attachment.
+            recipients: List of recipients, empty for all in chat.
+            silent_response: (BotX default: False) Exclude next user
+                messages from history.
+            markup_auto_adjust: (BotX default: False) Move button to next row,
+                if its text doesn't fit.
+            stealth_mode: (BotX default: False) Enable stealth mode.
+            send_push: (BotX default: True) Send push notification on devices.
+            ignore_mute: (BotX default: False) Ignore mute or dnd (do not disturb).
+            wait_callback: Block method call until callback received.
+            callback_timeout: Callback timeout in seconds (or `None` for
+                endless waiting).
+
+        Raises:
+            AnswerDestinationLookupError: If you try to answer without
+                receiving incoming message.
+
+        Returns:
+            Notification sync_id.
+        """
+
+        try:  # noqa: WPS229
+            bot_id = bot_id_var.get()
+            chat_id = chat_id_var.get()
+        except LookupError as exc:
+            raise AnswerDestinationLookupError from exc
+
+        return await self.send_message(
+            bot_id=bot_id,
+            chat_id=chat_id,
+            body=body,
+            metadata=metadata,
+            bubbles=bubbles,
+            keyboard=keyboard,
+            file=file,
+            recipients=recipients,
+            silent_response=silent_response,
+            markup_auto_adjust=markup_auto_adjust,
+            stealth_mode=stealth_mode,
+            send_push=send_push,
+            ignore_mute=ignore_mute,
+            wait_callback=wait_callback,
+            callback_timeout=callback_timeout,
+        )
+
+    async def send(
+        self,
+        *,
+        message: OutgoingMessage,
+        wait_callback: bool = True,
+        callback_timeout: MissingOptional[int] = Undefined,
+    ) -> UUID:
+        """Send internal notification.
+
+        Args:
+            message: Built outgoing message.
+            wait_callback: Wait for callback.
+            callback_timeout: Timeout for waiting for callback.
+
+        Returns:
+            Notification sync_id.
+        """
+
+        return await self.send_message(
+            bot_id=message.bot_id,
+            chat_id=message.chat_id,
+            body=message.body,
+            metadata=message.metadata,
+            bubbles=message.bubbles,
+            keyboard=message.keyboard,
+            file=message.file,
+            recipients=message.recipients,
+            silent_response=message.silent_response,
+            markup_auto_adjust=message.markup_auto_adjust,
+            stealth_mode=message.stealth_mode,
+            send_push=message.send_push,
+            ignore_mute=message.ignore_mute,
+            wait_callback=wait_callback,
+            callback_timeout=callback_timeout,
+        )
+
+    async def send_message(
+        self,
+        *,
+        bot_id: UUID,
+        chat_id: UUID,
+        body: str,
+        metadata: Missing[Dict[str, Any]] = Undefined,
+        bubbles: Missing[BubbleMarkup] = Undefined,
+        keyboard: Missing[KeyboardMarkup] = Undefined,
+        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        silent_response: Missing[bool] = Undefined,
+        markup_auto_adjust: Missing[bool] = Undefined,
+        recipients: Missing[List[UUID]] = Undefined,
+        stealth_mode: Missing[bool] = Undefined,
+        send_push: Missing[bool] = Undefined,
+        ignore_mute: Missing[bool] = Undefined,
+        wait_callback: bool = True,
+        callback_timeout: MissingOptional[int] = Undefined,
+    ) -> UUID:
+        """Send message to chat.
+
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            body: Message body.
+            metadata: Notification options.
+            bubbles: Bubbles (buttons attached to message) markup.
+            keyboard: Keyboard (buttons below message input) markup.
+            file: Attachment.
+            recipients: List of recipients, empty for all in chat.
+            silent_response: (BotX default: False) Exclude next user
+                messages from history.
+            markup_auto_adjust: (BotX default: False) Move button to next row,
+                if its text doesn't fit.
+            stealth_mode: (BotX default: False) Enable stealth mode.
+            send_push: (BotX default: True) Send push notification on devices.
+            ignore_mute: (BotX default: False) Ignore mute or dnd (do not disturb).
+            wait_callback: Block method call until callback received.
+            callback_timeout: Callback timeout in seconds (or `None` for
+                endless waiting).
+
+        Returns:
+            Notification sync_id.
+        """
+
+        method = DirectNotificationMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+            self._callback_manager,
+        )
+
+        payload = BotXAPIDirectNotificationRequestPayload.from_domain(
+            chat_id,
+            body,
+            metadata,
+            bubbles,
+            keyboard,
+            file,
+            recipients,
+            silent_response,
+            markup_auto_adjust,
+            stealth_mode,
+            send_push,
+            ignore_mute,
+        )
+        botx_api_sync_id = await method.execute(
+            payload,
+            wait_callback,
+            not_undefined(callback_timeout, self.default_callback_timeout),
+        )
+
+        return botx_api_sync_id.to_domain()
+
+    async def send_internal_bot_notification(
+        self,
+        *,
+        bot_id: UUID,
+        chat_id: UUID,
+        data: Dict[str, Any],
+        opts: Missing[Dict[str, Any]] = Undefined,
+        recipients: Missing[List[UUID]] = Undefined,
+        wait_callback: bool = True,
+        callback_timeout: MissingOptional[int] = Undefined,
+    ) -> UUID:
+        """Send internal notification.
+
+        Args:
+            bot_id: Bot which should perform the request.
+            chat_id: Target chat id.
+            data: Notification payload.
+            opts: Notification options.
+            recipients: List of bot uuids, empty for all in chat.
+            wait_callback: Wait for callback.
+            callback_timeout: Timeout for waiting for callback.
+
+        Returns:
+            Notification sync_id.
+        """
+
+        method = InternalBotNotificationMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+            self._callback_manager,
+        )
+
+        payload = BotXAPIInternalBotNotificationRequestPayload.from_domain(
+            chat_id,
+            data,
+            opts,
+            recipients,
+        )
+        botx_api_sync_id = await method.execute(
+            payload,
+            wait_callback,
+            not_undefined(callback_timeout, self.default_callback_timeout),
+        )
+
+        return botx_api_sync_id.to_domain()
+
+    # - Events API -
+    async def edit_message(
+        self,
+        *,
+        bot_id: UUID,
+        sync_id: UUID,
+        body: Missing[str] = Undefined,
+        metadata: Missing[Dict[str, Any]] = Undefined,
+        bubbles: Missing[BubbleMarkup] = Undefined,
+        keyboard: Missing[KeyboardMarkup] = Undefined,
+        file: MissingOptionalAttachment = Undefined,
+        markup_auto_adjust: Missing[bool] = Undefined,
+    ) -> None:
+        """Send internal notification.
+
+        Args:
+            bot_id: Bot which should perform the request.
+            sync_id: `sync_id` of message to update.
+            body: New message body. Skip to leave previous body or pass
+                empty string to clean it.
+            metadata: Notification options. Skip to leave previous metadata.
+            bubbles: Bubbles (buttons attached to message) markup. Skip to
+                leave previous bubbles.
+            keyboard: Keyboard (buttons below message input) markup. Skip
+                to leave previous keyboard.
+            file: Attachment. Skip to leave previous file or pass `None`
+                to clean it.
+            markup_auto_adjust: (BotX default: False) Move button to next row,
+                if its text doesn't fit.
+        """
+
+        method = EditEventMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPIEditEventRequestPayload.from_domain(
+            sync_id,
+            body,
+            metadata,
+            bubbles,
+            keyboard,
+            file,
+            markup_auto_adjust,
+        )
+
+        await method.execute(payload)
+
+    async def reply_message(
+        self,
+        *,
+        bot_id: UUID,
+        sync_id: UUID,
+        body: str,
+        metadata: Missing[Dict[str, Any]] = Undefined,
+        bubbles: Missing[BubbleMarkup] = Undefined,
+        keyboard: Missing[KeyboardMarkup] = Undefined,
+        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        silent_response: Missing[bool] = Undefined,
+        markup_auto_adjust: Missing[bool] = Undefined,
+        stealth_mode: Missing[bool] = Undefined,
+        send_push: Missing[bool] = Undefined,
+        ignore_mute: Missing[bool] = Undefined,
+    ) -> None:
+        """Reply on message by `sync_id`.
+
+        Args:
+            bot_id: Bot which should perform the request.
+            sync_id: `sync_id` of message to reply on.
+            body: Reply body.
+            metadata: Notification options.
+            bubbles: Bubbles (buttons attached to message) markup.
+            keyboard: Keyboard (buttons below message input) markup.
+            file: Attachment.
+            silent_response: (BotX default: False) Exclude next user
+                messages from history.
+            markup_auto_adjust: (BotX default: False) Move button to next row,
+                if its text doesn't fit.
+            stealth_mode: (BotX default: False) Enable stealth mode.
+            send_push: (BotX default: True) Send push notification on devices.
+            ignore_mute: (BotX default: False) Ignore mute or dnd (do not disturb).
+        """
+
+        payload = BotXAPIReplyEventRequestPayload.from_domain(
+            sync_id,
+            body,
+            metadata,
+            bubbles,
+            keyboard,
+            file,
+            silent_response,
+            markup_auto_adjust,
+            stealth_mode,
+            send_push,
+            ignore_mute,
+        )
+        method = ReplyEventMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        await method.execute(payload)
+
     # - Chats API -
     async def list_chats(
         self,
@@ -696,339 +1029,6 @@ class Bot:
             opts=opts,
         )
 
-        await method.execute(payload)
-
-    # - Notifications API -
-    async def answer_message(
-        self,
-        body: str,
-        *,
-        metadata: Missing[Dict[str, Any]] = Undefined,
-        bubbles: Missing[BubbleMarkup] = Undefined,
-        keyboard: Missing[KeyboardMarkup] = Undefined,
-        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
-        recipients: Missing[List[UUID]] = Undefined,
-        silent_response: Missing[bool] = Undefined,
-        markup_auto_adjust: Missing[bool] = Undefined,
-        stealth_mode: Missing[bool] = Undefined,
-        send_push: Missing[bool] = Undefined,
-        ignore_mute: Missing[bool] = Undefined,
-        wait_callback: bool = True,
-        callback_timeout: MissingOptional[int] = Undefined,
-    ) -> UUID:
-        """Answer to incoming message.
-
-        Works just like `Bot.send`, but `bot_id` and `chat_id` are
-        taken from the incoming message.
-
-        Args:
-            body: Message body.
-            metadata: Notification options.
-            bubbles: Bubbles (buttons attached to message) markup.
-            keyboard: Keyboard (buttons below message input) markup.
-            file: Attachment.
-            recipients: List of recipients, empty for all in chat.
-            silent_response: (BotX default: False) Exclude next user
-                messages from history.
-            markup_auto_adjust: (BotX default: False) Move button to next row,
-                if its text doesn't fit.
-            stealth_mode: (BotX default: False) Enable stealth mode.
-            send_push: (BotX default: True) Send push notification on devices.
-            ignore_mute: (BotX default: False) Ignore mute or dnd (do not disturb).
-            wait_callback: Block method call until callback received.
-            callback_timeout: Callback timeout in seconds (or `None` for
-                endless waiting).
-
-        Raises:
-            AnswerDestinationLookupError: If you try to answer without
-                receiving incoming message.
-
-        Returns:
-            Notification sync_id.
-        """
-
-        try:  # noqa: WPS229
-            bot_id = bot_id_var.get()
-            chat_id = chat_id_var.get()
-        except LookupError as exc:
-            raise AnswerDestinationLookupError from exc
-
-        return await self.send_message(
-            bot_id=bot_id,
-            chat_id=chat_id,
-            body=body,
-            metadata=metadata,
-            bubbles=bubbles,
-            keyboard=keyboard,
-            file=file,
-            recipients=recipients,
-            silent_response=silent_response,
-            markup_auto_adjust=markup_auto_adjust,
-            stealth_mode=stealth_mode,
-            send_push=send_push,
-            ignore_mute=ignore_mute,
-            wait_callback=wait_callback,
-            callback_timeout=callback_timeout,
-        )
-
-    async def send(
-        self,
-        *,
-        message: OutgoingMessage,
-        wait_callback: bool = True,
-        callback_timeout: MissingOptional[int] = Undefined,
-    ) -> UUID:
-        """Send internal notification.
-
-        Args:
-            message: Built outgoing message.
-            wait_callback: Wait for callback.
-            callback_timeout: Timeout for waiting for callback.
-
-        Returns:
-            Notification sync_id.
-        """
-
-        return await self.send_message(
-            bot_id=message.bot_id,
-            chat_id=message.chat_id,
-            body=message.body,
-            metadata=message.metadata,
-            bubbles=message.bubbles,
-            keyboard=message.keyboard,
-            file=message.file,
-            recipients=message.recipients,
-            silent_response=message.silent_response,
-            markup_auto_adjust=message.markup_auto_adjust,
-            stealth_mode=message.stealth_mode,
-            send_push=message.send_push,
-            ignore_mute=message.ignore_mute,
-            wait_callback=wait_callback,
-            callback_timeout=callback_timeout,
-        )
-
-    async def send_message(
-        self,
-        *,
-        bot_id: UUID,
-        chat_id: UUID,
-        body: str,
-        metadata: Missing[Dict[str, Any]] = Undefined,
-        bubbles: Missing[BubbleMarkup] = Undefined,
-        keyboard: Missing[KeyboardMarkup] = Undefined,
-        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
-        silent_response: Missing[bool] = Undefined,
-        markup_auto_adjust: Missing[bool] = Undefined,
-        recipients: Missing[List[UUID]] = Undefined,
-        stealth_mode: Missing[bool] = Undefined,
-        send_push: Missing[bool] = Undefined,
-        ignore_mute: Missing[bool] = Undefined,
-        wait_callback: bool = True,
-        callback_timeout: MissingOptional[int] = Undefined,
-    ) -> UUID:
-        """Send message to chat.
-
-        Args:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            body: Message body.
-            metadata: Notification options.
-            bubbles: Bubbles (buttons attached to message) markup.
-            keyboard: Keyboard (buttons below message input) markup.
-            file: Attachment.
-            recipients: List of recipients, empty for all in chat.
-            silent_response: (BotX default: False) Exclude next user
-                messages from history.
-            markup_auto_adjust: (BotX default: False) Move button to next row,
-                if its text doesn't fit.
-            stealth_mode: (BotX default: False) Enable stealth mode.
-            send_push: (BotX default: True) Send push notification on devices.
-            ignore_mute: (BotX default: False) Ignore mute or dnd (do not disturb).
-            wait_callback: Block method call until callback received.
-            callback_timeout: Callback timeout in seconds (or `None` for
-                endless waiting).
-
-        Returns:
-            Notification sync_id.
-        """
-
-        method = DirectNotificationMethod(
-            bot_id,
-            self._httpx_client,
-            self._bot_accounts_storage,
-            self._callback_manager,
-        )
-
-        payload = BotXAPIDirectNotificationRequestPayload.from_domain(
-            chat_id,
-            body,
-            metadata,
-            bubbles,
-            keyboard,
-            file,
-            recipients,
-            silent_response,
-            markup_auto_adjust,
-            stealth_mode,
-            send_push,
-            ignore_mute,
-        )
-        botx_api_sync_id = await method.execute(
-            payload,
-            wait_callback,
-            not_undefined(callback_timeout, self.default_callback_timeout),
-        )
-
-        return botx_api_sync_id.to_domain()
-
-    async def send_internal_bot_notification(
-        self,
-        *,
-        bot_id: UUID,
-        chat_id: UUID,
-        data: Dict[str, Any],
-        opts: Missing[Dict[str, Any]] = Undefined,
-        recipients: Missing[List[UUID]] = Undefined,
-        wait_callback: bool = True,
-        callback_timeout: MissingOptional[int] = Undefined,
-    ) -> UUID:
-        """Send internal notification.
-
-        Args:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            data: Notification payload.
-            opts: Notification options.
-            recipients: List of bot uuids, empty for all in chat.
-            wait_callback: Wait for callback.
-            callback_timeout: Timeout for waiting for callback.
-
-        Returns:
-            Notification sync_id.
-        """
-
-        method = InternalBotNotificationMethod(
-            bot_id,
-            self._httpx_client,
-            self._bot_accounts_storage,
-            self._callback_manager,
-        )
-
-        payload = BotXAPIInternalBotNotificationRequestPayload.from_domain(
-            chat_id,
-            data,
-            opts,
-            recipients,
-        )
-        botx_api_sync_id = await method.execute(
-            payload,
-            wait_callback,
-            not_undefined(callback_timeout, self.default_callback_timeout),
-        )
-
-        return botx_api_sync_id.to_domain()
-
-    # - Events API -
-    async def edit_message(
-        self,
-        *,
-        bot_id: UUID,
-        sync_id: UUID,
-        body: Missing[str] = Undefined,
-        metadata: Missing[Dict[str, Any]] = Undefined,
-        bubbles: Missing[BubbleMarkup] = Undefined,
-        keyboard: Missing[KeyboardMarkup] = Undefined,
-        file: MissingOptionalAttachment = Undefined,
-        markup_auto_adjust: Missing[bool] = Undefined,
-    ) -> None:
-        """Send internal notification.
-
-        Args:
-            bot_id: Bot which should perform the request.
-            sync_id: `sync_id` of message to update.
-            body: New message body. Skip to leave previous body or pass
-                empty string to clean it.
-            metadata: Notification options. Skip to leave previous metadata.
-            bubbles: Bubbles (buttons attached to message) markup. Skip to
-                leave previous bubbles.
-            keyboard: Keyboard (buttons below message input) markup. Skip
-                to leave previous keyboard.
-            file: Attachment. Skip to leave previous file or pass `None`
-                to clean it.
-            markup_auto_adjust: (BotX default: False) Move button to next row,
-                if its text doesn't fit.
-        """
-
-        method = EditEventMethod(
-            bot_id,
-            self._httpx_client,
-            self._bot_accounts_storage,
-        )
-        payload = BotXAPIEditEventRequestPayload.from_domain(
-            sync_id,
-            body,
-            metadata,
-            bubbles,
-            keyboard,
-            file,
-            markup_auto_adjust,
-        )
-
-        await method.execute(payload)
-
-    async def reply_message(
-        self,
-        *,
-        bot_id: UUID,
-        sync_id: UUID,
-        body: str,
-        metadata: Missing[Dict[str, Any]] = Undefined,
-        bubbles: Missing[BubbleMarkup] = Undefined,
-        keyboard: Missing[KeyboardMarkup] = Undefined,
-        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
-        silent_response: Missing[bool] = Undefined,
-        markup_auto_adjust: Missing[bool] = Undefined,
-        stealth_mode: Missing[bool] = Undefined,
-        send_push: Missing[bool] = Undefined,
-        ignore_mute: Missing[bool] = Undefined,
-    ) -> None:
-        """Reply on message by `sync_id`.
-
-        Args:
-            bot_id: Bot which should perform the request.
-            sync_id: `sync_id` of message to reply on.
-            body: Reply body.
-            metadata: Notification options.
-            bubbles: Bubbles (buttons attached to message) markup.
-            keyboard: Keyboard (buttons below message input) markup.
-            file: Attachment.
-            silent_response: (BotX default: False) Exclude next user
-                messages from history.
-            markup_auto_adjust: (BotX default: False) Move button to next row,
-                if its text doesn't fit.
-            stealth_mode: (BotX default: False) Enable stealth mode.
-            send_push: (BotX default: True) Send push notification on devices.
-            ignore_mute: (BotX default: False) Ignore mute or dnd (do not disturb).
-        """
-
-        payload = BotXAPIReplyEventRequestPayload.from_domain(
-            sync_id,
-            body,
-            metadata,
-            bubbles,
-            keyboard,
-            file,
-            silent_response,
-            markup_auto_adjust,
-            stealth_mode,
-            send_push,
-            ignore_mute,
-        )
-        method = ReplyEventMethod(
-            bot_id,
-            self._httpx_client,
-            self._bot_accounts_storage,
-        )
         await method.execute(payload)
 
     # - Stickers API -
