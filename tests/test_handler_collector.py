@@ -1,4 +1,3 @@
-import asyncio
 from typing import Callable
 from unittest.mock import Mock
 
@@ -404,7 +403,6 @@ async def test__handler_collector__handler_not_found_logged(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         bot.async_execute_bot_command(user_command)
-        await asyncio.sleep(0)  # Return control to event loop
 
     # - Assert -
     assert "`/command` not found" in loguru_caplog.text
