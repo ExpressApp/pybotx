@@ -36,7 +36,7 @@ autoflake = "^1.4"
 add-trailing-comma = "^2.0.1"
 # linters
 mypy = "^0.812"
-wemake-python-styleguide = "^0.15"
+wemake-python-styleguide = "^0.16"
 flake8-pytest-style = "^1.1.1"
 # tests
 pytest = "^6.0.0"
