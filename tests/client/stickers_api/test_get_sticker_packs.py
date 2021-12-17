@@ -12,7 +12,7 @@ from botx.models.stickers import StickerPackFromList
 
 @pytest.fixture
 def sticker_packs_per_page(monkeypatch: Any) -> None:
-    monkeypatch.setattr("botx.constants.STICKER_PACKS_PER_PAGE", 1)
+    monkeypatch.setattr("botx.constants.STICKER_PACKS_PER_PAGE", 2)
 
 
 @respx.mock
@@ -139,6 +139,20 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
                             "updated_at": "2021-02-18T12:52:31.571133Z",
                             "deleted_at": None,
                         },
+                        {
+                            "id": "750bb400-bb37-4ff9-aa92-cc293f09cafa",
+                            "name": "Sticker Pack 3",
+                            "preview": "https://cts-host/uploads/sticker_pack/image.png",
+                            "public": True,
+                            "stickers_count": 2,
+                            "stickers_order": [
+                                "a998f599-d7ac-5e04-9fdb-2d98224ce4ff",
+                                "25054ac4-8be2-5a4b-ae00-9efd38c73fb7",
+                            ],
+                            "inserted_at": "2020-11-28T12:56:43.672163Z",
+                            "updated_at": "2021-02-18T12:52:31.571133Z",
+                            "deleted_at": None,
+                        },
                     ],
                     "pagination": {
                         "after": None,
@@ -182,6 +196,16 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
             stickers_count=1,
             sticker_ids=[
                 UUID("a998f599-d7ac-5e04-9fdb-2d98224ce4ff"),
+            ],
+        ),
+        StickerPackFromList(
+            id=UUID("750bb400-bb37-4ff9-aa92-cc293f09cafa"),
+            name="Sticker Pack 3",
+            is_public=True,
+            stickers_count=2,
+            sticker_ids=[
+                UUID("a998f599-d7ac-5e04-9fdb-2d98224ce4ff"),
+                UUID("25054ac4-8be2-5a4b-ae00-9efd38c73fb7"),
             ],
         ),
     ]
