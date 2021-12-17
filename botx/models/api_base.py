@@ -43,6 +43,8 @@ def _remove_undefined(
 
         return new_list
 
+    raise NotImplementedError
+
 
 class PayloadBaseModel(BaseModel):
     def json(self) -> str:  # type: ignore [override]
