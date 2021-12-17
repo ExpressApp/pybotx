@@ -97,8 +97,9 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
     # - Arrange -
     monkeypatch.setattr("botx.bot.bot.STICKER_PACKS_PER_PAGE", 2)
 
-    # TODO: Resolve respx bug
-    second_endpoint = respx.get(
+    # Mock order matters
+    # https://lundberg.github.io/respx/guide/#routing-requests
+    second_sticker_endpoint_call = respx.get(
         f"https://{host}/api/v3/botx/stickers/packs",
         headers={"Authorization": "Bearer token"},
         params={
@@ -135,7 +136,7 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
             },
         ),
     )
-    first_endpoint = respx.get(
+    first_sticker_endpoint_call = respx.get(
         f"https://{host}/api/v3/botx/stickers/packs",
         headers={"Authorization": "Bearer token"},
         params={"user_huid": "d881f83a-db30-4cff-b60e-f24ac53deecf", "limit": 2},
@@ -230,5 +231,5 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
             ],
         ),
     ]
-    assert first_endpoint.called
-    assert second_endpoint.called
+    assert first_sticker_endpoint_call.called
+    assert second_sticker_endpoint_call.called
