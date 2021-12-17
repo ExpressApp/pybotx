@@ -12,9 +12,7 @@ from botx.models.stickers import StickerPackFromList
 
 @pytest.fixture
 def sticker_packs_per_page(monkeypatch: Any) -> None:
-    from botx import constants
-
-    monkeypatch.setattr(constants, "STICKER_PACKS_PER_PAGE", 1)
+    monkeypatch.setattr("botx.constants.STICKER_PACKS_PER_PAGE", 1)
 
 
 @respx.mock
@@ -41,7 +39,7 @@ async def test__iterate_by_sticker_packs__succeed(
                         {
                             "id": "26080153-a57d-5a8c-af0e-fdecee3c4435",
                             "name": "Sticker Pack",
-                            "preview": "https://cts-host/uploads/sticker_pack/26080153-a57d-5a8c-af0e-fdecee3c4435/9df3143975ad4e6d93bf85079fbb5f1d.png?v=1614781425296",
+                            "preview": "https://cts-host/uploads/sticker_pack/image.png",
                             "public": True,
                             "stickers_count": 2,
                             "stickers_order": [
@@ -117,7 +115,7 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
                         {
                             "id": "26080153-a57d-5a8c-af0e-fdecee3c4435",
                             "name": "Sticker Pack 1",
-                            "preview": "https://cts-host/uploads/sticker_pack/26080153-a57d-5a8c-af0e-fdecee3c4435/9df3143975ad4e6d93bf85079fbb5f1d.png?v=1614781425296",
+                            "preview": "https://cts-host/uploads/sticker_pack/image.png",
                             "public": True,
                             "stickers_count": 2,
                             "stickers_order": [
@@ -131,7 +129,7 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
                         {
                             "id": "89152263-2484-4e00-bc6c-90003027e39e",
                             "name": "Sticker Pack 2",
-                            "preview": "https://cts-host/uploads/sticker_pack/26080153-a57d-5a8c-af0e-fdecee3c4435/9df3143975ad4e6d93bf85079fbb5f1d.png?v=1614781425296",
+                            "preview": "https://cts-host/uploads/sticker_pack/image.png",
                             "public": True,
                             "stickers_count": 1,
                             "stickers_order": [
