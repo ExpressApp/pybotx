@@ -96,6 +96,7 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
 ) -> None:
     # - Arrange -
     monkeypatch.setattr("botx.bot.bot.STICKER_PACKS_PER_PAGE", 2)
+
     first_endpoint = respx.get(
         f"https://{host}/api/v3/botx/stickers/packs",
         headers={"Authorization": "Bearer token"},
@@ -179,6 +180,7 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
             },
         ),
     )
+
     built_bot = Bot(
         collectors=[HandlerCollector()],
         bot_accounts=[bot_account],
