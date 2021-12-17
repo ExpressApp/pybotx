@@ -1,11 +1,8 @@
-from typing import List, NoReturn, Optional, Type
+from typing import List, Optional
 from uuid import UUID
 
-import httpx
-
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
-from botx.client.botx_method import StatusHandler
-from botx.client.exceptions.base import BaseClientException
+from botx.client.botx_method import response_exception_thrower
 from botx.client.stickers_api.exceptions import StickerPackNotFoundError
 from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from botx.models.stickers import Sticker, StickerPack
@@ -14,16 +11,6 @@ try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal  # type: ignore  # noqa: WPS440
-
-
-def response_exception_thrower(
-    exc: Type[BaseClientException],
-    comment: Optional[str] = None,
-) -> StatusHandler:
-    def factory(response: httpx.Response) -> NoReturn:
-        raise exc.from_response(response, comment)
-
-    return factory
 
 
 class BotXAPIGetStickerPackRequestPayload(UnverifiedPayloadBaseModel):
@@ -51,19 +38,38 @@ class BotXAPIGetStickerPackResult(VerifiedPayloadBaseModel):
     stickers: List[BotXAPIGetStickerResult]
 
 
+def order_stickers(
+    stickers_order: List[UUID],
+    stickers: List[BotXAPIGetStickerResult],
+) -> List[BotXAPIGetStickerResult]:
+    stickers_in_right_order = []
+    for sticker_id in stickers_order:
+        stickers_in_right_order.append(
+            [sticker for sticker in stickers if sticker.id == sticker_id][0],
+        )
+    return stickers_in_right_order
+
+
 class BotXAPIGetStickerPackResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
     result: BotXAPIGetStickerPackResult
 
     def to_domain(self) -> StickerPack:
+        if self.result.stickers_order:
+            stickers_in_right_order = order_stickers(
+                self.result.stickers_order,
+                self.result.stickers,
+            )
+        else:
+            stickers_in_right_order = self.result.stickers
+
         return StickerPack(
             id=self.result.id,
             name=self.result.name,
             is_public=self.result.public,
-            stickers_order=self.result.stickers_order,
             stickers=[
                 Sticker(id=sticker.id, emoji=sticker.emoji, image_link=sticker.link)
-                for sticker in self.result.stickers
+                for sticker in stickers_in_right_order
             ],
         )
 
@@ -79,13 +85,11 @@ class GetStickerPackMethod(AuthorizedBotXMethod):
         payload: BotXAPIGetStickerPackRequestPayload,
     ) -> BotXAPIGetStickerPackResponsePayload:
         jsonable_dict = payload.jsonable_dict()
-        sticker_pack_id = jsonable_dict.pop("sticker_pack_id")
-        path = f"/api/v3/botx/stickers/packs/{sticker_pack_id}"
+        path = f"/api/v3/botx/stickers/packs/{jsonable_dict['sticker_pack_id']}"
 
         response = await self._botx_method_call(
             "GET",
             self._build_url(path),
-            json=jsonable_dict,
         )
 
         return self._verify_and_extract_api_model(
