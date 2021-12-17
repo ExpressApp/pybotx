@@ -97,7 +97,8 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
     # - Arrange -
     monkeypatch.setattr("botx.bot.bot.STICKER_PACKS_PER_PAGE", 2)
 
-    first_endpoint = respx.get(
+    # TODO: Resolve respx bug
+    second_endpoint = respx.get(
         f"https://{host}/api/v3/botx/stickers/packs",
         headers={"Authorization": "Bearer token"},
         params={
@@ -134,7 +135,7 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
             },
         ),
     )
-    second_endpoint = respx.get(
+    first_endpoint = respx.get(
         f"https://{host}/api/v3/botx/stickers/packs",
         headers={"Authorization": "Bearer token"},
         params={"user_huid": "d881f83a-db30-4cff-b60e-f24ac53deecf", "limit": 2},
