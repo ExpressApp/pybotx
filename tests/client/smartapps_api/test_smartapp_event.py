@@ -6,7 +6,7 @@ import pytest
 import respx
 
 from botx import Bot, BotAccount, HandlerCollector, lifespan_wrapper
-from botx.models.async_files import Document
+from botx.models.async_files import Document, Image, Video, Voice
 from botx.models.enums import AttachmentTypes
 
 
@@ -82,6 +82,25 @@ async def test__send_smartapp_event__maximum_filled_succeed(
             "smartapp_api_version": 1,
             "async_files": [
                 {
+                    "type": "image",
+                    "file": "https://link.to/file",
+                    "file_mime_type": "image/png",
+                    "file_name": "pass.png",
+                    "file_size": 1502345,
+                    "file_hash": "Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+                    "file_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
+                },
+                {
+                    "type": "video",
+                    "file": "https://link.to/file",
+                    "file_mime_type": "video/mp4",
+                    "file_name": "pass.mp4",
+                    "file_size": 1502345,
+                    "file_hash": "Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+                    "file_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
+                    "duration": 10,
+                },
+                {
                     "type": "document",
                     "file": "https://link.to/file",
                     "file_mime_type": "plain/text",
@@ -89,6 +108,16 @@ async def test__send_smartapp_event__maximum_filled_succeed(
                     "file_size": 1502345,
                     "file_hash": "Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
                     "file_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
+                },
+                {
+                    "type": "voice",
+                    "file": "https://link.to/file",
+                    "file_mime_type": "audio/mp3",
+                    "file_name": "pass.mp3",
+                    "file_size": 1502345,
+                    "file_hash": "Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+                    "file_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
+                    "duration": 10,
                 },
             ],
         },
@@ -117,6 +146,27 @@ async def test__send_smartapp_event__maximum_filled_succeed(
             data={"key": "value"},
             opts={"option": True},
             files=[
+                Image(
+                    type=AttachmentTypes.IMAGE,
+                    filename="pass.png",
+                    size=1502345,
+                    is_async_file=True,
+                    _file_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
+                    _file_url="https://link.to/file",
+                    _file_mimetype="image/png",
+                    _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+                ),
+                Video(
+                    type=AttachmentTypes.VIDEO,
+                    filename="pass.mp4",
+                    size=1502345,
+                    is_async_file=True,
+                    duration=10,
+                    _file_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
+                    _file_url="https://link.to/file",
+                    _file_mimetype="video/mp4",
+                    _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+                ),
                 Document(
                     type=AttachmentTypes.DOCUMENT,
                     filename="pass.txt",
@@ -125,6 +175,17 @@ async def test__send_smartapp_event__maximum_filled_succeed(
                     _file_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
                     _file_url="https://link.to/file",
                     _file_mimetype="plain/text",
+                    _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+                ),
+                Voice(
+                    type=AttachmentTypes.VOICE,
+                    filename="pass.mp3",
+                    size=1502345,
+                    is_async_file=True,
+                    duration=10,
+                    _file_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
+                    _file_url="https://link.to/file",
+                    _file_mimetype="audio/mp3",
                     _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
                 ),
             ],
