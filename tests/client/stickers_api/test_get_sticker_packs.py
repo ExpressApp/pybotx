@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from typing import Any
 from uuid import UUID
 
 import httpx
@@ -8,11 +7,6 @@ import respx
 
 from botx import Bot, BotAccount, HandlerCollector, lifespan_wrapper
 from botx.models.stickers import StickerPackFromList
-
-
-@pytest.fixture
-def sticker_packs_per_page(monkeypatch: Any) -> None:
-    monkeypatch.setattr("botx.constants.STICKER_PACKS_PER_PAGE", 2)
 
 
 @respx.mock
@@ -98,13 +92,51 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
     host: str,
     bot_id: UUID,
     bot_account: BotAccount,
-    sticker_packs_per_page: int,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # - Arrange -
-    endpoint = respx.get(
+    monkeypatch.setattr("botx.bot.bot.STICKER_PACKS_PER_PAGE", 2)
+    first_endpoint = respx.get(
         f"https://{host}/api/v3/botx/stickers/packs",
         headers={"Authorization": "Bearer token"},
-        params={"user_huid": "d881f83a-db30-4cff-b60e-f24ac53deecf"},
+        params={
+            "user_huid": "d881f83a-db30-4cff-b60e-f24ac53deecf",
+            "limit": 2,
+            "after": "base64string",
+        },
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.OK,
+            json={
+                "status": "ok",
+                "result": {
+                    "packs": [
+                        {
+                            "id": "750bb400-bb37-4ff9-aa92-cc293f09cafa",
+                            "name": "Sticker Pack 3",
+                            "preview": "https://cts-host/uploads/sticker_pack/image.png",
+                            "public": True,
+                            "stickers_count": 2,
+                            "stickers_order": [
+                                "a998f599-d7ac-5e04-9fdb-2d98224ce4ff",
+                                "25054ac4-8be2-5a4b-ae00-9efd38c73fb7",
+                            ],
+                            "inserted_at": "2020-11-28T12:56:43.672163Z",
+                            "updated_at": "2021-02-18T12:52:31.571133Z",
+                            "deleted_at": None,
+                        },
+                    ],
+                    "pagination": {
+                        "after": None,
+                    },
+                },
+            },
+        ),
+    )
+    second_endpoint = respx.get(
+        f"https://{host}/api/v3/botx/stickers/packs",
+        headers={"Authorization": "Bearer token"},
+        params={"user_huid": "d881f83a-db30-4cff-b60e-f24ac53deecf", "limit": 2},
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.OK,
@@ -139,23 +171,9 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
                             "updated_at": "2021-02-18T12:52:31.571133Z",
                             "deleted_at": None,
                         },
-                        {
-                            "id": "750bb400-bb37-4ff9-aa92-cc293f09cafa",
-                            "name": "Sticker Pack 3",
-                            "preview": "https://cts-host/uploads/sticker_pack/image.png",
-                            "public": True,
-                            "stickers_count": 2,
-                            "stickers_order": [
-                                "a998f599-d7ac-5e04-9fdb-2d98224ce4ff",
-                                "25054ac4-8be2-5a4b-ae00-9efd38c73fb7",
-                            ],
-                            "inserted_at": "2020-11-28T12:56:43.672163Z",
-                            "updated_at": "2021-02-18T12:52:31.571133Z",
-                            "deleted_at": None,
-                        },
                     ],
                     "pagination": {
-                        "after": None,
+                        "after": "base64string",
                     },
                 },
             },
@@ -209,4 +227,5 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
             ],
         ),
     ]
-    assert endpoint.called
+    assert first_endpoint.called
+    assert second_endpoint.called

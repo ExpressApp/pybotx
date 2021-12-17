@@ -49,7 +49,7 @@ class BotXAPIGetStickerPacksResponsePayload(VerifiedPayloadBaseModel):
 
     def to_domain(self) -> StickerPackPage:
         return StickerPackPage(
-            [
+            sticker_packs=[
                 StickerPackFromList(
                     id=sticker_pack.id,
                     name=sticker_pack.name,
@@ -59,7 +59,7 @@ class BotXAPIGetStickerPacksResponsePayload(VerifiedPayloadBaseModel):
                 )
                 for sticker_pack in self.result.packs
             ],
-            self.result.pagination.after,
+            after=self.result.pagination.after,
         )
 
 
