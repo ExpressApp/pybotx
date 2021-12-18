@@ -11,7 +11,7 @@ from botx.models.enums import (
     APIChatTypes,
     APIUserKinds,
     convert_chat_type_to_domain,
-    convert_user_kind,
+    convert_user_kind_to_domain,
 )
 
 try:
@@ -53,7 +53,7 @@ class BotXAPIChatInfoResponsePayload(VerifiedPayloadBaseModel):
             ChatInfoMember(
                 is_admin=member.admin,
                 huid=member.user_huid,
-                kind=convert_user_kind(member.user_kind),
+                kind=convert_user_kind_to_domain(member.user_kind),
             )
             for member in self.result.members
         ]

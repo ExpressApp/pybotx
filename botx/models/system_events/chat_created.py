@@ -18,7 +18,7 @@ from botx.models.enums import (
     BotAPICommandTypes,
     UserKinds,
     convert_chat_type_to_domain,
-    convert_user_kind,
+    convert_user_kind_to_domain,
 )
 
 try:
@@ -96,7 +96,7 @@ class BotAPIChatCreated(BotAPIBaseCommand):
                 is_admin=member.is_admin,
                 huid=member.huid,
                 username=member.name,
-                kind=convert_user_kind(member.user_kind),
+                kind=convert_user_kind_to_domain(member.user_kind),
             )
             for member in self.payload.data.members
         ]
