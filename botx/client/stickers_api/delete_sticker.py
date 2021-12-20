@@ -1,8 +1,12 @@
+from typing import NoReturn
 from uuid import UUID
 
-from typing_extensions import Literal  # For python 3.7 support
+import httpx
+from typing_extensions import Literal  # for Python 3.7 support
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
+from botx.client.exceptions.http import InvalidBotXStatusCodeError
+from botx.client.stickers_api.exceptions import StickerPackOrStickerNotFoundError
 from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 
 
@@ -23,7 +27,21 @@ class BotXAPIDeleteStickerResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
 
 
+def not_found_error_handler(response: httpx.Response) -> NoReturn:
+    reason = response.json().get("reason")
+
+    if reason == "not_found":
+        raise StickerPackOrStickerNotFoundError.from_response(response)
+
+    raise InvalidBotXStatusCodeError(response)
+
+
 class DeleteStickerMethod(AuthorizedBotXMethod):
+    status_handlers = {
+        **AuthorizedBotXMethod.status_handlers,
+        404: not_found_error_handler,
+    }
+
     async def execute(
         self,
         payload: BotXAPIDeleteStickerRequestPayload,
