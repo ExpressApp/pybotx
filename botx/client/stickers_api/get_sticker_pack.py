@@ -38,30 +38,17 @@ class BotXAPIGetStickerPackResult(VerifiedPayloadBaseModel):
     stickers: List[BotXAPIGetStickerResult]
 
 
-def order_stickers(
-    stickers_order: List[UUID],
-    stickers: List[BotXAPIGetStickerResult],
-) -> List[BotXAPIGetStickerResult]:
-    stickers_in_right_order = []
-    for sticker_id in stickers_order:
-        stickers_in_right_order.append(
-            [sticker for sticker in stickers if sticker.id == sticker_id][0],
-        )
-    return stickers_in_right_order
-
-
 class BotXAPIGetStickerPackResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
     result: BotXAPIGetStickerPackResult
 
     def to_domain(self) -> StickerPack:
         if self.result.stickers_order:
-            stickers_in_right_order = order_stickers(
-                self.result.stickers_order,
-                self.result.stickers,
+            self.result.stickers.sort(
+                key=lambda pack: self.result.stickers_order.index(  # type:ignore
+                    pack.id,
+                ),
             )
-        else:
-            stickers_in_right_order = self.result.stickers
 
         return StickerPack(
             id=self.result.id,
@@ -69,7 +56,7 @@ class BotXAPIGetStickerPackResponsePayload(VerifiedPayloadBaseModel):
             is_public=self.result.public,
             stickers=[
                 Sticker(id=sticker.id, emoji=sticker.emoji, image_link=sticker.link)
-                for sticker in stickers_in_right_order
+                for sticker in self.result.stickers
             ],
         )
 
