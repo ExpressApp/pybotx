@@ -1,17 +1,17 @@
-from botx.client.exceptions.base import BaseClientException
+from botx.client.exceptions.base import BaseClientError
 
 
-class CantUpdatePersonalChatError(BaseClientException):
+class CantUpdatePersonalChatError(BaseClientError):
     """Can't edit a personal chat."""
 
 
-class InvalidUsersListError(BaseClientException):
+class InvalidUsersListError(BaseClientError):
     """Users list isn't correct."""
 
 
-class ChatCreationProhibitedError(BaseClientException):
+class ChatCreationProhibitedError(BaseClientError):
     """Bot doesn't have permissions to create chat."""
 
 
-class ChatCreationError(BaseClientException):
+class ChatCreationError(BaseClientError):
     """Error while chat creation."""

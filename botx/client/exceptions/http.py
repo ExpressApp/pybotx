@@ -1,13 +1,13 @@
 import httpx
 
-from botx.client.exceptions.base import BaseClientException
+from botx.client.exceptions.base import BaseClientError
 
 
-class InvalidBotXResponseError(BaseClientException):
+class InvalidBotXResponseError(BaseClientError):
     """Received invalid response."""
 
     def __init__(self, response: httpx.Response) -> None:
-        exc = BaseClientException.from_response(response)
+        exc = BaseClientError.from_response(response)
         self.args = exc.args
 
 

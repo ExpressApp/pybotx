@@ -2,7 +2,7 @@ import asyncio
 from typing import TYPE_CHECKING, Dict, Optional
 from uuid import UUID
 
-from botx.bot.exceptions import BotShuttingDownError, BotXMethodCallbackNotFound
+from botx.bot.exceptions import BotShuttingDownError, BotXMethodCallbackNotFoundError
 from botx.client.exceptions.callbacks import CallbackNotReceivedError
 from botx.logger import logger
 from botx.models.method_callbacks import BotXMethodCallback
@@ -56,6 +56,6 @@ class CallbacksManager:
         try:
             future = self._callback_futures.pop(sync_id)
         except KeyError:
-            raise BotXMethodCallbackNotFound(sync_id) from None
+            raise BotXMethodCallbackNotFoundError(sync_id) from None
 
         return future

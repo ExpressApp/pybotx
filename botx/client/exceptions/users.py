@@ -1,5 +1,5 @@
-from botx.client.exceptions.base import BaseClientException
+from botx.client.exceptions.base import BaseClientError
 
 
-class UserNotFoundError(BaseClientException):
+class UserNotFoundError(BaseClientError):
     """User not found."""

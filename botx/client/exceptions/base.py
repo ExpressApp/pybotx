@@ -5,7 +5,7 @@ import httpx
 from botx.models.method_callbacks import BotAPIMethodFailedCallback
 
 
-class BaseClientException(Exception):
+class BaseClientError(Exception):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(message)
@@ -15,7 +15,7 @@ class BaseClientException(Exception):
         cls,
         response: httpx.Response,
         comment: Optional[str] = None,
-    ) -> "BaseClientException":
+    ) -> "BaseClientError":
         method = response.request.method
         url = response.request.url
         status_code = response.status_code
@@ -37,7 +37,7 @@ class BaseClientException(Exception):
         cls,
         callback: BotAPIMethodFailedCallback,
         comment: Optional[str] = None,
-    ) -> "BaseClientException":
+    ) -> "BaseClientError":
         message = (
             f"BotX method call with sync_id `{callback.sync_id!s}` "
             f"failed with: {callback}"

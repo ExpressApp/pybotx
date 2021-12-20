@@ -24,7 +24,7 @@ from botx.client.botx_method import (
     ErrorCallbackHandlers,
     callback_exception_thrower,
 )
-from botx.client.exceptions.base import BaseClientException
+from botx.client.exceptions.base import BaseClientError
 from botx.missing import MissingOptional, Undefined, not_undefined
 from tests.client.test_botx_method import (
     BotXAPIFooBarRequestPayload,
@@ -32,7 +32,7 @@ from tests.client.test_botx_method import (
 )
 
 
-class FooBarError(BaseClientException):
+class FooBarError(BaseClientError):
     """Test exception."""
 
 

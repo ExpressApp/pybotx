@@ -1,13 +1,13 @@
-from botx.client.exceptions.base import BaseClientException
+from botx.client.exceptions.base import BaseClientError
 
 
-class BotIsNotChatMemberError(BaseClientException):
+class BotIsNotChatMemberError(BaseClientError):
     """Bot is not in the list of chat members."""
 
 
-class FinalRecipientsListEmptyError(BaseClientException):
+class FinalRecipientsListEmptyError(BaseClientError):
     """Resulting event recipients list is empty."""
 
 
-class StealthModeDisabledError(BaseClientException):
+class StealthModeDisabledError(BaseClientError):
     """Requested stealth mode disabled in specified chat."""
