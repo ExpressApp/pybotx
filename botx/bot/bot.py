@@ -254,7 +254,7 @@ class Bot:
         self._callback_manager.stop_callbacks_waiting()
 
         if self._tasks:
-            finished_tasks, _ = await asyncio.wait(
+            await asyncio.wait(
                 self._tasks,
                 return_when=asyncio.ALL_COMPLETED,
             )
