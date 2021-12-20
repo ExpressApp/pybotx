@@ -8,7 +8,7 @@ from botx.bot.bot import Bot
 from botx.bot.exceptions import (
     AnswerDestinationLookupError,
     BotShuttingDownError,
-    BotXMethodCallbackNotFound,
+    BotXMethodCallbackNotFoundError,
     UnknownBotAccountError,
 )
 from botx.bot.handler import IncomingMessageHandlerFunc, Middleware
@@ -93,7 +93,7 @@ __all__ = (
     "BotRecipient",
     "BotSender",
     "BotShuttingDownError",
-    "BotXMethodCallbackNotFound",
+    "BotXMethodCallbackNotFoundError",
     "BotXMethodFailedCallbackReceivedError",
     "BubbleMarkup",
     "Button",

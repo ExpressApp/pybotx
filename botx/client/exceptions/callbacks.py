@@ -1,14 +1,14 @@
 from uuid import UUID
 
-from botx.client.exceptions.base import BaseClientException
+from botx.client.exceptions.base import BaseClientError
 from botx.models.method_callbacks import BotAPIMethodFailedCallback
 
 
-class BotXMethodFailedCallbackReceivedError(BaseClientException):
+class BotXMethodFailedCallbackReceivedError(BaseClientError):
     """Callback with error received."""
 
     def __init__(self, callback: BotAPIMethodFailedCallback) -> None:
-        exc = BaseClientException.from_callback(callback)
+        exc = BaseClientError.from_callback(callback)
         self.args = exc.args
 
 

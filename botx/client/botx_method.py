@@ -21,7 +21,7 @@ from pydantic import ValidationError, parse_obj_as
 
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.bot.callbacks_manager import CallbacksManager
-from botx.client.exceptions.base import BaseClientException
+from botx.client.exceptions.base import BaseClientError
 from botx.client.exceptions.callbacks import BotXMethodFailedCallbackReceivedError
 from botx.client.exceptions.http import (
     InvalidBotXResponsePayloadError,
@@ -43,7 +43,7 @@ TBotXAPIModel = TypeVar("TBotXAPIModel", bound=VerifiedPayloadBaseModel)
 
 
 def response_exception_thrower(
-    exc: Type[BaseClientException],
+    exc: Type[BaseClientError],
     comment: Optional[str] = None,
 ) -> StatusHandler:
     def factory(response: httpx.Response) -> NoReturn:
@@ -53,7 +53,7 @@ def response_exception_thrower(
 
 
 def callback_exception_thrower(
-    exc: Type[BaseClientException],
+    exc: Type[BaseClientError],
     comment: Optional[str] = None,
 ) -> CallbackExceptionHandler:  # noqa: F821
     def factory(callback: BotAPIMethodFailedCallback) -> NoReturn:

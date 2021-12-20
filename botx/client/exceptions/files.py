@@ -1,9 +1,9 @@
-from botx.client.exceptions.base import BaseClientException
+from botx.client.exceptions.base import BaseClientError
 
 
-class FileDeletedError(BaseClientException):
+class FileDeletedError(BaseClientError):
     """File deleted."""
 
 
-class FileMetadataNotFound(BaseClientException):
+class FileMetadataNotFound(BaseClientError):
     """Can't find file metadata."""

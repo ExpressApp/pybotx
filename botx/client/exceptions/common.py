@@ -1,17 +1,17 @@
-from botx.client.exceptions.base import BaseClientException
+from botx.client.exceptions.base import BaseClientError
 
 
-class InvalidBotAccountError(BaseClientException):
+class InvalidBotAccountError(BaseClientError):
     """Can't get token with given bot account."""
 
 
-class RateLimitReachedError(BaseClientException):
+class RateLimitReachedError(BaseClientError):
     """Too many method requests."""
 
 
-class PermissionDeniedError(BaseClientException):
+class PermissionDeniedError(BaseClientError):
     """Bot can't perform this action."""
 
 
-class ChatNotFoundError(BaseClientException):
+class ChatNotFoundError(BaseClientError):
     """Chat with specified group_chat_id not found."""

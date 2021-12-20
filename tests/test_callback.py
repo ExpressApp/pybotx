@@ -1,6 +1,11 @@
 import pytest
 
-from botx import Bot, BotXMethodCallbackNotFound, HandlerCollector, lifespan_wrapper
+from botx import (
+    Bot,
+    BotXMethodCallbackNotFoundError,
+    HandlerCollector,
+    lifespan_wrapper,
+)
 
 
 @pytest.mark.asyncio
@@ -10,7 +15,7 @@ async def test__bot__callback_not_found() -> None:
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(BotXMethodCallbackNotFound) as exc:
+        with pytest.raises(BotXMethodCallbackNotFoundError) as exc:
             bot.set_raw_botx_method_result(
                 {
                     "status": "error",
