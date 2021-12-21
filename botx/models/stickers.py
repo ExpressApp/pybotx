@@ -43,7 +43,6 @@ class StickerPack:
         id: Sticker pack id.
         name: Sticker pack name.
         is_public: Is public pack.
-        stickers_order: Stickers order.
         stickers: Stickers data.
 
     """
@@ -51,7 +50,6 @@ class StickerPack:
     id: UUID
     name: str
     is_public: bool
-    stickers_order: Optional[List[UUID]]
     stickers: List[Sticker]
 
 
