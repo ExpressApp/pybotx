@@ -26,7 +26,8 @@ async def test__get_sticker__sticker_pack_or_sticker_not_found_error_raised(
 ) -> None:
     # - Arrange -
     endpoint = respx.get(
-        f"https://{host}/api/v3/botx/stickers/packs/26080153-a57d-5a8c-af0e-fdecee3c4435/stickers/75bb24c9-7c08-5db0-ae3e-085929e80c54",
+        f"https://{host}/api/v3/botx/stickers/packs/26080153-a57d-5a8c-af0e-fdecee3c4435/"
+        f"stickers/75bb24c9-7c08-5db0-ae3e-085929e80c54",
         headers={"Authorization": "Bearer token"},
     ).mock(
         return_value=httpx.Response(
@@ -74,7 +75,8 @@ async def test__get_sticker__succeed(
 ) -> None:
     # - Arrange -
     endpoint = respx.get(
-        f"https://{host}/api/v3/botx/stickers/packs/26080153-a57d-5a8c-af0e-fdecee3c4435/stickers/75bb24c9-7c08-5db0-ae3e-085929e80c54",
+        f"https://{host}/api/v3/botx/stickers/packs/26080153-a57d-5a8c-af0e-fdecee3c4435/"
+        f"stickers/75bb24c9-7c08-5db0-ae3e-085929e80c54",
         headers={"Authorization": "Bearer token"},
     ).mock(
         return_value=httpx.Response(
