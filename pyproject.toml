@@ -15,35 +15,35 @@ repository = "https://github.com/ExpressApp/pybotx"
 [tool.poetry.dependencies]
 python = "^3.7"
 
-aiofiles = "^0.7.0"
-httpx = "~0.19"
-loguru = "^0.5.3"
-mypy-extensions = "~0.4.3"
-pydantic = "~1.8"
-starlette = "^0.16.0"
-typing-extensions = { version = "^3.10", python = "<3.8" }
-uvicorn = "^0.15.0"
+aiofiles = ">=0.7.0,<0.9.0"
+httpx = ">=0.18.0,<0.22.0"
+loguru = ">=0.3.0,<0.6.0"
+mypy-extensions = ">=0.2.0,<0.5.0"
+pydantic = ">=1.6.0,<1.9.0"
+typing-extensions = ">=3.7.4,<5.0.0"
 
 
 [tool.poetry.dev-dependencies]
-add-trailing-comma = "2.1.0"
+add-trailing-comma = "2.2.1"
 autoflake = "1.4.0"
-black = "21.9b0"
-isort = "5.9.3"
+black = "21.12b0"
+isort = "5.10.1"
 mypy = "0.910.0"
-wemake-python-styleguide = "0.15.3"
+wemake-python-styleguide = "0.16.0"
 
-pytest = "~6.2"
-pytest-asyncio = "~0.15"
-pytest-cov = "~2.12"
-python-dotenv = "~0.19.1"
-requests = "~2.26.0"
-respx = "~0.17"
+pytest = "6.2.5"
+pytest-asyncio = "0.16.0"
+pytest-cov = "3.0.0"
+python-dotenv = "0.19.2"
+requests = "2.26.0"
+respx = "0.19.0"
 
-mkautodoc = "^0.1.0"
-mkdocs = "~1.2.2"
-mkdocs-material = "~5.2.1"
+mkautodoc = "0.1.0"
+mkdocs = "1.2.2"
+mkdocs-material = "5.2.1"
 
+starlette = "0.17.1"
+uvicorn = "0.16.0"
 
 [build-system]
 requires = ["poetry>=0.12"]
