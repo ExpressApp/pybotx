@@ -13,7 +13,8 @@ from botx.models.base_command import (
     BotCommandBase,
 )
 from botx.models.bot_recipient import BotRecipient
-from botx.models.enums import BotAPICommandTypes
+from botx.models.chats import Chat
+from botx.models.enums import BotAPICommandTypes, convert_chat_type_to_domain
 
 
 @dataclass
@@ -34,6 +35,7 @@ class SmartAppEvent(BotCommandBase):
     opts: Dict[str, Any]
     smartapp_api_version: int
     files: List[File]
+    chat: Chat
 
 
 class BotAPISmartAppData(VerifiedPayloadBaseModel):
@@ -66,4 +68,8 @@ class BotAPISmartAppEvent(BotAPIBaseCommand):
             opts=self.payload.data.opts,
             smartapp_api_version=self.payload.data.smartapp_api_version,
             files=[convert_async_file_to_domain(file) for file in self.async_files],
+            chat=Chat(
+                id=self.sender.group_chat_id,
+                type=convert_chat_type_to_domain(self.sender.chat_type),
+            ),
         )

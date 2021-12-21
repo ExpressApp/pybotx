@@ -204,7 +204,7 @@ class HandlerCollector:
 
         return handler_func
 
-    def smartapp(
+    def smartapp_event(
         self,
         handler_func: HandlerFunc[SmartAppEvent],
     ) -> HandlerFunc[SmartAppEvent]:

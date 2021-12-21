@@ -14,6 +14,8 @@ from botx import (
     SmartAppEvent,
     lifespan_wrapper,
 )
+from botx.models.chats import Chat
+from botx.models.enums import ChatTypes
 
 
 @respx.mock
@@ -63,7 +65,7 @@ async def test__smartapp__succeed(
         "entities": [],
         "from": {
             "user_huid": "b9197d3a-d855-5d34-ba8a-eff3a975ab20",
-            "group_chat_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
+            "group_chat_id": "dea55ee4-7a9f-5da0-8c73-079f400ee517",
             "ad_login": None,
             "ad_domain": None,
             "username": None,
@@ -88,7 +90,7 @@ async def test__smartapp__succeed(
     collector = HandlerCollector()
     smartapp: Optional[SmartAppEvent] = None
 
-    @collector.smartapp
+    @collector.smartapp_event
     async def smartapp_handler(event: SmartAppEvent, bot: Bot) -> None:
         nonlocal smartapp
         smartapp = event
@@ -130,5 +132,9 @@ async def test__smartapp__succeed(
                 _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
             ),
         ],
+        chat=Chat(
+            id=UUID("dea55ee4-7a9f-5da0-8c73-079f400ee517"),
+            type=ChatTypes.GROUP_CHAT,
+        ),
         raw_command=None,
     )
