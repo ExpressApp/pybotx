@@ -1,6 +1,8 @@
 import tempfile
 from uuid import UUID
 
+from typing_extensions import Literal  # For python 3.7 support
+
 from botx.async_buffer import AsyncBufferReadable
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
@@ -9,11 +11,6 @@ from botx.constants import CHUNK_SIZE
 from botx.missing import Missing
 from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from botx.models.async_files import APIAsyncFile, File, convert_async_file_to_domain
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 class BotXAPIUploadFileMeta(UnverifiedPayloadBaseModel):

@@ -1,9 +1,6 @@
 from typing import Any, TypeVar, Union
 
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
+from typing_extensions import Literal  # For python 3.7 support
 
 
 class _UndefinedType:

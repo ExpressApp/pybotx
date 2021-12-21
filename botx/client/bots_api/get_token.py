@@ -1,11 +1,8 @@
+from typing_extensions import Literal  # For python 3.7 support
+
 from botx.client.botx_method import BotXMethod, response_exception_thrower
 from botx.client.exceptions.common import InvalidBotAccountError
 from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 class BotXAPIGetTokenRequestPayload(UnverifiedPayloadBaseModel):

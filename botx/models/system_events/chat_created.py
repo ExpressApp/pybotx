@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from pydantic import Field
+from typing_extensions import Literal  # For python 3.7 support
 
 from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.base_command import (
@@ -20,11 +21,6 @@ from botx.models.enums import (
     convert_chat_type_to_domain,
     convert_user_kind,
 )
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 @dataclass

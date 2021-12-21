@@ -1,6 +1,8 @@
 from typing import Any, Dict, List, Union
 from uuid import UUID
 
+from typing_extensions import Literal  # For python 3.7 support
+
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.missing import Missing, MissingOptional, Undefined
 from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
@@ -16,11 +18,6 @@ from botx.models.message.markup import (
     api_markup_from_domain,
 )
 from botx.models.message.mentions import BotXAPIMention, find_and_replace_embed_mentions
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 class BotXAPIEditEventOpts(UnverifiedPayloadBaseModel):

@@ -1,13 +1,10 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict, Iterator, List, Optional, Union
 
+from typing_extensions import Literal  # For python 3.7 support
+
 from botx.missing import Missing, Undefined
 from botx.models.api_base import UnverifiedPayloadBaseModel
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 @dataclass

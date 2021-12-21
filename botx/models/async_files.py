@@ -4,6 +4,7 @@ from typing import AsyncGenerator, Union, cast
 from uuid import UUID
 
 from aiofiles.tempfile import SpooledTemporaryFile
+from typing_extensions import Literal  # For python 3.7 support
 
 from botx.bot.contextvars import bot_id_var, bot_var, chat_id_var
 from botx.constants import CHUNK_SIZE
@@ -14,11 +15,6 @@ from botx.models.enums import (
     convert_attachment_type_from_domain,
     convert_attachment_type_to_domain,
 )
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 @dataclass

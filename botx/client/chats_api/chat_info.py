@@ -2,6 +2,8 @@ from datetime import datetime as dt
 from typing import List, Optional
 from uuid import UUID
 
+from typing_extensions import Literal  # For python 3.7 support
+
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
 from botx.client.exceptions.common import ChatNotFoundError
@@ -13,11 +15,6 @@ from botx.models.enums import (
     convert_chat_type_to_domain,
     convert_user_kind,
 )
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 class BotXAPIChatInfoRequestPayload(UnverifiedPayloadBaseModel):

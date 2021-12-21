@@ -2,6 +2,7 @@ from typing import NoReturn
 from uuid import UUID
 
 import httpx
+from typing_extensions import Literal  # For python 3.7 support
 
 from botx.async_buffer import AsyncBufferReadable
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -14,11 +15,6 @@ from botx.client.stickers_api.exceptions import (
 from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from botx.models.attachments import encode_rfc2397
 from botx.models.stickers import Sticker
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 class BotXAPIAddStickerRequestPayload(UnverifiedPayloadBaseModel):

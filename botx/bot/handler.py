@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from functools import partial
 from typing import TYPE_CHECKING, Awaitable, Callable, List, TypeVar, Union
 
+from typing_extensions import Literal  # For python 3.7 support
+
 from botx.models.commands import BotCommand
 from botx.models.message.incoming_message import IncomingMessage
 from botx.models.status import StatusRecipient
@@ -15,11 +17,6 @@ from botx.models.system_events.internal_bot_notification import (
 )
 from botx.models.system_events.left_from_chat import LeftFromChatEvent
 from botx.models.system_events.smartapp_event import SmartAppEvent
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 if TYPE_CHECKING:  # To avoid circular import
     from botx.bot.bot import Bot
