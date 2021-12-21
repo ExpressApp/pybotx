@@ -5,7 +5,7 @@ from typing_extensions import Literal  # For python 3.7 support
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
-from botx.client.stickers_api.exceptions import StickerPackNotFoundError
+from botx.client.stickers_api.exceptions import StickerPackOrStickerNotFoundError
 from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from botx.models.stickers import Sticker, StickerPack
 
@@ -62,7 +62,7 @@ class BotXAPIGetStickerPackResponsePayload(VerifiedPayloadBaseModel):
 class GetStickerPackMethod(AuthorizedBotXMethod):
     status_handlers = {
         **AuthorizedBotXMethod.status_handlers,
-        404: response_exception_thrower(StickerPackNotFoundError),
+        404: response_exception_thrower(StickerPackOrStickerNotFoundError),
     }
 
     async def execute(

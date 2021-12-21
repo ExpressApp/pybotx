@@ -14,7 +14,7 @@ from botx import (
     InvalidEmojiError,
     InvalidImageError,
     Sticker,
-    StickerPackNotFoundError,
+    StickerPackOrStickerNotFoundError,
     lifespan_wrapper,
 )
 
@@ -182,7 +182,7 @@ async def test__add_sticker__sticker_pack_not_found_error_raised(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(StickerPackNotFoundError) as exc:
+        with pytest.raises(StickerPackOrStickerNotFoundError) as exc:
             await bot.add_sticker(
                 bot_id=bot_id,
                 sticker_pack_id=UUID("26080153-a57d-5a8c-af0e-fdecee3c4435"),

@@ -10,7 +10,7 @@ from botx.client.exceptions.http import InvalidBotXStatusCodeError
 from botx.client.stickers_api.exceptions import (
     InvalidEmojiError,
     InvalidImageError,
-    StickerPackNotFoundError,
+    StickerPackOrStickerNotFoundError,
 )
 from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from botx.models.attachments import encode_rfc2397
@@ -59,7 +59,7 @@ def bad_request_error_handler(response: httpx.Response) -> NoReturn:  # noqa: WP
     reason = response.json().get("reason")
 
     if reason == "pack_not_found":
-        raise StickerPackNotFoundError.from_response(response)
+        raise StickerPackOrStickerNotFoundError.from_response(response)
 
     error_data = response.json().get("error_data")
 
