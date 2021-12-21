@@ -34,6 +34,7 @@ class BotXAPIGetStickerPackResult(VerifiedPayloadBaseModel):
     id: UUID
     name: str
     public: bool
+    # TODO Fix after backend
     stickers_order: Optional[List[UUID]]
     stickers: List[BotXAPIGetStickerResult]
 
