@@ -2,14 +2,11 @@ from dataclasses import asdict, dataclass
 from typing import Any, Dict, List, NewType, Optional
 from uuid import UUID
 
+from typing_extensions import Literal  # For python 3.7 support
+
 from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.enums import APIChatTypes, ChatTypes, convert_chat_type_to_domain
 from botx.models.message.incoming_message import IncomingMessage
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 BotMenu = NewType("BotMenu", Dict[str, str])
 

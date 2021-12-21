@@ -4,17 +4,13 @@ from uuid import UUID
 import httpx
 import pytest
 import respx
+from typing_extensions import Literal  # For python 3.7 support
 
 from botx import BotAccount, InvalidBotXResponsePayloadError, InvalidBotXStatusCodeError
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.botx_method import BotXMethod, response_exception_thrower
 from botx.client.exceptions.base import BaseClientError
 from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 class FooBarError(BaseClientError):

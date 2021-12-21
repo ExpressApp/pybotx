@@ -1,13 +1,10 @@
 from dataclasses import dataclass
 from uuid import UUID
 
+from typing_extensions import Literal  # For python 3.7 support
+
 from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.enums import BotAPIEntityTypes
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 @dataclass

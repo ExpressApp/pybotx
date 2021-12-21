@@ -3,17 +3,13 @@ from typing import Any, Dict, Optional
 from uuid import UUID
 
 from pydantic import validator
+from typing_extensions import Literal  # For python 3.7 support
 
 from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
 from botx.constants import BOT_API_VERSION
 from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.bot_recipient import BotRecipient
 from botx.models.enums import APIChatTypes, BotAPIClientPlatforms, BotAPICommandTypes
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 class BotAPICommandPayload(VerifiedPayloadBaseModel):

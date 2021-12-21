@@ -1,15 +1,12 @@
 from typing import List
 from uuid import UUID
 
+from typing_extensions import Literal  # For python 3.7 support
+
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
 from botx.client.exceptions.common import ChatNotFoundError, PermissionDeniedError
 from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 class BotXAPIAddUserRequestPayload(UnverifiedPayloadBaseModel):

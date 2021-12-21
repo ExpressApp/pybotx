@@ -1,6 +1,8 @@
 from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
+from typing_extensions import Literal  # For python 3.7 support
+
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import callback_exception_thrower
 from botx.client.exceptions.common import ChatNotFoundError
@@ -23,11 +25,6 @@ from botx.models.message.markup import (
     api_markup_from_domain,
 )
 from botx.models.message.mentions import BotXAPIMention, find_and_replace_embed_mentions
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 class BotXAPIDirectNotificationMessageOpts(UnverifiedPayloadBaseModel):

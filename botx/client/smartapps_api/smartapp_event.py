@@ -1,16 +1,13 @@
 from typing import Any, Dict, List
 from uuid import UUID
 
+from typing_extensions import Literal  # For python 3.7 support
+
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.constants import SMARTAPP_API_VERSION
 from botx.missing import Missing, MissingOptional, Undefined
 from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from botx.models.async_files import APIAsyncFile, File, convert_async_file_from_domain
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 class BotXAPISmartAppEventRequestPayload(UnverifiedPayloadBaseModel):
