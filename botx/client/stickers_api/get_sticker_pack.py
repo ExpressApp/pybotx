@@ -1,16 +1,13 @@
 from typing import List, Optional
 from uuid import UUID
 
+from typing_extensions import Literal  # For python 3.7 support
+
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
 from botx.client.stickers_api.exceptions import StickerPackNotFoundError
 from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from botx.models.stickers import Sticker, StickerPack
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS440
 
 
 class BotXAPIGetStickerPackRequestPayload(UnverifiedPayloadBaseModel):
