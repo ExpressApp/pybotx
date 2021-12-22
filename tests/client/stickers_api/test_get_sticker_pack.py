@@ -9,7 +9,7 @@ from botx import (
     Bot,
     BotAccount,
     HandlerCollector,
-    StickerPackNotFoundError,
+    StickerPackOrStickerNotFoundError,
     lifespan_wrapper,
 )
 from botx.models.stickers import Sticker, StickerPack
@@ -48,7 +48,7 @@ async def test__get_sticker__sticker_pack_not_found_error_raised(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(StickerPackNotFoundError) as exc:
+        with pytest.raises(StickerPackOrStickerNotFoundError) as exc:
             await bot.get_sticker_pack(
                 bot_id=bot_id,
                 sticker_pack_id=UUID("26080153-a57d-5a8c-af0e-fdecee3c4435"),

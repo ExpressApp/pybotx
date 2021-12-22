@@ -1,12 +1,8 @@
 from botx.client.exceptions.base import BaseClientError
 
 
-class StickerPackNotFoundError(BaseClientError):
-    """Sticker pack with specified sticker_pack_id not found."""
-
-
-class StickerNotFoundError(BaseClientError):
-    """Sticker with specified sticker_id not found."""
+class StickerPackOrStickerNotFoundError(BaseClientError):
+    """Sticker pack or sticker with specified id not found."""
 
 
 class InvalidEmojiError(BaseClientError):
