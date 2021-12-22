@@ -1,8 +1,6 @@
-import asyncio
 from types import SimpleNamespace
 from typing import Any, AsyncIterable, Dict, List, Optional, Sequence, Union
 from uuid import UUID
-from weakref import WeakSet
 
 import httpx
 from pydantic import ValidationError, parse_obj_as
@@ -14,10 +12,7 @@ from botx.bot.contextvars import bot_id_var, chat_id_var
 from botx.bot.exceptions import AnswerDestinationLookupError
 from botx.bot.handler import Middleware
 from botx.bot.handler_collector import HandlerCollector
-from botx.bot.middlewares.exception_middleware import (
-    ExceptionHandlersDict,
-    ExceptionMiddleware,
-)
+from botx.bot.middlewares.exception_middleware import ExceptionHandlersDict
 from botx.client.chats_api.add_admin import (
     AddAdminMethod,
     BotXAPIAddAdminRequestPayload,
@@ -173,15 +168,16 @@ class Bot:
 
         self.default_callback_timeout = default_callback_timeout
 
-        self._middlewares = optional_sequence_to_list(middlewares)
-        self._add_exception_middleware(exception_handlers)
+        middlewares = optional_sequence_to_list(middlewares)
 
-        self._handler_collector = self._merge_collectors(collectors)
+        self._handler_collector = self._build_main_collector(
+            collectors,
+            middlewares,
+            exception_handlers,
+        )
 
         self._bot_accounts_storage = BotAccountsStorage(list(bot_accounts))
         self._httpx_client = httpx_client or httpx.AsyncClient()
-
-        self._tasks: "WeakSet[asyncio.Task[None]]" = WeakSet()
 
         self._callback_manager = CallbacksManager()
 
@@ -207,10 +203,7 @@ class Bot:
         # raise UnknownBotAccountError if no bot account with this bot_id.
         self._bot_accounts_storage.ensure_bot_id_exists(bot_command.bot.id)
 
-        task = asyncio.create_task(
-            self._handler_collector.handle_bot_command(bot_command, self),
-        )
-        self._tasks.add(task)
+        self._handler_collector.handle_bot_command_in_background(self, bot_command)
 
     async def raw_get_status(self, query_params: Dict[str, str]) -> Dict[str, Any]:
         logger.opt(lazy=True).debug(
@@ -260,13 +253,7 @@ class Bot:
 
     async def shutdown(self) -> None:
         self._callback_manager.stop_callbacks_waiting()
-
-        if self._tasks:
-            await asyncio.wait(
-                self._tasks,
-                return_when=asyncio.ALL_COMPLETED,
-            )
-
+        await self._handler_collector.wait_active_tasks()
         await self._httpx_client.aclose()
 
     # - Bots API -
@@ -1289,18 +1276,14 @@ class Bot:
 
         return botx_api_async_file.to_domain()
 
-    def _add_exception_middleware(
-        self,
-        exception_handlers: Optional[ExceptionHandlersDict] = None,
-    ) -> None:
-        exception_middleware = ExceptionMiddleware(exception_handlers or {})
-        self._middlewares.insert(0, exception_middleware.dispatch)
-
-    def _merge_collectors(
-        self,
+    @staticmethod
+    def _build_main_collector(
         collectors: Sequence[HandlerCollector],
+        middlewares: List[Middleware],
+        exception_handlers: Optional[ExceptionHandlersDict] = None,
     ) -> HandlerCollector:
-        main_collector = HandlerCollector(middlewares=self._middlewares)
+        main_collector = HandlerCollector(middlewares=middlewares)
+        main_collector.insert_exception_middleware(exception_handlers)
         main_collector.include(*collectors)
 
         return main_collector
