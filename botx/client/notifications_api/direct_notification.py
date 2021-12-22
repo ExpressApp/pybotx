@@ -11,6 +11,7 @@ from botx.client.exceptions.notifications import (
     FinalRecipientsListEmptyError,
     StealthModeDisabledError,
 )
+from botx.constants import MAX_NOTIFICATION_BODY_LENGTH
 from botx.missing import Missing, Undefined
 from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from botx.models.attachments import (
@@ -79,6 +80,11 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
         if file:
             assert not file.is_async_file, "async_files not supported"
             api_file = BotXAPIAttachment.from_file_attachment(file)
+
+        if len(body) > MAX_NOTIFICATION_BODY_LENGTH:
+            raise ValueError(
+                f"Message body length exceeds {MAX_NOTIFICATION_BODY_LENGTH} symbols",
+            )
 
         body, mentions = find_and_replace_embed_mentions(body)
 

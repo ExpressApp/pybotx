@@ -955,3 +955,101 @@ async def test__send_message__all_mentions_types_succeed(
     # - Assert -
     assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
     assert endpoint.called
+
+
+@respx.mock
+@pytest.mark.asyncio
+@pytest.mark.mock_authorization
+async def test__send_message__message_body_max_length_error_raised(
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccount,
+) -> None:
+    # - Arrange -
+    too_long_body = "1" * 4097
+    endpoint = respx.post(
+        f"https://{host}/api/v4/botx/notifications/direct",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        ),
+    )
+
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        with pytest.raises(ValueError) as exc:
+            await bot.send_message(
+                body=too_long_body,
+                bot_id=bot_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+            )
+
+    # - Assert -
+    assert "Message body length exceeds 4096 symbols" in str(exc.value)
+    assert not endpoint.called
+
+
+@respx.mock
+@pytest.mark.asyncio
+@pytest.mark.mock_authorization
+async def test__send_message__message_body_max_length_succeed(
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccount,
+) -> None:
+    max_long_body = "1" * 4096
+    endpoint = respx.post(
+        f"https://{host}/api/v4/botx/notifications/direct",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        ),
+    )
+
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        task = asyncio.create_task(
+            bot.send_message(
+                body=max_long_body,
+                bot_id=bot_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+            ),
+        )
+
+        await asyncio.sleep(0)  # Return control to event loop
+
+        bot.set_raw_botx_method_result(
+            {
+                "status": "ok",
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "result": {},
+            },
+        )
+
+    # - Assert -
+    assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert endpoint.called
