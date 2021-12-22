@@ -58,14 +58,7 @@ class HandlerCollector:
         for collector in others:
             self._include_collector(collector)
 
-    def insert_exception_middleware(
-        self,
-        exception_handlers: Optional[ExceptionHandlersDict] = None,
-    ) -> None:
-        exception_middleware = ExceptionMiddleware(exception_handlers or {})
-        self._middlewares.insert(0, exception_middleware.dispatch)
-
-    def handle_bot_command_in_background(
+    def async_handle_bot_command(
         self,
         bot: "Bot",
         bot_command: BotCommand,
@@ -74,13 +67,6 @@ class HandlerCollector:
             self.handle_bot_command(bot_command, bot),
         )
         self._tasks.add(task)
-
-    async def wait_active_tasks(self) -> None:
-        if self._tasks:
-            await asyncio.wait(
-                self._tasks,
-                return_when=asyncio.ALL_COMPLETED,
-            )
 
     async def handle_bot_command(self, bot_command: BotCommand, bot: "Bot") -> None:
         if isinstance(bot_command, IncomingMessage):
@@ -244,6 +230,20 @@ class HandlerCollector:
         self._system_event(SmartAppEvent, handler_func)
 
         return handler_func
+
+    def insert_exception_middleware(
+        self,
+        exception_handlers: Optional[ExceptionHandlersDict] = None,
+    ) -> None:
+        exception_middleware = ExceptionMiddleware(exception_handlers or {})
+        self._middlewares.insert(0, exception_middleware.dispatch)
+
+    async def wait_active_tasks(self) -> None:
+        if self._tasks:
+            await asyncio.wait(
+                self._tasks,
+                return_when=asyncio.ALL_COMPLETED,
+            )
 
     def _reversed_middlewares(
         self,

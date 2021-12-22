@@ -203,7 +203,7 @@ class Bot:
         # raise UnknownBotAccountError if no bot account with this bot_id.
         self._bot_accounts_storage.ensure_bot_id_exists(bot_command.bot.id)
 
-        self._handler_collector.handle_bot_command_in_background(self, bot_command)
+        self._handler_collector.async_handle_bot_command(self, bot_command)
 
     async def raw_get_status(self, query_params: Dict[str, str]) -> Dict[str, Any]:
         logger.opt(lazy=True).debug(
