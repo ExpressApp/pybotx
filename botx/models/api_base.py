@@ -49,7 +49,7 @@ def _remove_undefined(
 class PayloadBaseModel(BaseModel):
     def json(self) -> str:  # type: ignore [override]
         clean_dict = _remove_undefined(self.dict())
-        return json.dumps(clean_dict, default=pydantic_encoder)
+        return json.dumps(clean_dict, default=pydantic_encoder, ensure_ascii=False)
 
     def jsonable_dict(self) -> Dict[str, Any]:
         return cast(
