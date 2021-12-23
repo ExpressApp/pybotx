@@ -8,7 +8,7 @@ if TYPE_CHECKING:  # To avoid circular import
 
 
 def pformat_jsonable_obj(jsonable_obj: Any) -> str:
-    return json.dumps(jsonable_obj, sort_keys=True, indent=4)
+    return json.dumps(jsonable_obj, sort_keys=True, indent=4, ensure_ascii=False)
 
 
 def setup_logger() -> "Logger":
