@@ -1,5 +1,7 @@
+import asyncio
 import re
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Sequence, Type, Union
+from weakref import WeakSet
 
 from botx.bot.contextvars import bot_id_var, bot_var, chat_id_var
 from botx.bot.handler import (
@@ -12,6 +14,10 @@ from botx.bot.handler import (
     SystemEventHandlerFunc,
     VisibleCommandHandler,
     VisibleFunc,
+)
+from botx.bot.middlewares.exception_middleware import (
+    ExceptionHandlersDict,
+    ExceptionMiddleware,
 )
 from botx.converters import optional_sequence_to_list
 from botx.logger import logger
@@ -44,12 +50,23 @@ class HandlerCollector:
             SystemEventHandlerFunc,
         ] = {}
         self._middlewares = self._reversed_middlewares(middlewares)
+        self._tasks: "WeakSet[asyncio.Task[None]]" = WeakSet()
 
     def include(self, *others: "HandlerCollector") -> None:
         """Include other `HandlerCollector`."""
 
         for collector in others:
             self._include_collector(collector)
+
+    def async_handle_bot_command(
+        self,
+        bot: "Bot",
+        bot_command: BotCommand,
+    ) -> None:
+        task = asyncio.create_task(
+            self.handle_bot_command(bot_command, bot),
+        )
+        self._tasks.add(task)
 
     async def handle_bot_command(self, bot_command: BotCommand, bot: "Bot") -> None:
         if isinstance(bot_command, IncomingMessage):
@@ -213,6 +230,20 @@ class HandlerCollector:
         self._system_event(SmartAppEvent, handler_func)
 
         return handler_func
+
+    def insert_exception_middleware(
+        self,
+        exception_handlers: Optional[ExceptionHandlersDict] = None,
+    ) -> None:
+        exception_middleware = ExceptionMiddleware(exception_handlers or {})
+        self._middlewares.insert(0, exception_middleware.dispatch)
+
+    async def wait_active_tasks(self) -> None:
+        if self._tasks:
+            await asyncio.wait(
+                self._tasks,
+                return_when=asyncio.ALL_COMPLETED,
+            )
 
     def _reversed_middlewares(
         self,
