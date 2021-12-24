@@ -6,7 +6,13 @@ import pytest
 import respx
 from aiofiles.tempfile import NamedTemporaryFile
 
-from botx import Bot, BotAccount, ChatNotFoundError, HandlerCollector, lifespan_wrapper
+from botx import (
+    Bot,
+    BotAccountWithSecret,
+    ChatNotFoundError,
+    HandlerCollector,
+    lifespan_wrapper,
+)
 
 
 @respx.mock
@@ -16,7 +22,7 @@ async def test__download_file__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
 ) -> None:
     # - Arrange -
@@ -71,7 +77,7 @@ async def test__download_file__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
 ) -> None:
     # - Arrange -

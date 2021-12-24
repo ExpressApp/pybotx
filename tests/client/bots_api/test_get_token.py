@@ -7,7 +7,7 @@ import respx
 
 from botx import (
     Bot,
-    BotAccount,
+    BotAccountWithSecret,
     HandlerCollector,
     InvalidBotAccountError,
     lifespan_wrapper,
@@ -21,7 +21,7 @@ async def test__get_token__invalid_bot_account_error_raised(
     host: str,
     bot_id: UUID,
     bot_signature: str,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(
@@ -54,7 +54,7 @@ async def test__get_token__succeed(
     host: str,
     bot_id: UUID,
     bot_signature: str,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(

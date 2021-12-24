@@ -11,7 +11,7 @@ from botx.models.base_command import (
     BotAPIChatContext,
     BotCommandBase,
 )
-from botx.models.bot_recipient import BotRecipient
+from botx.models.bot_account import BotAccount
 from botx.models.chats import Chat
 from botx.models.enums import BotAPICommandTypes, convert_chat_type_to_domain
 
@@ -45,7 +45,7 @@ class BotAPIDeletedFromChat(BotAPIBaseCommand):
 
     def to_domain(self, raw_command: Dict[str, Any]) -> DeletedFromChatEvent:
         return DeletedFromChatEvent(
-            bot=BotRecipient(
+            bot=BotAccount(
                 id=self.bot_id,
                 host=self.sender.host,
             ),

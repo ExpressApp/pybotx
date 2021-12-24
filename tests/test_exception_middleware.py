@@ -5,7 +5,13 @@ from unittest.mock import MagicMock, call
 import pytest
 import respx
 
-from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wrapper
+from botx import (
+    Bot,
+    BotAccountWithSecret,
+    HandlerCollector,
+    IncomingMessage,
+    lifespan_wrapper,
+)
 
 
 @respx.mock
@@ -13,7 +19,7 @@ from botx import Bot, BotAccount, HandlerCollector, IncomingMessage, lifespan_wr
 @pytest.mark.mock_authorization
 async def test__exception_middleware__handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     exc = ValueError("test_error")
@@ -48,7 +54,7 @@ async def test__exception_middleware__handler_called(
 async def test__exception_middleware__without_handler_logs(
     incoming_message_factory: Callable[..., IncomingMessage],
     loguru_caplog: pytest.LogCaptureFixture,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -76,7 +82,7 @@ async def test__exception_middleware__without_handler_logs(
 async def test__exception_middleware__error_in_handler_logs(
     incoming_message_factory: Callable[..., IncomingMessage],
     loguru_caplog: pytest.LogCaptureFixture,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")

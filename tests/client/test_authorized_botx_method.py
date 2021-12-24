@@ -5,7 +5,7 @@ import httpx
 import pytest
 import respx
 
-from botx import BotAccount, InvalidBotAccountError
+from botx import BotAccountWithSecret, InvalidBotAccountError
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from tests.client.test_botx_method import (
@@ -40,7 +40,7 @@ async def test__authorized_botx_method__unauthorized(
     host: str,
     bot_id: UUID,
     bot_signature: str,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     token_endpoint = respx.get(
@@ -88,7 +88,7 @@ async def test__authorized_botx_method__succeed(
     host: str,
     bot_id: UUID,
     bot_signature: str,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     token_endpoint = respx.get(

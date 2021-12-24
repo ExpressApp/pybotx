@@ -8,7 +8,7 @@ from typing_extensions import Literal  # For python 3.7 support
 from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
 from botx.constants import BOT_API_VERSION
 from botx.models.api_base import VerifiedPayloadBaseModel
-from botx.models.bot_recipient import BotRecipient
+from botx.models.bot_account import BotAccount
 from botx.models.enums import APIChatTypes, BotAPIClientPlatforms, BotAPICommandTypes
 
 
@@ -70,5 +70,5 @@ class BotAPIBaseCommand(VerifiedPayloadBaseModel):
 
 @dataclass
 class BotCommandBase:
-    bot: BotRecipient
+    bot: BotAccount
     raw_command: Optional[Dict[str, Any]]

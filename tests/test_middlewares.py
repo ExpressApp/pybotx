@@ -6,7 +6,7 @@ import respx
 
 from botx import (
     Bot,
-    BotAccount,
+    BotAccountWithSecret,
     HandlerCollector,
     IncomingMessage,
     IncomingMessageHandlerFunc,
@@ -21,7 +21,7 @@ from botx import (
 async def test__middlewares__correct_order(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
@@ -73,7 +73,7 @@ async def test__middlewares__correct_order(
 @pytest.mark.mock_authorization
 async def test__middlewares__called_in_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
@@ -119,7 +119,7 @@ async def test__middlewares__called_in_default_handler(
 @pytest.mark.mock_authorization
 async def test__middlewares__correct_child_collector_middlewares(
     incoming_message_factory: Callable[..., IncomingMessage],
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     middlewares_called_order = []
@@ -170,7 +170,7 @@ async def test__middlewares__correct_child_collector_middlewares(
 @pytest.mark.mock_authorization
 async def test__middlewares__correct_parent_collector_middlewares(
     incoming_message_factory: Callable[..., IncomingMessage],
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     middlewares_called_order = []

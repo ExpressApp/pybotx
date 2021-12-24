@@ -13,7 +13,7 @@ from starlette.testclient import TestClient
 
 from botx import (
     Bot,
-    BotAccount,
+    BotAccountWithSecret,
     HandlerCollector,
     IncomingMessage,
     UnknownBotAccountError,
@@ -23,14 +23,18 @@ from botx import (
 from botx.logger import logger  # TODO: Implement separate logger here
 
 
-def build_bot_accounts_from_env() -> List[BotAccount]:
+def build_bot_accounts_from_env() -> List[BotAccountWithSecret]:
     load_dotenv()
 
     bot_accounts = []
     for raw_credentials in os.environ["BOT_CREDENTIALS"].split(","):
         host, raw_bot_id, secret_key = raw_credentials.replace("|", "@").split("@")
         bot_accounts.append(
-            BotAccount(host=host, bot_id=UUID(raw_bot_id), secret_key=secret_key),
+            BotAccountWithSecret(
+                id=UUID(raw_bot_id),
+                host=host,
+                secret_key=secret_key,
+            ),
         )
 
     return bot_accounts
@@ -138,7 +142,7 @@ def test__web_app__bot_status(
 def test__web_app__bot_command(
     test_client: TestClient,
 ) -> None:
-    bot_id = str(bot_accounts[0].bot_id)
+    bot_id = str(bot_accounts[0].id)
     payload = {
         "bot_id": bot_id,
         "command": {

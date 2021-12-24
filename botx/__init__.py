@@ -48,8 +48,7 @@ from botx.client.stickers_api.exceptions import (
 )
 from botx.models.async_files import Document, File, Image, Video, Voice
 from botx.models.attachments import OutgoingAttachment
-from botx.models.bot_account import BotAccount
-from botx.models.bot_recipient import BotRecipient
+from botx.models.bot_account import BotAccount, BotAccountWithSecret
 from botx.models.bot_sender import BotSender
 from botx.models.chats import Chat, ChatInfo, ChatInfoMember, ChatListItem
 from botx.models.enums import (
@@ -85,12 +84,12 @@ __all__ = (
     "AnswerDestinationLookupError",
     "AttachmentTypes",
     "Bot",
-    "BotAccount",
+    "BotAccountWithSecret",
     "BotAPIBotDisabledResponse",
     "BotAPIMethodFailedCallback",
     "BotIsNotChatMemberError",
     "BotMenu",
-    "BotRecipient",
+    "BotAccount",
     "BotSender",
     "BotShuttingDownError",
     "BotXMethodCallbackNotFoundError",

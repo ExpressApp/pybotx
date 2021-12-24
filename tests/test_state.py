@@ -5,7 +5,7 @@ import respx
 
 from botx import (
     Bot,
-    BotAccount,
+    BotAccountWithSecret,
     HandlerCollector,
     IncomingMessage,
     IncomingMessageHandlerFunc,
@@ -18,7 +18,7 @@ from botx import (
 @pytest.mark.mock_authorization
 async def test__bot_state__save_changes_between_middleware_and_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -57,7 +57,7 @@ async def test__bot_state__save_changes_between_middleware_and_handler(
 @pytest.mark.mock_authorization
 async def test__message_state__save_changes_between_middleware_and_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     incoming_message: Optional[IncomingMessage] = None

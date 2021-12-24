@@ -7,7 +7,7 @@ import respx
 from botx import (
     Bot,
     BotAccount,
-    BotRecipient,
+    BotAccountWithSecret,
     Chat,
     ChatCreatedEvent,
     ChatCreatedMember,
@@ -23,7 +23,7 @@ def chat_created(
     bot_id: UUID,
 ) -> ChatCreatedEvent:
     return ChatCreatedEvent(
-        bot=BotRecipient(
+        bot=BotAccount(
             id=bot_id,
             host="cts.example.com",
         ),
@@ -52,7 +52,7 @@ def chat_created(
 async def test__system_event_handler__called(
     chat_created: ChatCreatedEvent,
     correct_handler_trigger: Mock,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -76,7 +76,7 @@ async def test__system_event_handler__called(
 @pytest.mark.mock_authorization
 async def test__system_event_handler__no_handler_for_system_event(
     chat_created: ChatCreatedEvent,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -97,7 +97,7 @@ async def test__system_event_handler__no_handler_for_system_event(
 async def test__system_event_handler__handler_in_first_collector(
     chat_created: ChatCreatedEvent,
     correct_handler_trigger: Mock,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     collector_1 = HandlerCollector()
@@ -123,7 +123,7 @@ async def test__system_event_handler__handler_in_first_collector(
 async def test__system_event_handler__handler_in_second_collector(
     chat_created: ChatCreatedEvent,
     correct_handler_trigger: Mock,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     collector_1 = HandlerCollector()

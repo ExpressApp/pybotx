@@ -8,7 +8,7 @@ from aiofiles.tempfile import NamedTemporaryFile
 
 from botx import (
     Bot,
-    BotAccount,
+    BotAccountWithSecret,
     HandlerCollector,
     InvalidBotXStatusCodeError,
     InvalidEmojiError,
@@ -35,7 +35,7 @@ PNG_IMAGE_B64 = (
 async def test__add_sticker__is_not_png_error_raised(
     httpx_client: httpx.AsyncClient,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
 ) -> None:
     # - Arrange -
@@ -66,7 +66,7 @@ async def test__add_sticker__is_not_png_error_raised(
 async def test__add_sticker__bad_file_size_error_raised(
     httpx_client: httpx.AsyncClient,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
 ) -> None:
     # - Arrange -
@@ -100,7 +100,7 @@ async def test__add_sticker__unexpected_bad_request_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
 ) -> None:
     # - Arrange -
@@ -151,7 +151,7 @@ async def test__add_sticker__sticker_pack_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
 ) -> None:
     # - Arrange -
@@ -202,7 +202,7 @@ async def test__add_sticker__invalid_emoji_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
 ) -> None:
     # - Arrange -
@@ -253,7 +253,7 @@ async def test__add_sticker__invalid_image_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
 ) -> None:
     # - Arrange -
@@ -304,7 +304,7 @@ async def test__add_sticker__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
 ) -> None:
     # - Arrange -

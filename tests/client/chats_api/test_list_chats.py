@@ -9,7 +9,7 @@ import respx
 
 from botx import (
     Bot,
-    BotAccount,
+    BotAccountWithSecret,
     ChatListItem,
     ChatTypes,
     HandlerCollector,
@@ -24,7 +24,7 @@ async def test__list_chats__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     datetime_formatter: Callable[[str], datetime],
 ) -> None:
     # - Arrange -

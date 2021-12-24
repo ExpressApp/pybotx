@@ -6,7 +6,7 @@ import pytest
 import respx
 from aiofiles.tempfile import NamedTemporaryFile
 
-from botx import BotAccount, InvalidBotXStatusCodeError
+from botx import BotAccountWithSecret, InvalidBotXStatusCodeError
 from botx.async_buffer import AsyncBufferWritable
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.botx_method import BotXMethod, response_exception_thrower
@@ -47,7 +47,7 @@ async def test__botx_method_stream__invalid_botx_status_code_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
 ) -> None:
     # - Arrange -
@@ -77,7 +77,7 @@ async def test__botx_method_stream__status_handler_called(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
 ) -> None:
     # - Arrange -
@@ -107,7 +107,7 @@ async def test__botx_method_stream__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
 ) -> None:
     # - Arrange -

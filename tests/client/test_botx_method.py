@@ -6,7 +6,11 @@ import pytest
 import respx
 from typing_extensions import Literal  # For python 3.7 support
 
-from botx import BotAccount, InvalidBotXResponsePayloadError, InvalidBotXStatusCodeError
+from botx import (
+    BotAccountWithSecret,
+    InvalidBotXResponsePayloadError,
+    InvalidBotXStatusCodeError,
+)
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.botx_method import BotXMethod, response_exception_thrower
 from botx.client.exceptions.base import BaseClientError
@@ -66,7 +70,7 @@ async def test__botx_method__invalid_botx_status_code_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -99,7 +103,7 @@ async def test__botx_method__invalid_json_raises_invalid_botx_response_payload_e
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -135,7 +139,7 @@ async def test__botx_method__invalid_schema_raises_invalid_botx_response_payload
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -171,7 +175,7 @@ async def test__botx_method__status_handler_called(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -205,7 +209,7 @@ async def test__botx_method__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(

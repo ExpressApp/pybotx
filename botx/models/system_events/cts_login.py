@@ -11,7 +11,7 @@ from botx.models.base_command import (
     BotAPIBaseCommand,
     BotCommandBase,
 )
-from botx.models.bot_recipient import BotRecipient
+from botx.models.bot_account import BotAccount
 from botx.models.enums import BotAPICommandTypes
 
 
@@ -42,7 +42,7 @@ class BotAPICTSLogin(BotAPIBaseCommand):
 
     def to_domain(self, raw_command: Dict[str, Any]) -> CTSLoginEvent:
         return CTSLoginEvent(
-            bot=BotRecipient(
+            bot=BotAccount(
                 id=self.bot_id,
                 host=self.sender.host,
             ),

@@ -5,7 +5,13 @@ import httpx
 import pytest
 import respx
 
-from botx import Bot, BotAccount, HandlerCollector, StickerPack, lifespan_wrapper
+from botx import (
+    Bot,
+    BotAccountWithSecret,
+    HandlerCollector,
+    StickerPack,
+    lifespan_wrapper,
+)
 
 
 @respx.mock
@@ -15,7 +21,7 @@ async def test__create_sticker_pack__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(

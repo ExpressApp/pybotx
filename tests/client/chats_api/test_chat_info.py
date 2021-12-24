@@ -9,7 +9,7 @@ import respx
 
 from botx import (
     Bot,
-    BotAccount,
+    BotAccountWithSecret,
     ChatInfo,
     ChatInfoMember,
     ChatNotFoundError,
@@ -27,7 +27,7 @@ async def test__chat_info__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(
@@ -76,7 +76,7 @@ async def test__chat_info__succeed(
     host: str,
     bot_id: UUID,
     datetime_formatter: Callable[[str], dt],
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(
