@@ -1,22 +1,20 @@
 import base64
 import hashlib
 import hmac
-from typing import Dict, Iterator, List, Optional, Tuple
+from typing import Dict, Iterator, List, Optional
 from uuid import UUID
 
 from botx.bot.exceptions import UnknownBotAccountError
-from botx.models.bot_account import BotAccount
+from botx.models.bot_account import BotAccount, BotAccountWithSecret
 
 
 class BotAccountsStorage:
-    def __init__(self, bot_accounts: List[BotAccount]) -> None:
+    def __init__(self, bot_accounts: List[BotAccountWithSecret]) -> None:
         self._bot_accounts = bot_accounts
         self._auth_tokens: Dict[UUID, str] = {}
 
-    def iter_host_and_bot_id_pairs(self) -> Iterator[Tuple[str, UUID]]:
-        yield from (
-            (bot_account.host, bot_account.bot_id) for bot_account in self._bot_accounts
-        )
+    def iter_bot_accounts(self) -> Iterator[BotAccount]:
+        yield from self._bot_accounts
 
     def get_host(self, bot_id: UUID) -> str:
         bot_account = self._get_bot_account(bot_id)
@@ -33,7 +31,7 @@ class BotAccountsStorage:
 
         signed_bot_id = hmac.new(
             key=bot_account.secret_key.encode(),
-            msg=str(bot_account.bot_id).encode(),
+            msg=str(bot_account.id).encode(),
             digestmod=hashlib.sha256,
         ).digest()
 
@@ -42,9 +40,9 @@ class BotAccountsStorage:
     def ensure_bot_id_exists(self, bot_id: UUID) -> None:
         self._get_bot_account(bot_id)
 
-    def _get_bot_account(self, bot_id: UUID) -> BotAccount:
+    def _get_bot_account(self, bot_id: UUID) -> BotAccountWithSecret:
         for bot_account in self._bot_accounts:
-            if bot_account.bot_id == bot_id:
+            if bot_account.id == bot_id:
                 return bot_account
 
         raise UnknownBotAccountError(bot_id)

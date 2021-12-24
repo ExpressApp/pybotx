@@ -8,7 +8,7 @@ from aiofiles.tempfile import NamedTemporaryFile
 
 from botx import (
     Bot,
-    BotAccount,
+    BotAccountWithSecret,
     BubbleMarkup,
     HandlerCollector,
     KeyboardMarkup,
@@ -24,7 +24,7 @@ from botx import (
 async def test__reply_message__minimal_filled_reply_succeed(
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     httpx_client: httpx.AsyncClient,
 ) -> None:
     # - Arrange -
@@ -73,7 +73,7 @@ async def test__reply_message__minimal_filled_reply_succeed(
 async def test__reply_message__maximum_filled_reply_succeed(
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     httpx_client: httpx.AsyncClient,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

@@ -6,7 +6,7 @@ import respx
 
 from botx import (
     Bot,
-    BotAccount,
+    BotAccountWithSecret,
     ChatCreatedEvent,
     HandlerCollector,
     IncomingMessage,
@@ -196,7 +196,7 @@ def test__handler_collector__merge_collectors_with_same_system_events_handlers_e
 async def test__handler_collector__command_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -222,7 +222,7 @@ async def test__handler_collector__command_handler_called(
 async def test__handler_collector__unicode_command_error_raised(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     russian_command = incoming_message_factory(body="/команда")
@@ -249,7 +249,7 @@ async def test__handler_collector__correct_command_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
     incorrect_handler_trigger: Mock,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -281,7 +281,7 @@ async def test__handler_collector__correct_command_handler_called_in_merged_coll
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
     incorrect_handler_trigger: Mock,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -314,7 +314,7 @@ async def test__handler_collector__correct_command_handler_called_in_merged_coll
 async def test__handler_collector__default_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -340,7 +340,7 @@ async def test__handler_collector__default_handler_called(
 async def test__handler_collector__empty_command_goes_to_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     empty_command = incoming_message_factory(body="")
@@ -366,7 +366,7 @@ async def test__handler_collector__empty_command_goes_to_default_handler(
 async def test__handler_collector__invalid_command_goes_to_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     empty_command = incoming_message_factory(body="/")
@@ -391,7 +391,7 @@ async def test__handler_collector__invalid_command_goes_to_default_handler(
 @pytest.mark.mock_authorization
 async def test__handler_collector__handler_not_found_logged(
     incoming_message_factory: Callable[..., IncomingMessage],
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     # - Arrange -
@@ -414,7 +414,7 @@ async def test__handler_collector__handler_not_found_logged(
 async def test__handler_collector__default_handler_in_first_collector_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -442,7 +442,7 @@ async def test__handler_collector__default_handler_in_first_collector_called(
 async def test__handler_collector__default_handler_in_second_collector_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -469,7 +469,7 @@ async def test__handler_collector__default_handler_in_second_collector_called(
 @pytest.mark.mock_authorization
 async def test__handler_collector__handler_not_found_exception_logged(
     incoming_message_factory: Callable[..., IncomingMessage],
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     # - Arrange -

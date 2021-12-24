@@ -13,7 +13,7 @@ from pydantic import BaseModel
 
 from botx import (
     BotAccount,
-    BotRecipient,
+    BotAccountWithSecret,
     Chat,
     ChatTypes,
     IncomingMessage,
@@ -27,7 +27,7 @@ from botx.logger import logger
 @pytest.fixture
 def prepared_bot_accounts_storage(
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> BotAccountsStorage:
     bot_accounts_storage = BotAccountsStorage([bot_account])
     bot_accounts_storage.set_token(bot_id, "token")
@@ -57,10 +57,10 @@ def bot_id() -> UUID:
 
 
 @pytest.fixture
-def bot_account(host: str, bot_id: UUID) -> BotAccount:
-    return BotAccount(
+def bot_account(host: str, bot_id: UUID) -> BotAccountWithSecret:
+    return BotAccountWithSecret(
+        id=bot_id,
         host=host,
-        bot_id=bot_id,
         secret_key="bee001",
     )
 
@@ -222,7 +222,7 @@ def incoming_message_factory(
         ad_domain: Optional[str] = None,
     ) -> IncomingMessage:
         return IncomingMessage(
-            bot=BotRecipient(
+            bot=BotAccount(
                 id=bot_id,
                 host="cts.example.com",
             ),

@@ -1,11 +1,11 @@
 import pytest
 
-from botx import Bot, BotAccount, HandlerCollector
+from botx import Bot, BotAccountWithSecret, HandlerCollector
 
 
 def test__bot__empty_collectors_warning(
     loguru_caplog: pytest.LogCaptureFixture,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Act -
     Bot(collectors=[], bot_accounts=[bot_account])

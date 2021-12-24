@@ -7,7 +7,7 @@ import respx
 
 from botx import (
     Bot,
-    BotAccount,
+    BotAccountWithSecret,
     HandlerCollector,
     StickerPackOrStickerNotFoundError,
     lifespan_wrapper,
@@ -22,7 +22,7 @@ async def test__get_sticker__sticker_pack_or_sticker_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(
@@ -71,7 +71,7 @@ async def test__get_sticker__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(

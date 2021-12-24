@@ -5,7 +5,7 @@ import httpx
 import pytest
 import respx
 
-from botx import Bot, BotAccount, HandlerCollector, lifespan_wrapper
+from botx import Bot, BotAccountWithSecret, HandlerCollector, lifespan_wrapper
 
 
 @respx.mock
@@ -15,7 +15,7 @@ async def test__send_smartapp_notification__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(

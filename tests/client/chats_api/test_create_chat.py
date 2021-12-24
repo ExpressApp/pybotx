@@ -7,7 +7,7 @@ import respx
 
 from botx import (
     Bot,
-    BotAccount,
+    BotAccountWithSecret,
     ChatCreationError,
     ChatCreationProhibitedError,
     ChatTypes,
@@ -23,7 +23,7 @@ async def test__create_chat__bot_have_no_permissions_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -77,7 +77,7 @@ async def test__create_chat__botx_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -129,7 +129,7 @@ async def test__create_chat__maximum_filled_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(

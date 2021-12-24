@@ -8,7 +8,7 @@ from botx import (
     AttachmentTypes,
     Bot,
     BotAccount,
-    BotRecipient,
+    BotAccountWithSecret,
     HandlerCollector,
     Image,
     SmartAppEvent,
@@ -22,7 +22,7 @@ from botx.models.enums import ChatTypes
 @pytest.mark.asyncio
 @pytest.mark.mock_authorization
 async def test__smartapp__succeed(
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     payload = {
@@ -107,7 +107,7 @@ async def test__smartapp__succeed(
     assert smartapp == SmartAppEvent(
         ref=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
         smartapp_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
-        bot=BotRecipient(
+        bot=BotAccount(
             id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
             host="cts.example.com",
         ),

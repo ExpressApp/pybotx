@@ -12,7 +12,7 @@ from botx.models.base_command import (
     BotAPIChatContext,
     BotCommandBase,
 )
-from botx.models.bot_recipient import BotRecipient
+from botx.models.bot_account import BotAccount
 from botx.models.chats import Chat
 from botx.models.enums import BotAPICommandTypes, convert_chat_type_to_domain
 
@@ -60,7 +60,7 @@ class BotAPISmartAppEvent(BotAPIBaseCommand):
 
     def to_domain(self, raw_command: Dict[str, Any]) -> SmartAppEvent:
         return SmartAppEvent(
-            bot=BotRecipient(id=self.bot_id, host=self.sender.host),
+            bot=BotAccount(id=self.bot_id, host=self.sender.host),
             raw_command=raw_command,
             ref=self.payload.data.ref,
             smartapp_id=self.payload.data.smartapp_id,

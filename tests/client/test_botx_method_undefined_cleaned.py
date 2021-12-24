@@ -7,7 +7,7 @@ import pytest
 import respx
 from typing_extensions import Literal  # For python 3.7 support
 
-from botx import BotAccount
+from botx import BotAccountWithSecret
 from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.client.botx_method import BotXMethod
 from botx.missing import Undefined
@@ -51,7 +51,7 @@ async def test__botx_method__undefined_cleaned(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(

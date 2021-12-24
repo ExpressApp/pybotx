@@ -12,7 +12,7 @@ import respx
 
 from botx import (
     Bot,
-    BotAccount,
+    BotAccountWithSecret,
     BotShuttingDownError,
     BotXMethodFailedCallbackReceivedError,
     CallbackNotReceivedError,
@@ -102,7 +102,7 @@ async def test__botx_method_callback__error_callback_error_handler_called(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -164,7 +164,7 @@ async def test__botx_method_callback__error_callback_received(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -225,7 +225,7 @@ async def test__botx_method_callback__cancelled_callback_future_during_shutdown(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -266,7 +266,7 @@ async def test__botx_method_callback__callback_received_after_timeout(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     # - Arrange -
@@ -324,7 +324,7 @@ async def test__botx_method_callback__dont_wait_for_callback(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -364,7 +364,7 @@ async def test__botx_method_callback__pending_callback_future_during_shutdown(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -410,7 +410,7 @@ async def test__botx_method_callback__callback_successful_received(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(

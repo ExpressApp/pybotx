@@ -11,7 +11,7 @@ from botx.models.base_command import (
     BotAPIUserContext,
     BotCommandBase,
 )
-from botx.models.bot_recipient import BotRecipient
+from botx.models.bot_account import BotAccount
 from botx.models.bot_sender import BotSender
 from botx.models.chats import Chat
 from botx.models.enums import BotAPICommandTypes, convert_chat_type_to_domain
@@ -55,7 +55,7 @@ class BotAPIInternalBotNotification(BotAPIBaseCommand):
 
     def to_domain(self, raw_command: Dict[str, Any]) -> InternalBotNotificationEvent:
         return InternalBotNotificationEvent(
-            bot=BotRecipient(
+            bot=BotAccount(
                 id=self.bot_id,
                 host=self.sender.host,
             ),

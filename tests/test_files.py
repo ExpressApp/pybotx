@@ -9,7 +9,7 @@ import respx
 from botx import (
     AttachmentTypes,
     Bot,
-    BotAccount,
+    BotAccountWithSecret,
     Document,
     File,
     HandlerCollector,
@@ -27,7 +27,7 @@ from botx import (
 async def test__async_file__open(
     httpx_client: httpx.AsyncClient,
     host: str,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     bot_id: UUID,
     api_incoming_message_factory: Callable[..., Dict[str, Any]],
 ) -> None:
@@ -215,7 +215,7 @@ async def test__async_execute_raw_bot_command__different_file_types(
     api_async_file: Dict[str, Any],
     domain_async_file: File,
     api_incoming_message_factory: Callable[..., Dict[str, Any]],
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     payload = api_incoming_message_factory(async_file=api_async_file)

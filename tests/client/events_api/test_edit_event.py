@@ -8,7 +8,7 @@ from aiofiles.tempfile import NamedTemporaryFile
 
 from botx import (
     Bot,
-    BotAccount,
+    BotAccountWithSecret,
     BubbleMarkup,
     HandlerCollector,
     KeyboardMarkup,
@@ -25,7 +25,7 @@ async def test__edit_message__minimal_edit_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -68,7 +68,7 @@ async def test__edit_message__maximum_edit_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # - Arrange -
@@ -171,7 +171,7 @@ async def test__edit_message__clean_message_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(

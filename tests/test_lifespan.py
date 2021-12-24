@@ -7,7 +7,7 @@ import httpx
 import pytest
 import respx
 
-from botx import Bot, BotAccount, HandlerCollector, IncomingMessage
+from botx import Bot, BotAccountWithSecret, HandlerCollector, IncomingMessage
 
 
 @respx.mock
@@ -16,7 +16,7 @@ from botx import Bot, BotAccount, HandlerCollector, IncomingMessage
 async def test__shutdown__wait_for_active_handlers(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     user_command = incoming_message_factory(body="/command")
@@ -40,7 +40,7 @@ async def test__shutdown__wait_for_active_handlers(
 @pytest.mark.asyncio
 async def test__startup__authorize_cant_get_token(
     loguru_caplog: pytest.LogCaptureFixture,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     host: str,
     bot_id: UUID,
     bot_signature: str,

@@ -5,7 +5,7 @@ import httpx
 import pytest
 import respx
 
-from botx import Bot, BotAccount, HandlerCollector, lifespan_wrapper
+from botx import Bot, BotAccountWithSecret, HandlerCollector, lifespan_wrapper
 from botx.models.stickers import StickerPackFromList
 
 
@@ -16,7 +16,7 @@ async def test__iterate_by_sticker_packs__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.get(
@@ -91,7 +91,7 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # - Arrange -

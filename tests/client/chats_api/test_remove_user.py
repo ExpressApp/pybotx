@@ -7,7 +7,7 @@ import respx
 
 from botx import (
     Bot,
-    BotAccount,
+    BotAccountWithSecret,
     ChatNotFoundError,
     HandlerCollector,
     PermissionDeniedError,
@@ -22,7 +22,7 @@ async def test__remove_users_from_chat__permission_denied_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -74,7 +74,7 @@ async def test__remove_users_from_chat__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -125,7 +125,7 @@ async def test__remove_users_from_chat__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(

@@ -11,7 +11,7 @@ from aiofiles.tempfile import NamedTemporaryFile
 from botx import (
     AnswerDestinationLookupError,
     Bot,
-    BotAccount,
+    BotAccountWithSecret,
     BotIsNotChatMemberError,
     BubbleMarkup,
     ChatNotFoundError,
@@ -34,7 +34,7 @@ from botx import (
 async def test__send_message__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     bot_id: UUID,
     api_incoming_message_factory: Callable[..., Dict[str, Any]],
 ) -> None:
@@ -171,7 +171,7 @@ async def test__send_message__succeed(
 @pytest.mark.mock_authorization
 async def test__answer_message__no_incoming_message_error_raised(
     host: str,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     bot_id: UUID,
 ) -> None:
     # - Arrange -
@@ -192,7 +192,7 @@ async def test__answer_message__no_incoming_message_error_raised(
 async def test__answer_message__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     bot_id: UUID,
     api_incoming_message_factory: Callable[..., Dict[str, Any]],
 ) -> None:
@@ -308,7 +308,7 @@ async def test__answer_message__succeed(
 async def test__send_message__unknown_bot_account_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     unknown_bot_id = UUID("51550ccc-dfd1-4d22-9b6f-a330145192b0")
@@ -343,7 +343,7 @@ async def test__send_message__chat_not_found_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -409,7 +409,7 @@ async def test__send_message__bot_is_not_a_chat_member_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -476,7 +476,7 @@ async def test__send_message__event_recipients_list_is_empty_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -544,7 +544,7 @@ async def test__send_message__stealth_mode_disabled_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -611,7 +611,7 @@ async def test__send_message__miminally_filled_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -669,7 +669,7 @@ async def test__send_message__maximum_filled_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # - Arrange -
@@ -834,7 +834,7 @@ async def test__send_message__all_mentions_types_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # - Arrange -

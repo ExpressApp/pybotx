@@ -23,7 +23,7 @@ from botx.models.base_command import (
     BotAPIUserContext,
     BotCommandBase,
 )
-from botx.models.bot_recipient import BotRecipient
+from botx.models.bot_account import BotAccount
 from botx.models.chats import Chat
 from botx.models.enums import (
     AttachmentTypes,
@@ -256,7 +256,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             else:
                 raise NotImplementedError
 
-        bot = BotRecipient(
+        bot = BotAccount(
             id=self.bot_id,
             host=self.sender.host,
         )

@@ -9,7 +9,7 @@ from botx import (
     AttachmentTypes,
     Bot,
     BotAccount,
-    BotRecipient,
+    BotAccountWithSecret,
     Chat,
     ChatTypes,
     ClientPlatforms,
@@ -31,7 +31,7 @@ from botx import (
 @pytest.mark.asyncio
 @pytest.mark.mock_authorization
 async def test__async_execute_raw_bot_command__minimally_filled_incoming_message(
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     payload = {
@@ -87,7 +87,7 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
 
     # - Assert -
     assert incoming_message == IncomingMessage(
-        bot=BotRecipient(
+        bot=BotAccount(
             id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
             host="cts.example.com",
         ),
@@ -129,7 +129,7 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
 @pytest.mark.mock_authorization
 async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
     datetime_formatter: Callable[[str], datetime],
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     payload = {
@@ -254,7 +254,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
 
     # - Assert -
     assert incoming_message == IncomingMessage(
-        bot=BotRecipient(
+        bot=BotAccount(
             id=UUID("24348246-6791-4ac0-9d86-b948cd6a0e46"),
             host="cts.example.com",
         ),
@@ -333,7 +333,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
 @pytest.mark.asyncio
 @pytest.mark.mock_authorization
 async def test__async_execute_raw_bot_command__all_mention_types(
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     payload = {

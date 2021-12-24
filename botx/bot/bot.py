@@ -1,5 +1,5 @@
 from types import SimpleNamespace
-from typing import Any, AsyncIterable, Dict, List, Optional, Sequence, Union
+from typing import Any, AsyncIterable, Dict, Iterator, List, Optional, Sequence, Union
 from uuid import UUID
 
 import httpx
@@ -127,7 +127,7 @@ from botx.logger import logger, pformat_jsonable_obj
 from botx.missing import Missing, MissingOptional, Undefined, not_undefined
 from botx.models.async_files import File
 from botx.models.attachments import IncomingFileAttachment, OutgoingAttachment
-from botx.models.bot_account import BotAccount
+from botx.models.bot_account import BotAccount, BotAccountWithSecret
 from botx.models.chats import ChatInfo, ChatListItem
 from botx.models.commands import BotAPICommand, BotCommand
 from botx.models.enums import ChatTypes
@@ -153,7 +153,7 @@ class Bot:
         self,
         *,
         collectors: Sequence[HandlerCollector],
-        bot_accounts: Sequence[BotAccount],
+        bot_accounts: Sequence[BotAccountWithSecret],
         middlewares: Optional[Sequence[Middleware]] = None,
         httpx_client: Optional[httpx.AsyncClient] = None,
         exception_handlers: Optional[ExceptionHandlersDict] = None,
@@ -238,18 +238,22 @@ class Bot:
 
         self._callback_manager.set_botx_method_callback_result(callback)
 
+    @property
+    def bot_accounts(self) -> Iterator[BotAccount]:
+        yield from self._bot_accounts_storage.iter_bot_accounts()
+
     async def startup(self) -> None:
-        for host, bot_id in self._bot_accounts_storage.iter_host_and_bot_id_pairs():
+        for bot_account in self.bot_accounts:
             try:
-                token = await self.get_token(bot_id=bot_id)
+                token = await self.get_token(bot_id=bot_account.id)
             except (InvalidBotAccountError, httpx.HTTPError):
                 logger.warning(
                     "Can't get token for bot account: "
-                    f"host - {host}, bot_id - {bot_id}",
+                    f"host - {bot_account.host}, bot_id - {bot_account.id}",
                 )
                 continue
 
-            self._bot_accounts_storage.set_token(bot_id, token)
+            self._bot_accounts_storage.set_token(bot_account.id, token)
 
     async def shutdown(self) -> None:
         self._callback_manager.stop_callbacks_waiting()

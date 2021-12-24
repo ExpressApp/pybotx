@@ -9,7 +9,7 @@ from aiofiles.tempfile import NamedTemporaryFile
 
 from botx import (
     Bot,
-    BotAccount,
+    BotAccountWithSecret,
     HandlerCollector,
     IncomingMessage,
     Sticker,
@@ -30,7 +30,7 @@ PNG_IMAGE = (
 async def test__sticker__download(
     httpx_client: httpx.AsyncClient,
     host: str,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
     api_incoming_message_factory: Callable[..., Dict[str, Any]],
 ) -> None:

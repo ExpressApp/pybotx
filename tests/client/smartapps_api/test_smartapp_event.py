@@ -5,7 +5,7 @@ import httpx
 import pytest
 import respx
 
-from botx import Bot, BotAccount, HandlerCollector, lifespan_wrapper
+from botx import Bot, BotAccountWithSecret, HandlerCollector, lifespan_wrapper
 from botx.models.async_files import Document, Image, Video, Voice
 from botx.models.enums import AttachmentTypes
 
@@ -17,7 +17,7 @@ async def test__send_smartapp_event__miminally_filled_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
@@ -67,7 +67,7 @@ async def test__send_smartapp_event__maximum_filled_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     endpoint = respx.post(
