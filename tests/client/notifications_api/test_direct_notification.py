@@ -964,7 +964,7 @@ async def test__send_message__message_body_max_length_error_raised(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     too_long_body = "1" * 4097
@@ -1008,7 +1008,7 @@ async def test__send_message__message_body_max_length_succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     max_long_body = "1" * 4096
     endpoint = respx.post(
