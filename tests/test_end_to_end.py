@@ -28,7 +28,7 @@ def build_bot_accounts_from_env() -> List[BotAccountWithSecret]:
 
     bot_accounts = []
     for raw_credentials in os.environ["BOT_CREDENTIALS"].split(","):
-        host, raw_bot_id, secret_key = raw_credentials.replace("|", "@").split("@")
+        host, secret_key, raw_bot_id = raw_credentials.replace("|", "@").split("@")
         bot_accounts.append(
             BotAccountWithSecret(
                 id=UUID(raw_bot_id),
