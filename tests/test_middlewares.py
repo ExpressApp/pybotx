@@ -96,7 +96,9 @@ async def test__middlewares__called_in_default_handler(
         middlewares=[middleware_factory(3), middleware_factory(4)],
     )
 
-    @collector.default_message_handler
+    @collector.default_message_handler(
+        middlewares=[middleware_factory(5), middleware_factory(6)],
+    )
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         pass
 
@@ -111,7 +113,7 @@ async def test__middlewares__called_in_default_handler(
         bot.async_execute_bot_command(user_command)
 
     # - Assert -
-    assert middlewares_called_order == [1, 2, 3, 4]
+    assert middlewares_called_order == [1, 2, 3, 4, 5, 6]
 
 
 @respx.mock

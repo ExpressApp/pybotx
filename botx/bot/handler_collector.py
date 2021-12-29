@@ -1,6 +1,16 @@
 import asyncio
 import re
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Sequence, Type, Union
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Type,
+    Union,
+    overload,
+)
 from weakref import WeakSet
 
 from botx.bot.contextvars import bot_id_var, bot_var, chat_id_var
@@ -135,21 +145,48 @@ class HandlerCollector:
 
         return decorator
 
+    @overload
     def default_message_handler(
         self,
         handler_func: IncomingMessageHandlerFunc,
     ) -> IncomingMessageHandlerFunc:
-        """Decorate fallback messages handler."""
+        ...  # noqa: WPS428
 
+    @overload
+    def default_message_handler(
+        self,
+        *,
+        middlewares: Optional[Sequence[Middleware]] = None,
+    ) -> Callable[[IncomingMessageHandlerFunc], IncomingMessageHandlerFunc]:
+        ...  # noqa: WPS428
+
+    def default_message_handler(  # noqa: WPS320
+        self,
+        handler_func: Optional[IncomingMessageHandlerFunc] = None,
+        *,
+        middlewares: Optional[Sequence[Middleware]] = None,
+    ) -> Union[
+        IncomingMessageHandlerFunc,
+        Callable[[IncomingMessageHandlerFunc], IncomingMessageHandlerFunc],
+    ]:
+        """Decorate fallback messages handler."""
         if self._default_message_handler:
             raise ValueError("Default command handler already registered")
 
-        self._default_message_handler = DefaultMessageHandler(
-            handler_func=handler_func,
-            middlewares=self._middlewares,
-        )
+        def decorator(
+            handler_func: IncomingMessageHandlerFunc,  # noqa: WPS442
+        ) -> IncomingMessageHandlerFunc:
+            self._default_message_handler = DefaultMessageHandler(
+                handler_func=handler_func,
+                middlewares=self._reversed_middlewares(middlewares) + self._middlewares,
+            )
 
-        return handler_func
+            return handler_func
+
+        if callable(handler_func) and not middlewares:
+            return decorator(handler_func)
+
+        return decorator
 
     def chat_created(
         self,
