@@ -52,13 +52,13 @@ class BaseIncomingMessageHandler:
     async def __call__(self, message: IncomingMessage, bot: "Bot") -> None:
         handler_func = self.handler_func
 
-        for middleware in self.middlewares:
+        for middleware in self.middlewares[::-1]:
             handler_func = partial(middleware, call_next=handler_func)
 
         await handler_func(message, bot)
 
     def add_middlewares(self, middlewares: List[Middleware]) -> None:
-        self.middlewares += middlewares
+        self.middlewares = middlewares + self.middlewares
 
 
 @dataclass

@@ -59,7 +59,7 @@ class HandlerCollector:
             Type[BotCommand],
             SystemEventHandlerFunc,
         ] = {}
-        self._middlewares = self._reversed_middlewares(middlewares)
+        self._middlewares = optional_sequence_to_list(middlewares)
         self._tasks: "WeakSet[asyncio.Task[None]]" = WeakSet()
 
     def include(self, *others: "HandlerCollector") -> None:
@@ -138,7 +138,7 @@ class HandlerCollector:
                 handler_func,
                 visible,
                 description,
-                self._reversed_middlewares(middlewares) + self._middlewares,
+                self._middlewares + optional_sequence_to_list(middlewares),
             )
 
             return handler_func
@@ -178,7 +178,7 @@ class HandlerCollector:
         ) -> IncomingMessageHandlerFunc:
             self._default_message_handler = DefaultMessageHandler(
                 handler_func=handler_func,
-                middlewares=self._reversed_middlewares(middlewares) + self._middlewares,
+                middlewares=self._middlewares + optional_sequence_to_list(middlewares),
             )
 
             return handler_func
@@ -281,13 +281,6 @@ class HandlerCollector:
                 self._tasks,
                 return_when=asyncio.ALL_COMPLETED,
             )
-
-    def _reversed_middlewares(
-        self,
-        middlewares: Optional[Sequence[Middleware]] = None,
-    ) -> List[Middleware]:
-        middlewares_list = optional_sequence_to_list(middlewares)
-        return middlewares_list[::-1]
 
     def _include_collector(self, other: "HandlerCollector") -> None:
         # - Message handlers -
