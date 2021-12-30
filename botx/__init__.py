@@ -58,6 +58,7 @@ from botx.models.enums import (
     MentionTypes,
     UserKinds,
 )
+from botx.models.message.edit_message import EditMessage
 from botx.models.message.forward import Forward
 from botx.models.message.incoming_message import IncomingMessage, UserDevice, UserSender
 from botx.models.message.markup import BubbleMarkup, Button, KeyboardMarkup
@@ -113,6 +114,7 @@ __all__ = (
     "CTSLogoutEvent",
     "DeletedFromChatEvent",
     "Document",
+    "EditMessage",
     "File",
     "FileDeletedError",
     "FileMetadataNotFound",

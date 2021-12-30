@@ -131,6 +131,7 @@ from botx.models.bot_account import BotAccount, BotAccountWithSecret
 from botx.models.chats import ChatInfo, ChatListItem
 from botx.models.commands import BotAPICommand, BotCommand
 from botx.models.enums import ChatTypes
+from botx.models.message.edit_message import EditMessage
 from botx.models.message.markup import BubbleMarkup, KeyboardMarkup
 from botx.models.message.outgoing_message import OutgoingMessage
 from botx.models.method_callbacks import BotXMethodCallback
@@ -508,6 +509,28 @@ class Bot:
         return botx_api_sync_id.to_domain()
 
     # - Events API -
+    async def edit(
+        self,
+        *,
+        message: EditMessage,
+    ) -> None:
+        """Edit message.
+
+        Args:
+            message: Built outgoing edit message.
+        """
+
+        await self.edit_message(
+            bot_id=message.bot_id,
+            sync_id=message.sync_id,
+            body=message.body,
+            metadata=message.metadata,
+            bubbles=message.bubbles,
+            keyboard=message.keyboard,
+            file=message.file,
+            markup_auto_adjust=message.markup_auto_adjust,
+        )
+
     async def edit_message(
         self,
         *,
@@ -520,7 +543,7 @@ class Bot:
         file: MissingOptionalAttachment = Undefined,
         markup_auto_adjust: Missing[bool] = Undefined,
     ) -> None:
-        """Send internal notification.
+        """Edit message.
 
         Args:
             bot_id: Bot which should perform the request.
