@@ -228,7 +228,7 @@ async def test__edit__succeed(
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccount,
+    bot_account: BotAccountWithSecret,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # - Arrange -
