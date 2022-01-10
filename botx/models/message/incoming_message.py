@@ -31,7 +31,7 @@ from botx.models.enums import (
     BotAPIMentionTypes,
     ClientPlatforms,
     convert_chat_type_to_domain,
-    convert_client_platform,
+    convert_client_platform_to_domain,
     convert_mention_type_to_domain,
 )
 from botx.models.message.forward import BotAPIForward, Forward
@@ -195,7 +195,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             timezone=timezone,
             permissions=permissions,
             platform=(
-                convert_client_platform(self.sender.platform)
+                convert_client_platform_to_domain(self.sender.platform)
                 if self.sender.platform
                 else None
             ),

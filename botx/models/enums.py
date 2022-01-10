@@ -106,7 +106,9 @@ class APIAttachmentTypes(StrEnum):
     LINK = "link"
 
 
-def convert_client_platform(client_platform: BotAPIClientPlatforms) -> ClientPlatforms:
+def convert_client_platform_to_domain(
+    client_platform: BotAPIClientPlatforms,
+) -> ClientPlatforms:
     client_platforms_mapping = {
         BotAPIClientPlatforms.WEB: ClientPlatforms.WEB,
         BotAPIClientPlatforms.ANDROID: ClientPlatforms.ANDROID,
@@ -155,7 +157,7 @@ def convert_mention_type_from_domain(
     return converted_type
 
 
-def convert_user_kind(user_kind: APIUserKinds) -> UserKinds:
+def convert_user_kind_to_domain(user_kind: APIUserKinds) -> UserKinds:
     user_kinds_mapping = {
         APIUserKinds.USER: UserKinds.RTS_USER,
         APIUserKinds.CTS_USER: UserKinds.CTS_USER,
