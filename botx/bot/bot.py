@@ -93,6 +93,10 @@ from botx.client.stickers_api.delete_sticker import (
     BotXAPIDeleteStickerRequestPayload,
     DeleteStickerMethod,
 )
+from botx.client.stickers_api.edit_sticker_pack import (
+    BotXAPIEditStickerPackRequestPayload,
+    EditStickerPackMethod,
+)
 from botx.client.stickers_api.get_sticker import (
     BotXAPIGetStickerRequestPayload,
     GetStickerMethod,
@@ -1236,6 +1240,44 @@ class Bot:
         botx_api_sticker = await method.execute(payload)
 
         return botx_api_sticker.to_domain()
+
+    async def edit_sticker_pack(
+        self,
+        *,
+        bot_id: UUID,
+        sticker_pack_id: UUID,
+        name: str,
+        preview: UUID,
+        stickers_order: List[UUID],
+    ) -> StickerPack:
+        """Edit Sticker pack.
+
+        Args:
+            bot_id: Bot which should perform the request.
+            sticker_pack_id: Sticker pack id.
+            name: Sticker pack name.
+            preview: Sticker from the set selected as a preview.
+            stickers_order: Sticker IDs in order they are displayed.
+
+        Returns:
+            Edited sticker pack.
+        """
+
+        method = EditStickerPackMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPIEditStickerPackRequestPayload.from_domain(
+            sticker_pack_id=sticker_pack_id,
+            name=name,
+            preview=preview,
+            stickers_order=stickers_order,
+        )
+
+        botx_api_sticker_pack = await method.execute(payload)
+
+        return botx_api_sticker_pack.to_domain()
 
     # - Files API -
     async def download_file(
