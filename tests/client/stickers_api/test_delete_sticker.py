@@ -9,7 +9,6 @@ from botx import (
     Bot,
     BotAccountWithSecret,
     HandlerCollector,
-    InvalidBotXStatusCodeError,
     StickerPackOrStickerNotFoundError,
     lifespan_wrapper,
 )
@@ -63,53 +62,6 @@ async def test__delete_sticker__sticker_or_pack_not_found_error_raised(
         # - Assert -
         assert "Sticker or sticker pack not found" in str(exc.value)
         assert endpoint.called
-
-
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
-async def test__delete_sticker__unexpected_not_found_error_raised(
-    httpx_client: httpx.AsyncClient,
-    host: str,
-    bot_id: UUID,
-    bot_account: BotAccountWithSecret,
-) -> None:
-    # - Arrange -
-    endpoint = respx.delete(
-        f"https://{host}/api/v3/botx/stickers/"
-        f"packs/78f9743c-8b24-4e97-8059-70908604a252/"
-        f"stickers/6ead1e00-f788-4ce6-9e1a-95abe219414e",
-        headers={"Authorization": "Bearer token"},
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.NOT_FOUND,
-            json={
-                "status": "error",
-                "reason": "some_reason",
-                "errors": [],
-                "error_data": {},
-            },
-        ),
-    )
-
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
-
-    # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(InvalidBotXStatusCodeError) as exc:
-            await bot.delete_sticker(
-                bot_id=bot_id,
-                sticker_pack_id=UUID("78f9743c-8b24-4e97-8059-70908604a252"),
-                sticker_id=UUID("6ead1e00-f788-4ce6-9e1a-95abe219414e"),
-            )
-
-    # - Assert -
-    assert "some_reason" in str(exc.value)
-    assert endpoint.called
 
 
 @respx.mock
