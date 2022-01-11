@@ -1246,10 +1246,10 @@ class Bot:
             self._bot_accounts_storage,
         )
         payload = BotXAPIEditStickerPackRequestPayload.from_domain(
-            sticker_pack_id,
-            name,
-            preview,
-            stickers_order,
+            sticker_pack_id=sticker_pack_id,
+            name=name,
+            preview=preview,
+            stickers_order=stickers_order,
         )
 
         botx_api_sticker_pack = await method.execute(payload)

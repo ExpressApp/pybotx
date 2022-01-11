@@ -4,9 +4,7 @@ from uuid import UUID
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower
 from botx.client.stickers_api.exceptions import StickerPackOrStickerNotFoundError
-from botx.client.stickers_api.sticker_pack_search import (
-    BotXAPIGetStickerPackResponsePayload,
-)
+from botx.client.stickers_api.sticker_pack import BotXAPIGetStickerPackResponsePayload
 from botx.models.api_base import UnverifiedPayloadBaseModel
 
 

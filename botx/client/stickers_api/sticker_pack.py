@@ -7,25 +7,32 @@ from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.stickers import Sticker, StickerPack
 
 
-class BotXAPISearchStickerResult(VerifiedPayloadBaseModel):
+class BotXAPIGetStickerResult(VerifiedPayloadBaseModel):
     id: UUID
     emoji: str
     link: str
 
 
-class BotXAPISearchStickerPackResult(VerifiedPayloadBaseModel):
+class BotXAPIGetStickerPackResult(VerifiedPayloadBaseModel):
     id: UUID
     name: str
     public: bool
     stickers_order: Optional[List[UUID]]
-    stickers: List[BotXAPISearchStickerResult]
+    stickers: List[BotXAPIGetStickerResult]
 
 
 class BotXAPIGetStickerPackResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
-    result: BotXAPISearchStickerPackResult
+    result: BotXAPIGetStickerPackResult
 
     def to_domain(self) -> StickerPack:
+        if self.result.stickers_order:
+            self.result.stickers.sort(
+                key=lambda pack: self.result.stickers_order.index(  # type:ignore
+                    pack.id,
+                ),
+            )
+
         return StickerPack(
             id=self.result.id,
             name=self.result.name,
