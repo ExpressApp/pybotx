@@ -444,18 +444,18 @@ class Bot:
         )
 
         payload = BotXAPIDirectNotificationRequestPayload.from_domain(
-            chat_id,
-            body,
-            metadata,
-            bubbles,
-            keyboard,
-            file,
-            recipients,
-            silent_response,
-            markup_auto_adjust,
-            stealth_mode,
-            send_push,
-            ignore_mute,
+            chat_id=chat_id,
+            body=body,
+            metadata=metadata,
+            bubbles=bubbles,
+            keyboard=keyboard,
+            file=file,
+            recipients=recipients,
+            silent_response=silent_response,
+            markup_auto_adjust=markup_auto_adjust,
+            stealth_mode=stealth_mode,
+            send_push=send_push,
+            ignore_mute=ignore_mute,
         )
         botx_api_sync_id = await method.execute(
             payload,
@@ -499,10 +499,10 @@ class Bot:
         )
 
         payload = BotXAPIInternalBotNotificationRequestPayload.from_domain(
-            chat_id,
-            data,
-            opts,
-            recipients,
+            chat_id=chat_id,
+            data=data,
+            opts=opts,
+            recipients=recipients,
         )
         botx_api_sync_id = await method.execute(
             payload,
@@ -571,13 +571,13 @@ class Bot:
             self._bot_accounts_storage,
         )
         payload = BotXAPIEditEventRequestPayload.from_domain(
-            sync_id,
-            body,
-            metadata,
-            bubbles,
-            keyboard,
-            file,
-            markup_auto_adjust,
+            sync_id=sync_id,
+            body=body,
+            metadata=metadata,
+            bubbles=bubbles,
+            keyboard=keyboard,
+            file=file,
+            markup_auto_adjust=markup_auto_adjust,
         )
 
         await method.execute(payload)
@@ -618,17 +618,17 @@ class Bot:
         """
 
         payload = BotXAPIReplyEventRequestPayload.from_domain(
-            sync_id,
-            body,
-            metadata,
-            bubbles,
-            keyboard,
-            file,
-            silent_response,
-            markup_auto_adjust,
-            stealth_mode,
-            send_push,
-            ignore_mute,
+            sync_id=sync_id,
+            body=body,
+            metadata=metadata,
+            bubbles=bubbles,
+            keyboard=keyboard,
+            file=file,
+            silent_response=silent_response,
+            markup_auto_adjust=markup_auto_adjust,
+            stealth_mode=stealth_mode,
+            send_push=send_push,
+            ignore_mute=ignore_mute,
         )
         method = ReplyEventMethod(
             bot_id,
@@ -680,7 +680,7 @@ class Bot:
 
         method = ChatInfoMethod(bot_id, self._httpx_client, self._bot_accounts_storage)
 
-        payload = BotXAPIChatInfoRequestPayload.from_domain(chat_id)
+        payload = BotXAPIChatInfoRequestPayload.from_domain(chat_id=chat_id)
         botx_api_chat_info = await method.execute(payload)
 
         return botx_api_chat_info.to_domain()
@@ -702,7 +702,7 @@ class Bot:
 
         method = AddUserMethod(bot_id, self._httpx_client, self._bot_accounts_storage)
 
-        payload = BotXAPIAddUserRequestPayload.from_domain(chat_id, huids)
+        payload = BotXAPIAddUserRequestPayload.from_domain(chat_id=chat_id, huids=huids)
         await method.execute(payload)
 
     async def remove_users_from_chat(
@@ -726,7 +726,10 @@ class Bot:
             self._bot_accounts_storage,
         )
 
-        payload = BotXAPIRemoveUserRequestPayload.from_domain(chat_id, huids)
+        payload = BotXAPIRemoveUserRequestPayload.from_domain(
+            chat_id=chat_id,
+            huids=huids,
+        )
         await method.execute(payload)
 
     async def promote_to_chat_admins(
@@ -750,7 +753,10 @@ class Bot:
             self._bot_accounts_storage,
         )
 
-        payload = BotXAPIAddAdminRequestPayload.from_domain(chat_id, huids)
+        payload = BotXAPIAddAdminRequestPayload.from_domain(
+            chat_id=chat_id,
+            huids=huids,
+        )
         await method.execute(payload)
 
     async def enable_stealth(
@@ -781,10 +787,10 @@ class Bot:
             self._bot_accounts_storage,
         )
         payload = BotXAPISetStealthRequestPayload.from_domain(
-            chat_id,
-            disable_web_client,
-            ttl_after_read,
-            total_ttl,
+            chat_id=chat_id,
+            disable_web_client=disable_web_client,
+            ttl_after_read=ttl_after_read,
+            total_ttl=total_ttl,
         )
 
         await method.execute(payload)
@@ -807,7 +813,7 @@ class Bot:
             self._httpx_client,
             self._bot_accounts_storage,
         )
-        payload = BotXAPIDisableStealthRequestPayload.from_domain(chat_id)
+        payload = BotXAPIDisableStealthRequestPayload.from_domain(chat_id=chat_id)
 
         await method.execute(payload)
 
@@ -843,11 +849,11 @@ class Bot:
         )
 
         payload = BotXAPICreateChatRequestPayload.from_domain(
-            name,
-            chat_type,
-            huids,
-            shared_history,
-            description,
+            name=name,
+            chat_type=chat_type,
+            huids=huids,
+            shared_history=shared_history,
+            description=description,
         )
         botx_api_chat_id = await method.execute(payload)
 
@@ -873,7 +879,10 @@ class Bot:
             self._httpx_client,
             self._bot_accounts_storage,
         )
-        payload = BotXAPIPinMessageRequestPayload.from_domain(chat_id, sync_id)
+        payload = BotXAPIPinMessageRequestPayload.from_domain(
+            chat_id=chat_id,
+            sync_id=sync_id,
+        )
 
         await method.execute(payload)
 
@@ -895,7 +904,7 @@ class Bot:
             self._httpx_client,
             self._bot_accounts_storage,
         )
-        payload = BotXAPIUnpinMessageRequestPayload.from_domain(chat_id)
+        payload = BotXAPIUnpinMessageRequestPayload.from_domain(chat_id=chat_id)
 
         await method.execute(payload)
 
@@ -921,7 +930,7 @@ class Bot:
             self._httpx_client,
             self._bot_accounts_storage,
         )
-        payload = BotXAPISearchUserByEmailRequestPayload.from_domain(email)
+        payload = BotXAPISearchUserByEmailRequestPayload.from_domain(email=email)
 
         botx_api_user_from_search = await method.execute(payload)
 
@@ -948,7 +957,7 @@ class Bot:
             self._httpx_client,
             self._bot_accounts_storage,
         )
-        payload = BotXAPISearchUserByHUIDRequestPayload.from_domain(huid)
+        payload = BotXAPISearchUserByHUIDRequestPayload.from_domain(huid=huid)
 
         botx_api_user_from_search = await method.execute(payload)
 
@@ -978,8 +987,8 @@ class Bot:
             self._bot_accounts_storage,
         )
         payload = BotXAPISearchUserByLoginRequestPayload.from_domain(
-            ad_login,
-            ad_domain,
+            ad_login=ad_login,
+            ad_domain=ad_domain,
         )
 
         botx_api_user_from_search = await method.execute(payload)
@@ -1014,12 +1023,12 @@ class Bot:
             self._bot_accounts_storage,
         )
         payload = BotXAPISmartAppEventRequestPayload.from_domain(
-            ref,
-            bot_id,
-            chat_id,
-            data,
-            opts,
-            files,
+            ref=ref,
+            smartapp_id=bot_id,
+            chat_id=chat_id,
+            data=data,
+            opts=opts,
+            files=files,
         )
 
         await method.execute(payload)
@@ -1070,7 +1079,7 @@ class Bot:
             self._httpx_client,
             self._bot_accounts_storage,
         )
-        payload = BotXAPICreateStickerPackRequestPayload.from_domain(name)
+        payload = BotXAPICreateStickerPackRequestPayload.from_domain(name=name)
 
         botx_api_sticker_pack = await method.execute(payload)
 
@@ -1105,9 +1114,9 @@ class Bot:
             self._bot_accounts_storage,
         )
         payload = await BotXAPIAddStickerRequestPayload.from_domain(
-            sticker_pack_id,
-            emoji,
-            async_buffer,
+            sticker_pack_id=sticker_pack_id,
+            emoji=emoji,
+            async_buffer=async_buffer,
         )
 
         botx_api_sticker = await method.execute(payload)
@@ -1167,9 +1176,9 @@ class Bot:
 
         while True:
             payload = BotXAPIGetStickerPacksRequestPayload.from_domain(
-                user_huid,
-                STICKER_PACKS_PER_PAGE,
-                after,
+                huid=user_huid,
+                limit=STICKER_PACKS_PER_PAGE,
+                after=after,
             )
             botx_api_sticker_pack_list = await method.execute(payload)
 
@@ -1203,7 +1212,9 @@ class Bot:
             self._httpx_client,
             self._bot_accounts_storage,
         )
-        payload = BotXAPIGetStickerPackRequestPayload.from_domain(sticker_pack_id)
+        payload = BotXAPIGetStickerPackRequestPayload.from_domain(
+            sticker_pack_id=sticker_pack_id,
+        )
 
         botx_api_sticker_pack = await method.execute(payload)
 
@@ -1233,8 +1244,8 @@ class Bot:
             self._bot_accounts_storage,
         )
         payload = BotXAPIGetStickerRequestPayload.from_domain(
-            sticker_pack_id,
-            sticker_id,
+            sticker_pack_id=sticker_pack_id,
+            sticker_id=sticker_id,
         )
 
         botx_api_sticker = await method.execute(payload)
@@ -1302,7 +1313,10 @@ class Bot:
             self._httpx_client,
             self._bot_accounts_storage,
         )
-        payload = BotXAPIDownloadFileRequestPayload.from_domain(chat_id, file_id)
+        payload = BotXAPIDownloadFileRequestPayload.from_domain(
+            chat_id=chat_id,
+            file_id=file_id,
+        )
 
         await method.execute(payload, async_buffer)
 
@@ -1336,9 +1350,9 @@ class Bot:
             self._bot_accounts_storage,
         )
         payload = BotXAPIUploadFileRequestPayload.from_domain(
-            chat_id,
-            duration,
-            caption,
+            chat_id=chat_id,
+            duration=duration,
+            caption=caption,
         )
 
         botx_api_async_file = await method.execute(payload, async_buffer, filename)
