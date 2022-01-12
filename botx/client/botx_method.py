@@ -27,7 +27,7 @@ from botx.client.exceptions.http import (
     InvalidBotXResponsePayloadError,
     InvalidBotXStatusCodeError,
 )
-from botx.logger import logger, pformat_jsonable_obj
+from botx.logger import logger, pformat_jsonable_obj, trim_file_data_in_outgoing_json
 from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.method_callbacks import BotAPIMethodFailedCallback, BotXMethodCallback
 
@@ -195,5 +195,7 @@ class BotXMethod:
             method=lambda: method,  # If `lazy` enabled, all kwargs should be callable
             url=lambda: url,  # If `lazy` enabled, all kwargs should be callable
             params=lambda: pformat_jsonable_obj(query_params),
-            json=lambda: pformat_jsonable_obj(json_body),
+            json=lambda: pformat_jsonable_obj(
+                trim_file_data_in_outgoing_json(json_body),
+            ),
         )
