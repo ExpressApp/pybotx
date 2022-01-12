@@ -131,7 +131,7 @@ from botx.image_validators import (
     ensure_file_content_is_png,
     ensure_sticker_image_size_valid,
 )
-from botx.logger import logger, pformat_jsonable_obj
+from botx.logger import logger, pformat_jsonable_obj, trim_file_data_in_incoming_json
 from botx.missing import Missing, MissingOptional, Undefined, not_undefined
 from botx.models.async_files import File
 from botx.models.attachments import IncomingFileAttachment, OutgoingAttachment
@@ -202,7 +202,9 @@ class Bot:
 
         logger.opt(lazy=True).debug(
             "Got command: {command}",
-            command=lambda: pformat_jsonable_obj(raw_bot_command),
+            command=lambda: pformat_jsonable_obj(
+                trim_file_data_in_incoming_json(raw_bot_command),
+            ),
         )
 
         bot_command = bot_api_command.to_domain(raw_bot_command)
