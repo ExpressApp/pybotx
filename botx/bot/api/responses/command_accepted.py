@@ -6,8 +6,7 @@ def build_command_accepted_response() -> Dict[str, Any]:
 
     It should be sent if the bot started processing a command.
 
-    Returns:
-        built accepted response.
+    :return: Built accepted response.
     """
 
     return {"result": "accepted"}

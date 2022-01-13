@@ -279,11 +279,9 @@ class Bot:
     ) -> str:
         """Get bot auth token.
 
-        Args:
-            bot_id: Bot which should perform the request.
+        :param bot_id: Bot which should perform the request.
 
-        Returns:
-            Auth token.
+        :return: Auth token.
         """
 
         return await get_token(bot_id, self._httpx_client, self._bot_accounts_storage)
@@ -311,30 +309,29 @@ class Bot:
         Works just like `Bot.send`, but `bot_id` and `chat_id` are
         taken from the incoming message.
 
-        Args:
-            body: Message body.
-            metadata: Notification options.
-            bubbles: Bubbles (buttons attached to message) markup.
-            keyboard: Keyboard (buttons below message input) markup.
-            file: Attachment.
-            recipients: List of recipients, empty for all in chat.
-            silent_response: (BotX default: False) Exclude next user
-                messages from history.
-            markup_auto_adjust: (BotX default: False) Move button to next row,
-                if its text doesn't fit.
-            stealth_mode: (BotX default: False) Enable stealth mode.
-            send_push: (BotX default: True) Send push notification on devices.
-            ignore_mute: (BotX default: False) Ignore mute or dnd (do not disturb).
-            wait_callback: Block method call until callback received.
-            callback_timeout: Callback timeout in seconds (or `None` for
-                endless waiting).
+        :param body: Message body.
+        :param metadata: Notification options.
+        :param bubbles: Bubbles (buttons attached to message) markup.
+        :param keyboard: Keyboard (buttons below message input) markup.
+        :param file: Attachment.
+        :param recipients: List of recipients, empty for all in chat.
+        :param silent_response: (BotX default: False) Exclude next user
+            messages from history.
+        :param markup_auto_adjust: (BotX default: False) Move button to next
+            row, if its text doesn't fit.
+        :param stealth_mode: (BotX default: False) Enable stealth mode.
+        :param send_push: (BotX default: True) Send push notification on
+            devices.
+        :param ignore_mute: (BotX default: False) Ignore mute or dnd (do not
+            disturb).
+        :param wait_callback: Block method call until callback received.
+        :param callback_timeout: Callback timeout in seconds (or `None` for
+            endless waiting).
 
-        Raises:
-            AnswerDestinationLookupError: If you try to answer without
-                receiving incoming message.
+        :raises AnswerDestinationLookupError: If you try to answer without
+            receiving incoming message.
 
-        Returns:
-            Notification sync_id.
+        :return: Notification sync_id.
         """
 
         try:  # noqa: WPS229
@@ -370,13 +367,11 @@ class Bot:
     ) -> UUID:
         """Send internal notification.
 
-        Args:
-            message: Built outgoing message.
-            wait_callback: Wait for callback.
-            callback_timeout: Timeout for waiting for callback.
+        :param message: Built outgoing message.
+        :param wait_callback: Wait for callback.
+        :param callback_timeout: Timeout for waiting for callback.
 
-        Returns:
-            Notification sync_id.
+        :return: Notification sync_id.
         """
 
         return await self.send_message(
@@ -418,28 +413,28 @@ class Bot:
     ) -> UUID:
         """Send message to chat.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            body: Message body.
-            metadata: Notification options.
-            bubbles: Bubbles (buttons attached to message) markup.
-            keyboard: Keyboard (buttons below message input) markup.
-            file: Attachment.
-            recipients: List of recipients, empty for all in chat.
-            silent_response: (BotX default: False) Exclude next user
-                messages from history.
-            markup_auto_adjust: (BotX default: False) Move button to next row,
-                if its text doesn't fit.
-            stealth_mode: (BotX default: False) Enable stealth mode.
-            send_push: (BotX default: True) Send push notification on devices.
-            ignore_mute: (BotX default: False) Ignore mute or dnd (do not disturb).
-            wait_callback: Block method call until callback received.
-            callback_timeout: Callback timeout in seconds (or `None` for
-                endless waiting).
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
+        :param body: Message body.
+        :param metadata: Notification options.
+        :param bubbles: Bubbles (buttons attached to message) markup.
+        :param keyboard: Keyboard (buttons below message input) markup.
+        :param file: Attachment.
+        :param recipients: List of recipients, empty for all in chat.
+        :param silent_response: (BotX default: False) Exclude next user
+            messages from history.
+        :param markup_auto_adjust: (BotX default: False) Move button to next
+            row, if its text doesn't fit.
+        :param stealth_mode: (BotX default: False) Enable stealth mode.
+        :param send_push: (BotX default: True) Send push notification on
+            devices.
+        :param ignore_mute: (BotX default: False) Ignore mute or dnd (do not
+            disturb).
+        :param wait_callback: Block method call until callback received.
+        :param callback_timeout: Callback timeout in seconds (or `None` for
+            endless waiting).
 
-        Returns:
-            Notification sync_id.
+        :return: Notification sync_id.
         """
 
         method = DirectNotificationMethod(
@@ -484,17 +479,15 @@ class Bot:
     ) -> UUID:
         """Send internal notification.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            data: Notification payload.
-            opts: Notification options.
-            recipients: List of bot uuids, empty for all in chat.
-            wait_callback: Wait for callback.
-            callback_timeout: Timeout for waiting for callback.
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
+        :param data: Notification payload.
+        :param opts: Notification options.
+        :param recipients: List of bot uuids, empty for all in chat.
+        :param wait_callback: Wait for callback.
+        :param callback_timeout: Timeout for waiting for callback.
 
-        Returns:
-            Notification sync_id.
+        :return: Notification sync_id.
         """
 
         method = InternalBotNotificationMethod(
@@ -526,8 +519,7 @@ class Bot:
     ) -> None:
         """Edit message.
 
-        Args:
-            message: Built outgoing edit message.
+        :param message: Built outgoing edit message.
         """
 
         await self.edit_message(
@@ -555,20 +547,19 @@ class Bot:
     ) -> None:
         """Edit message.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            sync_id: `sync_id` of message to update.
-            body: New message body. Skip to leave previous body or pass
-                empty string to clean it.
-            metadata: Notification options. Skip to leave previous metadata.
-            bubbles: Bubbles (buttons attached to message) markup. Skip to
-                leave previous bubbles.
-            keyboard: Keyboard (buttons below message input) markup. Skip
-                to leave previous keyboard.
-            file: Attachment. Skip to leave previous file or pass `None`
-                to clean it.
-            markup_auto_adjust: (BotX default: False) Move button to next row,
-                if its text doesn't fit.
+        :param bot_id: Bot which should perform the request.
+        :param sync_id: `sync_id` of message to update.
+        :param body: New message body. Skip to leave previous body or pass
+            empty string to clean it.
+        :param metadata: Notification options. Skip to leave previous metadata.
+        :param bubbles: Bubbles (buttons attached to message) markup. Skip to
+            leave previous bubbles.
+        :param keyboard: Keyboard (buttons below message input) markup. Skip
+            to leave previous keyboard.
+        :param file: Attachment. Skip to leave previous file or pass `None`
+            to clean it.
+        :param markup_auto_adjust: (BotX default: False) Move button to next
+            row, if its text doesn't fit.
         """
 
         method = EditEventMethod(
@@ -606,21 +597,22 @@ class Bot:
     ) -> None:
         """Reply on message by `sync_id`.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            sync_id: `sync_id` of message to reply on.
-            body: Reply body.
-            metadata: Notification options.
-            bubbles: Bubbles (buttons attached to message) markup.
-            keyboard: Keyboard (buttons below message input) markup.
-            file: Attachment.
-            silent_response: (BotX default: False) Exclude next user
-                messages from history.
-            markup_auto_adjust: (BotX default: False) Move button to next row,
-                if its text doesn't fit.
-            stealth_mode: (BotX default: False) Enable stealth mode.
-            send_push: (BotX default: True) Send push notification on devices.
-            ignore_mute: (BotX default: False) Ignore mute or dnd (do not disturb).
+        :param bot_id: Bot which should perform the request.
+        :param sync_id: `sync_id` of message to reply on.
+        :param body: Reply body.
+        :param metadata: Notification options.
+        :param bubbles: Bubbles (buttons attached to message) markup.
+        :param keyboard: Keyboard (buttons below message input) markup.
+        :param file: Attachment.
+        :param silent_response: (BotX default: False) Exclude next user
+            messages from history.
+        :param markup_auto_adjust: (BotX default: False) Move button to next
+            row, if its text doesn't fit.
+        :param stealth_mode: (BotX default: False) Enable stealth mode.
+        :param send_push: (BotX default: True) Send push notification on
+            devices.
+        :param ignore_mute: (BotX default: False) Ignore mute or dnd (do not
+            disturb).
         """
 
         payload = BotXAPIReplyEventRequestPayload.from_domain(
@@ -651,11 +643,9 @@ class Bot:
     ) -> List[ChatListItem]:
         """Get all bot chats.
 
-        Args:
-            bot_id: Bot which should perform the request.
+        :param bot_id: Bot which should perform the request.
 
-        Returns:
-            List of chats info.
+        :returns: List of chats info.
         """
 
         method = ListChatsMethod(
@@ -676,12 +666,10 @@ class Bot:
     ) -> ChatInfo:
         """Get chat information.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
 
-        Returns:
-            Chat information.
+        :return: Chat information.
         """
 
         method = ChatInfoMethod(bot_id, self._httpx_client, self._bot_accounts_storage)
@@ -700,10 +688,9 @@ class Bot:
     ) -> None:
         """Add user to chat.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            huids: List of eXpress account ids.
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
+        :param huids: List of eXpress account ids.
         """
 
         method = AddUserMethod(bot_id, self._httpx_client, self._bot_accounts_storage)
@@ -720,10 +707,9 @@ class Bot:
     ) -> None:
         """Remove eXpress accounts from chat.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            huids: List of eXpress account ids.
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
+        :param huids: List of eXpress account ids.
         """
 
         method = RemoveUserMethod(
@@ -747,10 +733,9 @@ class Bot:
     ) -> None:
         """Promote users in chat to admins.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            huids: List of eXpress account ids.
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
+        :param huids: List of eXpress account ids.
         """
 
         method = AddAdminMethod(
@@ -778,13 +763,14 @@ class Bot:
 
         After the expiration of the time all messages will be hidden.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            disable_web_client: (BotX default: False) Should messages
-                be shown in web.
-            ttl_after_read: (BotX default: OFF) Time of messages burning after read.
-            total_ttl: (BotX default: OFF) Time of messages burning after send.
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
+        :param disable_web_client: (BotX default: False) Should messages
+            be shown in web.
+        :param ttl_after_read: (BotX default: OFF) Time of messages burning
+            after read.
+        :param total_ttl: (BotX default: OFF) Time of messages burning after
+            send.
         """
 
         method = SetStealthMethod(
@@ -809,9 +795,8 @@ class Bot:
     ) -> None:
         """Disable stealth model. Hides all messages that were in stealth.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
         """
 
         method = DisableStealthMethod(
@@ -835,17 +820,15 @@ class Bot:
     ) -> UUID:
         """Create chat.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            name: Chat visible name.
-            chat_type: Chat type.
-            huids: List of eXpress account ids.
-            description: Chat description.
-            shared_history: (BotX default: False) Open old chat history for
-                new added users.
+        :param bot_id: Bot which should perform the request.
+        :param name: Chat visible name.
+        :param chat_type: Chat type.
+        :param huids: List of eXpress account ids.
+        :param description: Chat description.
+        :param shared_history: (BotX default: False) Open old chat history for
+            new added users.
 
-        Returns:
-            Created chat uuid.
+        :return: Created chat uuid.
         """
 
         method = CreateChatMethod(
@@ -874,10 +857,9 @@ class Bot:
     ) -> None:
         """Pin message in chat.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            sync_id: Target sync id.
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
+        :param sync_id: Target sync id.
         """
 
         method = PinMessageMethod(
@@ -900,9 +882,8 @@ class Bot:
     ) -> None:
         """Unpin message in chat.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
         """
 
         method = UnpinMessageMethod(
@@ -923,12 +904,10 @@ class Bot:
     ) -> UserFromSearch:
         """Search user by email for search.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            email: User email.
+        :param bot_id: Bot which should perform the request.
+        :param email: User email.
 
-        Returns:
-            User information.
+        :return: User information.
         """
 
         method = SearchUserByEmailMethod(
@@ -950,12 +929,10 @@ class Bot:
     ) -> UserFromSearch:
         """Search user by huid for search.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            huid: User huid.
+        :param bot_id: Bot which should perform the request.
+        :param huid: User huid.
 
-        Returns:
-            User information.
+        :return: User information.
         """
 
         method = SearchUserByHUIDMethod(
@@ -978,13 +955,11 @@ class Bot:
     ) -> UserFromSearch:
         """Search user by AD login and AD domain for search.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            ad_login: User AD login.
-            ad_domain: User AD domain.
+        :param bot_id: Bot which should perform the request.
+        :param ad_login: User AD login.
+        :param ad_domain: User AD domain.
 
-        Returns:
-            User information.
+        :return: User information.
         """
 
         method = SearchUserByLoginMethod(
@@ -1014,13 +989,12 @@ class Bot:
     ) -> None:
         """Send SmartApp event.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            data: Event payload.
-            ref: Request identifier.
-            opts: Event options.
-            files: Files.
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
+        :param data: Event payload.
+        :param ref: Request identifier.
+        :param opts: Event options.
+        :param files: Files.
         """
 
         method = SmartAppEventMethod(
@@ -1048,11 +1022,10 @@ class Bot:
     ) -> None:
         """Send SmartApp notification.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            smartapp_counter: Value app's counter.
-            opts: Vvent options.
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
+        :param smartapp_counter: Value app's counter.
+        :param opts: Vvent options.
         """
 
         method = SmartAppNotificationMethod(
@@ -1072,12 +1045,10 @@ class Bot:
     async def create_sticker_pack(self, *, bot_id: UUID, name: str) -> StickerPack:
         """Create empty sticker pack.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            name: Sticker pack name.
+        :param bot_id: Bot which should perform the request.
+        :param name: Sticker pack name.
 
-        Returns:
-            Created sticker pack.
+        :return: Created sticker pack.
         """
 
         method = CreateStickerPackMethod(
@@ -1101,14 +1072,12 @@ class Bot:
     ) -> Sticker:
         """Add sticker in sticker pack.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            sticker_pack_id: Sticker pack id to indicate where to add.
-            emoji: Sticker emoji.
-            async_buffer: Sticker image file. Only PNG.
+        :param bot_id: Bot which should perform the request.
+        :param sticker_pack_id: Sticker pack id to indicate where to add.
+        :param emoji: Sticker emoji.
+        :param async_buffer: Sticker image file. Only PNG.
 
-        Returns:
-            Added sticker.
+        :return: Added sticker.
         """
 
         await ensure_file_content_is_png(async_buffer)
@@ -1138,10 +1107,9 @@ class Bot:
     ) -> None:
         """Delete sticker from sticker pack.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            sticker_pack_id: Target sticker pack id.
-            sticker_id: Sticker id which should be deleted.
+        :param bot_id: Bot which should perform the request.
+        :param sticker_pack_id: Target sticker pack id.
+        :param sticker_id: Sticker id which should be deleted.
         """
 
         method = DeleteStickerMethod(
@@ -1164,12 +1132,10 @@ class Bot:
     ) -> AsyncIterable[StickerPackFromList]:
         """Iterate by user sticker packs.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            user_huid: User huid.
+        :param bot_id: Bot which should perform the request.
+        :param user_huid: User huid.
 
-        Yields:
-            Sticker pack.
+        :yield: Sticker pack.
         """
 
         after = None
@@ -1205,12 +1171,10 @@ class Bot:
     ) -> StickerPack:
         """Get sticker pack.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            sticker_pack_id: Sticker pack id.
+        :param bot_id: Bot which should perform the request.
+        :param sticker_pack_id: Sticker pack id.
 
-        Returns:
-            Sticker pack.
+        :return: Sticker pack.
         """
 
         method = GetStickerPackMethod(
@@ -1229,9 +1193,8 @@ class Bot:
     async def delete_sticker_pack(self, *, bot_id: UUID, sticker_pack_id: UUID) -> None:
         """Delete existing sticker pack.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            sticker_pack_id: Target sticker pack.
+        :param bot_id: Bot which should perform the request.
+        :param sticker_pack_id: Target sticker pack.
         """
 
         method = DeleteStickerPackMethod(
@@ -1255,13 +1218,11 @@ class Bot:
     ) -> Sticker:
         """Get sticker.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            sticker_pack_id: Sticker pack id.
-            sticker_id: Sticker id.
+        :param bot_id: Bot which should perform the request.
+        :param sticker_pack_id: Sticker pack id.
+        :param sticker_id: Sticker id.
 
-        Returns:
-            Sticker.
+        :return: Sticker.
         """
 
         method = GetStickerMethod(
@@ -1289,15 +1250,13 @@ class Bot:
     ) -> StickerPack:
         """Edit Sticker pack.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            sticker_pack_id: Sticker pack id.
-            name: Sticker pack name.
-            preview: Sticker from the set selected as a preview.
-            stickers_order: Sticker IDs in order they are displayed.
+        :param bot_id: Bot which should perform the request.
+        :param sticker_pack_id: Sticker pack id.
+        :param name: Sticker pack name.
+        :param preview: Sticker from the set selected as a preview.
+        :param stickers_order: Sticker IDs in order they are displayed.
 
-        Returns:
-            Edited sticker pack.
+        :return: Edited sticker pack.
         """
 
         method = EditStickerPackMethod(
@@ -1327,11 +1286,10 @@ class Bot:
     ) -> None:
         """Download file form file service.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            file_id: Async file id.
-            async_buffer: Buffer to write downloaded file.
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
+        :param file_id: Async file id.
+        :param async_buffer: Buffer to write downloaded file.
         """
 
         method = DownloadFileMethod(
@@ -1358,16 +1316,14 @@ class Bot:
     ) -> File:
         """Upload file to file service.
 
-        Args:
-            bot_id: Bot which should perform the request.
-            chat_id: Target chat id.
-            async_buffer: Buffer to write downloaded file.
-            filename: File name.
-            duration: Video duration.
-            caption: Text under file.
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
+        :param async_buffer: Buffer to write downloaded file.
+        :param filename: File name.
+        :param duration: Video duration.
+        :param caption: Text under file.
 
-        Returns:
-            Meta info of uploaded file.
+        :return: Meta info of uploaded file.
         """
 
         method = UploadFileMethod(

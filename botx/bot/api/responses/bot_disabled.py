@@ -31,11 +31,9 @@ def build_bot_disabled_response(status_message: str) -> Dict[str, Any]:
     [BotAPIBotDisabledResponse]
     [botx.bot.api.commands.bot_disabled_response.BotAPIBotDisabledResponse].
 
-    Arguments:
-        status_message: Status message.
+    :param status_message: Status message.
 
-    Returns:
-        built bot disabled response.
+    :return: Built bot disabled response.
     """
 
     response = BotAPIBotDisabledResponse(
