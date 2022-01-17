@@ -1,7 +1,8 @@
 from dataclasses import asdict, dataclass
-from typing import Any, Dict, List, NewType, Optional
+from typing import Any, Dict, List, NewType, Optional, Union
 from uuid import UUID
 
+from pydantic import validator
 from typing_extensions import Literal  # For python 3.7 support
 
 from botx.models.api_base import VerifiedPayloadBaseModel
@@ -42,6 +43,17 @@ class BotAPIStatusRecipient(VerifiedPayloadBaseModel):
     ad_domain: Optional[str]
     is_admin: Optional[bool]
     chat_type: APIChatTypes
+
+    @validator("ad_login", "ad_domain", "is_admin", pre=True)
+    @classmethod
+    def replace_empty_string(
+        cls,
+        field_value: Union[str, bool],
+    ) -> Union[str, bool, None]:
+        if field_value == "":
+            return None
+
+        return field_value
 
     def to_domain(self) -> StatusRecipient:
         return StatusRecipient(
