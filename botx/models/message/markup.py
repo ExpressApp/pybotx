@@ -29,6 +29,13 @@ class BaseMarkup:
     def __iter__(self) -> Iterator[ButtonRow]:
         return iter(self._buttons)
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, BaseMarkup):
+            raise NotImplementedError
+
+        # https://github.com/wemake-services/wemake-python-styleguide/issues/2172
+        return self._buttons == other._buttons  # noqa: WPS437
+
     def add_built_button(self, button: Button, new_row: bool = True) -> None:
         if new_row:
             self._buttons.append([button])

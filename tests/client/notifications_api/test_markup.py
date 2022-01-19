@@ -237,3 +237,11 @@ async def test__markup__correctly_built(
     # - Assert -
     assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
     assert endpoint.called
+
+
+def test__markup__comparison() -> None:
+    # - Arrange -
+    button = Button("/test", "test")
+
+    # - Assert -
+    assert BubbleMarkup([[button]]) == BubbleMarkup([[button]])
