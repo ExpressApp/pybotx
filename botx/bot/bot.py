@@ -55,6 +55,10 @@ from botx.client.events_api.reply_event import (
     BotXAPIReplyEventRequestPayload,
     ReplyEventMethod,
 )
+from botx.client.events_api.stop_typing_event import (
+    BotXAPIStopTypingEventRequestPayload,
+    StopTypingEventMethod,
+)
 from botx.client.events_api.typing_event import (
     BotXAPITypingEventRequestPayload,
     TypingEventMethod,
@@ -655,6 +659,28 @@ class Bot:
             chat_id=chat_id,
         )
         method = TypingEventMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        await method.execute(payload)
+
+    async def stop_typing(
+        self,
+        *,
+        bot_id: UUID,
+        chat_id: UUID,
+    ) -> None:
+        """Send `stop_typing` event.
+
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
+        """
+
+        payload = BotXAPIStopTypingEventRequestPayload.from_domain(
+            chat_id=chat_id,
+        )
+        method = StopTypingEventMethod(
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
