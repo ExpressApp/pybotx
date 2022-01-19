@@ -55,6 +55,10 @@ from botx.client.events_api.reply_event import (
     BotXAPIReplyEventRequestPayload,
     ReplyEventMethod,
 )
+from botx.client.events_api.typing_event import (
+    BotXAPITypingEventRequestPayload,
+    TypingEventMethod,
+)
 from botx.client.exceptions.common import InvalidBotAccountError
 from botx.client.files_api.download_file import (
     BotXAPIDownloadFileRequestPayload,
@@ -629,6 +633,28 @@ class Bot:
             ignore_mute=ignore_mute,
         )
         method = ReplyEventMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        await method.execute(payload)
+
+    async def start_typing(
+        self,
+        *,
+        bot_id: UUID,
+        chat_id: UUID,
+    ) -> None:
+        """Send `typing` event.
+
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
+        """
+
+        payload = BotXAPITypingEventRequestPayload.from_domain(
+            chat_id=chat_id,
+        )
+        method = TypingEventMethod(
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
