@@ -16,6 +16,7 @@ from botx import (
 )
 from botx.models.chats import Chat
 from botx.models.enums import ChatTypes
+from botx.models.message.incoming_message import UserDevice, UserSender
 
 
 @respx.mock
@@ -66,6 +67,7 @@ async def test__smartapp__succeed(
         "from": {
             "user_huid": "b9197d3a-d855-5d34-ba8a-eff3a975ab20",
             "group_chat_id": "dea55ee4-7a9f-5da0-8c73-079f400ee517",
+            "host": "cts.example.com",
             "ad_login": None,
             "ad_domain": None,
             "username": None,
@@ -80,7 +82,6 @@ async def test__smartapp__succeed(
             "is_creator": False,
             "app_version": None,
             "locale": "en",
-            "host": "cts.example.com",
         },
         "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
         "proto_version": 4,
@@ -135,6 +136,26 @@ async def test__smartapp__succeed(
         chat=Chat(
             id=UUID("dea55ee4-7a9f-5da0-8c73-079f400ee517"),
             type=ChatTypes.GROUP_CHAT,
+        ),
+        sender=UserSender(
+            huid=UUID("b9197d3a-d855-5d34-ba8a-eff3a975ab20"),
+            ad_login=None,
+            ad_domain=None,
+            username=None,
+            is_chat_admin=False,
+            is_chat_creator=False,
+            device=UserDevice(
+                manufacturer=None,
+                device_name=None,
+                os=None,
+                pushes=None,
+                timezone=None,
+                permissions=None,
+                platform=None,
+                platform_package_id=None,
+                app_version=None,
+                locale="en",
+            ),
         ),
         raw_command=None,
     )
