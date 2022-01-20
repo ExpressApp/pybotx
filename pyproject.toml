@@ -28,7 +28,7 @@ python-multipart = { version = "^0.0.5", optional = true }
 
 [tool.poetry.dev-dependencies]
 # tasks
-nox = "^2021.0.0"
+nox = "^2022.0.0"
 # formatters
 black = "^20.8b1"
 isort = "^5.9"
