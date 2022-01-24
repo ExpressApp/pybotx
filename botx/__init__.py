@@ -30,6 +30,7 @@ from botx.client.exceptions.common import (
     PermissionDeniedError,
     RateLimitReachedError,
 )
+from botx.client.exceptions.event import EventNotFoundError
 from botx.client.exceptions.files import FileDeletedError, FileMetadataNotFound
 from botx.client.exceptions.http import (
     InvalidBotXResponsePayloadError,
@@ -63,6 +64,7 @@ from botx.models.message.forward import Forward
 from botx.models.message.incoming_message import IncomingMessage, UserDevice, UserSender
 from botx.models.message.markup import BubbleMarkup, Button, KeyboardMarkup
 from botx.models.message.mentions import Mention, MentionList
+from botx.models.message.message_status import MessageStatus
 from botx.models.message.outgoing_message import OutgoingMessage
 from botx.models.message.reply import Reply
 from botx.models.method_callbacks import BotAPIMethodFailedCallback
@@ -115,6 +117,7 @@ __all__ = (
     "DeletedFromChatEvent",
     "Document",
     "EditMessage",
+    "MessageStatus",
     "File",
     "FileDeletedError",
     "FileMetadataNotFound",
@@ -131,6 +134,7 @@ __all__ = (
     "InvalidEmojiError",
     "InvalidImageError",
     "InvalidUsersListError",
+    "EventNotFoundError",
     "KeyboardMarkup",
     "LeftFromChatEvent",
     "Mention",

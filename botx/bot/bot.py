@@ -51,6 +51,10 @@ from botx.client.events_api.edit_event import (
     BotXAPIEditEventRequestPayload,
     EditEventMethod,
 )
+from botx.client.events_api.message_status_event import (
+    BotXAPIMessageStatusRequestPayload,
+    MessageStatusMethod,
+)
 from botx.client.events_api.reply_event import (
     BotXAPIReplyEventRequestPayload,
     ReplyEventMethod,
@@ -149,6 +153,7 @@ from botx.models.commands import BotAPICommand, BotCommand
 from botx.models.enums import ChatTypes
 from botx.models.message.edit_message import EditMessage
 from botx.models.message.markup import BubbleMarkup, KeyboardMarkup
+from botx.models.message.message_status import MessageStatus
 from botx.models.message.outgoing_message import OutgoingMessage
 from botx.models.method_callbacks import BotXMethodCallback
 from botx.models.status import (
@@ -642,6 +647,25 @@ class Bot:
             self._bot_accounts_storage,
         )
         await method.execute(payload)
+
+    async def get_message_status(self, *, bot_id: UUID, sync_id: UUID) -> MessageStatus:
+        """
+        Get status of message by `sync_id`.
+
+        :param bot_id: Bot which should perform the request.
+        :param sync_id: `sync_id` of message to get its status.
+
+        :returns: Message status object.
+        """
+        payload = BotXAPIMessageStatusRequestPayload.from_domain(sync_id=sync_id)
+        method = MessageStatusMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        botx_api_message_status = await method.execute(payload)
+        return botx_api_message_status.to_domain()
 
     async def start_typing(
         self,
