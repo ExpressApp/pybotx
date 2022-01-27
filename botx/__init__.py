@@ -67,6 +67,7 @@ from botx.models.message.mentions import Mention, MentionList
 from botx.models.message.message_status import MessageStatus
 from botx.models.message.outgoing_message import OutgoingMessage
 from botx.models.message.reply import Reply
+from botx.models.message.reply_message import ReplyMessage
 from botx.models.method_callbacks import BotAPIMethodFailedCallback
 from botx.models.status import BotMenu, StatusRecipient
 from botx.models.stickers import Sticker, StickerPack
@@ -146,6 +147,7 @@ __all__ = (
     "PermissionDeniedError",
     "RateLimitReachedError",
     "Reply",
+    "ReplyMessage",
     "SmartAppEvent",
     "SmartAppEvent",
     "StatusRecipient",

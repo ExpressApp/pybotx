@@ -155,6 +155,7 @@ from botx.models.message.edit_message import EditMessage
 from botx.models.message.markup import BubbleMarkup, KeyboardMarkup
 from botx.models.message.message_status import MessageStatus
 from botx.models.message.outgoing_message import OutgoingMessage
+from botx.models.message.reply_message import ReplyMessage
 from botx.models.method_callbacks import BotXMethodCallback
 from botx.models.status import (
     BotAPIStatusRecipient,
@@ -591,6 +592,31 @@ class Bot:
         )
 
         await method.execute(payload)
+
+    async def reply(
+        self,
+        *,
+        message: ReplyMessage,
+    ) -> None:
+        """Reply message.
+
+        :param message: Built outgoing reply message.
+        """
+
+        await self.reply_message(
+            bot_id=message.bot_id,
+            sync_id=message.sync_id,
+            body=message.body,
+            metadata=message.metadata,
+            bubbles=message.bubbles,
+            keyboard=message.keyboard,
+            file=message.file,
+            silent_response=message.silent_response,
+            markup_auto_adjust=message.markup_auto_adjust,
+            stealth_mode=message.stealth_mode,
+            send_push=message.send_push,
+            ignore_mute=message.ignore_mute,
+        )
 
     async def reply_message(
         self,
