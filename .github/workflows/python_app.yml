@@ -42,3 +42,16 @@ jobs:
         run: |
           source .venv/bin/activate
           ./scripts/lint
+
+  docs-lint:
+    name: Docs lint
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Setup dependencies
+        uses: ExpressApp/github-actions-poetry@v0.1
+
+      - name: Run linters
+        run: |
+          source .venv/bin/activate
+          ./scripts/docs-lint

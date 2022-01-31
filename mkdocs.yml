@@ -18,9 +18,9 @@ plugins:
 
 markdown_extensions:
   - admonition
+  - pymdownx.snippets
   - codehilite:
       css_class: highlight
-  - mkautodoc
 
 extra_css:
   - css/custom.css
