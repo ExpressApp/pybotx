@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -ex
+
+black --check --diff docs/snippets
+isort --profile black --check-only docs/snippets
+
+mypy docs/snippets
+flake8 docs/snippets
