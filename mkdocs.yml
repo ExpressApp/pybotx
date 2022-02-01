@@ -19,6 +19,10 @@ plugins:
 markdown_extensions:
   - admonition
   - pymdownx.snippets
+  - pymdownx.highlight:
+      anchor_linenums: true
+      linenums: true
+  - pymdownx.superfences
   - codehilite:
       css_class: highlight
 
