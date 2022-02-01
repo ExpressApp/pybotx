@@ -2,42 +2,18 @@
 
 ---
 
-## Bots API
+## [Bots API](https://hackmd.ccsteam.ru/s/E9MPeOxjP#Bots-API)
 
-::: botx.bot.bot.Bot
-    :docstring:
-    :members: get_token
+### [Получение токена](https://hackmd.ccsteam.ru/s/E9MPeOxjP#%D0%9F%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%82%D0%BE%D0%BA%D0%B5%D0%BD%D0%B0)
 
----
+Токен можно получить для каждого из добавленных аккаунтов бота. Для выбора аккаунта
+используется его ID.
 
-## Chats API
+!!! note
 
-::: botx.bot.bot.Bot
-    :docstring:
-    :members: list_chats chat_info add_users_to_chat remove_users_from_chat 
-        enable_stealth disable_stealth create_chat
-        
+    Вряд ли вам когда-нибудь понадобится запрашивать токен вручную, `pybotx`
+    получает их автоматически.
 
----
-
-## Users API
-
-::: botx.bot.bot.Bot
-    :docstring:
-    :members: search_user_by_email search_user_by_huid search_user_by_ad
-
----
-
-## Notifications API
-
-::: botx.bot.bot.Bot
-    :docstring:
-    :members: answer_message send_message send_internal_bot_notification
-
----
-
-## Files API
-
-::: botx.bot.bot.Bot
-    :docstring:
-    :members: download_file upload_file
+``` py
+--8<-- "docs/snippets/client/bots_api/get_token.py"
+```
