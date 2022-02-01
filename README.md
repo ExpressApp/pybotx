@@ -19,8 +19,9 @@
 
 ## Documentation
 
-*TODO: Add link*
-*TODO: Note that docs available only in Russian*
+Documentation: <https://expressapp.github.io/pybotx/>
+
+**Note:** Available only in Russian language
 
 
 ## Installation
@@ -31,4 +32,5 @@ Install pybotx using `pip`:
 pip install git+https://github.com/ExpressApp/pybotx.git@next
 ```
 
-*TODO: Add not about unstable version*
+**Note:** This project is under active development (`0.y.z`) and its API may be
+unstable. Please lock the minor version that you are using.
