@@ -1,23 +1,25 @@
 from unittest.mock import Mock
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 
 from botx import (
     Bot,
+    BotAccountWithSecret,
     BotMenu,
     ChatTypes,
     HandlerCollector,
     IncomingMessage,
     StatusRecipient,
+    UnknownBotAccountError,
     lifespan_wrapper,
 )
 
 
 @pytest.fixture
-def status_recipient() -> StatusRecipient:
+def status_recipient(bot_id: UUID) -> StatusRecipient:
     return StatusRecipient(
-        bot_id=uuid4(),
+        bot_id=bot_id,
         huid=uuid4(),
         ad_login=None,
         ad_domain=None,
@@ -28,6 +30,7 @@ def status_recipient() -> StatusRecipient:
 
 @pytest.mark.asyncio
 async def test__get_status__hidden_command_not_in_menu(
+    bot_account: BotAccountWithSecret,
     status_recipient: StatusRecipient,
     incorrect_handler_trigger: Mock,
 ) -> None:
@@ -38,7 +41,7 @@ async def test__get_status__hidden_command_not_in_menu(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         incorrect_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -52,6 +55,7 @@ async def test__get_status__hidden_command_not_in_menu(
 
 @pytest.mark.asyncio
 async def test__get_status__visible_command_in_menu(
+    bot_account: BotAccountWithSecret,
     status_recipient: StatusRecipient,
     incorrect_handler_trigger: Mock,
 ) -> None:
@@ -62,7 +66,7 @@ async def test__get_status__visible_command_in_menu(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         incorrect_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -76,6 +80,7 @@ async def test__get_status__visible_command_in_menu(
 
 @pytest.mark.asyncio
 async def test__get_status__command_not_in_menu_if_visible_func_return_false(
+    bot_account: BotAccountWithSecret,
     status_recipient: StatusRecipient,
     incorrect_handler_trigger: Mock,
 ) -> None:
@@ -89,7 +94,7 @@ async def test__get_status__command_not_in_menu_if_visible_func_return_false(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         incorrect_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -103,6 +108,7 @@ async def test__get_status__command_not_in_menu_if_visible_func_return_false(
 
 @pytest.mark.asyncio
 async def test__get_status__command_in_menu_if_visible_func_return_true(
+    bot_account: BotAccountWithSecret,
     status_recipient: StatusRecipient,
     incorrect_handler_trigger: Mock,
 ) -> None:
@@ -116,7 +122,7 @@ async def test__get_status__command_in_menu_if_visible_func_return_true(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         incorrect_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -151,15 +157,38 @@ async def test__raw_get_status__invalid_query() -> None:
 
 
 @pytest.mark.asyncio
-async def test__raw_get_status__minimally_filled_succeed() -> None:
+async def test__raw_get_status__unknown_bot_account_error_raised() -> None:
     # - Arrange -
     query = {
-        "bot_id": "34477998-c8c7-53e9-aa4b-66ea5182dc3f",
+        "bot_id": "123e4567-e89b-12d3-a456-426655440000",
         "chat_type": "chat",
         "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
     }
 
     built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        with pytest.raises(UnknownBotAccountError) as exc:
+            await bot.raw_get_status(query)
+
+    # - Assert -
+    assert "123e4567-e89b-12d3-a456-426655440000" in str(exc.value)
+
+
+@pytest.mark.asyncio
+async def test__raw_get_status__minimally_filled_succeed(
+    bot_account: BotAccountWithSecret,
+    bot_id: UUID,
+) -> None:
+    # - Arrange -
+    query = {
+        "bot_id": str(bot_id),
+        "chat_type": "chat",
+        "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
+    }
+
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -170,18 +199,21 @@ async def test__raw_get_status__minimally_filled_succeed() -> None:
 
 
 @pytest.mark.asyncio
-async def test__raw_get_status__minimum_filled_succeed() -> None:
+async def test__raw_get_status__minimum_filled_succeed(
+    bot_account: BotAccountWithSecret,
+    bot_id: UUID,
+) -> None:
     # - Arrange -
     query = {
         "ad_domain": "",
         "ad_login": "",
         "is_admin": "",
-        "bot_id": "34477998-c8c7-53e9-aa4b-66ea5182dc3f",
+        "bot_id": str(bot_id),
         "chat_type": "group_chat",
         "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
     }
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[])
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -192,18 +224,21 @@ async def test__raw_get_status__minimum_filled_succeed() -> None:
 
 
 @pytest.mark.asyncio
-async def test__raw_get_status__maximum_filled_succeed() -> None:
+async def test__raw_get_status__maximum_filled_succeed(
+    bot_account: BotAccountWithSecret,
+    bot_id: UUID,
+) -> None:
     # - Arrange -
     query = {
         "ad_domain": "domain",
         "ad_login": "login",
-        "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
+        "bot_id": str(bot_id),
         "chat_type": "chat",
         "is_admin": "true",
         "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
     }
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[])
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -214,10 +249,13 @@ async def test__raw_get_status__maximum_filled_succeed() -> None:
 
 
 @pytest.mark.asyncio
-async def test__raw_get_status__hidden_command_not_in_status() -> None:
+async def test__raw_get_status__hidden_command_not_in_status(
+    bot_account: BotAccountWithSecret,
+    bot_id: UUID,
+) -> None:
     # - Arrange -
     query = {
-        "bot_id": "34477998-c8c7-53e9-aa4b-66ea5182dc3f",
+        "bot_id": str(bot_id),
         "chat_type": "chat",
         "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
     }
@@ -228,7 +266,7 @@ async def test__raw_get_status__hidden_command_not_in_status() -> None:
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         pass
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -246,10 +284,13 @@ async def test__raw_get_status__hidden_command_not_in_status() -> None:
 
 
 @pytest.mark.asyncio
-async def test__raw_get_status__visible_command_in_status() -> None:
+async def test__raw_get_status__visible_command_in_status(
+    bot_account: BotAccountWithSecret,
+    bot_id: UUID,
+) -> None:
     # - Arrange -
     query = {
-        "bot_id": "34477998-c8c7-53e9-aa4b-66ea5182dc3f",
+        "bot_id": str(bot_id),
         "chat_type": "chat",
         "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
     }
@@ -260,7 +301,7 @@ async def test__raw_get_status__visible_command_in_status() -> None:
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         pass
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
