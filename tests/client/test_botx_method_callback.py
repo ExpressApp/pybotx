@@ -14,6 +14,7 @@ from botx import (
     Bot,
     BotAccountWithSecret,
     BotShuttingDownError,
+    BotXMethodCallbackNotFoundError,
     BotXMethodFailedCallbackReceivedError,
     CallbackNotReceivedError,
     HandlerCollector,
@@ -93,6 +94,38 @@ async def call_foo_bar(
     )
 
     return botx_api_foo_bar.to_domain()
+
+
+@respx.mock
+@pytest.mark.asyncio
+@pytest.mark.mock_authorization
+async def test__botx_method_callback__callback_not_found(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        with pytest.raises(BotXMethodCallbackNotFoundError) as exc:
+            bot.set_raw_botx_method_result(
+                {
+                    "status": "error",
+                    "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                    "reason": "chat_not_found",
+                    "errors": [],
+                    "error_data": {
+                        "group_chat_id": "705df263-6bfd-536a-9d51-13524afaab5c",
+                        "error_description": (
+                            "Chat with id 705df263-6bfd-536a-9d51-13524afaab5c not found"
+                        ),
+                    },
+                },
+            )
+
+    # - Assert -
+    assert "No callback found" in str(exc.value)
+    assert "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3" in str(exc.value)
 
 
 @respx.mock
@@ -314,6 +347,7 @@ async def test__botx_method_callback__callback_received_after_timeout(
     # - Assert -
     assert "hasn't been received" in str(exc.value)
     assert "don't wait callback" in loguru_caplog.text
+    assert "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3" in loguru_caplog.text
     assert endpoint.called
 
 

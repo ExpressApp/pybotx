@@ -22,10 +22,12 @@ class CallbacksManager:
         self,
         callback: BotXMethodCallback,
     ) -> None:
-        future = self._pop_future(callback.sync_id)
+        sync_id = callback.sync_id
+        future = self._pop_future(sync_id)
+
         if future.cancelled():
             logger.warning(
-                "BotX method with {sync_id=!s} don't wait callback",
+                f"BotX method with sync_id `{sync_id!s}` don't wait callback",
             )
             return
 
