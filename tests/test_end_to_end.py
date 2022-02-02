@@ -49,8 +49,7 @@ async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
     await bot.answer_message("Hi!")
 
 
-bot_accounts = build_bot_accounts_from_env()
-bot = Bot(collectors=[collector], bot_accounts=bot_accounts)
+bot = Bot(collectors=[collector], bot_accounts=build_bot_accounts_from_env())
 
 
 # - Starlette -
@@ -111,13 +110,20 @@ def test_client() -> TestClient:
     return TestClient(app)
 
 
+@pytest.fixture
+def bot_id() -> UUID:
+    bot_accounts_list = list(bot.bot_accounts)
+    return bot_accounts_list[0].id
+
+
 def test__web_app__bot_status(
+    bot_id: UUID,
     test_client: TestClient,
 ) -> None:
     response = test_client.get(
         "/status",
         params={
-            "bot_id": "34477998-c8c7-53e9-aa4b-66ea5182dc3f",
+            "bot_id": str(bot_id),
             "chat_type": "chat",
             "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
         },
@@ -140,11 +146,11 @@ def test__web_app__bot_status(
 
 
 def test__web_app__bot_command(
+    bot_id: UUID,
     test_client: TestClient,
 ) -> None:
-    bot_id = str(bot_accounts[0].id)
     payload = {
-        "bot_id": bot_id,
+        "bot_id": str(bot_id),
         "command": {
             "body": "/hello",
             "command_type": "user",

@@ -247,6 +247,9 @@ class Bot:
         return build_bot_status_response(bot_menu)
 
     async def get_status(self, status_recipient: StatusRecipient) -> BotMenu:
+        # raise UnknownBotAccountError if no bot account with this bot_id.
+        self._bot_accounts_storage.ensure_bot_id_exists(status_recipient.bot_id)
+
         return await self._handler_collector.get_bot_menu(status_recipient, self)
 
     def set_raw_botx_method_result(
