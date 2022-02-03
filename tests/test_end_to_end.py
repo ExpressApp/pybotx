@@ -1,15 +1,16 @@
 import os
 from http import HTTPStatus
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
+import httpx
 import pytest
+import respx
 from dotenv import load_dotenv
-from starlette.applications import Starlette
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-from starlette.routing import Route
-from starlette.testclient import TestClient
+from fastapi import APIRouter, Depends, FastAPI, Request
+from fastapi.responses import JSONResponse
+from fastapi.testclient import TestClient
+from loguru import logger
 
 from botx import (
     Bot,
@@ -20,14 +21,18 @@ from botx import (
     build_bot_disabled_response,
     build_command_accepted_response,
 )
-from botx.logger import logger  # TODO: Implement separate logger here
+
+# - Test utils -
+load_dotenv()
 
 
-def build_bot_accounts_from_env() -> List[BotAccountWithSecret]:
-    load_dotenv()
+def get_bot_accounts() -> List[BotAccountWithSecret]:
+    raw_credentials_list = os.getenv("BOT_CREDENTIALS")
+    if not raw_credentials_list:
+        raise RuntimeError("BOT_CREDENTIALS env not set")
 
     bot_accounts = []
-    for raw_credentials in os.environ["BOT_CREDENTIALS"].split(","):
+    for raw_credentials in raw_credentials_list.split(","):
         host, secret_key, raw_bot_id = raw_credentials.replace("|", "@").split("@")
         bot_accounts.append(
             BotAccountWithSecret(
@@ -40,7 +45,7 @@ def build_bot_accounts_from_env() -> List[BotAccountWithSecret]:
     return bot_accounts
 
 
-# - pybotx -
+# - Bot setup -
 collector = HandlerCollector()
 
 
@@ -49,11 +54,34 @@ async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
     await bot.answer_message("Hi!")
 
 
-bot = Bot(collectors=[collector], bot_accounts=build_bot_accounts_from_env())
+def bot_factory(
+    bot_accounts: List[BotAccountWithSecret],
+    httpx_client: Optional[httpx.AsyncClient] = None,
+) -> Bot:
+    return Bot(
+        collectors=[collector],
+        bot_accounts=bot_accounts,
+        httpx_client=httpx_client,
+    )
 
 
-# - Starlette -
-async def command_handler(request: Request) -> JSONResponse:
+# - FastAPI integration -
+def get_bot(request: Request) -> Bot:
+    assert isinstance(request.app.state.bot, Bot)
+
+    return request.app.state.bot
+
+
+bot_dependency = Depends(get_bot)
+
+router = APIRouter()
+
+
+@router.post("/command")
+async def command_handler(
+    request: Request,
+    bot: Bot = bot_dependency,
+) -> JSONResponse:
     try:
         bot.async_execute_raw_bot_command(await request.json())
     except ValueError:
@@ -79,12 +107,17 @@ async def command_handler(request: Request) -> JSONResponse:
     )
 
 
-async def status_handler(request: Request) -> JSONResponse:
+@router.get("/status")
+async def status_handler(request: Request, bot: Bot = bot_dependency) -> JSONResponse:
     status = await bot.raw_get_status(dict(request.query_params))
     return JSONResponse(status)
 
 
-async def callback_handler(request: Request) -> JSONResponse:
+@router.post("/notification/callback")
+async def callback_handler(
+    request: Request,
+    bot: Bot = bot_dependency,
+) -> JSONResponse:
     bot.set_raw_botx_method_result(await request.json())
     return JSONResponse(
         build_command_accepted_response(),
@@ -92,42 +125,52 @@ async def callback_handler(request: Request) -> JSONResponse:
     )
 
 
-app = Starlette(
-    routes=[
-        Route("/command", endpoint=command_handler, methods=["POST"]),
-        Route("/status", endpoint=status_handler, methods=["GET"]),
-        Route("/notification/callback", endpoint=callback_handler, methods=["POST"]),
-    ],
-    on_startup=[bot.startup],
-    on_shutdown=[bot.shutdown],
-)
+def fastapi_factory(bot: Bot) -> FastAPI:
+    application = FastAPI()
+    application.state.bot = bot
+
+    application.add_event_handler("startup", bot.startup)
+    application.add_event_handler("shutdown", bot.shutdown)
+
+    application.include_router(router)
+
+    return application
 
 
-# - tests -
+# https://www.uvicorn.org/#application-factories
+def asgi_factory() -> FastAPI:
+    bot_accounts = get_bot_accounts()
+    bot = bot_factory(bot_accounts)
+    return fastapi_factory(bot)
+
+
+# - Tests -
 @pytest.fixture
+def bot(bot_account: BotAccountWithSecret, httpx_client: httpx.AsyncClient) -> Bot:
+    return bot_factory(bot_accounts=[bot_account], httpx_client=httpx_client)
+
+
+@respx.mock
 @pytest.mark.mock_authorization
-def test_client() -> TestClient:
-    return TestClient(app)
-
-
-@pytest.fixture
-def bot_id() -> UUID:
-    bot_accounts_list = list(bot.bot_accounts)
-    return bot_accounts_list[0].id
-
-
 def test__web_app__bot_status(
     bot_id: UUID,
-    test_client: TestClient,
+    bot: Bot,
 ) -> None:
-    response = test_client.get(
-        "/status",
-        params={
-            "bot_id": str(bot_id),
-            "chat_type": "chat",
-            "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
-        },
-    )
+    # - Arrange -
+    query_params = {
+        "bot_id": str(bot_id),
+        "chat_type": "chat",
+        "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
+    }
+
+    # - Act -
+    with TestClient(fastapi_factory(bot)) as test_client:
+        response = test_client.get(
+            "/status",
+            params=query_params,
+        )
+
+    # - Assert -
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
         "result": {
@@ -145,14 +188,30 @@ def test__web_app__bot_status(
     }
 
 
+@respx.mock
+@pytest.mark.mock_authorization
 def test__web_app__bot_command(
     bot_id: UUID,
-    test_client: TestClient,
+    host: str,
+    bot: Bot,
 ) -> None:
-    payload = {
+    # - Arrange -
+    direct_notification_endpoint = respx.post(
+        f"https://{host}/api/v4/botx/notifications/direct",
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        ),
+    )
+
+    command_payload = {
         "bot_id": str(bot_id),
         "command": {
-            "body": "/hello",
+            "body": "/debug",
             "command_type": "user",
             "data": {},
             "metadata": {},
@@ -187,21 +246,41 @@ def test__web_app__bot_command(
         },
         "proto_version": 4,
     }
-    response = test_client.post(
-        "/command",
-        json=payload,
-    )
 
-    assert response.status_code == HTTPStatus.ACCEPTED
+    callback_payload = {
+        "status": "ok",
+        "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+        "result": {},
+    }
+
+    # - Act -
+    with TestClient(fastapi_factory(bot)) as test_client:
+        command_response = test_client.post(
+            "/command",
+            json=command_payload,
+        )
+
+        callback_response = test_client.post(
+            "/notification/callback",
+            json=callback_payload,
+        )
+
+    # - Assert -
+    assert command_response.status_code == HTTPStatus.ACCEPTED
+    assert direct_notification_endpoint.called
+    assert callback_response.status_code == HTTPStatus.ACCEPTED
 
 
+@respx.mock
+@pytest.mark.mock_authorization
 def test__web_app__unknown_bot_response(
-    test_client: TestClient,
+    bot: Bot,
 ) -> None:
+    # - Arrange -
     payload = {
-        "bot_id": "123e4567-e89b-12d3-a456-426655440000",
+        "bot_id": "c755e147-30a5-45df-b46a-c75aa6089c8f",
         "command": {
-            "body": "/hello",
+            "body": "/debug",
             "command_type": "user",
             "data": {},
             "metadata": {},
@@ -236,22 +315,34 @@ def test__web_app__unknown_bot_response(
         },
         "proto_version": 4,
     }
-    response = test_client.post(
-        "/command",
-        json=payload,
-    )
 
+    # - Act -
+    with TestClient(fastapi_factory(bot)) as test_client:
+        response = test_client.post(
+            "/command",
+            json=payload,
+        )
+
+    # - Assert -
     assert response.status_code == HTTPStatus.SERVICE_UNAVAILABLE
 
 
+@respx.mock
+@pytest.mark.mock_authorization
 def test__web_app__disabled_bot_response(
-    test_client: TestClient,
+    bot: Bot,
 ) -> None:
-    response = test_client.post(
-        "/command",
-        json={"incorrect": "request"},
-    )
+    # - Arrange -
+    payload = {"incorrect": "request"}
 
+    # - Act -
+    with TestClient(fastapi_factory(bot)) as test_client:
+        response = test_client.post(
+            "/command",
+            json=payload,
+        )
+
+    # - Assert -
     assert response.status_code == HTTPStatus.SERVICE_UNAVAILABLE
     assert response.json() == {
         "error_data": {"status_message": "Bot command validation error"},
