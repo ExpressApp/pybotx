@@ -15,6 +15,12 @@ from botx import (
     lifespan_wrapper,
 )
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
+
 
 @pytest.fixture
 def status_recipient(bot_id: UUID) -> StatusRecipient:
@@ -28,7 +34,6 @@ def status_recipient(bot_id: UUID) -> StatusRecipient:
     )
 
 
-@pytest.mark.asyncio
 async def test__get_status__hidden_command_not_in_menu(
     bot_account: BotAccountWithSecret,
     status_recipient: StatusRecipient,
@@ -53,7 +58,6 @@ async def test__get_status__hidden_command_not_in_menu(
     incorrect_handler_trigger.assert_not_called()
 
 
-@pytest.mark.asyncio
 async def test__get_status__visible_command_in_menu(
     bot_account: BotAccountWithSecret,
     status_recipient: StatusRecipient,
@@ -78,7 +82,6 @@ async def test__get_status__visible_command_in_menu(
     incorrect_handler_trigger.assert_not_called()
 
 
-@pytest.mark.asyncio
 async def test__get_status__command_not_in_menu_if_visible_func_return_false(
     bot_account: BotAccountWithSecret,
     status_recipient: StatusRecipient,
@@ -106,7 +109,6 @@ async def test__get_status__command_not_in_menu_if_visible_func_return_false(
     incorrect_handler_trigger.assert_not_called()
 
 
-@pytest.mark.asyncio
 async def test__get_status__command_in_menu_if_visible_func_return_true(
     bot_account: BotAccountWithSecret,
     status_recipient: StatusRecipient,
@@ -134,7 +136,6 @@ async def test__get_status__command_in_menu_if_visible_func_return_true(
     incorrect_handler_trigger.assert_not_called()
 
 
-@pytest.mark.asyncio
 async def test__raw_get_status__invalid_query() -> None:
     # - Arrange -
     query = {"user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11"}
@@ -156,7 +157,6 @@ async def test__raw_get_status__invalid_query() -> None:
     assert "validation error" in str(exc.value)
 
 
-@pytest.mark.asyncio
 async def test__raw_get_status__unknown_bot_account_error_raised() -> None:
     # - Arrange -
     query = {
@@ -176,7 +176,6 @@ async def test__raw_get_status__unknown_bot_account_error_raised() -> None:
     assert "123e4567-e89b-12d3-a456-426655440000" in str(exc.value)
 
 
-@pytest.mark.asyncio
 async def test__raw_get_status__minimally_filled_succeed(
     bot_account: BotAccountWithSecret,
     bot_id: UUID,
@@ -198,7 +197,6 @@ async def test__raw_get_status__minimally_filled_succeed(
     assert status
 
 
-@pytest.mark.asyncio
 async def test__raw_get_status__minimum_filled_succeed(
     bot_account: BotAccountWithSecret,
     bot_id: UUID,
@@ -223,7 +221,6 @@ async def test__raw_get_status__minimum_filled_succeed(
     assert status
 
 
-@pytest.mark.asyncio
 async def test__raw_get_status__maximum_filled_succeed(
     bot_account: BotAccountWithSecret,
     bot_id: UUID,
@@ -248,7 +245,6 @@ async def test__raw_get_status__maximum_filled_succeed(
     assert status
 
 
-@pytest.mark.asyncio
 async def test__raw_get_status__hidden_command_not_in_status(
     bot_account: BotAccountWithSecret,
     bot_id: UUID,
@@ -283,7 +279,6 @@ async def test__raw_get_status__hidden_command_not_in_status(
     }
 
 
-@pytest.mark.asyncio
 async def test__raw_get_status__visible_command_in_status(
     bot_account: BotAccountWithSecret,
     bot_id: UUID,

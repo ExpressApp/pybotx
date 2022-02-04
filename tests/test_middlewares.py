@@ -2,7 +2,6 @@ from typing import Callable
 from unittest.mock import Mock
 
 import pytest
-import respx
 
 from botx import (
     Bot,
@@ -14,10 +13,13 @@ from botx import (
     lifespan_wrapper,
 )
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
+
 async def test__middlewares__correct_order(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
@@ -68,9 +70,6 @@ async def test__middlewares__correct_order(
     assert middlewares_called_order == [1, 2, 3, 4, 5, 6]
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__middlewares__called_in_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
     bot_account: BotAccountWithSecret,
@@ -116,9 +115,6 @@ async def test__middlewares__called_in_default_handler(
     assert middlewares_called_order == [1, 2, 3, 4, 5, 6]
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__middlewares__correct_child_collector_middlewares(
     incoming_message_factory: Callable[..., IncomingMessage],
     bot_account: BotAccountWithSecret,
@@ -167,9 +163,6 @@ async def test__middlewares__correct_child_collector_middlewares(
     assert middlewares_called_order == [1, 2, 3, 4]
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__middlewares__correct_parent_collector_middlewares(
     incoming_message_factory: Callable[..., IncomingMessage],
     bot_account: BotAccountWithSecret,

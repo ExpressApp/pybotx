@@ -3,7 +3,7 @@ from uuid import UUID
 
 import httpx
 import pytest
-import respx
+from respx.router import MockRouter
 
 from botx import (
     Bot,
@@ -15,18 +15,21 @@ from botx import (
     lifespan_wrapper,
 )
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
+
 async def test__create_chat__bot_have_no_permissions_raised(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v3/botx/chats/create",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -49,11 +52,7 @@ async def test__create_chat__bot_have_no_permissions_raised(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -70,17 +69,14 @@ async def test__create_chat__bot_have_no_permissions_raised(
     assert "chat_creation_is_prohibited" in str(exc.value)
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__create_chat__botx_error_raised(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v3/botx/chats/create",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -101,11 +97,7 @@ async def test__create_chat__botx_error_raised(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -122,17 +114,14 @@ async def test__create_chat__botx_error_raised(
     assert "specified reason" in str(exc.value)
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__create_chat__maximum_filled_succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v3/botx/chats/create",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -152,11 +141,7 @@ async def test__create_chat__maximum_filled_succeed(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

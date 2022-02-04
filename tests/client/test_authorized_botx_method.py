@@ -3,7 +3,7 @@ from uuid import UUID
 
 import httpx
 import pytest
-import respx
+from respx.router import MockRouter
 
 from botx import BotAccountWithSecret, InvalidBotAccountError
 from botx.bot.bot_accounts_storage import BotAccountsStorage
@@ -33,17 +33,22 @@ class FooBarMethod(AuthorizedBotXMethod):
         )
 
 
-@respx.mock
-@pytest.mark.asyncio
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.usefixtures("respx_mock"),
+]
+
+
 async def test__authorized_botx_method__unauthorized(
     httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_signature: str,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    token_endpoint = respx.get(
+    token_endpoint = respx_mock.get(
         f"https://{host}/api/v2/botx/bots/{bot_id}/token",
         params={"signature": bot_signature},
     ).mock(
@@ -56,7 +61,7 @@ async def test__authorized_botx_method__unauthorized(
         ),
     )
 
-    foo_bar_endpoint = respx.post(
+    foo_bar_endpoint = respx_mock.post(
         f"https://{host}/foo/bar",
         json={"baz": 1},
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
@@ -81,17 +86,16 @@ async def test__authorized_botx_method__unauthorized(
     assert foo_bar_endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
 async def test__authorized_botx_method__succeed(
     httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_signature: str,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    token_endpoint = respx.get(
+    token_endpoint = respx_mock.get(
         f"https://{host}/api/v2/botx/bots/{bot_id}/token",
         params={"signature": bot_signature},
     ).mock(
@@ -104,7 +108,7 @@ async def test__authorized_botx_method__succeed(
         ),
     )
 
-    foo_bar_endpoint = respx.post(
+    foo_bar_endpoint = respx_mock.post(
         f"https://{host}/foo/bar",
         json={"baz": 1},
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
@@ -134,16 +138,15 @@ async def test__authorized_botx_method__succeed(
     assert foo_bar_endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
 async def test__authorized_botx_method__with_prepared_token(
     httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     prepared_bot_accounts_storage: BotAccountsStorage,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/foo/bar",
         json={"baz": 1},
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},

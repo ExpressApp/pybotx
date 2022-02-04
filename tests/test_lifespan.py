@@ -5,14 +5,17 @@ from uuid import UUID
 
 import httpx
 import pytest
-import respx
+from respx.router import MockRouter
 
 from botx import Bot, BotAccountWithSecret, HandlerCollector, IncomingMessage
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
+
 async def test__shutdown__wait_for_active_handlers(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
@@ -36,9 +39,8 @@ async def test__shutdown__wait_for_active_handlers(
     correct_handler_trigger.assert_called_once()
 
 
-@respx.mock
-@pytest.mark.asyncio
 async def test__startup__authorize_cant_get_token(
+    respx_mock: MockRouter,
     loguru_caplog: pytest.LogCaptureFixture,
     bot_account: BotAccountWithSecret,
     host: str,
@@ -46,7 +48,7 @@ async def test__startup__authorize_cant_get_token(
     bot_signature: str,
 ) -> None:
     # - Arrange -
-    token_endpoint = respx.get(
+    token_endpoint = respx_mock.get(
         f"https://{host}/api/v2/botx/bots/{bot_id}/token",
         params={"signature": bot_signature},
     ).mock(
@@ -71,5 +73,4 @@ async def test__startup__authorize_cant_get_token(
     assert "Can't get token for bot account: " in loguru_caplog.text
     assert f"host - {host}, bot_id - {bot_id}" in loguru_caplog.text
 
-    # Close httpx client
     await bot.shutdown()

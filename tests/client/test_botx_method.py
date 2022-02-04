@@ -3,7 +3,7 @@ from uuid import UUID
 
 import httpx
 import pytest
-import respx
+from respx.router import MockRouter
 from typing_extensions import Literal  # For python 3.7 support
 
 from botx import (
@@ -64,16 +64,21 @@ class FooBarMethod(BotXMethod):
         )
 
 
-@respx.mock
-@pytest.mark.asyncio
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.usefixtures("respx_mock"),
+]
+
+
 async def test__botx_method__invalid_botx_status_code_error_raised(
     httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/foo/bar",
         json={"baz": 1},
         headers={"Content-Type": "application/json"},
@@ -97,16 +102,15 @@ async def test__botx_method__invalid_botx_status_code_error_raised(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
 async def test__botx_method__invalid_json_raises_invalid_botx_response_payload_error(
     httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/foo/bar",
         json={"baz": 1},
         headers={"Content-Type": "application/json"},
@@ -133,16 +137,15 @@ async def test__botx_method__invalid_json_raises_invalid_botx_response_payload_e
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
 async def test__botx_method__invalid_schema_raises_invalid_botx_response_payload_error(
     httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/foo/bar",
         json={"baz": 1},
         headers={"Content-Type": "application/json"},
@@ -169,16 +172,15 @@ async def test__botx_method__invalid_schema_raises_invalid_botx_response_payload
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
 async def test__botx_method__status_handler_called(
     httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/foo/bar",
         json={"baz": 1},
         headers={"Content-Type": "application/json"},
@@ -203,16 +205,15 @@ async def test__botx_method__status_handler_called(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
 async def test__botx_method__succeed(
     httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/foo/bar",
         json={"baz": 1},
         headers={"Content-Type": "application/json"},

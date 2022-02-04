@@ -1,16 +1,16 @@
 import os
 from http import HTTPStatus
-from typing import List, Optional
+from typing import List
 from uuid import UUID
 
 import httpx
 import pytest
-import respx
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.testclient import TestClient
 from loguru import logger
+from respx.router import MockRouter
 
 from botx import (
     Bot,
@@ -56,13 +56,8 @@ async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
 
 def bot_factory(
     bot_accounts: List[BotAccountWithSecret],
-    httpx_client: Optional[httpx.AsyncClient] = None,
 ) -> Bot:
-    return Bot(
-        collectors=[collector],
-        bot_accounts=bot_accounts,
-        httpx_client=httpx_client,
-    )
+    return Bot(collectors=[collector], bot_accounts=bot_accounts)
 
 
 # - FastAPI integration -
@@ -146,12 +141,16 @@ def asgi_factory() -> FastAPI:
 
 # - Tests -
 @pytest.fixture
-def bot(bot_account: BotAccountWithSecret, httpx_client: httpx.AsyncClient) -> Bot:
-    return bot_factory(bot_accounts=[bot_account], httpx_client=httpx_client)
+def bot(bot_account: BotAccountWithSecret) -> Bot:
+    return bot_factory(bot_accounts=[bot_account])
 
 
-@respx.mock
-@pytest.mark.mock_authorization
+pytestmark = [
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
+
+
 def test__web_app__bot_status(
     bot_id: UUID,
     bot: Bot,
@@ -188,15 +187,14 @@ def test__web_app__bot_status(
     }
 
 
-@respx.mock
-@pytest.mark.mock_authorization
 def test__web_app__bot_command(
+    respx_mock: MockRouter,
     bot_id: UUID,
     host: str,
     bot: Bot,
 ) -> None:
     # - Arrange -
-    direct_notification_endpoint = respx.post(
+    direct_notification_endpoint = respx_mock.post(
         f"https://{host}/api/v4/botx/notifications/direct",
     ).mock(
         return_value=httpx.Response(
@@ -271,8 +269,6 @@ def test__web_app__bot_command(
     assert callback_response.status_code == HTTPStatus.ACCEPTED
 
 
-@respx.mock
-@pytest.mark.mock_authorization
 def test__web_app__unknown_bot_response(
     bot: Bot,
 ) -> None:
@@ -327,8 +323,6 @@ def test__web_app__unknown_bot_response(
     assert response.status_code == HTTPStatus.SERVICE_UNAVAILABLE
 
 
-@respx.mock
-@pytest.mark.mock_authorization
 def test__web_app__disabled_bot_response(
     bot: Bot,
 ) -> None:

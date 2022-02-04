@@ -4,8 +4,8 @@ from uuid import UUID
 
 import httpx
 import pytest
-import respx
 from aiofiles.tempfile import NamedTemporaryFile
+from respx.router import MockRouter
 
 from botx import (
     Bot,
@@ -16,8 +16,13 @@ from botx import (
 )
 from botx.models.attachments import AttachmentDocument, OutgoingAttachment
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@pytest.mark.asyncio
+
 async def test__attachment__trimmed_in_incoming_message(
     bot_account: BotAccountWithSecret,
     api_incoming_message_factory: Callable[..., Dict[str, Any]],
@@ -60,17 +65,15 @@ async def test__attachment__trimmed_in_incoming_message(
     )
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__attachment__trimmed_in_outgoing_message(
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -96,10 +99,8 @@ async def test__attachment__trimmed_in_outgoing_message(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
     async with NamedTemporaryFile("wb+") as async_buffer:
         await async_buffer.write(
             b"Hello, amazing world! Very very very very very very long text to"

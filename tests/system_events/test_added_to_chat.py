@@ -2,7 +2,6 @@ from typing import Optional
 from uuid import UUID
 
 import pytest
-import respx
 
 from botx import (
     AddedToChatEvent,
@@ -15,10 +14,13 @@ from botx import (
     lifespan_wrapper,
 )
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
+
 async def test__added_to_chat__succeed(
     bot_account: BotAccountWithSecret,
 ) -> None:

@@ -4,7 +4,7 @@ from uuid import UUID
 
 import httpx
 import pytest
-import respx
+from respx.router import MockRouter
 from typing_extensions import Literal  # For python 3.7 support
 
 from botx import BotAccountWithSecret
@@ -45,16 +45,21 @@ class FooBarMethod(BotXMethod):
         )
 
 
-@respx.mock
-@pytest.mark.asyncio
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.usefixtures("respx_mock"),
+]
+
+
 async def test__botx_method__undefined_cleaned(
     httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/foo/bar",
         json={
             "baz": {

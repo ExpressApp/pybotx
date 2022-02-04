@@ -3,8 +3,8 @@ from uuid import UUID
 
 import httpx
 import pytest
-import respx
 from aiofiles.tempfile import NamedTemporaryFile
+from respx.router import MockRouter
 
 from botx import (
     Bot,
@@ -30,10 +30,15 @@ PNG_IMAGE_B64 = (
     "AAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII="
 )
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@pytest.mark.asyncio
+
 async def test__add_sticker__is_not_png_error_raised(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
@@ -42,11 +47,7 @@ async def test__add_sticker__is_not_png_error_raised(
     await async_buffer.write(b"Hello, world!\n")
     await async_buffer.seek(0)
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -62,9 +63,8 @@ async def test__add_sticker__is_not_png_error_raised(
     assert "Passed file is not PNG" in str(exc.value)
 
 
-@pytest.mark.asyncio
 async def test__add_sticker__bad_file_size_error_raised(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
@@ -73,11 +73,7 @@ async def test__add_sticker__bad_file_size_error_raised(
     await async_buffer.write(PNG_IMAGE + b"\x00" * (512 * 1024 + 1))
     await async_buffer.seek(0)
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -93,11 +89,8 @@ async def test__add_sticker__bad_file_size_error_raised(
     assert "Passed file size is greater than 0.5 Mb" in str(exc.value)
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__add_sticker__unexpected_bad_request_error_raised(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
@@ -107,7 +100,7 @@ async def test__add_sticker__unexpected_bad_request_error_raised(
     await async_buffer.write(PNG_IMAGE)
     await async_buffer.seek(0)
 
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v3/botx/stickers/packs/26080153-a57d-5a8c-af0e-fdecee3c4435/stickers",
         headers={"Authorization": "Bearer token"},
         json={"emoji": "🤔", "image": f"data:image/png;base64,{PNG_IMAGE_B64}"},
@@ -123,11 +116,7 @@ async def test__add_sticker__unexpected_bad_request_error_raised(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -144,11 +133,8 @@ async def test__add_sticker__unexpected_bad_request_error_raised(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__add_sticker__sticker_pack_not_found_error_raised(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
@@ -158,7 +144,7 @@ async def test__add_sticker__sticker_pack_not_found_error_raised(
     await async_buffer.write(PNG_IMAGE)
     await async_buffer.seek(0)
 
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v3/botx/stickers/packs/26080153-a57d-5a8c-af0e-fdecee3c4435/stickers",
         headers={"Authorization": "Bearer token"},
         json={"emoji": "🤔", "image": f"data:image/png;base64,{PNG_IMAGE_B64}"},
@@ -174,11 +160,7 @@ async def test__add_sticker__sticker_pack_not_found_error_raised(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -195,11 +177,8 @@ async def test__add_sticker__sticker_pack_not_found_error_raised(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__add_sticker__invalid_emoji_error_raised(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
@@ -209,7 +188,7 @@ async def test__add_sticker__invalid_emoji_error_raised(
     await async_buffer.write(PNG_IMAGE)
     await async_buffer.seek(0)
 
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v3/botx/stickers/packs/26080153-a57d-5a8c-af0e-fdecee3c4435/stickers",
         headers={"Authorization": "Bearer token"},
         json={"emoji": "🤔", "image": f"data:image/png;base64,{PNG_IMAGE_B64}"},
@@ -225,11 +204,7 @@ async def test__add_sticker__invalid_emoji_error_raised(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -246,11 +221,8 @@ async def test__add_sticker__invalid_emoji_error_raised(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__add_sticker__invalid_image_error_raised(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
@@ -260,7 +232,7 @@ async def test__add_sticker__invalid_image_error_raised(
     await async_buffer.write(PNG_IMAGE)
     await async_buffer.seek(0)
 
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v3/botx/stickers/packs/26080153-a57d-5a8c-af0e-fdecee3c4435/stickers",
         headers={"Authorization": "Bearer token"},
         json={"emoji": "🤔", "image": f"data:image/png;base64,{PNG_IMAGE_B64}"},
@@ -276,11 +248,7 @@ async def test__add_sticker__invalid_image_error_raised(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -297,11 +265,8 @@ async def test__add_sticker__invalid_image_error_raised(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__add_sticker__succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
@@ -311,7 +276,7 @@ async def test__add_sticker__succeed(
     await async_buffer.write(PNG_IMAGE)
     await async_buffer.seek(0)
 
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v3/botx/stickers/packs/26080153-a57d-5a8c-af0e-fdecee3c4435/stickers",
         headers={"Authorization": "Bearer token"},
         json={"emoji": "🤔", "image": f"data:image/png;base64,{PNG_IMAGE_B64}"},
@@ -332,11 +297,7 @@ async def test__add_sticker__succeed(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

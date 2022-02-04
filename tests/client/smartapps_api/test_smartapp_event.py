@@ -3,24 +3,27 @@ from uuid import UUID
 
 import httpx
 import pytest
-import respx
+from respx.router import MockRouter
 
 from botx import Bot, BotAccountWithSecret, HandlerCollector, lifespan_wrapper
 from botx.models.async_files import Document, Image, Video, Voice
 from botx.models.enums import AttachmentTypes
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
+
 async def test__send_smartapp_event__miminally_filled_succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v3/botx/smartapps/event",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -41,11 +44,7 @@ async def test__send_smartapp_event__miminally_filled_succeed(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -60,17 +59,14 @@ async def test__send_smartapp_event__miminally_filled_succeed(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__send_smartapp_event__maximum_filled_succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v3/botx/smartapps/event",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -131,11 +127,7 @@ async def test__send_smartapp_event__maximum_filled_succeed(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

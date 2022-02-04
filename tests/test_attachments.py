@@ -3,7 +3,6 @@ from typing import Any, Callable, Dict, Optional
 from uuid import UUID
 
 import pytest
-import respx
 
 from botx import (
     AttachmentTypes,
@@ -24,10 +23,13 @@ from botx.models.attachments import (
     IncomingAttachment,
 )
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
+
 async def test__attachment__open(
     host: str,
     bot_account: BotAccountWithSecret,
@@ -131,9 +133,6 @@ API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
 )
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 @pytest.mark.parametrize(
     "api_attachment,domain_attachment,attr_name",
     API_AND_DOMAIN_NON_FILE_ATTACHMENTS,
@@ -239,9 +238,6 @@ API_AND_DOMAIN_FILE_ATTACHMENTS = (
 )
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 @pytest.mark.parametrize(
     "api_attachment,domain_attachment",
     API_AND_DOMAIN_FILE_ATTACHMENTS,

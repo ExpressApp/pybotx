@@ -3,8 +3,8 @@ from uuid import UUID
 
 import httpx
 import pytest
-import respx
 from aiofiles.tempfile import NamedTemporaryFile
+from respx.router import MockRouter
 
 from botx import (
     Bot,
@@ -18,18 +18,21 @@ from botx import (
     lifespan_wrapper,
 )
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
+
 async def test__edit_message__minimal_edit_succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v3/botx/events/edit_event",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -45,11 +48,7 @@ async def test__edit_message__minimal_edit_succeed(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -62,11 +61,8 @@ async def test__edit_message__minimal_edit_succeed(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__edit_message__maximum_edit_succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
@@ -78,7 +74,7 @@ async def test__edit_message__maximum_edit_succeed(
         lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
     )
 
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v3/botx/events/edit_event",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -131,11 +127,7 @@ async def test__edit_message__maximum_edit_succeed(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     bubbles = BubbleMarkup()
     bubbles.add_button(command="/bubble-button", label="Bubble button")
@@ -165,17 +157,14 @@ async def test__edit_message__maximum_edit_succeed(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__edit_message__clean_message_succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v3/botx/events/edit_event",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -199,11 +188,7 @@ async def test__edit_message__clean_message_succeed(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -221,11 +206,8 @@ async def test__edit_message__clean_message_succeed(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__edit__succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
@@ -237,7 +219,7 @@ async def test__edit__succeed(
         lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
     )
 
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v3/botx/events/edit_event",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -290,11 +272,7 @@ async def test__edit__succeed(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     bubbles = BubbleMarkup()
     bubbles.add_button(command="/bubble-button", label="Bubble button")

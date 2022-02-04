@@ -7,9 +7,9 @@ from uuid import UUID, uuid4
 
 import httpx
 import pytest
-import respx
 from aiofiles.tempfile import NamedTemporaryFile
 from pydantic import BaseModel
+from respx.router import MockRouter
 
 from botx import (
     BotAccount,
@@ -72,12 +72,13 @@ def bot_signature() -> str:
 
 @pytest.fixture
 def mock_authorization(
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_signature: str,
 ) -> None:
     """Fixture should be used as a marker."""
-    respx.get(
+    respx_mock.get(
         f"https://{host}/api/v2/botx/bots/{bot_id}/token",
         params={"signature": bot_signature},
     ).mock(
@@ -113,34 +114,9 @@ def loguru_caplog(
     logger.remove(handler_id)
 
 
-async def log_request(request: httpx.Request) -> None:
-    if isinstance(
-        request.stream,  # type: ignore
-        httpx._multipart.MultipartStream,  # noqa: WPS437
-    ):
-        content = b"<stream>"
-    else:
-        content = request.content
-
-    logger.debug(
-        "\n"
-        f"Endpoint: {request.method} {request.url}\n"
-        f"Headers: {request.headers}\n"
-        f"Payload: {content!r}",
-    )
-
-
-async def log_response(response: httpx.Response) -> None:
-    logger.debug(
-        f"\nHeaders: {response.headers}\nStatus code: {response.status_code}\n",
-    )
-
-
 @pytest.fixture
 async def httpx_client() -> AsyncGenerator[httpx.AsyncClient, None]:
-    async with httpx.AsyncClient(
-        event_hooks={"request": [log_request], "response": [log_response]},
-    ) as client:
+    async with httpx.AsyncClient() as client:
         yield client
 
 
