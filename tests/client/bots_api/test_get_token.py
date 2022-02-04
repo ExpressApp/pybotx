@@ -3,7 +3,7 @@ from uuid import UUID
 
 import httpx
 import pytest
-import respx
+from respx.router import MockRouter
 
 from botx import (
     Bot,
@@ -13,29 +13,28 @@ from botx import (
     lifespan_wrapper,
 )
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@respx.mock
-@pytest.mark.asyncio
+
 async def test__get_token__invalid_bot_account_error_raised(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_signature: str,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.get(
+    endpoint = respx_mock.get(
         f"https://{host}/api/v2/botx/bots/{bot_id}/token",
         params={"signature": bot_signature},
     ).mock(
         return_value=httpx.Response(HTTPStatus.UNAUTHORIZED),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     with pytest.raises(InvalidBotAccountError) as exc:
@@ -47,17 +46,15 @@ async def test__get_token__invalid_bot_account_error_raised(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
 async def test__get_token__succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_signature: str,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.get(
+    endpoint = respx_mock.get(
         f"https://{host}/api/v2/botx/bots/{bot_id}/token",
         params={"signature": bot_signature},
     ).mock(
@@ -70,11 +67,7 @@ async def test__get_token__succeed(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

@@ -3,7 +3,7 @@ from uuid import UUID
 
 import httpx
 import pytest
-import respx
+from respx.router import MockRouter
 
 from botx import (
     Bot,
@@ -14,18 +14,21 @@ from botx import (
 )
 from botx.models.stickers import Sticker, StickerPack
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
+
 async def test__edit_sticker_pack__sticker_pack_not_found_error_raised(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.put(
+    endpoint = respx_mock.put(
         f"https://{host}/api/v3/botx/stickers/packs/26080153-a57d-5a8c-af0e-fdecee3c4435",
         headers={"Authorization": "Bearer token"},
     ).mock(
@@ -40,11 +43,7 @@ async def test__edit_sticker_pack__sticker_pack_not_found_error_raised(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -65,17 +64,14 @@ async def test__edit_sticker_pack__sticker_pack_not_found_error_raised(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__edit_sticker__succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.put(
+    endpoint = respx_mock.put(
         f"https://{host}/api/v3/botx/stickers/packs/d881f83a-db30-4cff-b60e-f24ac53deecf",
         headers={"Authorization": "Bearer token"},
         json={
@@ -126,11 +122,7 @@ async def test__edit_sticker__succeed(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

@@ -2,7 +2,6 @@ from typing import Optional
 from uuid import UUID
 
 import pytest
-import respx
 
 from botx import (
     AttachmentTypes,
@@ -18,10 +17,13 @@ from botx.models.chats import Chat
 from botx.models.enums import ChatTypes
 from botx.models.message.incoming_message import UserDevice, UserSender
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
+
 async def test__smartapp__succeed(
     bot_account: BotAccountWithSecret,
 ) -> None:

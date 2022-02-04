@@ -1,7 +1,6 @@
 from typing import Callable, Optional
 
 import pytest
-import respx
 
 from botx import (
     Bot,
@@ -12,10 +11,13 @@ from botx import (
     lifespan_wrapper,
 )
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
+
 async def test__bot_state__save_changes_between_middleware_and_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
     bot_account: BotAccountWithSecret,
@@ -52,9 +54,6 @@ async def test__bot_state__save_changes_between_middleware_and_handler(
     assert built_bot.state.api_token == "token"
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__message_state__save_changes_between_middleware_and_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
     bot_account: BotAccountWithSecret,

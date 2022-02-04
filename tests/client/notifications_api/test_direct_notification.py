@@ -5,8 +5,8 @@ from uuid import UUID
 
 import httpx
 import pytest
-import respx
 from aiofiles.tempfile import NamedTemporaryFile
+from respx.router import MockRouter
 
 from botx import (
     AnswerDestinationLookupError,
@@ -27,19 +27,22 @@ from botx import (
     lifespan_wrapper,
 )
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
+
 async def test__send_message__succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_account: BotAccountWithSecret,
     bot_id: UUID,
     api_incoming_message_factory: Callable[..., Dict[str, Any]],
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -142,11 +145,7 @@ async def test__send_message__succeed(
     async def hello_handler(message: IncomingMessage, bot: Bot) -> None:
         await bot.send(message=outgoing_message)
 
-    built_bot = Bot(
-        collectors=[collector],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -166,9 +165,6 @@ async def test__send_message__succeed(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__answer_message__no_incoming_message_error_raised(
     host: str,
     bot_account: BotAccountWithSecret,
@@ -186,18 +182,15 @@ async def test__answer_message__no_incoming_message_error_raised(
     assert "No IncomingMessage received" in str(exc.value)
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__answer_message__succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_account: BotAccountWithSecret,
     bot_id: UUID,
     api_incoming_message_factory: Callable[..., Dict[str, Any]],
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -278,11 +271,7 @@ async def test__answer_message__succeed(
             file=file,
         )
 
-    built_bot = Bot(
-        collectors=[collector],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -302,25 +291,18 @@ async def test__answer_message__succeed(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__send_message__unknown_bot_account_error_raised(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     unknown_bot_id = UUID("51550ccc-dfd1-4d22-9b6f-a330145192b0")
-    direct_notification_endpoint = respx.post(
+    direct_notification_endpoint = respx_mock.post(
         f"https://{host}/api/v4/botx/notifications/direct",
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -336,17 +318,14 @@ async def test__send_message__unknown_bot_account_error_raised(
     assert str(unknown_bot_id) in str(exc.value)
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__send_message__chat_not_found_error_raised(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -363,11 +342,7 @@ async def test__send_message__chat_not_found_error_raised(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -402,17 +377,14 @@ async def test__send_message__chat_not_found_error_raised(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__send_message__bot_is_not_a_chat_member_error_raised(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -429,11 +401,7 @@ async def test__send_message__bot_is_not_a_chat_member_error_raised(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -469,17 +437,14 @@ async def test__send_message__bot_is_not_a_chat_member_error_raised(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__send_message__event_recipients_list_is_empty_error_raised(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -496,11 +461,7 @@ async def test__send_message__event_recipients_list_is_empty_error_raised(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -537,17 +498,14 @@ async def test__send_message__event_recipients_list_is_empty_error_raised(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__send_message__stealth_mode_disabled_error_raised(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -564,11 +522,7 @@ async def test__send_message__stealth_mode_disabled_error_raised(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -604,17 +558,14 @@ async def test__send_message__stealth_mode_disabled_error_raised(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__send_message__miminally_filled_succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -631,11 +582,7 @@ async def test__send_message__miminally_filled_succeed(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -662,11 +609,8 @@ async def test__send_message__miminally_filled_succeed(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__send_message__maximum_filled_succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
@@ -681,7 +625,7 @@ async def test__send_message__maximum_filled_succeed(
     body = f"Hi, {Mention.user(UUID('8f3abcc8-ba00-4c89-88e0-b786beb8ec24'))}!"
     formatted_body = "Hi, @{mention:f3e176d5-ff46-4b18-b260-25008338c06e}!"
 
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -758,11 +702,7 @@ async def test__send_message__maximum_filled_succeed(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     async with NamedTemporaryFile("wb+") as async_buffer:
         await async_buffer.write(b"Hello, world!\n")
@@ -827,11 +767,8 @@ async def test__send_message__maximum_filled_succeed(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__send_message__all_mentions_types_succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
@@ -871,7 +808,7 @@ async def test__send_message__all_mentions_types_succeed(
         "I will notify you with @{mention:f3e176d5-ff46-4b18-b260-25008338c06e}, so you won't miss it."
     )
 
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
@@ -926,11 +863,7 @@ async def test__send_message__all_mentions_types_succeed(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -957,18 +890,15 @@ async def test__send_message__all_mentions_types_succeed(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__send_message__message_body_max_length_error_raised(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     too_long_body = "1" * 4097
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
     ).mock(
@@ -981,11 +911,7 @@ async def test__send_message__message_body_max_length_error_raised(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -1001,17 +927,14 @@ async def test__send_message__message_body_max_length_error_raised(
     assert not endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__send_message__message_body_max_length_succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     max_long_body = "1" * 4096
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/api/v4/botx/notifications/direct",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
     ).mock(
@@ -1024,11 +947,7 @@ async def test__send_message__message_body_max_length_succeed(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

@@ -3,7 +3,6 @@ from typing import Callable
 from unittest.mock import MagicMock, call
 
 import pytest
-import respx
 
 from botx import (
     Bot,
@@ -13,10 +12,13 @@ from botx import (
     lifespan_wrapper,
 )
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
+
 async def test__exception_middleware__handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     bot_account: BotAccountWithSecret,
@@ -48,9 +50,6 @@ async def test__exception_middleware__handler_called(
     assert value_error_handler.mock_calls[0] == call(user_command, built_bot, exc)
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__exception_middleware__without_handler_logs(
     incoming_message_factory: Callable[..., IncomingMessage],
     loguru_caplog: pytest.LogCaptureFixture,
@@ -76,9 +75,6 @@ async def test__exception_middleware__without_handler_logs(
     assert "Testing exception middleware" in loguru_caplog.text
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__exception_middleware__error_in_handler_logs(
     incoming_message_factory: Callable[..., IncomingMessage],
     loguru_caplog: pytest.LogCaptureFixture,

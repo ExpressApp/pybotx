@@ -3,8 +3,8 @@ from uuid import UUID
 
 import httpx
 import pytest
-import respx
 from aiofiles.tempfile import NamedTemporaryFile
+from respx.router import MockRouter
 
 from botx import BotAccountWithSecret, InvalidBotXStatusCodeError
 from botx.async_buffer import AsyncBufferWritable
@@ -41,17 +41,23 @@ class FooBarStreamMethod(BotXMethod):
         await async_buffer.seek(0)
 
 
-@respx.mock
-@pytest.mark.asyncio
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
+
+
 async def test__botx_method_stream__invalid_botx_status_code_error_raised(
     httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
 ) -> None:
     # - Arrange -
-    endpoint = respx.get(f"https://{host}/foo/bar", params={"baz": 1}).mock(
+    endpoint = respx_mock.get(f"https://{host}/foo/bar", params={"baz": 1}).mock(
         return_value=httpx.Response(HTTPStatus.METHOD_NOT_ALLOWED),
     )
 
@@ -71,17 +77,16 @@ async def test__botx_method_stream__invalid_botx_status_code_error_raised(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
 async def test__botx_method_stream__status_handler_called(
     httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
 ) -> None:
     # - Arrange -
-    endpoint = respx.get(f"https://{host}/foo/bar", params={"baz": 1}).mock(
+    endpoint = respx_mock.get(f"https://{host}/foo/bar", params={"baz": 1}).mock(
         return_value=httpx.Response(HTTPStatus.FORBIDDEN),
     )
 
@@ -101,17 +106,16 @@ async def test__botx_method_stream__status_handler_called(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
 async def test__botx_method_stream__succeed(
     httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
 ) -> None:
     # - Arrange -
-    endpoint = respx.get(f"https://{host}/foo/bar", params={"baz": 1}).mock(
+    endpoint = respx_mock.get(f"https://{host}/foo/bar", params={"baz": 1}).mock(
         return_value=httpx.Response(
             HTTPStatus.OK,
             content=b"Hello, world!\n",

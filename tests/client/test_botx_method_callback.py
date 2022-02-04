@@ -8,7 +8,7 @@ from uuid import UUID
 
 import httpx
 import pytest
-import respx
+from respx.router import MockRouter
 
 from botx import (
     Bot,
@@ -96,9 +96,13 @@ async def call_foo_bar(
     return botx_api_foo_bar.to_domain()
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
+
+
 async def test__botx_method_callback__callback_not_found(
     bot_account: BotAccountWithSecret,
 ) -> None:
@@ -128,17 +132,14 @@ async def test__botx_method_callback__callback_not_found(
     assert "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3" in str(exc.value)
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__botx_method_callback__error_callback_error_handler_called(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/foo/bar",
         json={"baz": 1},
         headers={"Content-Type": "application/json"},
@@ -151,11 +152,7 @@ async def test__botx_method_callback__error_callback_error_handler_called(
             },
         ),
     )
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
@@ -190,17 +187,14 @@ async def test__botx_method_callback__error_callback_error_handler_called(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__botx_method_callback__error_callback_received(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/foo/bar",
         json={"baz": 1},
         headers={"Content-Type": "application/json"},
@@ -213,11 +207,7 @@ async def test__botx_method_callback__error_callback_received(
             },
         ),
     )
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
@@ -251,17 +241,14 @@ async def test__botx_method_callback__error_callback_received(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__botx_method_callback__cancelled_callback_future_during_shutdown(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/foo/bar",
         json={"baz": 1},
         headers={"Content-Type": "application/json"},
@@ -274,11 +261,7 @@ async def test__botx_method_callback__cancelled_callback_future_during_shutdown(
             },
         ),
     )
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
@@ -292,18 +275,15 @@ async def test__botx_method_callback__cancelled_callback_future_during_shutdown(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__botx_method_callback__callback_received_after_timeout(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/foo/bar",
         json={"baz": 1},
         headers={"Content-Type": "application/json"},
@@ -316,11 +296,7 @@ async def test__botx_method_callback__callback_received_after_timeout(
             },
         ),
     )
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
@@ -351,17 +327,14 @@ async def test__botx_method_callback__callback_received_after_timeout(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__botx_method_callback__dont_wait_for_callback(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/foo/bar",
         json={"baz": 1},
         headers={"Content-Type": "application/json"},
@@ -374,11 +347,7 @@ async def test__botx_method_callback__dont_wait_for_callback(
             },
         ),
     )
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
@@ -391,17 +360,14 @@ async def test__botx_method_callback__dont_wait_for_callback(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__botx_method_callback__pending_callback_future_during_shutdown(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/foo/bar",
         json={"baz": 1},
         headers={"Content-Type": "application/json"},
@@ -414,11 +380,7 @@ async def test__botx_method_callback__pending_callback_future_during_shutdown(
             },
         ),
     )
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
@@ -437,17 +399,14 @@ async def test__botx_method_callback__pending_callback_future_during_shutdown(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__botx_method_callback__callback_successful_received(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.post(
+    endpoint = respx_mock.post(
         f"https://{host}/foo/bar",
         json={"baz": 1},
         headers={"Content-Type": "application/json"},
@@ -460,11 +419,7 @@ async def test__botx_method_callback__callback_successful_received(
             },
         ),
     )
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 

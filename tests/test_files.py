@@ -4,7 +4,7 @@ from uuid import UUID
 
 import httpx
 import pytest
-import respx
+from respx.router import MockRouter
 
 from botx import (
     AttachmentTypes,
@@ -20,19 +20,22 @@ from botx import (
     lifespan_wrapper,
 )
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
+
 async def test__async_file__open(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_account: BotAccountWithSecret,
     bot_id: UUID,
     api_incoming_message_factory: Callable[..., Dict[str, Any]],
 ) -> None:
     # - Arrange -
-    endpoint = respx.get(
+    endpoint = respx_mock.get(
         f"https://{host}/api/v3/botx/files/download",
         params={
             "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
@@ -77,11 +80,7 @@ async def test__async_file__open(
         async with message.file.open() as fo:
             read_content = await fo.read()
 
-    built_bot = Bot(
-        collectors=[collector],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -204,9 +203,6 @@ API_AND_DOMAIN_FILES = (
 )
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 @pytest.mark.parametrize(
     "api_async_file,domain_async_file",
     API_AND_DOMAIN_FILES,

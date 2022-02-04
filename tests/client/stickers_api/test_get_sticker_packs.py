@@ -3,23 +3,26 @@ from uuid import UUID
 
 import httpx
 import pytest
-import respx
+from respx.router import MockRouter
 
 from botx import Bot, BotAccountWithSecret, HandlerCollector, lifespan_wrapper
 from botx.models.stickers import StickerPackFromList
 
+pytestmark = [
+    pytest.mark.asyncio,
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
+
 async def test__iterate_by_sticker_packs__succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    endpoint = respx.get(
+    endpoint = respx_mock.get(
         f"https://{host}/api/v3/botx/stickers/packs",
         headers={"Authorization": "Bearer token"},
         params={"user_huid": "d881f83a-db30-4cff-b60e-f24ac53deecf"},
@@ -52,11 +55,7 @@ async def test__iterate_by_sticker_packs__succeed(
             },
         ),
     )
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
     sticker_pack_list = []
 
     # - Act -
@@ -84,11 +83,8 @@ async def test__iterate_by_sticker_packs__succeed(
     assert endpoint.called
 
 
-@respx.mock
-@pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
-    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
@@ -99,7 +95,7 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
 
     # Mock order matters
     # https://lundberg.github.io/respx/guide/#routing-requests
-    second_sticker_endpoint_call = respx.get(
+    second_sticker_endpoint_call = respx_mock.get(
         f"https://{host}/api/v3/botx/stickers/packs",
         headers={"Authorization": "Bearer token"},
         params={
@@ -136,7 +132,7 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
             },
         ),
     )
-    first_sticker_endpoint_call = respx.get(
+    first_sticker_endpoint_call = respx_mock.get(
         f"https://{host}/api/v3/botx/stickers/packs",
         headers={"Authorization": "Bearer token"},
         params={"user_huid": "d881f83a-db30-4cff-b60e-f24ac53deecf", "limit": 2},
@@ -183,11 +179,8 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
         ),
     )
 
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
     sticker_pack_list = []
 
     # - Act -

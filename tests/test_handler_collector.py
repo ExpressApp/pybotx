@@ -2,7 +2,6 @@ from typing import Callable
 from unittest.mock import Mock
 
 import pytest
-import respx
 
 from botx import (
     Bot,
@@ -13,16 +12,16 @@ from botx import (
     lifespan_wrapper,
 )
 
+pytestmark = [
+    pytest.mark.mock_authorization,
+    pytest.mark.usefixtures("respx_mock"),
+]
 
-@pytest.fixture
-def collector() -> HandlerCollector:
-    return HandlerCollector()
 
-
-def test__handler_collector__command_with_space_error_raised(
-    collector: HandlerCollector,
-) -> None:
+def test__handler_collector__command_with_space_error_raised() -> None:
     # - Arrange -
+    collector = HandlerCollector()
+
     with pytest.raises(ValueError) as exc:
 
         @collector.command("/ command", description="My command")
@@ -33,10 +32,10 @@ def test__handler_collector__command_with_space_error_raised(
     assert "include space" in str(exc.value)
 
 
-def test__handler_collector__command_without_leading_slash_error_raised(
-    collector: HandlerCollector,
-) -> None:
+def test__handler_collector__command_without_leading_slash_error_raised() -> None:
     # - Arrange -
+    collector = HandlerCollector()
+
     with pytest.raises(ValueError) as exc:
 
         @collector.command("command", description="My command")
@@ -47,10 +46,10 @@ def test__handler_collector__command_without_leading_slash_error_raised(
     assert "should start with '/'" in str(exc.value)
 
 
-def test__handler_collector__visible_command_without_description_error_raised(
-    collector: HandlerCollector,
-) -> None:
+def test__handler_collector__visible_command_without_description_error_raised() -> None:
     # - Act -
+    collector = HandlerCollector()
+
     with pytest.raises(ValueError) as exc:
 
         @collector.command("/command")
@@ -61,10 +60,10 @@ def test__handler_collector__visible_command_without_description_error_raised(
     assert "Description is required" in str(exc.value)
 
 
-def test__handler_collector__two_same_commands_error_raised(
-    collector: HandlerCollector,
-) -> None:
+def test__handler_collector__two_same_commands_error_raised() -> None:
     # - Arrange -
+    collector = HandlerCollector()
+
     @collector.command("/command", description="My command")
     async def handler_1(message: IncomingMessage, bot: Bot) -> None:
         pass
@@ -81,10 +80,10 @@ def test__handler_collector__two_same_commands_error_raised(
     assert "/command" in str(exc.value)
 
 
-def test__handler_collector__two_default_handlers_error_raised(
-    collector: HandlerCollector,
-) -> None:
+def test__handler_collector__two_default_handlers_error_raised() -> None:
     # - Arrange -
+    collector = HandlerCollector()
+
     @collector.default_message_handler
     async def handler_1(message: IncomingMessage, bot: Bot) -> None:
         pass
@@ -101,10 +100,10 @@ def test__handler_collector__two_default_handlers_error_raised(
     assert "Default" in str(exc.value)
 
 
-def test__handler_collector__two_same_system_events_handlers_error_raised(
-    collector: HandlerCollector,
-) -> None:
+def test__handler_collector__two_same_system_events_handlers_error_raised() -> None:
     # - Arrange -
+    collector = HandlerCollector()
+
     @collector.chat_created
     async def handler_1(message: ChatCreatedEvent, bot: Bot) -> None:
         pass
@@ -121,10 +120,10 @@ def test__handler_collector__two_same_system_events_handlers_error_raised(
     assert "Event" in str(exc.value)
 
 
-def test___handler_collector__merge_collectors_with_same_command_error_raised(
-    collector: HandlerCollector,
-) -> None:
+def test___handler_collector__merge_collectors_with_same_command_error_raised() -> None:
     # - Arrange -
+    collector = HandlerCollector()
+
     @collector.command("/command", description="My command")
     async def handler_1(message: IncomingMessage, bot: Bot) -> None:
         pass
@@ -144,10 +143,10 @@ def test___handler_collector__merge_collectors_with_same_command_error_raised(
     assert "/command" in str(exc.value)
 
 
-def test__handler_collector__merge_collectors_with_default_handlers_error_raised(
-    collector: HandlerCollector,
-) -> None:
+def test__handler_collector__merge_collectors_with_default_handlers_error_raised() -> None:
     # - Arrange -
+    collector = HandlerCollector()
+
     @collector.default_message_handler
     async def handler_1(message: IncomingMessage, bot: Bot) -> None:
         pass
@@ -167,10 +166,10 @@ def test__handler_collector__merge_collectors_with_default_handlers_error_raised
     assert "Default" in str(exc.value)
 
 
-def test__handler_collector__merge_collectors_with_same_system_events_handlers_error_raised(
-    collector: HandlerCollector,
-) -> None:
+def test__handler_collector__merge_collectors_with_same_system_events_handlers_error_raised() -> None:
     # - Arrange -
+    collector = HandlerCollector()
+
     @collector.chat_created
     async def handler_1(message: ChatCreatedEvent, bot: Bot) -> None:
         pass
@@ -190,9 +189,7 @@ def test__handler_collector__merge_collectors_with_same_system_events_handlers_e
     assert "event" in str(exc.value)
 
 
-@respx.mock
 @pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__handler_collector__command_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
@@ -216,9 +213,7 @@ async def test__handler_collector__command_handler_called(
     correct_handler_trigger.assert_called_once()
 
 
-@respx.mock
 @pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__handler_collector__unicode_command_error_raised(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
@@ -242,9 +237,7 @@ async def test__handler_collector__unicode_command_error_raised(
     correct_handler_trigger.assert_called_once()
 
 
-@respx.mock
 @pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__handler_collector__correct_command_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
@@ -274,9 +267,7 @@ async def test__handler_collector__correct_command_handler_called(
     incorrect_handler_trigger.assert_not_called()
 
 
-@respx.mock
 @pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__handler_collector__correct_command_handler_called_in_merged_collectors(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
@@ -308,9 +299,7 @@ async def test__handler_collector__correct_command_handler_called_in_merged_coll
     incorrect_handler_trigger.assert_not_called()
 
 
-@respx.mock
 @pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__handler_collector__default_handler_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
@@ -334,9 +323,7 @@ async def test__handler_collector__default_handler_called(
     correct_handler_trigger.assert_called_once()
 
 
-@respx.mock
 @pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__handler_collector__empty_command_goes_to_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
@@ -360,9 +347,7 @@ async def test__handler_collector__empty_command_goes_to_default_handler(
     correct_handler_trigger.assert_called_once()
 
 
-@respx.mock
 @pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__handler_collector__invalid_command_goes_to_default_handler(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
@@ -386,9 +371,7 @@ async def test__handler_collector__invalid_command_goes_to_default_handler(
     correct_handler_trigger.assert_called_once()
 
 
-@respx.mock
 @pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__handler_collector__handler_not_found_logged(
     incoming_message_factory: Callable[..., IncomingMessage],
     bot_account: BotAccountWithSecret,
@@ -408,9 +391,7 @@ async def test__handler_collector__handler_not_found_logged(
     assert "`/command` not found" in loguru_caplog.text
 
 
-@respx.mock
 @pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__handler_collector__default_handler_in_first_collector_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
@@ -436,9 +417,7 @@ async def test__handler_collector__default_handler_in_first_collector_called(
     correct_handler_trigger.assert_called_once()
 
 
-@respx.mock
 @pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__handler_collector__default_handler_in_second_collector_called(
     incoming_message_factory: Callable[..., IncomingMessage],
     correct_handler_trigger: Mock,
@@ -464,9 +443,7 @@ async def test__handler_collector__default_handler_in_second_collector_called(
     correct_handler_trigger.assert_called_once()
 
 
-@respx.mock
 @pytest.mark.asyncio
-@pytest.mark.mock_authorization
 async def test__handler_collector__handler_not_found_exception_logged(
     incoming_message_factory: Callable[..., IncomingMessage],
     bot_account: BotAccountWithSecret,
