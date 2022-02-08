@@ -78,6 +78,17 @@ class HandlerCollector:
         )
         self._tasks.add(task)
 
+    async def handle_incoming_message_by_command(
+        self,
+        message: IncomingMessage,
+        bot: "Bot",
+        command: str,
+    ) -> None:
+        message_handler = self._get_command_handler(command)
+        if message_handler:
+            self._fill_contextvars(message, bot)
+            await message_handler(message, bot)
+
     async def handle_bot_command(self, bot_command: BotCommand, bot: "Bot") -> None:
         if isinstance(bot_command, IncomingMessage):
             message_handler = self._get_incoming_message_handler(bot_command)
@@ -321,9 +332,15 @@ class HandlerCollector:
         self,
         message: IncomingMessage,
     ) -> Union[CommandHandler, DefaultMessageHandler, None]:
+        return self._get_command_handler(message.body)
+
+    def _get_command_handler(
+        self,
+        command: str,
+    ) -> Union[CommandHandler, DefaultMessageHandler, None]:
         handler: Optional[Union[CommandHandler, DefaultMessageHandler]] = None
 
-        command_name = self._get_command_name(message.body)
+        command_name = self._get_command_name(command)
         if command_name:
             handler = self._user_commands_handlers.get(command_name)
             if handler:
@@ -334,7 +351,7 @@ class HandlerCollector:
             self._log_default_handler_call(command_name)
             return self._default_message_handler
 
-        logger.warning(f"Handler for message text `{message.body}` not found")
+        logger.warning(f"Handler for message text `{command}` not found")
         return None
 
     def _get_system_event_handler_or_none(

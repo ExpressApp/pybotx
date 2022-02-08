@@ -458,3 +458,52 @@ async def test__handler_collector__handler_not_found_exception_logged(
 
     # - Assert -
     assert "`/command` not found" in loguru_caplog.text
+
+
+@pytest.mark.asyncio
+async def test__handler_collector__handle_incoming_message_by_command_handler_not_found_exception_logged(
+    incoming_message_factory: Callable[..., IncomingMessage],
+    bot_account: BotAccountWithSecret,
+    loguru_caplog: pytest.LogCaptureFixture,
+) -> None:
+    # - Arrange -
+    collector = HandlerCollector()
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        await collector.handle_incoming_message_by_command(
+            incoming_message_factory(body="Text"),
+            bot,
+            command="/command",
+        )
+
+    # - Assert -
+    assert "`/command` not found" in loguru_caplog.text
+
+
+@pytest.mark.asyncio
+async def test__handler_collector__handle_incoming_message_by_command_succeed(
+    incoming_message_factory: Callable[..., IncomingMessage],
+    bot_account: BotAccountWithSecret,
+    correct_handler_trigger: Mock,
+) -> None:
+    # - Arrange -
+    collector = HandlerCollector()
+
+    @collector.command("/command", description="My command")
+    async def handler(message: IncomingMessage, bot: Bot) -> None:
+        correct_handler_trigger()
+
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        await collector.handle_incoming_message_by_command(
+            incoming_message_factory(body="Text"),
+            bot,
+            command="/command",
+        )
+
+    # - Assert -
+    correct_handler_trigger.assert_called_once()
