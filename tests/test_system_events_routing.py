@@ -77,6 +77,7 @@ async def test__system_event_handler__called(
 async def test__system_event_handler__no_handler_for_system_event(
     chat_created: ChatCreatedEvent,
     bot_account: BotAccountWithSecret,
+    loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -88,7 +89,7 @@ async def test__system_event_handler__no_handler_for_system_event(
         bot.async_execute_bot_command(chat_created)
 
     # - Assert -
-    # This test is considered as passed if no exception was raised
+    assert "Handler for `ChatCreatedEvent` not found" in loguru_caplog.text
 
 
 async def test__system_event_handler__handler_in_first_collector(
