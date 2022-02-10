@@ -267,11 +267,11 @@ async def test__botx_method_callback__cancelled_callback_future_during_shutdown(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(CallbackNotReceivedError):
+        with pytest.raises(CallbackNotReceivedError) as exc:
             await bot.call_foo_bar(bot_id, baz=1, callback_timeout=0)
 
     # - Assert -
-    # This test is considered as passed if no exception was raised
+    assert "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3" in str(exc.value)
     assert endpoint.called
 
 
