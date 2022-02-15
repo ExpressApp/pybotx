@@ -1,9 +1,8 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Literal
 from uuid import UUID
 
 from pydantic import Field
-from typing_extensions import Literal  # For python 3.7 support
 
 from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.async_files import APIAsyncFile, File, convert_async_file_to_domain

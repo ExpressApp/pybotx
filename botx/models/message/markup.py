@@ -1,7 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, Iterator, List, Optional, Union
-
-from typing_extensions import Literal  # For python 3.7 support
+from typing import Any, Dict, Iterator, List, Literal, Optional, Union
 
 from botx.missing import Missing, Undefined
 from botx.models.api_base import UnverifiedPayloadBaseModel

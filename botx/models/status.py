@@ -1,9 +1,8 @@
 from dataclasses import asdict, dataclass
-from typing import Any, Dict, List, NewType, Optional, Union
+from typing import Any, Dict, List, Literal, NewType, Optional, Union
 from uuid import UUID
 
 from pydantic import validator
-from typing_extensions import Literal  # For python 3.7 support
 
 from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.enums import APIChatTypes, ChatTypes, convert_chat_type_to_domain
