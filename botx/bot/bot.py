@@ -266,6 +266,13 @@ class Bot:
 
         self._callback_manager.set_botx_method_callback_result(callback)
 
+    async def wait_botx_method_callback(
+        self,
+        sync_id: UUID,
+        timeout: Optional[int],
+    ) -> BotXMethodCallback:
+        return await self._callback_manager.wait_botx_method_callback(sync_id, timeout)
+
     @property
     def bot_accounts(self) -> Iterator[BotAccount]:
         yield from self._bot_accounts_storage.iter_bot_accounts()
