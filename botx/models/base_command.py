@@ -1,9 +1,8 @@
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Literal, Optional
 from uuid import UUID
 
 from pydantic import validator
-from typing_extensions import Literal  # For python 3.7 support
 
 from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
 from botx.constants import BOT_API_VERSION

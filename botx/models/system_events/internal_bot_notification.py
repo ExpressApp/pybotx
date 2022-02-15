@@ -1,8 +1,7 @@
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any, Dict, Literal
 
 from pydantic import Field
-from typing_extensions import Literal  # For python 3.7 support
 
 from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.base_command import (

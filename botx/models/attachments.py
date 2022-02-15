@@ -2,10 +2,9 @@ import base64
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import AsyncGenerator, Union, cast
+from typing import AsyncGenerator, Literal, Union, cast
 
 from aiofiles.tempfile import SpooledTemporaryFile
-from typing_extensions import Literal  # For python 3.7 support
 
 from botx.async_buffer import AsyncBufferReadable
 from botx.constants import CHUNK_SIZE

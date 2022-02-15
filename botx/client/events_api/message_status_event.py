@@ -1,9 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List
+from typing import List, Literal
 from uuid import UUID
-
-from typing_extensions import Literal  # For python 3.7 support
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower

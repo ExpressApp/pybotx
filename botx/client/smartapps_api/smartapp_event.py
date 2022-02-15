@@ -1,7 +1,5 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Literal
 from uuid import UUID
-
-from typing_extensions import Literal  # For python 3.7 support
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.constants import SMARTAPP_API_VERSION

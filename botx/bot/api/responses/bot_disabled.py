@@ -1,7 +1,5 @@
 from dataclasses import asdict, dataclass, field
-from typing import Any, Dict, List
-
-from typing_extensions import Literal  # For python 3.7 support
+from typing import Any, Dict, List, Literal
 
 
 @dataclass

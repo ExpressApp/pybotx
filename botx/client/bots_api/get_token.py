@@ -1,4 +1,4 @@
-from typing_extensions import Literal  # For python 3.7 support
+from typing import Literal
 
 from botx.client.botx_method import BotXMethod, response_exception_thrower
 from botx.client.exceptions.common import InvalidBotAccountError

@@ -1,8 +1,7 @@
-from typing import List, NoReturn
+from typing import List, Literal, NoReturn
 from uuid import UUID
 
 import httpx
-from typing_extensions import Literal  # For python 3.7 support
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.client.botx_method import response_exception_thrower

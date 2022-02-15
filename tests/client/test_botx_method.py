@@ -1,10 +1,10 @@
 from http import HTTPStatus
+from typing import Literal
 from uuid import UUID
 
 import httpx
 import pytest
 from respx.router import MockRouter
-from typing_extensions import Literal  # For python 3.7 support
 
 from botx import (
     BotAccountWithSecret,

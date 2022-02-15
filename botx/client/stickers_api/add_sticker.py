@@ -1,8 +1,7 @@
-from typing import NoReturn
+from typing import Literal, NoReturn
 from uuid import UUID
 
 import httpx
-from typing_extensions import Literal  # For python 3.7 support
 
 from botx.async_buffer import AsyncBufferReadable
 from botx.client.authorized_botx_method import AuthorizedBotXMethod

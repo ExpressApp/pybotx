@@ -1,7 +1,6 @@
 import tempfile
+from typing import Literal
 from uuid import UUID
-
-from typing_extensions import Literal  # For python 3.7 support
 
 from botx.async_buffer import AsyncBufferReadable
 from botx.client.authorized_botx_method import AuthorizedBotXMethod

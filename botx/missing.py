@@ -1,6 +1,4 @@
-from typing import Any, TypeVar, Union
-
-from typing_extensions import Literal  # For python 3.7 support
+from typing import Any, Literal, TypeVar, Union
 
 
 class _UndefinedType:

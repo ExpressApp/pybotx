@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from functools import partial
-from typing import TYPE_CHECKING, Awaitable, Callable, List, TypeVar, Union
-
-from typing_extensions import Literal  # For python 3.7 support
+from typing import TYPE_CHECKING, Awaitable, Callable, List, Literal, TypeVar, Union
 
 from botx.models.commands import BotCommand
 from botx.models.message.incoming_message import IncomingMessage

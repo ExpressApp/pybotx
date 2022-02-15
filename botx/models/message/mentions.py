@@ -1,10 +1,9 @@
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Literal, Optional, Tuple, Union
 from uuid import UUID, uuid4
 
 from pydantic import Field, validator
-from typing_extensions import Literal  # For python 3.7 support
 
 from botx.missing import Missing, Undefined
 from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel

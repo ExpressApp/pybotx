@@ -1,7 +1,5 @@
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Literal, Union
 from uuid import UUID
-
-from typing_extensions import Literal  # For python 3.7 support
 
 from botx.client.authorized_botx_method import AuthorizedBotXMethod
 from botx.missing import Missing, MissingOptional, Undefined

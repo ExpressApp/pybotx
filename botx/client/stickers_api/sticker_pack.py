@@ -1,7 +1,5 @@
-from typing import List, Optional
+from typing import List, Literal, Optional
 from uuid import UUID
-
-from typing_extensions import Literal  # For python 3.7 support
 
 from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.stickers import Sticker, StickerPack
