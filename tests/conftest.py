@@ -24,6 +24,11 @@ from botx.bot.bot_accounts_storage import BotAccountsStorage
 from botx.logger import logger
 
 
+@pytest.fixture(autouse=True)
+def enable_logger() -> None:
+    logger.enable("botx")
+
+
 @pytest.fixture
 def prepared_bot_accounts_storage(
     bot_id: UUID,
