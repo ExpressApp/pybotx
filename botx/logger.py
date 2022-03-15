@@ -42,8 +42,6 @@ def trim_file_data_in_incoming_json(json_body: Dict[str, Any]) -> Dict[str, Any]
 
 
 def setup_logger() -> "Logger":
-    _logger.disable("httpx")
-
     return _logger
 
 
