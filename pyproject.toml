@@ -8,6 +8,7 @@ authors = [
     "Alexander Samoylenko <alexandr.samojlenko@ccsteam.ru>",
     "Arseniy Zhiltsov <arseniy.zhiltsov@ccsteam.ru>"
 ]
+readme = "README.md"
 documentation = "https://expressapp.github.io/pybotx"
 repository = "https://github.com/ExpressApp/pybotx"
 
