@@ -205,6 +205,13 @@ class Bot:
         self._callback_manager = CallbacksManager()
 
     def async_execute_raw_bot_command(self, raw_bot_command: Dict[str, Any]) -> None:
+        logger.opt(lazy=True).debug(
+            "Got command: {command}",
+            command=lambda: pformat_jsonable_obj(
+                trim_file_data_in_incoming_json(raw_bot_command),
+            ),
+        )
+
         try:
             bot_api_command: BotAPICommand = parse_obj_as(
                 # Same ignore as in pydantic
@@ -213,13 +220,6 @@ class Bot:
             )
         except ValidationError as validation_exc:
             raise ValueError("Bot command validation error") from validation_exc
-
-        logger.opt(lazy=True).debug(
-            "Got command: {command}",
-            command=lambda: pformat_jsonable_obj(
-                trim_file_data_in_incoming_json(raw_bot_command),
-            ),
-        )
 
         bot_command = bot_api_command.to_domain(raw_bot_command)
         self.async_execute_bot_command(bot_command)
