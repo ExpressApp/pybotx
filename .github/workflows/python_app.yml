@@ -1,0 +1,54 @@
+name: Python application
+on: push
+jobs:
+
+  test:
+    name: Test
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
+
+    steps:
+      - name: Setup dependencies
+        uses: ExpressApp/github-actions-poetry@v0.2
+        with:
+          python-version: ${{ matrix.python-version }}
+          poetry-version: "1.1.12"
+
+      - name: Run tests
+        env:
+          BOT_CREDENTIALS: ${{ secrets.END_TO_END_TESTS_BOT_CREDENTIALS }}
+        run: |
+          poetry run ./scripts/test --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          fail_ci_if_error: true
+          files: ./coverage.xml
+          flags: unittests
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Setup dependencies
+        uses: ExpressApp/github-actions-poetry@v0.2
+
+      - name: Run linters
+        run: |
+          poetry run ./scripts/lint
+
+  docs-lint:
+    name: Docs lint
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Setup dependencies
+        uses: ExpressApp/github-actions-poetry@v0.2
+
+      - name: Run linters
+        run: |
+          poetry run ./scripts/docs-lint

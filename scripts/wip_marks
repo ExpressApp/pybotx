@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+wip_markers=$(find . -name "*.py" -print0 | xargs -0 grep -n "@pytest.mark.wip")
+
+if [[ "$wip_markers" ]]
+then
+    printf "Some wip marks found:\n%s\n" "$wip_markers" >&2
+    exit 1
+fi

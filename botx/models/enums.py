@@ -1,168 +1,239 @@
-"""Definition of enums that are used across different components of this library."""
+from enum import Enum, auto
 
-from enum import Enum
+from botx.models.api_base import StrEnum
 
 
-class SystemEvents(Enum):
-    """System enums that bot can retrieve from BotX API in message.
+class AutoName(Enum):
+    def _generate_next_value_(  # type: ignore  # noqa: WPS120
+        name,  # noqa: N805 (copied from official python docs)
+        start,
+        count,
+        last_values,
+    ):
+        return name
 
-    !!! info
-        NOTE: `file_transfer` is not a system event, but it is logical to place it in
-        this enum.
+
+class UserKinds(AutoName):
+    RTS_USER = auto()
+    CTS_USER = auto()
+    BOT = auto()
+
+
+class AttachmentTypes(AutoName):
+    IMAGE = auto()
+    VIDEO = auto()
+    DOCUMENT = auto()
+    VOICE = auto()
+    LOCATION = auto()
+    CONTACT = auto()
+    LINK = auto()
+
+
+class ClientPlatforms(AutoName):
+    WEB = auto()
+    ANDROID = auto()
+    IOS = auto()
+    DESKTOP = auto()
+
+
+class MentionTypes(AutoName):
+    CONTACT = auto()
+    CHAT = auto()
+    CHANNEL = auto()
+    USER = auto()
+    ALL = auto()
+
+
+class ChatTypes(AutoName):
+    """BotX chat types.
+
+    Attributes:
+        PERSONAL_CHAT: Personal chat with user.
+        GROUP_CHAT: Group chat.
+        CHANNEL: Public channel.
     """
 
-    #: `system:chat_created` event.
-    chat_created = "system:chat_created"
-
-    #: `system:added_to_chat` event.
-    added_to_chat = "system:added_to_chat"
-
-    #: `system:deleted_from_chat` event.
-    deleted_from_chat = "system:deleted_from_chat"
-
-    #: `system:left_from_chat` event.
-    left_from_chat = "system:left_from_chat"
-
-    #: `system:internal_bot_notification` event
-    internal_bot_notification = "system:internal_bot_notification"
-
-    #: `system:cts_login` event.
-    cts_login = "system:cts_login"
-
-    #: `system:cts_logout` event.
-    cts_logout = "system:cts_logout"
-
-    #: `system:smartapp_event` event.
-    smartapp_event = "system:smartapp_event"
-
-    #: `file_transfer` message.
-    file_transfer = "file_transfer"
+    PERSONAL_CHAT = auto()
+    GROUP_CHAT = auto()
+    CHANNEL = auto()
 
 
-class CommandTypes(str, Enum):
-    """Enum that specify from whom command was received."""
-
-    #: command received from user.
-    user = "user"
-
-    #: command received from system.
-    system = "system"
+class APIChatTypes(StrEnum):
+    CHAT = "chat"
+    GROUP_CHAT = "group_chat"
+    CHANNEL = "channel"
 
 
-class ChatTypes(str, Enum):
-    """Enum for type of chat."""
-
-    #: private chat for user with bot.
-    chat = "chat"
-
-    #: chat with several users.
-    group_chat = "group_chat"
-
-    #: channel chat.
-    channel = "channel"
-
-    # botx
-    botx = "botx"  # todo replies incoming with whith type
+class BotAPICommandTypes(StrEnum):
+    USER = "user"
+    SYSTEM = "system"
 
 
-class UserKinds(str, Enum):
-    """Enum for type of user."""
-
-    #: normal user.
-    user = "user"
-
-    #: normal user, but will present if all users in chat are from the same CTS.
-    cts_user = "cts_user"
-
-    #: bot user.
-    bot = "botx"
+class BotAPIClientPlatforms(StrEnum):
+    WEB = "web"
+    ANDROID = "android"
+    IOS = "ios"
+    DESKTOP = "desktop"
 
 
-class Statuses(str, Enum):
-    """Enum for status of operation in BotX API."""
-
-    #: operation was successfully proceed.
-    ok = "ok"
-
-    #: there was an error while processing operation.
-    error = "error"
+class BotAPIEntityTypes(StrEnum):
+    MENTION = "mention"
+    FORWARD = "forward"
+    REPLY = "reply"
 
 
-class EntityTypes(str, Enum):
-    """Types for entities that could be received by bot."""
-
-    #: mention entity.
-    mention = "mention"
-
-    #: forward entity.
-    forward = "forward"
-
-    #: reply entity.
-    reply = "reply"
+class BotAPIMentionTypes(StrEnum):
+    CONTACT = "contact"
+    CHAT = "chat"
+    CHANNEL = "channel"
+    USER = "user"
+    ALL = "all"
 
 
-class AttachmentsTypes(str, Enum):
-    """Types for attachments that could be received by bot."""
-
-    image = "image"
-    video = "video"
-    document = "document"
-    voice = "voice"
-    contact = "contact"
-    location = "location"
-    link = "link"
+class APIUserKinds(StrEnum):
+    USER = "user"
+    CTS_USER = "cts_user"
+    BOTX = "botx"
 
 
-class MentionTypes(str, Enum):
-    """Enum for available validated_values in mentions."""
-
-    #: mention single user from chat in message.
-    user = "user"
-
-    #: mention user by user_huid.
-    contact = "contact"
-
-    #: mention chat in message.
-    chat = "chat"
-
-    #: mention channel in message.
-    channel = "channel"
-
-    #: mention all users in chat
-    all_members = "all"
+class APIAttachmentTypes(StrEnum):
+    IMAGE = "image"
+    VIDEO = "video"
+    DOCUMENT = "document"
+    VOICE = "voice"
+    LOCATION = "location"
+    CONTACT = "contact"
+    LINK = "link"
 
 
-class LinkProtos(str, Enum):
-    """Enum for protos of links in attachments."""
+def convert_client_platform_to_domain(
+    client_platform: BotAPIClientPlatforms,
+) -> ClientPlatforms:
+    client_platforms_mapping = {
+        BotAPIClientPlatforms.WEB: ClientPlatforms.WEB,
+        BotAPIClientPlatforms.ANDROID: ClientPlatforms.ANDROID,
+        BotAPIClientPlatforms.IOS: ClientPlatforms.IOS,
+        BotAPIClientPlatforms.DESKTOP: ClientPlatforms.DESKTOP,
+    }
 
-    #: proto for attach with email.
-    email = "mailto:"
+    converted_type = client_platforms_mapping.get(client_platform)
+    if converted_type is None:
+        raise NotImplementedError(f"Unsupported client platform: {client_platform}")
 
-    #: proto for attach with telephone number.
-    telephone = "tel://"
-
-
-class ClientPlatformEnum(str, Enum):
-    """Enum for distinguishing client platforms."""
-
-    #: Web platform.
-    web = "web"
-
-    #: Android platform.
-    android = "android"
-
-    #: iOS platform.
-    ios = "ios"
-
-    #: Desktop platform.
-    desktop = "desktop"
+    return converted_type
 
 
-class ButtonHandlerTypes(str, Enum):
-    """Enum for markup's `handler` field."""
+def convert_mention_type_to_domain(mention_type: BotAPIMentionTypes) -> MentionTypes:
+    mention_types_mapping = {
+        BotAPIMentionTypes.CONTACT: MentionTypes.CONTACT,
+        BotAPIMentionTypes.CHAT: MentionTypes.CHAT,
+        BotAPIMentionTypes.CHANNEL: MentionTypes.CHANNEL,
+        BotAPIMentionTypes.USER: MentionTypes.USER,
+        BotAPIMentionTypes.ALL: MentionTypes.ALL,
+    }
 
-    #: bot side process.
-    bot = "bot"
+    converted_type = mention_types_mapping.get(mention_type)
+    if converted_type is None:
+        raise NotImplementedError(f"Unsupported mention type: {mention_type}")
 
-    #: client side process.
-    client = "client"
+    return converted_type
+
+
+def convert_mention_type_from_domain(
+    mention_type: MentionTypes,
+) -> BotAPIMentionTypes:
+    embed_mention_types_mapping = {
+        MentionTypes.USER: BotAPIMentionTypes.USER,
+        MentionTypes.CONTACT: BotAPIMentionTypes.CONTACT,
+        MentionTypes.CHAT: BotAPIMentionTypes.CHAT,
+        MentionTypes.CHANNEL: BotAPIMentionTypes.CHANNEL,
+        MentionTypes.ALL: BotAPIMentionTypes.ALL,
+    }
+
+    converted_type = embed_mention_types_mapping.get(mention_type)
+    if converted_type is None:
+        raise NotImplementedError(f"Unsupported mention type: {mention_type}")
+
+    return converted_type
+
+
+def convert_user_kind_to_domain(user_kind: APIUserKinds) -> UserKinds:
+    user_kinds_mapping = {
+        APIUserKinds.USER: UserKinds.RTS_USER,
+        APIUserKinds.CTS_USER: UserKinds.CTS_USER,
+        APIUserKinds.BOTX: UserKinds.BOT,
+    }
+
+    converted_type = user_kinds_mapping.get(user_kind)
+    if converted_type is None:
+        raise NotImplementedError(f"Unsupported user kind: {user_kind}")
+
+    return converted_type
+
+
+def convert_attachment_type_to_domain(
+    attachment_type: APIAttachmentTypes,
+) -> AttachmentTypes:
+    attachment_types_mapping = {
+        APIAttachmentTypes.IMAGE: AttachmentTypes.IMAGE,
+        APIAttachmentTypes.VIDEO: AttachmentTypes.VIDEO,
+        APIAttachmentTypes.DOCUMENT: AttachmentTypes.DOCUMENT,
+        APIAttachmentTypes.VOICE: AttachmentTypes.VOICE,
+        APIAttachmentTypes.LOCATION: AttachmentTypes.LOCATION,
+        APIAttachmentTypes.CONTACT: AttachmentTypes.CONTACT,
+        APIAttachmentTypes.LINK: AttachmentTypes.LINK,
+    }
+
+    converted_type = attachment_types_mapping.get(attachment_type)
+    if converted_type is None:
+        raise NotImplementedError(f"Unsupported attachment type: {attachment_type}")
+
+    return converted_type
+
+
+def convert_attachment_type_from_domain(
+    attachment_type: AttachmentTypes,
+) -> APIAttachmentTypes:
+    attachment_types_mapping = {
+        AttachmentTypes.IMAGE: APIAttachmentTypes.IMAGE,
+        AttachmentTypes.VIDEO: APIAttachmentTypes.VIDEO,
+        AttachmentTypes.DOCUMENT: APIAttachmentTypes.DOCUMENT,
+        AttachmentTypes.VOICE: APIAttachmentTypes.VOICE,
+        AttachmentTypes.LOCATION: APIAttachmentTypes.LOCATION,
+        AttachmentTypes.CONTACT: APIAttachmentTypes.CONTACT,
+        AttachmentTypes.LINK: APIAttachmentTypes.LINK,
+    }
+
+    converted_type = attachment_types_mapping.get(attachment_type)
+    if converted_type is None:
+        raise NotImplementedError(f"Unsupported attachment type: {attachment_type}")
+
+    return converted_type
+
+
+def convert_chat_type_from_domain(chat_type: ChatTypes) -> APIChatTypes:
+    chat_types_mapping = {
+        ChatTypes.PERSONAL_CHAT: APIChatTypes.CHAT,
+        ChatTypes.GROUP_CHAT: APIChatTypes.GROUP_CHAT,
+        ChatTypes.CHANNEL: APIChatTypes.CHANNEL,
+    }
+
+    converted_type = chat_types_mapping.get(chat_type)
+    if converted_type is None:
+        raise NotImplementedError(f"Unsupported chat type: {chat_type}")
+
+    return converted_type
+
+
+def convert_chat_type_to_domain(chat_type: APIChatTypes) -> ChatTypes:
+    chat_types_mapping = {
+        APIChatTypes.CHAT: ChatTypes.PERSONAL_CHAT,
+        APIChatTypes.GROUP_CHAT: ChatTypes.GROUP_CHAT,
+        APIChatTypes.CHANNEL: ChatTypes.CHANNEL,
+    }
+
+    converted_type = chat_types_mapping.get(chat_type)
+    if converted_type is None:
+        raise NotImplementedError(f"Unsupported chat type: {chat_type}")
+
+    return converted_type

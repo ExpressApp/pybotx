@@ -1,13 +1,7 @@
 name: Build and Deploy to Netlify
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    types:
-      - opened
-      - synchronize
+  push
 
 env:
   SITE_URL: https://pybotx.netlify.com
@@ -23,31 +17,13 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Install poetry
-        run: |
-          pip install poetry==1.0
-          poetry config virtualenvs.in-project true
-
-      - name: Set up cache
-        uses: actions/cache@v1
-        id: cache
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-py-${{ matrix.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
-
-      - name: Ensure cache is healthy
-        if: steps.cache.outputs.cache-hit == 'true'
-        shell: bash
-        run: poetry run pip --version >/dev/null 2>&1 || rm -rf .venv
-
-      - name: Install dependencies
-        shell: bash
-        run: poetry install --extras tests
+      - name: Setup dependencies
+        uses: ExpressApp/github-actions-poetry@v0.1
 
       - name: Build MkDocs for Netlify
         run: |
-          poetry run nox -s build-docs
-
+          source .venv/bin/activate
+          mkdocs build
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1
         with:

@@ -1,9 +1,9 @@
-site_name: pybotx
-site_url: !!python/object/apply:os.getenv ["SITE_URL", "https://expressapp.github.io/pybotx"]
+site_name: pybotx-next
+site_url: !!python/object/apply:os.getenv ["SITE_URL", "https://expressapp.github.io/pybotx-next"]
 site_description: A little python library for building bots for Express
 
 theme:
-  name: 'material'
+  name: "material"
 
 repo_name: ExpressApp/pybotx
 repo_url: https://github.com/ExpressApp/pybotx
@@ -11,41 +11,20 @@ edit_uri: ''
 
 nav:
   - Introduction: 'index.md'
-  - Tutorial - User Guide:
-      - First Steps: 'development/first-steps.md'
-      - Sending Messages And Files: 'development/sending-data.md'
-      - Handlers Collecting: 'development/collector.md'
-      - Handling Errors: 'development/handling-errors.md'
-      - Dependencies Injection: 'development/dependencies-injection.md'
-      - Logging: 'development/logging.md'
-      - Testing: 'development/tests.md'
-  - API Reference:
-      - Bots: 'reference/bots.md'
-      - Collecting: 'reference/collecting.md'
-      - Middlewares:
-          - Base: 'reference/middlewares/base.md'
-          - Next Step: 'reference/middlewares/ns.md'
-          - Authorization: 'reference/middlewares/authorization.md'
-      - Models: 'reference/models.md'
-      - Clients:
-          - Methods: 'reference/clients/methods.md'
-          - Async Client: 'reference/clients/async-client.md'
-          - Synchronous Client: 'reference/clients/sync-client.md'
-      - Testing:
-          Client: 'reference/testing/test-client.md'
-          Message Builder: 'reference/testing/message-builder.md'
-      - Exceptions: 'reference/exceptions.md'
-
-  - Changelog: 'changelog.md'
-
-markdown_extensions:
-  - markdown.extensions.codehilite:
-      guess_lang: false
-  - markdown_include.include:
-      base_path: docs
-  - admonition
-  - codehilite
+  - BotX API: 'botx_api.md'
 
 plugins:
   - search
-  - mkdocstrings
+
+markdown_extensions:
+  - admonition
+  - pymdownx.snippets
+  - pymdownx.highlight:
+      anchor_linenums: true
+      linenums: true
+  - pymdownx.superfences
+  - codehilite:
+      css_class: highlight
+
+extra_css:
+  - css/custom.css

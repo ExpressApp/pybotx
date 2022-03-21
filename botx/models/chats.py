@@ -1,75 +1,74 @@
-"""Entities for chats."""
-
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Iterator, List, Optional
+from datetime import datetime as dt
+from typing import List, Optional
 from uuid import UUID
 
-from botx.models.base import BotXBaseModel
-from botx.models.enums import ChatTypes
-from botx.models.users import UserFromChatSearch
+from botx.models.enums import ChatTypes, UserKinds
 
 
-class ChatFromSearch(BotXBaseModel):
-    """Chat from search request."""
+@dataclass
+class Chat:
+    id: UUID
+    type: ChatTypes
 
-    #: name of chat.
-    name: str
 
-    #: description of chat
-    description: Optional[str]
+@dataclass
+class ChatListItem:
+    """Chat from list.
 
-    #: type of chat.
+    Attributes:
+        chat_id: Chat id.
+        chat_type: Chat Type.
+        name: Chat name.
+        description: Chat description.
+        members: Chat members.
+        created_at: Chat creation datetime.
+        updated_at: Last chat update datetime.
+    """
+
+    chat_id: UUID
     chat_type: ChatTypes
-
-    #: HUID of chat creator.
-    creator: UUID
-
-    #: ID of chat.
-    group_chat_id: UUID
-
-    #: users in chat.
-    members: List[UserFromChatSearch]
-
-    #: creation datetime of chat.
-    inserted_at: datetime
-
-
-class BotChatFromList(BotXBaseModel):
-    """Chat from list."""
-
-    #: name of chat.
     name: str
-
-    #: description of chat.
     description: Optional[str]
-
-    #: type of chat.
-    chat_type: ChatTypes
-
-    #: ID of chat.
-    group_chat_id: UUID
-
-    #: users in chat.
     members: List[UUID]
-
-    #: datetime bot joined in chat.
-    inserted_at: datetime
-
-    #: update datetime of chat.
+    created_at: datetime
     updated_at: datetime
 
 
-class BotChatList(BotXBaseModel):
-    """Bot's chat list response model."""
+@dataclass
+class ChatInfoMember:
+    """Chat member.
 
-    __root__: List[BotChatFromList]
+    Attributes:
+        is_admin: Is user admin.
+        huid: User huid.
+        kind: User type.
+    """
 
-    def __iter__(self) -> Iterator[BotChatFromList]:  # type: ignore
-        """Override iterator for pydantic model."""
-        return iter(self.__root__)
+    is_admin: bool
+    huid: UUID
+    kind: UserKinds
 
-    def __len__(self) -> int:  # noqa: D105
-        return len(self.__root__)
 
-    def __getitem__(self, key: int) -> BotChatFromList:  # noqa: D105
-        return self.__root__[key]
+@dataclass
+class ChatInfo:
+    """Chat information.
+
+    Attributes:
+        chat_type: Chat type.
+        creator_id: Chat creator id.
+        description: Chat description.
+        chat_id: Chat id.
+        created_at: Chat creation datetime.
+        members: Chat members.
+        name: Chat name.
+    """
+
+    chat_type: ChatTypes
+    creator_id: UUID
+    description: Optional[str]
+    chat_id: UUID
+    created_at: dt
+    members: List[ChatInfoMember]
+    name: str

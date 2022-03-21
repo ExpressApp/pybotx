@@ -1,71 +1,87 @@
-"""Models for stickers."""
-from datetime import datetime
+from dataclasses import dataclass
 from typing import List, Optional
 from uuid import UUID
 
-from botx.models.base import BotXBaseModel
+from botx.async_buffer import AsyncBufferWritable
+from botx.bot.contextvars import bot_var
 
 
-class Pagination(BotXBaseModel):
-    """Model of pagination."""
+@dataclass
+class Sticker:
+    """Sticker from sticker pack.
 
-    #: cursor hash
-    after: Optional[str]
+    Attributes:
+        id: Sticker id.
+        emoji: Sticker emoji.
+        link: Sticker image link.
 
-
-class Sticker(BotXBaseModel):
-    """Model of sticker from request by id."""
-
-    id: UUID
-    emoji: str
-    link: str
-    inserted_at: datetime
-    updated_at: datetime
-    deleted_at: Optional[datetime]
-
-
-class StickerFromPack(BotXBaseModel):
-    """Model of sticker from sticker pack."""
+    """
 
     id: UUID
     emoji: str
-    link: str
-    preview: str
+    image_link: str
+
+    async def download(
+        self,
+        async_buffer: AsyncBufferWritable,
+    ) -> None:
+        bot = bot_var.get()
+
+        response = await bot._httpx_client.get(self.image_link)  # noqa: WPS437
+        response.raise_for_status()
+
+        await async_buffer.write(response.content)
+
+        await async_buffer.seek(0)
 
 
-class StickerPackPreview(BotXBaseModel):
-    """Model of sticker pack from pack list."""
+@dataclass
+class StickerPack:
+    """Sticker pack.
 
-    id: UUID
-    name: str
-    preview: Optional[str]
-    public: Optional[bool]
-    stickers_count: int
-    stickers_order: Optional[List[UUID]]
-    inserted_at: datetime
-    updated_at: Optional[datetime]
-    deleted_at: Optional[datetime]
+    Attributes:
+        id: Sticker pack id.
+        name: Sticker pack name.
+        is_public: Is public pack.
+        stickers: Stickers data.
 
-
-class StickerPackList(BotXBaseModel):
-    """Full model of sticker pack list response."""
-
-    #: list of sticker packs
-    packs: List[StickerPackPreview]
-
-    #: cursor
-    pagination: Pagination
-
-
-class StickerPack(BotXBaseModel):
-    """Model of sticker pack from request by id."""
+    """
 
     id: UUID
     name: str
-    public: bool
-    preview: Optional[str]
-    stickers_order: Optional[List[UUID]]
+    is_public: bool
     stickers: List[Sticker]
-    inserted_at: datetime
-    updated_at: datetime
-    deleted_at: Optional[datetime]
+
+
+@dataclass
+class StickerPackFromList:
+    """Sticker pack from list.
+
+    Attributes:
+        id: Sticker pack id.
+        name: Sticker pack name.
+        is_public: Is public pack
+        stickers_count: Stickers count in pack
+        sticker_ids: Stickers ids in pack
+
+    """
+
+    id: UUID
+    name: str
+    is_public: bool
+    stickers_count: int
+    sticker_ids: Optional[List[UUID]]  # Can be omitted in result
+
+
+@dataclass
+class StickerPackPage:
+    """Sticker pack page.
+
+    Attributes:
+        sticker_packs: Sticker pack list.
+        after: Base64 string for pagination.
+
+    """
+
+    sticker_packs: List[StickerPackFromList]
+    after: Optional[str]

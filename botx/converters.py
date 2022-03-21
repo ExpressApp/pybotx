@@ -1,19 +1,9 @@
-"""Converters for common operations."""
-
 from typing import List, Optional, Sequence, TypeVar
 
-TSequenceElement = TypeVar("TSequenceElement")
+TItem = TypeVar("TItem")
 
 
 def optional_sequence_to_list(
-    seq: Optional[Sequence[TSequenceElement]] = None,
-) -> List[TSequenceElement]:
-    """Convert optional sequence of elements to list.
-
-    Arguments:
-        seq: sequence that should be converted to list.
-
-    Returns:
-        List of passed elements.
-    """
-    return list(seq or [])
+    optional_sequence: Optional[Sequence[TItem]],
+) -> List[TItem]:
+    return list(optional_sequence or [])

@@ -1,370 +1,438 @@
-"""Module with attachments for botx."""
+import base64
+from contextlib import asynccontextmanager
+from dataclasses import dataclass
+from types import MappingProxyType
+from typing import AsyncGenerator, Literal, Union, cast
 
-from typing import List, Optional, Union, cast
+from aiofiles.tempfile import SpooledTemporaryFile
 
-from pydantic import Field
-
-from botx.models.base import BotXBaseModel
-from botx.models.enums import AttachmentsTypes, LinkProtos
-from botx.models.files import File
-
-try:
-    from typing import Literal  # noqa: WPS433
-except ImportError:
-    from typing_extensions import Literal  # type: ignore  # noqa: WPS433, WPS440, F401
-
-
-class FileAttachment(BotXBaseModel):
-    """Class that represents file in RFC 2397 format."""
-
-    #: name of file.
-    file_name: Optional[str]
-
-    #: file content in RFC 2397 format.
-    content: str
+from botx.async_buffer import AsyncBufferReadable
+from botx.constants import CHUNK_SIZE
+from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
+from botx.models.enums import (
+    APIAttachmentTypes,
+    AttachmentTypes,
+    convert_attachment_type_to_domain,
+)
 
 
-class Image(FileAttachment):
-    """Image model from botx."""
+@dataclass
+class FileAttachmentBase:
+    type: AttachmentTypes
+    filename: str
+    size: int
 
-    file_name: str = "image.jpg"
+    is_async_file: Literal[False]
+
+    content: bytes
+
+    @asynccontextmanager
+    async def open(self) -> AsyncGenerator[SpooledTemporaryFile, None]:
+        async with SpooledTemporaryFile(max_size=CHUNK_SIZE) as tmp_file:
+            await tmp_file.write(self.content)
+            await tmp_file.seek(0)
+
+            yield tmp_file
 
 
-class Video(FileAttachment):
-    """Video model from botx."""
+@dataclass
+class AttachmentImage(FileAttachmentBase):
+    type: Literal[AttachmentTypes.IMAGE]
 
-    file_name: str = "video.mp4"
 
-    #: video duration
+@dataclass
+class AttachmentVideo(FileAttachmentBase):
+    type: Literal[AttachmentTypes.VIDEO]
+
     duration: int
 
 
-class Document(FileAttachment):
-    """Document model from botx."""
+@dataclass
+class AttachmentDocument(FileAttachmentBase):
+    type: Literal[AttachmentTypes.DOCUMENT]
 
-    file_name: str = "document.docx"
 
+@dataclass
+class AttachmentVoice(FileAttachmentBase):
+    type: Literal[AttachmentTypes.VOICE]
 
-class Voice(BotXBaseModel):
-    """Voice model from botx."""
-
-    #: file content in RFC 2397 format.
-    content: str
-
-    #: voice duration
     duration: int
 
 
-class Location(BotXBaseModel):
-    """Location model from botx."""
+@dataclass
+class AttachmentLocation:
+    type: Literal[AttachmentTypes.LOCATION]
 
-    #: name of location
-    location_name: str
-
-    #: address of location
-    location_address: str
-
-    #: latitude of location
-    location_lat: float
-
-    #: longitude of location
-    location_lng: float
+    name: str
+    address: str
+    latitude: str
+    longitude: str
 
 
-class Contact(BotXBaseModel):
-    """Contact model from botx."""
+@dataclass
+class AttachmentContact:
+    type: Literal[AttachmentTypes.CONTACT]
 
-    #: name of contact
-    contact_name: str
+    name: str
 
 
-class Link(BotXBaseModel):
-    """Class that marked as Link from botx."""
+@dataclass
+class AttachmentLink:
+    type: Literal[AttachmentTypes.LINK]
 
-    #: url of link
     url: str
-
-    #: title of url
-    url_title: Optional[str] = None
-
-    #: link on preview of this link
-    url_preview: Optional[str] = None
-
-    #: text on preview
-    url_text: Optional[str] = None
-
-    def is_mail(self) -> bool:
-        """Confirm that is email link."""
-        return self.url.startswith(LinkProtos.email)
-
-    def is_telephone(self) -> bool:
-        """Confirm that is telephone link."""
-        return self.url.startswith(LinkProtos.telephone)
-
-    def is_link(self) -> bool:
-        """Confirm that is link on resource."""
-        return not (self.is_mail() or self.is_telephone())
-
-    @property
-    def mailto(self) -> str:
-        """Property that retuning email address without protocol."""
-        if not self.is_mail():
-            raise AttributeError("mailto")
-        return self.url[len(LinkProtos.email) :]  # noqa: E203
-
-    @property
-    def tel(self) -> str:
-        """Property that retuning telephone number without protocol."""
-        if not self.is_telephone():
-            raise AttributeError("telephone number")
-        return self.url[len(LinkProtos.telephone) :]  # noqa: E203
+    title: str
+    preview: str
+    text: str
 
 
-Attachments = Union[Image, Video, Document, Voice, Location, Contact, Link]
-
-
-class ImageAttachment(BotXBaseModel):
-    """BotX API image attachment container."""
-
-    #: type of attachment
-    type: Literal[AttachmentsTypes.image] = Field(default=AttachmentsTypes.image)
-
-    #: content of attachment
-    data: Image
-
-
-class VideoAttachment(BotXBaseModel):
-    """BotX API video attachment container."""
-
-    #: type of attachment
-    type: Literal[AttachmentsTypes.video] = Field(default=AttachmentsTypes.video)
-
-    #: content of attachment
-    data: Video
-
-
-class DocumentAttachment(BotXBaseModel):
-    """BotX API document attachment container."""
-
-    #: type of attachment
-    type: Literal[AttachmentsTypes.document] = Field(default=AttachmentsTypes.document)
-
-    #: content of attachment
-    data: Document
-
-
-class VoiceAttachment(BotXBaseModel):
-    """BotX API voice attachment container."""
-
-    #: type of attachment
-    type: Literal[AttachmentsTypes.voice] = Field(default=AttachmentsTypes.voice)
-
-    #: content of attachment
-    data: Voice
-
-
-class ContactAttachment(BotXBaseModel):
-    """BotX API contact attachment container."""
-
-    #: type of attachment
-    type: Literal[AttachmentsTypes.contact] = Field(default=AttachmentsTypes.contact)
-
-    #: content of attachment
-    data: Contact
-
-
-class LocationAttachment(BotXBaseModel):
-    """BotX API location attachment container."""
-
-    #: type of attachment
-    type: Literal[AttachmentsTypes.location] = Field(default=AttachmentsTypes.location)
-
-    #: content of attachment
-    data: Location
-
-
-class LinkAttachment(BotXBaseModel):
-    """BotX API link attachment container."""
-
-    #: type of attachment
-    type: Literal[AttachmentsTypes.link] = Field(default=AttachmentsTypes.link)
-
-    #: content of attachment
-    data: Link
-
-
-Attachment = Union[
-    ImageAttachment,
-    VideoAttachment,
-    DocumentAttachment,
-    VoiceAttachment,
-    ContactAttachment,
-    LocationAttachment,
-    LinkAttachment,
+IncomingFileAttachment = Union[
+    AttachmentImage,
+    AttachmentVideo,
+    AttachmentDocument,
+    AttachmentVoice,
 ]
 
 
-class AttachList(BotXBaseModel):  # noqa: WPS214, WPS338
-    """Additional wrapped class for use property."""
+@dataclass
+class OutgoingAttachment:
+    content: bytes
+    filename: str
+    is_async_file: Literal[False] = False
 
-    __root__: List[Attachment]
+    @classmethod
+    async def from_async_buffer(
+        cls,
+        async_buffer: AsyncBufferReadable,
+        filename: str,
+    ) -> "OutgoingAttachment":
+        return cls(
+            content=await async_buffer.read(),
+            filename=filename,
+        )
 
-    def _get_attach_by_type(self, attach_type: AttachmentsTypes) -> Attachments:
-        for attach in self.all_attachments:
-            if attach.type == attach_type:
-                return attach.data
-        raise AttributeError(attach_type)
 
-    @property
-    def image(self) -> Image:
-        """Parse attachments.
+class BotAPIAttachmentImageData(VerifiedPayloadBaseModel):
+    content: str
+    file_name: str
 
-        Returns:
-            Image: image from attachments.
-        Raises:
-            AttributeError: message has no image.
-        """
-        attach = self._get_attach_by_type(AttachmentsTypes.image)
-        return cast(Image, attach)
 
-    @property
-    def document(self) -> Document:
-        """Parse attachments.
+class BotAPIAttachmentImage(VerifiedPayloadBaseModel):
+    type: Literal[APIAttachmentTypes.IMAGE]
+    data: BotAPIAttachmentImageData
 
-        Returns:
-            Document: document from attachments.
-        Raises:
-            AttributeError: message has no document.
-        """
-        attach = self._get_attach_by_type(AttachmentsTypes.document)
-        return cast(Document, attach)
 
-    @property
-    def location(self) -> Location:
-        """Parse attachments.
+class BotAPIAttachmentVideoData(VerifiedPayloadBaseModel):
+    content: str
+    file_name: str
+    duration: int
 
-        Returns:
-            Location: location from attachments.
-        Raises:
-            AttributeError: message has no location.
-        """
-        attach = self._get_attach_by_type(AttachmentsTypes.location)
-        return cast(Location, attach)
 
-    @property
-    def contact(self) -> Contact:
-        """Parse attachments.
+class BotAPIAttachmentVideo(VerifiedPayloadBaseModel):
+    type: Literal[APIAttachmentTypes.VIDEO]
+    data: BotAPIAttachmentVideoData
 
-        Returns:
-            Contact: contact from attachments.
-        Raises:
-            AttributeError: message has no contact.
-        """
-        attach = self._get_attach_by_type(AttachmentsTypes.contact)
-        return cast(Contact, attach)
 
-    @property
-    def voice(self) -> Voice:
-        """Parse attachments.
+class BotAPIAttachmentDocumentData(VerifiedPayloadBaseModel):
+    content: str
+    file_name: str
 
-        Returns:
-            Voice: voice from attachments
-        Raises:
-            AttributeError: message has no voice.
-        """
-        attach = self._get_attach_by_type(AttachmentsTypes.voice)
-        return cast(Voice, attach)
 
-    @property
-    def video(self) -> Video:
-        """Parse attachments.
+class BotAPIAttachmentDocument(VerifiedPayloadBaseModel):
+    type: Literal[APIAttachmentTypes.DOCUMENT]
+    data: BotAPIAttachmentDocumentData
 
-        Returns:
-            Video: video from attachments.
-        Raises:
-            AttributeError: message has no video.
-        """
-        attach = self._get_attach_by_type(AttachmentsTypes.video)
-        return cast(Video, attach)
 
-    @property
-    def link(self) -> Link:
-        """Parse attachments.
+class BotAPIAttachmentVoiceData(VerifiedPayloadBaseModel):
+    content: str
+    duration: int
 
-        Returns:
-            Link: lint to resource from attachments.
-        Raises:
-            AttributeError: message has no link.
-        """
-        attach = self._get_attach_by_type(AttachmentsTypes.link)
-        if attach.is_link():  # type: ignore
-            return cast(Link, attach)
-        raise AttributeError(AttachmentsTypes.link)
 
-    @property
-    def email(self) -> str:
-        """Parse attachments.
+class BotAPIAttachmentVoice(VerifiedPayloadBaseModel):
+    type: Literal[APIAttachmentTypes.VOICE]
+    data: BotAPIAttachmentVoiceData
 
-        Returns:
-            str: email from attachments.
-        Raises:
-            AttributeError: message has no email.
-        """
-        attach = self._get_attach_by_type(AttachmentsTypes.link)
-        if attach.is_mail():  # type: ignore
-            return attach.mailto  # type: ignore
-        raise AttributeError(AttachmentsTypes.link)
 
-    @property
-    def telephone(self) -> str:
-        """Parse attachments.
+class BotAPIAttachmentLocationData(VerifiedPayloadBaseModel):
+    location_name: str
+    location_address: str
+    location_lat: str
+    location_lng: str
 
-        Returns:
-            str: telephone number from attachments.
-        Raises:
-            AttributeError: message has no telephone.
-        """
-        attach = self._get_attach_by_type(AttachmentsTypes.link)
-        if attach.is_telephone():  # type: ignore
-            return attach.tel  # type: ignore
-        raise AttributeError(AttachmentsTypes.link)
 
-    @property
-    def all_attachments(self) -> List[Attachment]:
-        """Search attachments in message.
+class BotAPIAttachmentLocation(VerifiedPayloadBaseModel):
+    type: Literal[APIAttachmentTypes.LOCATION]
+    data: BotAPIAttachmentLocationData
 
-        Returns:
-            List of attachments.
-        """
-        return self.__root__
 
-    @property
-    def file(self) -> File:
-        """Search file in message's attachments.
+class BotAPIAttachmentContactData(VerifiedPayloadBaseModel):
+    contact_name: str
 
-        Returns:
-            Botx file from video, image or document.
-        Raises:
-            AttributeError: message has no file.
-        """
-        for attachment in self.all_attachments:
-            if isinstance(attachment.data, FileAttachment):
-                return File.construct(
-                    file_name=attachment.data.file_name,
-                    data=attachment.data.content,
-                )
-        raise AttributeError
 
-    @property
-    def attach_type(self) -> AttachmentsTypes:
-        """Get attachment type.
+class BotAPIAttachmentContact(VerifiedPayloadBaseModel):
+    type: Literal[APIAttachmentTypes.CONTACT]
+    data: BotAPIAttachmentContactData
 
-        Returns:
-            AttachmentsTypes: Attachment type.
-        Raises:
-            AttributeError: message has no attachment.
-        """
-        if self.all_attachments:
-            return self.all_attachments[0].type
 
-        raise AttributeError
+class BotAPIAttachmentLinkData(VerifiedPayloadBaseModel):
+    url: str
+    url_title: str
+    url_preview: str
+    url_text: str
+
+
+class BotAPIAttachmentLink(VerifiedPayloadBaseModel):
+    type: Literal[APIAttachmentTypes.LINK]
+    data: BotAPIAttachmentLinkData
+
+
+BotAPIAttachment = Union[
+    BotAPIAttachmentVideo,
+    BotAPIAttachmentImage,
+    BotAPIAttachmentDocument,
+    BotAPIAttachmentVoice,
+    BotAPIAttachmentLocation,
+    BotAPIAttachmentContact,
+    BotAPIAttachmentLink,
+]
+
+IncomingAttachment = Union[
+    IncomingFileAttachment,
+    AttachmentLocation,
+    AttachmentContact,
+    AttachmentLink,
+]
+
+
+def convert_api_attachment_to_domain(  # noqa: WPS212
+    api_attachment: BotAPIAttachment,
+) -> IncomingAttachment:
+    attachment_type = convert_attachment_type_to_domain(api_attachment.type)
+
+    if attachment_type == AttachmentTypes.IMAGE:
+        attachment_type = cast(Literal[AttachmentTypes.IMAGE], attachment_type)
+        api_attachment = cast(BotAPIAttachmentImage, api_attachment)
+        content = decode_rfc2397(api_attachment.data.content)
+
+        return AttachmentImage(
+            type=attachment_type,
+            filename=api_attachment.data.file_name,
+            size=len(content),
+            is_async_file=False,
+            content=content,
+        )
+
+    if attachment_type == AttachmentTypes.VIDEO:
+        attachment_type = cast(Literal[AttachmentTypes.VIDEO], attachment_type)
+        api_attachment = cast(BotAPIAttachmentVideo, api_attachment)
+        content = decode_rfc2397(api_attachment.data.content)
+
+        return AttachmentVideo(
+            type=attachment_type,
+            filename=api_attachment.data.file_name,
+            size=len(content),
+            is_async_file=False,
+            content=content,
+            duration=api_attachment.data.duration,
+        )
+
+    if attachment_type == AttachmentTypes.DOCUMENT:
+        attachment_type = cast(Literal[AttachmentTypes.DOCUMENT], attachment_type)
+        api_attachment = cast(BotAPIAttachmentDocument, api_attachment)
+        content = decode_rfc2397(api_attachment.data.content)
+
+        return AttachmentDocument(
+            type=attachment_type,
+            filename=api_attachment.data.file_name,
+            size=len(content),
+            is_async_file=False,
+            content=content,
+        )
+
+    if attachment_type == AttachmentTypes.VOICE:
+        attachment_type = cast(Literal[AttachmentTypes.VOICE], attachment_type)
+        api_attachment = cast(BotAPIAttachmentVoice, api_attachment)
+        content = decode_rfc2397(api_attachment.data.content)
+
+        return AttachmentVoice(
+            type=attachment_type,
+            filename="record.mp3",
+            size=len(content),
+            is_async_file=False,
+            content=content,
+            duration=api_attachment.data.duration,
+        )
+
+    if attachment_type == AttachmentTypes.LOCATION:
+        attachment_type = cast(Literal[AttachmentTypes.LOCATION], attachment_type)
+        api_attachment = cast(BotAPIAttachmentLocation, api_attachment)
+
+        return AttachmentLocation(
+            type=attachment_type,
+            name=api_attachment.data.location_name,
+            address=api_attachment.data.location_address,
+            latitude=api_attachment.data.location_lat,
+            longitude=api_attachment.data.location_lng,
+        )
+
+    if attachment_type == AttachmentTypes.CONTACT:
+        attachment_type = cast(Literal[AttachmentTypes.CONTACT], attachment_type)
+        api_attachment = cast(BotAPIAttachmentContact, api_attachment)
+
+        return AttachmentContact(
+            type=attachment_type,
+            name=api_attachment.data.contact_name,
+        )
+
+    if attachment_type == AttachmentTypes.LINK:
+        attachment_type = cast(Literal[AttachmentTypes.LINK], attachment_type)
+        api_attachment = cast(BotAPIAttachmentLink, api_attachment)
+
+        return AttachmentLink(
+            type=attachment_type,
+            url=api_attachment.data.url,
+            title=api_attachment.data.url_title,
+            preview=api_attachment.data.url_preview,
+            text=api_attachment.data.url_text,
+        )
+
+    raise NotImplementedError(f"Unsupported attachment type: {attachment_type}")
+
+
+def decode_rfc2397(encoded_content: str) -> bytes:
+    # "data:image/gif;base64,aGVsbG8=" -> b"hello"
+    return base64.b64decode(encoded_content.split(",", 1)[1].encode())
+
+
+EXTENSIONS_TO_MIMETYPES = MappingProxyType(
+    {
+        # application
+        "7z": "application/x-7z-compressed",
+        "abw": "application/x-abiword",
+        "ai": "application/postscript",
+        "arc": "application/x-freearc",
+        "azw": "application/vnd.amazon.ebook",
+        "bin": "application/octet-stream",
+        "bz": "application/x-bzip",
+        "bz2": "application/x-bzip2",
+        "cda": "application/x-cdf",
+        "csh": "application/x-csh",
+        "doc": "application/msword",
+        "docx": (
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ),
+        "eot": "application/vnd.ms-fontobject",
+        "eps": "application/postscript",
+        "epub": "application/epub+zip",
+        "gz": "application/gzip",
+        "jar": "application/java-archive",
+        "json-api": "application/vnd.api+json",
+        "json-patch": "application/json-patch+json",
+        "json": "application/json",
+        "jsonld": "application/ld+json",
+        "mdb": "application/x-msaccess",
+        "mpkg": "application/vnd.apple.installer+xml",
+        "odp": "application/vnd.oasis.opendocument.presentation",
+        "ods": "application/vnd.oasis.opendocument.spreadsheet",
+        "odt": "application/vnd.oasis.opendocument.text",
+        "ogx": "application/ogg",
+        "pdf": "application/pdf",
+        "php": "application/x-httpd-php",
+        "ppt": "application/vnd.ms-powerpoint",
+        "pptx": (
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        ),
+        "ps": "application/postscript",
+        "rar": "application/vnd.rar",
+        "rtf": "application/rtf",
+        "sh": "application/x-sh",
+        "swf": "application/x-shockwave-flash",
+        "tar": "application/x-tar",
+        "vsd": "application/vnd.visio",
+        "wasm": "application/wasm",
+        "webmanifest": "application/manifest+json",
+        "xhtml": "application/xhtml+xml",
+        "xls": "application/vnd.ms-excel",
+        "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "xul": "application/vnd.mozilla.xul+xml",
+        "zip": "application/zip",
+        # audio
+        "aac": "audio/aac",
+        "mid": "audio/midi",
+        "midi": "audio/midi",
+        "mp3": "audio/mpeg",
+        "oga": "audio/ogg",
+        "opus": "audio/opus",
+        "wav": "audio/wav",
+        "weba": "audio/webm",
+        # font
+        "otf": "font/otf",
+        "ttf": "font/ttf",
+        "woff": "font/woff",
+        "woff2": "font/woff2",
+        # image
+        "avif": "image/avif",
+        "bmp": "image/bmp",
+        "gif": "image/gif",
+        "ico": "image/vnd.microsoft.icon",
+        "jpeg": "image/jpeg",
+        "jpg": "image/jpeg",
+        "png": "image/png",
+        "svg": "image/svg+xml",
+        "svgz": "image/svg+xml",
+        "tif": "image/tiff",
+        "tiff": "image/tiff",
+        "webp": "image/webp",
+        # text
+        "css": "text/css",
+        "csv": "text/csv",
+        "htm": "text/html",
+        "html": "text/html",
+        "ics": "text/calendar",
+        "js": "text/javascript",
+        "mjs": "text/javascript",
+        "txt": "text/plain",
+        "text": "text/plain",
+        "xml": "text/xml",
+        # video
+        "3g2": "video/3gpp2",
+        "3gp": "video/3gpp",
+        "avi": "video/x-msvideo",
+        "mov": "video/quicktime",
+        "mp4": "video/mp4",
+        "mpeg": "video/mpeg",
+        "mpg": "video/mpeg",
+        "ogv": "video/ogg",
+        "ts": "video/mp2t",
+        "webm": "video/webm",
+        "wmv": "video/x-ms-wmv",
+    },
+)
+DEFAULT_MIMETYPE = "application/octet-stream"
+
+
+def encode_rfc2397(content: bytes, mimetype: str) -> str:
+    b64_content = base64.b64encode(content).decode()
+    return f"data:{mimetype};base64,{b64_content}"
+
+
+class BotXAPIAttachment(UnverifiedPayloadBaseModel):
+    file_name: str
+    data: str
+
+    @classmethod
+    def from_file_attachment(
+        cls,
+        attachment: Union[IncomingFileAttachment, OutgoingAttachment],
+    ) -> "BotXAPIAttachment":
+        assert attachment.content is not None
+
+        mimetype = EXTENSIONS_TO_MIMETYPES.get(
+            attachment.filename.split(".")[-1],
+            DEFAULT_MIMETYPE,
+        )
+
+        return cls(
+            file_name=attachment.filename,
+            data=encode_rfc2397(attachment.content, mimetype),
+        )
