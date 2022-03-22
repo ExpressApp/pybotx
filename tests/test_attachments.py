@@ -270,3 +270,24 @@ async def test__async_execute_raw_bot_command__file_attachments_types(
     # - Assert -
     assert incoming_message
     assert incoming_message.file == domain_attachment
+
+
+async def test__async_execute_raw_bot_command__unknown_attachment_type(
+    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    bot_account: BotAccountWithSecret,
+    loguru_caplog: pytest.LogCaptureFixture,
+) -> None:
+    # - Arrange -
+    unknown_attachment = {"data": {"foo": "bar"}, "type": "baz"}
+    payload = api_incoming_message_factory(attachment=unknown_attachment)
+
+    collector = HandlerCollector()
+
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        bot.async_execute_raw_bot_command(payload)
+
+    # - Assert -
+    assert "Received unknown attachment type" in loguru_caplog.text
