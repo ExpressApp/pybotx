@@ -98,7 +98,6 @@ class HandlerCollector:
 
         elif isinstance(
             bot_command,
-            # TODO: Replace `__args__` with `typing.get_origin` on python 3.7 drop.
             SystemEvent.__args__,  # type: ignore [attr-defined]  # noqa: WPS609
         ):
             event_handler = self._get_system_event_handler_or_none(bot_command)
