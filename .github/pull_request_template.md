@@ -1,9 +1,5 @@
-# Description
-
-Please include a summary of the change.
-
 # Checklist
 
-- [ ] Linters and tests have passed
-- [ ] I've written a changelog for PR change
-- [ ] I'll make a release when PR is approved
+- [ ] I've written good commit message for all commits
+- [ ] I've split changes into separate commits where it's appropriate
+- [ ] I'll make a release when PR is merged
