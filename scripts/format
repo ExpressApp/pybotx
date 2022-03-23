@@ -5,11 +5,11 @@ set -ex
 autoflake --recursive --in-place \
   --remove-all-unused-imports \
   --ignore-init-module-imports \
-  botx tests
-isort --profile black botx tests
-black botx tests
+  pybotx tests
+isort --profile black pybotx tests
+black pybotx tests
 
-find botx -type f -name "*.py" | xargs add-trailing-comma --py36-plus --exit-zero-even-if-changed
+find pybotx -type f -name "*.py" | xargs add-trailing-comma --py36-plus --exit-zero-even-if-changed
 find tests -type f -name "*.py" | xargs add-trailing-comma --py36-plus --exit-zero-even-if-changed
 
 # This `black` is needed again in order to transfer parameters/arguments to new lines
@@ -18,4 +18,4 @@ find tests -type f -name "*.py" | xargs add-trailing-comma --py36-plus --exit-ze
 # there is no comma at the end of the line.
 # Inserting commas must be after the first `black`, so that there is one new line break,
 # if the line is out of max-line-length.
-black botx tests > /dev/null
+black pybotx tests > /dev/null

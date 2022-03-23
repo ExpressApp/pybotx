@@ -5,9 +5,9 @@ import httpx
 import pytest
 from respx.router import MockRouter
 
-from botx import Bot, BotAccountWithSecret, HandlerCollector, lifespan_wrapper
-from botx.models.async_files import Document, Image, Video, Voice
-from botx.models.enums import AttachmentTypes
+from pybotx import Bot, BotAccountWithSecret, HandlerCollector, lifespan_wrapper
+from pybotx.models.async_files import Document, Image, Video, Voice
+from pybotx.models.enums import AttachmentTypes
 
 pytestmark = [
     pytest.mark.asyncio,

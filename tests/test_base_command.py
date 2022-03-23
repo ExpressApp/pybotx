@@ -1,6 +1,6 @@
 import pytest
 
-from botx import (
+from pybotx import (
     Bot,
     HandlerCollector,
     UnknownSystemEventError,

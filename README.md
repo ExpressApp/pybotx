@@ -2,8 +2,8 @@
 
 *A python library for building bots and smartapps for eXpress messenger.*
 
-[![PyPI version](https://badge.fury.io/py/botx.svg)](https://badge.fury.io/py/botx)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/botx)
+[![PyPI version](https://badge.fury.io/py/botx.svg)](https://badge.fury.io/py/pybotx)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pybotx)
 [![Coverage](https://codecov.io/gh/ExpressApp/pybotx/branch/master/graph/badge.svg)](https://codecov.io/gh/ExpressApp/pybotx/branch/master)
 [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 

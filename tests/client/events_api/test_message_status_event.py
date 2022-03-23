@@ -7,7 +7,7 @@ import httpx
 import pytest
 from respx.router import MockRouter
 
-from botx import (
+from pybotx import (
     Bot,
     BotAccountWithSecret,
     EventNotFoundError,

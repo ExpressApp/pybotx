@@ -3,7 +3,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from botx import Mention, MentionList, MentionTypes
+from pybotx import Mention, MentionList, MentionTypes
 
 
 @pytest.fixture

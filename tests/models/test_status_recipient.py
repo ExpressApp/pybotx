@@ -1,6 +1,6 @@
 from typing import Callable
 
-from botx import IncomingMessage, StatusRecipient
+from pybotx import IncomingMessage, StatusRecipient
 
 
 def test__status_recipient__from_message(

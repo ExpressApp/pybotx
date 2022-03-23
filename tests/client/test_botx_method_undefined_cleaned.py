@@ -6,11 +6,11 @@ import httpx
 import pytest
 from respx.router import MockRouter
 
-from botx import BotAccountWithSecret
-from botx.bot.bot_accounts_storage import BotAccountsStorage
-from botx.client.botx_method import BotXMethod
-from botx.missing import Undefined
-from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
+from pybotx import BotAccountWithSecret
+from pybotx.bot.bot_accounts_storage import BotAccountsStorage
+from pybotx.client.botx_method import BotXMethod
+from pybotx.missing import Undefined
+from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 
 
 class BotXAPIFooBarRequestPayload(UnverifiedPayloadBaseModel):

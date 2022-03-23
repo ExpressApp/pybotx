@@ -1,6 +1,6 @@
 import pytest
 
-from botx import Bot, BotAccountWithSecret, HandlerCollector
+from pybotx import Bot, BotAccountWithSecret, HandlerCollector
 
 
 def test__bot__empty_collectors_warning(

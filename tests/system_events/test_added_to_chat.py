@@ -3,7 +3,7 @@ from uuid import UUID
 
 import pytest
 
-from botx import (
+from pybotx import (
     AddedToChatEvent,
     Bot,
     BotAccount,

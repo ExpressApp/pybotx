@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from botx import (
+from pybotx import (
     Bot,
     BotAccountWithSecret,
     ChatCreatedEvent,

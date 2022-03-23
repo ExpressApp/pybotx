@@ -4,7 +4,7 @@ from uuid import UUID
 
 import pytest
 
-from botx import (
+from pybotx import (
     AttachmentTypes,
     Bot,
     BotAccountWithSecret,
@@ -12,7 +12,7 @@ from botx import (
     IncomingMessage,
     lifespan_wrapper,
 )
-from botx.models.attachments import (
+from pybotx.models.attachments import (
     AttachmentContact,
     AttachmentDocument,
     AttachmentImage,

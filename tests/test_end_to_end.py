@@ -12,7 +12,7 @@ from fastapi.testclient import TestClient
 from loguru import logger
 from respx.router import MockRouter
 
-from botx import (
+from pybotx import (
     Bot,
     BotAccountWithSecret,
     HandlerCollector,

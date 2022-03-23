@@ -8,7 +8,7 @@ import pytest
 from aiofiles.tempfile import NamedTemporaryFile
 from respx.router import MockRouter
 
-from botx import (
+from pybotx import (
     AnswerDestinationLookupError,
     Bot,
     BotAccountWithSecret,
@@ -618,7 +618,7 @@ async def test__send_message__maximum_filled_succeed(
 ) -> None:
     # - Arrange -
     monkeypatch.setattr(
-        "botx.models.message.mentions.uuid4",
+        "pybotx.models.message.mentions.uuid4",
         lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
     )
 
@@ -776,7 +776,7 @@ async def test__send_message__all_mentions_types_succeed(
 ) -> None:
     # - Arrange -
     monkeypatch.setattr(
-        "botx.models.message.mentions.uuid4",
+        "pybotx.models.message.mentions.uuid4",
         lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
     )
 

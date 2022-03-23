@@ -7,7 +7,7 @@ import pytest
 from aiofiles.tempfile import NamedTemporaryFile
 from respx.router import MockRouter
 
-from botx import (
+from pybotx import (
     Bot,
     BotAccountWithSecret,
     HandlerCollector,

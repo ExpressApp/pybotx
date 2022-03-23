@@ -2,10 +2,10 @@
 
 set -ex
 
-black --check --diff botx tests
-isort --profile black --check-only botx tests
+black --check --diff pybotx tests
+isort --profile black --check-only pybotx tests
 
-mypy botx tests
-flake8 botx tests
+mypy pybotx tests
+flake8 pybotx tests
 
 ./scripts/wip_marks

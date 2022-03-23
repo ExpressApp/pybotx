@@ -6,7 +6,7 @@ import pytest
 from aiofiles.tempfile import NamedTemporaryFile
 from respx.router import MockRouter
 
-from botx import (
+from pybotx import (
     Bot,
     BotAccountWithSecret,
     BubbleMarkup,
@@ -76,7 +76,7 @@ async def test__reply_message__maximum_filled_reply_succeed(
 ) -> None:
     # - Arrange -
     monkeypatch.setattr(
-        "botx.models.message.mentions.uuid4",
+        "pybotx.models.message.mentions.uuid4",
         lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
     )
 
@@ -187,7 +187,7 @@ async def test__reply__succeed(
 ) -> None:
     # - Arrange -
     monkeypatch.setattr(
-        "botx.models.message.mentions.uuid4",
+        "pybotx.models.message.mentions.uuid4",
         lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
     )
     endpoint = respx_mock.post(

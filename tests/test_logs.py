@@ -7,14 +7,14 @@ import pytest
 from aiofiles.tempfile import NamedTemporaryFile
 from respx.router import MockRouter
 
-from botx import (
+from pybotx import (
     Bot,
     BotAccountWithSecret,
     HandlerCollector,
     IncomingMessage,
     lifespan_wrapper,
 )
-from botx.models.attachments import AttachmentDocument, OutgoingAttachment
+from pybotx.models.attachments import AttachmentDocument, OutgoingAttachment
 
 pytestmark = [
     pytest.mark.asyncio,

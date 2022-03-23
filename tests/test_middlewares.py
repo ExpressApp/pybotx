@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from botx import (
+from pybotx import (
     Bot,
     BotAccountWithSecret,
     HandlerCollector,

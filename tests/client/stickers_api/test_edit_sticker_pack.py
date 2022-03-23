@@ -5,14 +5,14 @@ import httpx
 import pytest
 from respx.router import MockRouter
 
-from botx import (
+from pybotx import (
     Bot,
     BotAccountWithSecret,
     HandlerCollector,
     StickerPackOrStickerNotFoundError,
     lifespan_wrapper,
 )
-from botx.models.stickers import Sticker, StickerPack
+from pybotx.models.stickers import Sticker, StickerPack
 
 pytestmark = [
     pytest.mark.asyncio,

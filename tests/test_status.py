@@ -3,7 +3,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from botx import (
+from pybotx import (
     Bot,
     BotAccountWithSecret,
     BotMenu,

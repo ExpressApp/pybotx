@@ -3,7 +3,7 @@ from uuid import UUID
 
 import pytest
 
-from botx import (
+from pybotx import (
     AttachmentTypes,
     Bot,
     BotAccount,
@@ -13,9 +13,9 @@ from botx import (
     SmartAppEvent,
     lifespan_wrapper,
 )
-from botx.models.chats import Chat
-from botx.models.enums import ChatTypes
-from botx.models.message.incoming_message import UserDevice, UserSender
+from pybotx.models.chats import Chat
+from pybotx.models.enums import ChatTypes
+from pybotx.models.message.incoming_message import UserDevice, UserSender
 
 pytestmark = [
     pytest.mark.asyncio,

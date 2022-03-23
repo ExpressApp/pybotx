@@ -6,11 +6,11 @@ import pytest
 from aiofiles.tempfile import NamedTemporaryFile
 from respx.router import MockRouter
 
-from botx import BotAccountWithSecret, InvalidBotXStatusCodeError
-from botx.async_buffer import AsyncBufferWritable
-from botx.bot.bot_accounts_storage import BotAccountsStorage
-from botx.client.botx_method import BotXMethod, response_exception_thrower
-from botx.client.exceptions.base import BaseClientError
+from pybotx import BotAccountWithSecret, InvalidBotXStatusCodeError
+from pybotx.async_buffer import AsyncBufferWritable
+from pybotx.bot.bot_accounts_storage import BotAccountsStorage
+from pybotx.client.botx_method import BotXMethod, response_exception_thrower
+from pybotx.client.exceptions.base import BaseClientError
 from tests.client.test_botx_method import BotXAPIFooBarRequestPayload
 
 

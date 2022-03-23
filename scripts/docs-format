@@ -17,4 +17,4 @@ find docs/snippets -type f -name "*.py" | xargs add-trailing-comma --py36-plus -
 # there is no comma at the end of the line.
 # Inserting commas must be after the first `black`, so that there is one new line break,
 # if the line is out of max-line-length.
-black botx tests > /dev/null
+black pybotx tests > /dev/null

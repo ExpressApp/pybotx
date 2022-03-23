@@ -1,6 +1,6 @@
 import asyncio
 
-from botx import Bot, HandlerCollector, lifespan_wrapper
+from pybotx import Bot, HandlerCollector, lifespan_wrapper
 
 # Не забудьте заполнить учётные данные бота
 built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[])

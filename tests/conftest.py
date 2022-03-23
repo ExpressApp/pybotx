@@ -11,7 +11,7 @@ from aiofiles.tempfile import NamedTemporaryFile
 from pydantic import BaseModel
 from respx.router import MockRouter
 
-from botx import (
+from pybotx import (
     BotAccount,
     BotAccountWithSecret,
     Chat,
@@ -20,13 +20,13 @@ from botx import (
     UserDevice,
     UserSender,
 )
-from botx.bot.bot_accounts_storage import BotAccountsStorage
-from botx.logger import logger
+from pybotx.bot.bot_accounts_storage import BotAccountsStorage
+from pybotx.logger import logger
 
 
 @pytest.fixture(autouse=True)
 def enable_logger() -> None:
-    logger.enable("botx")
+    logger.enable("pybotx")
 
 
 @pytest.fixture

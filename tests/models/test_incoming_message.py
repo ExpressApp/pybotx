@@ -2,7 +2,7 @@ from typing import Callable, Tuple
 
 import pytest
 
-from botx import IncomingMessage
+from pybotx import IncomingMessage
 
 
 def test__upn_property__not_filled(

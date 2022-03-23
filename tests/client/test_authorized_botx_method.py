@@ -5,9 +5,9 @@ import httpx
 import pytest
 from respx.router import MockRouter
 
-from botx import BotAccountWithSecret, InvalidBotAccountError
-from botx.bot.bot_accounts_storage import BotAccountsStorage
-from botx.client.authorized_botx_method import AuthorizedBotXMethod
+from pybotx import BotAccountWithSecret, InvalidBotAccountError
+from pybotx.bot.bot_accounts_storage import BotAccountsStorage
+from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from tests.client.test_botx_method import (
     BotXAPIFooBarRequestPayload,
     BotXAPIFooBarResponsePayload,

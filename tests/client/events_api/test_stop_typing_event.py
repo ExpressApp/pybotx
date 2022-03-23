@@ -5,7 +5,7 @@ import httpx
 import pytest
 from respx.router import MockRouter
 
-from botx import Bot, BotAccountWithSecret, HandlerCollector, lifespan_wrapper
+from pybotx import Bot, BotAccountWithSecret, HandlerCollector, lifespan_wrapper
 
 pytestmark = [
     pytest.mark.asyncio,

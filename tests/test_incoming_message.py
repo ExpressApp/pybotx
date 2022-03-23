@@ -4,7 +4,7 @@ from uuid import UUID
 
 import pytest
 
-from botx import (
+from pybotx import (
     AttachmentTypes,
     Bot,
     BotAccount,

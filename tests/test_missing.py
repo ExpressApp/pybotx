@@ -1,6 +1,6 @@
 import pytest
 
-from botx.missing import Undefined, not_undefined
+from pybotx.missing import Undefined, not_undefined
 
 
 def test__not_undefined__all_args_undefined() -> None:

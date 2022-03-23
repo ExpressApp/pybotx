@@ -2,7 +2,7 @@ from typing import Callable, Optional
 
 import pytest
 
-from botx import (
+from pybotx import (
     Bot,
     BotAccountWithSecret,
     HandlerCollector,

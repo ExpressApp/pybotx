@@ -10,7 +10,7 @@ import httpx
 import pytest
 from respx.router import MockRouter
 
-from botx import (
+from pybotx import (
     Bot,
     BotAccountWithSecret,
     BotShuttingDownError,
@@ -20,14 +20,14 @@ from botx import (
     HandlerCollector,
     lifespan_wrapper,
 )
-from botx.client.botx_method import (
+from pybotx.client.botx_method import (
     BotXMethod,
     ErrorCallbackHandlers,
     callback_exception_thrower,
 )
-from botx.client.exceptions.base import BaseClientError
-from botx.missing import MissingOptional, Undefined, not_undefined
-from botx.models.method_callbacks import BotAPIMethodSuccessfulCallback
+from pybotx.client.exceptions.base import BaseClientError
+from pybotx.missing import MissingOptional, Undefined, not_undefined
+from pybotx.models.method_callbacks import BotAPIMethodSuccessfulCallback
 from tests.client.test_botx_method import (
     BotXAPIFooBarRequestPayload,
     BotXAPIFooBarResponsePayload,

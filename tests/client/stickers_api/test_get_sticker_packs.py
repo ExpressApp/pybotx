@@ -5,8 +5,8 @@ import httpx
 import pytest
 from respx.router import MockRouter
 
-from botx import Bot, BotAccountWithSecret, HandlerCollector, lifespan_wrapper
-from botx.models.stickers import StickerPackFromList
+from pybotx import Bot, BotAccountWithSecret, HandlerCollector, lifespan_wrapper
+from pybotx.models.stickers import StickerPackFromList
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -91,7 +91,7 @@ async def test__iterate_by_sticker_packs__iterate_by_pages_succeed(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # - Arrange -
-    monkeypatch.setattr("botx.bot.bot.STICKER_PACKS_PER_PAGE", 2)
+    monkeypatch.setattr("pybotx.bot.bot.STICKER_PACKS_PER_PAGE", 2)
 
     # Mock order matters
     # https://lundberg.github.io/respx/guide/#routing-requests

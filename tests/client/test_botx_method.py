@@ -6,15 +6,15 @@ import httpx
 import pytest
 from respx.router import MockRouter
 
-from botx import (
+from pybotx import (
     BotAccountWithSecret,
     InvalidBotXResponsePayloadError,
     InvalidBotXStatusCodeError,
 )
-from botx.bot.bot_accounts_storage import BotAccountsStorage
-from botx.client.botx_method import BotXMethod, response_exception_thrower
-from botx.client.exceptions.base import BaseClientError
-from botx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
+from pybotx.bot.bot_accounts_storage import BotAccountsStorage
+from pybotx.client.botx_method import BotXMethod, response_exception_thrower
+from pybotx.client.exceptions.base import BaseClientError
+from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 
 
 class FooBarError(BaseClientError):
