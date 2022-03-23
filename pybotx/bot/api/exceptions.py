@@ -12,6 +12,6 @@ class UnsupportedBotAPIVersionError(Exception):
 
 class UnknownSystemEventError(Exception):
     def __init__(self, type_name: str) -> None:
-        self.version = type_name
+        self.type_name = type_name
         self.message = f"Unknown system event: `{type_name}`"
         super().__init__(self.message)
