@@ -17,6 +17,7 @@ from botx.models.bot_account import BotAccount
 from botx.models.chats import Chat
 from botx.models.enums import (
     BotAPICommandTypes,
+    BotAPISystemEventTypes,
     convert_chat_type_to_domain,
     convert_client_platform_to_domain,
 )
@@ -55,7 +56,7 @@ class BotAPISmartAppData(VerifiedPayloadBaseModel):
 
 
 class BotAPISmartAppPayload(VerifiedPayloadBaseModel):
-    body: Literal["system:smartapp_event"] = "system:smartapp_event"
+    body: Literal[BotAPISystemEventTypes.SMARTAPP_EVENT]
     command_type: Literal[BotAPICommandTypes.SYSTEM]
     data: BotAPISmartAppData
     metadata: Dict[str, Any]

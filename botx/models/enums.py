@@ -69,6 +69,17 @@ class BotAPICommandTypes(StrEnum):
     SYSTEM = "system"
 
 
+class BotAPISystemEventTypes(StrEnum):
+    ADDED_TO_CHAT = "system:added_to_chat"
+    CHAT_CREATED = "system:chat_created"
+    CTS_LOGIN = "system:cts_login"
+    CTS_LOGOUT = "system:cts_logout"
+    DELETED_FROM_CHAT = "system:deleted_from_chat"
+    INTERNAL_BOT_NOTIFICATION = "system:internal_bot_notification"
+    LEFT_FROM_CHAT = "system:left_from_chat"
+    SMARTAPP_EVENT = "system:smartapp_event"
+
+
 class BotAPIClientPlatforms(StrEnum):
     WEB = "web"
     ANDROID = "android"

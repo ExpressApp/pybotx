@@ -8,10 +8,11 @@ from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.base_command import (
     BaseBotAPIContext,
     BotAPIBaseCommand,
+    BotAPIBaseSystemEventPayload,
     BotCommandBase,
 )
 from botx.models.bot_account import BotAccount
-from botx.models.enums import BotAPICommandTypes
+from botx.models.enums import BotAPISystemEventTypes
 
 
 @dataclass
@@ -29,9 +30,8 @@ class BotAPICTSLoginData(VerifiedPayloadBaseModel):
     user_huid: UUID
 
 
-class BotAPICTSLoginPayload(VerifiedPayloadBaseModel):
-    body: Literal["system:cts_login"] = "system:cts_login"
-    command_type: Literal[BotAPICommandTypes.SYSTEM]
+class BotAPICTSLoginPayload(BotAPIBaseSystemEventPayload):
+    body: Literal[BotAPISystemEventTypes.CTS_LOGIN]
     data: BotAPICTSLoginData
 
 

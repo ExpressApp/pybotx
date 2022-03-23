@@ -8,3 +8,10 @@ class UnsupportedBotAPIVersionError(Exception):
             f"Unsupported Bot API version: `{version}`, expected `{BOT_API_VERSION}`"
         )
         super().__init__(self.message)
+
+
+class UnknownSystemEventError(Exception):
+    def __init__(self, type_name: str) -> None:
+        self.version = type_name
+        self.message = f"Unknown system event: `{type_name}`"
+        super().__init__(self.message)
