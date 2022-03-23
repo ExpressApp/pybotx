@@ -5,6 +5,7 @@ from uuid import UUID
 
 from pydantic import Field
 
+from botx.logger import logger
 from botx.models.async_files import APIAsyncFile, File, convert_async_file_to_domain
 from botx.models.attachments import (
     AttachmentContact,
@@ -175,7 +176,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
     sender: BotAPIIncomingMessageContext = Field(..., alias="from")
 
     source_sync_id: Optional[UUID]
-    attachments: List[BotAPIAttachment]
+    attachments: List[Union[BotAPIAttachment, Dict[str, Any]]]  # noqa: WPS234
     async_files: List[APIAsyncFile]
     entities: List[BotAPIEntity]
 
@@ -223,22 +224,28 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
         location: Optional[AttachmentLocation] = None
         contact: Optional[AttachmentContact] = None
         link: Optional[AttachmentLink] = None
+
         if self.async_files:
             # Always one async file per-message
             file = convert_async_file_to_domain(self.async_files[0])
         elif self.attachments:
             # Always one attachment per-message
-            attachment_domain = convert_api_attachment_to_domain(self.attachments[0])
-            if isinstance(attachment_domain, FileAttachmentBase):
-                file = attachment_domain
-            elif attachment_domain.type == AttachmentTypes.LOCATION:
-                location = attachment_domain
-            elif attachment_domain.type == AttachmentTypes.CONTACT:
-                contact = attachment_domain
-            elif attachment_domain.type == AttachmentTypes.LINK:
-                link = attachment_domain
+            if isinstance(self.attachments[0], dict):
+                logger.warning("Received unknown attachment type")
             else:
-                raise NotImplementedError
+                attachment_domain = convert_api_attachment_to_domain(
+                    self.attachments[0],
+                )
+                if isinstance(attachment_domain, FileAttachmentBase):
+                    file = attachment_domain
+                elif attachment_domain.type == AttachmentTypes.LOCATION:
+                    location = attachment_domain
+                elif attachment_domain.type == AttachmentTypes.CONTACT:
+                    contact = attachment_domain
+                elif attachment_domain.type == AttachmentTypes.LINK:
+                    link = attachment_domain
+                else:
+                    raise NotImplementedError
 
         mentions: MentionList = MentionList()
         forward: Optional[Forward] = None
