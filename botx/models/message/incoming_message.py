@@ -178,7 +178,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
     source_sync_id: Optional[UUID]
     attachments: List[Union[BotAPIAttachment, Dict[str, Any]]]  # noqa: WPS234
     async_files: List[APIAsyncFile]
-    entities: List[BotAPIEntity]
+    entities: List[Union[BotAPIEntity, Dict[str, Any]]]  # noqa: WPS234
 
     def to_domain(self, raw_command: Dict[str, Any]) -> IncomingMessage:  # noqa: WPS231
         if self.sender.device_meta:
@@ -251,17 +251,20 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
         forward: Optional[Forward] = None
         reply: Optional[Reply] = None
         for entity in self.entities:
-            entity_domain = convert_bot_api_entity_to_domain(entity)
-            if isinstance(entity_domain, Mention):
-                mentions.append(entity_domain)
-            elif isinstance(entity_domain, Forward):
-                # Max one forward per message
-                forward = entity_domain
-            elif isinstance(entity_domain, Reply):
-                # Max one reply per message
-                reply = entity_domain
+            if isinstance(entity, dict):
+                logger.warning("Received unknown entity type")
             else:
-                raise NotImplementedError
+                entity_domain = convert_bot_api_entity_to_domain(entity)
+                if isinstance(entity_domain, Mention):
+                    mentions.append(entity_domain)
+                elif isinstance(entity_domain, Forward):
+                    # Max one forward per message
+                    forward = entity_domain
+                elif isinstance(entity_domain, Reply):
+                    # Max one reply per message
+                    reply = entity_domain
+                else:
+                    raise NotImplementedError
 
         bot = BotAccount(
             id=self.bot_id,
