@@ -1,4 +1,7 @@
-from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
+from botx.bot.api.exceptions import (
+    UnknownSystemEventError,
+    UnsupportedBotAPIVersionError,
+)
 from botx.bot.api.responses.bot_disabled import (
     BotAPIBotDisabledResponse,
     build_bot_disabled_response,
@@ -158,6 +161,7 @@ __all__ = (
     "StickerPackOrStickerNotFoundError",
     "UnknownBotAccountError",
     "UnsupportedBotAPIVersionError",
+    "UnknownSystemEventError",
     "UserDevice",
     "UserFromSearch",
     "UserKinds",

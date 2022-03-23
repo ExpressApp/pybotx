@@ -7,6 +7,7 @@ from pydantic import Field
 from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.base_command import (
     BotAPIBaseCommand,
+    BotAPIBaseSystemEventPayload,
     BotAPIChatContext,
     BotCommandBase,
 )
@@ -15,7 +16,7 @@ from botx.models.chats import Chat
 from botx.models.enums import (
     APIChatTypes,
     APIUserKinds,
-    BotAPICommandTypes,
+    BotAPISystemEventTypes,
     UserKinds,
     convert_chat_type_to_domain,
     convert_user_kind_to_domain,
@@ -75,9 +76,8 @@ class BotAPIChatCreatedData(VerifiedPayloadBaseModel):
     name: str
 
 
-class BotAPIChatCreatedPayload(VerifiedPayloadBaseModel):
-    body: Literal["system:chat_created"] = "system:chat_created"
-    command_type: Literal[BotAPICommandTypes.SYSTEM]
+class BotAPIChatCreatedPayload(BotAPIBaseSystemEventPayload):
+    body: Literal[BotAPISystemEventTypes.CHAT_CREATED]
     data: BotAPIChatCreatedData
 
 

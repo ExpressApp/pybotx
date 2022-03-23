@@ -7,12 +7,13 @@ from pydantic import Field
 from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.base_command import (
     BotAPIBaseCommand,
+    BotAPIBaseSystemEventPayload,
     BotAPIChatContext,
     BotCommandBase,
 )
 from botx.models.bot_account import BotAccount
 from botx.models.chats import Chat
-from botx.models.enums import BotAPICommandTypes, convert_chat_type_to_domain
+from botx.models.enums import BotAPISystemEventTypes, convert_chat_type_to_domain
 
 
 @dataclass
@@ -31,9 +32,8 @@ class BotAPIAddedToChatData(VerifiedPayloadBaseModel):
     added_members: List[UUID]
 
 
-class BotAPIAddedToChatPayload(VerifiedPayloadBaseModel):
-    body: Literal["system:added_to_chat"] = "system:added_to_chat"
-    command_type: Literal[BotAPICommandTypes.SYSTEM]
+class BotAPIAddedToChatPayload(BotAPIBaseSystemEventPayload):
+    body: Literal[BotAPISystemEventTypes.ADDED_TO_CHAT]
     data: BotAPIAddedToChatData
 
 

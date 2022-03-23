@@ -12,7 +12,11 @@ from botx.models.base_command import (
 )
 from botx.models.bot_account import BotAccount
 from botx.models.chats import Chat
-from botx.models.enums import BotAPICommandTypes, convert_chat_type_to_domain
+from botx.models.enums import (
+    BotAPICommandTypes,
+    BotAPISystemEventTypes,
+    convert_chat_type_to_domain,
+)
 
 
 @dataclass
@@ -33,7 +37,7 @@ class BotAPIDeletedFromChatData(VerifiedPayloadBaseModel):
 
 
 class BotAPIDeletedFromChatPayload(VerifiedPayloadBaseModel):
-    body: Literal["system:deleted_from_chat"] = "system:deleted_from_chat"
+    body: Literal[BotAPISystemEventTypes.DELETED_FROM_CHAT]
     command_type: Literal[BotAPICommandTypes.SYSTEM]
     data: BotAPIDeletedFromChatData
 

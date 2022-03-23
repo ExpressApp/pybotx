@@ -4,11 +4,19 @@ from uuid import UUID
 
 from pydantic import validator
 
-from botx.bot.api.exceptions import UnsupportedBotAPIVersionError
+from botx.bot.api.exceptions import (
+    UnknownSystemEventError,
+    UnsupportedBotAPIVersionError,
+)
 from botx.constants import BOT_API_VERSION
 from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.bot_account import BotAccount
-from botx.models.enums import APIChatTypes, BotAPIClientPlatforms, BotAPICommandTypes
+from botx.models.enums import (
+    APIChatTypes,
+    BotAPIClientPlatforms,
+    BotAPICommandTypes,
+    BotAPISystemEventTypes,
+)
 
 
 class BotAPICommandPayload(VerifiedPayloadBaseModel):
@@ -65,6 +73,18 @@ class BotAPIBaseCommand(VerifiedPayloadBaseModel):
             return version
 
         raise UnsupportedBotAPIVersionError(version)
+
+
+class BotAPIBaseSystemEventPayload(VerifiedPayloadBaseModel):
+    command_type: Literal[BotAPICommandTypes.SYSTEM]
+
+    @validator("body", pre=True, check_fields=False)
+    @classmethod
+    def find_unknown_system_event(cls, body: str) -> str:
+        if body not in BotAPISystemEventTypes.__members__.values():  # noqa: WPS609
+            raise UnknownSystemEventError(body)
+
+        return body
 
 
 @dataclass

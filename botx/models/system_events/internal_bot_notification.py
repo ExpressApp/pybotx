@@ -6,6 +6,7 @@ from pydantic import Field
 from botx.models.api_base import VerifiedPayloadBaseModel
 from botx.models.base_command import (
     BotAPIBaseCommand,
+    BotAPIBaseSystemEventPayload,
     BotAPIChatContext,
     BotAPIUserContext,
     BotCommandBase,
@@ -13,7 +14,7 @@ from botx.models.base_command import (
 from botx.models.bot_account import BotAccount
 from botx.models.bot_sender import BotSender
 from botx.models.chats import Chat
-from botx.models.enums import BotAPICommandTypes, convert_chat_type_to_domain
+from botx.models.enums import BotAPISystemEventTypes, convert_chat_type_to_domain
 
 
 @dataclass
@@ -36,11 +37,8 @@ class BotAPIInternalBotNotificationData(VerifiedPayloadBaseModel):
     opts: Dict[str, Any]
 
 
-class BotAPIInternalBotNotificationPayload(VerifiedPayloadBaseModel):
-    body: Literal[
-        "system:internal_bot_notification"
-    ] = "system:internal_bot_notification"
-    command_type: Literal[BotAPICommandTypes.SYSTEM]
+class BotAPIInternalBotNotificationPayload(BotAPIBaseSystemEventPayload):
+    body: Literal[BotAPISystemEventTypes.INTERNAL_BOT_NOTIFICATION]
     data: BotAPIInternalBotNotificationData
 
 
