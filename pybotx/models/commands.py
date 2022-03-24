@@ -28,26 +28,28 @@ from pybotx.models.system_events.smartapp_event import (
     SmartAppEvent,
 )
 
+# Sorted by frequency of occurrence to speedup validation
 BotAPISystemEvent = Union[
+    BotAPISmartAppEvent,
+    BotAPIInternalBotNotification,
     BotAPIChatCreated,
     BotAPIAddedToChat,
     BotAPIDeletedFromChat,
     BotAPILeftFromChat,
     BotAPICTSLogin,
     BotAPICTSLogout,
-    BotAPIInternalBotNotification,
-    BotAPISmartAppEvent,
 ]
 BotAPICommand = Union[BotAPIIncomingMessage, BotAPISystemEvent]
 
+# Just sorted as above, no real profits
 SystemEvent = Union[
+    SmartAppEvent,
+    InternalBotNotificationEvent,
     ChatCreatedEvent,
     AddedToChatEvent,
     DeletedFromChatEvent,
     LeftFromChatEvent,
     CTSLoginEvent,
     CTSLogoutEvent,
-    InternalBotNotificationEvent,
-    SmartAppEvent,
 ]
 BotCommand = Union[IncomingMessage, SystemEvent]
