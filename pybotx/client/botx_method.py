@@ -153,7 +153,8 @@ class BotXMethod:
         self,
         sync_id: UUID,
         wait_callback: bool,
-        callback_timeout: Optional[int],
+        callback_timeout: Optional[float],
+        default_callback_timeout: float,
     ) -> Optional[BotXMethodCallback]:
         assert (
             self._callbacks_manager is not None
@@ -163,6 +164,9 @@ class BotXMethod:
 
         if not wait_callback:
             return None
+
+        if callback_timeout is None:
+            callback_timeout = default_callback_timeout
 
         callback = await self._callbacks_manager.wait_botx_method_callback(
             sync_id,

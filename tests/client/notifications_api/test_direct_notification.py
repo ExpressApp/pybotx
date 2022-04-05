@@ -34,7 +34,7 @@ pytestmark = [
 ]
 
 
-async def test__send_message__succeed(
+async def test__send__succeed(
     respx_mock: MockRouter,
     host: str,
     bot_account: BotAccountWithSecret,
