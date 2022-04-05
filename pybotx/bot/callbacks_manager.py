@@ -1,5 +1,5 @@
 import asyncio
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Dict
 from uuid import UUID
 
 from pybotx.bot.exceptions import BotShuttingDownError, BotXMethodCallbackNotFoundError
@@ -36,7 +36,7 @@ class CallbacksManager:
     async def wait_botx_method_callback(
         self,
         sync_id: UUID,
-        timeout: Optional[int],
+        timeout: float,
     ) -> BotXMethodCallback:
         future = self._callback_futures[sync_id]
 

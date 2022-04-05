@@ -26,7 +26,6 @@ from pybotx.client.botx_method import (
     callback_exception_thrower,
 )
 from pybotx.client.exceptions.base import BaseClientError
-from pybotx.missing import MissingOptional, Undefined, not_undefined
 from pybotx.models.method_callbacks import BotAPIMethodSuccessfulCallback
 from tests.client.test_botx_method import (
     BotXAPIFooBarRequestPayload,
@@ -50,7 +49,8 @@ class FooBarCallbackMethod(BotXMethod):
         self,
         payload: BotXAPIFooBarRequestPayload,
         wait_callback: bool,
-        callback_timeout: MissingOptional[int] = Undefined,
+        callback_timeout: Optional[float],
+        default_callback_timeout: float,
     ) -> BotXAPIFooBarResponsePayload:
         path = "/foo/bar"
 
@@ -68,6 +68,7 @@ class FooBarCallbackMethod(BotXMethod):
             api_model.result.sync_id,
             wait_callback,
             callback_timeout,
+            default_callback_timeout,
         )
 
         return api_model
@@ -78,7 +79,7 @@ async def call_foo_bar(
     bot_id: UUID,
     baz: int,
     wait_callback: bool = True,
-    callback_timeout: Optional[int] = None,
+    callback_timeout: Optional[float] = None,
 ) -> UUID:
     method = FooBarCallbackMethod(
         bot_id,
@@ -91,9 +92,9 @@ async def call_foo_bar(
     botx_api_foo_bar = await method.execute(
         payload,
         wait_callback,
-        not_undefined(callback_timeout, self.default_callback_timeout),
+        callback_timeout,
+        self._default_callback_timeout,
     )
-
     return botx_api_foo_bar.to_domain()
 
 
@@ -476,6 +477,7 @@ async def test__botx_method_callback__bot_wait_callback(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         foo_bar = await bot.call_foo_bar(bot_id, baz=1, wait_callback=False)
+        # TODO: Callback received before `wait_botx_method_callback`
         task = asyncio.create_task(bot.wait_botx_method_callback(foo_bar, None))
 
         # Return control to event loop
@@ -497,4 +499,57 @@ async def test__botx_method_callback__bot_wait_callback(
         status="ok",
         result={},
     )
+    assert endpoint.called
+
+
+async def test__botx_method_callback__bot_wait_callback_with_specified_timeout(
+    respx_mock: MockRouter,
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.post(
+        f"https://{host}/foo/bar",
+        json={"baz": 1},
+        headers={"Content-Type": "application/json"},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        ),
+    )
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
+
+    built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        foo_bar = await bot.call_foo_bar(bot_id, baz=1, wait_callback=False)
+        task = asyncio.create_task(bot.wait_botx_method_callback(foo_bar, timeout=0))
+
+        # Return control to event loop
+        await asyncio.sleep(0)
+
+        bot.set_raw_botx_method_result(
+            {
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "status": "ok",
+                "result": {},
+            },
+        )
+
+        with pytest.raises(CallbackNotReceivedError) as exc:
+            await task
+
+    # - Assert -
+    assert "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3" in str(exc.value)
     assert endpoint.called

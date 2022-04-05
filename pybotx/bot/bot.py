@@ -137,14 +137,14 @@ from pybotx.client.users_api.search_user_by_login import (
     BotXAPISearchUserByLoginRequestPayload,
     SearchUserByLoginMethod,
 )
-from pybotx.constants import STICKER_PACKS_PER_PAGE
+from pybotx.constants import BOTX_DEFAULT_TIMEOUT, STICKER_PACKS_PER_PAGE
 from pybotx.converters import optional_sequence_to_list
 from pybotx.image_validators import (
     ensure_file_content_is_png,
     ensure_sticker_image_size_valid,
 )
 from pybotx.logger import logger, pformat_jsonable_obj, trim_file_data_in_incoming_json
-from pybotx.missing import Missing, MissingOptional, Undefined, not_undefined
+from pybotx.missing import Missing, MissingOptional, Undefined
 from pybotx.models.async_files import File
 from pybotx.models.attachments import IncomingFileAttachment, OutgoingAttachment
 from pybotx.models.bot_account import BotAccount, BotAccountWithSecret
@@ -180,7 +180,7 @@ class Bot:
         middlewares: Optional[Sequence[Middleware]] = None,
         httpx_client: Optional[httpx.AsyncClient] = None,
         exception_handlers: Optional[ExceptionHandlersDict] = None,
-        default_callback_timeout: Optional[int] = None,
+        default_callback_timeout: float = BOTX_DEFAULT_TIMEOUT,
     ) -> None:
         if not collectors:
             logger.warning("Bot has no connected collectors")
@@ -188,8 +188,6 @@ class Bot:
             logger.warning("Bot has no bot accounts")
 
         self.state: SimpleNamespace = SimpleNamespace()
-
-        self.default_callback_timeout = default_callback_timeout
 
         middlewares = optional_sequence_to_list(middlewares)
 
@@ -199,6 +197,7 @@ class Bot:
             exception_handlers,
         )
 
+        self._default_callback_timeout = default_callback_timeout
         self._bot_accounts_storage = BotAccountsStorage(list(bot_accounts))
         self._httpx_client = httpx_client or httpx.AsyncClient()
 
@@ -269,8 +268,11 @@ class Bot:
     async def wait_botx_method_callback(
         self,
         sync_id: UUID,
-        timeout: Optional[int],
+        timeout: Optional[float] = None,
     ) -> BotXMethodCallback:
+        if timeout is None:
+            timeout = self._default_callback_timeout
+
         return await self._callback_manager.wait_botx_method_callback(sync_id, timeout)
 
     @property
@@ -326,7 +328,7 @@ class Bot:
         send_push: Missing[bool] = Undefined,
         ignore_mute: Missing[bool] = Undefined,
         wait_callback: bool = True,
-        callback_timeout: MissingOptional[int] = Undefined,
+        callback_timeout: Optional[float] = None,
     ) -> UUID:
         """Answer to incoming message.
 
@@ -387,7 +389,7 @@ class Bot:
         *,
         message: OutgoingMessage,
         wait_callback: bool = True,
-        callback_timeout: MissingOptional[int] = Undefined,
+        callback_timeout: Optional[float] = None,
     ) -> UUID:
         """Send internal notification.
 
@@ -433,7 +435,7 @@ class Bot:
         send_push: Missing[bool] = Undefined,
         ignore_mute: Missing[bool] = Undefined,
         wait_callback: bool = True,
-        callback_timeout: MissingOptional[int] = Undefined,
+        callback_timeout: Optional[float] = None,
     ) -> UUID:
         """Send message to chat.
 
@@ -485,7 +487,8 @@ class Bot:
         botx_api_sync_id = await method.execute(
             payload,
             wait_callback,
-            not_undefined(callback_timeout, self.default_callback_timeout),
+            callback_timeout,
+            self._default_callback_timeout,
         )
 
         return botx_api_sync_id.to_domain()
@@ -499,7 +502,7 @@ class Bot:
         opts: Missing[Dict[str, Any]] = Undefined,
         recipients: Missing[List[UUID]] = Undefined,
         wait_callback: bool = True,
-        callback_timeout: MissingOptional[int] = Undefined,
+        callback_timeout: Optional[float] = None,
     ) -> UUID:
         """Send internal notification.
 
@@ -530,7 +533,8 @@ class Bot:
         botx_api_sync_id = await method.execute(
             payload,
             wait_callback,
-            not_undefined(callback_timeout, self.default_callback_timeout),
+            callback_timeout,
+            self._default_callback_timeout,
         )
 
         return botx_api_sync_id.to_domain()

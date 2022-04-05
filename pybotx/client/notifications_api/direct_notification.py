@@ -144,7 +144,8 @@ class DirectNotificationMethod(AuthorizedBotXMethod):
         self,
         payload: BotXAPIDirectNotificationRequestPayload,
         wait_callback: bool,
-        callback_timeout: Optional[int],
+        callback_timeout: Optional[float],
+        default_callback_timeout: float,
     ) -> BotXAPIDirectNotificationResponsePayload:
         path = "/api/v4/botx/notifications/direct"
 
@@ -163,5 +164,6 @@ class DirectNotificationMethod(AuthorizedBotXMethod):
             api_model.result.sync_id,
             wait_callback,
             callback_timeout,
+            default_callback_timeout,
         )
         return api_model
