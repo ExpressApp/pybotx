@@ -187,10 +187,7 @@ class Bot:
         if not bot_accounts:
             logger.warning("Bot has no bot accounts")
 
-        self.state: SimpleNamespace = SimpleNamespace()
-
         middlewares = optional_sequence_to_list(middlewares)
-
         self._handler_collector = self._build_main_collector(
             collectors,
             middlewares,
@@ -200,8 +197,9 @@ class Bot:
         self._default_callback_timeout = default_callback_timeout
         self._bot_accounts_storage = BotAccountsStorage(list(bot_accounts))
         self._httpx_client = httpx_client or httpx.AsyncClient()
-
         self._callback_manager = CallbacksManager()
+
+        self.state: SimpleNamespace = SimpleNamespace()
 
     def async_execute_raw_bot_command(self, raw_bot_command: Dict[str, Any]) -> None:
         logger.opt(lazy=True).debug(
