@@ -33,7 +33,6 @@ from pybotx.models.enums import (
     ClientPlatforms,
     convert_chat_type_to_domain,
     convert_client_platform_to_domain,
-    convert_mention_type_to_domain,
 )
 from pybotx.models.message.forward import BotAPIForward, Forward
 from pybotx.models.message.mentions import (
@@ -41,6 +40,7 @@ from pybotx.models.message.mentions import (
     BotAPIMentionData,
     BotAPINestedMentionData,
     Mention,
+    MentionBuilder,
     MentionList,
 )
 from pybotx.models.message.reply import BotAPIReply, Reply
@@ -117,18 +117,37 @@ Entity = Union[Mention, Forward, Reply]
 
 
 def _convert_bot_api_mention_to_domain(api_mention_data: BotAPIMentionData) -> Mention:
-    entity_id: Optional[UUID] = None
-    name: Optional[str] = None
+    mention_data = cast(BotAPINestedMentionData, api_mention_data.mention_data)
 
-    if api_mention_data.mention_type != BotAPIMentionTypes.ALL:
-        mention_data = cast(BotAPINestedMentionData, api_mention_data.mention_data)
-        entity_id = mention_data.entity_id
-        name = mention_data.name
+    if api_mention_data.mention_type == BotAPIMentionTypes.USER:
+        return MentionBuilder.user(
+            entity_id=mention_data.entity_id,
+            name=mention_data.name,
+        )
 
-    return Mention(
-        type=convert_mention_type_to_domain(api_mention_data.mention_type),
-        entity_id=entity_id,
-        name=name,
+    if api_mention_data.mention_type == BotAPIMentionTypes.CHAT:
+        return MentionBuilder.chat(
+            entity_id=mention_data.entity_id,
+            name=mention_data.name,
+        )
+
+    if api_mention_data.mention_type == BotAPIMentionTypes.CONTACT:
+        return MentionBuilder.contact(
+            entity_id=mention_data.entity_id,
+            name=mention_data.name,
+        )
+
+    if api_mention_data.mention_type == BotAPIMentionTypes.CHANNEL:
+        return MentionBuilder.channel(
+            entity_id=mention_data.entity_id,
+            name=mention_data.name,
+        )
+
+    if api_mention_data.mention_type == BotAPIMentionTypes.ALL:
+        return MentionBuilder.all()
+
+    raise NotImplementedError(
+        f"Unsupported mention type: {api_mention_data.mention_type}",
     )
 
 
@@ -255,7 +274,10 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
                 logger.warning("Received unknown entity type")
             else:
                 entity_domain = convert_bot_api_entity_to_domain(entity)
-                if isinstance(entity_domain, Mention):
+                if isinstance(
+                    entity_domain,
+                    Mention.__args__,  # type: ignore [attr-defined]  # noqa: WPS609
+                ):
                     mentions.append(entity_domain)
                 elif isinstance(entity_domain, Forward):
                     # Max one forward per message

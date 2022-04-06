@@ -19,7 +19,7 @@ from pybotx import (
     HandlerCollector,
     IncomingMessage,
     KeyboardMarkup,
-    Mention,
+    MentionBuilder,
     OutgoingAttachment,
     OutgoingMessage,
     StealthModeDisabledError,
@@ -622,7 +622,7 @@ async def test__send_message__maximum_filled_succeed(
         lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
     )
 
-    body = f"Hi, {Mention.user(UUID('8f3abcc8-ba00-4c89-88e0-b786beb8ec24'))}!"
+    body = f"Hi, {MentionBuilder.user(UUID('8f3abcc8-ba00-4c89-88e0-b786beb8ec24'))}!"
     formatted_body = "Hi, @{mention:f3e176d5-ff46-4b18-b260-25008338c06e}!"
 
     endpoint = respx_mock.post(
@@ -781,14 +781,14 @@ async def test__send_message__all_mentions_types_succeed(
     )
 
     mentioned_user_huid = UUID("8f3abcc8-ba00-4c89-88e0-b786beb8ec24")
-    user_mention = Mention.user(mentioned_user_huid)
+    user_mention = MentionBuilder.user(mentioned_user_huid)
     mentioned_contact_huid = UUID("1e0529fd-f091-4be9-93cc-6704a8957432")
-    contact_mention = Mention.contact(mentioned_contact_huid)
+    contact_mention = MentionBuilder.contact(mentioned_contact_huid)
     mentioned_chat_huid = UUID("454d73ad-1d32-4939-a708-e14b77414e86")
-    chat_mention = Mention.chat(mentioned_chat_huid, "Our chat")
+    chat_mention = MentionBuilder.chat(mentioned_chat_huid, "Our chat")
     mentioned_channel_huid = UUID("78198bec-3285-48d0-9fe2-c0eb3afaffd7")
-    channel_mention = Mention.channel(mentioned_channel_huid)
-    all_mention = Mention.all()
+    channel_mention = MentionBuilder.channel(mentioned_channel_huid)
+    all_mention = MentionBuilder.all()
 
     body = (
         f"Hi, {user_mention}, want you to know, "

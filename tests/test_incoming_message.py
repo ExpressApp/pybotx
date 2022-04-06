@@ -16,9 +16,8 @@ from pybotx import (
     HandlerCollector,
     Image,
     IncomingMessage,
-    Mention,
+    MentionBuilder,
     MentionList,
-    MentionTypes,
     Reply,
     UserDevice,
     UserSender,
@@ -299,8 +298,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
         ),
         mentions=MentionList(
             [
-                Mention(
-                    type=MentionTypes.CONTACT,
+                MentionBuilder.contact(
                     entity_id=UUID("ab103983-6001-44e9-889e-d55feb295494"),
                     name="Вася Иванов",
                 ),
@@ -317,8 +315,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
             body="все равно документацию никто не читает...",
             mentions=MentionList(
                 [
-                    Mention(
-                        type=MentionTypes.CONTACT,
+                    MentionBuilder.contact(
                         entity_id=UUID("ab103983-6001-44e9-889e-d55feb295494"),
                         name="Вася Иванов",
                     ),
@@ -446,31 +443,23 @@ async def test__async_execute_raw_bot_command__all_mention_types(
     assert incoming_message
     assert incoming_message.mentions == MentionList(
         [
-            Mention(
-                type=MentionTypes.CONTACT,
+            MentionBuilder.contact(
                 entity_id=UUID("ab103983-6001-44e9-889e-d55feb295494"),
                 name="Вася Иванов",
             ),
-            Mention(
-                type=MentionTypes.USER,
+            MentionBuilder.user(
                 entity_id=UUID("ab103983-6001-44e9-889e-d55feb295494"),
                 name="Вася Иванов",
             ),
-            Mention(
-                type=MentionTypes.CHANNEL,
+            MentionBuilder.channel(
                 entity_id=UUID("ab103983-6001-44e9-889e-d55feb295494"),
                 name="Вася Иванов",
             ),
-            Mention(
-                type=MentionTypes.CHAT,
+            MentionBuilder.chat(
                 entity_id=UUID("ab103983-6001-44e9-889e-d55feb295494"),
                 name="Вася Иванов",
             ),
-            Mention(
-                type=MentionTypes.ALL,
-                entity_id=None,
-                name=None,
-            ),
+            MentionBuilder.all(),
         ],
     )
 
