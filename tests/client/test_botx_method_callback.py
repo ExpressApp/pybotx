@@ -445,7 +445,7 @@ async def test__botx_method_callback__callback_successful_received(
     assert endpoint.called
 
 
-async def test__botx_method_callback__bot_wait_callback(
+async def test__botx_method_callback__bot_wait_callback_before_its_receiving(
     respx_mock: MockRouter,
     httpx_client: httpx.AsyncClient,
     host: str,
@@ -477,7 +477,6 @@ async def test__botx_method_callback__bot_wait_callback(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         foo_bar = await bot.call_foo_bar(bot_id, baz=1, wait_callback=False)
-        # TODO: Callback received before `wait_botx_method_callback`
         task = asyncio.create_task(bot.wait_botx_method_callback(foo_bar, None))
 
         # Return control to event loop
@@ -492,6 +491,58 @@ async def test__botx_method_callback__bot_wait_callback(
         )
 
         callback = await task
+
+    # - Assert -
+    assert callback == BotAPIMethodSuccessfulCallback(
+        sync_id=foo_bar,
+        status="ok",
+        result={},
+    )
+    assert endpoint.called
+
+
+async def test__botx_method_callback__bot_wait_callback_after_its_receiving(
+    respx_mock: MockRouter,
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.post(
+        f"https://{host}/foo/bar",
+        json={"baz": 1},
+        headers={"Content-Type": "application/json"},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        ),
+    )
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
+
+    built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        foo_bar = await bot.call_foo_bar(bot_id, baz=1, wait_callback=False)
+
+        bot.set_raw_botx_method_result(
+            {
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "status": "ok",
+                "result": {},
+            },
+        )
+
+        callback = await bot.wait_botx_method_callback(foo_bar, None)
 
     # - Assert -
     assert callback == BotAPIMethodSuccessfulCallback(

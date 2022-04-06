@@ -23,7 +23,11 @@ class CallbacksManager:
         callback: BotXMethodCallback,
     ) -> None:
         sync_id = callback.sync_id
-        future = self._pop_future(sync_id)
+
+        try:
+            future = self._callback_futures[sync_id]
+        except KeyError:
+            raise BotXMethodCallbackNotFoundError(sync_id) from None
 
         if future.cancelled():
             logger.warning(
@@ -53,11 +57,3 @@ class CallbacksManager:
                         f"Callback with sync_id `{sync_id!s}` can't be received",
                     ),
                 )
-
-    def _pop_future(self, sync_id: UUID) -> "Future[BotXMethodCallback]":
-        try:
-            future = self._callback_futures.pop(sync_id)
-        except KeyError:
-            raise BotXMethodCallbackNotFoundError(sync_id) from None
-
-        return future
