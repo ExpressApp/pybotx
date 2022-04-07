@@ -162,11 +162,15 @@ class BotXMethod:
 
         self._callbacks_manager.create_botx_method_callback(sync_id)
 
-        if not wait_callback:
-            return None
-
         if callback_timeout is None:
             callback_timeout = default_callback_timeout
+
+        if not wait_callback:
+            self._callbacks_manager.setup_callback_timeout_alarm(
+                sync_id,
+                callback_timeout,
+            )
+            return None
 
         callback = await self._callbacks_manager.wait_botx_method_callback(
             sync_id,

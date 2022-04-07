@@ -266,10 +266,11 @@ class Bot:
     async def wait_botx_method_callback(
         self,
         sync_id: UUID,
-        timeout: Optional[float] = None,
     ) -> BotXMethodCallback:
-        if timeout is None:
-            timeout = self._default_callback_timeout
+        timeout = self._callback_manager.cancel_callback_timeout_alarm(
+            sync_id,
+            return_remaining_time=True,
+        )
 
         return await self._callback_manager.wait_botx_method_callback(sync_id, timeout)
 

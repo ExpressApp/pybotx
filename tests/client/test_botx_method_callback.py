@@ -477,7 +477,7 @@ async def test__botx_method_callback__bot_wait_callback_before_its_receiving(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         foo_bar = await bot.call_foo_bar(bot_id, baz=1, wait_callback=False)
-        task = asyncio.create_task(bot.wait_botx_method_callback(foo_bar, None))
+        task = asyncio.create_task(bot.wait_botx_method_callback(foo_bar))
 
         # Return control to event loop
         await asyncio.sleep(0)
@@ -542,7 +542,7 @@ async def test__botx_method_callback__bot_wait_callback_after_its_receiving(
             },
         )
 
-        callback = await bot.wait_botx_method_callback(foo_bar, None)
+        callback = await bot.wait_botx_method_callback(foo_bar)
 
     # - Assert -
     assert callback == BotAPIMethodSuccessfulCallback(
@@ -553,12 +553,13 @@ async def test__botx_method_callback__bot_wait_callback_after_its_receiving(
     assert endpoint.called
 
 
-async def test__botx_method_callback__bot_wait_callback_with_specified_timeout(
+async def test__botx_method_callback__bot_dont_wait_received_callback(
     respx_mock: MockRouter,
     httpx_client: httpx.AsyncClient,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
+    loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     # - Arrange -
     endpoint = respx_mock.post(
@@ -584,8 +585,7 @@ async def test__botx_method_callback__bot_wait_callback_with_specified_timeout(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        foo_bar = await bot.call_foo_bar(bot_id, baz=1, wait_callback=False)
-        task = asyncio.create_task(bot.wait_botx_method_callback(foo_bar, timeout=0))
+        await bot.call_foo_bar(bot_id, baz=1, callback_timeout=0, wait_callback=False)
 
         # Return control to event loop
         await asyncio.sleep(0)
@@ -598,9 +598,151 @@ async def test__botx_method_callback__bot_wait_callback_with_specified_timeout(
             },
         )
 
-        with pytest.raises(CallbackNotReceivedError) as exc:
-            await task
+    # - Assert -
+    assert "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3" in str(loguru_caplog.text)
+    assert "wasn't waited" in loguru_caplog.text
+    assert "was received" in loguru_caplog.text
+    assert endpoint.called
+
+
+async def test__botx_method_callback__bot_dont_wait_unreceived_callback(
+    respx_mock: MockRouter,
+    httpx_client: httpx.AsyncClient,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+    loguru_caplog: pytest.LogCaptureFixture,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.post(
+        f"https://{host}/foo/bar",
+        json={"baz": 1},
+        headers={"Content-Type": "application/json"},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        ),
+    )
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        httpx_client=httpx_client,
+    )
+
+    built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        await bot.call_foo_bar(bot_id, baz=1, callback_timeout=0, wait_callback=False)
+
+        # Sleep called twice, 'cause we should take time for alarm to call a callback
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
+
+    # - Assert -
+    assert "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3" in str(loguru_caplog.text)
+    assert "wasn't waited" in loguru_caplog.text
+    assert "wasn't received" in loguru_caplog.text
+    assert endpoint.called
+
+
+async def test__botx_method_callback__bot_wait_already_waited_callback(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.post(
+        f"https://{host}/foo/bar",
+        json={"baz": 1},
+        headers={"Content-Type": "application/json"},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        ),
+    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        task = asyncio.create_task(
+            bot.call_foo_bar(bot_id, baz=1),
+        )
+        await asyncio.sleep(0)  # Return control to event loop
+
+        bot.set_raw_botx_method_result(
+            {
+                "status": "ok",
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "result": {},
+            },
+        )
+
+        foo_bar = await task
+
+        with pytest.raises(ValueError) as exc:
+            await bot.wait_botx_method_callback(foo_bar)
+
+    # - Assert -
+    assert foo_bar == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert endpoint.called
+
+    assert "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3" in str(exc.value)
+    assert "doesn't exist or already waited" in str(exc.value)
+
+
+async def test__botx_method_callback__bot_wait_timeouted_callback(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.post(
+        f"https://{host}/foo/bar",
+        json={"baz": 1},
+        headers={"Content-Type": "application/json"},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        ),
+    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        foo_bar = await bot.call_foo_bar(
+            bot_id,
+            baz=1,
+            callback_timeout=0,
+            wait_callback=False,
+        )
+
+        # Sleep called twice, 'cause we should take time for alarm to call a callback
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
+
+        with pytest.raises(ValueError) as exc:
+            await bot.wait_botx_method_callback(foo_bar)
 
     # - Assert -
     assert "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3" in str(exc.value)
+    assert "timed out" in str(exc.value)
     assert endpoint.called
