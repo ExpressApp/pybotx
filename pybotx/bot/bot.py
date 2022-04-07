@@ -197,7 +197,7 @@ class Bot:
         self._default_callback_timeout = default_callback_timeout
         self._bot_accounts_storage = BotAccountsStorage(list(bot_accounts))
         self._httpx_client = httpx_client or httpx.AsyncClient()
-        self._callback_manager = CallbacksManager()
+        self._callbacks_manager = CallbacksManager()
 
         self.state: SimpleNamespace = SimpleNamespace()
 
@@ -261,18 +261,18 @@ class Bot:
             raw_botx_method_result,
         )
 
-        self._callback_manager.set_botx_method_callback_result(callback)
+        self._callbacks_manager.set_botx_method_callback_result(callback)
 
     async def wait_botx_method_callback(
         self,
         sync_id: UUID,
     ) -> BotXMethodCallback:
-        timeout = self._callback_manager.cancel_callback_timeout_alarm(
+        timeout = self._callbacks_manager.cancel_callback_timeout_alarm(
             sync_id,
             return_remaining_time=True,
         )
 
-        return await self._callback_manager.wait_botx_method_callback(sync_id, timeout)
+        return await self._callbacks_manager.wait_botx_method_callback(sync_id, timeout)
 
     @property
     def bot_accounts(self) -> Iterator[BotAccount]:
@@ -292,7 +292,7 @@ class Bot:
             self._bot_accounts_storage.set_token(bot_account.id, token)
 
     async def shutdown(self) -> None:
-        self._callback_manager.stop_callbacks_waiting()
+        self._callbacks_manager.stop_callbacks_waiting()
         await self._handler_collector.wait_active_tasks()
         await self._httpx_client.aclose()
 
@@ -466,7 +466,7 @@ class Bot:
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
-            self._callback_manager,
+            self._callbacks_manager,
         )
 
         payload = BotXAPIDirectNotificationRequestPayload.from_domain(
@@ -520,7 +520,7 @@ class Bot:
             bot_id,
             self._httpx_client,
             self._bot_accounts_storage,
-            self._callback_manager,
+            self._callbacks_manager,
         )
 
         payload = BotXAPIInternalBotNotificationRequestPayload.from_domain(

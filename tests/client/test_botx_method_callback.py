@@ -85,7 +85,7 @@ async def call_foo_bar(
         bot_id,
         self._httpx_client,
         self._bot_accounts_storage,
-        self._callback_manager,
+        self._callbacks_manager,
     )
 
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=baz)
