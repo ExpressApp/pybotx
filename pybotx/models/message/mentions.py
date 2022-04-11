@@ -15,53 +15,117 @@ from pybotx.models.enums import (
 )
 
 
+def build_embed_mention(
+    mention_type: MentionTypes,
+    entity_id: Optional[UUID] = None,
+    name: Optional[str] = None,
+) -> str:
+    name = name or ""
+    entity_id_str = "" if entity_id is None else str(entity_id)
+    return f"<embed_mention>{mention_type.value}:{entity_id_str}:{name}</embed_mention>"
+
+
 @dataclass
-class Mention:
-    type: MentionTypes
-    entity_id: Optional[UUID] = None
-    name: Optional[str] = None
+class BaseTargetMention:
+    entity_id: UUID
+    name: Optional[str]
+
+
+@dataclass
+class MentionUser(BaseTargetMention):
+    type: Literal[MentionTypes.USER]
 
     def __str__(self) -> str:
-        name = self.name or ""
-        entity_id = self.entity_id or ""
-        mention_type = self.type.value
-        return f"<embed_mention>{mention_type}:{entity_id}:{name}</embed_mention>"
+        return build_embed_mention(self.type, self.entity_id, self.name)
 
+
+@dataclass
+class MentionContact(BaseTargetMention):
+    type: Literal[MentionTypes.CONTACT]
+
+    def __str__(self) -> str:
+        return build_embed_mention(self.type, self.entity_id, self.name)
+
+
+@dataclass
+class MentionChat(BaseTargetMention):
+    type: Literal[MentionTypes.CHAT]
+
+    def __str__(self) -> str:
+        return build_embed_mention(self.type, self.entity_id, self.name)
+
+
+@dataclass
+class MentionChannel(BaseTargetMention):
+    type: Literal[MentionTypes.CHANNEL]
+
+    def __str__(self) -> str:
+        return build_embed_mention(self.type, self.entity_id, self.name)
+
+
+@dataclass
+class MentionAll:
+    type: Literal[MentionTypes.ALL]
+
+    def __str__(self) -> str:
+        return build_embed_mention(self.type)
+
+
+Mention = Union[
+    MentionUser,
+    MentionContact,
+    MentionChat,
+    MentionChannel,
+    MentionAll,
+]
+
+
+class MentionBuilder:
     @classmethod
-    def user(cls, huid: UUID, name: Optional[str] = None) -> "Mention":
-        return cls(
+    def user(cls, entity_id: UUID, name: Optional[str] = None) -> MentionUser:
+        return MentionUser(
             type=MentionTypes.USER,
-            entity_id=huid,
+            entity_id=entity_id,
             name=name,
         )
 
     @classmethod
-    def contact(cls, huid: UUID, name: Optional[str] = None) -> "Mention":
-        return cls(
+    def contact(
+        cls,
+        entity_id: UUID,
+        name: Optional[str] = None,
+    ) -> MentionContact:
+        return MentionContact(
             type=MentionTypes.CONTACT,
-            entity_id=huid,
+            entity_id=entity_id,
             name=name,
         )
 
     @classmethod
-    def chat(cls, chat_id: UUID, name: Optional[str] = None) -> "Mention":
-        return cls(
+    def chat(cls, entity_id: UUID, name: Optional[str] = None) -> MentionChat:
+        return MentionChat(
             type=MentionTypes.CHAT,
-            entity_id=chat_id,
+            entity_id=entity_id,
             name=name,
         )
 
     @classmethod
-    def channel(cls, chat_id: UUID, name: Optional[str] = None) -> "Mention":
-        return cls(
+    def channel(
+        cls,
+        entity_id: UUID,
+        name: Optional[str] = None,
+    ) -> MentionChannel:
+        return MentionChannel(
             type=MentionTypes.CHANNEL,
-            entity_id=chat_id,
+            entity_id=entity_id,
             name=name,
         )
 
     @classmethod
-    def all(cls) -> "Mention":
-        return cls(type=MentionTypes.ALL)
+    def all(cls) -> MentionAll:
+        return MentionAll(
+            type=MentionTypes.ALL,
+        )
 
 
 class MentionList(List[Mention]):

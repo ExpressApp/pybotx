@@ -134,22 +134,6 @@ def convert_client_platform_to_domain(
     return converted_type
 
 
-def convert_mention_type_to_domain(mention_type: BotAPIMentionTypes) -> MentionTypes:
-    mention_types_mapping = {
-        BotAPIMentionTypes.CONTACT: MentionTypes.CONTACT,
-        BotAPIMentionTypes.CHAT: MentionTypes.CHAT,
-        BotAPIMentionTypes.CHANNEL: MentionTypes.CHANNEL,
-        BotAPIMentionTypes.USER: MentionTypes.USER,
-        BotAPIMentionTypes.ALL: MentionTypes.ALL,
-    }
-
-    converted_type = mention_types_mapping.get(mention_type)
-    if converted_type is None:
-        raise NotImplementedError(f"Unsupported mention type: {mention_type}")
-
-    return converted_type
-
-
 def convert_mention_type_from_domain(
     mention_type: MentionTypes,
 ) -> BotAPIMentionTypes:

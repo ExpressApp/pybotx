@@ -1,59 +1,34 @@
-from typing import Callable, Optional
-from uuid import UUID, uuid4
+from uuid import uuid4
 
-import pytest
-
-from pybotx import Mention, MentionList, MentionTypes
+from pybotx import MentionBuilder, MentionList
 
 
-@pytest.fixture
-def mention_factory() -> Callable[..., Mention]:
-    def factory(
-        mention_type: MentionTypes,
-        huid: UUID,
-        name: Optional[str] = None,
-    ) -> Mention:
-        return Mention(
-            type=mention_type,
-            entity_id=huid,
-            name=name,
-        )
-
-    return factory
-
-
-def test__mentions_list_properties__filled(
-    mention_factory: Callable[..., Mention],
-) -> None:
+def test__mentions_list_properties__filled() -> None:
     # - Arrange -
     contacts = [
-        mention_factory(
-            mention_type=MentionTypes.CONTACT,
-            huid=uuid4(),
+        MentionBuilder.contact(
+            entity_id=uuid4(),
             name=str(name),
         )
         for name in range(2)
     ]
     chats = [
-        mention_factory(
-            mention_type=MentionTypes.CHAT,
-            huid=uuid4(),
+        MentionBuilder.chat(
+            entity_id=uuid4(),
             name=str(name),
         )
         for name in range(2)
     ]
     channels = [
-        mention_factory(
-            mention_type=MentionTypes.CHANNEL,
-            huid=uuid4(),
+        MentionBuilder.channel(
+            entity_id=uuid4(),
             name=str(name),
         )
         for name in range(2)
     ]
     users = [
-        mention_factory(
-            mention_type=MentionTypes.USER,
-            huid=uuid4(),
+        MentionBuilder.user(
+            entity_id=uuid4(),
             name=str(name),
         )
         for name in range(2)
@@ -68,15 +43,12 @@ def test__mentions_list_properties__filled(
     assert mentions.users == users
 
 
-def test__mentions_list_all_users_mentioned__filled(
-    mention_factory: Callable[..., Mention],
-) -> None:
+def test__mentions_list_all_users_mentioned__filled() -> None:
     # - Arrange -
-    user_mention = mention_factory(
-        mention_type=MentionTypes.CONTACT,
-        huid=uuid4(),
+    user_mention = MentionBuilder.contact(
+        entity_id=uuid4(),
     )
-    all_mention = Mention(type=MentionTypes.ALL)
+    all_mention = MentionBuilder.all()
 
     one_all_mention = MentionList([user_mention, all_mention])
     two_all_mentions = MentionList([all_mention, all_mention])

@@ -13,7 +13,7 @@ from pybotx import (
     EditMessage,
     HandlerCollector,
     KeyboardMarkup,
-    Mention,
+    MentionBuilder,
     OutgoingAttachment,
     lifespan_wrapper,
 )
@@ -146,7 +146,7 @@ async def test__edit_message__maximum_edit_succeed(
         await bot.edit_message(
             bot_id=bot_id,
             sync_id=UUID("8ba66c5b-40bf-5c77-911d-519cb4e382e9"),
-            body=f"{Mention.user(UUID('8f3abcc8-ba00-4c89-88e0-b786beb8ec24'))}!",
+            body=f"{MentionBuilder.user(UUID('8f3abcc8-ba00-4c89-88e0-b786beb8ec24'))}!",
             metadata={"message": "metadata"},
             bubbles=bubbles,
             keyboard=keyboard,
@@ -289,7 +289,7 @@ async def test__edit__succeed(
     message = EditMessage(
         bot_id=bot_id,
         sync_id=UUID("8ba66c5b-40bf-5c77-911d-519cb4e382e9"),
-        body=f"{Mention.user(UUID('8f3abcc8-ba00-4c89-88e0-b786beb8ec24'))}!",
+        body=f"{MentionBuilder.user(UUID('8f3abcc8-ba00-4c89-88e0-b786beb8ec24'))}!",
         metadata={"message": "metadata"},
         bubbles=bubbles,
         keyboard=keyboard,
