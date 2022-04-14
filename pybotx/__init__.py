@@ -71,7 +71,16 @@ from pybotx.models.message.incoming_message import (
     UserSender,
 )
 from pybotx.models.message.markup import BubbleMarkup, Button, KeyboardMarkup
-from pybotx.models.message.mentions import Mention, MentionBuilder, MentionList
+from pybotx.models.message.mentions import (
+    Mention,
+    MentionAll,
+    MentionBuilder,
+    MentionChannel,
+    MentionChat,
+    MentionContact,
+    MentionList,
+    MentionUser,
+)
 from pybotx.models.message.message_status import MessageStatus
 from pybotx.models.message.outgoing_message import OutgoingMessage
 from pybotx.models.message.reply import Reply
@@ -147,9 +156,14 @@ __all__ = (
     "KeyboardMarkup",
     "LeftFromChatEvent",
     "Mention",
+    "MentionAll",
     "MentionBuilder",
+    "MentionChannel",
+    "MentionChat",
+    "MentionContact",
     "MentionList",
     "MentionTypes",
+    "MentionUser",
     "Middleware",
     "OutgoingAttachment",
     "OutgoingMessage",
