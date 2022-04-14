@@ -1,3 +1,4 @@
+from asyncio import Task
 from types import SimpleNamespace
 from typing import Any, AsyncIterable, Dict, Iterator, List, Optional, Sequence, Union
 from uuid import UUID
@@ -221,11 +222,14 @@ class Bot:
         bot_command = bot_api_command.to_domain(raw_bot_command)
         self.async_execute_bot_command(bot_command)
 
-    def async_execute_bot_command(self, bot_command: BotCommand) -> None:
+    def async_execute_bot_command(
+        self,
+        bot_command: BotCommand,
+    ) -> "Task[None]":
         # raise UnknownBotAccountError if no bot account with this bot_id.
         self._bot_accounts_storage.ensure_bot_id_exists(bot_command.bot.id)
 
-        self._handler_collector.async_handle_bot_command(self, bot_command)
+        return self._handler_collector.async_handle_bot_command(self, bot_command)
 
     async def raw_get_status(self, query_params: Dict[str, str]) -> Dict[str, Any]:
         logger.opt(lazy=True).debug(

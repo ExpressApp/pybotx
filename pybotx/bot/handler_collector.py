@@ -72,11 +72,13 @@ class HandlerCollector:
         self,
         bot: "Bot",
         bot_command: BotCommand,
-    ) -> None:
+    ) -> "asyncio.Task[None]":
         task = asyncio.create_task(
             self.handle_bot_command(bot_command, bot),
         )
         self._tasks.add(task)
+
+        return task
 
     async def handle_incoming_message_by_command(
         self,
