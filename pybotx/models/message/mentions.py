@@ -27,7 +27,7 @@ def build_embed_mention(
 
 @dataclass
 class BaseTargetMention:
-    entity_id: Optional[UUID]
+    entity_id: UUID
     name: Optional[str]
 
 
@@ -82,7 +82,7 @@ Mention = Union[
 
 class MentionBuilder:
     @classmethod
-    def user(cls, entity_id: Optional[UUID], name: Optional[str] = None) -> MentionUser:
+    def user(cls, entity_id: UUID, name: Optional[str] = None) -> MentionUser:
         return MentionUser(
             type=MentionTypes.USER,
             entity_id=entity_id,
@@ -92,7 +92,7 @@ class MentionBuilder:
     @classmethod
     def contact(
         cls,
-        entity_id: Optional[UUID],
+        entity_id: UUID,
         name: Optional[str] = None,
     ) -> MentionContact:
         return MentionContact(
@@ -102,7 +102,7 @@ class MentionBuilder:
         )
 
     @classmethod
-    def chat(cls, entity_id: Optional[UUID], name: Optional[str] = None) -> MentionChat:
+    def chat(cls, entity_id: UUID, name: Optional[str] = None) -> MentionChat:
         return MentionChat(
             type=MentionTypes.CHAT,
             entity_id=entity_id,
@@ -112,7 +112,7 @@ class MentionBuilder:
     @classmethod
     def channel(
         cls,
-        entity_id: Optional[UUID],
+        entity_id: UUID,
         name: Optional[str] = None,
     ) -> MentionChannel:
         return MentionChannel(
