@@ -22,7 +22,7 @@ def callback_timeout_alarm(
         logger.warning(
             "Callback `{sync_id}` wasn't waited, but it was received:\n{result}",
             sync_id=sync_id,
-            result=future.result,
+            result=future.result(),
         )
     else:
         logger.error("Callback `{sync_id}` wasn't waited, also it wasn't received")
