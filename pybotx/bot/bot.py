@@ -1161,11 +1161,18 @@ class Bot:
         await method.execute(payload)
 
     # - Stickers API -
-    async def create_sticker_pack(self, *, bot_id: UUID, name: str) -> StickerPack:
+    async def create_sticker_pack(
+        self,
+        *,
+        bot_id: UUID,
+        name: str,
+        user_huid: Missing[UUID] = Undefined,
+    ) -> StickerPack:
         """Create empty sticker pack.
 
         :param bot_id: Bot which should perform the request.
         :param name: Sticker pack name.
+        :param user_huid: Sticker pack creator.
 
         :return: Created sticker pack.
         """
@@ -1175,7 +1182,10 @@ class Bot:
             self._httpx_client,
             self._bot_accounts_storage,
         )
-        payload = BotXAPICreateStickerPackRequestPayload.from_domain(name=name)
+        payload = BotXAPICreateStickerPackRequestPayload.from_domain(
+            name=name,
+            user_huid=user_huid,
+        )
 
         botx_api_sticker_pack = await method.execute(payload)
 
