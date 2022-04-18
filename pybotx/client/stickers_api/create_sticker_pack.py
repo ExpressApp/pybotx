@@ -9,7 +9,7 @@ from pybotx.models.stickers import StickerPack
 
 class BotXAPICreateStickerPackRequestPayload(UnverifiedPayloadBaseModel):
     name: str
-    huid: Missing[UUID]
+    user_huid: Missing[UUID]
 
     @classmethod
     def from_domain(
@@ -17,7 +17,7 @@ class BotXAPICreateStickerPackRequestPayload(UnverifiedPayloadBaseModel):
         name: str,
         huid: Missing[UUID],
     ) -> "BotXAPICreateStickerPackRequestPayload":
-        return cls(name=name, huid=huid)
+        return cls(name=name, user_huid=huid)
 
 
 class BotXAPICreateStickerPackResult(VerifiedPayloadBaseModel):
