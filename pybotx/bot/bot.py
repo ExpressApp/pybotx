@@ -1166,13 +1166,13 @@ class Bot:
         *,
         bot_id: UUID,
         name: str,
-        user_huid: Missing[UUID] = Undefined,
+        huid: Missing[UUID] = Undefined,
     ) -> StickerPack:
         """Create empty sticker pack.
 
         :param bot_id: Bot which should perform the request.
         :param name: Sticker pack name.
-        :param user_huid: Sticker pack creator.
+        :param huid: Sticker pack creator.
 
         :return: Created sticker pack.
         """
@@ -1184,7 +1184,7 @@ class Bot:
         )
         payload = BotXAPICreateStickerPackRequestPayload.from_domain(
             name=name,
-            user_huid=user_huid,
+            huid=huid,
         )
 
         botx_api_sticker_pack = await method.execute(payload)
