@@ -30,7 +30,10 @@ async def test__create_sticker_pack__succeed(
     endpoint = respx_mock.post(
         f"https://{host}/api/v3/botx/stickers/packs",
         headers={"Authorization": "Bearer token"},
-        json={"name": "Sticker Pack", "user_huid": "d881f83a-db30-4cff-b60e-f24ac53deecf"},
+        json={
+            "name": "Sticker Pack",
+            "user_huid": "d881f83a-db30-4cff-b60e-f24ac53deecf",
+        },
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.OK,
