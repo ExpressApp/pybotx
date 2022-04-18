@@ -30,7 +30,10 @@ async def test__create_sticker_pack__succeed(
     endpoint = respx_mock.post(
         f"https://{host}/api/v3/botx/stickers/packs",
         headers={"Authorization": "Bearer token"},
-        json={"name": "Sticker Pack"},
+        json={
+            "name": "Sticker Pack",
+            "user_huid": "d881f83a-db30-4cff-b60e-f24ac53deecf",
+        },
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.OK,
@@ -55,7 +58,11 @@ async def test__create_sticker_pack__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        sticker_pack = await bot.create_sticker_pack(bot_id=bot_id, name="Sticker Pack")
+        sticker_pack = await bot.create_sticker_pack(
+            bot_id=bot_id,
+            name="Sticker Pack",
+            huid=UUID("d881f83a-db30-4cff-b60e-f24ac53deecf"),
+        )
 
     # - Assert -
     assert sticker_pack == StickerPack(
