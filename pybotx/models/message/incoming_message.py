@@ -11,6 +11,7 @@ from pybotx.models.attachments import (
     AttachmentContact,
     AttachmentLink,
     AttachmentLocation,
+    AttachmentSticker,
     BotAPIAttachment,
     FileAttachmentBase,
     IncomingFileAttachment,
@@ -95,6 +96,7 @@ class IncomingMessage(BotCommandBase):
     location: Optional[AttachmentLocation] = None
     contact: Optional[AttachmentContact] = None
     link: Optional[AttachmentLink] = None
+    sticker: Optional[AttachmentSticker] = None
 
     state: SimpleNamespace = field(default_factory=SimpleNamespace)
 
@@ -243,6 +245,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
         location: Optional[AttachmentLocation] = None
         contact: Optional[AttachmentContact] = None
         link: Optional[AttachmentLink] = None
+        sticker: Optional[AttachmentSticker] = None
 
         if self.async_files:
             # Always one async file per-message
@@ -255,7 +258,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
                 attachment_domain = convert_api_attachment_to_domain(
                     self.attachments[0],
                 )
-                if isinstance(attachment_domain, FileAttachmentBase):
+                if isinstance(attachment_domain, FileAttachmentBase):  # noqa: WPS223
                     file = attachment_domain
                 elif attachment_domain.type == AttachmentTypes.LOCATION:
                     location = attachment_domain
@@ -263,6 +266,8 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
                     contact = attachment_domain
                 elif attachment_domain.type == AttachmentTypes.LINK:
                     link = attachment_domain
+                elif attachment_domain.type == AttachmentTypes.STICKER:
+                    sticker = attachment_domain
                 else:
                     raise NotImplementedError
 
@@ -307,6 +312,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             location=location,
             contact=contact,
             link=link,
+            sticker=sticker,
             mentions=mentions,
             forward=forward,
             reply=reply,

@@ -18,6 +18,7 @@ from pybotx.models.attachments import (
     AttachmentImage,
     AttachmentLink,
     AttachmentLocation,
+    AttachmentSticker,
     AttachmentVideo,
     AttachmentVoice,
     IncomingAttachment,
@@ -129,6 +130,23 @@ API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
             text="Some text in link",
         ),
         "link",
+    ),
+    (
+        {
+            "type": "sticker",
+            "data": {
+                "id": "0dfd7318-2ccc-5384-b0e4-6fa5478606a5",
+                "link": "/uploads/sticker_pack/c81e87be5c7949b3b4196769e1032d5f.png",
+                "pack": "4e4cfd0b-b981-54e9-84f4-3ddc12600334",
+            },
+        },
+        AttachmentSticker(
+            type=AttachmentTypes.STICKER,
+            id=UUID("0dfd7318-2ccc-5384-b0e4-6fa5478606a5"),
+            link="/uploads/sticker_pack/c81e87be5c7949b3b4196769e1032d5f.png",
+            pack=UUID("4e4cfd0b-b981-54e9-84f4-3ddc12600334"),
+        ),
+        "sticker",
     ),
 )
 
