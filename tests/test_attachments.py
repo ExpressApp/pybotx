@@ -20,7 +20,7 @@ from pybotx.models.attachments import (
     AttachmentLocation,
     AttachmentVideo,
     AttachmentVoice,
-    IncomingAttachment,
+    IncomingAttachment, AttachmentSticker,
 )
 
 pytestmark = [
@@ -130,9 +130,29 @@ API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
         ),
         "link",
     ),
+    (
+        {
+            "type": "sticker",
+            "data": {
+                "id": "0dfd7318-2ccc-5384-b0e4-6fa5478606a5",
+                "link": "/uploads/sticker_pack/c81e87be5c7949b3b4196769e1032d5f.png",
+                "pack": "4e4cfd0b-b981-54e9-84f4-3ddc12600334",
+                "version": 1650463967,
+            },
+        },
+        AttachmentSticker(
+            type=AttachmentTypes.STICKER,
+            id=UUID('0dfd7318-2ccc-5384-b0e4-6fa5478606a5'),
+            link="/uploads/sticker_pack/c81e87be5c7949b3b4196769e1032d5f.png",
+            pack=UUID('4e4cfd0b-b981-54e9-84f4-3ddc12600334'),
+            version=1650463967,
+        ),
+        "sticker",
+    ),
 )
 
 
+@pytest.mark.wip
 @pytest.mark.parametrize(
     "api_attachment,domain_attachment,attr_name",
     API_AND_DOMAIN_NON_FILE_ATTACHMENTS,
