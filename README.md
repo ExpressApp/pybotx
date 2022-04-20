@@ -1,6 +1,6 @@
 # pybotx
 
-*A python library for building bots and smartapps for eXpress messenger.*
+*Библиотека для создания чат-ботов и SmartApps для мессенджера eXpress*
 
 [![PyPI version](https://badge.fury.io/py/botx.svg)](https://badge.fury.io/py/pybotx)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pybotx)
@@ -8,30 +8,22 @@
 [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 
-## Features
+## Особенности
 
-* Designed to be easy to use
-* Simple integration with async web-frameworks
-* Support middlewares for command, command-collector and bot
-* 100% test coverage
-* 100% type annotated codebase
-
-
-## Documentation
-
-Documentation will be here: <https://expressapp.github.io/pybotx/>
-For now, pls contact eXpress team, we'll help you.
-
-**Note:** Available only in Russian language
+* Простая для использования
+* Поддерживает коллбэки BotX
+* Легко интегрируется с асинхронными веб-фреймворками
+* Полное покрытие тестами
+* Полное покрытие аннотациями типов
 
 
-## Installation
+## Установка
 
-Install pybotx using `pip`:
+Используя `pip`:
 
 ```bash
 pip install git+https://github.com/ExpressApp/pybotx.git
 ```
 
-**Note:** This project is under active development (`0.y.z`) and its API may be
-unstable.
+**Предупреждение:** Данный проект находится в активной разработке (`0.y.z`) и
+его API может быть изменён при повышении минорной версии.
