@@ -94,7 +94,6 @@ class AttachmentSticker:
     id: UUID
     link: str
     pack: UUID
-    version: int
 
 
 IncomingFileAttachment = Union[
@@ -189,7 +188,6 @@ class BotAPIAttachmentStickerData(VerifiedPayloadBaseModel):
     id: UUID
     link: str
     pack: UUID
-    version: int
 
 
 class BotAPIAttachmentSticker(VerifiedPayloadBaseModel):
@@ -330,7 +328,6 @@ def convert_api_attachment_to_domain(  # noqa: WPS212
             id=api_attachment.data.id,
             link=api_attachment.data.link,
             pack=api_attachment.data.pack,
-            version=api_attachment.data.version,
         )
 
     raise NotImplementedError(f"Unsupported attachment type: {attachment_type}")

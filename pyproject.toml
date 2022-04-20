@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pybotx"
-version = "0.35.3"
+version = "0.36.0"
 description = "A python library for interacting with eXpress BotX API"
 authors = [
     "Sidnev Nikolay <nsidnev@ccsteam.ru>",
