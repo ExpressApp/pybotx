@@ -27,6 +27,7 @@ class AttachmentTypes(AutoName):
     LOCATION = auto()
     CONTACT = auto()
     LINK = auto()
+    STICKER = auto()
 
 
 class ClientPlatforms(AutoName):
@@ -115,6 +116,7 @@ class APIAttachmentTypes(StrEnum):
     LOCATION = "location"
     CONTACT = "contact"
     LINK = "link"
+    STICKER = "sticker"
 
 
 def convert_client_platform_to_domain(
@@ -177,6 +179,7 @@ def convert_attachment_type_to_domain(
         APIAttachmentTypes.LOCATION: AttachmentTypes.LOCATION,
         APIAttachmentTypes.CONTACT: AttachmentTypes.CONTACT,
         APIAttachmentTypes.LINK: AttachmentTypes.LINK,
+        APIAttachmentTypes.STICKER: AttachmentTypes.STICKER,
     }
 
     converted_type = attachment_types_mapping.get(attachment_type)

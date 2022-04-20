@@ -14,7 +14,7 @@ from pybotx.models.attachments import (
     BotAPIAttachment,
     FileAttachmentBase,
     IncomingFileAttachment,
-    convert_api_attachment_to_domain,
+    convert_api_attachment_to_domain, AttachmentSticker,
 )
 from pybotx.models.base_command import (
     BotAPIBaseCommand,
@@ -95,6 +95,7 @@ class IncomingMessage(BotCommandBase):
     location: Optional[AttachmentLocation] = None
     contact: Optional[AttachmentContact] = None
     link: Optional[AttachmentLink] = None
+    sticker: Optional[AttachmentSticker] = None
 
     state: SimpleNamespace = field(default_factory=SimpleNamespace)
 
@@ -243,6 +244,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
         location: Optional[AttachmentLocation] = None
         contact: Optional[AttachmentContact] = None
         link: Optional[AttachmentLink] = None
+        sticker: Optional[AttachmentSticker] = None
 
         if self.async_files:
             # Always one async file per-message
@@ -263,6 +265,8 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
                     contact = attachment_domain
                 elif attachment_domain.type == AttachmentTypes.LINK:
                     link = attachment_domain
+                elif attachment_domain.type == AttachmentTypes.STICKER:
+                    sticker = attachment_domain
                 else:
                     raise NotImplementedError
 
@@ -307,6 +311,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             location=location,
             contact=contact,
             link=link,
+            sticker=sticker,
             mentions=mentions,
             forward=forward,
             reply=reply,

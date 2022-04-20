@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from types import MappingProxyType
 from typing import AsyncGenerator, Literal, Union, cast
+from uuid import UUID
 
 from aiofiles.tempfile import SpooledTemporaryFile
 
@@ -84,6 +85,16 @@ class AttachmentLink:
     title: str
     preview: str
     text: str
+
+
+@dataclass
+class AttachmentSticker:
+    type: Literal[AttachmentTypes.STICKER]
+
+    id: UUID
+    link: str
+    pack: UUID
+    version: int
 
 
 IncomingFileAttachment = Union[
@@ -174,6 +185,18 @@ class BotAPIAttachmentContact(VerifiedPayloadBaseModel):
     data: BotAPIAttachmentContactData
 
 
+class BotAPIAttachmentStickerData(VerifiedPayloadBaseModel):
+    id: UUID
+    link: str
+    pack: UUID
+    version: int
+
+
+class BotAPIAttachmentSticker(VerifiedPayloadBaseModel):
+    type: Literal[APIAttachmentTypes.STICKER]
+    data: BotAPIAttachmentStickerData
+
+
 class BotAPIAttachmentLinkData(VerifiedPayloadBaseModel):
     url: str
     url_title: str
@@ -194,6 +217,7 @@ BotAPIAttachment = Union[
     BotAPIAttachmentLocation,
     BotAPIAttachmentContact,
     BotAPIAttachmentLink,
+    BotAPIAttachmentSticker,
 ]
 
 IncomingAttachment = Union[
@@ -201,6 +225,7 @@ IncomingAttachment = Union[
     AttachmentLocation,
     AttachmentContact,
     AttachmentLink,
+    AttachmentSticker,
 ]
 
 
@@ -294,6 +319,18 @@ def convert_api_attachment_to_domain(  # noqa: WPS212
             title=api_attachment.data.url_title,
             preview=api_attachment.data.url_preview,
             text=api_attachment.data.url_text,
+        )
+
+    if attachment_type == AttachmentTypes.STICKER:
+        attachment_type = cast(Literal[AttachmentTypes.STICKER], attachment_type)
+        api_attachment = cast(BotAPIAttachmentSticker, api_attachment)
+
+        return AttachmentSticker(
+            type=attachment_type,
+            id=api_attachment.data.id,
+            link=api_attachment.data.link,
+            pack=api_attachment.data.pack,
+            version=api_attachment.data.version,
         )
 
     raise NotImplementedError(f"Unsupported attachment type: {attachment_type}")
