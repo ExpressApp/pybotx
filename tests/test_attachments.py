@@ -138,7 +138,6 @@ API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
                 "id": "0dfd7318-2ccc-5384-b0e4-6fa5478606a5",
                 "link": "/uploads/sticker_pack/c81e87be5c7949b3b4196769e1032d5f.png",
                 "pack": "4e4cfd0b-b981-54e9-84f4-3ddc12600334",
-                "version": 1650463967,
             },
         },
         AttachmentSticker(
