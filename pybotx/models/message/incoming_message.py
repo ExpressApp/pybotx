@@ -11,10 +11,11 @@ from pybotx.models.attachments import (
     AttachmentContact,
     AttachmentLink,
     AttachmentLocation,
+    AttachmentSticker,
     BotAPIAttachment,
     FileAttachmentBase,
     IncomingFileAttachment,
-    convert_api_attachment_to_domain, AttachmentSticker,
+    convert_api_attachment_to_domain,
 )
 from pybotx.models.base_command import (
     BotAPIBaseCommand,
@@ -257,7 +258,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
                 attachment_domain = convert_api_attachment_to_domain(
                     self.attachments[0],
                 )
-                if isinstance(attachment_domain, FileAttachmentBase):
+                if isinstance(attachment_domain, FileAttachmentBase):  # noqa: WPS223
                     file = attachment_domain
                 elif attachment_domain.type == AttachmentTypes.LOCATION:
                     location = attachment_domain
