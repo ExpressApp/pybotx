@@ -1,9 +1,18 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e
 
-black --check --diff docs/snippets
-isort --profile black --check-only docs/snippets
+temp_dir_path=$(mktemp -d "snippetsXXXX")
 
-mypy docs/snippets
-flake8 docs/snippets
+index=0
+while IFS= read -d '' -r snippet || [[ -n "${snippet}" ]]; do
+  printf "%s" "${snippet}" > "${temp_dir_path}/snippet${index}.py"
+  index=$((index+1))
+done < <(grep -Pzo '(?s)(?<=```python\n).*?(?=```)' README.md);
+
+black --check --diff "${temp_dir_path}"
+isort --profile black --check-only "${temp_dir_path}"
+mypy "${temp_dir_path}"
+flake8 "${temp_dir_path}"
+
+rm -rf "${temp_dir_path}"

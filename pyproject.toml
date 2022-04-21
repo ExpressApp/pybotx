@@ -27,7 +27,7 @@ typing-extensions = ">=3.7.4,<5.0.0"
 [tool.poetry.dev-dependencies]
 add-trailing-comma = "2.2.1"
 autoflake = "1.4.0"
-black = "21.12b0"
+black = "22.3.0"
 isort = "5.10.1"
 mypy = "0.910.0"
 wemake-python-styleguide = "0.16.0"
@@ -39,10 +39,6 @@ pytest-cov = "3.0.0"
 python-dotenv = "0.19.2"
 requests = "2.26.0"
 respx = "0.19.0"
-
-mkdocs = "1.2.3"
-mkdocs-material = "8.1.9"
-markdown = "3.3.6"  # https://github.com/python-poetry/poetry/issues/4777
 
 fastapi = "0.73.0"
 starlette = "0.17.1"  # TODO: Drop dependency after updating end-to-end test
