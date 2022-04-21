@@ -8,4 +8,4 @@ isort --profile black --check-only pybotx tests
 mypy pybotx tests
 flake8 pybotx tests
 
-./scripts/wip_marks
+./scripts/wip-marks
