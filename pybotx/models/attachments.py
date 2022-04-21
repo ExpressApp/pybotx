@@ -92,8 +92,8 @@ class AttachmentSticker:
     type: Literal[AttachmentTypes.STICKER]
 
     id: UUID
-    link: str
-    pack: UUID
+    image_link: str
+    pack_id: UUID
 
 
 IncomingFileAttachment = Union[
@@ -326,8 +326,8 @@ def convert_api_attachment_to_domain(  # noqa: WPS212
         return AttachmentSticker(
             type=attachment_type,
             id=api_attachment.data.id,
-            link=api_attachment.data.link,
-            pack=api_attachment.data.pack,
+            image_link=api_attachment.data.link,
+            pack_id=api_attachment.data.pack,
         )
 
     raise NotImplementedError(f"Unsupported attachment type: {attachment_type}")
