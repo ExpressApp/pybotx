@@ -2,17 +2,21 @@
 
 set -e
 
-temp_dir_path=$(mktemp -d "snippetsXXXX")
+snippets_dir_path=".snippets"
 
-index=0
+rm -rf "${snippets_dir_path}"
+mkdir "${snippets_dir_path}"
+
+snippet_number=1
 while IFS= read -d '' -r snippet || [[ -n "${snippet}" ]]; do
-  printf "%s" "${snippet}" > "${temp_dir_path}/snippet${index}.py"
-  index=$((index+1))
+  printf "%s" "${snippet}" \
+    > "${snippets_dir_path}/snippet${snippet_number}.py"
+  snippet_number=$((snippet_number+1))
 done < <(grep -Pzo '(?s)(?<=```python\n).*?(?=```)' README.md);
 
-black --check --diff "${temp_dir_path}"
-isort --profile black --check-only "${temp_dir_path}"
-mypy "${temp_dir_path}"
-flake8 "${temp_dir_path}"
+isort --profile black --check-only "${snippets_dir_path}"
+black --check --diff "${snippets_dir_path}"
+mypy "${snippets_dir_path}"
+flake8 "${snippets_dir_path}"
 
-rm -rf "${temp_dir_path}"
+rm -rf "${snippets_dir_path}"
