@@ -10,7 +10,9 @@ from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBa
 class BotXAPISmartAppNotificationRequestPayload(UnverifiedPayloadBaseModel):
     group_chat_id: UUID
     smartapp_counter: int
+    body: Missing[str]
     opts: Missing[Dict[str, Any]]
+    meta: Missing[Dict[str, Any]]
     smartapp_api_version: int
 
     @classmethod
@@ -18,12 +20,16 @@ class BotXAPISmartAppNotificationRequestPayload(UnverifiedPayloadBaseModel):
         cls,
         chat_id: UUID,
         smartapp_counter: int,
+        body: Missing[str],
         opts: Missing[Dict[str, Any]],
+        meta: Missing[Dict[str, Any]],
     ) -> "BotXAPISmartAppNotificationRequestPayload":
         return cls(
             group_chat_id=chat_id,
             smartapp_counter=smartapp_counter,
+            body=body,
             opts=opts,
+            meta=meta,
             smartapp_api_version=SMARTAPP_API_VERSION,
         )
 

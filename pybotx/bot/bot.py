@@ -1137,14 +1137,18 @@ class Bot:
         bot_id: UUID,
         chat_id: UUID,
         smartapp_counter: int,
+        body: Missing[str] = Undefined,
         opts: Missing[Dict[str, Any]] = Undefined,
+        meta: Missing[Dict[str, Any]] = Undefined,
     ) -> None:
         """Send SmartApp notification.
 
         :param bot_id: Bot which should perform the request.
         :param chat_id: Target chat id.
         :param smartapp_counter: Value app's counter.
-        :param opts: Vvent options.
+        :param body: Event body.
+        :param opts: Event options.
+        :param meta: Meta information.
         """
 
         method = SmartAppNotificationMethod(
@@ -1155,7 +1159,9 @@ class Bot:
         payload = BotXAPISmartAppNotificationRequestPayload.from_domain(
             chat_id=chat_id,
             smartapp_counter=smartapp_counter,
+            body=body,
             opts=opts,
+            meta=meta,
         )
 
         await method.execute(payload)

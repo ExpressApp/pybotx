@@ -27,7 +27,9 @@ async def test__send_smartapp_notification__succeed(
         json={
             "group_chat_id": "705df263-6bfd-536a-9d51-13524afaab5c",
             "smartapp_counter": 42,
+            "body": "test",
             "opts": {"message": "ping"},
+            "meta": {"message": "pong"},
             "smartapp_api_version": 1,
         },
     ).mock(
@@ -48,7 +50,9 @@ async def test__send_smartapp_notification__succeed(
             bot_id=bot_id,
             chat_id=UUID("705df263-6bfd-536a-9d51-13524afaab5c"),
             smartapp_counter=42,
+            body="test",
             opts={"message": "ping"},
+            meta={"message": "pong"},
         )
 
     # - Assert -
