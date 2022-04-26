@@ -14,12 +14,14 @@ class Sticker:
         id: Sticker id.
         emoji: Sticker emoji.
         link: Sticker image link.
+        pack_id: Sticker pack id.
 
     """
 
     id: UUID
     emoji: str
     image_link: str
+    pack_id: UUID
 
     async def download(
         self,

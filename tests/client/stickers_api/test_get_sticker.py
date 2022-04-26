@@ -104,6 +104,7 @@ async def test__get_sticker__succeed(
         id=UUID("75bb24c9-7c08-5db0-ae3e-085929e80c54"),
         emoji="🤔",
         image_link="https://cts-host/uploads/sticker_pack/image.png",
+        pack_id=UUID("26080153-a57d-5a8c-af0e-fdecee3c4435"),
     )
 
     assert endpoint.called
