@@ -56,7 +56,7 @@ async def test__sticker__download(
         id=UUID("4ff8113b-8460-5977-86b2-c1798eb4fbce"),
         emoji="🤔",
         image_link=image_link,
-        pack_id=UUID('4ff8113b-8460-5977-86b2-c1798eb4fbce'),
+        pack_id=UUID("4ff8113b-8460-5977-86b2-c1798eb4fbce"),
     )
 
     payload = api_incoming_message_factory()

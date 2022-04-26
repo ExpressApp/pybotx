@@ -51,7 +51,7 @@ class BotXAPIAddStickerResponsePayload(VerifiedPayloadBaseModel):
             id=self.result.id,
             emoji=self.result.emoji,
             image_link=self.result.link,
-            pack_id=pack_id
+            pack_id=pack_id,
         )
 
 

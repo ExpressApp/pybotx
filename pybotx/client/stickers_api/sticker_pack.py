@@ -36,7 +36,12 @@ class BotXAPIGetStickerPackResponsePayload(VerifiedPayloadBaseModel):
             name=self.result.name,
             is_public=self.result.public,
             stickers=[
-                Sticker(id=sticker.id, emoji=sticker.emoji, image_link=sticker.link, pack_id=self.result.id)
+                Sticker(
+                    id=sticker.id,
+                    emoji=sticker.emoji,
+                    image_link=sticker.link,
+                    pack_id=self.result.id,
+                )
                 for sticker in self.result.stickers
             ],
         )

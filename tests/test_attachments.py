@@ -10,6 +10,7 @@ from pybotx import (
     BotAccountWithSecret,
     HandlerCollector,
     IncomingMessage,
+    Sticker,
     lifespan_wrapper,
 )
 from pybotx.models.attachments import (
@@ -18,7 +19,6 @@ from pybotx.models.attachments import (
     AttachmentImage,
     AttachmentLink,
     AttachmentLocation,
-    AttachmentSticker,
     AttachmentVideo,
     AttachmentVoice,
     IncomingAttachment,
@@ -140,11 +140,11 @@ API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
                 "pack": "4e4cfd0b-b981-54e9-84f4-3ddc12600334",
             },
         },
-        AttachmentSticker(
-            type=AttachmentTypes.STICKER,
+        Sticker(
             id=UUID("0dfd7318-2ccc-5384-b0e4-6fa5478606a5"),
             image_link="/uploads/sticker_pack/c81e87be5c7949b3b4196769e1032d5f.png",
             pack_id=UUID("4e4cfd0b-b981-54e9-84f4-3ddc12600334"),
+            emoji="/hello",
         ),
         "sticker",
     ),

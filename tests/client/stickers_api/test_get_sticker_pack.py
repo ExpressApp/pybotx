@@ -197,7 +197,7 @@ async def test__get_sticker_pack__succeed(
                 id=UUID("528c3953-5842-5a30-b2cb-8a09218497bc"),
                 emoji="🤔",
                 image_link="https://cts-host/uploads/sticker_pack/image.png",
-                pack_id=UUID("d881f83a-db30-4cff-b60e-f24ac53deecf")
+                pack_id=UUID("d881f83a-db30-4cff-b60e-f24ac53deecf"),
             ),
         ],
     )
