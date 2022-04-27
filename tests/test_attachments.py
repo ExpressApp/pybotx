@@ -144,7 +144,7 @@ API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
             id=UUID("0dfd7318-2ccc-5384-b0e4-6fa5478606a5"),
             image_link="/uploads/sticker_pack/c81e87be5c7949b3b4196769e1032d5f.png",
             pack_id=UUID("4e4cfd0b-b981-54e9-84f4-3ddc12600334"),
-            emoji="/hello",
+            emoji="😀",
         ),
         "sticker",
     ),
@@ -163,7 +163,7 @@ async def test__async_execute_raw_bot_command__non_file_attachments_types(
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    payload = api_incoming_message_factory(attachment=api_attachment)
+    payload = api_incoming_message_factory(body='😀', attachment=api_attachment)
 
     collector = HandlerCollector()
     incoming_message: Optional[IncomingMessage] = None

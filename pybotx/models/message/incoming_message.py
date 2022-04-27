@@ -7,7 +7,7 @@ from pydantic import Field
 
 from pybotx.logger import logger
 from pybotx.models.async_files import APIAsyncFile, File, convert_async_file_to_domain
-from pybotx.models.attachments import (  # AttachmentSticker,
+from pybotx.models.attachments import (
     AttachmentContact,
     AttachmentLink,
     AttachmentLocation,

@@ -1231,7 +1231,7 @@ class Bot:
 
         botx_api_sticker = await method.execute(payload)
 
-        return botx_api_sticker.to_domain(sticker_pack_id)
+        return botx_api_sticker.to_domain(pack_id=sticker_pack_id)
 
     async def delete_sticker(
         self,
