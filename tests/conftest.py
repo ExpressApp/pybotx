@@ -135,7 +135,7 @@ async def async_buffer() -> AsyncGenerator[NamedTemporaryFile, None]:
 def api_incoming_message_factory() -> Callable[..., Dict[str, Any]]:
     def decorator(
         *,
-        body: str = '/hello',
+        body: str = "/hello",
         bot_id: Optional[UUID] = None,
         group_chat_id: Optional[UUID] = None,
         user_huid: Optional[UUID] = None,

@@ -163,7 +163,7 @@ async def test__async_execute_raw_bot_command__non_file_attachments_types(
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    payload = api_incoming_message_factory(body='😀', attachment=api_attachment)
+    payload = api_incoming_message_factory(body="😀", attachment=api_attachment)
 
     collector = HandlerCollector()
     incoming_message: Optional[IncomingMessage] = None
