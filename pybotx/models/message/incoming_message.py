@@ -11,7 +11,6 @@ from pybotx.models.attachments import (
     AttachmentContact,
     AttachmentLink,
     AttachmentLocation,
-    AttachmentSticker,
     BotAPIAttachment,
     FileAttachmentBase,
     IncomingFileAttachment,
@@ -45,6 +44,7 @@ from pybotx.models.message.mentions import (
     MentionList,
 )
 from pybotx.models.message.reply import BotAPIReply, Reply
+from pybotx.models.stickers import Sticker
 
 
 @dataclass
@@ -96,7 +96,7 @@ class IncomingMessage(BotCommandBase):
     location: Optional[AttachmentLocation] = None
     contact: Optional[AttachmentContact] = None
     link: Optional[AttachmentLink] = None
-    sticker: Optional[AttachmentSticker] = None
+    sticker: Optional[Sticker] = None
 
     state: SimpleNamespace = field(default_factory=SimpleNamespace)
 
@@ -245,7 +245,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
         location: Optional[AttachmentLocation] = None
         contact: Optional[AttachmentContact] = None
         link: Optional[AttachmentLink] = None
-        sticker: Optional[AttachmentSticker] = None
+        sticker: Optional[Sticker] = None
 
         if self.async_files:
             # Always one async file per-message
@@ -257,6 +257,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             else:
                 attachment_domain = convert_api_attachment_to_domain(
                     self.attachments[0],
+                    self.payload.body,
                 )
                 if isinstance(attachment_domain, FileAttachmentBase):  # noqa: WPS223
                     file = attachment_domain

@@ -126,11 +126,13 @@ async def test__get_sticker_pack__stickers_in_right_order_succeed(
                 id=UUID("528c3953-5842-5a30-b2cb-8a09218497bc"),
                 emoji="🤔",
                 image_link="https://cts-host/uploads/sticker_pack/image.png",
+                pack_id=UUID("d881f83a-db30-4cff-b60e-f24ac53deecf"),
             ),
             Sticker(
                 id=UUID("750bb400-bb37-4ff9-aa92-cc293f09cafa"),
                 emoji="🤔",
                 image_link="https://cts-host/uploads/sticker_pack/image.png",
+                pack_id=UUID("d881f83a-db30-4cff-b60e-f24ac53deecf"),
             ),
         ],
     )
@@ -195,6 +197,7 @@ async def test__get_sticker_pack__succeed(
                 id=UUID("528c3953-5842-5a30-b2cb-8a09218497bc"),
                 emoji="🤔",
                 image_link="https://cts-host/uploads/sticker_pack/image.png",
+                pack_id=UUID("d881f83a-db30-4cff-b60e-f24ac53deecf"),
             ),
         ],
     )

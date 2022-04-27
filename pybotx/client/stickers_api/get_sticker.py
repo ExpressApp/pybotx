@@ -31,11 +31,12 @@ class BotXAPIGetStickerResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
     result: BotXAPIGetStickerResult
 
-    def to_domain(self) -> Sticker:
+    def to_domain(self, pack_id: UUID) -> Sticker:
         return Sticker(
             id=self.result.id,
             emoji=self.result.emoji,
             image_link=self.result.link,
+            pack_id=pack_id,
         )
 
 

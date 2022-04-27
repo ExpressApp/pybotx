@@ -1,9 +1,10 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Literal, Optional
 from uuid import UUID
 
 from pybotx.async_buffer import AsyncBufferWritable
 from pybotx.bot.contextvars import bot_var
+from pybotx.models.enums import AttachmentTypes
 
 
 @dataclass
@@ -14,12 +15,16 @@ class Sticker:
         id: Sticker id.
         emoji: Sticker emoji.
         link: Sticker image link.
+        pack_id: Sticker pack id.
 
     """
 
     id: UUID
     emoji: str
     image_link: str
+    pack_id: UUID
+
+    type: Literal[AttachmentTypes.STICKER] = AttachmentTypes.STICKER
 
     async def download(
         self,

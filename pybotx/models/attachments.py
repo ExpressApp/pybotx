@@ -15,6 +15,7 @@ from pybotx.models.enums import (
     AttachmentTypes,
     convert_attachment_type_to_domain,
 )
+from pybotx.models.stickers import Sticker
 
 
 @dataclass
@@ -85,15 +86,6 @@ class AttachmentLink:
     title: str
     preview: str
     text: str
-
-
-@dataclass
-class AttachmentSticker:
-    type: Literal[AttachmentTypes.STICKER]
-
-    id: UUID
-    image_link: str
-    pack_id: UUID
 
 
 IncomingFileAttachment = Union[
@@ -223,12 +215,13 @@ IncomingAttachment = Union[
     AttachmentLocation,
     AttachmentContact,
     AttachmentLink,
-    AttachmentSticker,
+    Sticker,
 ]
 
 
 def convert_api_attachment_to_domain(  # noqa: WPS212
     api_attachment: BotAPIAttachment,
+    message_body: str,
 ) -> IncomingAttachment:
     attachment_type = convert_attachment_type_to_domain(api_attachment.type)
 
@@ -323,11 +316,11 @@ def convert_api_attachment_to_domain(  # noqa: WPS212
         attachment_type = cast(Literal[AttachmentTypes.STICKER], attachment_type)
         api_attachment = cast(BotAPIAttachmentSticker, api_attachment)
 
-        return AttachmentSticker(
-            type=attachment_type,
+        return Sticker(
             id=api_attachment.data.id,
             image_link=api_attachment.data.link,
             pack_id=api_attachment.data.pack,
+            emoji=message_body,
         )
 
     raise NotImplementedError(f"Unsupported attachment type: {attachment_type}")
