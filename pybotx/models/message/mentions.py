@@ -130,20 +130,20 @@ class MentionBuilder:
 
 class MentionList(List[Mention]):
     @property
-    def contacts(self) -> List[Mention]:
-        return [mention for mention in self if mention.type == MentionTypes.CONTACT]
+    def contacts(self) -> List[MentionContact]:
+        return [mention for mention in self if isinstance(mention, MentionContact)]
 
     @property
-    def chats(self) -> List[Mention]:
-        return [mention for mention in self if mention.type == MentionTypes.CHAT]
+    def chats(self) -> List[MentionChat]:
+        return [mention for mention in self if isinstance(mention, MentionChat)]
 
     @property
-    def channels(self) -> List[Mention]:
-        return [mention for mention in self if mention.type == MentionTypes.CHANNEL]
+    def channels(self) -> List[MentionChannel]:
+        return [mention for mention in self if isinstance(mention, MentionChannel)]
 
     @property
-    def users(self) -> List[Mention]:
-        return [mention for mention in self if mention.type == MentionTypes.USER]
+    def users(self) -> List[MentionUser]:
+        return [mention for mention in self if isinstance(mention, MentionUser)]
 
     @property
     def all_users_mentioned(self) -> bool:
