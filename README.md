@@ -546,7 +546,7 @@ async def create_group_chat_handler(message: IncomingMessage, bot: Bot) -> None:
             bot_id=message.bot.id,
             name="New group chat",
             chat_type=ChatTypes.GROUP_CHAT,
-            huids=[contact.entity_id for contact in contacts],  # type: ignore
+            huids=[contact.entity_id for contact in contacts],
         )
     except (ChatCreationProhibitedError, ChatCreationError) as exc:
         await bot.answer_message(str(exc))

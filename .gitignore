@@ -5,5 +5,5 @@ venv/
 __pycache__
 htmlcov
 site
-snippets*/
+.snippets*/
 .idea/
