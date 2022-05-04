@@ -1,3 +1,4 @@
+from typing import Any
 from uuid import UUID
 
 from pybotx.client.exceptions.base import BaseClientError
@@ -9,7 +10,14 @@ class BotXMethodFailedCallbackReceivedError(BaseClientError):
 
     def __init__(self, callback: BotAPIMethodFailedCallback) -> None:
         exc = BaseClientError.from_callback(callback)
+        self.callback = callback
+
         self.args = exc.args
+
+    def __reduce__(self) -> Any:
+        # This method required to pass exception from pybotx logger to bot logger.
+        # Tested in async-box
+        return type(self), (self.callback,)  # pragma: no cover
 
 
 class CallbackNotReceivedError(Exception):
