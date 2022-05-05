@@ -575,6 +575,7 @@ class Bot:
         keyboard: Missing[KeyboardMarkup] = Undefined,
         file: MissingOptionalAttachment = Undefined,
         markup_auto_adjust: Missing[bool] = Undefined,
+        raw_mentions: Missing[bool] = Undefined,
     ) -> None:
         """Edit message.
 
@@ -591,6 +592,8 @@ class Bot:
             to clean it.
         :param markup_auto_adjust: (BotX default: False) Move button to next
             row, if its text doesn't fit.
+        :param raw_mentions: (BotX default: False) Use mention format instead
+            of substitution at the beginning of the text.
         """
 
         method = EditEventMethod(
@@ -606,6 +609,7 @@ class Bot:
             keyboard=keyboard,
             file=file,
             markup_auto_adjust=markup_auto_adjust,
+            raw_mentions=raw_mentions,
         )
 
         await method.execute(payload)

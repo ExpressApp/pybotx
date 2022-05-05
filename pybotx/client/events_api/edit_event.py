@@ -23,6 +23,7 @@ from pybotx.models.message.mentions import (
 
 class BotXAPIEditEventOpts(UnverifiedPayloadBaseModel):
     buttons_auto_adjust: Missing[bool]
+    raw_mentions: Missing[bool]
 
 
 class BotXAPIEditEvent(UnverifiedPayloadBaseModel):
@@ -49,6 +50,7 @@ class BotXAPIEditEventRequestPayload(UnverifiedPayloadBaseModel):
         keyboard: Missing[KeyboardMarkup],
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment, None]],
         markup_auto_adjust: Missing[bool],
+        raw_mentions: Missing[bool],
     ) -> "BotXAPIEditEventRequestPayload":
         api_file: MissingOptional[BotXAPIAttachment] = Undefined
         if file:
@@ -75,6 +77,9 @@ class BotXAPIEditEventRequestPayload(UnverifiedPayloadBaseModel):
                 mentions=mentions,
             ),
             file=api_file,
+            opts=BotXAPIEditEventOpts(
+                raw_mentions=raw_mentions,
+            ),
         )
 
 
