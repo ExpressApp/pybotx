@@ -116,6 +116,7 @@ async def test__edit_message__maximum_edit_succeed(
                 "file_name": "test.txt",
                 "data": "data:text/plain;base64,SGVsbG8sIHdvcmxkIQo=",
             },
+            "opts": {"raw_mentions": True},
         },
     ).mock(
         return_value=httpx.Response(
@@ -151,6 +152,7 @@ async def test__edit_message__maximum_edit_succeed(
             bubbles=bubbles,
             keyboard=keyboard,
             file=file,
+            raw_mentions=True,
         )
 
     # - Assert -

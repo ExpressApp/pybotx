@@ -21,8 +21,11 @@ from pybotx.models.message.mentions import (
 )
 
 
-class BotXAPIEditEventOpts(UnverifiedPayloadBaseModel):
+class BotXAPIEditEventPayloadOpts(UnverifiedPayloadBaseModel):
     buttons_auto_adjust: Missing[bool]
+
+
+class BotXAPIEditEventOpts(UnverifiedPayloadBaseModel):
     raw_mentions: Missing[bool]
 
 
@@ -69,7 +72,7 @@ class BotXAPIEditEventRequestPayload(UnverifiedPayloadBaseModel):
                 body=body,
                 # TODO: Metadata can be cleaned with `{}`
                 metadata=metadata,
-                opts=BotXAPIEditEventOpts(
+                opts=BotXAPIEditEventPayloadOpts(
                     buttons_auto_adjust=markup_auto_adjust,
                 ),
                 bubble=api_markup_from_domain(bubbles) if bubbles else bubbles,
