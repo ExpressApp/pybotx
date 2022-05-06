@@ -262,9 +262,7 @@ async def test__edit__succeed(
                 "file_name": "test.txt",
                 "data": "data:text/plain;base64,SGVsbG8sIHdvcmxkIQo=",
             },
-            "opts": {
-                "raw_mentions": True
-            }
+            "opts": {"raw_mentions": True},
         },
     ).mock(
         return_value=httpx.Response(
