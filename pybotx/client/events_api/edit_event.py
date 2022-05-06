@@ -53,7 +53,6 @@ class BotXAPIEditEventRequestPayload(UnverifiedPayloadBaseModel):
         keyboard: Missing[KeyboardMarkup],
         file: Missing[Union[IncomingFileAttachment, OutgoingAttachment, None]],
         markup_auto_adjust: Missing[bool],
-        raw_mentions: Missing[bool],
     ) -> "BotXAPIEditEventRequestPayload":
         api_file: MissingOptional[BotXAPIAttachment] = Undefined
         if file:
@@ -81,7 +80,7 @@ class BotXAPIEditEventRequestPayload(UnverifiedPayloadBaseModel):
             ),
             file=api_file,
             opts=BotXAPIEditEventOpts(
-                raw_mentions=raw_mentions,
+                raw_mentions=bool(mentions) or Undefined,
             ),
         )
 
