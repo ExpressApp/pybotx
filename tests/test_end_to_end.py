@@ -1,11 +1,9 @@
-import os
 from http import HTTPStatus
 from typing import List
 from uuid import UUID
 
 import httpx
 import pytest
-from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.testclient import TestClient
@@ -21,29 +19,6 @@ from pybotx import (
     build_bot_disabled_response,
     build_command_accepted_response,
 )
-
-# - Test utils -
-load_dotenv()
-
-
-def get_bot_accounts() -> List[BotAccountWithSecret]:
-    raw_credentials_list = os.getenv("BOT_CREDENTIALS")
-    if not raw_credentials_list:
-        raise RuntimeError("BOT_CREDENTIALS env not set")
-
-    bot_accounts = []
-    for raw_credentials in raw_credentials_list.split(","):
-        host, secret_key, raw_bot_id = raw_credentials.replace("|", "@").split("@")
-        bot_accounts.append(
-            BotAccountWithSecret(
-                id=UUID(raw_bot_id),
-                host=host,
-                secret_key=secret_key,
-            ),
-        )
-
-    return bot_accounts
-
 
 # - Bot setup -
 collector = HandlerCollector()
@@ -134,8 +109,7 @@ def fastapi_factory(bot: Bot) -> FastAPI:
 
 # https://www.uvicorn.org/#application-factories
 def asgi_factory() -> FastAPI:
-    bot_accounts = get_bot_accounts()
-    bot = bot_factory(bot_accounts)
+    bot = bot_factory(bot_accounts=[])
     return fastapi_factory(bot)
 
 
