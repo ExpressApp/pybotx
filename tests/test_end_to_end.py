@@ -109,7 +109,14 @@ def fastapi_factory(bot: Bot) -> FastAPI:
 
 # https://www.uvicorn.org/#application-factories
 def asgi_factory() -> FastAPI:
-    bot = bot_factory(bot_accounts=[])
+    bot_accounts = [
+        BotAccountWithSecret(
+            id=UUID("123e4567-e89b-12d3-a456-426655440000"),
+            host="cts.example.com",
+            secret_key="e29b417773f2feab9dac143ee3da20c5",
+        ),
+    ]
+    bot = bot_factory(bot_accounts=bot_accounts)
     return fastapi_factory(bot)
 
 

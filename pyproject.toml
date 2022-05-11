@@ -36,7 +36,6 @@ bandit = "1.7.2"  # https://github.com/PyCQA/bandit/issues/837
 pytest = "6.2.5"
 pytest-asyncio = "0.16.0"
 pytest-cov = "3.0.0"
-python-dotenv = "0.19.2"
 requests = "2.26.0"
 respx = "0.19.0"
 
