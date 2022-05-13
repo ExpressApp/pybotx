@@ -254,5 +254,5 @@ def incorrect_handler_trigger() -> Mock:
 
 
 @pytest.fixture(autouse=True)
-def respx_mocking(respx_mock: MockRouter) -> None:
+def prevent_http_requests(respx_mock: MockRouter) -> None:
     pass
