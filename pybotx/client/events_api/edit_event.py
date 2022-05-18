@@ -56,7 +56,6 @@ class BotXAPIEditEventRequestPayload(UnverifiedPayloadBaseModel):
     ) -> "BotXAPIEditEventRequestPayload":
         api_file: MissingOptional[BotXAPIAttachment] = Undefined
         if file:
-            assert not file.is_async_file, "async_files not supported"
             api_file = BotXAPIAttachment.from_file_attachment(file)
         elif file is None:
             api_file = None

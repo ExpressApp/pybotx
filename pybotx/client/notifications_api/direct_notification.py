@@ -79,7 +79,6 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
     ) -> "BotXAPIDirectNotificationRequestPayload":
         api_file: Missing[BotXAPIAttachment] = Undefined
         if file:
-            assert not file.is_async_file, "async_files not supported"
             api_file = BotXAPIAttachment.from_file_attachment(file)
 
         if len(body) > MAX_NOTIFICATION_BODY_LENGTH:
