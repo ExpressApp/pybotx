@@ -70,7 +70,6 @@ class BotXAPIReplyEventRequestPayload(UnverifiedPayloadBaseModel):
     ) -> "BotXAPIReplyEventRequestPayload":
         api_file: Missing[BotXAPIAttachment] = Undefined
         if file:
-            assert not file.is_async_file, "async_files not supported"
             api_file = BotXAPIAttachment.from_file_attachment(file)
 
         body, mentions = find_and_replace_embed_mentions(body)

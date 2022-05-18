@@ -6,7 +6,6 @@ from uuid import UUID
 from pydantic import Field
 
 from pybotx.logger import logger
-from pybotx.models.async_files import APIAsyncFile, File, convert_async_file_to_domain
 from pybotx.models.attachments import (
     AttachmentContact,
     AttachmentLink,
@@ -92,7 +91,7 @@ class IncomingMessage(BotCommandBase):
     mentions: MentionList = field(default_factory=MentionList)
     forward: Optional[Forward] = None
     reply: Optional[Reply] = None
-    file: Optional[Union[File, IncomingFileAttachment]] = None
+    file: Optional[IncomingFileAttachment] = None
     location: Optional[AttachmentLocation] = None
     contact: Optional[AttachmentContact] = None
     link: Optional[AttachmentLink] = None
@@ -198,7 +197,6 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
 
     source_sync_id: Optional[UUID]
     attachments: List[Union[BotAPIAttachment, Dict[str, Any]]]  # noqa: WPS234
-    async_files: List[APIAsyncFile]
     entities: List[Union[BotAPIEntity, Dict[str, Any]]]  # noqa: WPS234
 
     def to_domain(self, raw_command: Dict[str, Any]) -> IncomingMessage:  # noqa: WPS231
@@ -241,16 +239,13 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             type=convert_chat_type_to_domain(self.sender.chat_type),
         )
 
-        file: Optional[Union[File, IncomingFileAttachment]] = None
+        file: Optional[IncomingFileAttachment] = None
         location: Optional[AttachmentLocation] = None
         contact: Optional[AttachmentContact] = None
         link: Optional[AttachmentLink] = None
         sticker: Optional[Sticker] = None
 
-        if self.async_files:
-            # Always one async file per-message
-            file = convert_async_file_to_domain(self.async_files[0])
-        elif self.attachments:
+        if self.attachments:
             # Always one attachment per-message
             if isinstance(self.attachments[0], dict):
                 logger.warning("Received unknown attachment type")

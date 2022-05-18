@@ -14,7 +14,6 @@ from pybotx import (
     ClientPlatforms,
     Forward,
     HandlerCollector,
-    Image,
     IncomingMessage,
     MentionBuilder,
     MentionList,
@@ -23,6 +22,7 @@ from pybotx import (
     UserSender,
     lifespan_wrapper,
 )
+from pybotx.models.attachments import AttachmentImage
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -138,21 +138,13 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
             "data": {"message": "data"},
             "metadata": {"message": "metadata"},
         },
-        "attachments": [],
-        "async_files": [
+        "attachments": [
             {
+                "data": {
+                    "content": "data:image/jpg;base64,SGVsbG8sIHdvcmxkIQo=",
+                    "file_name": "test_file.jpg",
+                },
                 "type": "image",
-                "file": "https://link.to/file",
-                "file_mime_type": "image/png",
-                "file_name": "pass.png",
-                "file_preview": "https://link.to/preview",
-                "file_preview_height": 300,
-                "file_preview_width": 300,
-                "file_size": 1502345,
-                "file_hash": "Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
-                "file_encryption_algo": "stream",
-                "chunk_size": 2097152,
-                "file_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
             },
         ],
         "entities": [
@@ -286,15 +278,12 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
             type=ChatTypes.PERSONAL_CHAT,
         ),
         raw_command=None,
-        file=Image(
+        file=AttachmentImage(
             type=AttachmentTypes.IMAGE,
-            filename="pass.png",
-            size=1502345,
-            is_async_file=True,
-            _file_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
-            _file_url="https://link.to/file",
-            _file_mimetype="image/png",
-            _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+            filename="test_file.jpg",
+            size=len(b"Hello, world!\n"),
+            is_async_file=False,
+            content=b"Hello, world!\n",
         ),
         mentions=MentionList(
             [

@@ -449,7 +449,7 @@ async def echo_file_handler(message: IncomingMessage, bot: Bot) -> None:
         await bot.answer_message("Attached file is required")
         return
 
-    await bot.answer_message("", file=attached_file)  # type: ignore
+    await bot.answer_message("", file=attached_file)
 ```
 
 
