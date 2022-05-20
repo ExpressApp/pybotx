@@ -20,7 +20,7 @@ from mypy_extensions import Arg
 from pydantic import ValidationError, parse_obj_as
 
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
-from pybotx.bot.callbacks_manager import CallbacksManager
+from pybotx.bot.callbacks.callback_manager import CallbackManager
 from pybotx.client.exceptions.base import BaseClientError
 from pybotx.client.exceptions.callbacks import BotXMethodFailedCallbackReceivedError
 from pybotx.client.exceptions.http import (
@@ -74,7 +74,7 @@ class BotXMethod:
         sender_bot_id: UUID,
         httpx_client: httpx.AsyncClient,
         bot_accounts_storage: BotAccountsStorage,
-        callbacks_manager: Optional[CallbacksManager] = None,
+        callbacks_manager: Optional[CallbackManager] = None,
     ) -> None:
         self._bot_id = sender_bot_id
         self._httpx_client = httpx_client
@@ -160,7 +160,7 @@ class BotXMethod:
             self._callbacks_manager is not None
         ), "CallbackManager hasn't been passed to this method"
 
-        self._callbacks_manager.create_botx_method_callback(sync_id)
+        await self._callbacks_manager.create_botx_method_callback(sync_id)
 
         if callback_timeout is None:
             callback_timeout = default_callback_timeout

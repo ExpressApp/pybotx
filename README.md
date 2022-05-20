@@ -122,7 +122,7 @@ async def status_handler(request: Request) -> JSONResponse:
 # выполнения асинхронных методов в BotX.
 @app.post("/notification/callback")
 async def callback_handler(request: Request) -> JSONResponse:
-    bot.set_raw_botx_method_result(await request.json())
+    await bot.set_raw_botx_method_result(await request.json())
     return JSONResponse(
         build_command_accepted_response(),
         status_code=HTTPStatus.ACCEPTED,

@@ -8,6 +8,7 @@ from pybotx.bot.api.responses.bot_disabled import (
 )
 from pybotx.bot.api.responses.command_accepted import build_command_accepted_response
 from pybotx.bot.bot import Bot
+from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
 from pybotx.bot.exceptions import (
     AnswerDestinationLookupError,
     BotShuttingDownError,
@@ -120,6 +121,7 @@ __all__ = (
     "CTSLoginEvent",
     "CTSLogoutEvent",
     "CallbackNotReceivedError",
+    "CallbackRepoProto",
     "CantUpdatePersonalChatError",
     "Chat",
     "ChatCreatedEvent",

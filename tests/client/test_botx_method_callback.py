@@ -20,6 +20,7 @@ from pybotx import (
     HandlerCollector,
     lifespan_wrapper,
 )
+from pybotx.bot.callbacks.callback_memory_repo import CallbackMemoryRepo
 from pybotx.client.botx_method import (
     BotXMethod,
     ErrorCallbackHandlers,
@@ -114,7 +115,7 @@ async def test__botx_method_callback__callback_not_found(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(BotXMethodCallbackNotFoundError) as exc:
-            bot.set_raw_botx_method_result(
+            await bot.set_raw_botx_method_result(
                 {
                     "status": "error",
                     "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
@@ -130,8 +131,9 @@ async def test__botx_method_callback__callback_not_found(
             )
 
     # - Assert -
-    assert "No callback found" in str(exc.value)
-    assert "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3" in str(exc.value)
+    assert "Callback `21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3` doesn't exist" in str(
+        exc.value,
+    )
 
 
 async def test__botx_method_callback__error_callback_error_handler_called(
@@ -165,7 +167,7 @@ async def test__botx_method_callback__error_callback_error_handler_called(
         )
         await asyncio.sleep(0)  # Return control to event loop
 
-        bot.set_raw_botx_method_result(
+        await bot.set_raw_botx_method_result(
             {
                 "status": "error",
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
@@ -220,7 +222,7 @@ async def test__botx_method_callback__error_callback_received(
         )
         await asyncio.sleep(0)  # Return control to event loop
 
-        bot.set_raw_botx_method_result(
+        await bot.set_raw_botx_method_result(
             {
                 "status": "error",
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
@@ -304,28 +306,28 @@ async def test__botx_method_callback__callback_received_after_timeout(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(CallbackNotReceivedError) as exc:
+        with pytest.raises(CallbackNotReceivedError) as not_received_exc:
             await bot.call_foo_bar(bot_id, baz=1, callback_timeout=0)
 
-        bot.set_raw_botx_method_result(
-            {
-                "status": "error",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
-                "reason": "quux_error",
-                "errors": [],
-                "error_data": {
-                    "group_chat_id": "705df263-6bfd-536a-9d51-13524afaab5c",
-                    "error_description": (
-                        "Chat with id 705df263-6bfd-536a-9d51-13524afaab5c not found"
-                    ),
+        with pytest.raises(BotXMethodCallbackNotFoundError) as not_found_exc:
+            await bot.set_raw_botx_method_result(
+                {
+                    "status": "error",
+                    "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                    "reason": "quux_error",
+                    "errors": [],
+                    "error_data": {
+                        "group_chat_id": "705df263-6bfd-536a-9d51-13524afaab5c",
+                        "error_description": (
+                            "Chat with id 705df263-6bfd-536a-9d51-13524afaab5c not found"
+                        ),
+                    },
                 },
-            },
-        )
+            )
 
     # - Assert -
-    assert "hasn't been received" in str(exc.value)
-    assert "don't wait callback" in loguru_caplog.text
-    assert "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3" in loguru_caplog.text
+    assert "hasn't been received" in str(not_received_exc.value)
+    assert "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3" in str(not_found_exc.value)
     assert endpoint.called
 
 
@@ -432,7 +434,55 @@ async def test__botx_method_callback__callback_successful_received(
         )
         await asyncio.sleep(0)  # Return control to event loop
 
-        bot.set_raw_botx_method_result(
+        await bot.set_raw_botx_method_result(
+            {
+                "status": "ok",
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "result": {},
+            },
+        )
+
+    # - Assert -
+    assert await task == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert endpoint.called
+
+
+async def test__botx_method_callback__callback_successful_received_with_custom_repo(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.post(
+        f"https://{host}/foo/bar",
+        json={"baz": 1},
+        headers={"Content-Type": "application/json"},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        ),
+    )
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        callback_repo=CallbackMemoryRepo(),
+    )
+
+    built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        task = asyncio.create_task(
+            bot.call_foo_bar(bot_id, baz=1),
+        )
+        await asyncio.sleep(0)  # Return control to event loop
+
+        await bot.set_raw_botx_method_result(
             {
                 "status": "ok",
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
@@ -482,7 +532,7 @@ async def test__botx_method_callback__bot_wait_callback_before_its_receiving(
         # Return control to event loop
         await asyncio.sleep(0)
 
-        bot.set_raw_botx_method_result(
+        await bot.set_raw_botx_method_result(
             {
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "status": "ok",
@@ -534,7 +584,7 @@ async def test__botx_method_callback__bot_wait_callback_after_its_receiving(
     async with lifespan_wrapper(built_bot) as bot:
         foo_bar = await bot.call_foo_bar(bot_id, baz=1, wait_callback=False)
 
-        bot.set_raw_botx_method_result(
+        await bot.set_raw_botx_method_result(
             {
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "status": "ok",
@@ -590,7 +640,7 @@ async def test__botx_method_callback__bot_dont_wait_received_callback(
         # Return control to event loop
         await asyncio.sleep(0)
 
-        bot.set_raw_botx_method_result(
+        await bot.set_raw_botx_method_result(
             {
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "status": "ok",
@@ -599,54 +649,10 @@ async def test__botx_method_callback__bot_dont_wait_received_callback(
         )
 
     # - Assert -
-    assert "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3" in str(loguru_caplog.text)
-    assert "wasn't waited" in loguru_caplog.text
-    assert "was received" in loguru_caplog.text
-    assert endpoint.called
-
-
-async def test__botx_method_callback__bot_dont_wait_unreceived_callback(
-    respx_mock: MockRouter,
-    httpx_client: httpx.AsyncClient,
-    host: str,
-    bot_id: UUID,
-    bot_account: BotAccountWithSecret,
-    loguru_caplog: pytest.LogCaptureFixture,
-) -> None:
-    # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/foo/bar",
-        json={"baz": 1},
-        headers={"Content-Type": "application/json"},
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.ACCEPTED,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
+    assert (
+        "Callback `21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3` wasn't waited"
+        in loguru_caplog.text
     )
-    built_bot = Bot(
-        collectors=[HandlerCollector()],
-        bot_accounts=[bot_account],
-        httpx_client=httpx_client,
-    )
-
-    built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
-
-    # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
-        await bot.call_foo_bar(bot_id, baz=1, callback_timeout=0, wait_callback=False)
-
-        # Sleep called twice, 'cause we should take time for alarm to call a callback
-        await asyncio.sleep(0)
-        await asyncio.sleep(0)
-
-    # - Assert -
-    assert "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3" in str(loguru_caplog.text)
-    assert "wasn't waited" in loguru_caplog.text
-    assert "wasn't received" in loguru_caplog.text
     assert endpoint.called
 
 
@@ -681,7 +687,7 @@ async def test__botx_method_callback__bot_wait_already_waited_callback(
         )
         await asyncio.sleep(0)  # Return control to event loop
 
-        bot.set_raw_botx_method_result(
+        await bot.set_raw_botx_method_result(
             {
                 "status": "ok",
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
@@ -691,7 +697,7 @@ async def test__botx_method_callback__bot_wait_already_waited_callback(
 
         foo_bar = await task
 
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(BotXMethodCallbackNotFoundError) as exc:
             await bot.wait_botx_method_callback(foo_bar)
 
     # - Assert -
@@ -739,7 +745,7 @@ async def test__botx_method_callback__bot_wait_timeouted_callback(
         await asyncio.sleep(0)
         await asyncio.sleep(0)
 
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(BotXMethodCallbackNotFoundError) as exc:
             await bot.wait_botx_method_callback(foo_bar)
 
     # - Assert -
