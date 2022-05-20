@@ -7,12 +7,12 @@ from pydantic import Field
 
 from pybotx.logger import logger
 from pybotx.models.attachments import (
-    AttachmentContact,
-    AttachmentLink,
-    AttachmentLocation,
     BotAPIAttachment,
+    Contact,
     FileAttachmentBase,
     IncomingFileAttachment,
+    Link,
+    Location,
     convert_api_attachment_to_domain,
 )
 from pybotx.models.base_command import (
@@ -26,7 +26,6 @@ from pybotx.models.base_command import (
 from pybotx.models.bot_account import BotAccount
 from pybotx.models.chats import Chat
 from pybotx.models.enums import (
-    AttachmentTypes,
     BotAPIEntityTypes,
     BotAPIMentionTypes,
     ClientPlatforms,
@@ -92,9 +91,9 @@ class IncomingMessage(BotCommandBase):
     forward: Optional[Forward] = None
     reply: Optional[Reply] = None
     file: Optional[IncomingFileAttachment] = None
-    location: Optional[AttachmentLocation] = None
-    contact: Optional[AttachmentContact] = None
-    link: Optional[AttachmentLink] = None
+    location: Optional[Location] = None
+    contact: Optional[Contact] = None
+    link: Optional[Link] = None
     sticker: Optional[Sticker] = None
 
     state: SimpleNamespace = field(default_factory=SimpleNamespace)
@@ -240,9 +239,9 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
         )
 
         file: Optional[IncomingFileAttachment] = None
-        location: Optional[AttachmentLocation] = None
-        contact: Optional[AttachmentContact] = None
-        link: Optional[AttachmentLink] = None
+        location: Optional[Location] = None
+        contact: Optional[Contact] = None
+        link: Optional[Link] = None
         sticker: Optional[Sticker] = None
 
         if self.attachments:
@@ -256,13 +255,13 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
                 )
                 if isinstance(attachment_domain, FileAttachmentBase):  # noqa: WPS223
                     file = attachment_domain
-                elif attachment_domain.type == AttachmentTypes.LOCATION:
+                elif isinstance(attachment_domain, Location):
                     location = attachment_domain
-                elif attachment_domain.type == AttachmentTypes.CONTACT:
+                elif isinstance(attachment_domain, Contact):
                     contact = attachment_domain
-                elif attachment_domain.type == AttachmentTypes.LINK:
+                elif isinstance(attachment_domain, Link):
                     link = attachment_domain
-                elif attachment_domain.type == AttachmentTypes.STICKER:
+                elif isinstance(attachment_domain, Sticker):
                     sticker = attachment_domain
                 else:
                     raise NotImplementedError

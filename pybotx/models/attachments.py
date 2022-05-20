@@ -62,9 +62,7 @@ class AttachmentVoice(FileAttachmentBase):
 
 
 @dataclass
-class AttachmentLocation:
-    type: Literal[AttachmentTypes.LOCATION]
-
+class Location:
     name: str
     address: str
     latitude: str
@@ -72,16 +70,12 @@ class AttachmentLocation:
 
 
 @dataclass
-class AttachmentContact:
-    type: Literal[AttachmentTypes.CONTACT]
-
+class Contact:
     name: str
 
 
 @dataclass
-class AttachmentLink:
-    type: Literal[AttachmentTypes.LINK]
-
+class Link:
     url: str
     title: str
     preview: str
@@ -212,9 +206,9 @@ BotAPIAttachment = Union[
 
 IncomingAttachment = Union[
     IncomingFileAttachment,
-    AttachmentLocation,
-    AttachmentContact,
-    AttachmentLink,
+    Location,
+    Contact,
+    Link,
     Sticker,
 ]
 
@@ -283,8 +277,7 @@ def convert_api_attachment_to_domain(  # noqa: WPS212
         attachment_type = cast(Literal[AttachmentTypes.LOCATION], attachment_type)
         api_attachment = cast(BotAPIAttachmentLocation, api_attachment)
 
-        return AttachmentLocation(
-            type=attachment_type,
+        return Location(
             name=api_attachment.data.location_name,
             address=api_attachment.data.location_address,
             latitude=api_attachment.data.location_lat,
@@ -295,8 +288,7 @@ def convert_api_attachment_to_domain(  # noqa: WPS212
         attachment_type = cast(Literal[AttachmentTypes.CONTACT], attachment_type)
         api_attachment = cast(BotAPIAttachmentContact, api_attachment)
 
-        return AttachmentContact(
-            type=attachment_type,
+        return Contact(
             name=api_attachment.data.contact_name,
         )
 
@@ -304,8 +296,7 @@ def convert_api_attachment_to_domain(  # noqa: WPS212
         attachment_type = cast(Literal[AttachmentTypes.LINK], attachment_type)
         api_attachment = cast(BotAPIAttachmentLink, api_attachment)
 
-        return AttachmentLink(
-            type=attachment_type,
+        return Link(
             url=api_attachment.data.url,
             title=api_attachment.data.url_title,
             preview=api_attachment.data.url_preview,
