@@ -12,7 +12,9 @@ class UnknownBotAccountError(Exception):
 class BotXMethodCallbackNotFoundError(Exception):
     def __init__(self, sync_id: UUID) -> None:
         self.sync_id = sync_id
-        self.message = f"No callback found with sync_id: `{sync_id!s}`"
+        self.message = (
+            f"Callback `{sync_id}` doesn't exist or already waited or timed out"
+        )
         super().__init__(self.message)
 
 

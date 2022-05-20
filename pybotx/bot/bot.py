@@ -8,7 +8,9 @@ from pydantic import ValidationError, parse_obj_as
 
 from pybotx.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
-from pybotx.bot.callbacks_manager import CallbacksManager
+from pybotx.bot.callbacks.callback_manager import CallbackManager
+from pybotx.bot.callbacks.callback_memory_repo import CallbackMemoryRepo
+from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
 from pybotx.bot.contextvars import bot_id_var, chat_id_var
 from pybotx.bot.exceptions import AnswerDestinationLookupError
 from pybotx.bot.handler import Middleware
@@ -182,6 +184,7 @@ class Bot:
         httpx_client: Optional[httpx.AsyncClient] = None,
         exception_handlers: Optional[ExceptionHandlersDict] = None,
         default_callback_timeout: float = BOTX_DEFAULT_TIMEOUT,
+        callback_repo: Optional[CallbackRepoProto] = None,
     ) -> None:
         if not collectors:
             logger.warning("Bot has no connected collectors")
@@ -198,7 +201,11 @@ class Bot:
         self._default_callback_timeout = default_callback_timeout
         self._bot_accounts_storage = BotAccountsStorage(list(bot_accounts))
         self._httpx_client = httpx_client or httpx.AsyncClient()
-        self._callbacks_manager = CallbacksManager()
+
+        if not callback_repo:
+            callback_repo = CallbackMemoryRepo()
+
+        self._callbacks_manager = CallbackManager(callback_repo)
 
         self.state: SimpleNamespace = SimpleNamespace()
 
@@ -253,7 +260,7 @@ class Bot:
 
         return await self._handler_collector.get_bot_menu(status_recipient, self)
 
-    def set_raw_botx_method_result(
+    async def set_raw_botx_method_result(
         self,
         raw_botx_method_result: Dict[str, Any],
     ) -> None:
@@ -265,7 +272,7 @@ class Bot:
             raw_botx_method_result,
         )
 
-        self._callbacks_manager.set_botx_method_callback_result(callback)
+        await self._callbacks_manager.set_botx_method_callback_result(callback)
 
     async def wait_botx_method_callback(
         self,
@@ -296,7 +303,7 @@ class Bot:
             self._bot_accounts_storage.set_token(bot_account.id, token)
 
     async def shutdown(self) -> None:
-        self._callbacks_manager.stop_callbacks_waiting()
+        await self._callbacks_manager.stop_callbacks_waiting()
         await self._handler_collector.wait_active_tasks()
         await self._httpx_client.aclose()
 
