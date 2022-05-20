@@ -14,14 +14,14 @@ from pybotx import (
     lifespan_wrapper,
 )
 from pybotx.models.attachments import (
-    AttachmentContact,
     AttachmentDocument,
     AttachmentImage,
-    AttachmentLink,
-    AttachmentLocation,
     AttachmentVideo,
     AttachmentVoice,
+    Contact,
     IncomingAttachment,
+    Link,
+    Location,
 )
 
 pytestmark = [
@@ -88,8 +88,7 @@ API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
                 "location_lng": 34.28833,
             },
         },
-        AttachmentLocation(
-            type=AttachmentTypes.LOCATION,
+        Location(
             name="Центр вселенной",
             address="Россия, Тверская область",
             latitude="58.04861",
@@ -106,8 +105,7 @@ API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
                 "content": "data:text/vcard;base64,eDnXAc1FEUB0VFEFctII3lRlRBcetROeFfduPmXxE/8=",
             },
         },
-        AttachmentContact(
-            type=AttachmentTypes.CONTACT,
+        Contact(
             name="Иванов Иван",
         ),
         "contact",
@@ -122,8 +120,7 @@ API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
                 "url_text": "Some text in link",
             },
         },
-        AttachmentLink(
-            type=AttachmentTypes.LINK,
+        Link(
             url="http://ya.ru/xxx",
             title="Header in link",
             preview="http://ya.ru/xxx.jpg",
