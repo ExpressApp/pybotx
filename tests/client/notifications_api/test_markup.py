@@ -358,7 +358,7 @@ async def test__markup__color_and_align(
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        bot.set_raw_botx_method_result(
+        await bot.set_raw_botx_method_result(
             {
                 "status": "ok",
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
