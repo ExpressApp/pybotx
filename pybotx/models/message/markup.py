@@ -1,8 +1,15 @@
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any, Dict, Iterator, List, Literal, Optional, Union
 
 from pybotx.missing import Missing, Undefined
 from pybotx.models.api_base import UnverifiedPayloadBaseModel
+
+
+class ButtonTextAlign(Enum):
+    LEFT = "left"
+    CENTER = "center"
+    RIGHT = "right"
 
 
 @dataclass
@@ -10,6 +17,9 @@ class Button:
     command: str
     label: str
     data: Dict[str, Any] = field(default_factory=dict)
+    text_color: Missing[str] = Undefined
+    background_color: Missing[str] = Undefined
+    align: Missing[ButtonTextAlign] = Undefined
 
     silent: bool = True  # BotX has `False` as default, so Missing type can't be used
     width_ratio: Missing[int] = Undefined
@@ -49,6 +59,9 @@ class BaseMarkup:
         command: str,
         label: str,
         data: Optional[Dict[str, Any]] = None,
+        text_color: Missing[str] = Undefined,
+        background_color: Missing[str] = Undefined,
+        align: Missing[ButtonTextAlign] = Undefined,
         silent: bool = True,
         width_ratio: Missing[int] = Undefined,
         alert: Missing[str] = Undefined,
@@ -59,6 +72,9 @@ class BaseMarkup:
             command=command,
             label=label,
             data=data or {},
+            text_color=text_color,
+            background_color=background_color,
+            align=align,
             silent=silent,
             width_ratio=width_ratio,
             alert=alert,
@@ -83,6 +99,9 @@ Markup = Union[BubbleMarkup, KeyboardMarkup]
 
 class BotXAPIButtonOptions(UnverifiedPayloadBaseModel):
     silent: Missing[bool]
+    font_color: Missing[str]
+    background_color: Missing[str]
+    align: Missing[str]
     h_size: Missing[int]
     show_alert: Missing[Literal[True]]
     alert_text: Missing[str]
@@ -115,6 +134,9 @@ def api_button_from_domain(button: Button) -> BotXAPIButton:
         data=button.data,
         opts=BotXAPIButtonOptions(
             silent=button.silent,
+            font_color=button.text_color,
+            background_color=button.background_color,
+            align=button.align,
             h_size=button.width_ratio,
             alert_text=button.alert,
             show_alert=show_alert,
