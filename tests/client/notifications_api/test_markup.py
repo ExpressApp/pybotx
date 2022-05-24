@@ -15,7 +15,7 @@ from pybotx import (
     KeyboardMarkup,
     lifespan_wrapper,
 )
-from pybotx.models.message.markup import Align
+from pybotx.models.message.markup import ButtonTextAlign
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -317,31 +317,31 @@ async def test__markup__color_and_align(
     bubbles.add_button(
         command="/button",
         label="Green font, left align",
-        font_color="#25B43D",
-        align=Align.LEFT,
+        text_color="#25B43D",
+        align=ButtonTextAlign.LEFT,
     )
     bubbles.add_button(
         command="/button",
         label="Green background, center align",
         background_color="#25B43D",
-        align=Align.CENTER,
+        align=ButtonTextAlign.CENTER,
     )
-    button = Button(
+    bubbles.add_button(
         command="/button",
         label="Red font, green background, right align",
-        font_color="#ED4747",
+        text_color="#ED4747",
         background_color="#25B43D",
-        align=Align.RIGHT,
+        align=ButtonTextAlign.RIGHT,
     )
-    bubbles.add_row([button])
 
     keyboard = KeyboardMarkup()
     keyboard.add_button(
         command="/keyboard",
         label="Green background, left align",
         background_color="#25B43D",
-        align=Align.LEFT,
+        align=ButtonTextAlign.LEFT,
     )
+
     built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
