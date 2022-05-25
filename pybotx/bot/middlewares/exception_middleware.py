@@ -31,12 +31,7 @@ class ExceptionMiddleware:
         except Exception as message_handler_exc:
             exception_handler = self._get_exception_handler(message_handler_exc)
             if exception_handler is None:
-                exc_name = type(message_handler_exc).__name__
-                logger.exception(
-                    f"Uncaught exception {exc_name}:",
-                    message_handler_exc,
-                )
-                return
+                raise message_handler_exc
 
             try:  # noqa: WPS505
                 await exception_handler(message, bot, message_handler_exc)

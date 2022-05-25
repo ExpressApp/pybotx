@@ -68,11 +68,11 @@ async def test__exception_middleware__without_handler_logs(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_bot_command(user_command)
+        with pytest.raises(ValueError) as exc:
+            await bot.async_execute_bot_command(user_command)
 
     # - Assert -
-    assert "Uncaught exception ValueError" in loguru_caplog.text
-    assert "Testing exception middleware" in loguru_caplog.text
+    assert "Testing exception middleware" in str(exc.value)
 
 
 async def test__exception_middleware__error_in_handler_logs(
