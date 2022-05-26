@@ -16,7 +16,6 @@ class BotXMethodFailedCallbackReceivedError(BaseClientError):
 
     def __reduce__(self) -> Any:
         # This method required to pass exception from pybotx logger to bot logger.
-        # Tested in async-box
         return type(self), (self.callback,)  # pragma: no cover
 
 
