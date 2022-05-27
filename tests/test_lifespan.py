@@ -97,4 +97,32 @@ async def test__startup__authorize_cant_get_token(
     assert "Can't get token for bot account: " in loguru_caplog.text
     assert f"host - {host}, bot_id - {bot_id}" in loguru_caplog.text
 
+    # Cleanup
+    await bot.shutdown()
+
+
+async def test__startup__can_skip_fetching_tokens(
+    respx_mock: MockRouter,
+    bot_account: BotAccountWithSecret,
+    host: str,
+    bot_id: UUID,
+    bot_signature: str,
+) -> None:
+    # - Arrange -
+    token_endpoint = respx_mock.get(
+        f"https://{host}/api/v2/botx/bots/{bot_id}/token",
+        params={"signature": bot_signature},
+    )
+
+    collector = HandlerCollector()
+
+    bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+
+    # - Act -
+    await bot.startup(fetch_tokens=False)
+
+    # - Assert -
+    assert not token_endpoint.called
+
+    # Cleanup
     await bot.shutdown()

@@ -289,7 +289,7 @@ class Bot:
     def bot_accounts(self) -> Iterator[BotAccount]:
         yield from self._bot_accounts_storage.iter_bot_accounts()
 
-    async def startup(self) -> None:
+    async def fetch_tokens(self) -> None:
         for bot_account in self.bot_accounts:
             try:
                 token = await self.get_token(bot_id=bot_account.id)
@@ -301,6 +301,10 @@ class Bot:
                 continue
 
             self._bot_accounts_storage.set_token(bot_account.id, token)
+
+    async def startup(self, *, fetch_tokens: bool = True) -> None:
+        if fetch_tokens:
+            await self.fetch_tokens()
 
     async def shutdown(self) -> None:
         await self._callbacks_manager.stop_callbacks_waiting()
