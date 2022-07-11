@@ -24,7 +24,7 @@ class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
     result: List[Union[BotXAPIListChatResult, Dict[str, Any]]]  # noqa: WPS234
 
     def to_domain(self) -> List[ChatListItem]:
-        if any([isinstance(chat_item, dict) for chat_item in self.result]):
+        if any(isinstance(chat_item, dict) for chat_item in self.result):
             logger.warning("One or more unsupported chat types skipped")
 
         return [
