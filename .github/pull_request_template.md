@@ -5,4 +5,4 @@
 - [ ] I've added the description of function to documentation
 - [ ] I've updated project version in `pyproject.toml`
 - [ ] I'll make a release when PR is merged
-- [ ] I'll bump `pybotx` in `async-box`
+- [ ] I'll bump `pybotx` in `bot-template`
