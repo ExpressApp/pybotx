@@ -16,6 +16,7 @@ class BotXAPISearchUserResult(VerifiedPayloadBaseModel):
     company_position: Optional[str] = None
     department: Optional[str] = None
     emails: List[str] = Field(default_factory=list)
+    other_id: Optional[str] = None
 
 
 class BotXAPISearchUserResponsePayload(VerifiedPayloadBaseModel):
@@ -32,4 +33,5 @@ class BotXAPISearchUserResponsePayload(VerifiedPayloadBaseModel):
             company_position=self.result.company_position,
             department=self.result.department,
             emails=self.result.emails,
+            other_id=self.result.other_id,
         )

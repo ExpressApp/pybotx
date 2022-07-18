@@ -140,6 +140,10 @@ from pybotx.client.users_api.search_user_by_login import (
     BotXAPISearchUserByLoginRequestPayload,
     SearchUserByLoginMethod,
 )
+from pybotx.client.users_api.search_user_by_other_id import (
+    BotXAPISearchUserByOtherIdRequestPayload,
+    SearchUserByOtherIdMethod,
+)
 from pybotx.constants import BOTX_DEFAULT_TIMEOUT, STICKER_PACKS_PER_PAGE
 from pybotx.converters import optional_sequence_to_list
 from pybotx.image_validators import (
@@ -1100,6 +1104,33 @@ class Bot:
         payload = BotXAPISearchUserByLoginRequestPayload.from_domain(
             ad_login=ad_login,
             ad_domain=ad_domain,
+        )
+
+        botx_api_user_from_search = await method.execute(payload)
+
+        return botx_api_user_from_search.to_domain()
+
+    async def search_by_other_id(
+        self,
+        *,
+        bot_id: UUID,
+        other_id: str,
+    ) -> UserFromSearch:
+        """Search user by other identificator for search.
+
+        :param bot_id: Bot which should perform the request.
+        :param other_id: User other identificator.
+
+        :return: User information.
+        """
+
+        method = SearchUserByOtherIdMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPISearchUserByOtherIdRequestPayload.from_domain(
+            other_id=other_id,
         )
 
         botx_api_user_from_search = await method.execute(payload)

@@ -16,6 +16,7 @@ class UserFromSearch:
         company_position: User company position.
         department: User department.
         emails: User emails.
+        other_id: User other identificator.
     """
 
     huid: UUID
@@ -26,3 +27,4 @@ class UserFromSearch:
     company_position: Optional[str]
     department: Optional[str]
     emails: List[str]
+    other_id: Optional[str]

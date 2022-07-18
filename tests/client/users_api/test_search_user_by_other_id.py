@@ -21,7 +21,7 @@ pytestmark = [
 ]
 
 
-async def test__search_user_by_ad__user_not_found_error_raised(
+async def test__search_user_by_other_id__user_not_found_error_raised(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
@@ -29,9 +29,9 @@ async def test__search_user_by_ad__user_not_found_error_raised(
 ) -> None:
     # - Arrange -
     endpoint = respx_mock.get(
-        f"https://{host}/api/v3/botx/users/by_login",
+        f"https://{host}/api/v3/botx/users/by_other_id",
         headers={"Authorization": "Bearer token"},
-        params={"ad_login": "ad_user_login", "ad_domain": "cts.com"},
+        params={"other_id": "some_id"},
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.NOT_FOUND,
@@ -49,10 +49,9 @@ async def test__search_user_by_ad__user_not_found_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UserNotFoundError) as exc:
-            await bot.search_user_by_ad(
+            await bot.search_by_other_id(
                 bot_id=bot_id,
-                ad_login="ad_user_login",
-                ad_domain="cts.com",
+                other_id="some_id",
             )
 
     # - Assert -
@@ -60,7 +59,7 @@ async def test__search_user_by_ad__user_not_found_error_raised(
     assert endpoint.called
 
 
-async def test__search_user_by_ad__succeed(
+async def test__search_user_by_other_id__succeed(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
@@ -68,9 +67,9 @@ async def test__search_user_by_ad__succeed(
 ) -> None:
     # - Arrange -
     endpoint = respx_mock.get(
-        f"https://{host}/api/v3/botx/users/by_login",
+        f"https://{host}/api/v3/botx/users/by_other_id",
         headers={"Authorization": "Bearer token"},
-        params={"ad_login": "ad_user_login", "ad_domain": "cts.com"},
+        params={"other_id": "some_id"},
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.OK,
@@ -85,6 +84,7 @@ async def test__search_user_by_ad__succeed(
                     "company_position": "Director",
                     "department": "Owners",
                     "emails": ["ad_user@cts.com"],
+                    "other_id": "some_id",
                 },
             },
         ),
@@ -94,10 +94,9 @@ async def test__search_user_by_ad__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        user = await bot.search_user_by_ad(
+        user = await bot.search_by_other_id(
             bot_id=bot_id,
-            ad_login="ad_user_login",
-            ad_domain="cts.com",
+            other_id="some_id",
         )
 
     # - Assert -
@@ -110,7 +109,7 @@ async def test__search_user_by_ad__succeed(
         company_position="Director",
         department="Owners",
         emails=["ad_user@cts.com"],
-        other_id=None,
+        other_id="some_id",
     )
 
     assert endpoint.called
