@@ -108,6 +108,7 @@ async def test__search_user_by_email__succeed(
         company_position="Director",
         department="Owners",
         emails=["ad_user@cts.com"],
+        other_id=None,
     )
 
     assert endpoint.called
