@@ -49,7 +49,7 @@ async def test__search_user_by_other_id__user_not_found_error_raised(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UserNotFoundError) as exc:
-            await bot.search_by_other_id(
+            await bot.search_user_by_other_id(
                 bot_id=bot_id,
                 other_id="some_id",
             )
@@ -94,7 +94,7 @@ async def test__search_user_by_other_id__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        user = await bot.search_by_other_id(
+        user = await bot.search_user_by_other_id(
             bot_id=bot_id,
             other_id="some_id",
         )
