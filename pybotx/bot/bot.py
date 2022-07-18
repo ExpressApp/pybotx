@@ -1110,7 +1110,7 @@ class Bot:
 
         return botx_api_user_from_search.to_domain()
 
-    async def search_by_other_id(
+    async def search_user_by_other_id(
         self,
         *,
         bot_id: UUID,
