@@ -144,6 +144,10 @@ from pybotx.client.users_api.search_user_by_other_id import (
     BotXAPISearchUserByOtherIdRequestPayload,
     SearchUserByOtherIdMethod,
 )
+from pybotx.client.users_api.update_user_profile import (
+    BotXAPIUpdateUserProfileRequestPayload,
+    UpdateUsersProfileMethod,
+)
 from pybotx.constants import BOTX_DEFAULT_TIMEOUT, STICKER_PACKS_PER_PAGE
 from pybotx.converters import optional_sequence_to_list
 from pybotx.image_validators import (
@@ -1136,6 +1140,56 @@ class Bot:
         botx_api_user_from_search = await method.execute(payload)
 
         return botx_api_user_from_search.to_domain()
+
+    async def update_user_profile(
+        self,
+        *,
+        bot_id: UUID,
+        user_huid: UUID,
+        avatar: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        name: Missing[str] = Undefined,
+        public_name: Missing[str] = Undefined,
+        company: Missing[str] = Undefined,
+        company_position: Missing[str] = Undefined,
+        description: Missing[str] = Undefined,
+        department: Missing[str] = Undefined,
+        office: Missing[str] = Undefined,
+        manager: Missing[str] = Undefined,
+    ) -> None:
+        """Update user profile.
+
+        :param bot_id: Bot which should perform the request.
+        :param user_huid: User huid whose profile needs to be updated.
+        :param avatar: New user avatar.
+        :param name: New user name.
+        :param public_name: New user public name.
+        :param company: New user company.
+        :param company_position: New user company position.
+        :param description: New user description.
+        :param department: New user department.
+        :param office: New user office.
+        :param manager: New user manager.
+        """
+        method = UpdateUsersProfileMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        payload = BotXAPIUpdateUserProfileRequestPayload.from_domain(
+            user_huid=user_huid,
+            avatar=avatar,
+            name=name,
+            public_name=public_name,
+            company=company,
+            company_position=company_position,
+            description=description,
+            department=department,
+            office=office,
+            manager=manager,
+        )
+
+        await method.execute(payload)
 
     # - SmartApps API -
     async def send_smartapp_event(
