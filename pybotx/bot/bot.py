@@ -1,6 +1,16 @@
 from asyncio import Task
 from types import SimpleNamespace
-from typing import Any, AsyncIterable, Dict, Iterator, List, Optional, Sequence, Union
+from typing import (
+    Any,
+    AsyncIterable,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 from uuid import UUID
 
 import httpx
@@ -96,6 +106,10 @@ from pybotx.client.smartapps_api.smartapp_notification import (
     BotXAPISmartAppNotificationRequestPayload,
     SmartAppNotificationMethod,
 )
+from pybotx.client.smartapps_api.smartapps_list import (
+    BotXAPISmartAppsListRequestPayload,
+    SmartAppsListMethod,
+)
 from pybotx.client.stickers_api.add_sticker import (
     AddStickerMethod,
     BotXAPIAddStickerRequestPayload,
@@ -168,6 +182,7 @@ from pybotx.models.message.message_status import MessageStatus
 from pybotx.models.message.outgoing_message import OutgoingMessage
 from pybotx.models.message.reply_message import ReplyMessage
 from pybotx.models.method_callbacks import BotXMethodCallback
+from pybotx.models.smartapps import SmartApp
 from pybotx.models.status import (
     BotAPIStatusRecipient,
     BotMenu,
@@ -1261,6 +1276,31 @@ class Bot:
         )
 
         await method.execute(payload)
+
+    async def get_smartapps_list(
+        self,
+        *,
+        bot_id: UUID,
+        version: Missing[int] = Undefined,
+    ) -> Tuple[List[SmartApp], int]:
+        """Get list of SmartApps on the current CTS.
+
+        :param bot_id: Bot which should perform the request.
+        :param version: Specific list version.
+
+        :return: List of SmartApps, list version.
+        """
+
+        method = SmartAppsListMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPISmartAppsListRequestPayload.from_domain(version=version)
+
+        botx_api_smartapps_list = await method.execute(payload)
+
+        return botx_api_smartapps_list.to_domain()
 
     # - Stickers API -
     async def create_sticker_pack(
