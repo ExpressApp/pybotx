@@ -25,6 +25,7 @@ class ChatListItem:
         members: Chat members.
         created_at: Chat creation datetime.
         updated_at: Last chat update datetime.
+        shared_history: Is shared history enabled.
     """
 
     chat_id: UUID
@@ -34,6 +35,7 @@ class ChatListItem:
     members: List[UUID]
     created_at: datetime
     updated_at: datetime
+    shared_history: bool
 
 
 @dataclass
@@ -63,6 +65,7 @@ class ChatInfo:
         created_at: Chat creation datetime.
         members: Chat members.
         name: Chat name.
+        shared_history: Is shared history enabled.
     """
 
     chat_type: ChatTypes
@@ -72,3 +75,4 @@ class ChatInfo:
     created_at: dt
     members: List[ChatInfoMember]
     name: str
+    shared_history: bool
