@@ -103,6 +103,7 @@ async def test__chat_info__succeed(
                         },
                     ],
                     "name": "Group Chat Example",
+                    "shared_history": False,
                 },
             },
         ),
@@ -137,6 +138,7 @@ async def test__chat_info__succeed(
             ),
         ],
         name="Group Chat Example",
+        shared_history=False,
     )
 
     assert endpoint.called

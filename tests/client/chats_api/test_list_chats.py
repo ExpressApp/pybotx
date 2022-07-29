@@ -51,6 +51,7 @@ async def test__list_chats__succeed(
                         ],
                         "inserted_at": "2019-08-29T11:22:48.358586Z",
                         "updated_at": "2019-08-30T21:02:10.453786Z",
+                        "shared_history": False,
                     },
                 ],
             },
@@ -76,6 +77,7 @@ async def test__list_chats__succeed(
             ],
             created_at=datetime_formatter("2019-08-29T11:22:48.358586Z"),
             updated_at=datetime_formatter("2019-08-30T21:02:10.453786Z"),
+            shared_history=False,
         ),
     ]
     assert endpoint.called
@@ -110,6 +112,7 @@ async def test__list_chats__unsupported_chats_types(
                         ],
                         "inserted_at": "2019-08-29T11:22:48.358586Z",
                         "updated_at": "2019-08-30T21:02:10.453786Z",
+                        "shared_history": False,
                     },
                     {
                         "group_chat_id": "c7faf797-5470-4d18-9b1c-379bb8b24d48",
@@ -122,6 +125,7 @@ async def test__list_chats__unsupported_chats_types(
                         ],
                         "inserted_at": "2019-08-29T11:22:48.358586Z",
                         "updated_at": "2019-08-30T21:02:10.453786Z",
+                        "shared_history": False,
                     },
                 ],
             },
@@ -148,6 +152,7 @@ async def test__list_chats__unsupported_chats_types(
             ],
             created_at=datetime_formatter("2019-08-29T11:22:48.358586Z"),
             updated_at=datetime_formatter("2019-08-30T21:02:10.453786Z"),
+            shared_history=False,
         ),
     ]
     assert endpoint.called

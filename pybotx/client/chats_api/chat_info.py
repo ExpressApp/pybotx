@@ -37,6 +37,7 @@ class BotXAPIChatInfoResult(VerifiedPayloadBaseModel):
     inserted_at: dt
     members: List[BotXAPIChatInfoMember]
     name: str
+    shared_history: bool
 
 
 class BotXAPIChatInfoResponsePayload(VerifiedPayloadBaseModel):
@@ -61,6 +62,7 @@ class BotXAPIChatInfoResponsePayload(VerifiedPayloadBaseModel):
             created_at=self.result.inserted_at,
             members=members,
             name=self.result.name,
+            shared_history=self.result.shared_history,
         )
 
 

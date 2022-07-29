@@ -17,6 +17,7 @@ class BotXAPIListChatResult(VerifiedPayloadBaseModel):
     members: List[UUID]
     inserted_at: datetime
     updated_at: datetime
+    shared_history: bool
 
 
 class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
@@ -36,6 +37,7 @@ class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
                 members=chat_item.members,
                 created_at=chat_item.inserted_at,
                 updated_at=chat_item.updated_at,
+                shared_history=chat_item.shared_history,
             )
             for chat_item in self.result
             if isinstance(chat_item, BotXAPIListChatResult)
