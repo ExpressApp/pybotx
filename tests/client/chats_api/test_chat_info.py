@@ -142,3 +142,86 @@ async def test__chat_info__succeed(
     )
 
     assert endpoint.called
+
+
+async def test__chat_info__skipped_members(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    datetime_formatter: Callable[[str], dt],
+    bot_account: BotAccountWithSecret,
+    loguru_caplog: pytest.LogCaptureFixture,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.get(
+        f"https://{host}/api/v3/botx/chats/info",
+        headers={"Authorization": "Bearer token"},
+        params={"group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa"},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.OK,
+            json={
+                "status": "ok",
+                "result": {
+                    "chat_type": "group_chat",
+                    "creator": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+                    "description": None,
+                    "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
+                    "inserted_at": "2019-08-29T11:22:48.358586Z",
+                    "members": [
+                        {
+                            "admin": True,
+                            "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+                            "user_kind": "user",
+                        },
+                        {
+                            "admin": False,
+                            "user_huid": "705df263-6bfd-536a-9d51-13524afaab5c",
+                            "user_kind": "botx",
+                        },
+                        {
+                            "admin": False,
+                            "user_huid": "0843a8a8-6d56-4ce6-92aa-13dc36bd9ede",
+                            "user_kind": "unsupported_user_type",
+                        },
+                    ],
+                    "name": "Group Chat Example",
+                    "shared_history": False,
+                },
+            },
+        ),
+    )
+
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        chat_info = await bot.chat_info(
+            bot_id=bot_id,
+            chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+        )
+
+    # - Assert -
+    assert chat_info == ChatInfo(
+        chat_type=ChatTypes.GROUP_CHAT,
+        creator_id=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
+        description=None,
+        chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+        created_at=datetime_formatter("2019-08-29T11:22:48.358586Z"),
+        members=[
+            ChatInfoMember(
+                is_admin=True,
+                huid=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
+                kind=UserKinds.RTS_USER,
+            ),
+            ChatInfoMember(
+                is_admin=False,
+                huid=UUID("705df263-6bfd-536a-9d51-13524afaab5c"),
+                kind=UserKinds.BOT,
+            ),
+        ],
+        name="Group Chat Example",
+        shared_history=False,
+    )
+    assert "One or more unsupported user types skipped" in loguru_caplog.text
+    assert endpoint.called
