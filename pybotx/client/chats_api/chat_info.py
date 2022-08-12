@@ -1,10 +1,11 @@
 from datetime import datetime as dt
-from typing import List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.client.botx_method import response_exception_thrower
 from pybotx.client.exceptions.common import ChatNotFoundError
+from pybotx.logger import logger
 from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from pybotx.models.chats import ChatInfo, ChatInfoMember
 from pybotx.models.enums import (
@@ -35,7 +36,7 @@ class BotXAPIChatInfoResult(VerifiedPayloadBaseModel):
     description: Optional[str] = None
     group_chat_id: UUID
     inserted_at: dt
-    members: List[BotXAPIChatInfoMember]
+    members: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]]  # noqa: WPS234
     name: str
     shared_history: bool
 
@@ -45,6 +46,9 @@ class BotXAPIChatInfoResponsePayload(VerifiedPayloadBaseModel):
     result: BotXAPIChatInfoResult
 
     def to_domain(self) -> ChatInfo:
+        if any(isinstance(member, dict) for member in self.result.members):
+            logger.warning("One or more unsupported user types skipped")
+
         members = [
             ChatInfoMember(
                 is_admin=member.admin,
@@ -52,6 +56,7 @@ class BotXAPIChatInfoResponsePayload(VerifiedPayloadBaseModel):
                 kind=convert_user_kind_to_domain(member.user_kind),
             )
             for member in self.result.members
+            if isinstance(member, BotXAPIChatInfoMember)
         ]
 
         return ChatInfo(

@@ -17,6 +17,8 @@ class UserKinds(AutoName):
     RTS_USER = auto()
     CTS_USER = auto()
     BOT = auto()
+    UNREGISTERED = auto()
+    GUEST = auto()
 
 
 class AttachmentTypes(AutoName):
@@ -106,6 +108,8 @@ class APIUserKinds(StrEnum):
     USER = "user"
     CTS_USER = "cts_user"
     BOTX = "botx"
+    UNREGISTERED = "unregistered"
+    GUEST = "guest"
 
 
 class APIAttachmentTypes(StrEnum):
@@ -159,6 +163,8 @@ def convert_user_kind_to_domain(user_kind: APIUserKinds) -> UserKinds:
         APIUserKinds.USER: UserKinds.RTS_USER,
         APIUserKinds.CTS_USER: UserKinds.CTS_USER,
         APIUserKinds.BOTX: UserKinds.BOT,
+        APIUserKinds.UNREGISTERED: UserKinds.UNREGISTERED,
+        APIUserKinds.GUEST: UserKinds.GUEST,
     }
 
     converted_type = user_kinds_mapping.get(user_kind)
