@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from typing import List, Optional
 from uuid import UUID
 
+from pybotx.models.enums import UserKinds
+
 
 @dataclass
 class UserFromSearch:
@@ -17,6 +19,7 @@ class UserFromSearch:
         department: User department.
         emails: User emails.
         other_id: User other identificator.
+        user_kind: User kind.
     """
 
     huid: UUID
@@ -28,3 +31,4 @@ class UserFromSearch:
     department: Optional[str]
     emails: List[str]
     other_id: Optional[str]
+    user_kind: UserKinds

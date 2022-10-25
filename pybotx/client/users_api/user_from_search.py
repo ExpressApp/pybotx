@@ -4,6 +4,7 @@ from uuid import UUID
 from pydantic import Field
 
 from pybotx.models.api_base import VerifiedPayloadBaseModel
+from pybotx.models.enums import APIUserKinds, convert_user_kind_to_domain
 from pybotx.models.users import UserFromSearch
 
 
@@ -17,6 +18,7 @@ class BotXAPISearchUserResult(VerifiedPayloadBaseModel):
     department: Optional[str] = None
     emails: List[str] = Field(default_factory=list)
     other_id: Optional[str] = None
+    user_kind: APIUserKinds
 
 
 class BotXAPISearchUserResponsePayload(VerifiedPayloadBaseModel):
@@ -34,4 +36,5 @@ class BotXAPISearchUserResponsePayload(VerifiedPayloadBaseModel):
             department=self.result.department,
             emails=self.result.emails,
             other_id=self.result.other_id,
+            user_kind=convert_user_kind_to_domain(self.result.user_kind),
         )
