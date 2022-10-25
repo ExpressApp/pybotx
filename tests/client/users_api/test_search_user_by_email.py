@@ -13,6 +13,7 @@ from pybotx import (
     UserNotFoundError,
     lifespan_wrapper,
 )
+from pybotx.models.enums import UserKinds
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -84,6 +85,7 @@ async def test__search_user_by_email__succeed(
                     "company_position": "Director",
                     "department": "Owners",
                     "emails": ["ad_user@cts.com"],
+                    "user_kind": "cts_user",
                 },
             },
         ),
@@ -109,6 +111,7 @@ async def test__search_user_by_email__succeed(
         department="Owners",
         emails=["ad_user@cts.com"],
         other_id=None,
+        user_kind=UserKinds.CTS_USER,
     )
 
     assert endpoint.called
