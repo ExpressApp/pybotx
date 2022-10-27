@@ -20,6 +20,11 @@ class AsyncBufferWritable(AsyncBufferBase):
         ...  # noqa: WPS428
 
 
+class AsyncBufferUnicodeWritable(AsyncBufferBase):
+    async def write(self, content: str) -> int:
+        ...  # noqa: WPS428
+
+
 class AsyncBufferReadable(AsyncBufferBase):
     async def read(self, bytes_to_read: Optional[int] = None) -> bytes:
         ...  # noqa: WPS428

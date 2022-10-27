@@ -1,8 +1,10 @@
 from asyncio import Task
+from contextlib import asynccontextmanager
 from types import SimpleNamespace
 from typing import (
     Any,
     AsyncIterable,
+    AsyncIterator,
     Dict,
     Iterator,
     List,
@@ -14,6 +16,7 @@ from typing import (
 from uuid import UUID
 
 import httpx
+from aiofiles.tempfile import NamedTemporaryFile
 from pydantic import ValidationError, parse_obj_as
 
 from pybotx.async_buffer import AsyncBufferReadable, AsyncBufferWritable
@@ -162,6 +165,11 @@ from pybotx.client.users_api.update_user_profile import (
     BotXAPIUpdateUserProfileRequestPayload,
     UpdateUsersProfileMethod,
 )
+from pybotx.client.users_api.user_from_csv import BotXAPIUserFromCSVResult
+from pybotx.client.users_api.users_as_csv import (
+    BotXAPIUsersAsCSVRequestPayload,
+    UsersAsCSVMethod,
+)
 from pybotx.constants import BOTX_DEFAULT_TIMEOUT, STICKER_PACKS_PER_PAGE
 from pybotx.converters import optional_sequence_to_list
 from pybotx.image_validators import (
@@ -190,7 +198,7 @@ from pybotx.models.status import (
     build_bot_status_response,
 )
 from pybotx.models.stickers import Sticker, StickerPack, StickerPackFromList
-from pybotx.models.users import UserFromSearch
+from pybotx.models.users import UserFromCSV, UserFromSearch
 
 MissingOptionalAttachment = MissingOptional[
     Union[IncomingFileAttachment, OutgoingAttachment]
@@ -1205,6 +1213,41 @@ class Bot:
         )
 
         await method.execute(payload)
+
+    @asynccontextmanager
+    async def users_as_csv(
+        self,
+        *,
+        bot_id: UUID,
+        cts_user: bool = True,
+        unregistered: bool = True,
+        botx: bool = False,
+    ) -> AsyncIterator[AsyncIterator[UserFromCSV]]:
+        """Get a list of users on a CTS.
+
+        :param bot_id: Bot which should perform the request.
+        :param cts_user: Include CTS users in the list.
+        :param unregistered: Include unregistered users in the list.
+        :param botx: Include bots in the list.
+
+        :yield: The list of users.
+        """
+        method = UsersAsCSVMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPIUsersAsCSVRequestPayload.from_domain(
+            cts_user=cts_user,
+            unregistered=unregistered,
+            botx=botx,
+        )
+
+        async with NamedTemporaryFile("w+") as async_buffer:
+            yield (
+                BotXAPIUserFromCSVResult(**row).to_domain()
+                async for row in await method.execute(payload, async_buffer)
+            )
 
     # - SmartApps API -
     async def send_smartapp_event(

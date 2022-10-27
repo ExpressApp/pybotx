@@ -7,3 +7,7 @@ class UserNotFoundError(BaseClientError):
 
 class InvalidProfileDataError(BaseClientError):
     """Invalid profile data."""
+
+
+class NoUserKindSelectedError(BaseClientError):
+    """No user kind selected."""

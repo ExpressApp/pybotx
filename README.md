@@ -555,3 +555,24 @@ async def create_group_chat_handler(message: IncomingMessage, bot: Bot) -> None:
     chat_mention = MentionBuilder.chat(chat_id)
     await bot.answer_message(f"Chat created: {chat_mention}")
 ```
+
+### Получение списка пользователей
+*([подробное описание функции](https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185/Bot+API+BotX+API#%D0%9F%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BF%D0%B8%D1%81%D0%BA%D0%B0-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D0%B5%D0%B9-%D0%BD%D0%B0-CTS))*
+
+```python
+from pybotx import *
+
+collector = HandlerCollector()
+
+
+@collector.command("/get_users_list", description="Get a list of users")
+async def users_list_handler(message: IncomingMessage, bot: Bot) -> None:
+    async with bot.users_as_csv(
+        bot_id=message.bot.id,
+        cts_user=True,
+        unregistered=False,
+        botx=False,
+    ) as users:
+        async for user in users:
+            print(user)
+```

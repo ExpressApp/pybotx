@@ -61,6 +61,13 @@ class ChatTypes(AutoName):
     CHANNEL = auto()
 
 
+class SyncSourceTypes(AutoName):
+    AD = auto()
+    ADMIN = auto()
+    EMAIL = auto()
+    OPENID = auto()
+
+
 class APIChatTypes(StrEnum):
     CHAT = "chat"
     GROUP_CHAT = "group_chat"
@@ -121,6 +128,13 @@ class APIAttachmentTypes(StrEnum):
     CONTACT = "contact"
     LINK = "link"
     STICKER = "sticker"
+
+
+class APISyncSourceTypes(StrEnum):
+    AD = "ad"
+    ADMIN = "admin"
+    EMAIL = "email"
+    OPENID = "openid"
 
 
 def convert_client_platform_to_domain(
@@ -239,5 +253,22 @@ def convert_chat_type_to_domain(chat_type: APIChatTypes) -> ChatTypes:
     converted_type = chat_types_mapping.get(chat_type)
     if converted_type is None:
         raise NotImplementedError(f"Unsupported chat type: {chat_type}")
+
+    return converted_type
+
+
+def convert_sync_source_type_to_domain(
+    sync_type: APISyncSourceTypes,
+) -> SyncSourceTypes:
+    sync_source_types_mapping = {
+        APISyncSourceTypes.AD: SyncSourceTypes.AD,
+        APISyncSourceTypes.ADMIN: SyncSourceTypes.ADMIN,
+        APISyncSourceTypes.EMAIL: SyncSourceTypes.EMAIL,
+        APISyncSourceTypes.OPENID: SyncSourceTypes.OPENID,
+    }
+
+    converted_type = sync_source_types_mapping.get(sync_type)
+    if converted_type is None:
+        raise NotImplementedError(f"Unsupported sync source type: {sync_type}")
 
     return converted_type
