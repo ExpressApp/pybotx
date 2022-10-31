@@ -325,7 +325,7 @@ class Bot:
             try:
                 token = await self.get_token(bot_id=bot_account.id)
             except (InvalidBotAccountError, httpx.HTTPError):
-                logger.warning(
+                logger.opt(exception=True).warning(
                     "Can't get token for bot account: "
                     f"host - {bot_account.host}, bot_id - {bot_account.id}",
                 )
