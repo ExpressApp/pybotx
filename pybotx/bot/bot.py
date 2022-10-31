@@ -16,7 +16,7 @@ from typing import (
 from uuid import UUID
 
 import httpx
-from aiofiles.tempfile import NamedTemporaryFile
+from aiofiles.tempfile import SpooledTemporaryFile
 from pydantic import ValidationError, parse_obj_as
 
 from pybotx.async_buffer import AsyncBufferReadable, AsyncBufferWritable
@@ -170,7 +170,7 @@ from pybotx.client.users_api.users_as_csv import (
     BotXAPIUsersAsCSVRequestPayload,
     UsersAsCSVMethod,
 )
-from pybotx.constants import BOTX_DEFAULT_TIMEOUT, STICKER_PACKS_PER_PAGE
+from pybotx.constants import BOTX_DEFAULT_TIMEOUT, CHUNK_SIZE, STICKER_PACKS_PER_PAGE
 from pybotx.converters import optional_sequence_to_list
 from pybotx.image_validators import (
     ensure_file_content_is_png,
@@ -1243,7 +1243,7 @@ class Bot:
             botx=botx,
         )
 
-        async with NamedTemporaryFile("w+") as async_buffer:
+        async with SpooledTemporaryFile(max_size=CHUNK_SIZE, mode="w+") as async_buffer:
             yield (
                 BotXAPIUserFromCSVResult(**row).to_domain()
                 async for row in await method.execute(payload, async_buffer)
