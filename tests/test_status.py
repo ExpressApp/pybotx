@@ -317,3 +317,27 @@ async def test__raw_get_status__visible_command_in_status(
         },
         "status": "ok",
     }
+
+
+async def test__get_status__unsupported_chat_type_accepted(
+    bot_account: BotAccountWithSecret,
+    bot_id: UUID,
+) -> None:
+    # - Arrange -
+    query = {
+        "bot_id": str(bot_id),
+        "chat_type": "unsupported_chat_type",
+        "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
+        "ad_login": "test.testov",
+        "ad_domain": "fake.fake",
+        "is_admin": "true",
+    }
+
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        status = await bot.raw_get_status(query)
+
+    # - Assert -
+    assert status

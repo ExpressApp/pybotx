@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from datetime import datetime as dt
-from typing import List, Optional
+from typing import List, Optional, Union
 from uuid import UUID
 
 from pybotx.models.enums import ChatTypes, UserKinds
@@ -10,7 +10,7 @@ from pybotx.models.enums import ChatTypes, UserKinds
 @dataclass
 class Chat:
     id: UUID
-    type: ChatTypes
+    type: Union[ChatTypes, str]
 
 
 @dataclass
@@ -29,7 +29,7 @@ class ChatListItem:
     """
 
     chat_id: UUID
-    chat_type: ChatTypes
+    chat_type: Union[ChatTypes, str]
     name: str
     description: Optional[str]
     members: List[UUID]
@@ -68,7 +68,7 @@ class ChatInfo:
         shared_history: Is shared history enabled.
     """
 
-    chat_type: ChatTypes
+    chat_type: Union[ChatTypes, str]
     creator_id: UUID
     description: Optional[str]
     chat_id: UUID

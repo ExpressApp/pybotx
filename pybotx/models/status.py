@@ -18,7 +18,7 @@ class StatusRecipient:
     ad_login: Optional[str]
     ad_domain: Optional[str]
     is_admin: Optional[bool]
-    chat_type: ChatTypes
+    chat_type: Union[ChatTypes, str]
 
     @classmethod
     def from_incoming_message(
@@ -41,7 +41,7 @@ class BotAPIStatusRecipient(VerifiedPayloadBaseModel):
     ad_login: Optional[str]
     ad_domain: Optional[str]
     is_admin: Optional[bool]
-    chat_type: APIChatTypes
+    chat_type: Union[APIChatTypes, str]
 
     @validator("ad_login", "ad_domain", "is_admin", pre=True)
     @classmethod

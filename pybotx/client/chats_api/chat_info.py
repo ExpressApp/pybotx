@@ -31,12 +31,14 @@ class BotXAPIChatInfoMember(VerifiedPayloadBaseModel):
 
 
 class BotXAPIChatInfoResult(VerifiedPayloadBaseModel):
-    chat_type: APIChatTypes
+    chat_type: Union[APIChatTypes, str]
     creator: UUID
     description: Optional[str] = None
     group_chat_id: UUID
     inserted_at: dt
-    members: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]]  # noqa: WPS234
+    members: Optional[  # noqa: WPS234
+        List[Union[BotXAPIChatInfoMember, Dict[str, Any]]]
+    ]
     name: str
     shared_history: bool
 
@@ -46,18 +48,21 @@ class BotXAPIChatInfoResponsePayload(VerifiedPayloadBaseModel):
     result: BotXAPIChatInfoResult
 
     def to_domain(self) -> ChatInfo:
-        if any(isinstance(member, dict) for member in self.result.members):
-            logger.warning("One or more unsupported user types skipped")
+        if self.result.members:
+            if any(isinstance(member, dict) for member in self.result.members):
+                logger.warning("One or more unsupported user types skipped")
 
-        members = [
-            ChatInfoMember(
-                is_admin=member.admin,
-                huid=member.user_huid,
-                kind=convert_user_kind_to_domain(member.user_kind),
-            )
-            for member in self.result.members
-            if isinstance(member, BotXAPIChatInfoMember)
-        ]
+            members = [
+                ChatInfoMember(
+                    is_admin=member.admin,
+                    huid=member.user_huid,
+                    kind=convert_user_kind_to_domain(member.user_kind),
+                )
+                for member in self.result.members
+                if isinstance(member, BotXAPIChatInfoMember)
+            ]
+        else:
+            members = []
 
         return ChatInfo(
             chat_type=convert_chat_type_to_domain(self.result.chat_type),
