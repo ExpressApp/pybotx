@@ -114,7 +114,7 @@ class BotAPISmartAppEvent(BotAPIBaseCommand):
             files=[convert_async_file_to_domain(file) for file in self.async_files],
             chat=Chat(
                 id=self.sender.group_chat_id,
-                type=convert_chat_type_to_domain(self.sender.chat_type),  # type: ignore
+                type=convert_chat_type_to_domain(self.sender.chat_type),
             ),
             sender=sender,
         )

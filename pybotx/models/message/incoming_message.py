@@ -233,16 +233,9 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             device=device,
         )
 
-        try:
-            chat_type = convert_chat_type_to_domain(
-                self.sender.chat_type,  # type: ignore
-            )
-        except NotImplementedError:
-            chat_type = str(self.sender.chat_type)  # type: ignore
-
         chat = Chat(
             id=self.sender.group_chat_id,
-            type=chat_type,
+            type=convert_chat_type_to_domain(self.sender.chat_type),
         )
 
         file: Optional[IncomingFileAttachment] = None

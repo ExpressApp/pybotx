@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, Literal, Optional, Union
+from typing import Any, Dict, Literal, Optional
 from uuid import UUID
 
 from pydantic import validator
@@ -47,7 +47,7 @@ class BotAPIUserContext(BaseBotAPIContext):
 
 class BotAPIChatContext(BaseBotAPIContext):
     group_chat_id: UUID
-    chat_type: Union[APIChatTypes, str]
+    chat_type: APIChatTypes
 
 
 class BotAPIDeviceContext(BaseBotAPIContext):

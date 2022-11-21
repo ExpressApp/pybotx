@@ -51,6 +51,6 @@ class BotAPIAddedToChat(BotAPIBaseCommand):
             huids=self.payload.data.added_members,
             chat=Chat(
                 id=self.sender.group_chat_id,
-                type=convert_chat_type_to_domain(self.sender.chat_type),  # type: ignore
+                type=convert_chat_type_to_domain(self.sender.chat_type),
             ),
         )
