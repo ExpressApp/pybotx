@@ -974,7 +974,7 @@ class Bot:
         *,
         bot_id: UUID,
         name: str,
-        chat_type: Union[ChatTypes, str],
+        chat_type: ChatTypes,
         huids: List[UUID],
         description: Optional[str] = None,
         shared_history: Missing[bool] = Undefined,

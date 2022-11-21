@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional, Union
+from typing import List, Literal, Optional
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -15,7 +15,7 @@ from pybotx.models.enums import APIChatTypes, ChatTypes, convert_chat_type_from_
 class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
     name: str
     description: Optional[str]
-    chat_type: Union[APIChatTypes, str]
+    chat_type: APIChatTypes
     members: List[UUID]
     shared_history: Missing[bool]
 
@@ -23,7 +23,7 @@ class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
     def from_domain(
         cls,
         name: str,
-        chat_type: Union[ChatTypes, str],
+        chat_type: ChatTypes,
         huids: List[UUID],
         shared_history: Missing[bool],
         description: Optional[str] = None,

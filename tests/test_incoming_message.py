@@ -574,5 +574,5 @@ async def test__async_execute_raw_bot_command__unsupported_chat_type_accepted(
     assert incoming_message
     assert incoming_message.chat == Chat(
         id=UUID("30dc1980-643a-00ad-37fc-7cc10d74e935"),
-        type="usupported_chat_type",
+        type="usupported_chat_type",  # type: ignore
     )

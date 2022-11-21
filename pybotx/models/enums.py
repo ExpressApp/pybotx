@@ -1,5 +1,4 @@
 from enum import Enum, auto
-from typing import Any
 
 from pybotx.models.api_base import StrEnum
 
@@ -230,7 +229,7 @@ def convert_attachment_type_from_domain(
     return converted_type
 
 
-def convert_chat_type_from_domain(chat_type: Any) -> Any:
+def convert_chat_type_from_domain(chat_type: ChatTypes) -> APIChatTypes:
     chat_types_mapping = {
         ChatTypes.PERSONAL_CHAT: APIChatTypes.CHAT,
         ChatTypes.GROUP_CHAT: APIChatTypes.GROUP_CHAT,
@@ -239,13 +238,12 @@ def convert_chat_type_from_domain(chat_type: Any) -> Any:
 
     converted_type = chat_types_mapping.get(chat_type)
     if converted_type is None:
-        # TODO: Return error raising
-        return chat_type  # pragma: no cover
+        raise NotImplementedError(f"Unsupported chat type: {chat_type}")
 
     return converted_type
 
 
-def convert_chat_type_to_domain(chat_type: Any) -> Any:
+def convert_chat_type_to_domain(chat_type: APIChatTypes) -> ChatTypes:
     chat_types_mapping = {
         APIChatTypes.CHAT: ChatTypes.PERSONAL_CHAT,
         APIChatTypes.GROUP_CHAT: ChatTypes.GROUP_CHAT,
@@ -254,8 +252,7 @@ def convert_chat_type_to_domain(chat_type: Any) -> Any:
 
     converted_type = chat_types_mapping.get(chat_type)
     if converted_type is None:
-        # TODO: Return error raising
-        return chat_type  # pragma: no cover
+        raise NotImplementedError(f"Unsupported chat type: {chat_type}")
 
     return converted_type
 

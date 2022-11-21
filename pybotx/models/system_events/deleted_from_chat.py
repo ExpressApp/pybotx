@@ -56,6 +56,6 @@ class BotAPIDeletedFromChat(BotAPIBaseCommand):
             huids=self.payload.data.deleted_members,
             chat=Chat(
                 id=self.sender.group_chat_id,
-                type=convert_chat_type_to_domain(self.sender.chat_type),
+                type=convert_chat_type_to_domain(self.sender.chat_type),  # type: ignore
             ),
         )

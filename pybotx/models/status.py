@@ -18,7 +18,7 @@ class StatusRecipient:
     ad_login: Optional[str]
     ad_domain: Optional[str]
     is_admin: Optional[bool]
-    chat_type: Union[ChatTypes, str]
+    chat_type: ChatTypes
 
     @classmethod
     def from_incoming_message(
@@ -55,13 +55,18 @@ class BotAPIStatusRecipient(VerifiedPayloadBaseModel):
         return field_value
 
     def to_domain(self) -> StatusRecipient:
+        try:
+            chat_type = convert_chat_type_to_domain(self.chat_type)  # type: ignore
+        except NotImplementedError:
+            chat_type = self.chat_type  # type: ignore
+
         return StatusRecipient(
             bot_id=self.bot_id,
             huid=self.user_huid,
             ad_login=self.ad_login,
             ad_domain=self.ad_domain,
             is_admin=self.is_admin,
-            chat_type=convert_chat_type_to_domain(self.chat_type),
+            chat_type=chat_type,
         )
 
 

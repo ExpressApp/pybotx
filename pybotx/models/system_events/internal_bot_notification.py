@@ -61,7 +61,7 @@ class BotAPIInternalBotNotification(BotAPIBaseCommand):
             opts=self.payload.data.opts,
             chat=Chat(
                 id=self.sender.group_chat_id,
-                type=convert_chat_type_to_domain(self.sender.chat_type),
+                type=convert_chat_type_to_domain(self.sender.chat_type),  # type: ignore
             ),
             sender=BotSender(
                 huid=self.sender.user_huid,
