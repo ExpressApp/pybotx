@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -22,15 +22,10 @@ class BotXAPIListChatResult(VerifiedPayloadBaseModel):
 
 class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
-    result: List[BotXAPIListChatResult]  # noqa: WPS234
+    result: List[Union[BotXAPIListChatResult, Dict[str, Any]]]  # noqa: WPS234
 
     def to_domain(self) -> List[ChatListItem]:
-        if any(
-            chat_item.chat_type == APIChatTypes.UNSUPPORTED for chat_item in self.result
-        ):
-            logger.warning("One or more unsupported chat types skipped")
-
-        return [
+        chats_list = [
             ChatListItem(
                 chat_id=chat_item.group_chat_id,
                 chat_type=convert_chat_type_to_domain(chat_item.chat_type),
@@ -42,8 +37,16 @@ class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
                 shared_history=chat_item.shared_history,
             )
             for chat_item in self.result
-            if chat_item.chat_type != APIChatTypes.UNSUPPORTED
+            if not (
+                isinstance(chat_item, Dict)
+                or chat_item.chat_type == APIChatTypes.UNSUPPORTED
+            )
         ]
+
+        if len(chats_list) != len(self.result):
+            logger.warning("One or more unsupported chat types skipped")
+
+        return chats_list
 
 
 class ListChatsMethod(AuthorizedBotXMethod):
