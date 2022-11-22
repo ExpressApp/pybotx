@@ -1,6 +1,8 @@
 from typing import List, Literal, Optional
 from uuid import UUID
 
+from pydantic import ValidationError
+
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.client.botx_method import response_exception_thrower
 from pybotx.client.exceptions.chats import (
@@ -28,6 +30,12 @@ class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
         shared_history: Missing[bool],
         description: Optional[str] = None,
     ) -> "BotXAPICreateChatRequestPayload":
+        if chat_type == ChatTypes.UNSUPPORTED:
+            raise ValidationError(
+                errors=["Can't create chat of unsupported type."],
+                model=cls,
+            )
+
         return cls(
             name=name,
             chat_type=convert_chat_type_from_domain(chat_type),

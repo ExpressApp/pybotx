@@ -54,11 +54,17 @@ class ChatTypes(AutoName):
         PERSONAL_CHAT: Personal chat with user.
         GROUP_CHAT: Group chat.
         CHANNEL: Public channel.
+        UNSUPPORTED: Unknown chat type.
     """
 
     PERSONAL_CHAT = auto()
     GROUP_CHAT = auto()
     CHANNEL = auto()
+    UNSUPPORTED = auto()
+
+    @classmethod
+    def _missing_(cls, instance: object) -> "ChatTypes":
+        return cls.UNSUPPORTED  # pragma: no cover
 
 
 class SyncSourceTypes(AutoName):
@@ -72,6 +78,11 @@ class APIChatTypes(StrEnum):
     CHAT = "chat"
     GROUP_CHAT = "group_chat"
     CHANNEL = "channel"
+    UNSUPPORTED = "unsupported"
+
+    @classmethod
+    def _missing_(cls, instance: object) -> "APIChatTypes":
+        return cls.UNSUPPORTED
 
 
 class BotAPICommandTypes(StrEnum):
@@ -238,7 +249,7 @@ def convert_chat_type_from_domain(chat_type: ChatTypes) -> APIChatTypes:
 
     converted_type = chat_types_mapping.get(chat_type)
     if converted_type is None:
-        raise NotImplementedError(f"Unsupported chat type: {chat_type}")
+        return APIChatTypes.UNSUPPORTED  # pragma: no cover
 
     return converted_type
 
@@ -252,7 +263,7 @@ def convert_chat_type_to_domain(chat_type: APIChatTypes) -> ChatTypes:
 
     converted_type = chat_types_mapping.get(chat_type)
     if converted_type is None:
-        raise NotImplementedError(f"Unsupported chat type: {chat_type}")
+        return ChatTypes.UNSUPPORTED
 
     return converted_type
 
