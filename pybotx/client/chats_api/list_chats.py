@@ -37,10 +37,7 @@ class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
                 shared_history=chat_item.shared_history,
             )
             for chat_item in self.result
-            if not (
-                isinstance(chat_item, Dict)
-                or chat_item.chat_type == APIChatTypes.UNSUPPORTED
-            )
+            if isinstance(chat_item, BotXAPIListChatResult)
         ]
 
         if len(chats_list) != len(self.result):

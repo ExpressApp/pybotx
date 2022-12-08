@@ -5,7 +5,11 @@ from uuid import UUID
 from pydantic import validator
 
 from pybotx.models.api_base import VerifiedPayloadBaseModel
-from pybotx.models.enums import APIChatTypes, ChatTypes, convert_chat_type_to_domain
+from pybotx.models.enums import (
+    APIChatTypes,
+    IncomingChatTypes,
+    convert_chat_type_to_domain,
+)
 from pybotx.models.message.incoming_message import IncomingMessage
 
 BotMenu = NewType("BotMenu", Dict[str, str])
@@ -18,7 +22,7 @@ class StatusRecipient:
     ad_login: Optional[str]
     ad_domain: Optional[str]
     is_admin: Optional[bool]
-    chat_type: ChatTypes
+    chat_type: IncomingChatTypes
 
     @classmethod
     def from_incoming_message(
@@ -41,7 +45,7 @@ class BotAPIStatusRecipient(VerifiedPayloadBaseModel):
     ad_login: Optional[str]
     ad_domain: Optional[str]
     is_admin: Optional[bool]
-    chat_type: APIChatTypes
+    chat_type: Union[APIChatTypes, str]
 
     @validator("ad_login", "ad_domain", "is_admin", pre=True)
     @classmethod

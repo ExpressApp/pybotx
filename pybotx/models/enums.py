@@ -1,10 +1,9 @@
 from enum import Enum, auto
-
-from pybotx.models.api_base import StrEnum
+from typing import Literal, Optional, Union, overload
 
 
 class AutoName(Enum):
-    def _generate_next_value_(  # type: ignore  # noqa: WPS120
+    def _generate_next_value_(  # type: ignore
         name,  # noqa: N805 (copied from official python docs)
         start,
         count,
@@ -54,17 +53,11 @@ class ChatTypes(AutoName):
         PERSONAL_CHAT: Personal chat with user.
         GROUP_CHAT: Group chat.
         CHANNEL: Public channel.
-        UNSUPPORTED: Unknown chat type.
     """
 
     PERSONAL_CHAT = auto()
     GROUP_CHAT = auto()
     CHANNEL = auto()
-    UNSUPPORTED = auto()
-
-    @classmethod
-    def _missing_(cls, instance: object) -> "ChatTypes":
-        return cls.UNSUPPORTED  # pragma: no cover
 
 
 class SyncSourceTypes(AutoName):
@@ -74,15 +67,20 @@ class SyncSourceTypes(AutoName):
     OPENID = auto()
 
 
-class APIChatTypes(StrEnum):
+IncomingChatTypes = Union[ChatTypes, Literal["UNSUPPORTED"]]
+
+
+class StrEnum(str, Enum):  # noqa: WPS600 (pydantic needs this inheritance)
+    """Enum base for API models."""
+
+    # https://github.com/pydantic/pydantic/issues/3850
+    # TODO: Use plain enums after migrating to Pydantic 2.0
+
+
+class APIChatTypes(Enum):
     CHAT = "chat"
     GROUP_CHAT = "group_chat"
     CHANNEL = "channel"
-    UNSUPPORTED = "unsupported"
-
-    @classmethod
-    def _missing_(cls, instance: object) -> "APIChatTypes":
-        return cls.UNSUPPORTED
 
 
 class BotAPICommandTypes(StrEnum):
@@ -101,7 +99,7 @@ class BotAPISystemEventTypes(StrEnum):
     SMARTAPP_EVENT = "system:smartapp_event"
 
 
-class BotAPIClientPlatforms(StrEnum):
+class BotAPIClientPlatforms(Enum):
     WEB = "web"
     ANDROID = "android"
     IOS = "ios"
@@ -122,7 +120,7 @@ class BotAPIMentionTypes(StrEnum):
     ALL = "all"
 
 
-class APIUserKinds(StrEnum):
+class APIUserKinds(Enum):
     USER = "user"
     CTS_USER = "cts_user"
     BOTX = "botx"
@@ -141,7 +139,7 @@ class APIAttachmentTypes(StrEnum):
     STICKER = "sticker"
 
 
-class APISyncSourceTypes(StrEnum):
+class APISyncSourceTypes(Enum):
     AD = "ad"
     ADMIN = "admin"
     EMAIL = "email"
@@ -249,21 +247,38 @@ def convert_chat_type_from_domain(chat_type: ChatTypes) -> APIChatTypes:
 
     converted_type = chat_types_mapping.get(chat_type)
     if converted_type is None:
-        return APIChatTypes.UNSUPPORTED  # pragma: no cover
+        raise NotImplementedError(f"Unsupported chat type: {chat_type}")
 
     return converted_type
 
 
+@overload
 def convert_chat_type_to_domain(chat_type: APIChatTypes) -> ChatTypes:
+    ...  # noqa: WPS428
+
+
+@overload
+def convert_chat_type_to_domain(chat_type: str) -> Literal["UNSUPPORTED"]:
+    ...  # noqa: WPS428
+
+
+def convert_chat_type_to_domain(
+    chat_type: Union[APIChatTypes, str],
+) -> IncomingChatTypes:
     chat_types_mapping = {
         APIChatTypes.CHAT: ChatTypes.PERSONAL_CHAT,
         APIChatTypes.GROUP_CHAT: ChatTypes.GROUP_CHAT,
         APIChatTypes.CHANNEL: ChatTypes.CHANNEL,
     }
 
-    converted_type = chat_types_mapping.get(chat_type)
+    converted_type: Optional[IncomingChatTypes]
+    try:
+        converted_type = chat_types_mapping.get(APIChatTypes(chat_type))
+    except ValueError:
+        converted_type = "UNSUPPORTED"
+
     if converted_type is None:
-        return ChatTypes.UNSUPPORTED
+        raise NotImplementedError(f"Unsupported chat type: {chat_type}") from None
 
     return converted_type
 

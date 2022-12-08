@@ -4,13 +4,13 @@ from datetime import datetime as dt
 from typing import List, Optional
 from uuid import UUID
 
-from pybotx.models.enums import ChatTypes, UserKinds
+from pybotx.models.enums import ChatTypes, IncomingChatTypes, UserKinds
 
 
 @dataclass
 class Chat:
     id: UUID
-    type: ChatTypes
+    type: IncomingChatTypes
 
 
 @dataclass

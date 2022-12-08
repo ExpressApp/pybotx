@@ -1,5 +1,4 @@
 import json
-from enum import Enum
 from typing import Any, Dict, List, Optional, Set, Union, cast
 
 from pydantic import BaseModel
@@ -61,9 +60,6 @@ class PayloadBaseModel(BaseModel):
 class VerifiedPayloadBaseModel(PayloadBaseModel):
     """Pydantic base model for API models."""
 
-    class Config:
-        use_enum_values = True
-
 
 class UnverifiedPayloadBaseModel(PayloadBaseModel):
     def __init__(
@@ -76,7 +72,3 @@ class UnverifiedPayloadBaseModel(PayloadBaseModel):
 
     class Config:
         arbitrary_types_allowed = True
-
-
-class StrEnum(str, Enum):  # noqa: WPS600 (pydantic needs this inheritance)
-    """Enum base for API models."""
