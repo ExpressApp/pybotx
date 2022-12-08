@@ -3,7 +3,6 @@ from uuid import UUID
 
 import httpx
 import pytest
-from pydantic import ValidationError
 from respx.router import MockRouter
 
 from pybotx import (
@@ -158,20 +157,3 @@ async def test__create_chat__maximum_filled_succeed(
     # - Assert -
     assert created_chat_id == UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa")
     assert endpoint.called
-
-
-async def test__create_chat__validation_error_raised(
-    bot_id: UUID,
-    bot_account: BotAccountWithSecret,
-) -> None:
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
-    # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(ValidationError) as _:  # noqa: WPS122
-            await bot.create_chat(
-                bot_id=bot_id,
-                name="Test chat name",
-                chat_type=ChatTypes.UNSUPPORTED,
-                huids=[],
-            )
