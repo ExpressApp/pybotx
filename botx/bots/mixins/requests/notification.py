@@ -46,7 +46,7 @@ class NotificationRequestsMixin:
                     keyboard=payload.markup.keyboard,
                     mentions=payload.options.mentions,
                 ),
-                recipients=payload.options.recipients,
+                recipients=payload.options.recipients or "all",
                 file=payload.file,
                 opts=ResultOptions(
                     silent_response=payload.options.silent_response,
