@@ -1,6 +1,6 @@
 """Special options for message."""
 
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -22,7 +22,7 @@ class MessageOptions(BaseModel):
     """Message options configuration."""
 
     #: users that should receive message.
-    recipients: AvailableRecipients = "all"
+    recipients: Optional[AvailableRecipients] = None
 
     #: attached to message mentions.
     mentions: List[Mention] = []
