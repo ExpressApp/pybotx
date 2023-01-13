@@ -53,7 +53,13 @@ from pybotx.client.stickers_api.exceptions import (
 )
 from pybotx.logger import logger
 from pybotx.models.async_files import Document, File, Image, Video, Voice
-from pybotx.models.attachments import OutgoingAttachment
+from pybotx.models.attachments import (
+    AttachmentDocument,
+    AttachmentImage,
+    AttachmentVideo,
+    AttachmentVoice,
+    OutgoingAttachment,
+)
 from pybotx.models.bot_account import BotAccount, BotAccountWithSecret
 from pybotx.models.bot_sender import BotSender
 from pybotx.models.chats import Chat, ChatInfo, ChatInfoMember, ChatListItem
@@ -62,6 +68,7 @@ from pybotx.models.enums import (
     ChatTypes,
     ClientPlatforms,
     MentionTypes,
+    SyncSourceTypes,
     UserKinds,
 )
 from pybotx.models.message.edit_message import EditMessage
@@ -71,7 +78,13 @@ from pybotx.models.message.incoming_message import (
     UserDevice,
     UserSender,
 )
-from pybotx.models.message.markup import BubbleMarkup, Button, KeyboardMarkup
+from pybotx.models.message.markup import (
+    BubbleMarkup,
+    Button,
+    ButtonRow,
+    ButtonTextAlign,
+    KeyboardMarkup,
+)
 from pybotx.models.message.mentions import (
     Mention,
     MentionAll,
@@ -87,6 +100,7 @@ from pybotx.models.message.outgoing_message import OutgoingMessage
 from pybotx.models.message.reply import Reply
 from pybotx.models.message.reply_message import ReplyMessage
 from pybotx.models.method_callbacks import BotAPIMethodFailedCallback
+from pybotx.models.smartapps import SmartApp
 from pybotx.models.status import BotMenu, StatusRecipient
 from pybotx.models.stickers import Sticker, StickerPack
 from pybotx.models.system_events.added_to_chat import AddedToChatEvent
@@ -99,12 +113,16 @@ from pybotx.models.system_events.internal_bot_notification import (
 )
 from pybotx.models.system_events.left_from_chat import LeftFromChatEvent
 from pybotx.models.system_events.smartapp_event import SmartAppEvent
-from pybotx.models.users import UserFromSearch
+from pybotx.models.users import UserFromCSV, UserFromSearch
 
 __all__ = (
     "AddedToChatEvent",
     "AnswerDestinationLookupError",
     "AttachmentTypes",
+    "AttachmentDocument",
+    "AttachmentImage",
+    "AttachmentVoice",
+    "AttachmentVideo",
     "Bot",
     "BotAPIBotDisabledResponse",
     "BotAPIMethodFailedCallback",
@@ -118,6 +136,8 @@ __all__ = (
     "BotXMethodFailedCallbackReceivedError",
     "BubbleMarkup",
     "Button",
+    "ButtonRow",
+    "ButtonTextAlign",
     "CTSLoginEvent",
     "CTSLogoutEvent",
     "CallbackNotReceivedError",
@@ -173,6 +193,7 @@ __all__ = (
     "RateLimitReachedError",
     "Reply",
     "ReplyMessage",
+    "SmartApp",
     "SmartAppEvent",
     "SmartAppEvent",
     "StatusRecipient",
@@ -180,10 +201,12 @@ __all__ = (
     "Sticker",
     "StickerPack",
     "StickerPackOrStickerNotFoundError",
+    "SyncSourceTypes",
     "UnknownBotAccountError",
     "UnknownSystemEventError",
     "UnsupportedBotAPIVersionError",
     "UserDevice",
+    "UserFromCSV",
     "UserFromSearch",
     "UserKinds",
     "UserNotFoundError",
