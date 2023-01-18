@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 from uuid import UUID
 
-from pybotx.models.enums import SyncSourceTypes, UserKinds
+from pybotx.models.enums import IncomingSyncSourceTypes, UserKinds
 
 
 @dataclass
@@ -55,7 +55,7 @@ class UserFromCSV:
     ad_login: str
     ad_domain: str
     username: str
-    sync_source: SyncSourceTypes
+    sync_source: IncomingSyncSourceTypes
     active: bool
     user_kind: UserKinds
     email: Optional[str] = None

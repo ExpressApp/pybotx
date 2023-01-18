@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 from uuid import UUID
 
 from pydantic import Field, validator
@@ -19,7 +19,7 @@ class BotXAPIUserFromCSVResult(VerifiedPayloadBaseModel):
     ad_domain: str = Field(alias="Domain")
     email: Optional[str] = Field(alias="AD E-mail")
     name: str = Field(alias="Name")
-    sync_source: APISyncSourceTypes = Field(alias="Sync source")
+    sync_source: Union[APISyncSourceTypes, str] = Field(alias="Sync source")
     active: bool = Field(alias="Active")
     user_kind: APIUserKinds = Field(alias="Kind")
     company: Optional[str] = Field(alias="Company")
