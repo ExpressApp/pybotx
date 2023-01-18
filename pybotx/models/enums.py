@@ -67,7 +67,9 @@ class SyncSourceTypes(AutoName):
     OPENID = auto()
 
 
-IncomingChatTypes = Union[ChatTypes, Literal["UNSUPPORTED"]]
+UNSUPPORTED = Literal["UNSUPPORTED"]
+IncomingChatTypes = Union[ChatTypes, UNSUPPORTED]
+IncomingSyncSourceTypes = Union[SyncSourceTypes, UNSUPPORTED]
 
 
 class StrEnum(str, Enum):  # noqa: WPS600 (pydantic needs this inheritance)
@@ -258,7 +260,7 @@ def convert_chat_type_to_domain(chat_type: APIChatTypes) -> ChatTypes:
 
 
 @overload
-def convert_chat_type_to_domain(chat_type: str) -> Literal["UNSUPPORTED"]:
+def convert_chat_type_to_domain(chat_type: str) -> UNSUPPORTED:
     ...  # noqa: WPS428
 
 
@@ -283,9 +285,21 @@ def convert_chat_type_to_domain(
     return converted_type
 
 
+@overload
 def convert_sync_source_type_to_domain(
     sync_type: APISyncSourceTypes,
 ) -> SyncSourceTypes:
+    ...  # noqa: WPS428
+
+
+@overload
+def convert_sync_source_type_to_domain(sync_type: str) -> UNSUPPORTED:
+    ...  # noqa: WPS428
+
+
+def convert_sync_source_type_to_domain(
+    sync_type: Union[APISyncSourceTypes, str],
+) -> IncomingSyncSourceTypes:
     sync_source_types_mapping = {
         APISyncSourceTypes.AD: SyncSourceTypes.AD,
         APISyncSourceTypes.ADMIN: SyncSourceTypes.ADMIN,
@@ -293,8 +307,15 @@ def convert_sync_source_type_to_domain(
         APISyncSourceTypes.OPENID: SyncSourceTypes.OPENID,
     }
 
-    converted_type = sync_source_types_mapping.get(sync_type)
+    converted_type: Optional[IncomingSyncSourceTypes]
+    try:
+        converted_type = sync_source_types_mapping.get(APISyncSourceTypes(sync_type))
+    except ValueError:
+        converted_type = "UNSUPPORTED"
+
     if converted_type is None:
-        raise NotImplementedError(f"Unsupported sync source type: {sync_type}")
+        raise NotImplementedError(
+            f"Unsupported sync source type: {sync_type}",
+        ) from None
 
     return converted_type
