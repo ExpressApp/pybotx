@@ -65,6 +65,7 @@ class SyncSourceTypes(AutoName):
     ADMIN = auto()
     EMAIL = auto()
     OPENID = auto()
+    BOTX = auto()
 
 
 UNSUPPORTED = Literal["UNSUPPORTED"]
@@ -146,6 +147,7 @@ class APISyncSourceTypes(Enum):
     ADMIN = "admin"
     EMAIL = "email"
     OPENID = "openid"
+    BOTX = "botx"
 
 
 def convert_client_platform_to_domain(
@@ -305,6 +307,7 @@ def convert_sync_source_type_to_domain(
         APISyncSourceTypes.ADMIN: SyncSourceTypes.ADMIN,
         APISyncSourceTypes.EMAIL: SyncSourceTypes.EMAIL,
         APISyncSourceTypes.OPENID: SyncSourceTypes.OPENID,
+        APISyncSourceTypes.BOTX: SyncSourceTypes.BOTX,
     }
 
     converted_type: Optional[IncomingSyncSourceTypes]
