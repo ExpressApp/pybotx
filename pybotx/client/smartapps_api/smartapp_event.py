@@ -16,6 +16,7 @@ class BotXAPISmartAppEventRequestPayload(UnverifiedPayloadBaseModel):
     opts: Missing[Dict[str, Any]]
     smartapp_api_version: int
     async_files: Missing[List[APIAsyncFile]]
+    encrypted: bool
 
     @classmethod
     def from_domain(
@@ -26,6 +27,7 @@ class BotXAPISmartAppEventRequestPayload(UnverifiedPayloadBaseModel):
         data: Dict[str, Any],
         opts: Missing[Dict[str, Any]],
         files: Missing[List[File]],
+        encrypted: bool,
     ) -> "BotXAPISmartAppEventRequestPayload":
         api_async_files: Missing[List[APIAsyncFile]] = Undefined
         if files:
@@ -39,6 +41,7 @@ class BotXAPISmartAppEventRequestPayload(UnverifiedPayloadBaseModel):
             opts=opts,
             smartapp_api_version=SMARTAPP_API_VERSION,
             async_files=api_async_files,
+            encrypted=encrypted,
         )
 
 

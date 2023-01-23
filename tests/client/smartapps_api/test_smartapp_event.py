@@ -33,6 +33,7 @@ async def test__send_smartapp_event__miminally_filled_succeed(
             "data": {"key": "value"},
             "opts": {},
             "smartapp_api_version": 1,
+            "encrypted": True,
         },
     ).mock(
         return_value=httpx.Response(
@@ -53,6 +54,7 @@ async def test__send_smartapp_event__miminally_filled_succeed(
             chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             data={"key": "value"},
             ref=UUID("921763b3-77e8-4f37-b97e-20f4517949b8"),
+            encrypted=True,
         )
 
     # - Assert -
@@ -116,6 +118,7 @@ async def test__send_smartapp_event__maximum_filled_succeed(
                     "duration": 10,
                 },
             ],
+            "encrypted": True,
         },
     ).mock(
         return_value=httpx.Response(
@@ -181,6 +184,7 @@ async def test__send_smartapp_event__maximum_filled_succeed(
                     _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
                 ),
             ],
+            encrypted=True,
         )
 
     # - Assert -
