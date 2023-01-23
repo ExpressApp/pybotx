@@ -1256,6 +1256,7 @@ class Bot:
         bot_id: UUID,
         chat_id: UUID,
         data: Dict[str, Any],
+        encrypted: bool = True,
         ref: MissingOptional[UUID] = Undefined,
         opts: Missing[Dict[str, Any]] = Undefined,
         files: Missing[List[File]] = Undefined,
@@ -1268,6 +1269,7 @@ class Bot:
         :param ref: Request identifier.
         :param opts: Event options.
         :param files: Files.
+        :param encrypted: Encrypt payload.
         """
 
         method = SmartAppEventMethod(
@@ -1282,6 +1284,7 @@ class Bot:
             data=data,
             opts=opts,
             files=files,
+            encrypted=encrypted,
         )
 
         await method.execute(payload)
