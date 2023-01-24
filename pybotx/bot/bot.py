@@ -101,6 +101,10 @@ from pybotx.client.notifications_api.internal_bot_notification import (
     BotXAPIInternalBotNotificationRequestPayload,
     InternalBotNotificationMethod,
 )
+from pybotx.client.openid_api.refresh_access_token import (
+    BotXAPIRefreshAccessTokenRequestPayload,
+    RefreshAccessTokenMethod,
+)
 from pybotx.client.smartapps_api.smartapp_event import (
     BotXAPISmartAppEventRequestPayload,
     SmartAppEventMethod,
@@ -1657,6 +1661,34 @@ class Bot:
         botx_api_async_file = await method.execute(payload, async_buffer, filename)
 
         return botx_api_async_file.to_domain()
+
+    # - OpenID API -
+    async def refresh_access_token(
+        self,
+        *,
+        bot_id: UUID,
+        huid: UUID,
+        ref: Optional[UUID] = None,
+    ) -> None:
+        """Refresh OpenID access token.
+
+        :param bot_id: Bot which should perform the request.
+        :param huid: User huid.
+        :param ref: sync_id of the failed event to resend.
+        """
+
+        method = RefreshAccessTokenMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+            self._callbacks_manager,
+        )
+
+        payload = BotXAPIRefreshAccessTokenRequestPayload.from_domain(
+            huid=huid,
+            ref=ref,
+        )
+        await method.execute(payload)
 
     @staticmethod
     def _build_main_collector(
