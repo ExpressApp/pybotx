@@ -13,6 +13,7 @@ from pybotx import (
     SmartAppEvent,
     lifespan_wrapper,
 )
+from pybotx.models.async_files import FileMeta
 from pybotx.models.chats import Chat
 from pybotx.models.enums import ChatTypes
 from pybotx.models.message.incoming_message import UserDevice, UserSender
@@ -126,13 +127,15 @@ async def test__smartapp__succeed(
         files=[
             Image(
                 type=AttachmentTypes.IMAGE,
-                filename="pass.png",
-                size=1502345,
                 is_async_file=True,
-                _file_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
-                _file_url="https://link.to/file",
-                _file_mimetype="image/png",
-                _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+                meta=FileMeta(
+                    id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
+                    url="https://link.to/file",
+                    name="pass.png",
+                    size=1502345,
+                    mimetype="image/png",
+                    hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+                ),
             ),
         ],
         chat=Chat(

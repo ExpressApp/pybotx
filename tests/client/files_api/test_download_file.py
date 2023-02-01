@@ -16,6 +16,7 @@ from pybotx import (
     InvalidBotXStatusCodeError,
     lifespan_wrapper,
 )
+from pybotx.models.async_files import FileMeta
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -62,7 +63,14 @@ async def test__download_file__unexpected_not_found_error_raised(
             await bot.download_file(
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
-                file_id=UUID("c3b9def2-b2c8-4732-b61f-99b9b110fa80"),
+                file_meta=FileMeta(
+                    id=UUID("c3b9def2-b2c8-4732-b61f-99b9b110fa80"),
+                    url="https://link.to/file",
+                    name="pass.txt",
+                    size=1502345,
+                    mimetype="plain/text",
+                    hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+                ),
                 async_buffer=async_buffer,
             )
 
@@ -110,7 +118,14 @@ async def test__download_file__file_metadata_not_found_error_raised(
             await bot.download_file(
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
-                file_id=UUID("c3b9def2-b2c8-4732-b61f-99b9b110fa80"),
+                file_meta=FileMeta(
+                    id=UUID("c3b9def2-b2c8-4732-b61f-99b9b110fa80"),
+                    url="https://link.to/file",
+                    name="pass.txt",
+                    size=1502345,
+                    mimetype="plain/text",
+                    hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+                ),
                 async_buffer=async_buffer,
             )
 
@@ -157,7 +172,14 @@ async def test__download_file__file_deleted_error_raised(
             await bot.download_file(
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
-                file_id=UUID("c3b9def2-b2c8-4732-b61f-99b9b110fa80"),
+                file_meta=FileMeta(
+                    id=UUID("c3b9def2-b2c8-4732-b61f-99b9b110fa80"),
+                    url="https://link.to/file",
+                    name="pass.txt",
+                    size=1502345,
+                    mimetype="plain/text",
+                    hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+                ),
                 async_buffer=async_buffer,
             )
 
@@ -204,7 +226,14 @@ async def test__download_file__chat_not_found_error_raised(
             await bot.download_file(
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
-                file_id=UUID("c3b9def2-b2c8-4732-b61f-99b9b110fa80"),
+                file_meta=FileMeta(
+                    id=UUID("c3b9def2-b2c8-4732-b61f-99b9b110fa80"),
+                    url="https://link.to/file",
+                    name="pass.txt",
+                    size=1502345,
+                    mimetype="plain/text",
+                    hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+                ),
                 async_buffer=async_buffer,
             )
 
@@ -242,7 +271,14 @@ async def test__download_file__succeed(
         await bot.download_file(
             bot_id=bot_id,
             chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
-            file_id=UUID("c3b9def2-b2c8-4732-b61f-99b9b110fa80"),
+            file_meta=FileMeta(
+                id=UUID("c3b9def2-b2c8-4732-b61f-99b9b110fa80"),
+                url="https://link.to/file",
+                name="pass.txt",
+                size=1502345,
+                mimetype="plain/text",
+                hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+            ),
             async_buffer=async_buffer,
         )
 

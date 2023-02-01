@@ -182,7 +182,7 @@ from pybotx.image_validators import (
 )
 from pybotx.logger import logger, pformat_jsonable_obj, trim_file_data_in_incoming_json
 from pybotx.missing import Missing, MissingOptional, Undefined
-from pybotx.models.async_files import File
+from pybotx.models.async_files import File, FileMeta
 from pybotx.models.attachments import IncomingFileAttachment, OutgoingAttachment
 from pybotx.models.bot_account import BotAccount, BotAccountWithSecret
 from pybotx.models.chats import ChatInfo, ChatListItem
@@ -1602,14 +1602,14 @@ class Bot:
         *,
         bot_id: UUID,
         chat_id: UUID,
-        file_id: UUID,
+        file_meta: FileMeta,
         async_buffer: AsyncBufferWritable,
     ) -> None:
         """Download file form file service.
 
         :param bot_id: Bot which should perform the request.
         :param chat_id: Target chat id.
-        :param file_id: Async file id.
+        :param file_meta: File metadata.
         :param async_buffer: Buffer to write downloaded file.
         """
 
@@ -1620,7 +1620,7 @@ class Bot:
         )
         payload = BotXAPIDownloadFileRequestPayload.from_domain(
             chat_id=chat_id,
-            file_id=file_id,
+            file_id=file_meta.id,
         )
 
         await method.execute(payload, async_buffer)
