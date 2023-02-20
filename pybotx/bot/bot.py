@@ -117,6 +117,9 @@ from pybotx.client.smartapps_api.smartapps_list import (
     BotXAPISmartAppsListRequestPayload,
     SmartAppsListMethod,
 )
+from pybotx.client.smartapps_api.upload_file import (
+    UploadFileMethod as SmartappsUploadFileMethod,
+)
 from pybotx.client.stickers_api.add_sticker import (
     AddStickerMethod,
     BotXAPIAddStickerRequestPayload,
@@ -1351,6 +1354,32 @@ class Bot:
         botx_api_smartapps_list = await method.execute(payload)
 
         return botx_api_smartapps_list.to_domain()
+
+    async def upload_static_file(
+        self,
+        *,
+        bot_id: UUID,
+        async_buffer: AsyncBufferReadable,
+        filename: str,
+    ) -> str:
+        """Upload static file to file service.
+
+        :param bot_id: Bot which should perform the request.
+        :param async_buffer: Buffer to read uploaded file.
+        :param filename: File name.
+
+        :return: file link.
+        """
+
+        method = SmartappsUploadFileMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        botx_api_static_file = await method.execute(async_buffer, filename)
+
+        return botx_api_static_file.to_domain()
 
     # - Stickers API -
     async def create_sticker_pack(

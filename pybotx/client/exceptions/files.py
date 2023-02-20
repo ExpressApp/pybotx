@@ -7,3 +7,7 @@ class FileDeletedError(BaseClientError):
 
 class FileMetadataNotFound(BaseClientError):
     """Can't find file metadata."""
+
+
+class FileTypeNotAllowed(BaseClientError):
+    """File type is not allowed."""
