@@ -68,6 +68,7 @@ async def test__smartapp__succeed(
         "entities": [],
         "from": {
             "user_huid": "b9197d3a-d855-5d34-ba8a-eff3a975ab20",
+            "user_udid": None,
             "group_chat_id": "dea55ee4-7a9f-5da0-8c73-079f400ee517",
             "host": "cts.example.com",
             "ad_login": None,
@@ -141,6 +142,7 @@ async def test__smartapp__succeed(
         ),
         sender=UserSender(
             huid=UUID("b9197d3a-d855-5d34-ba8a-eff3a975ab20"),
+            udid=None,
             ad_login=None,
             ad_domain=None,
             username=None,

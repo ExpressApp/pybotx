@@ -38,6 +38,7 @@ class BaseBotAPIContext(VerifiedPayloadBaseModel):
 
 class BotAPIUserContext(BaseBotAPIContext):
     user_huid: UUID
+    user_udid: Optional[UUID]
     ad_domain: Optional[str]
     ad_login: Optional[str]
     username: Optional[str]

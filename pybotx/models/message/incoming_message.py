@@ -62,6 +62,7 @@ class UserDevice:
 @dataclass
 class UserSender:
     huid: UUID
+    udid: Optional[UUID]
     ad_login: Optional[str]
     ad_domain: Optional[str]
     username: Optional[str]
@@ -225,6 +226,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
 
         sender = UserSender(
             huid=self.sender.user_huid,
+            udid=self.sender.user_udid,
             ad_login=self.sender.ad_login,
             ad_domain=self.sender.ad_domain,
             username=self.sender.username,
