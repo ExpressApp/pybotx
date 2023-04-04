@@ -184,6 +184,7 @@ def api_incoming_message_factory() -> Callable[..., Dict[str, Any]]:
                     if user_huid
                     else "f16cdc5f-6366-5552-9ecd-c36290ab3d11"
                 ),
+                "user_udid": None,
                 "username": None,
             },
             "proto_version": 4,
@@ -215,6 +216,7 @@ def incoming_message_factory(
             metadata={},
             sender=UserSender(
                 huid=uuid4(),
+                udid=None,
                 ad_login=ad_login,
                 ad_domain=ad_domain,
                 username=None,

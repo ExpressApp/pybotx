@@ -95,6 +95,7 @@ class BotAPISmartAppEvent(BotAPIBaseCommand):
 
         sender = UserSender(
             huid=self.sender.user_huid,
+            udid=self.sender.user_udid,
             ad_login=self.sender.ad_login,
             ad_domain=self.sender.ad_domain,
             username=self.sender.username,
