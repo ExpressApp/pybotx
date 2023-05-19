@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pybotx"
-version = "0.55.1"
+version = "0.55.2"
 description = "A python library for interacting with eXpress BotX API"
 authors = [
     "Sidnev Nikolay <nsidnev@ccsteam.ru>",
@@ -14,7 +14,7 @@ repository = "https://github.com/ExpressApp/pybotx"
 
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.11"
+python = ">=3.8,<3.12"
 
 aiofiles = ">=0.7.0,<0.9.0"
 httpx = "0.23.0"
