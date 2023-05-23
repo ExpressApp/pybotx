@@ -16,7 +16,7 @@ from botx.models.typing import AvailableRecipients
 class NotificationDirect(AuthorizedBotXMethod[UUID]):
     """Method for sending notification into single chat."""
 
-    __url__ = "/api/v3/botx/notification/callback/direct"
+    __url__ = "/api/v4/botx/notifications/direct"
     __method__ = "POST"
     __returning__ = PushResult
     __result_extractor__ = extract_generated_sync_id
