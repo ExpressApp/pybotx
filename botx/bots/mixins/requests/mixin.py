@@ -76,10 +76,9 @@ class BotXRequestsMixin(  # noqa: WPS215
         """
         if credentials is not None:
             debug_bot_id = credentials.bot_id
-            host = cast(str, credentials.host)
             bot_id = cast(UUID, credentials.bot_id)
             method.configure(
-                host=host,
+                host=cast(CredentialsSearchProtocol, self).get_account_by_bot_id(bot_id).host,
                 token=cast(CredentialsSearchProtocol, self).get_token_for_bot(bot_id),
             )
         else:

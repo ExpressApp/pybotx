@@ -121,9 +121,16 @@ class Message:
         self.credentials = SendingCredentials(
             sync_id=self.sync_id,
             bot_id=self.bot_id,
-            host=self.host,
+            host=self.get_host_by_bot_id(self.bot, self.bot_id),
             chat_id=self.group_chat_id,
         )
+
+    @classmethod
+    def get_host_by_bot_id(cls, bot: "bots.Bot", bot_id: UUID) -> str:
+        for account in bot.bot_accounts:
+            if account.bot_id == bot_id:
+                return account.host
+        raise ValueError("Not found account by bot_id")
 
     @classmethod
     def from_dict(cls, message: dict, bot: "bots.Bot") -> Message:
