@@ -438,7 +438,7 @@ class SendingMessage:  # noqa: WPS214
         Arguments:
             recipient: recipient for message.
         """
-        if self.payload.options.recipients == "all":
+        if not isinstance(self.payload.options.recipients, list):
             self.payload.options.recipients = []
 
         self.payload.options.recipients.append(recipient)
@@ -449,7 +449,7 @@ class SendingMessage:  # noqa: WPS214
         Arguments:
             recipients: recipients for message.
         """
-        if self.payload.options.recipients == "all":
+        if not isinstance(self.payload.options.recipients, list):
             self.payload.options.recipients = []
 
         self.payload.options.recipients.extend(recipients)

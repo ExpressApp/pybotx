@@ -28,8 +28,7 @@ class NotificationDirect(AuthorizedBotXMethod[UUID]):
     event_sync_id: Optional[UUID] = None
 
     #: HUIDs of users that should receive notifications.
-    recipients: AvailableRecipients = "all"
-
+    recipients: Optional[AvailableRecipients] = None
     #: data for build message: body, markup, mentions.
     result: ResultPayload = Field(..., alias="notification")
 

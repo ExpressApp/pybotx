@@ -1,6 +1,6 @@
 """Special options for message."""
 
-from typing import List
+from typing import List, Optional
 
 from botx.models.base import BotXBaseModel
 from botx.models.entities import Mention
@@ -28,7 +28,7 @@ class MessageOptions(BotXBaseModel):
     """Message options configuration."""
 
     #: users that should receive message.
-    recipients: AvailableRecipients = "all"
+    recipients: Optional[AvailableRecipients] = None
 
     #: attached to message mentions.
     mentions: List[Mention] = []
