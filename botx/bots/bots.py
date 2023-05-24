@@ -128,8 +128,8 @@ class Bot(  # noqa: WPS215
         logger.bind(botx_bot=True, payload=message).debug("process incoming message")
         msg = Message.from_dict(message, self)
 
-        # raise UnknownBotError if not registered.
-        self.get_account_by_bot_id(msg.bot_id)
+        # raise UnknownBotError if not registered.p
+        msg.host = self.get_account_by_bot_id(msg.bot_id).host
 
         await self(msg)
 
