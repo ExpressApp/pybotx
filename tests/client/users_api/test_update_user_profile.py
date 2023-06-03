@@ -77,10 +77,7 @@ async def test__update_user_profile__maximum_update_succeed(
         f"https://{host}/api/v3/botx/users/update_profile",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "avatar": {
-                "data": "data:image/png;base64,SGVsbG8sIHdvcmxkIQ==",
-                "file_name": "avatar.png",
-            },
+            "avatar": "data:image/png;base64,SGVsbG8sIHdvcmxkIQ==",
             "company": "Doge Co",
             "company_position": "Chief",
             "department": "Commercy",

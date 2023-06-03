@@ -47,7 +47,7 @@ class BotXAPIUpdateUserProfileRequestPayload(UnverifiedPayloadBaseModel):
             user_huid=user_huid,
             name=name,
             public_name=public_name,
-            avatar=api_avatar,
+            avatar=getattr(api_avatar, 'data', Undefined),
             company=company,
             company_position=company_position,
             description=description,
