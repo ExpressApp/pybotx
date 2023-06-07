@@ -44,6 +44,18 @@ class BaseMarkup:
         # https://github.com/wemake-services/wemake-python-styleguide/issues/2172
         return self._buttons == other._buttons  # noqa: WPS437
 
+    def __repr__(self) -> str:
+        buttons = []
+
+        for idx, row in enumerate(self._buttons, start=1):
+            row_buttons_strings = [
+                f"{button.label} ({button.command})" for button in row
+            ]
+            row_string = " | ".join(row_buttons_strings)
+            buttons.append(f"row {idx}: {row_string}")
+
+        return "\n".join(buttons)
+
     def add_built_button(self, button: Button, new_row: bool = True) -> None:
         if new_row:
             self._buttons.append([button])
