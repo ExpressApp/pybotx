@@ -88,7 +88,10 @@ async def test__edit_message__maximum_edit_succeed(
                             "command": "/bubble-button",
                             "data": {},
                             "label": "Bubble button",
-                            "opts": {"silent": True},
+                            "opts": {
+                                "silent": True,
+                                "align": "center"
+                            },
                         },
                     ],
                 ],
@@ -98,7 +101,10 @@ async def test__edit_message__maximum_edit_succeed(
                             "command": "/keyboard-button",
                             "data": {},
                             "label": "Keyboard button",
-                            "opts": {"silent": True},
+                            "opts": {
+                                "silent": True,
+                                "align": "center"
+                            },
                         },
                     ],
                 ],
@@ -234,7 +240,10 @@ async def test__edit__succeed(
                             "command": "/bubble-button",
                             "data": {},
                             "label": "Bubble button",
-                            "opts": {"silent": True},
+                            "opts": {
+                                "silent": True,
+                                "align": "center"
+                            },
                         },
                     ],
                 ],
@@ -244,7 +253,10 @@ async def test__edit__succeed(
                             "command": "/keyboard-button",
                             "data": {},
                             "label": "Keyboard button",
-                            "opts": {"silent": True},
+                            "opts": {
+                                "silent": True,
+                                "align": "center"
+                            },
                         },
                     ],
                 ],

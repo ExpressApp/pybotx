@@ -19,7 +19,7 @@ class Button:
     data: Dict[str, Any] = field(default_factory=dict)
     text_color: Missing[str] = Undefined
     background_color: Missing[str] = Undefined
-    align: Missing[ButtonTextAlign] = Undefined
+    align: ButtonTextAlign = ButtonTextAlign.CENTER
 
     silent: bool = True  # BotX has `False` as default, so Missing type can't be used
     width_ratio: Missing[int] = Undefined
@@ -73,7 +73,7 @@ class BaseMarkup:
         data: Optional[Dict[str, Any]] = None,
         text_color: Missing[str] = Undefined,
         background_color: Missing[str] = Undefined,
-        align: Missing[ButtonTextAlign] = Undefined,
+        align: ButtonTextAlign = ButtonTextAlign.CENTER,
         silent: bool = True,
         width_ratio: Missing[int] = Undefined,
         alert: Missing[str] = Undefined,
