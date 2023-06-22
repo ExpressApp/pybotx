@@ -45,10 +45,7 @@ async def test__markup__defaults_filled(
                             "command": "/bubble-button",
                             "data": {},
                             "label": "Bubble button",
-                            "opts": {
-                                "silent": True,
-                                "align": "center"
-                            },
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                 ],
@@ -58,10 +55,7 @@ async def test__markup__defaults_filled(
                             "command": "/keyboard-button",
                             "data": {},
                             "label": "Keyboard button",
-                            "opts": {
-                                "silent": True,
-                                "align": "center"
-                            },
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                 ],
@@ -139,19 +133,13 @@ async def test__markup__correctly_built(
                             "command": "/bubble-button-1",
                             "data": {},
                             "label": "Bubble button 1",
-                            "opts": {
-                                "silent": True,
-                                "align": 'center'
-                            },
+                            "opts": {"silent": True, "align": "center"},
                         },
                         {
                             "command": "/bubble-button-2",
                             "data": {},
                             "label": "Bubble button 2",
-                            "opts": {
-                                "silent": True,
-                                "align": 'center'
-                            },
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                     [
@@ -159,10 +147,7 @@ async def test__markup__correctly_built(
                             "command": "/bubble-button-3",
                             "data": {},
                             "label": "Bubble button 3",
-                            "opts": {
-                                "silent": True,
-                                "align": 'center'
-                            },
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                     [
@@ -170,19 +155,13 @@ async def test__markup__correctly_built(
                             "command": "/bubble-button-4",
                             "data": {},
                             "label": "Bubble button 4",
-                            "opts": {
-                                "silent": True,
-                                "align": 'center'
-                            },
+                            "opts": {"silent": True, "align": "center"},
                         },
                         {
                             "command": "/bubble-button-5",
                             "data": {},
                             "label": "Bubble button 5",
-                            "opts": {
-                                "silent": True,
-                                "align": 'center'
-                            },
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                 ],

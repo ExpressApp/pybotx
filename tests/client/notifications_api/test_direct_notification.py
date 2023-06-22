@@ -61,10 +61,7 @@ async def test__send__succeed(
                             "command": "/bubble-button",
                             "data": {},
                             "label": "Bubble button",
-                            "opts": {
-                                "silent": True,
-                                "align": "center"
-                            },
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                 ],
@@ -74,10 +71,7 @@ async def test__send__succeed(
                             "command": "/keyboard-button",
                             "data": {},
                             "label": "Keyboard button",
-                            "opts": {
-                                "silent": True,
-                                "align": "center"
-                            },
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                 ],
@@ -211,10 +205,7 @@ async def test__answer_message__succeed(
                             "command": "/bubble-button",
                             "data": {},
                             "label": "Bubble button",
-                            "opts": {
-                                "silent": True,
-                                "align": "center"
-                            },
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                 ],
@@ -224,10 +215,7 @@ async def test__answer_message__succeed(
                             "command": "/keyboard-button",
                             "data": {},
                             "label": "Keyboard button",
-                            "opts": {
-                                "silent": True,
-                                "align": "center"
-                            },
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                 ],
