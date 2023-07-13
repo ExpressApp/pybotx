@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Dict, List, Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -69,9 +69,6 @@ class InternalBotNotificationMethod(AuthorizedBotXMethod):
     async def execute(
         self,
         payload: BotXAPIInternalBotNotificationRequestPayload,
-        wait_callback: bool,
-        callback_timeout: Optional[float],
-        default_callback_timeout: float,
     ) -> BotXAPIInternalBotNotificationResponsePayload:
         path = "/api/v4/botx/notifications/internal"
 
@@ -80,16 +77,8 @@ class InternalBotNotificationMethod(AuthorizedBotXMethod):
             self._build_url(path),
             json=payload.jsonable_dict(),
         )
-        api_model = self._verify_and_extract_api_model(
+
+        return self._verify_and_extract_api_model(
             BotXAPIInternalBotNotificationResponsePayload,
             response,
         )
-
-        await self._process_callback(
-            api_model.result.sync_id,
-            wait_callback,
-            callback_timeout,
-            default_callback_timeout,
-        )
-
-        return api_model

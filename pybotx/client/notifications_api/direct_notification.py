@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Union
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -142,9 +142,6 @@ class DirectNotificationMethod(AuthorizedBotXMethod):
     async def execute(
         self,
         payload: BotXAPIDirectNotificationRequestPayload,
-        wait_callback: bool,
-        callback_timeout: Optional[float],
-        default_callback_timeout: float,
     ) -> BotXAPIDirectNotificationResponsePayload:
         path = "/api/v4/botx/notifications/direct"
 
@@ -154,15 +151,7 @@ class DirectNotificationMethod(AuthorizedBotXMethod):
             json=payload.jsonable_dict(),
         )
 
-        api_model = self._verify_and_extract_api_model(
+        return self._verify_and_extract_api_model(
             BotXAPIDirectNotificationResponsePayload,
             response,
         )
-
-        await self._process_callback(
-            api_model.result.sync_id,
-            wait_callback,
-            callback_timeout,
-            default_callback_timeout,
-        )
-        return api_model

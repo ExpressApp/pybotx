@@ -120,7 +120,6 @@ async def test__attachment__trimmed_in_outgoing_message(
             bot_id=bot_id,
             chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             file=file,
-            wait_callback=False,
         )
 
     # - Assert -

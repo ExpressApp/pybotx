@@ -379,8 +379,6 @@ class Bot:
         stealth_mode: Missing[bool] = Undefined,
         send_push: Missing[bool] = Undefined,
         ignore_mute: Missing[bool] = Undefined,
-        wait_callback: bool = True,
-        callback_timeout: Optional[float] = None,
     ) -> UUID:
         """Answer to incoming message.
 
@@ -402,9 +400,6 @@ class Bot:
             devices.
         :param ignore_mute: (BotX default: False) Ignore mute or dnd (do not
             disturb).
-        :param wait_callback: Block method call until callback received.
-        :param callback_timeout: Callback timeout in seconds (or `None` for
-            endless waiting).
 
         :raises AnswerDestinationLookupError: If you try to answer without
             receiving incoming message.
@@ -432,22 +427,16 @@ class Bot:
             stealth_mode=stealth_mode,
             send_push=send_push,
             ignore_mute=ignore_mute,
-            wait_callback=wait_callback,
-            callback_timeout=callback_timeout,
         )
 
     async def send(
         self,
         *,
         message: OutgoingMessage,
-        wait_callback: bool = True,
-        callback_timeout: Optional[float] = None,
     ) -> UUID:
         """Send internal notification.
 
         :param message: Built outgoing message.
-        :param wait_callback: Wait for callback.
-        :param callback_timeout: Timeout for waiting for callback.
 
         :return: Notification sync_id.
         """
@@ -466,8 +455,6 @@ class Bot:
             stealth_mode=message.stealth_mode,
             send_push=message.send_push,
             ignore_mute=message.ignore_mute,
-            wait_callback=wait_callback,
-            callback_timeout=callback_timeout,
         )
 
     async def send_message(
@@ -486,8 +473,6 @@ class Bot:
         stealth_mode: Missing[bool] = Undefined,
         send_push: Missing[bool] = Undefined,
         ignore_mute: Missing[bool] = Undefined,
-        wait_callback: bool = True,
-        callback_timeout: Optional[float] = None,
     ) -> UUID:
         """Send message to chat.
 
@@ -508,9 +493,6 @@ class Bot:
             devices.
         :param ignore_mute: (BotX default: False) Ignore mute or dnd (do not
             disturb).
-        :param wait_callback: Block method call until callback received.
-        :param callback_timeout: Callback timeout in seconds (or `None` for
-            endless waiting).
 
         :return: Notification sync_id.
         """
@@ -536,12 +518,7 @@ class Bot:
             send_push=send_push,
             ignore_mute=ignore_mute,
         )
-        botx_api_sync_id = await method.execute(
-            payload,
-            wait_callback,
-            callback_timeout,
-            self._default_callback_timeout,
-        )
+        botx_api_sync_id = await method.execute(payload)
 
         return botx_api_sync_id.to_domain()
 
@@ -553,8 +530,6 @@ class Bot:
         data: Dict[str, Any],
         opts: Missing[Dict[str, Any]] = Undefined,
         recipients: Missing[List[UUID]] = Undefined,
-        wait_callback: bool = True,
-        callback_timeout: Optional[float] = None,
     ) -> UUID:
         """Send internal notification.
 
@@ -563,8 +538,6 @@ class Bot:
         :param data: Notification payload.
         :param opts: Notification options.
         :param recipients: List of bot uuids, empty for all in chat.
-        :param wait_callback: Wait for callback.
-        :param callback_timeout: Timeout for waiting for callback.
 
         :return: Notification sync_id.
         """
@@ -582,12 +555,7 @@ class Bot:
             opts=opts,
             recipients=recipients,
         )
-        botx_api_sync_id = await method.execute(
-            payload,
-            wait_callback,
-            callback_timeout,
-            self._default_callback_timeout,
-        )
+        botx_api_sync_id = await method.execute(payload)
 
         return botx_api_sync_id.to_domain()
 
