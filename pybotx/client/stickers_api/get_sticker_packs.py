@@ -2,6 +2,7 @@ from typing import List, Literal, Optional
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
+from pybotx.missing import Undefined
 from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from pybotx.models.stickers import StickerPackFromList, StickerPackPage
 
@@ -18,7 +19,7 @@ class BotXAPIGetStickerPacksRequestPayload(UnverifiedPayloadBaseModel):
         limit: int,
         after: Optional[str],
     ) -> "BotXAPIGetStickerPacksRequestPayload":
-        return cls(user_huid=huid, limit=limit, after=after)
+        return cls(user_huid=huid, limit=limit, after=after if after else Undefined)
 
 
 class BotXAPIGetPaginationResult(VerifiedPayloadBaseModel):
