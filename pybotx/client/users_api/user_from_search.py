@@ -38,3 +38,25 @@ class BotXAPISearchUserResponsePayload(VerifiedPayloadBaseModel):
             other_id=self.result.other_id,
             user_kind=convert_user_kind_to_domain(self.result.user_kind),
         )
+
+
+class BotXAPISearchUserByEmailsResponsePayload(VerifiedPayloadBaseModel):
+    status: Literal["ok"]
+    result: List[BotXAPISearchUserResult]
+
+    def to_domain(self) -> List[UserFromSearch]:
+        return [
+            UserFromSearch(
+                huid=user.user_huid,
+                ad_login=user.ad_login,
+                ad_domain=user.ad_domain,
+                username=user.name,
+                company=user.company,
+                company_position=user.company_position,
+                department=user.department,
+                emails=user.emails,
+                other_id=user.other_id,
+                user_kind=convert_user_kind_to_domain(user.user_kind),
+            )
+            for user in self.result
+        ]

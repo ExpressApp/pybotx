@@ -156,6 +156,10 @@ from pybotx.client.users_api.search_user_by_email import (
     BotXAPISearchUserByEmailRequestPayload,
     SearchUserByEmailMethod,
 )
+from pybotx.client.users_api.search_user_by_emails import (
+    BotXAPISearchUserByEmailsRequestPayload,
+    SearchUserByEmailsMethod,
+)
 from pybotx.client.users_api.search_user_by_huid import (
     BotXAPISearchUserByHUIDRequestPayload,
     SearchUserByHUIDMethod,
@@ -1063,6 +1067,31 @@ class Bot:
 
         await method.execute(payload)
 
+    async def search_user_by_emails(
+        self,
+        *,
+        bot_id: UUID,
+        emails: List[str],
+    ) -> List[UserFromSearch]:
+        """Search user by emails for search.
+
+        :param bot_id: Bot which should perform the request.
+        :param emails: User emails.
+
+        :return: Search result with user information.
+        """
+
+        method = SearchUserByEmailsMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPISearchUserByEmailsRequestPayload.from_domain(emails=emails)
+
+        botx_api_users_from_search = await method.execute(payload)
+
+        return botx_api_users_from_search.to_domain()
+
     # - Users API -
     async def search_user_by_email(
         self,
@@ -1071,6 +1100,8 @@ class Bot:
         email: str,
     ) -> UserFromSearch:
         """Search user by email for search.
+
+        DEPRECATED.
 
         :param bot_id: Bot which should perform the request.
         :param email: User email.
