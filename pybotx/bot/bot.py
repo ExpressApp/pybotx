@@ -63,6 +63,10 @@ from pybotx.client.chats_api.unpin_message import (
     BotXAPIUnpinMessageRequestPayload,
     UnpinMessageMethod,
 )
+from pybotx.client.events_api.delete_event import (
+    BotXAPIDeleteEventRequestPayload,
+    DeleteEventMethod,
+)
 from pybotx.client.events_api.edit_event import (
     BotXAPIEditEventRequestPayload,
     EditEventMethod,
@@ -805,6 +809,30 @@ class Bot:
             self._httpx_client,
             self._bot_accounts_storage,
         )
+        await method.execute(payload)
+
+    async def delete_message(
+        self,
+        *,
+        bot_id: UUID,
+        sync_id: UUID,
+    ) -> None:
+        """Delete message.
+
+        :param bot_id: Bot which should perform the request.
+        :param sync_id: Target sync_id.
+        """
+
+        payload = BotXAPIDeleteEventRequestPayload.from_domain(
+            sync_id=sync_id,
+        )
+
+        method = DeleteEventMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
         await method.execute(payload)
 
     # - Chats API -
