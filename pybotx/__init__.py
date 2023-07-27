@@ -40,6 +40,7 @@ from pybotx.client.exceptions.http import (
     InvalidBotXResponsePayloadError,
     InvalidBotXStatusCodeError,
 )
+from pybotx.client.exceptions.message import MessageNotFoundError
 from pybotx.client.exceptions.notifications import (
     BotIsNotChatMemberError,
     FinalRecipientsListEmptyError,
@@ -185,6 +186,7 @@ __all__ = (
     "MentionList",
     "MentionTypes",
     "MentionUser",
+    "MessageNotFoundError",
     "MessageStatus",
     "Middleware",
     "OutgoingAttachment",
