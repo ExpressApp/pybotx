@@ -97,6 +97,10 @@ from pybotx.client.files_api.upload_file import (
     UploadFileMethod,
 )
 from pybotx.client.get_token import get_token
+from pybotx.client.mertics_api.collect_bot_function import (
+    BotXAPICollectBotFunctionRequestPayload,
+    CollectBotFunctionMethod,
+)
 from pybotx.client.notifications_api.direct_notification import (
     BotXAPIDirectNotificationRequestPayload,
     DirectNotificationMethod,
@@ -1775,6 +1779,35 @@ class Bot:
         payload = BotXAPIRefreshAccessTokenRequestPayload.from_domain(
             huid=huid,
             ref=ref,
+        )
+        await method.execute(payload)
+
+    # - Metrics API -
+    async def collect_metric(
+        self,
+        bot_id: UUID,
+        bot_function: str,
+        huids: List[UUID],
+        chat_id: UUID,
+    ) -> None:
+        """Collect a new use of the bot function.
+
+        :param bot_id: Bot which should perform the request.
+        :param bot_function: Name of the bot function.
+        :param huids: Users involved in using the function.
+        :param chat_id: Chat in which the function was used.
+        """
+
+        method = CollectBotFunctionMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        payload = BotXAPICollectBotFunctionRequestPayload.from_domain(
+            bot_function=bot_function,
+            huids=huids,
+            chat_id=chat_id,
         )
         await method.execute(payload)
 
