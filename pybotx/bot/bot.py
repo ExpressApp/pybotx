@@ -1,5 +1,6 @@
 from asyncio import Task
 from contextlib import asynccontextmanager
+from datetime import datetime
 from types import SimpleNamespace
 from typing import (
     Any,
@@ -29,6 +30,10 @@ from pybotx.bot.exceptions import AnswerDestinationLookupError
 from pybotx.bot.handler import Middleware
 from pybotx.bot.handler_collector import HandlerCollector
 from pybotx.bot.middlewares.exception_middleware import ExceptionHandlersDict
+from pybotx.client.bots_api.bot_catalog import (
+    BotsListMethod,
+    BotXAPIBotsListRequestPayload,
+)
 from pybotx.client.chats_api.add_admin import (
     AddAdminMethod,
     BotXAPIAddAdminRequestPayload,
@@ -200,6 +205,7 @@ from pybotx.missing import Missing, MissingOptional, Undefined
 from pybotx.models.async_files import File
 from pybotx.models.attachments import IncomingFileAttachment, OutgoingAttachment
 from pybotx.models.bot_account import BotAccount, BotAccountWithSecret
+from pybotx.models.bot_catalog import BotsListItem
 from pybotx.models.chats import ChatInfo, ChatListItem
 from pybotx.models.commands import BotAPICommand, BotCommand
 from pybotx.models.enums import ChatTypes
@@ -375,6 +381,31 @@ class Bot:
         """
 
         return await get_token(bot_id, self._httpx_client, self._bot_accounts_storage)
+
+    async def get_bots_list(
+        self,
+        *,
+        bot_id: UUID,
+        since: Missing[datetime] = Undefined,
+    ) -> Tuple[List[BotsListItem], datetime]:
+        """Get list of Bots on the current CTS.
+
+        :param bot_id: Bot which should perform the request.
+        :param since: Only return bots changed after this date.
+
+        :return: List of Bots, generated timestamp.
+        """
+
+        method = BotsListMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPIBotsListRequestPayload.from_domain(since=since)
+
+        botx_api_bots_list = await method.execute(payload)
+
+        return botx_api_bots_list.to_domain()
 
     # - Notifications API -
     async def answer_message(
