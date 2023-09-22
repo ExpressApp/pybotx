@@ -62,6 +62,7 @@ from pybotx.models.attachments import (
     OutgoingAttachment,
 )
 from pybotx.models.bot_account import BotAccount, BotAccountWithSecret
+from pybotx.models.bot_catalog import BotsListItem
 from pybotx.models.bot_sender import BotSender
 from pybotx.models.chats import Chat, ChatInfo, ChatInfoMember, ChatListItem
 from pybotx.models.enums import (
@@ -199,6 +200,7 @@ __all__ = (
     "SmartAppEvent",
     "SmartAppEvent",
     "StatusRecipient",
+    "BotsListItem",
     "StealthModeDisabledError",
     "Sticker",
     "StickerPack",
