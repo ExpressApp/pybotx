@@ -2,7 +2,7 @@
 
 *Библиотека для создания чат-ботов и SmartApps для мессенджера eXpress*
 
-[![PyPI version](https://badge.fury.io/py/botx.svg)](https://badge.fury.io/py/pybotx)
+[![PyPI version](https://badge.fury.io/py/pybotx.svg)](https://badge.fury.io/py/pybotx)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pybotx)
 [![Coverage](https://codecov.io/gh/ExpressApp/pybotx/branch/master/graph/badge.svg)](https://codecov.io/gh/ExpressApp/pybotx/branch/master)
 [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
@@ -36,9 +36,9 @@ poetry add pybotx
 
 Перед тем, как продолжать знакомство с библиотекой `pybotx`,
 советуем прочитать данные статьи: [Что такое чат-боты и SmartApp
-](https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001089)
+](https://docs.express.ms/chatbots/developer-guide/getting-started/what-is-chatbot/)
 и [Взаимодействие с Bot API и BotX API
-](https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185).
+](https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/).
 В этих статьях находятся исчерпывающие примеры работы с платформой, которые
 легко повторить, используя `pybotx`.
 
@@ -135,7 +135,7 @@ async def callback_handler(request: Request) -> JSONResponse:
 ### Получение сообщений
 
 *([подробное описание функции](
-https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185/Bot+API+BotX+API#%D0%9F%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B9/%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%BD%D1%8B%D1%85-%D1%81%D0%BE%D0%B1%D1%8B%D1%82%D0%B8%D0%B9))*
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B9%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%BD%D1%8B%D1%85-%D1%81%D0%BE%D0%B1%D1%8B%D1%82%D0%B8%D0%B9))*
 
 ```python
 from uuid import UUID
@@ -183,8 +183,7 @@ async def default_handler(_: IncomingMessage, bot: Bot) -> None:
 ### Получение системных событий
 
 *([подробное описание функции](
-https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185/Bot+API+BotX+API#%D0%9F%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B9/%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%BD%D1%8B%D1%85-%D1%81%D0%BE%D0%B1%D1%8B%D1%82%D0%B8%D0%B9))*
-
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B9%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%BD%D1%8B%D1%85-%D1%81%D0%BE%D0%B1%D1%8B%D1%82%D0%B8%D0%B9))*
 ```python
 from pybotx import *
 
@@ -300,8 +299,7 @@ main_collector.include(admin_collector)
 ### Отправка сообщения
 
 *([подробное описание функции](
-https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185/Bot+API+BotX+API#%D0%9E%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F))*
-
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F))*
 ```python
 from uuid import UUID
 
@@ -356,8 +354,7 @@ async def prebuild_answer_handler(message: IncomingMessage, bot: Bot) -> None:
 #### Отправка сообщения с кнопками
 
 *([подробное описание функции](
-https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185/Bot+API+BotX+API#%D0%9E%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F-%D1%81-%D0%BA%D0%BD%D0%BE%D0%BF%D0%BA%D0%B0%D0%BC%D0%B8))*
-
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F-%D1%81-%D0%BA%D0%BD%D0%BE%D0%BF%D0%BA%D0%B0%D0%BC%D0%B8))*
 ```python
 from pybotx import *
 
@@ -374,11 +371,13 @@ async def bubbles_handler(message: IncomingMessage, bot: Bot) -> None:
         command="/choose",
         label="Red",
         data={"pill": "red"},
+        background_color="#FF0000",
     )
     bubbles.add_button(
         command="/choose",
         label="Blue",
         data={"pill": "blue"},
+        background_color="#0000FF",
         new_row=False,
     )
 
@@ -392,8 +391,7 @@ async def bubbles_handler(message: IncomingMessage, bot: Bot) -> None:
 #### Упоминание пользователя
 
 *([подробное описание функции](
-https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185/Bot+API+BotX+API#%D0%A3%D0%BF%D0%BE%D0%BC%D0%B8%D0%BD%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F))*
-
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D1%83%D0%BF%D0%BE%D0%BC%D0%B8%D0%BD%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F))*
 ```python
 from pybotx import *
 
@@ -420,8 +418,7 @@ async def echo_contact_handler(message: IncomingMessage, bot: Bot) -> None:
 #### Отправка файла в сообщении
 
 *([подробное описание функции](
-https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185/Bot+API+BotX+API#%D0%9E%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%84%D0%B0%D0%B9%D0%BB%D0%B0-%D0%B2-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B8))*
-
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%84%D0%B0%D0%B9%D0%BB%D0%B0-%D0%B2-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B8))*
 ```python
 from aiofiles.tempfile import NamedTemporaryFile
 
@@ -452,12 +449,10 @@ async def echo_file_handler(message: IncomingMessage, bot: Bot) -> None:
     await bot.answer_message("", file=attached_file)
 ```
 
-
 ### Редактирование сообщения
 
 *([подробное описание функции](
-https://hackmd.ccsteam.ru/s/E9MPeOxjP#%D0%A0%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%B1%D1%8B%D1%82%D0%B8%D1%8F))*
-
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D1%80%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B9))*
 ```python
 from pybotx import *
 
@@ -490,6 +485,34 @@ async def increment_handler(message: IncomingMessage, bot: Bot) -> None:
         )
     else:
         await bot.answer_message(answer_text, bubbles=bubbles)
+```
+
+### Удаление сообщения
+
+*([подробное описание функции](
+https://hackmd.ccsteam.ru/s/E9MPeOxjP#%D0%A3%D0%B4%D0%B0%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F))*
+```python
+from pybotx import *
+
+collector = HandlerCollector()
+
+
+@collector.command("/deleted-message", description="Self-deleted message")
+async def deleted_message_handler(message: IncomingMessage, bot: Bot) -> None:
+    if message.source_sync_id:  # ID сообщения, в котором была нажата кнопка.
+        await bot.delete_message(
+            bot_id=message.bot.id,
+            sync_id=message.source_sync_id,
+        )
+        return
+
+    bubbles = BubbleMarkup()
+    bubbles.add_button(
+        command="/deleted-message",
+        label="Delete",
+    )
+
+    await bot.answer_message("Self-deleted message", bubbles=bubbles)
 ```
 
 
@@ -527,8 +550,7 @@ bot = Bot(
 ### Создание чата
 
 *([подробное описание функции](
-https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185/Bot+API+BotX+API#%D0%A1%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-%D1%87%D0%B0%D1%82%D0%B0))*
-
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-%D1%87%D0%B0%D1%82%D0%B0))*
 ```python
 from pybotx import *
 
@@ -556,9 +578,36 @@ async def create_group_chat_handler(message: IncomingMessage, bot: Bot) -> None:
     await bot.answer_message(f"Chat created: {chat_mention}")
 ```
 
-### Получение списка пользователей
-*([подробное описание функции](https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185/Bot+API+BotX+API#%D0%9F%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BF%D0%B8%D1%81%D0%BA%D0%B0-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D0%B5%D0%B9-%D0%BD%D0%B0-CTS))*
+### Поиск пользователей
 
+*([подробное описание функции](
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D0%BF%D0%BE%D0%B8%D1%81%D0%BA-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F))*
+```python
+import dataclasses
+
+from pybotx import *
+
+collector = HandlerCollector()
+
+
+@collector.command("/my-info", description="Get info of current user")
+async def search_user_handler(message: IncomingMessage, bot: Bot) -> None:
+    try:
+        user_info = await bot.search_user_by_huid(
+            bot_id=message.bot.id,
+            huid=message.sender.huid,
+        )
+    except UserNotFoundError:  # Если пользователь и бот находятся на разных CTS
+        await bot.answer_message("User not found. Maybe you are on a different cts.")
+        return
+
+    await bot.answer_message(f"Your info:\n{dataclasses.asdict(user_info)}\n")
+```
+
+### Получение списка пользователей
+
+*([подробное описание функции](
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BF%D0%B8%D1%81%D0%BA%D0%B0-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D0%B5%D0%B9-%D0%BD%D0%B0-cts))*
 ```python
 from pybotx import *
 
