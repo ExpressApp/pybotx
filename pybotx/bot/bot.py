@@ -118,6 +118,10 @@ from pybotx.client.openid_api.refresh_access_token import (
     BotXAPIRefreshAccessTokenRequestPayload,
     RefreshAccessTokenMethod,
 )
+from pybotx.client.smartapps_api.smartapp_custom_notification import (
+    BotXAPISmartAppCustomNotificationRequestPayload,
+    SmartAppCustomNotificationMethod,
+)
 from pybotx.client.smartapps_api.smartapp_event import (
     BotXAPISmartAppEventRequestPayload,
     SmartAppEventMethod,
@@ -1474,6 +1478,53 @@ class Bot:
         botx_api_static_file = await method.execute(async_buffer, filename)
 
         return botx_api_static_file.to_domain()
+
+    async def send_smartapp_custom_notification(
+        self,
+        *,
+        bot_id: UUID,
+        group_chat_id: UUID,
+        title: str,
+        body: str,
+        meta: Missing[Dict[str, Any]] = Undefined,
+        wait_callback: bool = True,
+        callback_timeout: Optional[float] = None,
+    ) -> UUID:
+        """Send SmartApp custom notification.
+
+        :param bot_id: Bot which should perform the request.
+        :param group_chat_id: Target chat id.
+        :param title: Notification title.
+        :param body: Notification body.
+        :param meta: Meta information.
+        :param wait_callback: Block method call until callback received.
+        :param callback_timeout: Callback timeout in seconds (or `None` for
+            endless waiting).
+
+        :return: Notification sync_id.
+        """
+
+        method = SmartAppCustomNotificationMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+            self._callbacks_manager,
+        )
+        payload = BotXAPISmartAppCustomNotificationRequestPayload.from_domain(
+            group_chat_id=group_chat_id,
+            title=title,
+            body=body,
+            meta=meta,
+        )
+
+        botx_api_sync_id = await method.execute(
+            payload,
+            wait_callback,
+            callback_timeout,
+            self._default_callback_timeout,
+        )
+
+        return botx_api_sync_id.to_domain()
 
     # - Stickers API -
     async def create_sticker_pack(
