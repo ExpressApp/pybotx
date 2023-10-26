@@ -69,7 +69,7 @@ class ChatInfo:
     """
 
     chat_type: ChatTypes
-    creator_id: UUID
+    creator_id: Optional[UUID]
     description: Optional[str]
     chat_id: UUID
     created_at: dt
