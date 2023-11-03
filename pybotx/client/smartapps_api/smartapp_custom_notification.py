@@ -9,12 +9,12 @@ from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBa
 class BotXAPISmartAppCustomNotificationNestedPayload(UnverifiedPayloadBaseModel):
     title: str
     body: str
-    meta: Missing[Dict[str, Any]]
 
 
 class BotXAPISmartAppCustomNotificationRequestPayload(UnverifiedPayloadBaseModel):
     group_chat_id: UUID
     payload: BotXAPISmartAppCustomNotificationNestedPayload
+    meta: Missing[Dict[str, Any]]
 
     @classmethod
     def from_domain(
@@ -29,8 +29,8 @@ class BotXAPISmartAppCustomNotificationRequestPayload(UnverifiedPayloadBaseModel
             payload=BotXAPISmartAppCustomNotificationNestedPayload(
                 title=title,
                 body=body,
-                meta=meta,
             ),
+            meta=meta,
         )
 
 
