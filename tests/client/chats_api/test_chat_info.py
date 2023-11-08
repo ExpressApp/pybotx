@@ -225,3 +225,83 @@ async def test__chat_info__skipped_members(
     )
     assert "One or more unsupported user types skipped" in loguru_caplog.text
     assert endpoint.called
+
+
+async def test__open_channel_info__succeed(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    datetime_formatter: Callable[[str], dt],
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.get(
+        f"https://{host}/api/v3/botx/chats/info",
+        headers={"Authorization": "Bearer token"},
+        params={"group_chat_id": "e53d5080-68f7-5050-bb4f-005efd375612"},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.OK,
+            json={
+                "status": "ok",
+                "result": {
+                    "chat_type": "channel",
+                    "creator": None,
+                    "description": None,
+                    "group_chat_id": "e53d5080-68f7-5050-bb4f-005efd375612",
+                    "inserted_at": "2023-10-26T07:49:53.821672Z",
+                    "members": [
+                        {
+                            "admin": True,
+                            "server_id": "a619fcfa-a19b-5256-a592-9b0e75ca0896",
+                            "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+                            "user_kind": "cts_user",
+                        },
+                        {
+                            "admin": False,
+                            "user_huid": "705df263-6bfd-536a-9d51-13524afaab5c",
+                            "server_id": "a619fcfa-a19b-5256-a592-9b0e75ca0896",
+                            "user_kind": "botx",
+                        },
+                    ],
+                    "name": "Open Channel Example",
+                    "shared_history": False,
+                    "updated_at": "2023-10-26T08:09:30.721566Z",
+                },
+            },
+        ),
+    )
+
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        chat_info = await bot.chat_info(
+            bot_id=bot_id,
+            chat_id=UUID("e53d5080-68f7-5050-bb4f-005efd375612"),
+        )
+
+    # - Assert -
+    assert chat_info == ChatInfo(
+        chat_type=ChatTypes.CHANNEL,
+        creator_id=None,
+        description=None,
+        chat_id=UUID("e53d5080-68f7-5050-bb4f-005efd375612"),
+        created_at=datetime_formatter("2023-10-26T07:49:53.821672Z"),
+        members=[
+            ChatInfoMember(
+                is_admin=True,
+                huid=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
+                kind=UserKinds.CTS_USER,
+            ),
+            ChatInfoMember(
+                is_admin=False,
+                huid=UUID("705df263-6bfd-536a-9d51-13524afaab5c"),
+                kind=UserKinds.BOT,
+            ),
+        ],
+        name="Open Channel Example",
+        shared_history=False,
+    )
+
+    assert endpoint.called

@@ -30,8 +30,8 @@ async def test__send_smartapp_custom_notification__succeed(
             "payload": {
                 "title": "test",
                 "body": "test",
-                "meta": {"message": "ping"},
             },
+            "meta": {"message": "ping"},
         },
     ).mock(
         return_value=httpx.Response(
