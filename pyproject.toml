@@ -27,7 +27,7 @@ aiocsv = ">=1.2.3,<1.3.0"
 
 [tool.poetry.dev-dependencies]
 add-trailing-comma = "2.2.1"
-autoflake = "1.4.0"
+autoflake = "1.7.8"
 black = "22.3.0"
 isort = "5.10.1"
 mypy = "0.910.0"
