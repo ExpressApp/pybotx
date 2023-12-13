@@ -22,7 +22,7 @@ class BotXAPIBotsListRequestPayload(UnverifiedPayloadBaseModel):
 class BotXAPIBotItem(VerifiedPayloadBaseModel):
     user_huid: UUID
     name: str
-    description: str
+    description: Optional[str] = None
     avatar: Optional[str] = None
     enabled: bool
 

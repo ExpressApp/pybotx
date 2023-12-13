@@ -17,6 +17,6 @@ class BotsListItem:
 
     id: UUID
     name: str
-    description: str
+    description: Optional[str]
     avatar: Optional[str]
     enabled: bool
