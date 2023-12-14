@@ -306,3 +306,45 @@ async def test__async_execute_raw_bot_command__unknown_attachment_type(
 
     # - Assert -
     assert "Received unknown attachment type" in loguru_caplog.text
+
+
+async def test__async_execute_raw_bot_command__empty_attachment(
+    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    bot_account: BotAccountWithSecret,
+    loguru_caplog: pytest.LogCaptureFixture,
+) -> None:
+    # - Arrange -
+    empty_attachment = {
+        "data": {
+            "content": "",
+            "file_name": "empty_file.txt",
+        },
+        "type": "document",
+    }
+    payload = api_incoming_message_factory(attachment=empty_attachment)
+
+    collector = HandlerCollector()
+    incoming_message: Optional[IncomingMessage] = None
+
+    @collector.default_message_handler
+    async def default_handler(message: IncomingMessage, bot: Bot) -> None:
+        nonlocal incoming_message
+        incoming_message = message
+        # Drop `raw_command` from asserting
+        incoming_message.raw_command = None
+
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        bot.async_execute_raw_bot_command(payload)
+
+    # - Assert -
+    assert incoming_message
+    assert incoming_message.file == AttachmentDocument(
+        type=AttachmentTypes.DOCUMENT,
+        filename="empty_file.txt",
+        size=0,
+        is_async_file=False,
+        content=b"",
+    )
