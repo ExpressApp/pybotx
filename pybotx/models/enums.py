@@ -100,6 +100,7 @@ class BotAPISystemEventTypes(StrEnum):
     INTERNAL_BOT_NOTIFICATION = "system:internal_bot_notification"
     LEFT_FROM_CHAT = "system:left_from_chat"
     SMARTAPP_EVENT = "system:smartapp_event"
+    EVENT_EDIT = "system:event_edit"
 
 
 class BotAPIClientPlatforms(Enum):

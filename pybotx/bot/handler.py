@@ -10,6 +10,7 @@ from pybotx.models.system_events.chat_created import ChatCreatedEvent
 from pybotx.models.system_events.cts_login import CTSLoginEvent
 from pybotx.models.system_events.cts_logout import CTSLogoutEvent
 from pybotx.models.system_events.deleted_from_chat import DeletedFromChatEvent
+from pybotx.models.system_events.event_edit import EventEdit
 from pybotx.models.system_events.internal_bot_notification import (
     InternalBotNotificationEvent,
 )
@@ -32,6 +33,7 @@ SystemEventHandlerFunc = Union[
     HandlerFunc[CTSLogoutEvent],
     HandlerFunc[InternalBotNotificationEvent],
     HandlerFunc[SmartAppEvent],
+    HandlerFunc[EventEdit],
 ]
 
 VisibleFunc = Callable[[StatusRecipient, "Bot"], Awaitable[bool]]
