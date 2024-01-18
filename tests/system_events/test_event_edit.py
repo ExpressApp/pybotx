@@ -4,13 +4,17 @@ from uuid import UUID
 import pytest
 
 from pybotx import (
+    AttachmentTypes,
     Bot,
     BotAccount,
     BotAccountWithSecret,
     EventEdit,
     HandlerCollector,
+    MentionContact,
+    MentionTypes,
     lifespan_wrapper,
 )
+from pybotx.models.attachments import AttachmentImage
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -32,8 +36,29 @@ async def test__event_edit__succeed(
             "metadata": {},
         },
         "async_files": [],
-        "attachments": [],
-        "entities": [],
+        "attachments": [
+            {
+                "data": {
+                    "content": "data:image/jpg;base64,SGVsbG8sIHdvcmxkIQo=",
+                    "file_name": "test_file.jpg",
+                },
+                "type": "image",
+            },
+        ],
+        "entities": [
+            {
+                "type": "mention",
+                "data": {
+                    "mention_type": "contact",
+                    "mention_id": "c06a96fa-7881-0bb6-0e0b-0af72fe3683f",
+                    "mention_data": {
+                        "user_huid": "ab103983-6001-44e9-889e-d55feb295494",
+                        "name": "Вася Иванов",
+                        "conn_type": "cts",
+                    },
+                },
+            },
+        ],
         "from": {
             "user_huid": None,
             "group_chat_id": None,
@@ -62,7 +87,7 @@ async def test__event_edit__succeed(
     event_edit: Optional[EventEdit] = None
 
     @collector.event_edit
-    async def event_edit_handler(event: EventEdit, bot: Bot) -> None:
+    async def event_edit_handler(event: EventEdit, _: Bot) -> None:
         nonlocal event_edit
         event_edit = event
         # Drop `raw_command` from asserting
@@ -82,4 +107,20 @@ async def test__event_edit__succeed(
         ),
         raw_command=None,
         body="Edited",
+        attachments=[
+            AttachmentImage(
+                type=AttachmentTypes.IMAGE,
+                filename="test_file.jpg",
+                size=14,
+                is_async_file=False,
+                content=b"Hello, world!\n",
+            ),
+        ],
+        entities=[
+            MentionContact(
+                type=MentionTypes.CONTACT,
+                entity_id=UUID("ab103983-6001-44e9-889e-d55feb295494"),
+                name="Вася Иванов",
+            ),
+        ],
     )
