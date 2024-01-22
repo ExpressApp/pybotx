@@ -1,7 +1,12 @@
+import json
+import logging
+from typing import Any, Callable, Dict
+
 import pytest
 
 from pybotx import (
     Bot,
+    BotAccountWithSecret,
     HandlerCollector,
     UnknownSystemEventError,
     UnsupportedBotAPIVersionError,
@@ -90,3 +95,47 @@ async def test__async_execute_raw_bot_command__unknown_system_event() -> None:
     # - Assert -
     assert "Unknown system event" in str(exc.value)
     assert "system:baz" in str(exc.value)
+
+
+async def test__async_execute_raw_bot_command__logging_incoming_request(
+    bot_account: BotAccountWithSecret,
+    loguru_caplog: pytest.LogCaptureFixture,
+    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    mock_authorization: None,
+) -> None:
+    # - Arrange -
+    payload = api_incoming_message_factory(bot_id=bot_account.id)
+    log_message = "Got command: {command}".format(
+        command=json.dumps(payload, sort_keys=True, indent=4, ensure_ascii=False),
+    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        with loguru_caplog.at_level(logging.DEBUG):
+            bot.async_execute_raw_bot_command(payload)
+
+    # - Assert -
+    assert log_message in loguru_caplog.messages
+
+
+async def test__async_execute_raw_bot_command__not_logging_incoming_request(
+    bot_account: BotAccountWithSecret,
+    loguru_caplog: pytest.LogCaptureFixture,
+    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    mock_authorization: None,
+) -> None:
+    # - Arrange -
+    payload = api_incoming_message_factory(bot_id=bot_account.id)
+    log_message = "Got command: {command}".format(
+        command=json.dumps(payload, sort_keys=True, indent=4, ensure_ascii=False),
+    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        with loguru_caplog.at_level(logging.DEBUG):
+            bot.async_execute_raw_bot_command(payload, logging_command=False)
+
+    # - Assert -
+    assert log_message not in loguru_caplog.messages
