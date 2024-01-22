@@ -271,13 +271,18 @@ class Bot:
 
         self.state: SimpleNamespace = SimpleNamespace()
 
-    def async_execute_raw_bot_command(self, raw_bot_command: Dict[str, Any]) -> None:
-        logger.opt(lazy=True).debug(
-            "Got command: {command}",
-            command=lambda: pformat_jsonable_obj(
-                trim_file_data_in_incoming_json(raw_bot_command),
-            ),
-        )
+    def async_execute_raw_bot_command(
+        self,
+        raw_bot_command: Dict[str, Any],
+        logging_command: bool = True,
+    ) -> None:
+        if logging_command:
+            logger.opt(lazy=True).debug(
+                "Got command: {command}",
+                command=lambda: pformat_jsonable_obj(
+                    trim_file_data_in_incoming_json(raw_bot_command),
+                ),
+            )
 
         try:
             bot_api_command: BotAPICommand = parse_obj_as(
