@@ -236,7 +236,7 @@ API_AND_DOMAIN_FILE_ATTACHMENTS = (
     (
         {
             "data": {
-                "content": "data:audio/mpeg3;base64,SGVsbG8sIHdvcmxkIQo=",
+                "content": "data:audio/mp3;base64,SGVsbG8sIHdvcmxkIQo=",
                 "duration": 10,
             },
             "type": "voice",
@@ -244,6 +244,23 @@ API_AND_DOMAIN_FILE_ATTACHMENTS = (
         AttachmentVoice(
             type=AttachmentTypes.VOICE,
             filename="record.mp3",
+            size=len(b"Hello, world!\n"),
+            is_async_file=False,
+            content=b"Hello, world!\n",
+            duration=10,
+        ),
+    ),
+    (
+        {
+            "data": {
+                "content": "data:audio/m4a;base64,SGVsbG8sIHdvcmxkIQo=",
+                "duration": 10,
+            },
+            "type": "voice",
+        },
+        AttachmentVoice(
+            type=AttachmentTypes.VOICE,
+            filename="record.m4a",
             size=len(b"Hello, world!\n"),
             is_async_file=False,
             content=b"Hello, world!\n",
