@@ -263,10 +263,13 @@ def convert_api_attachment_to_domain(  # noqa: WPS212
         attachment_type = cast(Literal[AttachmentTypes.VOICE], attachment_type)
         api_attachment = cast(BotAPIAttachmentVoice, api_attachment)
         content = decode_rfc2397(api_attachment.data.content)
+        attachment_extension = get_attachment_extension_from_encoded_content(
+            api_attachment.data.content,
+        )
 
         return AttachmentVoice(
             type=attachment_type,
-            filename="record.mp3",
+            filename=f"record.{attachment_extension}",
             size=len(content),
             is_async_file=False,
             content=content,
@@ -315,6 +318,12 @@ def convert_api_attachment_to_domain(  # noqa: WPS212
         )
 
     raise NotImplementedError(f"Unsupported attachment type: {attachment_type}")
+
+
+def get_attachment_extension_from_encoded_content(
+    encoded_content: str,
+) -> str:
+    return encoded_content.split(";")[0].split("/")[1]
 
 
 def decode_rfc2397(encoded_content: str) -> bytes:
