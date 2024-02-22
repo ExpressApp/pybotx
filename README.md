@@ -103,7 +103,10 @@ app.add_event_handler("shutdown", bot.shutdown)
 # (сообщения и системные события).
 @app.post("/command")
 async def command_handler(request: Request) -> JSONResponse:
-    bot.async_execute_raw_bot_command(await request.json())
+    bot.async_execute_raw_bot_command(
+        await request.json(),
+        request_headers=request.headers,
+    )
     return JSONResponse(
         build_command_accepted_response(),
         status_code=HTTPStatus.ACCEPTED,
@@ -114,7 +117,10 @@ async def command_handler(request: Request) -> JSONResponse:
 # доступность бота и его список команд.
 @app.get("/status")
 async def status_handler(request: Request) -> JSONResponse:
-    status = await bot.raw_get_status(dict(request.query_params))
+    status = await bot.raw_get_status(
+        dict(request.query_params),
+        request_headers=request.headers,
+    )
     return JSONResponse(status)
 
 
@@ -122,7 +128,10 @@ async def status_handler(request: Request) -> JSONResponse:
 # выполнения асинхронных методов в BotX.
 @app.post("/notification/callback")
 async def callback_handler(request: Request) -> JSONResponse:
-    await bot.set_raw_botx_method_result(await request.json())
+    await bot.set_raw_botx_method_result(
+        await request.json(),
+        verify_request=False,
+    )
     return JSONResponse(
         build_command_accepted_response(),
         status_code=HTTPStatus.ACCEPTED,
