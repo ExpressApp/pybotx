@@ -13,11 +13,18 @@ class BotAccountsStorage:
         self._bot_accounts = bot_accounts
         self._auth_tokens: Dict[UUID, str] = {}
 
+    def get_bot_account(self, bot_id: UUID) -> BotAccountWithSecret:
+        for bot_account in self._bot_accounts:
+            if bot_account.id == bot_id:
+                return bot_account
+
+        raise UnknownBotAccountError(bot_id)
+
     def iter_bot_accounts(self) -> Iterator[BotAccount]:
         yield from self._bot_accounts
 
     def get_host(self, bot_id: UUID) -> str:
-        bot_account = self._get_bot_account(bot_id)
+        bot_account = self.get_bot_account(bot_id)
         return bot_account.host
 
     def set_token(self, bot_id: UUID, token: str) -> None:
@@ -27,7 +34,7 @@ class BotAccountsStorage:
         return self._auth_tokens.get(bot_id)
 
     def build_signature(self, bot_id: UUID) -> str:
-        bot_account = self._get_bot_account(bot_id)
+        bot_account = self.get_bot_account(bot_id)
 
         signed_bot_id = hmac.new(
             key=bot_account.secret_key.encode(),
@@ -38,11 +45,4 @@ class BotAccountsStorage:
         return base64.b16encode(signed_bot_id).decode()
 
     def ensure_bot_id_exists(self, bot_id: UUID) -> None:
-        self._get_bot_account(bot_id)
-
-    def _get_bot_account(self, bot_id: UUID) -> BotAccountWithSecret:
-        for bot_account in self._bot_accounts:
-            if bot_account.id == bot_id:
-                return bot_account
-
-        raise UnknownBotAccountError(bot_id)
+        self.get_bot_account(bot_id)

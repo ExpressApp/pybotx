@@ -6,6 +6,7 @@ from unittest.mock import Mock
 from uuid import UUID, uuid4
 
 import httpx
+import jwt
 import pytest
 from aiofiles.tempfile import NamedTemporaryFile
 from pydantic import BaseModel
@@ -68,6 +69,30 @@ def bot_account(host: str, bot_id: UUID) -> BotAccountWithSecret:
         host=host,
         secret_key="bee001",
     )
+
+
+@pytest.fixture
+def authorization_token_payload(bot_account: BotAccountWithSecret) -> Dict[str, Any]:
+    return {
+        "aud": [str(bot_account.id)],
+        "exp": datetime(year=3000, month=1, day=1).timestamp(),
+        "iat": datetime(year=2000, month=1, day=1).timestamp(),
+        "iss": bot_account.host,
+        "jti": "2uqpju31h6dgv4f41c005e1i",
+        "nbf": datetime(year=2000, month=1, day=1).timestamp(),
+    }
+
+
+@pytest.fixture
+def authorization_header(
+    bot_account: BotAccountWithSecret,
+    authorization_token_payload: Dict[str, Any],
+) -> Dict[str, str]:
+    token = jwt.encode(
+        payload=authorization_token_payload,
+        key=bot_account.secret_key,
+    )
+    return {"authorization": f"Bearer {token}"}
 
 
 @pytest.fixture

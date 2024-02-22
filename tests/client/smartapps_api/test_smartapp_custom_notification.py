@@ -64,6 +64,7 @@ async def test__send_smartapp_custom_notification__succeed(
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -

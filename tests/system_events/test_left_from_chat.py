@@ -79,7 +79,7 @@ async def test__left_from_chat__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert left_from_chat == LeftFromChatEvent(

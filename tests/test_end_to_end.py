@@ -16,8 +16,12 @@ from pybotx import (
     HandlerCollector,
     IncomingMessage,
     UnknownBotAccountError,
+    UnverifiedRequestError,
     build_bot_disabled_response,
     build_command_accepted_response,
+)
+from pybotx.bot.api.responses.unverified_request import (
+    build_unverified_request_response,
 )
 
 # - Bot setup -
@@ -53,7 +57,7 @@ async def command_handler(
     bot: Bot = bot_dependency,
 ) -> JSONResponse:
     try:
-        bot.async_execute_raw_bot_command(await request.json())
+        bot.async_execute_raw_bot_command(await request.json(), verify_request=False)
     except ValueError:
         error_label = "Bot command validation error"
         logger.exception(error_label)
@@ -79,7 +83,27 @@ async def command_handler(
 
 @router.get("/status")
 async def status_handler(request: Request, bot: Bot = bot_dependency) -> JSONResponse:
-    status = await bot.raw_get_status(dict(request.query_params))
+    status = await bot.raw_get_status(dict(request.query_params), verify_request=False)
+    return JSONResponse(status)
+
+
+@router.get("/status__unverified_request")
+async def status_handler__unverified_request(
+    request: Request,
+    bot: Bot = bot_dependency,
+) -> JSONResponse:
+    try:
+        status = await bot.raw_get_status(
+            dict(request.query_params),
+            request_headers=request.headers,
+        )
+    except UnverifiedRequestError as exc:
+        return JSONResponse(
+            content=build_unverified_request_response(
+                status_message=exc.args[0],
+            ),
+            status_code=HTTPStatus.UNAUTHORIZED,
+        )
     return JSONResponse(status)
 
 
@@ -88,7 +112,7 @@ async def callback_handler(
     request: Request,
     bot: Bot = bot_dependency,
 ) -> JSONResponse:
-    await bot.set_raw_botx_method_result(await request.json())
+    await bot.set_raw_botx_method_result(await request.json(), verify_request=False)
     return JSONResponse(
         build_command_accepted_response(),
         status_code=HTTPStatus.ACCEPTED,
@@ -323,4 +347,23 @@ def test__web_app__disabled_bot_response(
         "error_data": {"status_message": "Bot command validation error"},
         "errors": [],
         "reason": "bot_disabled",
+    }
+
+
+def test__web_app__unverified_request_response(
+    bot: Bot,
+) -> None:
+    # - Act -
+    with TestClient(fastapi_factory(bot)) as test_client:
+        response = test_client.get(
+            "/status__unverified_request",
+            params={},
+        )
+
+    # - Assert -
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    assert response.json() == {
+        "error_data": {"status_message": "The authorization token was not provided."},
+        "errors": [],
+        "reason": "unverified_request",
     }

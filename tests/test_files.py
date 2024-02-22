@@ -126,7 +126,7 @@ async def test__async_file__open(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert read_content == b"Hello, world!\n"
@@ -317,7 +317,7 @@ async def test__async_execute_raw_bot_command__different_file_types(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert smartapp_event

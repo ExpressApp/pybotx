@@ -97,7 +97,7 @@ async def test__event_edit__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert event_edit == EventEdit(

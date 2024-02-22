@@ -3,17 +3,25 @@ from pybotx.bot.api.exceptions import (
     UnsupportedBotAPIVersionError,
 )
 from pybotx.bot.api.responses.bot_disabled import (
+    BotAPIBotDisabledErrorData,
     BotAPIBotDisabledResponse,
     build_bot_disabled_response,
 )
 from pybotx.bot.api.responses.command_accepted import build_command_accepted_response
+from pybotx.bot.api.responses.unverified_request import (
+    BotAPIUnverifiedRequestErrorData,
+    BotAPIUnverifiedRequestResponse,
+    build_unverified_request_response,
+)
 from pybotx.bot.bot import Bot
 from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
 from pybotx.bot.exceptions import (
     AnswerDestinationLookupError,
     BotShuttingDownError,
     BotXMethodCallbackNotFoundError,
+    RequestHeadersNotProvidedError,
     UnknownBotAccountError,
+    UnverifiedRequestError,
 )
 from pybotx.bot.handler import IncomingMessageHandlerFunc, Middleware
 from pybotx.bot.handler_collector import HandlerCollector
@@ -121,14 +129,17 @@ from pybotx.models.users import UserFromCSV, UserFromSearch
 __all__ = (
     "AddedToChatEvent",
     "AnswerDestinationLookupError",
-    "AttachmentTypes",
     "AttachmentDocument",
     "AttachmentImage",
-    "AttachmentVoice",
+    "AttachmentTypes",
     "AttachmentVideo",
+    "AttachmentVoice",
     "Bot",
+    "BotAPIBotDisabledErrorData",
     "BotAPIBotDisabledResponse",
     "BotAPIMethodFailedCallback",
+    "BotAPIUnverifiedRequestErrorData",
+    "BotAPIUnverifiedRequestResponse",
     "BotAccount",
     "BotAccountWithSecret",
     "BotIsNotChatMemberError",
@@ -137,13 +148,13 @@ __all__ = (
     "BotShuttingDownError",
     "BotXMethodCallbackNotFoundError",
     "BotXMethodFailedCallbackReceivedError",
+    "BotsListItem",
     "BubbleMarkup",
     "Button",
     "ButtonRow",
     "ButtonTextAlign",
     "CTSLoginEvent",
     "CTSLogoutEvent",
-    "EventEdit",
     "CallbackNotReceivedError",
     "CallbackRepoProto",
     "CantUpdatePersonalChatError",
@@ -161,6 +172,7 @@ __all__ = (
     "DeletedFromChatEvent",
     "Document",
     "EditMessage",
+    "EventEdit",
     "EventNotFoundError",
     "File",
     "FileDeletedError",
@@ -198,11 +210,11 @@ __all__ = (
     "RateLimitReachedError",
     "Reply",
     "ReplyMessage",
+    "RequestHeadersNotProvidedError",
     "SmartApp",
     "SmartAppEvent",
     "SmartAppEvent",
     "StatusRecipient",
-    "BotsListItem",
     "StealthModeDisabledError",
     "Sticker",
     "StickerPack",
@@ -211,6 +223,7 @@ __all__ = (
     "UnknownBotAccountError",
     "UnknownSystemEventError",
     "UnsupportedBotAPIVersionError",
+    "UnverifiedRequestError",
     "UserDevice",
     "UserFromCSV",
     "UserFromSearch",
@@ -221,6 +234,7 @@ __all__ = (
     "Voice",
     "build_bot_disabled_response",
     "build_command_accepted_response",
+    "build_unverified_request_response",
     "lifespan_wrapper",
 )
 
