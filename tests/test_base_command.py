@@ -28,7 +28,7 @@ async def test__async_execute_raw_bot_command__invalid_payload_value_error_raise
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(ValueError) as exc:
-            bot.async_execute_raw_bot_command(payload)
+            bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert "validation" in str(exc.value)
@@ -42,7 +42,7 @@ async def test__async_execute_raw_bot_command__unsupported_bot_api_version_error
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnsupportedBotAPIVersionError) as exc:
-            bot.async_execute_raw_bot_command(payload)
+            bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert "Unsupported" in str(exc.value)
@@ -90,7 +90,7 @@ async def test__async_execute_raw_bot_command__unknown_system_event() -> None:
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnknownSystemEventError) as exc:
-            bot.async_execute_raw_bot_command(payload)
+            bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert "Unknown system event" in str(exc.value)
@@ -113,7 +113,7 @@ async def test__async_execute_raw_bot_command__logging_incoming_request(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with loguru_caplog.at_level(logging.DEBUG):
-            bot.async_execute_raw_bot_command(payload)
+            bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert log_message in loguru_caplog.messages
@@ -135,7 +135,11 @@ async def test__async_execute_raw_bot_command__not_logging_incoming_request(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with loguru_caplog.at_level(logging.DEBUG):
-            bot.async_execute_raw_bot_command(payload, logging_command=False)
+            bot.async_execute_raw_bot_command(
+                payload,
+                verify_request=False,
+                logging_command=False,
+            )
 
     # - Assert -
     assert log_message not in loguru_caplog.messages

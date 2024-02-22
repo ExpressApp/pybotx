@@ -65,7 +65,7 @@ async def test__attachment__open(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
         await asyncio.sleep(0)  # Return control to event loop
 
@@ -176,7 +176,7 @@ async def test__async_execute_raw_bot_command__non_file_attachments_types(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert getattr(incoming_message, attr_name) == domain_attachment
@@ -297,7 +297,7 @@ async def test__async_execute_raw_bot_command__file_attachments_types(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert incoming_message
@@ -319,7 +319,7 @@ async def test__async_execute_raw_bot_command__unknown_attachment_type(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert "Received unknown attachment type" in loguru_caplog.text
@@ -354,7 +354,7 @@ async def test__async_execute_raw_bot_command__empty_attachment(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert incoming_message

@@ -55,7 +55,7 @@ async def test__attachment__trimmed_in_incoming_message(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert "...<trimmed>" in loguru_caplog.text
