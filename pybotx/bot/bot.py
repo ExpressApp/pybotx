@@ -278,48 +278,6 @@ class Bot:
 
         self.state: SimpleNamespace = SimpleNamespace()
 
-    def verify_request(self, headers: Mapping[str, str]) -> None:  # noqa: WPS238
-        authorization_header = headers.get("authorization")
-        if not authorization_header:
-            raise UnverifiedRequestError("The authorization token was not provided.")
-
-        token = authorization_header.split()[-1]
-        decode_algorithms = ["HS256"]
-
-        try:
-            token_payload = jwt.decode(
-                jwt=token,
-                algorithms=decode_algorithms,
-                options={
-                    "verify_signature": False,
-                },
-            )
-        except jwt.DecodeError as decode_exc:
-            raise UnverifiedRequestError(decode_exc.args[0]) from decode_exc
-
-        audience = token_payload.get("aud")
-        if not audience or not isinstance(audience, Sequence) or len(audience) != 1:
-            raise UnverifiedRequestError("Invalid audience parameter was provided.")
-
-        try:
-            bot_account = self._bot_accounts_storage.get_bot_account(UUID(audience[-1]))
-        except UnknownBotAccountError as unknown_bot_exc:
-            raise UnverifiedRequestError(unknown_bot_exc.args[0]) from unknown_bot_exc
-
-        try:
-            jwt.decode(
-                jwt=token,
-                key=bot_account.secret_key,
-                algorithms=decode_algorithms,
-                issuer=bot_account.host,
-                leeway=0.5,
-                options={
-                    "verify_aud": False,
-                },
-            )
-        except jwt.InvalidTokenError as exc:
-            raise UnverifiedRequestError(exc.args[0]) from exc
-
     def async_execute_raw_bot_command(
         self,
         raw_bot_command: Dict[str, Any],
@@ -338,7 +296,7 @@ class Bot:
         if verify_request:
             if request_headers is None:
                 raise RequestHeadersNotProvidedError
-            self.verify_request(request_headers)
+            self._verify_request(request_headers)
 
         try:
             bot_api_command: BotAPICommand = parse_obj_as(
@@ -375,7 +333,7 @@ class Bot:
         if verify_request:
             if request_headers is None:
                 raise RequestHeadersNotProvidedError
-            self.verify_request(request_headers)
+            self._verify_request(request_headers)
 
         try:
             bot_api_status_recipient = BotAPIStatusRecipient.parse_obj(query_params)
@@ -404,7 +362,7 @@ class Bot:
         if verify_request:
             if request_headers is None:
                 raise RequestHeadersNotProvidedError
-            self.verify_request(request_headers)
+            self._verify_request(request_headers)
 
         callback: BotXMethodCallback = parse_obj_as(
             # Same ignore as in pydantic
@@ -1981,6 +1939,48 @@ class Bot:
             chat_id=chat_id,
         )
         await method.execute(payload)
+
+    def _verify_request(self, headers: Mapping[str, str]) -> None:  # noqa: WPS238
+        authorization_header = headers.get("authorization")
+        if not authorization_header:
+            raise UnverifiedRequestError("The authorization token was not provided.")
+
+        token = authorization_header.split()[-1]
+        decode_algorithms = ["HS256"]
+
+        try:
+            token_payload = jwt.decode(
+                jwt=token,
+                algorithms=decode_algorithms,
+                options={
+                    "verify_signature": False,
+                },
+            )
+        except jwt.DecodeError as decode_exc:
+            raise UnverifiedRequestError(decode_exc.args[0]) from decode_exc
+
+        audience = token_payload.get("aud")
+        if not audience or not isinstance(audience, Sequence) or len(audience) != 1:
+            raise UnverifiedRequestError("Invalid audience parameter was provided.")
+
+        try:
+            bot_account = self._bot_accounts_storage.get_bot_account(UUID(audience[-1]))
+        except UnknownBotAccountError as unknown_bot_exc:
+            raise UnverifiedRequestError(unknown_bot_exc.args[0]) from unknown_bot_exc
+
+        try:
+            jwt.decode(
+                jwt=token,
+                key=bot_account.secret_key,
+                algorithms=decode_algorithms,
+                issuer=bot_account.host,
+                leeway=0.5,
+                options={
+                    "verify_aud": False,
+                },
+            )
+        except jwt.InvalidTokenError as exc:
+            raise UnverifiedRequestError(exc.args[0]) from exc
 
     @staticmethod
     def _build_main_collector(

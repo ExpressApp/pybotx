@@ -33,7 +33,7 @@ async def test__verify_request__success_attempt(
 
     # - Act and Assert -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.verify_request(authorization_header)
+        bot._verify_request(authorization_header)
 
 
 async def test__verify_request__no_authorization_header_provided(
@@ -46,7 +46,7 @@ async def test__verify_request__no_authorization_header_provided(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnverifiedRequestError) as exc:
-            bot.verify_request({})
+            bot._verify_request({})
 
     # - Assert -
     assert "The authorization token was not provided." in str(exc.value)
@@ -62,7 +62,7 @@ async def test__verify_request__cannot_decode_token(
     # - Act and Assert -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnverifiedRequestError):
-            bot.verify_request({"authorization": "test"})
+            bot._verify_request({"authorization": "test"})
 
 
 async def test__verify_request__aud_is_not_provided(
@@ -81,7 +81,7 @@ async def test__verify_request__aud_is_not_provided(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnverifiedRequestError) as exc:
-            bot.verify_request({"authorization": f"Bearer {token}"})
+            bot._verify_request({"authorization": f"Bearer {token}"})
 
     # - Assert -
     assert "Invalid audience parameter was provided." in str(exc.value)
@@ -103,7 +103,7 @@ async def test__verify_request__aud_is_not_sequence(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnverifiedRequestError) as exc:
-            bot.verify_request({"authorization": f"Bearer {token}"})
+            bot._verify_request({"authorization": f"Bearer {token}"})
 
     # - Assert -
     assert "Invalid audience parameter was provided." in str(exc.value)
@@ -125,7 +125,7 @@ async def test__verify_request__too_many_aud_values(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnverifiedRequestError) as exc:
-            bot.verify_request({"authorization": f"Bearer {token}"})
+            bot._verify_request({"authorization": f"Bearer {token}"})
 
     # - Assert -
     assert "Invalid audience parameter was provided." in str(exc.value)
@@ -148,7 +148,7 @@ async def test__verify_request__unknown_aud_value(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnverifiedRequestError) as exc:
-            bot.verify_request({"authorization": f"Bearer {token}"})
+            bot._verify_request({"authorization": f"Bearer {token}"})
 
     # - Assert -
     assert f"No bot account with bot_id: `{random_bot_id!s}`" in str(exc.value)
@@ -169,7 +169,7 @@ async def test__verify_request__invalid_token_secret(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnverifiedRequestError) as exc:
-            bot.verify_request({"authorization": f"Bearer {token}"})
+            bot._verify_request({"authorization": f"Bearer {token}"})
 
     # - Assert -
     assert "Signature verification failed" in str(exc.value)
@@ -191,7 +191,7 @@ async def test__verify_request__expired_signature(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnverifiedRequestError) as exc:
-            bot.verify_request({"authorization": f"Bearer {token}"})
+            bot._verify_request({"authorization": f"Bearer {token}"})
 
     # - Assert -
     assert "Signature has expired" in str(exc.value)
@@ -213,7 +213,7 @@ async def test__verify_request__token_is_not_yet_valid_by_nbf(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnverifiedRequestError) as exc:
-            bot.verify_request({"authorization": f"Bearer {token}"})
+            bot._verify_request({"authorization": f"Bearer {token}"})
 
     # - Assert -
     assert "The token is not yet valid (nbf)" in str(exc.value)
@@ -235,7 +235,7 @@ async def test__verify_request__token_is_not_yet_valid_by_iat(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnverifiedRequestError) as exc:
-            bot.verify_request({"authorization": f"Bearer {token}"})
+            bot._verify_request({"authorization": f"Bearer {token}"})
 
     # - Assert -
     assert "The token is not yet valid (iat)" in str(exc.value)
@@ -257,7 +257,7 @@ async def test__verify_request__invalid_issuer(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnverifiedRequestError) as exc:
-            bot.verify_request({"authorization": f"Bearer {token}"})
+            bot._verify_request({"authorization": f"Bearer {token}"})
 
     # - Assert -
     assert "Invalid issuer" in str(exc.value)
@@ -300,7 +300,7 @@ async def test__async_execute_raw_bot_command__verify_request__called(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.verify_request = Mock()  # type: ignore
+        bot._verify_request = Mock()  # type: ignore
         bot.async_execute_raw_bot_command(
             payload,
             verify_request=True,
@@ -308,7 +308,7 @@ async def test__async_execute_raw_bot_command__verify_request__called(
         )
 
     # - Assert -
-    bot.verify_request.assert_called()
+    bot._verify_request.assert_called()
 
 
 async def test__raw_get_status__verify_request__called(
@@ -321,7 +321,7 @@ async def test__raw_get_status__verify_request__called(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.verify_request = Mock()  # type: ignore
+        bot._verify_request = Mock()  # type: ignore
         await bot.raw_get_status(
             {
                 "bot_id": str(bot_account.id),
@@ -333,7 +333,7 @@ async def test__raw_get_status__verify_request__called(
         )
 
     # - Assert -
-    bot.verify_request.assert_called()
+    bot._verify_request.assert_called()
 
 
 async def test__set_raw_botx_method_result__verify_request__called(
@@ -346,8 +346,8 @@ async def test__set_raw_botx_method_result__verify_request__called(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.verify_request = Mock()  # type: ignore
-        bot._callbacks_manager.set_botx_method_callback_result = (  # type: ignore # noqa: WPS437
+        bot._verify_request = Mock()  # type: ignore
+        bot._callbacks_manager.set_botx_method_callback_result = (  # type: ignore
             AsyncMock()
         )
         await bot.set_raw_botx_method_result(
@@ -361,7 +361,7 @@ async def test__set_raw_botx_method_result__verify_request__called(
         )
 
     # - Assert -
-    bot.verify_request.assert_called()
+    bot._verify_request.assert_called()
 
 
 async def test__async_execute_raw_bot_command__verify_request__not_called(
@@ -375,12 +375,12 @@ async def test__async_execute_raw_bot_command__verify_request__not_called(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.verify_request = Mock()  # type: ignore
+        bot._verify_request = Mock()  # type: ignore
         bot.async_execute_bot_command = Mock()  # type: ignore
         bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
-    bot.verify_request.assert_not_called()
+    bot._verify_request.assert_not_called()
     bot.async_execute_bot_command.assert_called()
 
 
@@ -394,7 +394,7 @@ async def test__raw_get_status__verify_request__not_called(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.verify_request = Mock()  # type: ignore
+        bot._verify_request = Mock()  # type: ignore
         bot.get_status = AsyncMock(return_value=BotMenu({}))  # type: ignore
         await bot.raw_get_status(
             {
@@ -406,7 +406,7 @@ async def test__raw_get_status__verify_request__not_called(
         )
 
     # - Assert -
-    bot.verify_request.assert_not_called()
+    bot._verify_request.assert_not_called()
     bot.get_status.assert_awaited()
 
 
@@ -419,8 +419,8 @@ async def test__set_raw_botx_method_result__verify_request__not_called(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.verify_request = Mock()  # type: ignore
-        bot._callbacks_manager.set_botx_method_callback_result = (  # type: ignore # noqa: WPS437
+        bot._verify_request = Mock()  # type: ignore
+        bot._callbacks_manager.set_botx_method_callback_result = (  # type: ignore
             AsyncMock()
         )
         await bot.set_raw_botx_method_result(
@@ -433,5 +433,5 @@ async def test__set_raw_botx_method_result__verify_request__not_called(
         )
 
     # - Assert -
-    bot.verify_request.assert_not_called()
-    bot._callbacks_manager.set_botx_method_callback_result.assert_awaited()  # noqa: WPS437
+    bot._verify_request.assert_not_called()
+    bot._callbacks_manager.set_botx_method_callback_result.assert_awaited()
