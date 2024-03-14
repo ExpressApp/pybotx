@@ -85,7 +85,7 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert incoming_message == IncomingMessage(
@@ -243,7 +243,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert incoming_message == IncomingMessage(
@@ -431,7 +431,7 @@ async def test__async_execute_raw_bot_command__all_mention_types(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert incoming_message
@@ -515,7 +515,7 @@ async def test__async_execute_raw_bot_command__unknown_entity_type(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert "Received unknown entity type" in loguru_caplog.text
@@ -575,7 +575,7 @@ async def test__async_execute_raw_bot_command__unsupported_chat_type_accepted(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert incoming_message

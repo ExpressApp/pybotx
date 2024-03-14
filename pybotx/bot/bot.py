@@ -9,6 +9,7 @@ from typing import (
     Dict,
     Iterator,
     List,
+    Mapping,
     Optional,
     Sequence,
     Tuple,
@@ -16,8 +17,11 @@ from typing import (
 )
 from uuid import UUID
 
+import aiofiles
 import httpx
-from aiofiles.tempfile import SpooledTemporaryFile
+import jwt
+from aiocsv.readers import AsyncDictReader
+from aiofiles.tempfile import NamedTemporaryFile, TemporaryDirectory
 from pydantic import ValidationError, parse_obj_as
 
 from pybotx.async_buffer import AsyncBufferReadable, AsyncBufferWritable
@@ -26,7 +30,12 @@ from pybotx.bot.callbacks.callback_manager import CallbackManager
 from pybotx.bot.callbacks.callback_memory_repo import CallbackMemoryRepo
 from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
 from pybotx.bot.contextvars import bot_id_var, chat_id_var
-from pybotx.bot.exceptions import AnswerDestinationLookupError
+from pybotx.bot.exceptions import (
+    AnswerDestinationLookupError,
+    RequestHeadersNotProvidedError,
+    UnknownBotAccountError,
+    UnverifiedRequestError,
+)
 from pybotx.bot.handler import Middleware
 from pybotx.bot.handler_collector import HandlerCollector
 from pybotx.bot.middlewares.exception_middleware import ExceptionHandlersDict
@@ -198,7 +207,7 @@ from pybotx.client.users_api.users_as_csv import (
     BotXAPIUsersAsCSVRequestPayload,
     UsersAsCSVMethod,
 )
-from pybotx.constants import BOTX_DEFAULT_TIMEOUT, CHUNK_SIZE, STICKER_PACKS_PER_PAGE
+from pybotx.constants import BOTX_DEFAULT_TIMEOUT, STICKER_PACKS_PER_PAGE
 from pybotx.converters import optional_sequence_to_list
 from pybotx.image_validators import (
     ensure_file_content_is_png,
@@ -269,13 +278,25 @@ class Bot:
 
         self.state: SimpleNamespace = SimpleNamespace()
 
-    def async_execute_raw_bot_command(self, raw_bot_command: Dict[str, Any]) -> None:
-        logger.opt(lazy=True).debug(
-            "Got command: {command}",
-            command=lambda: pformat_jsonable_obj(
-                trim_file_data_in_incoming_json(raw_bot_command),
-            ),
-        )
+    def async_execute_raw_bot_command(
+        self,
+        raw_bot_command: Dict[str, Any],
+        verify_request: bool = True,
+        request_headers: Optional[Mapping[str, str]] = None,
+        logging_command: bool = True,
+    ) -> None:
+        if logging_command:
+            logger.opt(lazy=True).debug(
+                "Got command: {command}",
+                command=lambda: pformat_jsonable_obj(
+                    trim_file_data_in_incoming_json(raw_bot_command),
+                ),
+            )
+
+        if verify_request:
+            if request_headers is None:
+                raise RequestHeadersNotProvidedError
+            self._verify_request(request_headers)
 
         try:
             bot_api_command: BotAPICommand = parse_obj_as(
@@ -298,11 +319,21 @@ class Bot:
 
         return self._handler_collector.async_handle_bot_command(self, bot_command)
 
-    async def raw_get_status(self, query_params: Dict[str, str]) -> Dict[str, Any]:
+    async def raw_get_status(
+        self,
+        query_params: Dict[str, str],
+        verify_request: bool = True,
+        request_headers: Optional[Mapping[str, str]] = None,
+    ) -> Dict[str, Any]:
         logger.opt(lazy=True).debug(
             "Got status: {status}",
             status=lambda: pformat_jsonable_obj(query_params),
         )
+
+        if verify_request:
+            if request_headers is None:
+                raise RequestHeadersNotProvidedError
+            self._verify_request(request_headers)
 
         try:
             bot_api_status_recipient = BotAPIStatusRecipient.parse_obj(query_params)
@@ -323,8 +354,15 @@ class Bot:
     async def set_raw_botx_method_result(
         self,
         raw_botx_method_result: Dict[str, Any],
+        verify_request: bool = True,
+        request_headers: Optional[Mapping[str, str]] = None,
     ) -> None:
         logger.debug("Got callback: {callback}", callback=raw_botx_method_result)
+
+        if verify_request:
+            if request_headers is None:
+                raise RequestHeadersNotProvidedError
+            self._verify_request(request_headers)
 
         callback: BotXMethodCallback = parse_obj_as(
             # Same ignore as in pydantic
@@ -1348,11 +1386,20 @@ class Bot:
             botx=botx,
         )
 
-        async with SpooledTemporaryFile(max_size=CHUNK_SIZE, mode="w+") as async_buffer:
-            yield (
-                BotXAPIUserFromCSVResult(**row).to_domain()
-                async for row in await method.execute(payload, async_buffer)
-            )
+        async with TemporaryDirectory() as tmpdir:
+            async with NamedTemporaryFile(
+                mode="wb",
+                dir=tmpdir,
+                delete=False,
+            ) as write_buffer:
+                write_buffer_path = write_buffer.name
+                await method.execute(payload, write_buffer)
+
+            async with aiofiles.open(write_buffer_path, mode="r") as read_buffer:
+                yield (
+                    BotXAPIUserFromCSVResult(**row).to_domain()
+                    async for row in AsyncDictReader(read_buffer)
+                )
 
     # - SmartApps API -
     async def send_smartapp_event(
@@ -1892,6 +1939,48 @@ class Bot:
             chat_id=chat_id,
         )
         await method.execute(payload)
+
+    def _verify_request(self, headers: Mapping[str, str]) -> None:  # noqa: WPS238
+        authorization_header = headers.get("authorization")
+        if not authorization_header:
+            raise UnverifiedRequestError("The authorization token was not provided.")
+
+        token = authorization_header.split()[-1]
+        decode_algorithms = ["HS256"]
+
+        try:
+            token_payload = jwt.decode(
+                jwt=token,
+                algorithms=decode_algorithms,
+                options={
+                    "verify_signature": False,
+                },
+            )
+        except jwt.DecodeError as decode_exc:
+            raise UnverifiedRequestError(decode_exc.args[0]) from decode_exc
+
+        audience = token_payload.get("aud")
+        if not audience or not isinstance(audience, Sequence) or len(audience) != 1:
+            raise UnverifiedRequestError("Invalid audience parameter was provided.")
+
+        try:
+            bot_account = self._bot_accounts_storage.get_bot_account(UUID(audience[-1]))
+        except UnknownBotAccountError as unknown_bot_exc:
+            raise UnverifiedRequestError(unknown_bot_exc.args[0]) from unknown_bot_exc
+
+        try:
+            jwt.decode(
+                jwt=token,
+                key=bot_account.secret_key,
+                algorithms=decode_algorithms,
+                issuer=bot_account.host,
+                leeway=0.5,
+                options={
+                    "verify_aud": False,
+                },
+            )
+        except jwt.InvalidTokenError as exc:
+            raise UnverifiedRequestError(exc.args[0]) from exc
 
     @staticmethod
     def _build_main_collector(

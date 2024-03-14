@@ -149,7 +149,7 @@ async def test__send__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
         await asyncio.sleep(0)  # Return control to event loop
 
@@ -159,6 +159,7 @@ async def test__send__succeed(
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -
@@ -275,7 +276,7 @@ async def test__answer_message__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
         await asyncio.sleep(0)  # Return control to event loop
 
@@ -285,6 +286,7 @@ async def test__answer_message__succeed(
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -
@@ -367,6 +369,7 @@ async def test__send_message__chat_not_found_error_raised(
                     "error_description": "Chat with specified id not found",
                 },
             },
+            verify_request=False,
         )
 
     # - Assert -
@@ -427,6 +430,7 @@ async def test__send_message__bot_is_not_a_chat_member_error_raised(
                     "error_description": "Bot is not a chat member",
                 },
             },
+            verify_request=False,
         )
 
     # - Assert -
@@ -488,6 +492,7 @@ async def test__send_message__event_recipients_list_is_empty_error_raised(
                     "error_description": "Event recipients list is empty",
                 },
             },
+            verify_request=False,
         )
 
     # - Assert -
@@ -548,6 +553,7 @@ async def test__send_message__stealth_mode_disabled_error_raised(
                     "error_description": "Stealth mode disabled in specified chat",
                 },
             },
+            verify_request=False,
         )
 
     # - Assert -
@@ -602,6 +608,7 @@ async def test__send_message__miminally_filled_succeed(
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -
@@ -762,6 +769,7 @@ async def test__send_message__maximum_filled_succeed(
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -
@@ -885,6 +893,7 @@ async def test__send_message__all_mentions_types_succeed(
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -
@@ -969,6 +978,7 @@ async def test__send_message__message_body_max_length_succeed(
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -

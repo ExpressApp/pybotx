@@ -23,7 +23,7 @@ class BotAPIBotDisabledResponse:
 def build_bot_disabled_response(status_message: str) -> Dict[str, Any]:
     """Build bot disabled response for BotX.
 
-    It should be send if the bot can't process the command.
+    It should be sent if the bot can't process the command.
     If you would like to build complex response, see `BotAPIBotDisabledResponse`.
 
     :param status_message: Status message.
