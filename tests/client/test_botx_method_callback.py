@@ -1,4 +1,4 @@
-# type: ignore [attr-defined]
+# mypy: disable-error-code=attr-defined
 
 import asyncio
 import types
