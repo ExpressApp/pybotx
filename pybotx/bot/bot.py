@@ -131,6 +131,10 @@ from pybotx.client.smartapps_api.smartapp_custom_notification import (
     BotXAPISmartAppCustomNotificationRequestPayload,
     SmartAppCustomNotificationMethod,
 )
+from pybotx.client.smartapps_api.smartapp_counter_notification import (
+    BotXAPISmartAppCounterNotificationRequestPayload,
+    SmartAppCounterNotificationMethod,
+)
 from pybotx.client.smartapps_api.smartapp_event import (
     BotXAPISmartAppEventRequestPayload,
     SmartAppEventMethod,
@@ -1561,6 +1565,56 @@ class Bot:
             group_chat_id=group_chat_id,
             title=title,
             body=body,
+            meta=meta,
+        )
+
+        botx_api_sync_id = await method.execute(
+            payload,
+            wait_callback,
+            callback_timeout,
+            self._default_callback_timeout,
+        )
+
+        return botx_api_sync_id.to_domain()
+
+    async def send_smartapp_counter_notification(
+        self,
+        *,
+        bot_id: UUID,
+        group_chat_id: UUID,
+        title: str,
+        body: str,
+        unread_counter: int,
+        meta: Missing[Dict[str, Any]] = Undefined,
+        wait_callback: bool = True,
+        callback_timeout: Optional[float] = None,
+    ) -> UUID:
+        """Send SmartApp notification with counter.
+
+        :param bot_id: Bot which should perform the request.
+        :param group_chat_id: Target chat id.
+        :param title: Notification title.
+        :param body: Notification body.
+        :param meta: Meta information.
+        :param unread_counter: Counter information.
+        :param wait_callback: Block method call until callback received.
+        :param callback_timeout: Callback timeout in seconds (or `None` for
+            endless waiting).
+
+        :return: Notification sync_id.
+        """
+
+        method = SmartAppCounterNotificationMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+            self._callbacks_manager,
+        )
+        payload = BotXAPISmartAppCounterNotificationRequestPayload.from_domain(
+            group_chat_id=group_chat_id,
+            title=title,
+            body=body,
+            unread_counter=unread_counter,
             meta=meta,
         )
 
