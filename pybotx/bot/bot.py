@@ -127,13 +127,13 @@ from pybotx.client.openid_api.refresh_access_token import (
     BotXAPIRefreshAccessTokenRequestPayload,
     RefreshAccessTokenMethod,
 )
-from pybotx.client.smartapps_api.smartapp_custom_notification import (
-    BotXAPISmartAppCustomNotificationRequestPayload,
-    SmartAppCustomNotificationMethod,
-)
 from pybotx.client.smartapps_api.smartapp_counter_notification import (
     BotXAPISmartAppCounterNotificationRequestPayload,
     SmartAppCounterNotificationMethod,
+)
+from pybotx.client.smartapps_api.smartapp_custom_notification import (
+    BotXAPISmartAppCustomNotificationRequestPayload,
+    SmartAppCustomNotificationMethod,
 )
 from pybotx.client.smartapps_api.smartapp_event import (
     BotXAPISmartAppEventRequestPayload,
