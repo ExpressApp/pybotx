@@ -44,7 +44,7 @@ pytest-cov = "4.0.0"
 requests = "2.31.0"
 respx = "0.20.2"
 
-fastapi = "0.95.2"
+fastapi = "0.106.0"
 starlette = "0.27.0"  # TODO: Drop dependency after updating end-to-end test
 uvicorn = "0.16.0"
 
