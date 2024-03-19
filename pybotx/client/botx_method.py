@@ -12,7 +12,7 @@ from typing import (
     Type,
     TypeVar,
 )
-from urllib.parse import urlunparse
+from urllib.parse import urljoin, urlparse, urlunparse
 from uuid import UUID
 
 import httpx
@@ -89,7 +89,11 @@ class BotXMethod:
 
     def _build_url(self, path: str) -> str:
         host = self._bot_accounts_storage.get_host(self._bot_id).rstrip("/")
-        return urlunparse(("https", host, path, "", "", ""))
+
+        if urlparse(host).scheme:
+            return urljoin(base=host, url=path)
+
+        return urlunparse(components=("https", host, path, "", "", ""))
 
     def _verify_and_extract_api_model(
         self,

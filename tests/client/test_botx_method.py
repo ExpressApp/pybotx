@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from typing import Literal
+from urllib.parse import urlunparse
 from uuid import UUID
 
 import httpx
@@ -215,6 +216,51 @@ async def test__botx_method__succeed(
     # - Arrange -
     endpoint = respx_mock.post(
         f"https://{host}/foo/bar",
+        json={"baz": 1},
+        headers={"Content-Type": "application/json"},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.OK,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        ),
+    )
+
+    method = FooBarMethod(
+        bot_id,
+        httpx_client,
+        BotAccountsStorage([bot_account]),
+    )
+    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+
+    # - Act -
+    botx_api_foo_bar = await method.execute(payload)
+
+    # - Assert -
+    assert botx_api_foo_bar.to_domain() == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert endpoint.called
+
+
+@pytest.mark.parametrize(
+    argnames="protocol",
+    argvalues=["http", "https"],
+    ids=["http", "https"],
+)
+async def test__botx_method__host_with_protocol__succeed(
+    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+    protocol: str,
+) -> None:
+    # - Arrange -
+    bot_account.host = urlunparse(components=(protocol, host, "", "", "", ""))
+
+    endpoint = respx_mock.post(
+        f"{protocol}://{host}/foo/bar",
         json={"baz": 1},
         headers={"Content-Type": "application/json"},
     ).mock(
