@@ -164,6 +164,8 @@ def convert_bot_api_entity_to_domain(api_entity: BotAPIEntity) -> Entity:
             chat_id=api_entity.data.group_chat_id,
             author_id=api_entity.data.sender_huid,
             sync_id=api_entity.data.source_sync_id,
+            chat_name=api_entity.data.source_chat_name,
+            inserted_at=api_entity.data.source_inserted_at,
         )
 
     if api_entity.type == BotAPIEntityTypes.REPLY:
