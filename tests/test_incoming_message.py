@@ -299,6 +299,9 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
         ),
         forward=Forward(
             chat_id=UUID("918da23a-1c9a-506e-8a6f-1328f1499ee8"),
+            chat_name="Simple Chat",
+            forward_type=ChatTypes.PERSONAL_CHAT,
+            inserted_at=datetime_formatter("2020-04-21T22:09:32.178Z"),
             author_id=UUID("c06a96fa-7881-0bb6-0e0b-0af72fe3683f"),
             sync_id=UUID("a7ffba12-8d0a-534e-8896-a0aa2d93a434"),
         ),
