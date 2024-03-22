@@ -12,7 +12,7 @@ from typing import (
     Type,
     TypeVar,
 )
-from urllib.parse import urlunparse
+from urllib.parse import urlparse, urlunparse
 from uuid import UUID
 
 import httpx
@@ -88,8 +88,15 @@ class BotXMethod:
         raise NotImplementedError("You should define `execute` method")
 
     def _build_url(self, path: str) -> str:
-        host = self._bot_accounts_storage.get_host(self._bot_id).rstrip("/")
-        return urlunparse(("https", host, path, "", "", ""))
+        host = self._bot_accounts_storage.get_host(self._bot_id)
+
+        if "://" not in host:
+            host = f"https://{host}"
+
+        host_parts = urlparse(host)
+        path = host_parts.path.rstrip("/") + path
+
+        return urlunparse((host_parts.scheme, host_parts.netloc, path, "", "", ""))
 
     def _verify_and_extract_api_model(
         self,
