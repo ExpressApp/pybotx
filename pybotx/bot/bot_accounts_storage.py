@@ -5,7 +5,7 @@ from typing import Dict, Iterator, List, Optional
 from uuid import UUID
 
 from pybotx.bot.exceptions import UnknownBotAccountError
-from pybotx.models.bot_account import BotAccount, BotAccountWithSecret
+from pybotx.models.bot_account import BotAccountWithSecret
 
 
 class BotAccountsStorage:
@@ -20,12 +20,12 @@ class BotAccountsStorage:
 
         raise UnknownBotAccountError(bot_id)
 
-    def iter_bot_accounts(self) -> Iterator[BotAccount]:
+    def iter_bot_accounts(self) -> Iterator[BotAccountWithSecret]:
         yield from self._bot_accounts
 
-    def get_host(self, bot_id: UUID) -> str:
+    def get_cts_url(self, bot_id: UUID) -> str:
         bot_account = self.get_bot_account(bot_id)
-        return bot_account.host
+        return bot_account.cts_url
 
     def set_token(self, bot_id: UUID, token: str) -> None:
         self._auth_tokens[bot_id] = token

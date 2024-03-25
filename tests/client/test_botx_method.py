@@ -1,6 +1,5 @@
 from http import HTTPStatus
 from typing import Literal
-from urllib.parse import urlunparse
 from uuid import UUID
 
 import httpx
@@ -244,25 +243,27 @@ async def test__botx_method__succeed(
 
 
 @pytest.mark.parametrize(
-    argnames="protocol",
-    argvalues=["http", "https"],
-    ids=["http", "https"],
+    "cts_url",
+    (
+        "http://127.0.0.1",
+        "http://localhost",
+        "http://cts.ru",
+        "https://cts.ru",
+        "http://cts.ru:8000",
+        "http://cts.ru/foo/bar",
+        "http://cts.ru:8000/foo/bar/",
+    ),
 )
-async def test__botx_method__host_with_protocol__succeed(
-    httpx_client: httpx.AsyncClient,
-    respx_mock: MockRouter,
-    host: str,
+async def test__build_botx_url_with_different_bot_cts_urls(
     bot_id: UUID,
+    cts_url: str,
+    respx_mock: MockRouter,
+    httpx_client: httpx.AsyncClient,
     bot_account: BotAccountWithSecret,
-    protocol: str,
 ) -> None:
     # - Arrange -
-    bot_account.host = urlunparse(components=(protocol, host, "", "", "", ""))
-
     endpoint = respx_mock.post(
-        f"{protocol}://{host}/foo/bar",
-        json={"baz": 1},
-        headers={"Content-Type": "application/json"},
+        "/".join(parts.strip("/") for parts in (cts_url, "/foo/bar")),
     ).mock(
         return_value=httpx.Response(
             HTTPStatus.OK,
@@ -281,8 +282,7 @@ async def test__botx_method__host_with_protocol__succeed(
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 
     # - Act -
-    botx_api_foo_bar = await method.execute(payload)
+    await method.execute(payload)
 
     # - Assert -
-    assert botx_api_foo_bar.to_domain() == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
     assert endpoint.called
