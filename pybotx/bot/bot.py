@@ -217,7 +217,7 @@ from pybotx.logger import logger, pformat_jsonable_obj, trim_file_data_in_incomi
 from pybotx.missing import Missing, MissingOptional, Undefined
 from pybotx.models.async_files import File
 from pybotx.models.attachments import IncomingFileAttachment, OutgoingAttachment
-from pybotx.models.bot_account import BotAccount, BotAccountWithSecret
+from pybotx.models.bot_account import BotAccountWithSecret
 from pybotx.models.bot_catalog import BotsListItem
 from pybotx.models.chats import ChatInfo, ChatListItem
 from pybotx.models.commands import BotAPICommand, BotCommand
@@ -384,7 +384,7 @@ class Bot:
         return await self._callbacks_manager.wait_botx_method_callback(sync_id, timeout)
 
     @property
-    def bot_accounts(self) -> Iterator[BotAccount]:
+    def bot_accounts(self) -> Iterator[BotAccountWithSecret]:
         yield from self._bot_accounts_storage.iter_bot_accounts()
 
     async def fetch_tokens(self) -> None:

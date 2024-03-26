@@ -88,7 +88,7 @@ bot = Bot(
             # Не забудьте заменить эти учётные данные на настоящие,
             # когда создадите бота в панели администратора.
             id=UUID("123e4567-e89b-12d3-a456-426655440000"),
-            host="cts.example.com",
+            cts_url="https://cts.example.com",
             secret_key="e29b417773f2feab9dac143ee3da20c5",
         ),
     ],

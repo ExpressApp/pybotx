@@ -58,15 +58,20 @@ def host() -> str:
 
 
 @pytest.fixture
+def cts_url() -> str:
+    return "https://cts.example.com"
+
+
+@pytest.fixture
 def bot_id() -> UUID:
     return UUID("24348246-6791-4ac0-9d86-b948cd6a0e46")
 
 
 @pytest.fixture
-def bot_account(host: str, bot_id: UUID) -> BotAccountWithSecret:
+def bot_account(cts_url: str, bot_id: UUID) -> BotAccountWithSecret:
     return BotAccountWithSecret(
         id=bot_id,
-        host=host,
+        cts_url=cts_url,
         secret_key="bee001",
     )
 
