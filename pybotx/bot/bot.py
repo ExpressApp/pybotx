@@ -1974,7 +1974,7 @@ class Bot:
                 key=bot_account.secret_key,
                 algorithms=decode_algorithms,
                 issuer=bot_account.host,
-                leeway=0.5,
+                leeway=1,
                 options={
                     "verify_aud": False,
                 },
