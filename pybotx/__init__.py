@@ -55,6 +55,10 @@ from pybotx.client.exceptions.notifications import (
     StealthModeDisabledError,
 )
 from pybotx.client.exceptions.users import UserNotFoundError
+from pybotx.client.smartapps_api.smartapp_manifest import (
+    SmartappManifest,
+    SmartappManifestWebParams,
+)
 from pybotx.client.stickers_api.exceptions import (
     InvalidEmojiError,
     InvalidImageError,
@@ -78,6 +82,7 @@ from pybotx.models.enums import (
     ChatTypes,
     ClientPlatforms,
     MentionTypes,
+    SmartappManifestWebLayoutChoices,
     SyncSourceTypes,
     UserKinds,
 )
@@ -214,6 +219,9 @@ __all__ = (
     "SmartApp",
     "SmartAppEvent",
     "SmartAppEvent",
+    "SmartappManifest",
+    "SmartappManifestWebLayoutChoices",
+    "SmartappManifestWebParams",
     "StatusRecipient",
     "StealthModeDisabledError",
     "Sticker",
