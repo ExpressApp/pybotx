@@ -28,6 +28,7 @@ jobs:
           fail_ci_if_error: true
           files: ./coverage.xml
           flags: unittests
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   lint:
     name: Lint
