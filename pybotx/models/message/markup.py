@@ -14,8 +14,29 @@ class ButtonTextAlign(Enum):
 
 @dataclass
 class Button:
-    command: str
+    """
+    Button object.
+
+    :param label: Button name.
+    :param command: Button command (required if no `link` is undefined).
+    :param data: Button body that will be sent as command parameters
+        when the button is clicked.
+    :param text_color: Button text color.
+    :param background_color: Bubbles background color.
+    :param align (default CENTER): Text alignment left | center | right
+    :param silent: If true, then when the button is pressed
+        the message will not be sent to the chat, it will be sent in the background.
+    :param width_ratio: Horizontal button size.
+    :param alert: Button notification text.
+    :param process_on_client: Execute process on client.
+    :param link: URL to resource.
+
+    :raises ValueError: If `command` is missing.
+        `command` is optional only if `link` is not undefined.
+    """
+
     label: str
+    command: Missing[str] = Undefined
     data: Dict[str, Any] = field(default_factory=dict)
     text_color: Missing[str] = Undefined
     background_color: Missing[str] = Undefined
@@ -25,6 +46,11 @@ class Button:
     width_ratio: Missing[int] = Undefined
     alert: Missing[str] = Undefined
     process_on_client: Missing[bool] = Undefined
+    link: Missing[str] = Undefined
+
+    def __post_init__(self) -> None:
+        if self.command is Undefined and self.link is Undefined:
+            raise ValueError("Either 'command' or 'link' must be provided")
 
 
 ButtonRow = List[Button]
@@ -68,8 +94,8 @@ class BaseMarkup:
 
     def add_button(
         self,
-        command: str,
         label: str,
+        command: Missing[str] = Undefined,
         data: Optional[Dict[str, Any]] = None,
         text_color: Missing[str] = Undefined,
         background_color: Missing[str] = Undefined,
@@ -78,8 +104,33 @@ class BaseMarkup:
         width_ratio: Missing[int] = Undefined,
         alert: Missing[str] = Undefined,
         process_on_client: Missing[bool] = Undefined,
+        link: Missing[str] = Undefined,
         new_row: bool = True,
     ) -> None:
+        """Add button.
+
+        :param label: Button name.
+        :param command: Button command (required if no `link` is undefined).
+        :param data: Button body that will be sent as command parameters
+            when the button is clicked.
+        :param text_color: Button text color.
+        :param background_color: Bubbles background color.
+        :param align: Text alignment left | center | right
+        :param silent: If true, then when the button is pressed
+            the message will not be sent to the chat, it will be sent in the background.
+        :param width_ratio: Horizontal button size.
+        :param alert: Button notification text.
+        :param process_on_client: Execute process on client.
+        :param link: URL to resource.
+        :param new_row: Move the next button to a new row.
+
+        :raises ValueError: If `command` is missing.
+            `command` is optional only if `link` is undefined.
+        """
+
+        if link is Undefined and command is Undefined:
+            raise ValueError("Command arg is required if link is undefined.")
+
         button = Button(
             command=command,
             label=label,
@@ -91,6 +142,7 @@ class BaseMarkup:
             width_ratio=width_ratio,
             alert=alert,
             process_on_client=process_on_client,
+            link=link,
         )
         self.add_built_button(button, new_row=new_row)
 
@@ -118,6 +170,7 @@ class BotXAPIButtonOptions(UnverifiedPayloadBaseModel):
     show_alert: Missing[Literal[True]]
     alert_text: Missing[str]
     handler: Missing[Literal["client"]]
+    link: Missing[str]
 
 
 class BotXAPIButton(UnverifiedPayloadBaseModel):
@@ -140,6 +193,9 @@ def api_button_from_domain(button: Button) -> BotXAPIButton:
     if button.process_on_client:
         handler = "client"
 
+    if button.link is not Undefined:
+        handler = "client"
+
     return BotXAPIButton(
         command=button.command,
         label=button.label,
@@ -153,6 +209,7 @@ def api_button_from_domain(button: Button) -> BotXAPIButton:
             alert_text=button.alert,
             show_alert=show_alert,
             handler=handler,
+            link=button.link,
         ),
     )
 

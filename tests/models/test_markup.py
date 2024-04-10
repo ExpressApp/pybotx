@@ -11,5 +11,5 @@ def test__mentions_list_properties__filled() -> None:
     # - Assert -
     assert (
         bubbles.__repr__()
-        == "row 1: label1 (command1)\nrow 2: label2 (command2) | label3 (command3)"
+        == "row 1: command1 (label1)\nrow 2: command2 (label2) | command3 (label3)"
     )

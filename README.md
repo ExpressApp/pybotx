@@ -390,6 +390,15 @@ async def bubbles_handler(message: IncomingMessage, bot: Bot) -> None:
         new_row=False,
     )
 
+    # В кнопку можно добавит ссылку на ресурс,
+    # для этого нужно добавить url в аргумент `link`, а `command` оставить пустым,
+    # `alert` добавляется в окно подтверждения при переходе по ссылке.
+    bubbles.add_button(
+        label="Bubble with link",
+        alert="alert text",
+        link="https://example.com",
+    )
+
     await bot.answer_message(
         "The time has come to make a choice, Mr. Anderson:",
         bubbles=bubbles,
