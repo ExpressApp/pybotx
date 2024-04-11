@@ -151,6 +151,12 @@ class APISyncSourceTypes(Enum):
     BOTX = "botx"
 
 
+class SmartappManifestWebLayoutChoices(StrEnum):
+    minimal = "minimal"
+    half = "half"
+    full = "full"
+
+
 def convert_client_platform_to_domain(
     client_platform: BotAPIClientPlatforms,
 ) -> ClientPlatforms:
