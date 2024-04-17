@@ -121,7 +121,6 @@ def convert_async_file_from_domain(file: File) -> APIAsyncFile:
     attachment_type = convert_attachment_type_from_domain(file.type)
 
     if attachment_type == APIAttachmentTypes.IMAGE:
-        attachment_type = cast(Literal[APIAttachmentTypes.IMAGE], attachment_type)
         file = cast(Image, file)
 
         return ApiAsyncFileImage(
@@ -135,7 +134,6 @@ def convert_async_file_from_domain(file: File) -> APIAsyncFile:
         )
 
     if attachment_type == APIAttachmentTypes.VIDEO:
-        attachment_type = cast(Literal[APIAttachmentTypes.VIDEO], attachment_type)
         file = cast(Video, file)
 
         return ApiAsyncFileVideo(
@@ -150,7 +148,6 @@ def convert_async_file_from_domain(file: File) -> APIAsyncFile:
         )
 
     if attachment_type == APIAttachmentTypes.DOCUMENT:
-        attachment_type = cast(Literal[APIAttachmentTypes.DOCUMENT], attachment_type)
         file = cast(Document, file)
 
         return ApiAsyncFileDocument(
@@ -164,7 +161,6 @@ def convert_async_file_from_domain(file: File) -> APIAsyncFile:
         )
 
     if attachment_type == APIAttachmentTypes.VOICE:
-        attachment_type = cast(Literal[APIAttachmentTypes.VOICE], attachment_type)
         file = cast(Voice, file)
 
         return ApiAsyncFileVoice(
@@ -185,7 +181,6 @@ def convert_async_file_to_domain(async_file: APIAsyncFile) -> File:
     attachment_type = convert_attachment_type_to_domain(async_file.type)
 
     if attachment_type == AttachmentTypes.IMAGE:
-        attachment_type = cast(Literal[AttachmentTypes.IMAGE], attachment_type)
         async_file = cast(ApiAsyncFileImage, async_file)
 
         return Image(
@@ -200,7 +195,6 @@ def convert_async_file_to_domain(async_file: APIAsyncFile) -> File:
         )
 
     if attachment_type == AttachmentTypes.VIDEO:
-        attachment_type = cast(Literal[AttachmentTypes.VIDEO], attachment_type)
         async_file = cast(ApiAsyncFileVideo, async_file)
 
         return Video(
@@ -216,7 +210,6 @@ def convert_async_file_to_domain(async_file: APIAsyncFile) -> File:
         )
 
     if attachment_type == AttachmentTypes.DOCUMENT:
-        attachment_type = cast(Literal[AttachmentTypes.DOCUMENT], attachment_type)
         async_file = cast(ApiAsyncFileDocument, async_file)
 
         return Document(
@@ -231,7 +224,6 @@ def convert_async_file_to_domain(async_file: APIAsyncFile) -> File:
         )
 
     if attachment_type == AttachmentTypes.VOICE:
-        attachment_type = cast(Literal[AttachmentTypes.VOICE], attachment_type)
         async_file = cast(ApiAsyncFileVoice, async_file)
 
         return Voice(

@@ -1,4 +1,4 @@
-# type: ignore [attr-defined]
+# mypy: ignore-errors
 
 import asyncio
 import types

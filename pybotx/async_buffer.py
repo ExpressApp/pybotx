@@ -15,12 +15,12 @@ class AsyncBufferBase(Protocol):
         ...  # noqa: WPS428
 
 
-class AsyncBufferWritable(AsyncBufferBase):
+class AsyncBufferWritable(AsyncBufferBase, Protocol):
     async def write(self, content: bytes) -> int:
         ...  # noqa: WPS428
 
 
-class AsyncBufferReadable(AsyncBufferBase):
+class AsyncBufferReadable(AsyncBufferBase, Protocol):
     async def read(self, bytes_to_read: Optional[int] = None) -> bytes:
         ...  # noqa: WPS428
 
