@@ -47,7 +47,7 @@ class EventEdit(BotCommandBase):
 
 
 class BotAPIEventEditData(VerifiedPayloadBaseModel):
-    body: Optional[str]
+    body: Optional[str] = None
 
 
 class BotAPIEventEditPayload(BotAPIBaseSystemEventPayload):

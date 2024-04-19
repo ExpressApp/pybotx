@@ -15,7 +15,7 @@ class BotXAPIGetStickerPackResult(VerifiedPayloadBaseModel):
     id: UUID
     name: str
     public: bool
-    stickers_order: Optional[List[UUID]]
+    stickers_order: Optional[List[UUID]] = None
     stickers: List[BotXAPIGetStickerResult]
 
 

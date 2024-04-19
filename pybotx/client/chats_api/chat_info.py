@@ -32,7 +32,7 @@ class BotXAPIChatInfoMember(VerifiedPayloadBaseModel):
 
 class BotXAPIChatInfoResult(VerifiedPayloadBaseModel):
     chat_type: APIChatTypes
-    creator: Optional[UUID]
+    creator: Optional[UUID] = None
     description: Optional[str] = None
     group_chat_id: UUID
     inserted_at: dt

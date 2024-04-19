@@ -2,6 +2,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, Iterator, List, Literal, Optional, Union
 
+from pydantic import RootModel
+
 from pybotx.missing import Missing, Undefined
 from pybotx.models.api_base import UnverifiedPayloadBaseModel
 
@@ -180,8 +182,7 @@ class BotXAPIButton(UnverifiedPayloadBaseModel):
     opts: BotXAPIButtonOptions
 
 
-class BotXAPIMarkup(UnverifiedPayloadBaseModel):
-    __root__: List[List[BotXAPIButton]]
+BotXAPIMarkup = RootModel[List[List[BotXAPIButton]]]
 
 
 def api_button_from_domain(button: Button) -> BotXAPIButton:

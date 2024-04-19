@@ -194,7 +194,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
     payload: BotAPICommandPayload = Field(..., alias="command")
     sender: BotAPIIncomingMessageContext = Field(..., alias="from")
 
-    source_sync_id: Optional[UUID]
+    source_sync_id: Optional[UUID] = None
     attachments: List[Union[BotAPIAttachment, Dict[str, Any]]]  # noqa: WPS234
     entities: List[Union[BotAPIEntity, Dict[str, Any]]]  # noqa: WPS234
 

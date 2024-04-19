@@ -125,6 +125,18 @@ def mock_authorization(
             },
         ),
     )
+    respx_mock.get(
+        f"https://{host}/api/v2/botx/bots/{bot_id}/token",
+        params={"signature": bot_signature},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.OK,
+            json={
+                "status": "ok",
+                "result": "token",
+            },
+        ),
+    )
 
 
 @pytest.hookimpl(trylast=True)

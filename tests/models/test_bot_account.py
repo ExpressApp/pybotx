@@ -12,7 +12,7 @@ def test__bot_account__could_not_parse_host(bot_id: UUID, cts_url: str) -> None:
         cts_url=cts_url,
         secret_key="secret_key",
     )
-    bot_account.Config.allow_mutation = True
+    bot_account.model_config["frozen"] = False
     bot_account.cts_url = "cts_url"  # type: ignore
 
     # - Assert -

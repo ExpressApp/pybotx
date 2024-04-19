@@ -7,7 +7,7 @@ from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBa
 
 class BotXAPIRefreshAccessTokenRequestPayload(UnverifiedPayloadBaseModel):
     user_huid: UUID
-    ref: Optional[UUID]
+    ref: Optional[UUID] = None
 
     @classmethod
     def from_domain(

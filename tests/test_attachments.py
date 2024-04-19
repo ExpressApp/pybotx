@@ -33,6 +33,7 @@ pytestmark = [
 
 async def test__attachment__open(
     host: str,
+    mock_authorization,
     bot_account: BotAccountWithSecret,
     bot_id: UUID,
     api_incoming_message_factory: Callable[..., Dict[str, Any]],
@@ -148,6 +149,7 @@ API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
 )
 
 
+@pytest.mark.wip
 @pytest.mark.parametrize(
     "api_attachment,domain_attachment,attr_name",
     API_AND_DOMAIN_NON_FILE_ATTACHMENTS,
@@ -169,6 +171,7 @@ async def test__async_execute_raw_bot_command__non_file_attachments_types(
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         nonlocal incoming_message
         incoming_message = message
+
         # Drop `raw_command` from asserting
         incoming_message.raw_command = None
 

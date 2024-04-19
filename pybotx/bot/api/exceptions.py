@@ -1,7 +1,7 @@
 from pybotx.constants import BOT_API_VERSION
 
 
-class UnsupportedBotAPIVersionError(Exception):
+class UnsupportedBotAPIVersionError(ValueError):
     def __init__(self, version: int) -> None:
         self.version = version
         self.message = (
@@ -10,7 +10,7 @@ class UnsupportedBotAPIVersionError(Exception):
         super().__init__(self.message)
 
 
-class UnknownSystemEventError(Exception):
+class UnknownSystemEventError(ValueError):
     def __init__(self, type_name: str) -> None:
         self.type_name = type_name
         self.message = f"Unknown system event: `{type_name}`"

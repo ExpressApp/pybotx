@@ -64,7 +64,7 @@ class ChatCreatedEvent(BotCommandBase):
 class BotAPIChatMember(VerifiedPayloadBaseModel):
     is_admin: bool = Field(..., alias="admin")
     huid: UUID
-    name: Optional[str]
+    name: Optional[str] = None
     user_kind: APIUserKinds
 
 

@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 from functools import cached_property
-from urllib.parse import urlparse
 from uuid import UUID
 
-from pydantic import AnyHttpUrl, BaseModel
+from pydantic import AnyHttpUrl, BaseModel, ConfigDict
 
 
 @dataclass
@@ -17,15 +16,11 @@ class BotAccountWithSecret(BaseModel):
     cts_url: AnyHttpUrl
     secret_key: str
 
-    class Config:
-        allow_mutation = False
-        keep_untouched = (cached_property,)
+    model_config = ConfigDict(frozen=True, ignored_types=(cached_property,))
 
     @cached_property
     def host(self) -> str:
-        hostname = urlparse(self.cts_url).hostname
-
-        if hostname is None:
+        if self.cts_url.host is None:
             raise ValueError("Could not parse host from cts_url.")
 
-        return hostname
+        return self.cts_url.host

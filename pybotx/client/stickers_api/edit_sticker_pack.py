@@ -12,7 +12,7 @@ class BotXAPIEditStickerPackRequestPayload(UnverifiedPayloadBaseModel):
     sticker_pack_id: UUID
     name: str
     preview: UUID
-    stickers_order: Optional[List[UUID]]
+    stickers_order: Optional[List[UUID]] = None
 
     @classmethod
     def from_domain(

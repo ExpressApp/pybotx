@@ -10,7 +10,7 @@ from pybotx.models.stickers import StickerPackFromList, StickerPackPage
 class BotXAPIGetStickerPacksRequestPayload(UnverifiedPayloadBaseModel):
     user_huid: UUID
     limit: int
-    after: Optional[str]
+    after: Optional[str] = None
 
     @classmethod
     def from_domain(
@@ -23,7 +23,7 @@ class BotXAPIGetStickerPacksRequestPayload(UnverifiedPayloadBaseModel):
 
 
 class BotXAPIGetPaginationResult(VerifiedPayloadBaseModel):
-    after: Optional[str]
+    after: Optional[str] = None
 
 
 class BotXAPIGetStickerPackResult(VerifiedPayloadBaseModel):
@@ -31,7 +31,7 @@ class BotXAPIGetStickerPackResult(VerifiedPayloadBaseModel):
     name: str
     public: bool
     stickers_count: int
-    stickers_order: Optional[List[UUID]]
+    stickers_order: Optional[List[UUID]] = None
 
 
 class BotXAPIGetStickerPacksResult(VerifiedPayloadBaseModel):

@@ -1,7 +1,7 @@
 import json
 from typing import Any, Dict, List, Optional, Set, Union, cast
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from pydantic.json import pydantic_encoder
 
 from pybotx.missing import Undefined
@@ -67,8 +67,7 @@ class UnverifiedPayloadBaseModel(PayloadBaseModel):
         _fields_set: Optional[Set[str]] = None,
         **kwargs: Any,
     ) -> None:
-        model = BaseModel.construct(_fields_set, **kwargs)
+        model = self.model_construct(_fields_set, **kwargs)
         self.__dict__.update(model.__dict__)  # noqa: WPS609 (Replace self attrs)
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)

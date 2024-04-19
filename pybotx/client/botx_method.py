@@ -88,7 +88,7 @@ class BotXMethod:
 
     def _build_url(self, path: str) -> str:
         cts_url = self._bot_accounts_storage.get_cts_url(self._bot_id)
-        return "/".join(part.strip("/") for part in (cts_url, path))
+        return "/".join(part.strip("/") for part in (cts_url.unicode_string(), path))
 
     def _verify_and_extract_api_model(
         self,

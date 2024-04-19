@@ -27,6 +27,7 @@ async def get_token(
 
     signature = bot_accounts_storage.build_signature(bot_id)
     payload = BotXAPIGetTokenRequestPayload.from_domain(signature)
+    print(payload.dict(), "a")
 
     botx_api_token = await method.execute(payload)
 

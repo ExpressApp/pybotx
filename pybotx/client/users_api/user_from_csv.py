@@ -1,7 +1,7 @@
 from typing import Optional, Union
 from uuid import UUID
 
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 
 from pybotx.models.api_base import VerifiedPayloadBaseModel
 from pybotx.models.enums import (
@@ -17,16 +17,17 @@ class BotXAPIUserFromCSVResult(VerifiedPayloadBaseModel):
     huid: UUID = Field(alias="HUID")
     ad_login: str = Field(alias="AD Login")
     ad_domain: str = Field(alias="Domain")
-    email: Optional[str] = Field(alias="AD E-mail")
+    email: Optional[str] = Field(None, alias="AD E-mail")
     name: str = Field(alias="Name")
     sync_source: Union[APISyncSourceTypes, str] = Field(alias="Sync source")
     active: bool = Field(alias="Active")
     user_kind: APIUserKinds = Field(alias="Kind")
-    company: Optional[str] = Field(alias="Company")
-    department: Optional[str] = Field(alias="Department")
-    position: Optional[str] = Field(alias="Position")
+    company: Optional[str] = Field(None, alias="Company")
+    department: Optional[str] = Field(None, alias="Department")
+    position: Optional[str] = Field(None, alias="Position")
 
-    @validator("email", "company", "department", "position", pre=True)
+    @field_validator("email", "company", "department", "position", mode="before")
+    @classmethod
     @classmethod
     def replace_empty_string_with_none(cls, field_value: str) -> Optional[str]:
         if field_value == "":

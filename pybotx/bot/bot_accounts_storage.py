@@ -4,6 +4,8 @@ import hmac
 from typing import Dict, Iterator, List, Optional
 from uuid import UUID
 
+from pydantic import AnyHttpUrl
+
 from pybotx.bot.exceptions import UnknownBotAccountError
 from pybotx.models.bot_account import BotAccountWithSecret
 
@@ -23,7 +25,7 @@ class BotAccountsStorage:
     def iter_bot_accounts(self) -> Iterator[BotAccountWithSecret]:
         yield from self._bot_accounts
 
-    def get_cts_url(self, bot_id: UUID) -> str:
+    def get_cts_url(self, bot_id: UUID) -> AnyHttpUrl:
         bot_account = self.get_bot_account(bot_id)
         return bot_account.cts_url
 

@@ -4,6 +4,7 @@ from typing import AsyncGenerator, Literal, Union, cast
 from uuid import UUID
 
 from aiofiles.tempfile import SpooledTemporaryFile
+from pydantic import ConfigDict
 
 from pybotx.bot.contextvars import bot_id_var, bot_var, chat_id_var
 from pybotx.constants import CHUNK_SIZE
@@ -76,15 +77,7 @@ class APIAsyncFileBase(VerifiedPayloadBaseModel):
     file_name: str
     file_size: int
     file_hash: str
-
-    class Config:
-        """BotX sends extra fields which are used by client only.
-
-        We skip their validation, but extra fields will be saved during
-        serialization/deserialization.
-        """
-
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class ApiAsyncFileImage(APIAsyncFileBase):

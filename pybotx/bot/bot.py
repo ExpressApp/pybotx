@@ -22,7 +22,7 @@ import httpx
 import jwt
 from aiocsv.readers import AsyncDictReader
 from aiofiles.tempfile import NamedTemporaryFile, TemporaryDirectory
-from pydantic import ValidationError, parse_obj_as
+from pydantic import TypeAdapter, ValidationError, parse_obj_as
 
 from pybotx.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
@@ -305,10 +305,11 @@ class Bot:
             self._verify_request(request_headers)
 
         try:
-            bot_api_command: BotAPICommand = parse_obj_as(
+            bot_api_command: BotAPICommand = TypeAdapter(BotAPICommand).validate_python(
                 # Same ignore as in pydantic
-                BotAPICommand,  # type: ignore[arg-type]
+                # BotAPICommand,  # type: ignore[arg-type]
                 raw_bot_command,
+                # strict=False
             )
         except ValidationError as validation_exc:
             raise ValueError("Bot command validation error") from validation_exc

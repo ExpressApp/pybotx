@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Literal, Optional, Tuple, Union
 from uuid import UUID, uuid4
 
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 
 from pybotx.missing import Missing, Undefined
 from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
@@ -174,9 +174,10 @@ BotAPINestedMentionData = Union[
 class BotAPIMentionData(VerifiedPayloadBaseModel):
     mention_type: BotAPIMentionTypes
     mention_id: UUID
-    mention_data: Optional[BotAPINestedMentionData]
+    mention_data: Optional[BotAPINestedMentionData] = None
 
-    @validator("mention_data", pre=True)
+    @field_validator("mention_data", mode="before")
+    @classmethod
     @classmethod
     def validate_mention_data(
         cls,
