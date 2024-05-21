@@ -60,8 +60,8 @@ async def test__event_edit__succeed(
             },
         ],
         "from": {
-            "user_huid": None,
-            "group_chat_id": None,
+            "user_huid": "fbc84c63-e432-4ff1-99bd-c3275f053866",
+            "group_chat_id": "6fe9b0e7-32e3-4843-8486-897eabd69422",
             "ad_login": None,
             "ad_domain": None,
             "username": None,
@@ -123,4 +123,7 @@ async def test__event_edit__succeed(
                 name="Вася Иванов",
             ),
         ],
+        sync_id=UUID("a465f0f3-1354-491c-8f11-f400164295cb"),
+        huid=UUID("fbc84c63-e432-4ff1-99bd-c3275f053866"),
+        chat_id=UUID("6fe9b0e7-32e3-4843-8486-897eabd69422"),
     )
