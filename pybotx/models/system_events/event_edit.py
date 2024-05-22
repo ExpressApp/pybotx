@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Literal, Optional
+from uuid import UUID
 
 from pydantic import Field
 
@@ -10,9 +11,9 @@ from pybotx.models.attachments import (
     convert_api_attachment_to_domain,
 )
 from pybotx.models.base_command import (
-    BaseBotAPIContext,
     BotAPIBaseCommand,
     BotAPIBaseSystemEventPayload,
+    BotAPIUserContext,
     BotCommandBase,
 )
 from pybotx.models.bot_account import BotAccount
@@ -30,11 +31,17 @@ class EventEdit(BotCommandBase):
 
     Attributes:
         body: Updated message body.
+        sync_id: Updated message sync id.
+        chat_id: Updated message chat id.
+        huid: Updated message user huid.
         attachments: Attachments from updated message.
         entities: Entities from updated message.
     """
 
     body: Optional[str]
+    sync_id: UUID
+    chat_id: UUID
+    huid: UUID
     attachments: List[IncomingAttachment]
     entities: List[Entity]
 
@@ -48,9 +55,15 @@ class BotAPIEventEditPayload(BotAPIBaseSystemEventPayload):
     data: BotAPIEventEditData
 
 
+class BotAPIBotContext(BotAPIUserContext):
+    """Bot context."""
+
+    group_chat_id: UUID
+
+
 class BotAPIEventEdit(BotAPIBaseCommand):
     payload: BotAPIEventEditPayload = Field(..., alias="command")
-    sender: BaseBotAPIContext = Field(..., alias="from")
+    sender: BotAPIBotContext = Field(..., alias="from")
     attachments: List[BotAPIAttachment]
     entities: List[BotAPIEntity]
 
@@ -73,4 +86,7 @@ class BotAPIEventEdit(BotAPIBaseCommand):
                 convert_bot_api_entity_to_domain(api_entity=entity)
                 for entity in self.entities
             ],
+            sync_id=self.sync_id,
+            chat_id=self.sender.group_chat_id,
+            huid=self.sender.user_huid,
         )
