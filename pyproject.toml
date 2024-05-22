@@ -17,7 +17,7 @@ repository = "https://github.com/ExpressApp/pybotx"
 python = ">=3.8,<3.13"
 
 aiofiles = ">=0.7.0,<24.0.0"
-httpx = "^0.25.0"
+httpx = ">=0.25,<0.28"
 # The v1.0.3 cause some troubles with no-wait callbacks functionality.
 # It will be fixed in the next versions.
 # https://github.com/encode/httpcore/pull/880
