@@ -22,7 +22,7 @@ import httpx
 import jwt
 from aiocsv.readers import AsyncDictReader
 from aiofiles.tempfile import NamedTemporaryFile, TemporaryDirectory
-from pydantic import TypeAdapter, ValidationError, parse_obj_as
+from pydantic import TypeAdapter, ValidationError
 
 from pybotx.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
@@ -306,12 +306,10 @@ class Bot:
 
         try:
             bot_api_command: BotAPICommand = TypeAdapter(BotAPICommand).validate_python(
-                # Same ignore as in pydantic
-                # BotAPICommand,  # type: ignore[arg-type]
                 raw_bot_command,
-                # strict=False
             )
         except ValidationError as validation_exc:
+            # TODO: Invalid BotCommand or unsupported event. Should messages about this be separated?
             raise ValueError("Bot command validation error") from validation_exc
 
         bot_command = bot_api_command.to_domain(raw_bot_command)
@@ -371,9 +369,7 @@ class Bot:
                 raise RequestHeadersNotProvidedError
             self._verify_request(request_headers)
 
-        callback: BotXMethodCallback = parse_obj_as(
-            # Same ignore as in pydantic
-            BotXMethodCallback,  # type: ignore[arg-type]
+        callback: BotXMethodCallback = TypeAdapter(BotXMethodCallback).validate_python(
             raw_botx_method_result,
         )
 

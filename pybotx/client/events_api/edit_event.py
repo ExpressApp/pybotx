@@ -32,7 +32,7 @@ class BotXAPIEditEventOpts(UnverifiedPayloadBaseModel):
 class BotXAPIEditEvent(UnverifiedPayloadBaseModel):
     body: Missing[str]
     metadata: Missing[Dict[str, Any]]
-    opts: Missing[BotXAPIEditEventOpts]
+    opts: Missing[BotXAPIEditEventPayloadOpts]
     bubble: Missing[BotXAPIMarkup]
     keyboard: Missing[BotXAPIMarkup]
     mentions: Missing[List[BotXAPIMention]]
@@ -42,6 +42,7 @@ class BotXAPIEditEventRequestPayload(UnverifiedPayloadBaseModel):
     sync_id: UUID
     payload: BotXAPIEditEvent
     file: Missing[BotXAPIAttachment]
+    opts: Missing[BotXAPIEditEventOpts]
 
     @classmethod
     def from_domain(

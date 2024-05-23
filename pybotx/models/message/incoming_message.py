@@ -195,8 +195,8 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
     sender: BotAPIIncomingMessageContext = Field(..., alias="from")
 
     source_sync_id: Optional[UUID] = None
-    attachments: List[Union[BotAPIAttachment, Dict[str, Any]]]  # noqa: WPS234
-    entities: List[Union[BotAPIEntity, Dict[str, Any]]]  # noqa: WPS234
+    attachments: List[Union[BotAPIAttachment]]  # noqa: WPS234
+    entities: List[BotAPIEntity]  # noqa: WPS234
 
     def to_domain(self, raw_command: Dict[str, Any]) -> IncomingMessage:  # noqa: WPS231
         if self.sender.device_meta:

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Literal
+from typing import Any, Dict, List, Literal
 from uuid import UUID
 
 from pybotx.models.api_base import VerifiedPayloadBaseModel
@@ -26,3 +26,8 @@ class BotAPIReplyData(VerifiedPayloadBaseModel):
 class BotAPIReply(VerifiedPayloadBaseModel):
     type: Literal[BotAPIEntityTypes.REPLY]
     data: BotAPIReplyData
+
+
+class BotAPIOtherEntity(VerifiedPayloadBaseModel):
+    type: str
+    data: Dict[str, Any]

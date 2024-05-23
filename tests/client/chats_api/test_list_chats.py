@@ -83,6 +83,7 @@ async def test__list_chats__succeed(
     assert endpoint.called
 
 
+@pytest.mark.wip
 async def test__list_chats__unsupported_chats_types(
     respx_mock: MockRouter,
     host: str,

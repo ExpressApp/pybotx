@@ -16,7 +16,7 @@ from uuid import UUID
 
 import httpx
 from mypy_extensions import Arg
-from pydantic import ValidationError, parse_obj_as
+from pydantic import TypeAdapter, ValidationError
 
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
 from pybotx.bot.callbacks.callback_manager import CallbackManager
@@ -88,7 +88,9 @@ class BotXMethod:
 
     def _build_url(self, path: str) -> str:
         cts_url = self._bot_accounts_storage.get_cts_url(self._bot_id)
-        return "/".join(part.strip("/") for part in (cts_url.unicode_string(), path))
+        return "/".join(
+            part.strip("/") for part in (cts_url.unicode_string(), path)  # noqa: WPS221
+        )
 
     def _verify_and_extract_api_model(
         self,
@@ -106,7 +108,7 @@ class BotXMethod:
         )
 
         try:
-            api_model = parse_obj_as(model_cls, raw_model)
+            api_model = TypeAdapter(model_cls).validate_json(response.content)
         except ValidationError as validation_exc:
             raise InvalidBotXResponsePayloadError(response) from validation_exc
 

@@ -2,10 +2,11 @@ import base64
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import AsyncGenerator, Literal, Union, cast
+from typing import Annotated, AsyncGenerator, Literal, Union, cast
 from uuid import UUID
 
 from aiofiles.tempfile import SpooledTemporaryFile
+from pydantic import BeforeValidator
 
 from pybotx.async_buffer import AsyncBufferReadable
 from pybotx.constants import CHUNK_SIZE
@@ -152,8 +153,8 @@ class BotAPIAttachmentVoice(VerifiedPayloadBaseModel):
 class BotAPIAttachmentLocationData(VerifiedPayloadBaseModel):
     location_name: str
     location_address: str
-    location_lat: str
-    location_lng: str
+    location_lat: Annotated[str, BeforeValidator(str)]
+    location_lng: Annotated[str, BeforeValidator(str)]
 
 
 class BotAPIAttachmentLocation(VerifiedPayloadBaseModel):

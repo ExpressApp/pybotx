@@ -20,7 +20,7 @@ class BotAccountWithSecret(BaseModel):
 
     @cached_property
     def host(self) -> str:
-        if self.cts_url.host is None:
+        if not hasattr(self.cts_url, "host"):  # noqa: WPS421
             raise ValueError("Could not parse host from cts_url.")
 
-        return self.cts_url.host
+        return self.cts_url.host  # type: ignore[return-value]

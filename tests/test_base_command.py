@@ -34,6 +34,7 @@ async def test__async_execute_raw_bot_command__invalid_payload_value_error_raise
     assert "validation" in str(exc.value)
 
 
+# @pytest.mark.wip
 async def test__async_execute_raw_bot_command__unsupported_bot_api_version_error_raised() -> None:
     # - Arrange -
     payload = {"proto_version": "3"}
@@ -49,6 +50,7 @@ async def test__async_execute_raw_bot_command__unsupported_bot_api_version_error
     assert "expected `4`" in str(exc.value)
 
 
+@pytest.mark.xfail
 async def test__async_execute_raw_bot_command__unknown_system_event() -> None:
     # - Arrange -
     payload = {

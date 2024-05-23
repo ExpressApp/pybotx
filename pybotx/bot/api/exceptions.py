@@ -1,7 +1,7 @@
 from pybotx.constants import BOT_API_VERSION
 
 
-class UnsupportedBotAPIVersionError(ValueError):
+class UnsupportedBotAPIVersionError(Exception):
     def __init__(self, version: int) -> None:
         self.version = version
         self.message = (

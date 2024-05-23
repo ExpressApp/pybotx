@@ -321,6 +321,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
     )
 
 
+# @pytest.mark.wip
 async def test__async_execute_raw_bot_command__all_mention_types(
     bot_account: BotAccountWithSecret,
 ) -> None:
@@ -461,6 +462,7 @@ async def test__async_execute_raw_bot_command__all_mention_types(
     )
 
 
+# @pytest.mark.wip
 async def test__async_execute_raw_bot_command__unknown_entity_type(
     bot_account: BotAccountWithSecret,
     loguru_caplog: pytest.LogCaptureFixture,

@@ -33,7 +33,7 @@ pytestmark = [
 
 async def test__attachment__open(
     host: str,
-    mock_authorization,
+    mock_authorization: Any,
     bot_account: BotAccountWithSecret,
     bot_id: UUID,
     api_incoming_message_factory: Callable[..., Dict[str, Any]],
@@ -149,7 +149,6 @@ API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
 )
 
 
-@pytest.mark.wip
 @pytest.mark.parametrize(
     "api_attachment,domain_attachment,attr_name",
     API_AND_DOMAIN_NON_FILE_ATTACHMENTS,

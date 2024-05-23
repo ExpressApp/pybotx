@@ -217,7 +217,5 @@ def api_button_from_domain(button: Button) -> BotXAPIButton:
 
 def api_markup_from_domain(markup: Markup) -> BotXAPIMarkup:
     return BotXAPIMarkup(
-        __root__=[
-            [api_button_from_domain(button) for button in buttons] for buttons in markup
-        ],
+        [[api_button_from_domain(button) for button in buttons] for buttons in markup],
     )

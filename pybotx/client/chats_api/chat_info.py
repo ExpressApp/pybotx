@@ -1,5 +1,5 @@
 from datetime import datetime as dt
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import List, Literal, Optional, Union
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -36,7 +36,7 @@ class BotXAPIChatInfoResult(VerifiedPayloadBaseModel):
     description: Optional[str] = None
     group_chat_id: UUID
     inserted_at: dt
-    members: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]]  # noqa: WPS234
+    members: List[Union[BotXAPIChatInfoMember]]  # noqa: WPS234
     name: str
     shared_history: bool
 
