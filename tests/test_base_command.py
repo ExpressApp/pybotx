@@ -50,7 +50,7 @@ async def test__async_execute_raw_bot_command__unsupported_bot_api_version_error
     assert "expected `4`" in str(exc.value)
 
 
-@pytest.mark.xfail
+@pytest.mark.wip
 async def test__async_execute_raw_bot_command__unknown_system_event() -> None:
     # - Arrange -
     payload = {

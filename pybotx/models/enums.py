@@ -80,7 +80,7 @@ class StrEnum(str, Enum):  # noqa: WPS600 (pydantic needs this inheritance)
     # TODO: Use plain enums after migrating to Pydantic 2.0
 
 
-class APIChatTypes(Enum):
+class APIChatTypes(StrEnum):
     CHAT = "chat"
     GROUP_CHAT = "group_chat"
     CHANNEL = "channel"
@@ -103,7 +103,7 @@ class BotAPISystemEventTypes(StrEnum):
     EVENT_EDIT = "system:event_edit"
 
 
-class BotAPIClientPlatforms(Enum):
+class BotAPIClientPlatforms(StrEnum):
     WEB = "web"
     ANDROID = "android"
     IOS = "ios"
@@ -124,7 +124,7 @@ class BotAPIMentionTypes(StrEnum):
     ALL = "all"
 
 
-class APIUserKinds(Enum):
+class APIUserKinds(StrEnum):
     USER = "user"
     CTS_USER = "cts_user"
     BOTX = "botx"
@@ -143,7 +143,7 @@ class APIAttachmentTypes(StrEnum):
     STICKER = "sticker"
 
 
-class APISyncSourceTypes(Enum):
+class APISyncSourceTypes(StrEnum):
     AD = "ad"
     ADMIN = "admin"
     EMAIL = "email"

@@ -178,7 +178,6 @@ class BotAPIMentionData(VerifiedPayloadBaseModel):
 
     @field_validator("mention_data", mode="before")
     @classmethod
-    @classmethod
     def validate_mention_data(
         cls,
         mention_data: Dict[str, str],

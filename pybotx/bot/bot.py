@@ -1,3 +1,4 @@
+import json
 from asyncio import Task
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -305,8 +306,8 @@ class Bot:
             self._verify_request(request_headers)
 
         try:
-            bot_api_command: BotAPICommand = TypeAdapter(BotAPICommand).validate_python(
-                raw_bot_command,
+            bot_api_command: BotAPICommand = TypeAdapter(BotAPICommand).validate_json(
+                json.dumps(raw_bot_command),
             )
         except ValidationError as validation_exc:
             # TODO: Invalid BotCommand or unsupported event. Should messages about this be separated?

@@ -321,7 +321,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
     )
 
 
-# @pytest.mark.wip
+@pytest.mark.wip
 async def test__async_execute_raw_bot_command__all_mention_types(
     bot_account: BotAccountWithSecret,
 ) -> None:

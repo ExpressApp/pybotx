@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -22,7 +22,7 @@ class BotXAPIListChatResult(VerifiedPayloadBaseModel):
 
 class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
-    result: List[Union[BotXAPIListChatResult]]  # noqa: WPS234
+    result: List[Union[BotXAPIListChatResult, Dict[str, Any]]]  # noqa: WPS234
 
     def to_domain(self) -> List[ChatListItem]:
         chats_list = [
