@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pybotx"
-version = "0.67.0"
+version = "0.67.1"
 description = "A python library for interacting with eXpress BotX API"
 authors = [
     "Sidnev Nikolay <nsidnev@ccsteam.ru>",
@@ -26,6 +26,7 @@ loguru = ">=0.6.0,<0.7.0"
 pydantic = ">=1.6.0,<1.11.0"
 aiocsv = ">=1.2.3,<1.3.0"
 pyjwt = ">=2.0.0,<3.0.0"
+mypy-extensions = ">=0.2.0,<0.5.0"
 
 [tool.poetry.dev-dependencies]
 add-trailing-comma = "2.2.1"
@@ -33,7 +34,6 @@ autoflake = "1.7.8"
 black = "22.3.0"
 isort = "5.10.1"
 mypy = "0.910.0"
-mypy-extensions = ">=0.2.0,<0.5.0"
 typing-extensions = ">=3.7.4,<5.0.0"
 wemake-python-styleguide = "0.16.0"
 bandit = "1.7.2"  # https://github.com/PyCQA/bandit/issues/837
