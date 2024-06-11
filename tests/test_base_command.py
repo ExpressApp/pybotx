@@ -146,44 +146,44 @@ async def test__async_execute_raw_bot_command__not_logging_incoming_request(
     assert log_message not in loguru_caplog.messages
 
 
-async def test__sync_execute_raw_smartapp_request__logging_incoming_request(
+async def test__sync_execute_raw_smartapp_event__logging_incoming_request(
     bot_account: BotAccountWithSecret,
     loguru_caplog: pytest.LogCaptureFixture,
-    api_sync_smartapp_request_factory: Callable[..., Dict[str, Any]],
-    collector_with_sync_smartapp_request_handler: HandlerCollector,
+    api_sync_smartapp_event_factory: Callable[..., Dict[str, Any]],
+    collector_with_sync_smartapp_event_handler: HandlerCollector,
 ) -> None:
     # - Arrange -
-    payload = api_sync_smartapp_request_factory(bot_id=bot_account.id)
-    log_message = "Got sync smartapp request: {command}".format(
+    payload = api_sync_smartapp_event_factory(bot_id=bot_account.id)
+    log_message = "Got sync smartapp event: {command}".format(
         command=json.dumps(payload, sort_keys=True, indent=4, ensure_ascii=False),
     )
     built_bot = Bot(
-        collectors=[collector_with_sync_smartapp_request_handler],
+        collectors=[collector_with_sync_smartapp_event_handler],
         bot_accounts=[bot_account],
     )
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with loguru_caplog.at_level(logging.DEBUG):
-            await bot.sync_execute_raw_smartapp_request(payload, verify_request=False)
+            await bot.sync_execute_raw_smartapp_event(payload, verify_request=False)
 
     # - Assert -
     assert log_message in loguru_caplog.messages
 
 
-async def test__sync_execute_raw_smartapp_request__not_logging_incoming_request(
+async def test__sync_execute_raw_smartapp_event__not_logging_incoming_request(
     bot_account: BotAccountWithSecret,
     loguru_caplog: pytest.LogCaptureFixture,
-    api_sync_smartapp_request_factory: Callable[..., Dict[str, Any]],
-    collector_with_sync_smartapp_request_handler: HandlerCollector,
+    api_sync_smartapp_event_factory: Callable[..., Dict[str, Any]],
+    collector_with_sync_smartapp_event_handler: HandlerCollector,
 ) -> None:
     # - Arrange -
-    payload = api_sync_smartapp_request_factory(bot_id=bot_account.id)
-    log_message = "Got sync smartapp request: {command}".format(
+    payload = api_sync_smartapp_event_factory(bot_id=bot_account.id)
+    log_message = "Got sync smartapp event: {command}".format(
         command=json.dumps(payload, sort_keys=True, indent=4, ensure_ascii=False),
     )
     built_bot = Bot(
-        collectors=[collector_with_sync_smartapp_request_handler],
+        collectors=[collector_with_sync_smartapp_event_handler],
         bot_accounts=[bot_account],
     )
 
@@ -200,40 +200,40 @@ async def test__sync_execute_raw_smartapp_request__not_logging_incoming_request(
     assert log_message not in loguru_caplog.messages
 
 
-async def test__sync_execute_raw_smartapp_request__headers_not_provided(
+async def test__sync_execute_raw_smartapp_event__headers_not_provided(
     bot_account: BotAccountWithSecret,
-    api_sync_smartapp_request_factory: Callable[..., Dict[str, Any]],
-    collector_with_sync_smartapp_request_handler: HandlerCollector,
+    api_sync_smartapp_event_factory: Callable[..., Dict[str, Any]],
+    collector_with_sync_smartapp_event_handler: HandlerCollector,
 ) -> None:
     # - Arrange -
-    payload = api_sync_smartapp_request_factory(bot_id=bot_account.id)
+    payload = api_sync_smartapp_event_factory(bot_id=bot_account.id)
     built_bot = Bot(
-        collectors=[collector_with_sync_smartapp_request_handler],
+        collectors=[collector_with_sync_smartapp_event_handler],
         bot_accounts=[bot_account],
     )
 
     # - Act and Assert-
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(RequestHeadersNotProvidedError):
-            await bot.sync_execute_raw_smartapp_request(payload, verify_request=True)
+            await bot.sync_execute_raw_smartapp_event(payload, verify_request=True)
 
 
-async def test__sync_execute_raw_smartapp_request__request_verified(
+async def test__sync_execute_raw_smartapp_event__request_verified(
     bot_account: BotAccountWithSecret,
-    api_sync_smartapp_request_factory: Callable[..., Dict[str, Any]],
-    collector_with_sync_smartapp_request_handler: HandlerCollector,
+    api_sync_smartapp_event_factory: Callable[..., Dict[str, Any]],
+    collector_with_sync_smartapp_event_handler: HandlerCollector,
     authorization_header: Dict[str, str],
 ) -> None:
     # - Arrange -
-    payload = api_sync_smartapp_request_factory(bot_id=bot_account.id)
+    payload = api_sync_smartapp_event_factory(bot_id=bot_account.id)
     built_bot = Bot(
-        collectors=[collector_with_sync_smartapp_request_handler],
+        collectors=[collector_with_sync_smartapp_event_handler],
         bot_accounts=[bot_account],
     )
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        response = await bot.sync_execute_raw_smartapp_request(
+        response = await bot.sync_execute_raw_smartapp_event(
             payload,
             verify_request=True,
             request_headers=authorization_header,
@@ -242,21 +242,21 @@ async def test__sync_execute_raw_smartapp_request__request_verified(
     assert response
 
 
-async def test__sync_execute_raw_smartapp_request__incorrect_payload(
+async def test__sync_execute_raw_smartapp_event__incorrect_payload(
     bot_account: BotAccountWithSecret,
-    collector_with_sync_smartapp_request_handler: HandlerCollector,
+    collector_with_sync_smartapp_event_handler: HandlerCollector,
 ) -> None:
     # - Arrange -
     payload = {"incorrect": "payload"}
     built_bot = Bot(
-        collectors=[collector_with_sync_smartapp_request_handler],
+        collectors=[collector_with_sync_smartapp_event_handler],
         bot_accounts=[bot_account],
     )
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(ValueError):
-            await bot.sync_execute_raw_smartapp_request(
+            await bot.sync_execute_raw_smartapp_event(
                 payload,
                 verify_request=False,
                 logging_command=False,

@@ -11,7 +11,7 @@ from pybotx import (
     HandlerCollector,
     IncomingMessage,
     SmartAppEvent,
-    SyncSmartAppRequestHandlerNotFoundError,
+    SyncSmartAppEventHandlerNotFoundError,
     lifespan_wrapper,
 )
 
@@ -513,7 +513,7 @@ async def test__handler_collector__handle_incoming_message_by_command_succeed(
 
 
 @pytest.mark.asyncio
-async def test__handler_collector__handle_sync_smartapp_request__handler_not_found(
+async def test__handler_collector__handle_sync_smartapp_event__handler_not_found(
     bot_account: BotAccountWithSecret,
     smartapp_event: SmartAppEvent,
 ) -> None:
@@ -523,40 +523,40 @@ async def test__handler_collector__handle_sync_smartapp_request__handler_not_fou
 
     # - Act and Assert -
     async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(SyncSmartAppRequestHandlerNotFoundError):
-            await collector.handle_sync_smartapp_request(
+        with pytest.raises(SyncSmartAppEventHandlerNotFoundError):
+            await collector.handle_sync_smartapp_event(
                 bot,
                 smartapp_event=smartapp_event,
             )
 
 
 @pytest.mark.asyncio
-async def test__handler_collector__sync_smartapp_request__include__handler_already_registered(
-    collector_with_sync_smartapp_request_handler: HandlerCollector,
+async def test__handler_collector__sync_smartapp_event__include__handler_already_registered(
+    collector_with_sync_smartapp_event_handler: HandlerCollector,
 ) -> None:
     # - Arrange -
-    collector1 = collector_with_sync_smartapp_request_handler
-    collector2 = deepcopy(collector_with_sync_smartapp_request_handler)
+    collector1 = collector_with_sync_smartapp_event_handler
+    collector2 = deepcopy(collector_with_sync_smartapp_event_handler)
 
     # - Act and Assert -
     with pytest.raises(ValueError) as exc:
         collector1.include(collector2)
 
-    assert str(exc.value) == "Handler for sync smartapp request already registered"
+    assert str(exc.value) == "Handler for sync smartapp event already registered"
 
 
 @pytest.mark.asyncio
-async def test__handler_collector__sync_smartapp_request__decorator__handler_already_registered(
-    collector_with_sync_smartapp_request_handler: HandlerCollector,
+async def test__handler_collector__sync_smartapp_event__decorator__handler_already_registered(
+    collector_with_sync_smartapp_event_handler: HandlerCollector,
 ) -> None:
     # - Arrange -
-    collector = collector_with_sync_smartapp_request_handler
+    collector = collector_with_sync_smartapp_event_handler
 
     # - Act and Assert -
     with pytest.raises(ValueError) as exc:
 
-        @collector.sync_smartapp_request
-        async def duplicated_handle_sync_smartapp_request(*args: Any) -> Any:
+        @collector.sync_smartapp_event
+        async def duplicated_handle_sync_smartapp_event(*_: Any) -> Any:
             ...
 
-    assert str(exc.value) == "Handler for sync smartapp request already registered"
+    assert str(exc.value) == "Handler for sync smartapp event already registered"

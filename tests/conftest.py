@@ -21,7 +21,7 @@ from pybotx import (
     HandlerCollector,
     IncomingMessage,
     SmartAppEvent,
-    SyncSmartAppRequestResponsePayload,
+    SyncSmartAppEventResponsePayload,
     UserDevice,
     UserSender,
 )
@@ -229,7 +229,7 @@ def api_incoming_message_factory() -> Callable[..., Dict[str, Any]]:
 
 
 @pytest.fixture
-def api_sync_smartapp_request_factory() -> Callable[..., Dict[str, Any]]:
+def api_sync_smartapp_event_factory() -> Callable[..., Dict[str, Any]]:
     def decorator(
         *,
         bot_id: Optional[UUID] = None,
@@ -363,15 +363,15 @@ def prevent_http_requests(respx_mock: MockRouter) -> None:
 
 
 @pytest.fixture
-def collector_with_sync_smartapp_request_handler() -> HandlerCollector:
+def collector_with_sync_smartapp_event_handler() -> HandlerCollector:
     collector = HandlerCollector()
 
-    @collector.sync_smartapp_request
-    async def handle_sync_smartapp_request(
+    @collector.sync_smartapp_event
+    async def handle_sync_smartapp_event(
         event: SmartAppEvent,
         _: Bot,
-    ) -> SyncSmartAppRequestResponsePayload:
-        return SyncSmartAppRequestResponsePayload.from_domain(
+    ) -> SyncSmartAppEventResponsePayload:
+        return SyncSmartAppEventResponsePayload.from_domain(
             ref=event.ref,
             smartapp_id=event.bot.id,
             chat_id=event.chat.id,

@@ -1,5 +1,5 @@
 from pybotx.client.exceptions.base import BaseClientError
 
 
-class SyncSmartAppRequestHandlerNotFoundError(BaseClientError):
-    """Handler for synchronous smartapp request not found."""
+class SyncSmartAppEventHandlerNotFoundError(BaseClientError):
+    """Handler for synchronous smartapp event not found."""

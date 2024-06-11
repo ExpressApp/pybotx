@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from functools import partial
 from typing import TYPE_CHECKING, Awaitable, Callable, List, Literal, TypeVar, Union
 
-from pybotx.client.smartapps_api.sync_smartapp_request import (
-    SyncSmartAppRequestResponsePayload,
+from pybotx.client.smartapps_api.sync_smartapp_event import (
+    SyncSmartAppEventResponsePayload,
 )
 from pybotx.models.commands import BotCommand
 from pybotx.models.message.incoming_message import IncomingMessage
@@ -26,9 +26,9 @@ if TYPE_CHECKING:  # To avoid circular import
 TBotCommand = TypeVar("TBotCommand", bound=BotCommand)
 HandlerFunc = Callable[[TBotCommand, "Bot"], Awaitable[None]]
 
-SyncSmartAppRequestHandlerFunc = Callable[
+SyncSmartAppEventHandlerFunc = Callable[
     [SmartAppEvent, "Bot"],
-    Awaitable[SyncSmartAppRequestResponsePayload],
+    Awaitable[SyncSmartAppEventResponsePayload],
 ]
 
 IncomingMessageHandlerFunc = HandlerFunc[IncomingMessage]

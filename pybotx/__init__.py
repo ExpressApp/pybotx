@@ -26,7 +26,7 @@ from pybotx.bot.exceptions import (
 from pybotx.bot.handler import (
     IncomingMessageHandlerFunc,
     Middleware,
-    SyncSmartAppRequestHandlerFunc,
+    SyncSmartAppEventHandlerFunc,
 )
 from pybotx.bot.handler_collector import HandlerCollector
 from pybotx.bot.testing import lifespan_wrapper
@@ -59,15 +59,13 @@ from pybotx.client.exceptions.notifications import (
     StealthModeDisabledError,
 )
 from pybotx.client.exceptions.users import UserNotFoundError
-from pybotx.client.smartapps_api.exceptions import (
-    SyncSmartAppRequestHandlerNotFoundError,
-)
+from pybotx.client.smartapps_api.exceptions import SyncSmartAppEventHandlerNotFoundError
 from pybotx.client.smartapps_api.smartapp_manifest import (
     SmartappManifest,
     SmartappManifestWebParams,
 )
-from pybotx.client.smartapps_api.sync_smartapp_request import (
-    SyncSmartAppRequestResponsePayload,
+from pybotx.client.smartapps_api.sync_smartapp_event import (
+    SyncSmartAppEventResponsePayload,
 )
 from pybotx.client.stickers_api.exceptions import (
     InvalidEmojiError,
@@ -228,7 +226,7 @@ __all__ = (
     "RequestHeadersNotProvidedError",
     "SmartApp",
     "SmartAppEvent",
-    "SyncSmartAppRequestResponsePayload",
+    "SyncSmartAppEventResponsePayload",
     "SmartappManifest",
     "SmartappManifestWebLayoutChoices",
     "SmartappManifestWebParams",
@@ -237,8 +235,8 @@ __all__ = (
     "Sticker",
     "StickerPack",
     "StickerPackOrStickerNotFoundError",
-    "SyncSmartAppRequestHandlerFunc",
-    "SyncSmartAppRequestHandlerNotFoundError",
+    "SyncSmartAppEventHandlerFunc",
+    "SyncSmartAppEventHandlerNotFoundError",
     "SyncSourceTypes",
     "UnknownBotAccountError",
     "UnknownSystemEventError",

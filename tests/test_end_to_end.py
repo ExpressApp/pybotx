@@ -16,7 +16,7 @@ from pybotx import (
     HandlerCollector,
     IncomingMessage,
     SmartAppEvent,
-    SyncSmartAppRequestResponsePayload,
+    SyncSmartAppEventResponsePayload,
     UnknownBotAccountError,
     UnverifiedRequestError,
     build_bot_disabled_response,
@@ -35,12 +35,12 @@ async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
     await bot.answer_message("Hi!")
 
 
-@collector.sync_smartapp_request
-async def handle_sync_smartapp_request(
+@collector.sync_smartapp_event
+async def handle_sync_smartapp_event(
     event: SmartAppEvent,
     _: Bot,
-) -> SyncSmartAppRequestResponsePayload:
-    return SyncSmartAppRequestResponsePayload.from_domain(
+) -> SyncSmartAppEventResponsePayload:
+    return SyncSmartAppEventResponsePayload.from_domain(
         ref=event.ref,
         smartapp_id=event.bot.id,
         chat_id=event.chat.id,
@@ -100,12 +100,12 @@ async def command_handler(
 
 
 @router.post("/smartapps/request")
-async def sync_smartapp_request_handler(
+async def sync_smartapp_event_handler(
     request: Request,
     bot: Bot = bot_dependency,
 ) -> JSONResponse:
     try:
-        response = await bot.sync_execute_raw_smartapp_request(
+        response = await bot.sync_execute_raw_smartapp_event(
             await request.json(),
             verify_request=False,
         )
@@ -417,7 +417,7 @@ def test__web_app__unverified_request_response(
     }
 
 
-def test__web_app__sync_smartapp_request(bot: Bot) -> None:
+def test__web_app__sync_smartapp_event(bot: Bot) -> None:
     # - Arrange -
     request_payload = {
         "sync_id": "a465f0f3-1354-491c-8f11-f400164295cb",
