@@ -1,4 +1,5 @@
-from typing import Callable
+from copy import deepcopy
+from typing import Any, Callable
 from unittest.mock import Mock
 
 import pytest
@@ -9,6 +10,8 @@ from pybotx import (
     ChatCreatedEvent,
     HandlerCollector,
     IncomingMessage,
+    SmartAppEvent,
+    SyncSmartAppRequestHandlerNotFoundError,
     lifespan_wrapper,
 )
 
@@ -507,3 +510,53 @@ async def test__handler_collector__handle_incoming_message_by_command_succeed(
 
     # - Assert -
     correct_handler_trigger.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test__handler_collector__handle_sync_smartapp_request__handler_not_found(
+    bot_account: BotAccountWithSecret,
+    smartapp_event: SmartAppEvent,
+) -> None:
+    # - Arrange -
+    collector = HandlerCollector()
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+
+    # - Act and Assert -
+    async with lifespan_wrapper(built_bot) as bot:
+        with pytest.raises(SyncSmartAppRequestHandlerNotFoundError):
+            await collector.handle_sync_smartapp_request(
+                bot,
+                smartapp_event=smartapp_event,
+            )
+
+
+@pytest.mark.asyncio
+async def test__handler_collector__sync_smartapp_request__include__handler_already_registered(
+    collector_with_sync_smartapp_request_handler: HandlerCollector,
+) -> None:
+    # - Arrange -
+    collector1 = collector_with_sync_smartapp_request_handler
+    collector2 = deepcopy(collector_with_sync_smartapp_request_handler)
+
+    # - Act and Assert -
+    with pytest.raises(ValueError) as exc:
+        collector1.include(collector2)
+
+    assert str(exc.value) == "Handler for sync smartapp request already registered"
+
+
+@pytest.mark.asyncio
+async def test__handler_collector__sync_smartapp_request__decorator__handler_already_registered(
+    collector_with_sync_smartapp_request_handler: HandlerCollector,
+) -> None:
+    # - Arrange -
+    collector = collector_with_sync_smartapp_request_handler
+
+    # - Act and Assert -
+    with pytest.raises(ValueError) as exc:
+
+        @collector.sync_smartapp_request
+        async def duplicated_handle_sync_smartapp_request(*args: Any) -> Any:
+            ...
+
+    assert str(exc.value) == "Handler for sync smartapp request already registered"
