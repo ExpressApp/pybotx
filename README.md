@@ -113,6 +113,16 @@ async def command_handler(request: Request) -> JSONResponse:
     )
 
 
+# На этот эндпоинт приходят события BotX для SmartApps, обрабатываемые синхронно.
+@app.post("/smartapps/request")
+async def sync_smartapp_event_handler(request: Request) -> JSONResponse:
+    response = await bot.sync_execute_raw_smartapp_event(
+        await request.json(),
+        request_headers=request.headers,
+    )
+    return JSONResponse(response.jsonable_dict(), status_code=HTTPStatus.OK)
+
+
 # К этому эндпоинту BotX обращается, чтобы узнать
 # доступность бота и его список команд.
 @app.get("/status")
@@ -209,6 +219,32 @@ async def chat_created_handler(event: ChatCreatedEvent, bot: Bot) -> None:
 @collector.smartapp_event
 async def smartapp_event_handler(event: SmartAppEvent, bot: Bot) -> None:
     print(f"Got `smartapp_event` event: {event}")
+```
+
+
+### Получение синхронных SmartApp событий
+
+```python
+from pybotx import *
+
+collector = HandlerCollector()
+
+
+# Обработчик синхронных Smartapp событий, приходящих на эндпоинт `/smartapps/request`
+@collector.sync_smartapp_event
+async def handle_sync_smartapp_event(
+    event: SmartAppEvent, bot: Bot,
+) -> SyncSmartAppEventResponsePayload:
+    print(f"Got sync smartapp event: {event}")
+    return SyncSmartAppEventResponsePayload.from_domain(
+        ref=event.ref,
+        smartapp_id=event.bot.id,
+        chat_id=event.chat.id,
+        data={},
+        opts={},
+        files=[],
+        encrypted=True,
+    )
 ```
 
 

@@ -148,6 +148,9 @@ from pybotx.client.smartapps_api.smartapps_list import (
     BotXAPISmartAppsListRequestPayload,
     SmartAppsListMethod,
 )
+from pybotx.client.smartapps_api.sync_smartapp_event import (
+    SyncSmartAppEventResponsePayload,
+)
 from pybotx.client.smartapps_api.upload_file import (
     UploadFileMethod as SmartappsUploadFileMethod,
 )
@@ -242,6 +245,10 @@ from pybotx.models.status import (
     build_bot_status_response,
 )
 from pybotx.models.stickers import Sticker, StickerPack, StickerPackFromList
+from pybotx.models.system_events.smartapp_event import (
+    BotAPISmartAppEvent,
+    SmartAppEvent,
+)
 from pybotx.models.users import UserFromCSV, UserFromSearch
 
 MissingOptionalAttachment = MissingOptional[
@@ -324,6 +331,49 @@ class Bot:
         self._bot_accounts_storage.ensure_bot_id_exists(bot_command.bot.id)
 
         return self._handler_collector.async_handle_bot_command(self, bot_command)
+
+    async def sync_execute_raw_smartapp_event(
+        self,
+        raw_smartapp_event: Dict[str, Any],
+        verify_request: bool = True,
+        request_headers: Optional[Mapping[str, str]] = None,
+        logging_command: bool = True,
+    ) -> SyncSmartAppEventResponsePayload:
+        if logging_command:
+            logger.opt(lazy=True).debug(
+                "Got sync smartapp event: {command}",
+                command=lambda: pformat_jsonable_obj(
+                    trim_file_data_in_incoming_json(raw_smartapp_event),
+                ),
+            )
+
+        if verify_request:
+            if request_headers is None:
+                raise RequestHeadersNotProvidedError
+            self._verify_request(request_headers)
+
+        try:
+            bot_api_smartapp_event: BotAPISmartAppEvent = parse_obj_as(
+                BotAPISmartAppEvent,
+                raw_smartapp_event,
+            )
+        except ValidationError as validation_exc:
+            raise ValueError(
+                "Sync smartapp event validation error",
+            ) from validation_exc
+
+        smartapp_event = bot_api_smartapp_event.to_domain(raw_smartapp_event)
+        return await self.sync_execute_smartapp_event(smartapp_event)
+
+    async def sync_execute_smartapp_event(
+        self,
+        smartapp_event: SmartAppEvent,
+    ) -> SyncSmartAppEventResponsePayload:
+        self._bot_accounts_storage.ensure_bot_id_exists(smartapp_event.bot.id)
+        return await self._handler_collector.handle_sync_smartapp_event(
+            self,
+            smartapp_event,
+        )
 
     async def raw_get_status(
         self,

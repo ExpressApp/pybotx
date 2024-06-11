@@ -15,6 +15,8 @@ from pybotx import (
     BotAccountWithSecret,
     HandlerCollector,
     IncomingMessage,
+    SmartAppEvent,
+    SyncSmartAppEventResponsePayload,
     UnknownBotAccountError,
     UnverifiedRequestError,
     build_bot_disabled_response,
@@ -31,6 +33,22 @@ collector = HandlerCollector()
 @collector.command("/debug", description="Simple debug command")
 async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
     await bot.answer_message("Hi!")
+
+
+@collector.sync_smartapp_event
+async def handle_sync_smartapp_event(
+    event: SmartAppEvent,
+    _: Bot,
+) -> SyncSmartAppEventResponsePayload:
+    return SyncSmartAppEventResponsePayload.from_domain(
+        ref=event.ref,
+        smartapp_id=event.bot.id,
+        chat_id=event.chat.id,
+        data=event.data,
+        opts={},
+        files=event.files,
+        encrypted=True,
+    )
 
 
 def bot_factory(
@@ -79,6 +97,36 @@ async def command_handler(
         build_command_accepted_response(),
         status_code=HTTPStatus.ACCEPTED,
     )
+
+
+@router.post("/smartapps/request")
+async def sync_smartapp_event_handler(
+    request: Request,
+    bot: Bot = bot_dependency,
+) -> JSONResponse:
+    try:
+        response = await bot.sync_execute_raw_smartapp_event(
+            await request.json(),
+            verify_request=False,
+        )
+    except ValueError:
+        error_label = "Bot command validation error"
+        logger.exception(error_label)
+
+        return JSONResponse(
+            build_bot_disabled_response(error_label),
+            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
+        )
+    except UnknownBotAccountError as exc:
+        error_label = f"No credentials for bot {exc.bot_id}"
+        logger.warning(error_label)
+
+        return JSONResponse(
+            build_bot_disabled_response(error_label),
+            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
+        )
+
+    return JSONResponse(response.jsonable_dict(), status_code=HTTPStatus.OK)
 
 
 @router.get("/status")
@@ -366,4 +414,100 @@ def test__web_app__unverified_request_response(
         "error_data": {"status_message": "The authorization token was not provided."},
         "errors": [],
         "reason": "unverified_request",
+    }
+
+
+def test__web_app__sync_smartapp_event(bot: Bot) -> None:
+    # - Arrange -
+    request_payload = {
+        "sync_id": "a465f0f3-1354-491c-8f11-f400164295cb",
+        "command": {
+            "body": "system:smartapp_event",
+            "data": {
+                "ref": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+                "smartapp_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
+                "data": {
+                    "type": "smartapp_rpc",
+                    "method": "folders.get",
+                    "params": {
+                        "q": 1,
+                    },
+                },
+                "opts": {"option": "test_option"},
+                "smartapp_api_version": 1,
+            },
+            "command_type": "system",
+            "metadata": {},
+        },
+        "async_files": [
+            {
+                "type": "image",
+                "file": "https://link.to/file",
+                "file_mime_type": "image/png",
+                "file_name": "pass.png",
+                "file_preview": "https://link.to/preview",
+                "file_preview_height": 300,
+                "file_preview_width": 300,
+                "file_size": 1502345,
+                "file_hash": "Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+                "file_encryption_algo": "stream",
+                "chunk_size": 2097152,
+                "file_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
+            },
+        ],
+        "attachments": [],
+        "entities": [],
+        "from": {
+            "user_huid": "b9197d3a-d855-5d34-ba8a-eff3a975ab20",
+            "user_udid": None,
+            "group_chat_id": "dea55ee4-7a9f-5da0-8c73-079f400ee517",
+            "host": "cts.example.com",
+            "ad_login": None,
+            "ad_domain": None,
+            "username": None,
+            "chat_type": "group_chat",
+            "manufacturer": None,
+            "device": None,
+            "device_software": None,
+            "device_meta": {},
+            "platform": None,
+            "platform_package_id": None,
+            "is_admin": False,
+            "is_creator": False,
+            "app_version": None,
+            "locale": "en",
+        },
+        "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
+        "proto_version": 4,
+        "source_sync_id": None,
+    }
+
+    # - Act -
+    with TestClient(fastapi_factory(bot)) as test_client:
+        response = test_client.post(
+            "/smartapps/request",
+            json=request_payload,
+        )
+
+    # - Assert -
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        "ref": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+        "smartapp_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
+        "group_chat_id": "dea55ee4-7a9f-5da0-8c73-079f400ee517",
+        "data": {"type": "smartapp_rpc", "method": "folders.get", "params": {"q": 1}},
+        "opts": {},
+        "smartapp_api_version": 1,
+        "async_files": [
+            {
+                "type": "image",
+                "file": "https://link.to/file",
+                "file_mime_type": "image/png",
+                "file_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
+                "file_name": "pass.png",
+                "file_size": 1502345,
+                "file_hash": "Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+            },
+        ],
+        "encrypted": True,
     }

@@ -2,11 +2,13 @@ import asyncio
 import re
 from typing import (
     TYPE_CHECKING,
+    Any,
     Callable,
     Dict,
     List,
     Optional,
     Sequence,
+    Set,
     Type,
     Union,
     overload,
@@ -21,6 +23,7 @@ from pybotx.bot.handler import (
     HiddenCommandHandler,
     IncomingMessageHandlerFunc,
     Middleware,
+    SyncSmartAppEventHandlerFunc,
     SystemEventHandlerFunc,
     VisibleCommandHandler,
     VisibleFunc,
@@ -28,6 +31,10 @@ from pybotx.bot.handler import (
 from pybotx.bot.middlewares.exception_middleware import (
     ExceptionHandlersDict,
     ExceptionMiddleware,
+)
+from pybotx.client.smartapps_api.exceptions import SyncSmartAppEventHandlerNotFoundError
+from pybotx.client.smartapps_api.sync_smartapp_event import (
+    SyncSmartAppEventResponsePayload,
 )
 from pybotx.converters import optional_sequence_to_list
 from pybotx.logger import logger
@@ -59,6 +66,10 @@ class HandlerCollector:
         self._system_events_handlers: Dict[
             Type[BotCommand],
             SystemEventHandlerFunc,
+        ] = {}
+        self._sync_smartapp_event_handler: Dict[
+            Type[SmartAppEvent],
+            SyncSmartAppEventHandlerFunc,
         ] = {}
         self._middlewares = optional_sequence_to_list(middlewares)
         self._tasks: "WeakSet[asyncio.Task[None]]" = WeakSet()
@@ -110,6 +121,26 @@ class HandlerCollector:
 
         else:
             raise NotImplementedError(f"Unsupported event type: `{bot_command}`")
+
+    async def handle_sync_smartapp_event(
+        self,
+        bot: "Bot",
+        smartapp_event: SmartAppEvent,
+    ) -> SyncSmartAppEventResponsePayload:
+        if not isinstance(smartapp_event, SmartAppEvent):
+            raise NotImplementedError(
+                f"Unsupported event type for sync smartapp event: `{smartapp_event}`",
+            )
+
+        event_handler = self._get_sync_smartapp_event_handler_or_none(smartapp_event)
+
+        if not event_handler:
+            raise SyncSmartAppEventHandlerNotFoundError(
+                "Handler for sync smartapp event not found",
+            )
+
+        self._fill_contextvars(smartapp_event, bot)
+        return await event_handler(smartapp_event, bot)
 
     async def get_bot_menu(
         self,
@@ -291,6 +322,14 @@ class HandlerCollector:
 
         return handler_func
 
+    def sync_smartapp_event(
+        self,
+        handler_func: SyncSmartAppEventHandlerFunc,
+    ) -> SyncSmartAppEventHandlerFunc:
+        """Decorate `smartapp` sync event handler."""
+        self._sync_smartapp_event(SmartAppEvent, handler_func)
+        return handler_func
+
     def insert_exception_middleware(
         self,
         exception_handlers: Optional[ExceptionHandlersDict] = None,
@@ -305,7 +344,7 @@ class HandlerCollector:
                 return_when=asyncio.ALL_COMPLETED,
             )
 
-    def _include_collector(self, other: "HandlerCollector") -> None:
+    def _include_collector(self, other: "HandlerCollector") -> None:  # noqa: WPS238
         # - Message handlers -
         command_duplicates = set(self._user_commands_handlers) & set(
             other._user_commands_handlers,
@@ -340,6 +379,19 @@ class HandlerCollector:
 
         self._system_events_handlers.update(other._system_events_handlers)
 
+        # - Sync smartapp event handler -
+        sync_events_duplicates: Set[Type[SmartAppEvent]] = set(
+            self._sync_smartapp_event_handler,
+        ) & set(
+            other._sync_smartapp_event_handler,
+        )
+        if sync_events_duplicates:
+            raise ValueError(
+                "Handler for sync smartapp event already registered",
+            )
+
+        self._sync_smartapp_event_handler.update(other._sync_smartapp_event_handler)
+
     def _get_incoming_message_handler(
         self,
         message: IncomingMessage,
@@ -373,6 +425,17 @@ class HandlerCollector:
         event_cls = event.__class__
 
         handler = self._system_events_handlers.get(event_cls)
+        self._log_system_event_handler_call(event_cls.__name__, handler)
+
+        return handler
+
+    def _get_sync_smartapp_event_handler_or_none(
+        self,
+        event: SmartAppEvent,
+    ) -> Optional[SyncSmartAppEventHandlerFunc]:
+        event_cls = event.__class__
+
+        handler = self._sync_smartapp_event_handler.get(event_cls)
         self._log_system_event_handler_call(event_cls.__name__, handler)
 
         return handler
@@ -422,6 +485,18 @@ class HandlerCollector:
 
         return handler_func
 
+    def _sync_smartapp_event(
+        self,
+        event_cls_name: Type[SmartAppEvent],
+        handler_func: SyncSmartAppEventHandlerFunc,
+    ) -> SyncSmartAppEventHandlerFunc:
+        if event_cls_name in self._sync_smartapp_event_handler:
+            raise ValueError("Handler for sync smartapp event already registered")
+
+        self._sync_smartapp_event_handler[event_cls_name] = handler_func
+
+        return handler_func
+
     def _fill_contextvars(self, bot_command: BotCommand, bot: "Bot") -> None:
         bot_var.set(bot)
         bot_id_var.set(bot_command.bot.id)
@@ -433,7 +508,7 @@ class HandlerCollector:
     def _log_system_event_handler_call(
         self,
         event_cls_name: str,
-        handler: Optional[SystemEventHandlerFunc],
+        handler: Any,
     ) -> None:
         if handler:
             logger.info(f"Found handler for `{event_cls_name}`")
