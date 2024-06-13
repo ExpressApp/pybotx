@@ -72,9 +72,9 @@ async def test__users_as_csv__succeed(
         return_value=httpx.Response(
             status_code=HTTPStatus.OK,
             content=(
-                b"HUID,AD Login,Domain,AD E-mail,Name,Sync source,Active,Kind,Company,Department,Position\n"
-                b"dbc8934f-d0d7-4a9e-89df-d45c137a851c,test_user_17,cts.example.com,,test_user_17,ad,true,cts_user,,,\n"
-                b"13a6909c-bce1-4dbf-8359-efb7ef8e5b34,test_user_18,cts.example.com,,test_user_18,unsupported,true,cts_user,,,"
+                b"HUID,AD Login,Domain,AD E-mail,Name,Sync source,Active,Kind,Company,Department,Position,Manager HUID\n"
+                b"dbc8934f-d0d7-4a9e-89df-d45c137a851c,test_user_17,cts.example.com,,test_user_17,ad,false,cts_user,Company,Department,Position,13a6909c-bce1-4dbf-8359-efb7ef8e5b34\n"
+                b"13a6909c-bce1-4dbf-8359-efb7ef8e5b34,test_user_18,cts.example.com,,test_user_18,unsupported,true,cts_user,,,,"
             ),
         ),
     )
@@ -97,12 +97,13 @@ async def test__users_as_csv__succeed(
             ad_domain="cts.example.com",
             username="test_user_17",
             sync_source=SyncSourceTypes.AD,
-            active=True,
+            active=False,
             user_kind=UserKinds.CTS_USER,
             email=None,
-            company=None,
-            department=None,
-            position=None,
+            company="Company",
+            department="Department",
+            position="Position",
+            manager_huid=UUID("13a6909c-bce1-4dbf-8359-efb7ef8e5b34"),
         ),
         UserFromCSV(
             huid=UUID("13a6909c-bce1-4dbf-8359-efb7ef8e5b34"),
@@ -116,5 +117,6 @@ async def test__users_as_csv__succeed(
             company=None,
             department=None,
             position=None,
+            manager_huid=None,
         ),
     ]
