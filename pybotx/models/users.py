@@ -49,6 +49,7 @@ class UserFromCSV:
         company: User company.
         department: User department.
         position: User position.
+        manager_huid: User's manager huid.
     """
 
     huid: UUID
@@ -62,3 +63,4 @@ class UserFromCSV:
     company: Optional[str] = None
     department: Optional[str] = None
     position: Optional[str] = None
+    manager_huid: Optional[str] = None
