@@ -25,8 +25,9 @@ class BotXAPIUserFromCSVResult(VerifiedPayloadBaseModel):
     company: Optional[str] = Field(alias="Company")
     department: Optional[str] = Field(alias="Department")
     position: Optional[str] = Field(alias="Position")
+    manager_huid: Optional[UUID] = Field(alias="Manager HUID")
 
-    @validator("email", "company", "department", "position", pre=True)
+    @validator("email", "company", "department", "position", "manager_huid", pre=True)
     @classmethod
     def replace_empty_string_with_none(cls, field_value: str) -> Optional[str]:
         if field_value == "":
@@ -47,4 +48,5 @@ class BotXAPIUserFromCSVResult(VerifiedPayloadBaseModel):
             company=self.company,
             department=self.department,
             position=self.position,
+            manager_huid=self.manager_huid,
         )
