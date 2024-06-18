@@ -49,7 +49,17 @@ class UserFromCSV:
         company: User company.
         department: User department.
         position: User position.
+        avatar: Src to full avatar.
+        avatar_preview: Src to avatar.
+        office: Office info.
+        manager: User's manager full name.
         manager_huid: User's manager huid.
+        description: Description.
+        phone: Phone number.
+        other_phone: Extra phone number.
+        ip_phone: Ip phone info.
+        other_ip_phone: Extra ip phone.
+        personnel_number: User's tabel number.
     """
 
     huid: UUID
@@ -63,4 +73,14 @@ class UserFromCSV:
     company: Optional[str] = None
     department: Optional[str] = None
     position: Optional[str] = None
+    avatar: Optional[str] = None
+    avatar_preview: Optional[str] = None
+    office: Optional[str] = None
+    manager: Optional[str] = None
     manager_huid: Optional[UUID] = None
+    description: Optional[str] = None
+    phone: Optional[str] = None
+    other_phone: Optional[str] = None
+    ip_phone: Optional[str] = None
+    other_ip_phone: Optional[str] = None
+    personnel_number: Optional[str] = None

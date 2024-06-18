@@ -72,9 +72,9 @@ async def test__users_as_csv__succeed(
         return_value=httpx.Response(
             status_code=HTTPStatus.OK,
             content=(
-                b"HUID,AD Login,Domain,AD E-mail,Name,Sync source,Active,Kind,Company,Department,Position,Manager HUID\n"
-                b"dbc8934f-d0d7-4a9e-89df-d45c137a851c,test_user_17,cts.example.com,,test_user_17,ad,false,cts_user,Company,Department,Position,13a6909c-bce1-4dbf-8359-efb7ef8e5b34\n"
-                b"13a6909c-bce1-4dbf-8359-efb7ef8e5b34,test_user_18,cts.example.com,,test_user_18,unsupported,true,cts_user,,,,"
+                b"HUID,AD Login,Domain,AD E-mail,Name,Sync source,Active,Kind,Company,Department,Position,Manager,Manager HUID,Personnel number,Description,IP phone,Other IP phone,Phone,Other phone,Avatar,Office,Avatar preview\n"
+                b"dbc8934f-d0d7-4a9e-89df-d45c137a851c,test_user_17,cts.example.com,,test_user_17,ad,false,cts_user,Company,Department,Position,Manager John,13a6909c-bce1-4dbf-8359-efb7ef8e5b34,Some number,Description,Ip_phone,Other_ip_phone,Phone,Other_phone,Avatar,Office,Avatar_preview\n"
+                b"13a6909c-bce1-4dbf-8359-efb7ef8e5b34,test_user_18,cts.example.com,,test_user_18,unsupported,true,cts_user,,,,,,,,,,,,,,"
             ),
         ),
     )
@@ -103,7 +103,17 @@ async def test__users_as_csv__succeed(
             company="Company",
             department="Department",
             position="Position",
+            personnel_number="Some number",
+            manager="Manager John",
             manager_huid=UUID("13a6909c-bce1-4dbf-8359-efb7ef8e5b34"),
+            description="Description",
+            ip_phone="Ip_phone",
+            other_ip_phone="Other_ip_phone",
+            phone="Phone",
+            other_phone="Other_phone",
+            avatar="Avatar",
+            office="Office",
+            avatar_preview="Avatar_preview",
         ),
         UserFromCSV(
             huid=UUID("13a6909c-bce1-4dbf-8359-efb7ef8e5b34"),
@@ -117,6 +127,16 @@ async def test__users_as_csv__succeed(
             company=None,
             department=None,
             position=None,
+            manager=None,
             manager_huid=None,
+            personnel_number=None,
+            description=None,
+            ip_phone=None,
+            other_ip_phone=None,
+            phone=None,
+            other_phone=None,
+            avatar=None,
+            office=None,
+            avatar_preview=None,
         ),
     ]
