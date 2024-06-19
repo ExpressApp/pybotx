@@ -221,7 +221,7 @@ from pybotx.image_validators import (
     ensure_file_content_is_png,
     ensure_sticker_image_size_valid,
 )
-from pybotx.logger import logger, pformat_jsonable_obj, trim_file_data_in_incoming_json
+from pybotx.logger import log_incoming_request, logger, pformat_jsonable_obj
 from pybotx.missing import Missing, MissingOptional, Undefined
 from pybotx.models.async_files import File
 from pybotx.models.attachments import IncomingFileAttachment, OutgoingAttachment
@@ -299,16 +299,9 @@ class Bot:
         logging_command: bool = True,
     ) -> None:
         if logging_command:
-            logger.opt(lazy=True).debug(
-                "Got command: {command}",
-                command=lambda: pformat_jsonable_obj(
-                    trim_file_data_in_incoming_json(raw_bot_command),
-                ),
-            )
+            log_incoming_request(raw_bot_command, message="Got command: ")
 
         if verify_request:
-            if request_headers is None:
-                raise RequestHeadersNotProvidedError
             self._verify_request(request_headers)
 
         try:
@@ -340,16 +333,12 @@ class Bot:
         logging_command: bool = True,
     ) -> SyncSmartAppEventResponsePayload:
         if logging_command:
-            logger.opt(lazy=True).debug(
-                "Got sync smartapp event: {command}",
-                command=lambda: pformat_jsonable_obj(
-                    trim_file_data_in_incoming_json(raw_smartapp_event),
-                ),
+            log_incoming_request(
+                raw_smartapp_event,
+                message="Got sync smartapp event: ",
             )
 
         if verify_request:
-            if request_headers is None:
-                raise RequestHeadersNotProvidedError
             self._verify_request(request_headers)
 
         try:
@@ -2028,7 +2017,13 @@ class Bot:
         )
         await method.execute(payload)
 
-    def _verify_request(self, headers: Mapping[str, str]) -> None:  # noqa: WPS238
+    def _verify_request(  # noqa: WPS231, WPS238
+        self,
+        headers: Optional[Mapping[str, str]],
+    ) -> None:
+        if headers is None:
+            raise RequestHeadersNotProvidedError
+
         authorization_header = headers.get("authorization")
         if not authorization_header:
             raise UnverifiedRequestError("The authorization token was not provided.")
