@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import List
+from typing import Any, Callable, Dict, List, Optional
 from uuid import UUID
 
 import httpx
@@ -16,7 +16,6 @@ from pybotx import (
     HandlerCollector,
     IncomingMessage,
     SmartAppEvent,
-    SyncSmartAppEventResponsePayload,
     UnknownBotAccountError,
     UnverifiedRequestError,
     build_bot_disabled_response,
@@ -24,6 +23,10 @@ from pybotx import (
 )
 from pybotx.bot.api.responses.unverified_request import (
     build_unverified_request_response,
+)
+from pybotx.models.sync_smartapp_event import (
+    BotAPISyncSmartAppEventErrorResponse,
+    BotAPISyncSmartAppEventResultResponse,
 )
 
 # - Bot setup -
@@ -39,22 +42,19 @@ async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
 async def handle_sync_smartapp_event(
     event: SmartAppEvent,
     _: Bot,
-) -> SyncSmartAppEventResponsePayload:
-    return SyncSmartAppEventResponsePayload.from_domain(
+) -> BotAPISyncSmartAppEventResultResponse:
+    return BotAPISyncSmartAppEventResultResponse.from_domain(
         ref=event.ref,
-        smartapp_id=event.bot.id,
-        chat_id=event.chat.id,
-        data=event.data,
-        opts={},
+        data=event.data["params"],
         files=event.files,
-        encrypted=True,
     )
 
 
 def bot_factory(
     bot_accounts: List[BotAccountWithSecret],
+    bot_collector: Optional[HandlerCollector] = None,
 ) -> Bot:
-    return Bot(collectors=[collector], bot_accounts=bot_accounts)
+    return Bot(collectors=[bot_collector or collector], bot_accounts=bot_accounts)
 
 
 # - FastAPI integration -
@@ -417,69 +417,34 @@ def test__web_app__unverified_request_response(
     }
 
 
-def test__web_app__sync_smartapp_event(bot: Bot) -> None:
+def test__web_app__sync_smartapp_event__success(bot: Bot, bot_id: UUID) -> None:
     # - Arrange -
     request_payload = {
-        "sync_id": "a465f0f3-1354-491c-8f11-f400164295cb",
-        "command": {
-            "body": "system:smartapp_event",
-            "data": {
-                "ref": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
-                "smartapp_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
-                "data": {
-                    "type": "smartapp_rpc",
-                    "method": "folders.get",
-                    "params": {
-                        "q": 1,
-                    },
+        "bot_id": str(bot_id),
+        "group_chat_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
+        "sender_info": {
+            "user_huid": "ab103983-6001-44e9-889e-d55feb295494",
+            "platform": "web",
+            "udid": "49eac56a-c0d8-51d7-863e-925028f05110",
+        },
+        "method": "list.get",
+        "payload": {
+            "ref": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+            "data": {"category_id": 1},
+            "files": [
+                {
+                    "file": "/uploads/files/b0232da0bf3d406eb5653e37b2bb6517.bin",
+                    "file_name": "cts1-test.ast-innovation.ru.har",
+                    "file_size": 349372,
+                    "file_hash": "qVSzEUJITWP+TgCvcF3UCzQrBaY3RHqB92CHObz4E70=",
+                    "file_mime_type": "application/octet-stream",
+                    "chunk_size": 2097152,
+                    "file_encryption_algo": "stream",
+                    "file_id": "a0ec914f-8235-5021-9b8d-05c3cd303536",
+                    "type": "document",
                 },
-                "opts": {"option": "test_option"},
-                "smartapp_api_version": 1,
-            },
-            "command_type": "system",
-            "metadata": {},
+            ],
         },
-        "async_files": [
-            {
-                "type": "image",
-                "file": "https://link.to/file",
-                "file_mime_type": "image/png",
-                "file_name": "pass.png",
-                "file_preview": "https://link.to/preview",
-                "file_preview_height": 300,
-                "file_preview_width": 300,
-                "file_size": 1502345,
-                "file_hash": "Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
-                "file_encryption_algo": "stream",
-                "chunk_size": 2097152,
-                "file_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
-            },
-        ],
-        "attachments": [],
-        "entities": [],
-        "from": {
-            "user_huid": "b9197d3a-d855-5d34-ba8a-eff3a975ab20",
-            "user_udid": None,
-            "group_chat_id": "dea55ee4-7a9f-5da0-8c73-079f400ee517",
-            "host": "cts.example.com",
-            "ad_login": None,
-            "ad_domain": None,
-            "username": None,
-            "chat_type": "group_chat",
-            "manufacturer": None,
-            "device": None,
-            "device_software": None,
-            "device_meta": {},
-            "platform": None,
-            "platform_package_id": None,
-            "is_admin": False,
-            "is_creator": False,
-            "app_version": None,
-            "locale": "en",
-        },
-        "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
-        "proto_version": 4,
-        "source_sync_id": None,
     }
 
     # - Act -
@@ -492,22 +457,56 @@ def test__web_app__sync_smartapp_event(bot: Bot) -> None:
     # - Assert -
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
-        "ref": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
-        "smartapp_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
-        "group_chat_id": "dea55ee4-7a9f-5da0-8c73-079f400ee517",
-        "data": {"type": "smartapp_rpc", "method": "folders.get", "params": {"q": 1}},
-        "opts": {},
-        "smartapp_api_version": 1,
-        "async_files": [
-            {
-                "type": "image",
-                "file": "https://link.to/file",
-                "file_mime_type": "image/png",
-                "file_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
-                "file_name": "pass.png",
-                "file_size": 1502345,
-                "file_hash": "Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
-            },
-        ],
-        "encrypted": True,
+        "status": "ok",
+        "result": {
+            "ref": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+            "data": {"category_id": 1},
+            "files": [
+                {
+                    "file": "/uploads/files/b0232da0bf3d406eb5653e37b2bb6517.bin",
+                    "file_name": "cts1-test.ast-innovation.ru.har",
+                    "file_size": 349372,
+                    "file_hash": "qVSzEUJITWP+TgCvcF3UCzQrBaY3RHqB92CHObz4E70=",
+                    "file_mime_type": "application/octet-stream",
+                    "file_id": "a0ec914f-8235-5021-9b8d-05c3cd303536",
+                    "type": "document",
+                },
+            ],
+        },
+    }
+
+
+def test__web_app__sync_smartapp_event__error(
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+    api_sync_smartapp_event_factory: Callable[..., Dict[str, Any]],
+) -> None:
+    # - Arrange -
+    request_payload = api_sync_smartapp_event_factory(bot_id=bot_id)
+    local_collector = HandlerCollector()
+
+    @local_collector.sync_smartapp_event
+    async def handle_sync_smartapp_event_with_error(
+        *_: Any,
+    ) -> BotAPISyncSmartAppEventErrorResponse:
+        return BotAPISyncSmartAppEventErrorResponse.from_domain(
+            errors=[{"id": "Error", "reason": "some error"}],
+        )
+
+    bot = bot_factory(bot_accounts=[bot_account], bot_collector=local_collector)
+
+    # - Act -
+    with TestClient(fastapi_factory(bot)) as test_client:
+        response = test_client.post(
+            "/smartapps/request",
+            json=request_payload,
+        )
+
+    # - Assert -
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        "status": "error",
+        "reason": "smartapp_error",
+        "errors": [{"id": "Error", "reason": "some error"}],
+        "error_data": {},
     }

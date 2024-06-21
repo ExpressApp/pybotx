@@ -21,12 +21,12 @@ from pybotx import (
     HandlerCollector,
     IncomingMessage,
     SmartAppEvent,
-    SyncSmartAppEventResponsePayload,
     UserDevice,
     UserSender,
 )
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
 from pybotx.logger import logger
+from pybotx.models.sync_smartapp_event import BotAPISyncSmartAppEventResultResponse
 
 
 @pytest.fixture(autouse=True)
@@ -235,62 +235,32 @@ def api_sync_smartapp_event_factory() -> Callable[..., Dict[str, Any]]:
         bot_id: Optional[UUID] = None,
         group_chat_id: Optional[UUID] = None,
         user_huid: Optional[UUID] = None,
-        host: Optional[str] = None,
-        attachment: Optional[Dict[str, Any]] = None,
         async_file: Optional[Dict[str, Any]] = None,
         method: Optional[str] = None,
         params: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         return {
-            "sync_id": "a465f0f3-1354-491c-8f11-f400164295cb",
-            "command": {
-                "body": "system:smartapp_event",
-                "data": {
-                    "ref": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
-                    "smartapp_id": str(bot_id)
-                    if bot_id
-                    else "8dada2c8-67a6-4434-9dec-570d244e78ee",
-                    "data": {
-                        "type": "smartapp_rpc",
-                        "method": method or "folders.get",
-                        "params": params or {},
-                    },
-                    "opts": {"option": "test_option"},
-                    "smartapp_api_version": 1,
-                },
-                "command_type": "system",
-                "metadata": {},
-            },
-            "async_files": [async_file] if async_file else [],
-            "attachments": [attachment] if attachment else [],
-            "entities": [],
-            "from": {
-                "user_huid": str(user_huid)
-                if user_huid
-                else "b9197d3a-d855-5d34-ba8a-eff3a975ab20",
-                "user_udid": None,
-                "group_chat_id": str(group_chat_id)
-                if group_chat_id
-                else "dea55ee4-7a9f-5da0-8c73-079f400ee517",
-                "host": host or "cts.example.com",
-                "ad_login": None,
-                "ad_domain": None,
-                "username": None,
-                "chat_type": "group_chat",
-                "manufacturer": None,
-                "device": None,
-                "device_software": None,
-                "device_meta": {},
-                "platform": None,
-                "platform_package_id": None,
-                "is_admin": False,
-                "is_creator": False,
-                "app_version": None,
-                "locale": "en",
-            },
             "bot_id": str(bot_id) if bot_id else "8dada2c8-67a6-4434-9dec-570d244e78ee",
-            "proto_version": 4,
-            "source_sync_id": None,
+            "group_chat_id": (
+                str(group_chat_id)
+                if group_chat_id
+                else "30dc1980-643a-00ad-37fc-7cc10d74e935"
+            ),
+            "sender_info": {
+                "user_huid": (
+                    str(user_huid)
+                    if user_huid
+                    else "f16cdc5f-6366-5552-9ecd-c36290ab3d11"
+                ),
+                "platform": "web",
+                "udid": "49eac56a-c0d8-51d7-863e-925028f05110",
+            },
+            "method": method or "list.get",
+            "payload": {
+                "ref": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+                "data": params or {},
+                "files": [async_file] if async_file else [],
+            },
         }
 
     return decorator
@@ -370,15 +340,11 @@ def collector_with_sync_smartapp_event_handler() -> HandlerCollector:
     async def handle_sync_smartapp_event(
         event: SmartAppEvent,
         _: Bot,
-    ) -> SyncSmartAppEventResponsePayload:
-        return SyncSmartAppEventResponsePayload.from_domain(
+    ) -> BotAPISyncSmartAppEventResultResponse:
+        return BotAPISyncSmartAppEventResultResponse.from_domain(
             ref=event.ref,
-            smartapp_id=event.bot.id,
-            chat_id=event.chat.id,
             data=event.data,
-            opts={},
             files=event.files,
-            encrypted=True,
         )
 
     return collector

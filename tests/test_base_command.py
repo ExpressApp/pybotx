@@ -190,7 +190,7 @@ async def test__sync_execute_raw_smartapp_event__not_logging_incoming_request(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with loguru_caplog.at_level(logging.DEBUG):
-            bot.async_execute_raw_bot_command(
+            await bot.sync_execute_raw_smartapp_event(
                 payload,
                 verify_request=False,
                 logging_command=False,

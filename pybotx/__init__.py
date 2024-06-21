@@ -64,9 +64,6 @@ from pybotx.client.smartapps_api.smartapp_manifest import (
     SmartappManifest,
     SmartappManifestWebParams,
 )
-from pybotx.client.smartapps_api.sync_smartapp_event import (
-    SyncSmartAppEventResponsePayload,
-)
 from pybotx.client.stickers_api.exceptions import (
     InvalidEmojiError,
     InvalidImageError,
@@ -126,6 +123,11 @@ from pybotx.models.method_callbacks import BotAPIMethodFailedCallback
 from pybotx.models.smartapps import SmartApp
 from pybotx.models.status import BotMenu, StatusRecipient
 from pybotx.models.stickers import Sticker, StickerPack
+from pybotx.models.sync_smartapp_event import (
+    BotAPISyncSmartAppEventErrorResponse,
+    BotAPISyncSmartAppEventResponse,
+    BotAPISyncSmartAppEventResultResponse,
+)
 from pybotx.models.system_events.added_to_chat import AddedToChatEvent
 from pybotx.models.system_events.chat_created import ChatCreatedEvent, ChatCreatedMember
 from pybotx.models.system_events.cts_login import CTSLoginEvent
@@ -151,6 +153,9 @@ __all__ = (
     "BotAPIBotDisabledErrorData",
     "BotAPIBotDisabledResponse",
     "BotAPIMethodFailedCallback",
+    "BotAPISyncSmartAppEventErrorResponse",
+    "BotAPISyncSmartAppEventResponse",
+    "BotAPISyncSmartAppEventResultResponse",
     "BotAPIUnverifiedRequestErrorData",
     "BotAPIUnverifiedRequestResponse",
     "BotAccount",
@@ -226,7 +231,6 @@ __all__ = (
     "RequestHeadersNotProvidedError",
     "SmartApp",
     "SmartAppEvent",
-    "SyncSmartAppEventResponsePayload",
     "SmartappManifest",
     "SmartappManifestWebLayoutChoices",
     "SmartappManifestWebParams",

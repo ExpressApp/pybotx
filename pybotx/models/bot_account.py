@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from functools import cached_property
+from typing import Optional
 from urllib.parse import urlparse
 from uuid import UUID
 
@@ -9,7 +10,7 @@ from pydantic import AnyHttpUrl, BaseModel
 @dataclass
 class BotAccount:
     id: UUID
-    host: str
+    host: Optional[str]
 
 
 class BotAccountWithSecret(BaseModel):

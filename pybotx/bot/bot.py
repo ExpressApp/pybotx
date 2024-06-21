@@ -148,9 +148,6 @@ from pybotx.client.smartapps_api.smartapps_list import (
     BotXAPISmartAppsListRequestPayload,
     SmartAppsListMethod,
 )
-from pybotx.client.smartapps_api.sync_smartapp_event import (
-    SyncSmartAppEventResponsePayload,
-)
 from pybotx.client.smartapps_api.upload_file import (
     UploadFileMethod as SmartappsUploadFileMethod,
 )
@@ -245,10 +242,11 @@ from pybotx.models.status import (
     build_bot_status_response,
 )
 from pybotx.models.stickers import Sticker, StickerPack, StickerPackFromList
-from pybotx.models.system_events.smartapp_event import (
-    BotAPISmartAppEvent,
-    SmartAppEvent,
+from pybotx.models.sync_smartapp_event import (
+    BotAPISyncSmartAppEvent,
+    BotAPISyncSmartAppEventResponse,
 )
+from pybotx.models.system_events.smartapp_event import SmartAppEvent
 from pybotx.models.users import UserFromCSV, UserFromSearch
 
 MissingOptionalAttachment = MissingOptional[
@@ -331,7 +329,7 @@ class Bot:
         verify_request: bool = True,
         request_headers: Optional[Mapping[str, str]] = None,
         logging_command: bool = True,
-    ) -> SyncSmartAppEventResponsePayload:
+    ) -> BotAPISyncSmartAppEventResponse:
         if logging_command:
             log_incoming_request(
                 raw_smartapp_event,
@@ -342,8 +340,8 @@ class Bot:
             self._verify_request(request_headers)
 
         try:
-            bot_api_smartapp_event: BotAPISmartAppEvent = parse_obj_as(
-                BotAPISmartAppEvent,
+            bot_api_smartapp_event: BotAPISyncSmartAppEvent = parse_obj_as(
+                BotAPISyncSmartAppEvent,
                 raw_smartapp_event,
             )
         except ValidationError as validation_exc:
@@ -357,7 +355,7 @@ class Bot:
     async def sync_execute_smartapp_event(
         self,
         smartapp_event: SmartAppEvent,
-    ) -> SyncSmartAppEventResponsePayload:
+    ) -> BotAPISyncSmartAppEventResponse:
         self._bot_accounts_storage.ensure_bot_id_exists(smartapp_event.bot.id)
         return await self._handler_collector.handle_sync_smartapp_event(
             self,
