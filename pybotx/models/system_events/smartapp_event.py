@@ -37,7 +37,7 @@ class SmartAppEvent(BotCommandBase):
         sender: Event sender.
     """
 
-    ref: UUID
+    ref: Optional[UUID]
     smartapp_id: UUID
     data: Dict[str, Any]  # noqa: WPS110
     opts: Optional[Dict[str, Any]]

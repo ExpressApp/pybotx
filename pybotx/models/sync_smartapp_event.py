@@ -27,7 +27,6 @@ class BotAPISyncSmartAppSender(VerifiedPayloadBaseModel):
 
 
 class BotAPISyncSmartAppPayload(VerifiedPayloadBaseModel):
-    ref: UUID
     data: Dict[str, Any]
     files: List[APIAsyncFile]
 
@@ -82,7 +81,7 @@ class BotAPISyncSmartAppEvent(VerifiedPayloadBaseModel):
                 "type": "smartapp_rpc",
                 "params": self.payload.data,
             },
-            ref=self.payload.ref,
+            ref=None,
             smartapp_id=self.bot_id,
             opts=None,
             files=[convert_async_file_to_domain(file) for file in self.payload.files],
@@ -92,14 +91,12 @@ class BotAPISyncSmartAppEvent(VerifiedPayloadBaseModel):
 
 
 class BotAPISyncSmartAppEventResultResponse(UnverifiedPayloadBaseModel):
-    ref: UUID
     data: Any
     files: List[APIAsyncFile]
 
     @classmethod
     def from_domain(
         cls,
-        ref: UUID,
         data: Any,
         files: Missing[List[File]] = Undefined,
     ) -> "BotAPISyncSmartAppEventResultResponse":
@@ -108,7 +105,6 @@ class BotAPISyncSmartAppEventResultResponse(UnverifiedPayloadBaseModel):
             api_async_files = [convert_async_file_from_domain(file) for file in files]
 
         return cls(
-            ref=ref,
             data=data,
             files=api_async_files,
         )
@@ -117,7 +113,6 @@ class BotAPISyncSmartAppEventResultResponse(UnverifiedPayloadBaseModel):
         return {
             "status": "ok",
             "result": {
-                "ref": str(self.ref),
                 "data": self.data,
                 "files": [file.jsonable_dict() for file in self.files],
             },

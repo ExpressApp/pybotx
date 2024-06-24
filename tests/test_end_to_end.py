@@ -44,7 +44,6 @@ async def handle_sync_smartapp_event(
     _: Bot,
 ) -> BotAPISyncSmartAppEventResultResponse:
     return BotAPISyncSmartAppEventResultResponse.from_domain(
-        ref=event.ref,
         data=event.data["params"],
         files=event.files,
     )
@@ -429,7 +428,6 @@ def test__web_app__sync_smartapp_event__success(bot: Bot, bot_id: UUID) -> None:
         },
         "method": "list.get",
         "payload": {
-            "ref": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
             "data": {"category_id": 1},
             "files": [
                 {
@@ -459,7 +457,6 @@ def test__web_app__sync_smartapp_event__success(bot: Bot, bot_id: UUID) -> None:
     assert response.json() == {
         "status": "ok",
         "result": {
-            "ref": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
             "data": {"category_id": 1},
             "files": [
                 {

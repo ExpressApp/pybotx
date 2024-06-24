@@ -237,7 +237,6 @@ async def handle_sync_smartapp_event(
 ) -> BotAPISyncSmartAppEventResultResponse:
     print(f"Got sync smartapp event: {event}")
     return BotAPISyncSmartAppEventResultResponse.from_domain(
-        ref=event.ref,
         data={},
         files=[],
     )

@@ -342,7 +342,6 @@ def collector_with_sync_smartapp_event_handler() -> HandlerCollector:
         _: Bot,
     ) -> BotAPISyncSmartAppEventResultResponse:
         return BotAPISyncSmartAppEventResultResponse.from_domain(
-            ref=event.ref,
             data=event.data,
             files=event.files,
         )
