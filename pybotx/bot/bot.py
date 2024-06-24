@@ -148,9 +148,6 @@ from pybotx.client.smartapps_api.smartapps_list import (
     BotXAPISmartAppsListRequestPayload,
     SmartAppsListMethod,
 )
-from pybotx.client.smartapps_api.sync_smartapp_event import (
-    SyncSmartAppEventResponsePayload,
-)
 from pybotx.client.smartapps_api.upload_file import (
     UploadFileMethod as SmartappsUploadFileMethod,
 )
@@ -221,7 +218,7 @@ from pybotx.image_validators import (
     ensure_file_content_is_png,
     ensure_sticker_image_size_valid,
 )
-from pybotx.logger import logger, pformat_jsonable_obj, trim_file_data_in_incoming_json
+from pybotx.logger import log_incoming_request, logger, pformat_jsonable_obj
 from pybotx.missing import Missing, MissingOptional, Undefined
 from pybotx.models.async_files import File
 from pybotx.models.attachments import IncomingFileAttachment, OutgoingAttachment
@@ -245,10 +242,11 @@ from pybotx.models.status import (
     build_bot_status_response,
 )
 from pybotx.models.stickers import Sticker, StickerPack, StickerPackFromList
-from pybotx.models.system_events.smartapp_event import (
-    BotAPISmartAppEvent,
-    SmartAppEvent,
+from pybotx.models.sync_smartapp_event import (
+    BotAPISyncSmartAppEvent,
+    BotAPISyncSmartAppEventResponse,
 )
+from pybotx.models.system_events.smartapp_event import SmartAppEvent
 from pybotx.models.users import UserFromCSV, UserFromSearch
 
 MissingOptionalAttachment = MissingOptional[
@@ -299,16 +297,9 @@ class Bot:
         logging_command: bool = True,
     ) -> None:
         if logging_command:
-            logger.opt(lazy=True).debug(
-                "Got command: {command}",
-                command=lambda: pformat_jsonable_obj(
-                    trim_file_data_in_incoming_json(raw_bot_command),
-                ),
-            )
+            log_incoming_request(raw_bot_command, message="Got command: ")
 
         if verify_request:
-            if request_headers is None:
-                raise RequestHeadersNotProvidedError
             self._verify_request(request_headers)
 
         try:
@@ -338,23 +329,19 @@ class Bot:
         verify_request: bool = True,
         request_headers: Optional[Mapping[str, str]] = None,
         logging_command: bool = True,
-    ) -> SyncSmartAppEventResponsePayload:
+    ) -> BotAPISyncSmartAppEventResponse:
         if logging_command:
-            logger.opt(lazy=True).debug(
-                "Got sync smartapp event: {command}",
-                command=lambda: pformat_jsonable_obj(
-                    trim_file_data_in_incoming_json(raw_smartapp_event),
-                ),
+            log_incoming_request(
+                raw_smartapp_event,
+                message="Got sync smartapp event: ",
             )
 
         if verify_request:
-            if request_headers is None:
-                raise RequestHeadersNotProvidedError
             self._verify_request(request_headers)
 
         try:
-            bot_api_smartapp_event: BotAPISmartAppEvent = parse_obj_as(
-                BotAPISmartAppEvent,
+            bot_api_smartapp_event: BotAPISyncSmartAppEvent = parse_obj_as(
+                BotAPISyncSmartAppEvent,
                 raw_smartapp_event,
             )
         except ValidationError as validation_exc:
@@ -368,7 +355,7 @@ class Bot:
     async def sync_execute_smartapp_event(
         self,
         smartapp_event: SmartAppEvent,
-    ) -> SyncSmartAppEventResponsePayload:
+    ) -> BotAPISyncSmartAppEventResponse:
         self._bot_accounts_storage.ensure_bot_id_exists(smartapp_event.bot.id)
         return await self._handler_collector.handle_sync_smartapp_event(
             self,
@@ -2028,7 +2015,13 @@ class Bot:
         )
         await method.execute(payload)
 
-    def _verify_request(self, headers: Mapping[str, str]) -> None:  # noqa: WPS238
+    def _verify_request(  # noqa: WPS231, WPS238
+        self,
+        headers: Optional[Mapping[str, str]],
+    ) -> None:
+        if headers is None:
+            raise RequestHeadersNotProvidedError
+
         authorization_header = headers.get("authorization")
         if not authorization_header:
             raise UnverifiedRequestError("The authorization token was not provided.")

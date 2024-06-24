@@ -41,6 +41,15 @@ def trim_file_data_in_incoming_json(json_body: Dict[str, Any]) -> Dict[str, Any]
     return json_body
 
 
+def log_incoming_request(request: Dict[str, Any], *, message: str = "") -> None:
+    logger.opt(lazy=True).debug(
+        message + "{command}",
+        command=lambda: pformat_jsonable_obj(
+            trim_file_data_in_incoming_json(request),
+        ),
+    )
+
+
 def setup_logger() -> "Logger":
     return _logger
 

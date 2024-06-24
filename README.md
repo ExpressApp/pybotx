@@ -234,16 +234,11 @@ collector = HandlerCollector()
 @collector.sync_smartapp_event
 async def handle_sync_smartapp_event(
     event: SmartAppEvent, bot: Bot,
-) -> SyncSmartAppEventResponsePayload:
+) -> BotAPISyncSmartAppEventResultResponse:
     print(f"Got sync smartapp event: {event}")
-    return SyncSmartAppEventResponsePayload.from_domain(
-        ref=event.ref,
-        smartapp_id=event.bot.id,
-        chat_id=event.chat.id,
+    return BotAPISyncSmartAppEventResultResponse.from_domain(
         data={},
-        opts={},
         files=[],
-        encrypted=True,
     )
 ```
 

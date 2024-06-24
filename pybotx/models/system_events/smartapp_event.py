@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List, Literal
+from typing import Any, Dict, List, Literal, Optional
 from uuid import UUID
 
 from pydantic import Field
@@ -37,11 +37,11 @@ class SmartAppEvent(BotCommandBase):
         sender: Event sender.
     """
 
-    ref: UUID
+    ref: Optional[UUID]
     smartapp_id: UUID
     data: Dict[str, Any]  # noqa: WPS110
-    opts: Dict[str, Any]
-    smartapp_api_version: int
+    opts: Optional[Dict[str, Any]]
+    smartapp_api_version: Optional[int]
     files: List[File]
     chat: Chat
     sender: UserSender

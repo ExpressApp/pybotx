@@ -2,12 +2,10 @@ from dataclasses import dataclass
 from functools import partial
 from typing import TYPE_CHECKING, Awaitable, Callable, List, Literal, TypeVar, Union
 
-from pybotx.client.smartapps_api.sync_smartapp_event import (
-    SyncSmartAppEventResponsePayload,
-)
 from pybotx.models.commands import BotCommand
 from pybotx.models.message.incoming_message import IncomingMessage
 from pybotx.models.status import StatusRecipient
+from pybotx.models.sync_smartapp_event import BotAPISyncSmartAppEventResponse
 from pybotx.models.system_events.added_to_chat import AddedToChatEvent
 from pybotx.models.system_events.chat_created import ChatCreatedEvent
 from pybotx.models.system_events.cts_login import CTSLoginEvent
@@ -28,7 +26,7 @@ HandlerFunc = Callable[[TBotCommand, "Bot"], Awaitable[None]]
 
 SyncSmartAppEventHandlerFunc = Callable[
     [SmartAppEvent, "Bot"],
-    Awaitable[SyncSmartAppEventResponsePayload],
+    Awaitable[BotAPISyncSmartAppEventResponse],
 ]
 
 IncomingMessageHandlerFunc = HandlerFunc[IncomingMessage]
