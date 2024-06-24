@@ -1,3 +1,4 @@
+import json
 from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
@@ -112,10 +113,7 @@ class BotAPISyncSmartAppEventResultResponse(UnverifiedPayloadBaseModel):
     def jsonable_dict(self) -> Dict[str, Any]:
         return {
             "status": "ok",
-            "result": {
-                "data": self.data,
-                "files": [file.jsonable_dict() for file in self.files],
-            },
+            "result": json.loads(self.json()),
         }
 
 
@@ -140,7 +138,7 @@ class BotAPISyncSmartAppEventErrorResponse(UnverifiedPayloadBaseModel):
     def jsonable_dict(self) -> Dict[str, Any]:
         return {
             "status": "error",
-            **self.dict(),
+            **json.loads(self.json()),
         }
 
 
