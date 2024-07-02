@@ -128,6 +128,7 @@ from pybotx.models.status import BotMenu, StatusRecipient
 from pybotx.models.stickers import Sticker, StickerPack
 from pybotx.models.system_events.added_to_chat import AddedToChatEvent
 from pybotx.models.system_events.chat_created import ChatCreatedEvent, ChatCreatedMember
+from pybotx.models.system_events.chat_deleted_by_user import ChatDeletedByUserEvent
 from pybotx.models.system_events.cts_login import CTSLoginEvent
 from pybotx.models.system_events.cts_logout import CTSLogoutEvent
 from pybotx.models.system_events.deleted_from_chat import DeletedFromChatEvent
@@ -176,6 +177,7 @@ __all__ = (
     "ChatCreatedMember",
     "ChatCreationError",
     "ChatCreationProhibitedError",
+    "ChatDeletedByUserEvent",
     "ChatInfo",
     "ChatInfoMember",
     "ChatListItem",
