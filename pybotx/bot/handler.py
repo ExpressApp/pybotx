@@ -10,6 +10,7 @@ from pybotx.models.message.incoming_message import IncomingMessage
 from pybotx.models.status import StatusRecipient
 from pybotx.models.system_events.added_to_chat import AddedToChatEvent
 from pybotx.models.system_events.chat_created import ChatCreatedEvent
+from pybotx.models.system_events.chat_deleted_by_user import ChatDeletedByUserEvent
 from pybotx.models.system_events.cts_login import CTSLoginEvent
 from pybotx.models.system_events.cts_logout import CTSLogoutEvent
 from pybotx.models.system_events.deleted_from_chat import DeletedFromChatEvent
@@ -35,6 +36,7 @@ IncomingMessageHandlerFunc = HandlerFunc[IncomingMessage]
 SystemEventHandlerFunc = Union[
     HandlerFunc[AddedToChatEvent],
     HandlerFunc[ChatCreatedEvent],
+    HandlerFunc[ChatDeletedByUserEvent],
     HandlerFunc[DeletedFromChatEvent],
     HandlerFunc[LeftFromChatEvent],
     HandlerFunc[CTSLoginEvent],

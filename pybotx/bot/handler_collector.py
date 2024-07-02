@@ -43,6 +43,7 @@ from pybotx.models.message.incoming_message import IncomingMessage
 from pybotx.models.status import BotMenu, StatusRecipient
 from pybotx.models.system_events.added_to_chat import AddedToChatEvent
 from pybotx.models.system_events.chat_created import ChatCreatedEvent
+from pybotx.models.system_events.chat_deleted_by_user import ChatDeletedByUserEvent
 from pybotx.models.system_events.cts_login import CTSLoginEvent
 from pybotx.models.system_events.cts_logout import CTSLogoutEvent
 from pybotx.models.system_events.deleted_from_chat import DeletedFromChatEvent
@@ -76,7 +77,6 @@ class HandlerCollector:
 
     def include(self, *others: "HandlerCollector") -> None:
         """Include other `HandlerCollector`."""
-
         for collector in others:
             self._include_collector(collector)
 
@@ -166,7 +166,6 @@ class HandlerCollector:
         middlewares: Optional[Sequence[Middleware]] = None,
     ) -> Callable[[IncomingMessageHandlerFunc], IncomingMessageHandlerFunc]:
         """Decorate command handler."""
-
         if not self.VALID_COMMAND_NAME_RE.match(command_name):
             raise ValueError("Command should start with '/' and doesn't include spaces")
 
@@ -237,9 +236,15 @@ class HandlerCollector:
         handler_func: HandlerFunc[ChatCreatedEvent],
     ) -> HandlerFunc[ChatCreatedEvent]:
         """Decorate `chat_created` event handler."""
-
         self._system_event(ChatCreatedEvent, handler_func)
+        return handler_func
 
+    def chat_deleted_by_user(
+        self,
+        handler_func: HandlerFunc[ChatDeletedByUserEvent],
+    ) -> HandlerFunc[ChatDeletedByUserEvent]:
+        """Decorate `chat_deleted_by_user` event handler."""
+        self._system_event(ChatDeletedByUserEvent, handler_func)
         return handler_func
 
     def added_to_chat(
@@ -247,9 +252,7 @@ class HandlerCollector:
         handler_func: HandlerFunc[AddedToChatEvent],
     ) -> HandlerFunc[AddedToChatEvent]:
         """Decorate `added_to_chat` event handler."""
-
         self._system_event(AddedToChatEvent, handler_func)
-
         return handler_func
 
     def deleted_from_chat(
@@ -257,9 +260,7 @@ class HandlerCollector:
         handler_func: HandlerFunc[DeletedFromChatEvent],
     ) -> HandlerFunc[DeletedFromChatEvent]:
         """Decorate `deleted_from_chat` event handler."""
-
         self._system_event(DeletedFromChatEvent, handler_func)
-
         return handler_func
 
     def left_from_chat(
@@ -267,9 +268,7 @@ class HandlerCollector:
         handler_func: HandlerFunc[LeftFromChatEvent],
     ) -> HandlerFunc[LeftFromChatEvent]:
         """Decorate `left_from_chat` event handler."""
-
         self._system_event(LeftFromChatEvent, handler_func)
-
         return handler_func
 
     def internal_bot_notification(
@@ -277,9 +276,7 @@ class HandlerCollector:
         handler_func: HandlerFunc[InternalBotNotificationEvent],
     ) -> HandlerFunc[InternalBotNotificationEvent]:
         """Decorate `internal_bot_notification` event handler."""
-
         self._system_event(InternalBotNotificationEvent, handler_func)
-
         return handler_func
 
     def cts_login(
@@ -287,9 +284,7 @@ class HandlerCollector:
         handler_func: HandlerFunc[CTSLoginEvent],
     ) -> HandlerFunc[CTSLoginEvent]:
         """Decorate `cts_login` event handler."""
-
         self._system_event(CTSLoginEvent, handler_func)
-
         return handler_func
 
     def cts_logout(
@@ -297,9 +292,7 @@ class HandlerCollector:
         handler_func: HandlerFunc[CTSLogoutEvent],
     ) -> HandlerFunc[CTSLogoutEvent]:
         """Decorate `cts_logout` event handler."""
-
         self._system_event(CTSLogoutEvent, handler_func)
-
         return handler_func
 
     def event_edit(
@@ -307,9 +300,7 @@ class HandlerCollector:
         handler_func: HandlerFunc[EventEdit],
     ) -> HandlerFunc[EventEdit]:
         """Decorate `event edit` event handler."""
-
         self._system_event(EventEdit, handler_func)
-
         return handler_func
 
     def smartapp_event(
@@ -317,9 +308,7 @@ class HandlerCollector:
         handler_func: HandlerFunc[SmartAppEvent],
     ) -> HandlerFunc[SmartAppEvent]:
         """Decorate `smartapp` event handler."""
-
         self._system_event(SmartAppEvent, handler_func)
-
         return handler_func
 
     def sync_smartapp_event(

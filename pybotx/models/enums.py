@@ -94,6 +94,7 @@ class BotAPICommandTypes(StrEnum):
 class BotAPISystemEventTypes(StrEnum):
     ADDED_TO_CHAT = "system:added_to_chat"
     CHAT_CREATED = "system:chat_created"
+    CHAT_DELETED_BY_USER = "system:chat_deleted_by_user"
     CTS_LOGIN = "system:cts_login"
     CTS_LOGOUT = "system:cts_logout"
     DELETED_FROM_CHAT = "system:deleted_from_chat"
@@ -264,7 +265,9 @@ def convert_chat_type_from_domain(chat_type: ChatTypes) -> APIChatTypes:
 
 
 @overload
-def convert_chat_type_to_domain(chat_type: APIChatTypes) -> ChatTypes:
+def convert_chat_type_to_domain(
+    chat_type: APIChatTypes,
+) -> ChatTypes:
     ...  # noqa: WPS428
 
 
@@ -302,7 +305,9 @@ def convert_sync_source_type_to_domain(
 
 
 @overload
-def convert_sync_source_type_to_domain(sync_type: str) -> UNSUPPORTED:
+def convert_sync_source_type_to_domain(
+    sync_type: str,
+) -> UNSUPPORTED:
     ...  # noqa: WPS428
 
 
