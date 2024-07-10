@@ -33,14 +33,12 @@ from pybotx.bot.middlewares.exception_middleware import (
     ExceptionMiddleware,
 )
 from pybotx.client.smartapps_api.exceptions import SyncSmartAppEventHandlerNotFoundError
-from pybotx.client.smartapps_api.sync_smartapp_event import (
-    SyncSmartAppEventResponsePayload,
-)
 from pybotx.converters import optional_sequence_to_list
 from pybotx.logger import logger
 from pybotx.models.commands import BotCommand, SystemEvent
 from pybotx.models.message.incoming_message import IncomingMessage
 from pybotx.models.status import BotMenu, StatusRecipient
+from pybotx.models.sync_smartapp_event import BotAPISyncSmartAppEventResponse
 from pybotx.models.system_events.added_to_chat import AddedToChatEvent
 from pybotx.models.system_events.chat_created import ChatCreatedEvent
 from pybotx.models.system_events.chat_deleted_by_user import ChatDeletedByUserEvent
@@ -126,7 +124,7 @@ class HandlerCollector:
         self,
         bot: "Bot",
         smartapp_event: SmartAppEvent,
-    ) -> SyncSmartAppEventResponsePayload:
+    ) -> BotAPISyncSmartAppEventResponse:
         if not isinstance(smartapp_event, SmartAppEvent):
             raise NotImplementedError(
                 f"Unsupported event type for sync smartapp event: `{smartapp_event}`",
