@@ -81,11 +81,6 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
         if file:
             api_file = BotXAPIAttachment.from_file_attachment(file)
 
-        if len(body) > MAX_NOTIFICATION_BODY_LENGTH:
-            raise ValueError(
-                f"Message body length exceeds {MAX_NOTIFICATION_BODY_LENGTH} symbols",
-            )
-
         body, mentions = find_and_replace_embed_mentions(body)
 
         return cls(
