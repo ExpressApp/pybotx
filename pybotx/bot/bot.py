@@ -212,7 +212,11 @@ from pybotx.client.users_api.users_as_csv import (
     BotXAPIUsersAsCSVRequestPayload,
     UsersAsCSVMethod,
 )
-from pybotx.constants import BOTX_DEFAULT_TIMEOUT, STICKER_PACKS_PER_PAGE
+from pybotx.constants import (
+    AUTODELETE_CALLBACK_DEFAULT_TIMEOUT,
+    BOTX_DEFAULT_TIMEOUT,
+    STICKER_PACKS_PER_PAGE,
+)
 from pybotx.converters import optional_sequence_to_list
 from pybotx.image_validators import (
     ensure_file_content_is_png,
@@ -264,6 +268,7 @@ class Bot:
         httpx_client: Optional[httpx.AsyncClient] = None,
         exception_handlers: Optional[ExceptionHandlersDict] = None,
         default_callback_timeout: float = BOTX_DEFAULT_TIMEOUT,
+        autodete_callbacks_timeout: float = AUTODELETE_CALLBACK_DEFAULT_TIMEOUT,
         callback_repo: Optional[CallbackRepoProto] = None,
     ) -> None:
         if not collectors:
@@ -283,7 +288,7 @@ class Bot:
         self._httpx_client = httpx_client or httpx.AsyncClient()
 
         if not callback_repo:
-            callback_repo = CallbackMemoryRepo()
+            callback_repo = CallbackMemoryRepo(timeout=autodete_callbacks_timeout)
 
         self._callbacks_manager = CallbackManager(callback_repo)
 
