@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
@@ -20,6 +21,18 @@ class UserFromSearch:
         emails: User emails.
         other_id: User other identificator.
         user_kind: User kind.
+        active: User active status.
+        description: User description.
+        ip_phone: User IP phone.
+        manager: User manager.
+        office: User office.
+        other_ip_phone: User other IP phone.
+        other_phone: User other phone.
+        public_name: User public name.
+        cts_id: User CTS id.
+        rts_id: User RTS id.
+        created_at: User creation timestamp.
+        updated_at: User update timestamp.
     """
 
     huid: UUID
@@ -32,6 +45,18 @@ class UserFromSearch:
     emails: List[str]
     other_id: Optional[str]
     user_kind: UserKinds
+    active: Optional[bool] = None
+    description: Optional[str] = None
+    ip_phone: Optional[int] = None
+    manager: Optional[str] = None
+    office: Optional[str] = None
+    other_ip_phone: Optional[int] = None
+    other_phone: Optional[int] = None
+    public_name: Optional[str] = None
+    cts_id: Optional[UUID] = None
+    rts_id: Optional[UUID] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 
 @dataclass
