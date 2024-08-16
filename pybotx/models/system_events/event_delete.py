@@ -1,13 +1,17 @@
 from dataclasses import dataclass
-from typing import Dict, Any, Literal
+from typing import Any, Dict, Literal
 from uuid import UUID
 
 from pydantic import Field
 
-from pybotx.models.bot_account import BotAccount
 from pybotx.models.api_base import VerifiedPayloadBaseModel
-from pybotx.models.base_command import BotCommandBase, BaseBotAPIContext, BotAPIBaseCommand, \
-    BotAPIBaseSystemEventPayload
+from pybotx.models.base_command import (
+    BaseBotAPIContext,
+    BotAPIBaseCommand,
+    BotAPIBaseSystemEventPayload,
+    BotCommandBase,
+)
+from pybotx.models.bot_account import BotAccount
 from pybotx.models.enums import BotAPISystemEventTypes
 
 
@@ -42,5 +46,5 @@ class BotAPIEventDelete(BotAPIBaseCommand):
                 host=self.sender.host,
             ),
             sync_id=self.sync_id,
-            raw_command=raw_command
+            raw_command=raw_command,
         )

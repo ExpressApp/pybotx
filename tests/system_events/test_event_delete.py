@@ -3,14 +3,9 @@ from uuid import UUID
 
 import pytest
 
-from pybotx import (
-    Bot,
-    BotAccountWithSecret,
-    HandlerCollector,
-    lifespan_wrapper,
-)
-from pybotx.models.system_events.event_delete import EventDelete
+from pybotx import Bot, BotAccountWithSecret, HandlerCollector, lifespan_wrapper
 from pybotx.models.bot_account import BotAccount
+from pybotx.models.system_events.event_delete import EventDelete
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -20,7 +15,7 @@ pytestmark = [
 
 
 async def test__chat_deleted_by_user__succeed(
-        bot_account: BotAccountWithSecret,
+    bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     payload = {
