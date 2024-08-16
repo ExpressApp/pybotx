@@ -46,6 +46,7 @@ from pybotx.models.system_events.cts_login import CTSLoginEvent
 from pybotx.models.system_events.cts_logout import CTSLogoutEvent
 from pybotx.models.system_events.deleted_from_chat import DeletedFromChatEvent
 from pybotx.models.system_events.event_edit import EventEdit
+from pybotx.models.system_events.event_delete import EventDelete
 from pybotx.models.system_events.internal_bot_notification import (
     InternalBotNotificationEvent,
 )
@@ -299,6 +300,14 @@ class HandlerCollector:
     ) -> HandlerFunc[EventEdit]:
         """Decorate `event edit` event handler."""
         self._system_event(EventEdit, handler_func)
+        return handler_func
+
+    def event_delete(
+        self,
+        handler_func: HandlerFunc[EventDelete],
+    ) -> HandlerFunc[EventDelete]:
+        """Decorate `event delete` event handler."""
+        self._system_event(EventDelete, handler_func)
         return handler_func
 
     def smartapp_event(

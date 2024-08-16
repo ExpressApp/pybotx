@@ -135,6 +135,7 @@ from pybotx.models.system_events.cts_login import CTSLoginEvent
 from pybotx.models.system_events.cts_logout import CTSLogoutEvent
 from pybotx.models.system_events.deleted_from_chat import DeletedFromChatEvent
 from pybotx.models.system_events.event_edit import EventEdit
+from pybotx.models.system_events.event_delete import EventDelete
 from pybotx.models.system_events.internal_bot_notification import (
     InternalBotNotificationEvent,
 )
@@ -193,6 +194,7 @@ __all__ = (
     "Document",
     "EditMessage",
     "EventEdit",
+    "EventDelete",
     "EventNotFoundError",
     "File",
     "FileDeletedError",
