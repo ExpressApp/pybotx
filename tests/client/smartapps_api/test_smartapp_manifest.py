@@ -14,6 +14,9 @@ from pybotx import (
     SmartappManifestWebParams,
     lifespan_wrapper,
 )
+from pybotx.client.smartapps_api.smartapp_manifest import (
+    SmartappManifestUnreadCounterParams,
+)
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -39,6 +42,11 @@ async def test__send_smartapp_manifest__all_params_provided__succeed(
                     "default_layout": "full",
                     "expanded_layout": "full",
                 },
+                "unread_counter_link": {
+                    "user_huid": ["e3568b81-0446-4030-9210-1725841bf8f0"],
+                    "group_chat_id": ["adc03af8-9193-4d3b-b913-7a023cdb4029"],
+                    "app_id": ["test_app"],
+                },
             },
         },
     ).mock(
@@ -50,6 +58,11 @@ async def test__send_smartapp_manifest__all_params_provided__succeed(
                         "always_pinned": True,
                         "default_layout": "full",
                         "expanded_layout": "full",
+                    },
+                    "unread_counter_link": {
+                        "user_huid": ["e3568b81-0446-4030-9210-1725841bf8f0"],
+                        "group_chat_id": ["adc03af8-9193-4d3b-b913-7a023cdb4029"],
+                        "app_id": ["test_app"],
                     },
                 },
                 "status": "ok",
@@ -63,9 +76,16 @@ async def test__send_smartapp_manifest__all_params_provided__succeed(
     async with lifespan_wrapper(built_bot) as bot:
         smartapp_manifest = await bot.send_smartapp_manifest(
             bot_id=bot_id,
-            web_default_layout=SmartappManifestWebLayoutChoices.full,
-            web_expanded_layout=SmartappManifestWebLayoutChoices.full,
-            web_always_pinned=True,
+            web_layout=SmartappManifestWebParams(
+                default_layout=SmartappManifestWebLayoutChoices.full,
+                expanded_layout=SmartappManifestWebLayoutChoices.full,
+                always_pinned=True,
+            ),
+            unread_counter=SmartappManifestUnreadCounterParams(
+                user_huid=[UUID("e3568b81-0446-4030-9210-1725841bf8f0")],
+                group_chat_id=[UUID("adc03af8-9193-4d3b-b913-7a023cdb4029")],
+                app_id=["test_app"],
+            ),
         )
 
     # - Assert -
@@ -75,6 +95,11 @@ async def test__send_smartapp_manifest__all_params_provided__succeed(
             default_layout=SmartappManifestWebLayoutChoices.full,
             expanded_layout=SmartappManifestWebLayoutChoices.full,
             always_pinned=True,
+        ),
+        unread_counter_link=SmartappManifestUnreadCounterParams(
+            user_huid=[UUID("e3568b81-0446-4030-9210-1725841bf8f0")],
+            group_chat_id=[UUID("adc03af8-9193-4d3b-b913-7a023cdb4029")],
+            app_id=["test_app"],
         ),
     )
 
@@ -90,13 +115,7 @@ async def test__send_smartapp_manifest__only_default_params_provided__succeed(
         f"https://{host}/api/v1/botx/smartapps/manifest",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
-            "manifest": {
-                "web": {
-                    "always_pinned": False,
-                    "default_layout": "minimal",
-                    "expanded_layout": "half",
-                },
-            },
+            "manifest": {},
         },
     ).mock(
         return_value=httpx.Response(
@@ -107,6 +126,11 @@ async def test__send_smartapp_manifest__only_default_params_provided__succeed(
                         "always_pinned": False,
                         "default_layout": "minimal",
                         "expanded_layout": "half",
+                    },
+                    "unread_counter_link": {
+                        "app_id": [],
+                        "group_chat_id": [],
+                        "user_huid": [],
                     },
                 },
                 "status": "ok",
@@ -127,5 +151,10 @@ async def test__send_smartapp_manifest__only_default_params_provided__succeed(
             default_layout=SmartappManifestWebLayoutChoices.minimal,
             expanded_layout=SmartappManifestWebLayoutChoices.half,
             always_pinned=False,
+        ),
+        unread_counter_link=SmartappManifestUnreadCounterParams(
+            user_huid=[],
+            group_chat_id=[],
+            app_id=[],
         ),
     )

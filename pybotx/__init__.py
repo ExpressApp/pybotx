@@ -62,6 +62,7 @@ from pybotx.client.exceptions.users import UserNotFoundError
 from pybotx.client.smartapps_api.exceptions import SyncSmartAppEventHandlerNotFoundError
 from pybotx.client.smartapps_api.smartapp_manifest import (
     SmartappManifest,
+    SmartappManifestUnreadCounterParams,
     SmartappManifestWebParams,
 )
 from pybotx.client.stickers_api.exceptions import (
@@ -235,6 +236,7 @@ __all__ = (
     "SmartAppEvent",
     "SmartappManifest",
     "SmartappManifestWebLayoutChoices",
+    "SmartappManifestUnreadCounterParams",
     "SmartappManifestWebParams",
     "StatusRecipient",
     "StealthModeDisabledError",

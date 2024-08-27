@@ -1,7 +1,11 @@
-from typing import Literal
+from typing import List, Literal
+from uuid import UUID
+
+from pydantic import Field
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
-from pybotx.models.api_base import VerifiedPayloadBaseModel
+from pybotx.missing import Missing, Undefined
+from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from pybotx.models.enums import SmartappManifestWebLayoutChoices as WebLayoutChoices
 
 
@@ -11,27 +15,38 @@ class SmartappManifestWebParams(VerifiedPayloadBaseModel):
     always_pinned: bool = False
 
 
+class SmartappManifestUnreadCounterParams(VerifiedPayloadBaseModel):
+    user_huid: List[UUID] = Field(default_factory=list)
+    group_chat_id: List[UUID] = Field(default_factory=list)
+    app_id: List[str] = Field(default_factory=list)
+
+
 class SmartappManifest(VerifiedPayloadBaseModel):
     web: SmartappManifestWebParams
+    unread_counter_link: SmartappManifestUnreadCounterParams
 
 
-class BotXAPISmartAppManifestRequestPayload(VerifiedPayloadBaseModel):
-    manifest: SmartappManifest
+class SmartappManifestPayload(UnverifiedPayloadBaseModel):
+    web: Missing[SmartappManifestWebParams] = Undefined
+    unread_counter_link: Missing[SmartappManifestUnreadCounterParams] = Undefined
+
+
+class BotXAPISmartAppManifestRequestPayload(UnverifiedPayloadBaseModel):
+    manifest: SmartappManifestPayload
 
     @classmethod
     def from_domain(
         cls,
-        web_default_layout: WebLayoutChoices = WebLayoutChoices.minimal,
-        web_expanded_layout: WebLayoutChoices = WebLayoutChoices.half,
-        web_always_pinned: bool = False,
+        web_layout: Missing[SmartappManifestWebParams] = Undefined,
+        unread_counter: Missing[SmartappManifestUnreadCounterParams] = Undefined,
     ) -> "BotXAPISmartAppManifestRequestPayload":
+        if web_layout is Undefined and unread_counter is Undefined:
+            return cls(manifest={})
+
         return cls(
-            manifest=SmartappManifest(
-                web=SmartappManifestWebParams(
-                    default_layout=web_default_layout,
-                    expanded_layout=web_expanded_layout,
-                    always_pinned=web_always_pinned,
-                ),
+            manifest=SmartappManifestPayload(
+                web=web_layout,
+                unread_counter_link=unread_counter,
             ),
         )
 
