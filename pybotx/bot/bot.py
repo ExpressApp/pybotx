@@ -138,6 +138,8 @@ from pybotx.client.smartapps_api.smartapp_event import (
 from pybotx.client.smartapps_api.smartapp_manifest import (
     BotXAPISmartAppManifestRequestPayload,
     SmartappManifest,
+    SmartappManifestAndroidParams,
+    SmartappManifestIosParams,
     SmartAppManifestMethod,
     SmartappManifestUnreadCounterParams,
     SmartappManifestWebParams,
@@ -1548,12 +1550,16 @@ class Bot:
         self,
         *,
         bot_id: UUID,
+        ios: Missing[SmartappManifestIosParams] = Undefined,
+        android: Missing[SmartappManifestAndroidParams] = Undefined,
         web_layout: Missing[SmartappManifestWebParams] = Undefined,
         unread_counter: Missing[SmartappManifestUnreadCounterParams] = Undefined,
     ) -> SmartappManifest:
         """Send smartapp manifest with given parameters.
 
         :param bot_id: Bot which should perform the request.
+        :param ios: Smartapp layout for ios clients.
+        :param android: Smartapp layout for android clients.
         :param web_layout: Smartapp layout for web clients.
         :param unread_counter: Entities that can be subscribed to in the unread counter.
 
@@ -1566,6 +1572,8 @@ class Bot:
             self._bot_accounts_storage,
         )
         payload = BotXAPISmartAppManifestRequestPayload.from_domain(
+            ios=ios,
+            android=android,
             web_layout=web_layout,
             unread_counter=unread_counter,
         )

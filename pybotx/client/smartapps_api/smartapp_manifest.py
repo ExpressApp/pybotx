@@ -9,6 +9,14 @@ from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBa
 from pybotx.models.enums import SmartappManifestWebLayoutChoices as WebLayoutChoices
 
 
+class SmartappManifestIosParams(VerifiedPayloadBaseModel):
+    fullscreen_layout: bool = False
+
+
+class SmartappManifestAndroidParams(VerifiedPayloadBaseModel):
+    fullscreen_layout: bool = False
+
+
 class SmartappManifestWebParams(VerifiedPayloadBaseModel):
     default_layout: WebLayoutChoices = WebLayoutChoices.minimal
     expanded_layout: WebLayoutChoices = WebLayoutChoices.half
@@ -22,11 +30,15 @@ class SmartappManifestUnreadCounterParams(VerifiedPayloadBaseModel):
 
 
 class SmartappManifest(VerifiedPayloadBaseModel):
+    ios: SmartappManifestIosParams
+    android: SmartappManifestAndroidParams
     web: SmartappManifestWebParams
     unread_counter_link: SmartappManifestUnreadCounterParams
 
 
 class SmartappManifestPayload(UnverifiedPayloadBaseModel):
+    ios: Missing[SmartappManifestIosParams] = Undefined
+    android: Missing[SmartappManifestAndroidParams] = Undefined
     web: Missing[SmartappManifestWebParams] = Undefined
     unread_counter_link: Missing[SmartappManifestUnreadCounterParams] = Undefined
 
@@ -37,6 +49,8 @@ class BotXAPISmartAppManifestRequestPayload(UnverifiedPayloadBaseModel):
     @classmethod
     def from_domain(
         cls,
+        ios: Missing[SmartappManifestIosParams] = Undefined,
+        android: Missing[SmartappManifestAndroidParams] = Undefined,
         web_layout: Missing[SmartappManifestWebParams] = Undefined,
         unread_counter: Missing[SmartappManifestUnreadCounterParams] = Undefined,
     ) -> "BotXAPISmartAppManifestRequestPayload":
@@ -45,6 +59,8 @@ class BotXAPISmartAppManifestRequestPayload(UnverifiedPayloadBaseModel):
 
         return cls(
             manifest=SmartappManifestPayload(
+                ios=ios,
+                android=android,
                 web=web_layout,
                 unread_counter_link=unread_counter,
             ),

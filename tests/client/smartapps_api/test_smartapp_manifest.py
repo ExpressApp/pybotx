@@ -15,6 +15,8 @@ from pybotx import (
     lifespan_wrapper,
 )
 from pybotx.client.smartapps_api.smartapp_manifest import (
+    SmartappManifestAndroidParams,
+    SmartappManifestIosParams,
     SmartappManifestUnreadCounterParams,
 )
 
@@ -37,6 +39,12 @@ async def test__send_smartapp_manifest__all_params_provided__succeed(
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
             "manifest": {
+                "ios": {
+                    "fullscreen_layout": False,
+                },
+                "android": {
+                    "fullscreen_layout": False,
+                },
                 "web": {
                     "always_pinned": True,
                     "default_layout": "full",
@@ -54,6 +62,12 @@ async def test__send_smartapp_manifest__all_params_provided__succeed(
             HTTPStatus.ACCEPTED,
             json={
                 "result": {
+                    "ios": {
+                        "fullscreen_layout": False,
+                    },
+                    "android": {
+                        "fullscreen_layout": False,
+                    },
                     "web": {
                         "always_pinned": True,
                         "default_layout": "full",
@@ -76,6 +90,12 @@ async def test__send_smartapp_manifest__all_params_provided__succeed(
     async with lifespan_wrapper(built_bot) as bot:
         smartapp_manifest = await bot.send_smartapp_manifest(
             bot_id=bot_id,
+            ios=SmartappManifestIosParams(
+                fullscreen_layout=False,
+            ),
+            android=SmartappManifestAndroidParams(
+                fullscreen_layout=False,
+            ),
             web_layout=SmartappManifestWebParams(
                 default_layout=SmartappManifestWebLayoutChoices.full,
                 expanded_layout=SmartappManifestWebLayoutChoices.full,
@@ -91,6 +111,12 @@ async def test__send_smartapp_manifest__all_params_provided__succeed(
     # - Assert -
     assert endpoint.called
     assert smartapp_manifest == SmartappManifest(
+        ios=SmartappManifestIosParams(
+            fullscreen_layout=False,
+        ),
+        android=SmartappManifestAndroidParams(
+            fullscreen_layout=False,
+        ),
         web=SmartappManifestWebParams(
             default_layout=SmartappManifestWebLayoutChoices.full,
             expanded_layout=SmartappManifestWebLayoutChoices.full,
@@ -122,6 +148,12 @@ async def test__send_smartapp_manifest__only_default_params_provided__succeed(
             HTTPStatus.ACCEPTED,
             json={
                 "result": {
+                    "ios": {
+                        "fullscreen_layout": False,
+                    },
+                    "android": {
+                        "fullscreen_layout": False,
+                    },
                     "web": {
                         "always_pinned": False,
                         "default_layout": "minimal",
@@ -147,6 +179,12 @@ async def test__send_smartapp_manifest__only_default_params_provided__succeed(
     # - Assert -
     assert endpoint.called
     assert smartapp_manifest == SmartappManifest(
+        ios=SmartappManifestIosParams(
+            fullscreen_layout=False,
+        ),
+        android=SmartappManifestAndroidParams(
+            fullscreen_layout=False,
+        ),
         web=SmartappManifestWebParams(
             default_layout=SmartappManifestWebLayoutChoices.minimal,
             expanded_layout=SmartappManifestWebLayoutChoices.half,
