@@ -144,6 +144,10 @@ from pybotx.client.smartapps_api.smartapp_notification import (
     BotXAPISmartAppNotificationRequestPayload,
     SmartAppNotificationMethod,
 )
+from pybotx.client.smartapps_api.smartapp_unread_counter import (
+    BotXAPISmartAppUnreadCounterRequestPayload,
+    SmartAppUnreadCounterMethod,
+)
 from pybotx.client.smartapps_api.smartapps_list import (
     BotXAPISmartAppsListRequestPayload,
     SmartAppsListMethod,
@@ -1637,6 +1641,47 @@ class Bot:
             title=title,
             body=body,
             meta=meta,
+        )
+
+        botx_api_sync_id = await method.execute(
+            payload,
+            wait_callback,
+            callback_timeout,
+            self._default_callback_timeout,
+        )
+
+        return botx_api_sync_id.to_domain()
+
+    async def send_smartapp_unread_counter(
+        self,
+        *,
+        bot_id: UUID,
+        group_chat_id: UUID,
+        counter: int,
+        wait_callback: bool = True,
+        callback_timeout: Optional[float] = None,
+    ) -> UUID:
+        """Send SmartApp unread counter.
+
+        :param bot_id: Bot which should perform the request.
+        :param group_chat_id: Target chat id.
+        :param counter: Counter value.
+        :param wait_callback: Block method call until callback received.
+        :param callback_timeout: Callback timeout in seconds (or `None` for
+            endless waiting).
+
+        :return: Sent message's sync_id.
+        """
+
+        method = SmartAppUnreadCounterMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+            self._callbacks_manager,
+        )
+        payload = BotXAPISmartAppUnreadCounterRequestPayload.from_domain(
+            group_chat_id=group_chat_id,
+            counter=counter,
         )
 
         botx_api_sync_id = await method.execute(
