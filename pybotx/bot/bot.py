@@ -138,7 +138,11 @@ from pybotx.client.smartapps_api.smartapp_event import (
 from pybotx.client.smartapps_api.smartapp_manifest import (
     BotXAPISmartAppManifestRequestPayload,
     SmartappManifest,
+    SmartappManifestAndroidParams,
+    SmartappManifestIosParams,
     SmartAppManifestMethod,
+    SmartappManifestUnreadCounterParams,
+    SmartappManifestWebParams,
 )
 from pybotx.client.smartapps_api.smartapp_notification import (
     BotXAPISmartAppNotificationRequestPayload,
@@ -231,7 +235,6 @@ from pybotx.models.bot_catalog import BotsListItem
 from pybotx.models.chats import ChatInfo, ChatListItem
 from pybotx.models.commands import BotAPICommand, BotCommand
 from pybotx.models.enums import ChatTypes
-from pybotx.models.enums import SmartappManifestWebLayoutChoices as WebLayoutChoices
 from pybotx.models.message.edit_message import EditMessage
 from pybotx.models.message.markup import BubbleMarkup, KeyboardMarkup
 from pybotx.models.message.message_status import MessageStatus
@@ -1551,17 +1554,18 @@ class Bot:
         self,
         *,
         bot_id: UUID,
-        web_default_layout: WebLayoutChoices = WebLayoutChoices.minimal,
-        web_expanded_layout: WebLayoutChoices = WebLayoutChoices.half,
-        web_always_pinned: bool = False,
+        ios: Missing[SmartappManifestIosParams] = Undefined,
+        android: Missing[SmartappManifestAndroidParams] = Undefined,
+        web_layout: Missing[SmartappManifestWebParams] = Undefined,
+        unread_counter: Missing[SmartappManifestUnreadCounterParams] = Undefined,
     ) -> SmartappManifest:
         """Send smartapp manifest with given parameters.
 
         :param bot_id: Bot which should perform the request.
-        :param web_default_layout: default smartapp layout for web clients.
-        :param web_expanded_layout: expanded smartapp layout for web clients.
-        :param web_always_pinned: True if smartapp icon should be always pinned
-            in the web clients sidebar.
+        :param ios: Smartapp layout for ios clients.
+        :param android: Smartapp layout for android clients.
+        :param web_layout: Smartapp layout for web clients.
+        :param unread_counter: Entities that can be subscribed to in the unread counter.
 
         :return: Smartapp manifest with the set parameters received from BotX.
         """
@@ -1572,9 +1576,10 @@ class Bot:
             self._bot_accounts_storage,
         )
         payload = BotXAPISmartAppManifestRequestPayload.from_domain(
-            web_default_layout=web_default_layout,
-            web_expanded_layout=web_expanded_layout,
-            web_always_pinned=web_always_pinned,
+            ios=ios,
+            android=android,
+            web_layout=web_layout,
+            unread_counter=unread_counter,
         )
         smartapp_manifest_response = await method.execute(payload)
         return smartapp_manifest_response.to_domain()

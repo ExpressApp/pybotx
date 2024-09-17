@@ -62,6 +62,9 @@ from pybotx.client.exceptions.users import UserNotFoundError
 from pybotx.client.smartapps_api.exceptions import SyncSmartAppEventHandlerNotFoundError
 from pybotx.client.smartapps_api.smartapp_manifest import (
     SmartappManifest,
+    SmartappManifestAndroidParams,
+    SmartappManifestIosParams,
+    SmartappManifestUnreadCounterParams,
     SmartappManifestWebParams,
 )
 from pybotx.client.stickers_api.exceptions import (
@@ -234,6 +237,9 @@ __all__ = (
     "SmartApp",
     "SmartAppEvent",
     "SmartappManifest",
+    "SmartappManifestAndroidParams",
+    "SmartappManifestIosParams",
+    "SmartappManifestUnreadCounterParams",
     "SmartappManifestWebLayoutChoices",
     "SmartappManifestWebParams",
     "StatusRecipient",
