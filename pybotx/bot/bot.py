@@ -12,6 +12,7 @@ from typing import (
     Mapping,
     Optional,
     Sequence,
+    Set,
     Tuple,
     Union,
 )
@@ -302,12 +303,13 @@ class Bot:
         verify_request: bool = True,
         request_headers: Optional[Mapping[str, str]] = None,
         logging_command: bool = True,
+        trusted_issuers: Optional[Set[str]] = None,
     ) -> None:
         if logging_command:
             log_incoming_request(raw_bot_command, message="Got command: ")
 
         if verify_request:
-            self._verify_request(request_headers)
+            self._verify_request(request_headers, trusted_issuers=trusted_issuers)
 
         try:
             bot_api_command: BotAPICommand = parse_obj_as(
@@ -336,6 +338,7 @@ class Bot:
         verify_request: bool = True,
         request_headers: Optional[Mapping[str, str]] = None,
         logging_command: bool = True,
+        trusted_issuers: Optional[Set[str]] = None,
     ) -> BotAPISyncSmartAppEventResponse:
         if logging_command:
             log_incoming_request(
@@ -344,7 +347,7 @@ class Bot:
             )
 
         if verify_request:
-            self._verify_request(request_headers)
+            self._verify_request(request_headers, trusted_issuers=trusted_issuers)
 
         try:
             bot_api_smartapp_event: BotAPISyncSmartAppEvent = parse_obj_as(
@@ -374,6 +377,7 @@ class Bot:
         query_params: Dict[str, str],
         verify_request: bool = True,
         request_headers: Optional[Mapping[str, str]] = None,
+        trusted_issuers: Optional[Set[str]] = None,
     ) -> Dict[str, Any]:
         logger.opt(lazy=True).debug(
             "Got status: {status}",
@@ -381,9 +385,7 @@ class Bot:
         )
 
         if verify_request:
-            if request_headers is None:
-                raise RequestHeadersNotProvidedError
-            self._verify_request(request_headers)
+            self._verify_request(request_headers, trusted_issuers=trusted_issuers)
 
         try:
             bot_api_status_recipient = BotAPIStatusRecipient.parse_obj(query_params)
@@ -406,13 +408,12 @@ class Bot:
         raw_botx_method_result: Dict[str, Any],
         verify_request: bool = True,
         request_headers: Optional[Mapping[str, str]] = None,
+        trusted_issuers: Optional[Set[str]] = None,
     ) -> None:
         logger.debug("Got callback: {callback}", callback=raw_botx_method_result)
 
         if verify_request:
-            if request_headers is None:
-                raise RequestHeadersNotProvidedError
-            self._verify_request(request_headers)
+            self._verify_request(request_headers, trusted_issuers=trusted_issuers)
 
         callback: BotXMethodCallback = parse_obj_as(
             # Same ignore as in pydantic
@@ -2068,6 +2069,8 @@ class Bot:
     def _verify_request(  # noqa: WPS231, WPS238
         self,
         headers: Optional[Mapping[str, str]],
+        *,
+        trusted_issuers: Optional[Set[str]] = None,
     ) -> None:
         if headers is None:
             raise RequestHeadersNotProvidedError
@@ -2108,10 +2111,19 @@ class Bot:
                 leeway=1,
                 options={
                     "verify_aud": False,
+                    "verify_iss": False,
                 },
             )
         except jwt.InvalidTokenError as exc:
             raise UnverifiedRequestError(exc.args[0]) from exc
+
+        issuer = token_payload.get("iss")
+        if issuer is None:
+            raise UnverifiedRequestError('Token is missing the "iss" claim')
+
+        if issuer != bot_account.host:
+            if not trusted_issuers or issuer not in trusted_issuers:
+                raise UnverifiedRequestError("Invalid issuer")
 
     @staticmethod
     def _build_main_collector(
