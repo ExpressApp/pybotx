@@ -263,9 +263,85 @@ async def test__verify_request__invalid_issuer(
     assert "Invalid issuer" in str(exc.value)
 
 
+async def test__verify_request__trusted_issuers_have_token_issuer(
+    bot_account: BotAccountWithSecret,
+    authorization_token_payload: Dict[str, Any],
+) -> None:
+    # - Arrange -
+    collector = HandlerCollector()
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    token_issuer = "another.example.com"
+    authorization_token_payload["iss"] = token_issuer
+    token = jwt.encode(
+        payload=authorization_token_payload,
+        key=bot_account.secret_key,
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        bot._verify_request(
+            {"authorization": f"Bearer {token}"},
+            trusted_issuers={token_issuer},
+        )
+
+
+async def test__verify_request__trusted_issuers_have_not_token_issuer(
+    bot_account: BotAccountWithSecret,
+    authorization_token_payload: Dict[str, Any],
+) -> None:
+    # - Arrange -
+    collector = HandlerCollector()
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    authorization_token_payload["iss"] = "another.example.com"
+    token = jwt.encode(
+        payload=authorization_token_payload,
+        key=bot_account.secret_key,
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        with pytest.raises(UnverifiedRequestError) as exc:
+            bot._verify_request(
+                {"authorization": f"Bearer {token}"},
+                trusted_issuers={"another-another.example.com"},
+            )
+
+    # - Assert -
+    assert "Invalid issuer" in str(exc.value)
+
+
+async def test__verify_request__token_issuer_is_missed(
+    bot_account: BotAccountWithSecret,
+    authorization_token_payload: Dict[str, Any],
+) -> None:
+    # - Arrange -
+    collector = HandlerCollector()
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    del authorization_token_payload["iss"]
+    token = jwt.encode(
+        payload=authorization_token_payload,
+        key=bot_account.secret_key,
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        with pytest.raises(UnverifiedRequestError) as exc:
+            bot._verify_request(
+                {"authorization": f"Bearer {token}"},
+            )
+
+    # - Assert -
+    assert 'Token is missing the "iss" claim' in str(exc.value)
+
+
 @pytest.mark.parametrize(
     "target_func_name",
-    ("async_execute_raw_bot_command", "raw_get_status", "set_raw_botx_method_result"),
+    (
+        "async_execute_raw_bot_command",
+        "sync_execute_raw_smartapp_event",
+        "raw_get_status",
+        "set_raw_botx_method_result",
+    ),
 )
 async def test__verify_request__without_headers(
     api_incoming_message_factory: Callable[..., Dict[str, Any]],
@@ -302,6 +378,31 @@ async def test__async_execute_raw_bot_command__verify_request__called(
     async with lifespan_wrapper(built_bot) as bot:
         bot._verify_request = Mock()  # type: ignore
         bot.async_execute_raw_bot_command(
+            payload,
+            verify_request=True,
+            request_headers={},
+        )
+
+    # - Assert -
+    bot._verify_request.assert_called()
+
+
+async def test__sync_execute_raw_smartapp_event__verify_request__called(
+    api_sync_smartapp_event_factory: Callable[..., Dict[str, Any]],
+    collector_with_sync_smartapp_event_handler: HandlerCollector,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    built_bot = Bot(
+        collectors=[collector_with_sync_smartapp_event_handler],
+        bot_accounts=[bot_account],
+    )
+    payload = api_sync_smartapp_event_factory(bot_id=bot_account.id)
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        bot._verify_request = Mock()  # type: ignore
+        await bot.sync_execute_raw_smartapp_event(
             payload,
             verify_request=True,
             request_headers={},
@@ -382,6 +483,26 @@ async def test__async_execute_raw_bot_command__verify_request__not_called(
     # - Assert -
     bot._verify_request.assert_not_called()
     bot.async_execute_bot_command.assert_called()
+
+
+async def test__sync_execute_raw_smartapp_event__verify_request__not_called(
+    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    collector = HandlerCollector()
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    payload = api_incoming_message_factory()
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        bot._verify_request = Mock()  # type: ignore
+        bot.sync_execute_raw_smartapp_event = Mock()  # type: ignore
+        bot.sync_execute_raw_smartapp_event(payload, verify_request=False)
+
+    # - Assert -
+    bot._verify_request.assert_not_called()
+    bot.sync_execute_raw_smartapp_event.assert_called()
 
 
 async def test__raw_get_status__verify_request__not_called(
