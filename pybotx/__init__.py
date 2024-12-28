@@ -63,6 +63,7 @@ from pybotx.client.smartapps_api.exceptions import SyncSmartAppEventHandlerNotFo
 from pybotx.client.smartapps_api.smartapp_manifest import (
     SmartappManifest,
     SmartappManifestAndroidParams,
+    SmartappManifestAuroraParams,
     SmartappManifestIosParams,
     SmartappManifestUnreadCounterParams,
     SmartappManifestWebParams,
@@ -238,6 +239,7 @@ __all__ = (
     "SmartAppEvent",
     "SmartappManifest",
     "SmartappManifestAndroidParams",
+    "SmartappManifestAuroraParams",
     "SmartappManifestIosParams",
     "SmartappManifestUnreadCounterParams",
     "SmartappManifestWebLayoutChoices",
