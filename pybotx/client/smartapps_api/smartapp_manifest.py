@@ -17,6 +17,10 @@ class SmartappManifestAndroidParams(VerifiedPayloadBaseModel):
     fullscreen_layout: bool = False
 
 
+class SmartappManifestAuroraParams(VerifiedPayloadBaseModel):
+    fullscreen_layout: bool = False
+
+
 class SmartappManifestWebParams(VerifiedPayloadBaseModel):
     default_layout: WebLayoutChoices = WebLayoutChoices.minimal
     expanded_layout: WebLayoutChoices = WebLayoutChoices.half
@@ -40,6 +44,7 @@ class SmartappManifestPayload(UnverifiedPayloadBaseModel):
     ios: Missing[SmartappManifestIosParams] = Undefined
     android: Missing[SmartappManifestAndroidParams] = Undefined
     web: Missing[SmartappManifestWebParams] = Undefined
+    aurora: Missing[SmartappManifestAuroraParams] = Undefined
     unread_counter_link: Missing[SmartappManifestUnreadCounterParams] = Undefined
 
 

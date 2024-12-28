@@ -36,6 +36,7 @@ class ClientPlatforms(AutoName):
     ANDROID = auto()
     IOS = auto()
     DESKTOP = auto()
+    AURORA = auto()
 
 
 class MentionTypes(AutoName):
@@ -109,6 +110,7 @@ class BotAPIClientPlatforms(Enum):
     ANDROID = "android"
     IOS = "ios"
     DESKTOP = "desktop"
+    AURORA = "aurora"
 
 
 class BotAPIEntityTypes(StrEnum):
@@ -166,6 +168,7 @@ def convert_client_platform_to_domain(
         BotAPIClientPlatforms.ANDROID: ClientPlatforms.ANDROID,
         BotAPIClientPlatforms.IOS: ClientPlatforms.IOS,
         BotAPIClientPlatforms.DESKTOP: ClientPlatforms.DESKTOP,
+        BotAPIClientPlatforms.AURORA: ClientPlatforms.AURORA,
     }
 
     converted_type = client_platforms_mapping.get(client_platform)
