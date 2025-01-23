@@ -55,7 +55,7 @@ def user_from_search_with_data() -> UserFromSearch:
         manager="Alice",
         office="SUN",
         other_ip_phone=32593,
-        other_phone=1254218,
+        other_phone="1254218",
         public_name="Bobby",
         rts_id=UUID("f46440a4-d930-58d4-b3f5-8110ab846ee3"),
         updated_at=convert_to_datetime("2023-03-26T14:36:08.740618Z"),

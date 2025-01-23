@@ -51,7 +51,7 @@ class UserFromSearch:
     manager: Optional[str] = None
     office: Optional[str] = None
     other_ip_phone: Optional[int] = None
-    other_phone: Optional[int] = None
+    other_phone: Optional[str] = None
     public_name: Optional[str] = None
     cts_id: Optional[UUID] = None
     rts_id: Optional[UUID] = None
