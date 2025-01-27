@@ -106,6 +106,6 @@ class UserFromCSV:
     description: Optional[str] = None
     phone: Optional[str] = None
     other_phone: Optional[str] = None
-    ip_phone: Optional[str] = None
-    other_ip_phone: Optional[str] = None
+    ip_phone: Optional[int] = None
+    other_ip_phone: Optional[int] = None
     personnel_number: Optional[str] = None
