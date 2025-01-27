@@ -33,8 +33,8 @@ class BotXAPIUserFromCSVResult(VerifiedPayloadBaseModel):
     description: Optional[str] = Field(alias="Description")
     phone: Optional[str] = Field(alias="Phone")
     other_phone: Optional[str] = Field(alias="Other phone")
-    ip_phone: Optional[str] = Field(alias="IP phone")
-    other_ip_phone: Optional[str] = Field(alias="Other IP phone")
+    ip_phone: Optional[int] = Field(alias="IP phone")
+    other_ip_phone: Optional[int] = Field(alias="Other IP phone")
     personnel_number: Optional[str] = Field(alias="Personnel number")
 
     @validator(

@@ -51,7 +51,7 @@ class UserFromSearch:
     manager: Optional[str] = None
     office: Optional[str] = None
     other_ip_phone: Optional[int] = None
-    other_phone: Optional[int] = None
+    other_phone: Optional[str] = None
     public_name: Optional[str] = None
     cts_id: Optional[UUID] = None
     rts_id: Optional[UUID] = None
@@ -106,6 +106,6 @@ class UserFromCSV:
     description: Optional[str] = None
     phone: Optional[str] = None
     other_phone: Optional[str] = None
-    ip_phone: Optional[str] = None
-    other_ip_phone: Optional[str] = None
+    ip_phone: Optional[int] = None
+    other_ip_phone: Optional[int] = None
     personnel_number: Optional[str] = None
