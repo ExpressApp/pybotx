@@ -47,10 +47,10 @@ class UserFromSearch:
     user_kind: UserKinds
     active: Optional[bool] = None
     description: Optional[str] = None
-    ip_phone: Optional[int] = None
+    ip_phone: Optional[str] = None
     manager: Optional[str] = None
     office: Optional[str] = None
-    other_ip_phone: Optional[int] = None
+    other_ip_phone: Optional[str] = None
     other_phone: Optional[str] = None
     public_name: Optional[str] = None
     cts_id: Optional[UUID] = None
@@ -106,6 +106,6 @@ class UserFromCSV:
     description: Optional[str] = None
     phone: Optional[str] = None
     other_phone: Optional[str] = None
-    ip_phone: Optional[int] = None
-    other_ip_phone: Optional[int] = None
+    ip_phone: Optional[str] = None
+    other_ip_phone: Optional[str] = None
     personnel_number: Optional[str] = None
