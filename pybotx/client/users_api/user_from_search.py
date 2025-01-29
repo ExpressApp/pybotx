@@ -22,10 +22,10 @@ class BotXAPISearchUserResult(VerifiedPayloadBaseModel):
     user_kind: APIUserKinds
     active: Optional[bool] = None
     description: Optional[str] = None
-    ip_phone: Optional[int] = None
+    ip_phone: Optional[str] = None
     manager: Optional[str] = None
     office: Optional[str] = None
-    other_ip_phone: Optional[int] = None
+    other_ip_phone: Optional[str] = None
     other_phone: Optional[str] = None
     public_name: Optional[str] = None
     cts_id: Optional[UUID] = None
