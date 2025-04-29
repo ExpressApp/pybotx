@@ -20,7 +20,7 @@ httpx = "^0.25.0"
 # The v1.0.3 cause some troubles with no-wait callbacks functionality.
 # It will be fixed in the next versions.
 # https://github.com/encode/httpcore/pull/880
-httpcore = ">=1.0.0,<1.0.3"
+httpcore = "1.0.9"
 loguru = ">=0.6.0,<0.7.0"
 pydantic = ">=1.6.0,<1.11.0"
 aiocsv = ">=1.2.3,<1.3.0"
