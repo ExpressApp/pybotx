@@ -61,3 +61,26 @@ class BotAPIJoinToChatFactory(DictFactory):  # type: ignore[misc]
 
     class Meta:
         rename = {"from_": "from"}
+
+
+class ConferenceChangedDataFactory(DictFactory):  # type: ignore[misc]
+
+    access_code = None
+    actor = None
+    added_users = ["5c053f2a-0bdf-4ab1-9bc9-256fee9db7ba"]
+    admins = ["b394c9a0-7636-4316-beb1-d5a92038501c"]
+    call_id = "eb6bf5d6-100c-42d8-9efd-549d5a70e38c"
+    deleted_users = ["440d82da-2046-43df-8dae-598336906090"]
+    end_at = "2025-04-15T12:00:39.634000Z"
+    link = "https://xlnk.ms/join/room/NGUyODE1MzAtYTcyNy01MzQ4LTkxNjktNzkzO1N2UtNWI4OS04NmM0LTFmY2FkMzkwNDE2OTpjMzgwNjVhNy1jOTc5LTU0MzgtYmNlYS05NTNhNjNhZDEwNzQ="
+    link_id = "b5dbd3ae-ab4a-42b9-b17d-6714b9e82bdb"
+    link_type = "public"
+    members = [
+        "24348246-6791-4ac0-9d86-b948cd6a0e46",
+        "b394c9a0-7636-4316-beb1-d5a92038501c",
+        "5c053f2a-0bdf-4ab1-9bc9-256fee9db7ba",
+    ]
+    name = "conference name"
+    operation = "change_conference_info"
+    sip_number = 12345678
+    start_at = "2025-04-15T11:00:39.634000Z"
