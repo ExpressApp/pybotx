@@ -1,6 +1,7 @@
 # type: ignore [attr-defined]
 
 import asyncio
+import time
 import types
 from http import HTTPStatus
 from typing import Optional
@@ -645,8 +646,7 @@ async def test__botx_method_callback__bot_dont_wait_received_callback(
     async with lifespan_wrapper(built_bot) as bot:
         await bot.call_foo_bar(bot_id, baz=1, callback_timeout=0, wait_callback=False)
 
-        # Return control to event-loop
-        await asyncio.sleep(0)
+        await asyncio.sleep(0)  # дать шанс callback обработаться
 
         await bot.set_raw_botx_method_result(
             {
@@ -657,11 +657,16 @@ async def test__botx_method_callback__bot_dont_wait_received_callback(
             verify_request=False,
         )
 
+        expected_log = "Callback `21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3` wasn't waited"
+        timeout = 1.0  # секунды
+        start = time.time()
+        while expected_log not in loguru_caplog.text:
+            if time.time() - start > timeout:
+                raise TimeoutError(f"Log not found after {timeout} seconds:\n{loguru_caplog.text}")
+            await asyncio.sleep(0.05)
+
     # - Assert -
-    assert (
-        "Callback `21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3` wasn't waited"
-        in loguru_caplog.text
-    )
+    assert expected_log in loguru_caplog.text
     assert endpoint.called
 
 
