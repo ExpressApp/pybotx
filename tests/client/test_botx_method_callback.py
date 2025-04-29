@@ -662,7 +662,9 @@ async def test__botx_method_callback__bot_dont_wait_received_callback(
         start = time.time()
         while expected_log not in loguru_caplog.text:
             if time.time() - start > timeout:
-                raise TimeoutError(f"Log not found after {timeout} seconds:\n{loguru_caplog.text}")
+                raise TimeoutError(
+                    f"Log not found after {timeout} seconds:\n{loguru_caplog.text}",
+                )
             await asyncio.sleep(0.05)
 
     # - Assert -
