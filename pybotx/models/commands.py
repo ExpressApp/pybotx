@@ -32,6 +32,10 @@ from pybotx.models.system_events.smartapp_event import (
     BotAPISmartAppEvent,
     SmartAppEvent,
 )
+from pybotx.models.system_events.user_joined_to_chat import (
+    BotAPIJoinToChat,
+    JoinToChatEvent,
+)
 
 # Sorted by frequency of occurrence to speedup validation
 BotAPISystemEvent = Union[
@@ -45,6 +49,7 @@ BotAPISystemEvent = Union[
     BotAPICTSLogin,
     BotAPICTSLogout,
     BotAPIEventEdit,
+    BotAPIJoinToChat,
 ]
 BotAPICommand = Union[BotAPIIncomingMessage, BotAPISystemEvent]
 
@@ -60,5 +65,6 @@ SystemEvent = Union[
     CTSLoginEvent,
     CTSLogoutEvent,
     EventEdit,
+    JoinToChatEvent,
 ]
 BotCommand = Union[IncomingMessage, SystemEvent]

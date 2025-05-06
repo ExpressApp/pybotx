@@ -18,6 +18,7 @@ from pybotx.models.system_events.internal_bot_notification import (
 )
 from pybotx.models.system_events.left_from_chat import LeftFromChatEvent
 from pybotx.models.system_events.smartapp_event import SmartAppEvent
+from pybotx.models.system_events.user_joined_to_chat import JoinToChatEvent
 
 if TYPE_CHECKING:  # To avoid circular import
     from pybotx.bot.bot import Bot
@@ -42,6 +43,7 @@ SystemEventHandlerFunc = Union[
     HandlerFunc[InternalBotNotificationEvent],
     HandlerFunc[SmartAppEvent],
     HandlerFunc[EventEdit],
+    HandlerFunc[JoinToChatEvent],
 ]
 
 VisibleFunc = Callable[[StatusRecipient, "Bot"], Awaitable[bool]]
