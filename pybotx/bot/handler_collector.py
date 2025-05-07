@@ -51,6 +51,7 @@ from pybotx.models.system_events.internal_bot_notification import (
 )
 from pybotx.models.system_events.left_from_chat import LeftFromChatEvent
 from pybotx.models.system_events.smartapp_event import SmartAppEvent
+from pybotx.models.system_events.user_joined_to_chat import JoinToChatEvent
 
 if TYPE_CHECKING:  # To avoid circular import
     from pybotx.bot.bot import Bot
@@ -267,6 +268,14 @@ class HandlerCollector:
     ) -> HandlerFunc[LeftFromChatEvent]:
         """Decorate `left_from_chat` event handler."""
         self._system_event(LeftFromChatEvent, handler_func)
+        return handler_func
+
+    def user_joined_to_chat(
+        self,
+        handler_func: HandlerFunc[JoinToChatEvent],
+    ) -> HandlerFunc[JoinToChatEvent]:
+        """Decorate `user_joined_to_chat` event handler."""
+        self._system_event(JoinToChatEvent, handler_func)
         return handler_func
 
     def internal_bot_notification(

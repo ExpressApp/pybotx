@@ -103,6 +103,7 @@ class BotAPISystemEventTypes(StrEnum):
     LEFT_FROM_CHAT = "system:left_from_chat"
     SMARTAPP_EVENT = "system:smartapp_event"
     EVENT_EDIT = "system:event_edit"
+    JOIN_TO_CHAT = "system:user_joined_to_chat"
 
 
 class BotAPIClientPlatforms(Enum):
