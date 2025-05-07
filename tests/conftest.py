@@ -72,6 +72,11 @@ def bot_id() -> UUID:
 
 
 @pytest.fixture
+def call_id() -> UUID:
+    return uuid4()
+
+
+@pytest.fixture
 def bot_account(cts_url: str, bot_id: UUID) -> BotAccountWithSecret:
     return BotAccountWithSecret(
         id=bot_id,
@@ -170,6 +175,9 @@ def api_incoming_message_factory() -> Callable[..., Dict[str, Any]]:
     def decorator(
         *,
         body: str = "/hello",
+        command_type: str = "user",
+        data: Optional[Dict[str, Any]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
         bot_id: Optional[UUID] = None,
         group_chat_id: Optional[UUID] = None,
         user_huid: Optional[UUID] = None,
@@ -181,9 +189,9 @@ def api_incoming_message_factory() -> Callable[..., Dict[str, Any]]:
             "bot_id": str(bot_id) if bot_id else "24348246-6791-4ac0-9d86-b948cd6a0e46",
             "command": {
                 "body": body,
-                "command_type": "user",
-                "data": {},
-                "metadata": {},
+                "command_type": command_type,
+                "data": data if data else {},
+                "metadata": metadata if metadata else {},
             },
             "attachments": [attachment] if attachment else [],
             "async_files": [async_file] if async_file else [],

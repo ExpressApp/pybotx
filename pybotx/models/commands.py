@@ -13,6 +13,18 @@ from pybotx.models.system_events.chat_deleted_by_user import (
     BotAPIChatDeletedByUser,
     ChatDeletedByUserEvent,
 )
+from pybotx.models.system_events.conference_changed import (
+    BotAPIConferenceChanged,
+    ConferenceChangedEvent,
+)
+from pybotx.models.system_events.conference_created import (
+    BotAPIConferenceCreated,
+    ConferenceCreatedEvent,
+)
+from pybotx.models.system_events.conference_deleted import (
+    BotAPIConferenceDeleted,
+    ConferenceDeletedEvent,
+)
 from pybotx.models.system_events.cts_login import BotAPICTSLogin, CTSLoginEvent
 from pybotx.models.system_events.cts_logout import BotAPICTSLogout, CTSLogoutEvent
 from pybotx.models.system_events.deleted_from_chat import (
@@ -50,6 +62,9 @@ BotAPISystemEvent = Union[
     BotAPICTSLogout,
     BotAPIEventEdit,
     BotAPIJoinToChat,
+    BotAPIConferenceChanged,
+    BotAPIConferenceCreated,
+    BotAPIConferenceDeleted,
 ]
 BotAPICommand = Union[BotAPIIncomingMessage, BotAPISystemEvent]
 
@@ -66,5 +81,8 @@ SystemEvent = Union[
     CTSLogoutEvent,
     EventEdit,
     JoinToChatEvent,
+    ConferenceChangedEvent,
+    ConferenceCreatedEvent,
+    ConferenceDeletedEvent,
 ]
 BotCommand = Union[IncomingMessage, SystemEvent]

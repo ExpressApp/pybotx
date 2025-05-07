@@ -42,6 +42,9 @@ from pybotx.models.sync_smartapp_event import BotAPISyncSmartAppEventResponse
 from pybotx.models.system_events.added_to_chat import AddedToChatEvent
 from pybotx.models.system_events.chat_created import ChatCreatedEvent
 from pybotx.models.system_events.chat_deleted_by_user import ChatDeletedByUserEvent
+from pybotx.models.system_events.conference_changed import ConferenceChangedEvent
+from pybotx.models.system_events.conference_created import ConferenceCreatedEvent
+from pybotx.models.system_events.conference_deleted import ConferenceDeletedEvent
 from pybotx.models.system_events.cts_login import CTSLoginEvent
 from pybotx.models.system_events.cts_logout import CTSLogoutEvent
 from pybotx.models.system_events.deleted_from_chat import DeletedFromChatEvent
@@ -308,6 +311,30 @@ class HandlerCollector:
     ) -> HandlerFunc[EventEdit]:
         """Decorate `event edit` event handler."""
         self._system_event(EventEdit, handler_func)
+        return handler_func
+
+    def conference_changed(
+        self,
+        handler_func: HandlerFunc[ConferenceChangedEvent],
+    ) -> HandlerFunc[ConferenceChangedEvent]:
+        """Decorate `conference changed` event handler."""
+        self._system_event(ConferenceChangedEvent, handler_func)
+        return handler_func
+
+    def conference_created(
+        self,
+        handler_func: HandlerFunc[ConferenceCreatedEvent],
+    ) -> HandlerFunc[ConferenceCreatedEvent]:
+        """Decorate `conference created` event handler."""
+        self._system_event(ConferenceCreatedEvent, handler_func)
+        return handler_func
+
+    def conference_deleted(
+        self,
+        handler_func: HandlerFunc[ConferenceDeletedEvent],
+    ) -> HandlerFunc[ConferenceDeletedEvent]:
+        """Decorate `conference deleted` event handler."""
+        self._system_event(ConferenceDeletedEvent, handler_func)
         return handler_func
 
     def smartapp_event(
