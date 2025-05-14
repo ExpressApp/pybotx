@@ -9,6 +9,9 @@ from pybotx.models.sync_smartapp_event import BotAPISyncSmartAppEventResponse
 from pybotx.models.system_events.added_to_chat import AddedToChatEvent
 from pybotx.models.system_events.chat_created import ChatCreatedEvent
 from pybotx.models.system_events.chat_deleted_by_user import ChatDeletedByUserEvent
+from pybotx.models.system_events.conference_changed import ConferenceChangedEvent
+from pybotx.models.system_events.conference_created import ConferenceCreatedEvent
+from pybotx.models.system_events.conference_deleted import ConferenceDeletedEvent
 from pybotx.models.system_events.cts_login import CTSLoginEvent
 from pybotx.models.system_events.cts_logout import CTSLogoutEvent
 from pybotx.models.system_events.deleted_from_chat import DeletedFromChatEvent
@@ -18,6 +21,7 @@ from pybotx.models.system_events.internal_bot_notification import (
 )
 from pybotx.models.system_events.left_from_chat import LeftFromChatEvent
 from pybotx.models.system_events.smartapp_event import SmartAppEvent
+from pybotx.models.system_events.user_joined_to_chat import JoinToChatEvent
 
 if TYPE_CHECKING:  # To avoid circular import
     from pybotx.bot.bot import Bot
@@ -42,6 +46,10 @@ SystemEventHandlerFunc = Union[
     HandlerFunc[InternalBotNotificationEvent],
     HandlerFunc[SmartAppEvent],
     HandlerFunc[EventEdit],
+    HandlerFunc[JoinToChatEvent],
+    HandlerFunc[ConferenceChangedEvent],
+    HandlerFunc[ConferenceCreatedEvent],
+    HandlerFunc[ConferenceDeletedEvent],
 ]
 
 VisibleFunc = Callable[[StatusRecipient, "Bot"], Awaitable[bool]]

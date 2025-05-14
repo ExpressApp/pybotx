@@ -90,6 +90,7 @@ from pybotx.models.enums import (
     AttachmentTypes,
     ChatTypes,
     ClientPlatforms,
+    ConferenceLinkTypes,
     MentionTypes,
     SmartappManifestWebLayoutChoices,
     SyncSourceTypes,
@@ -135,6 +136,9 @@ from pybotx.models.sync_smartapp_event import (
 from pybotx.models.system_events.added_to_chat import AddedToChatEvent
 from pybotx.models.system_events.chat_created import ChatCreatedEvent, ChatCreatedMember
 from pybotx.models.system_events.chat_deleted_by_user import ChatDeletedByUserEvent
+from pybotx.models.system_events.conference_changed import ConferenceChangedEvent
+from pybotx.models.system_events.conference_created import ConferenceCreatedEvent
+from pybotx.models.system_events.conference_deleted import ConferenceDeletedEvent
 from pybotx.models.system_events.cts_login import CTSLoginEvent
 from pybotx.models.system_events.cts_logout import CTSLogoutEvent
 from pybotx.models.system_events.deleted_from_chat import DeletedFromChatEvent
@@ -193,6 +197,10 @@ __all__ = (
     "ChatNotFoundError",
     "ChatTypes",
     "ClientPlatforms",
+    "ConferenceChangedEvent",
+    "ConferenceCreatedEvent",
+    "ConferenceDeletedEvent",
+    "ConferenceLinkTypes",
     "DeletedFromChatEvent",
     "Document",
     "EditMessage",

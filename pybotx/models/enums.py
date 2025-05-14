@@ -69,6 +69,13 @@ class SyncSourceTypes(AutoName):
     BOTX = auto()
 
 
+class ConferenceLinkTypes(AutoName):
+    PUBLIC = auto()
+    TRUSTS = auto()
+    CORPORATE = auto()
+    SERVER = auto()
+
+
 UNSUPPORTED = Literal["UNSUPPORTED"]
 IncomingChatTypes = Union[ChatTypes, UNSUPPORTED]
 IncomingSyncSourceTypes = Union[SyncSourceTypes, UNSUPPORTED]
@@ -103,6 +110,10 @@ class BotAPISystemEventTypes(StrEnum):
     LEFT_FROM_CHAT = "system:left_from_chat"
     SMARTAPP_EVENT = "system:smartapp_event"
     EVENT_EDIT = "system:event_edit"
+    JOIN_TO_CHAT = "system:user_joined_to_chat"
+    CONFERENCE_CHANGED = "system:conference_changed"
+    CONFERENCE_CREATED = "system:conference_created"
+    CONFERENCE_DELETED = "system:conference_deleted"
 
 
 class BotAPIClientPlatforms(Enum):
@@ -125,6 +136,13 @@ class BotAPIMentionTypes(StrEnum):
     CHANNEL = "channel"
     USER = "user"
     ALL = "all"
+
+
+class BotAPIConferenceLinkTypes(StrEnum):
+    PUBLIC = "public"
+    TRUSTS = "trusts"
+    CORPORATE = "corporate"
+    SERVER = "server"
 
 
 class APIUserKinds(Enum):
@@ -229,6 +247,25 @@ def convert_attachment_type_to_domain(
     converted_type = attachment_types_mapping.get(attachment_type)
     if converted_type is None:
         raise NotImplementedError(f"Unsupported attachment type: {attachment_type}")
+
+    return converted_type
+
+
+def convert_conference_link_type_to_domain(
+    conference_link_type: BotAPIConferenceLinkTypes,
+) -> ConferenceLinkTypes:
+    conference_link_type_mapping = {
+        BotAPIConferenceLinkTypes.PUBLIC: ConferenceLinkTypes.PUBLIC,
+        BotAPIConferenceLinkTypes.TRUSTS: ConferenceLinkTypes.TRUSTS,
+        BotAPIConferenceLinkTypes.CORPORATE: ConferenceLinkTypes.CORPORATE,
+        BotAPIConferenceLinkTypes.SERVER: ConferenceLinkTypes.SERVER,
+    }
+
+    converted_type = conference_link_type_mapping.get(conference_link_type)
+    if converted_type is None:
+        raise NotImplementedError(
+            f"Unsupported conference link type: {conference_link_type}",
+        )
 
     return converted_type
 
