@@ -1,18 +1,17 @@
 import uuid
 from typing import Any, Dict, List, Optional
 
-from factory.base import DictFactory  # type: ignore
-from factory.declarations import SubFactory  # type: ignore
+from factory.base import DictFactory
+from factory.declarations import SubFactory
 
 
-class DeviceMetaFactory(DictFactory):  # type: ignore[misc]
-
+class DeviceMetaFactory(DictFactory):
     permissions: Optional[str] = None
     pushes: Optional[str] = None
     timezone: Optional[str] = None
 
 
-class FromFactory(DictFactory):  # type: ignore[misc]
+class FromFactory(DictFactory):
     user_huid: Optional[str] = None
     group_chat_id: str = "8dada2c8-67a6-4434-9dec-570d244e78ee"
     ad_login: Optional[str] = None
@@ -22,7 +21,7 @@ class FromFactory(DictFactory):  # type: ignore[misc]
     manufacturer: Optional[str] = None
     device: Optional[str] = None
     device_software: Optional[str] = None
-    device_meta: Dict[str, Any] = SubFactory(DeviceMetaFactory)  # noqa: F821
+    device_meta: Any = SubFactory(DeviceMetaFactory)  # type: ignore[no-untyped-call]
     platform: Optional[str] = None
     platform_package_id: Optional[str] = None
     is_admin: Optional[bool] = None
@@ -32,29 +31,24 @@ class FromFactory(DictFactory):  # type: ignore[misc]
     host: str = "cts.ccteam.ru"
 
 
-class CommandDataFactory(DictFactory):  # type: ignore[misc]
-
+class CommandDataFactory(DictFactory):
     added_members: List[str] = [uuid.uuid4().hex, uuid.uuid4().hex]
 
 
-class CommandFactory(DictFactory):  # type: ignore[misc]
-
+class CommandFactory(DictFactory):
     body: str = "system:user_joined_to_chat"
     command_type: str = "system"
-    data: Dict[str, Any] = SubFactory(CommandDataFactory)  # noqa: F821
+    data: Any = SubFactory(CommandDataFactory)  # type: ignore[no-untyped-call]
     metadata: Dict[str, Any] = {}
 
 
-class BotAPIJoinToChatFactory(DictFactory):  # type: ignore[misc]
-
+class BotAPIJoinToChatFactory(DictFactory):
     sync_id: str = uuid.uuid4().hex
-    command: Dict[str, Any] = SubFactory(CommandFactory)  # noqa: F821
+    command: Any = SubFactory(CommandFactory)  # type: ignore[no-untyped-call]
     async_files: List[str] = []
     attachments: List[str] = []
     entities: List[str] = []
-    from_: Dict[str, Any] = SubFactory(
-        FromFactory,
-    )  # noqa: F821
+    from_: Any = SubFactory(FromFactory)  # type: ignore[no-untyped-call]
     bot_id: str = uuid.uuid4().hex
     proto_version: int = 4
     source_sync_id: Optional[str] = None
@@ -63,8 +57,7 @@ class BotAPIJoinToChatFactory(DictFactory):  # type: ignore[misc]
         rename = {"from_": "from"}
 
 
-class ConferenceChangedDataFactory(DictFactory):  # type: ignore[misc]
-
+class ConferenceChangedDataFactory(DictFactory):
     access_code = None
     actor = None
     added_users = ["5c053f2a-0bdf-4ab1-9bc9-256fee9db7ba"]

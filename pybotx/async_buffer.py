@@ -1,3 +1,4 @@
+import abc
 import os
 from typing import Optional
 
@@ -18,10 +19,12 @@ class AsyncBufferBase(Protocol):
 
 
 class AsyncBufferWritable(AsyncBufferBase):
+    @abc.abstractmethod
     async def write(self, content: bytes) -> int: ...  # noqa: WPS428
 
 
 class AsyncBufferReadable(AsyncBufferBase):
+    @abc.abstractmethod
     async def read(
         self,
         bytes_to_read: Optional[int] = None,

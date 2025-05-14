@@ -1,6 +1,15 @@
 from dataclasses import dataclass
 from functools import partial
-from typing import TYPE_CHECKING, Awaitable, Callable, List, Literal, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Awaitable,
+    Callable,
+    List,
+    Literal,
+    TypeVar,
+    Union,
+    cast,
+)
 
 from pybotx.models.commands import BotCommand
 from pybotx.models.message.incoming_message import IncomingMessage
@@ -69,7 +78,7 @@ class BaseIncomingMessageHandler:
         handler_func = self.handler_func
 
         for middleware in self.middlewares[::-1]:
-            handler_func = partial(middleware, call_next=handler_func)
+            handler_func = cast(HandlerFunc, partial(middleware, call_next=handler_func))  # type: ignore[type-arg, call-arg]
 
         await handler_func(message, bot)
 
