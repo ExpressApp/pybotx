@@ -13,14 +13,14 @@ class AsyncBufferBase(Protocol):
         self,
         cursor: int,
         whence: int = os.SEEK_SET,
-    ) -> int: ...  # noqa: WPS428
+    ) -> int: ...  # noqa: WPS428, E704
 
-    async def tell(self) -> int: ...  # noqa: WPS428
+    async def tell(self) -> int: ...  # noqa: WPS428, E704
 
 
 class AsyncBufferWritable(AsyncBufferBase):
     @abc.abstractmethod
-    async def write(self, content: bytes) -> int: ...  # noqa: WPS428
+    async def write(self, content: bytes) -> int: ...  # noqa: WPS428, E704
 
 
 class AsyncBufferReadable(AsyncBufferBase):
@@ -28,7 +28,7 @@ class AsyncBufferReadable(AsyncBufferBase):
     async def read(
         self,
         bytes_to_read: Optional[int] = None,
-    ) -> bytes: ...  # noqa: WPS428
+    ) -> bytes: ...  # noqa: WPS428, E704
 
 
 async def get_file_size(async_buffer: AsyncBufferReadable) -> int:

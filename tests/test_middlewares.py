@@ -35,7 +35,7 @@ async def test__middlewares__correct_order(
             bot: Bot,
             call_next: IncomingMessageHandlerFunc,
         ) -> None:
-            nonlocal middlewares_called_order
+            # middlewares_called_order is already accessible in this scope
             middlewares_called_order.append(number)
 
             await call_next(message, bot)
@@ -84,7 +84,7 @@ async def test__middlewares__called_in_default_handler(
             bot: Bot,
             call_next: IncomingMessageHandlerFunc,
         ) -> None:
-            nonlocal middlewares_called_order
+            # middlewares_called_order is already accessible in this scope
             middlewares_called_order.append(number)
 
             await call_next(message, bot)
@@ -129,7 +129,7 @@ async def test__middlewares__correct_child_collector_middlewares(
             bot: Bot,
             call_next: IncomingMessageHandlerFunc,
         ) -> None:
-            nonlocal middlewares_called_order
+            # middlewares_called_order is already accessible in this scope
             middlewares_called_order.append(number)
 
             await call_next(message, bot)

@@ -194,7 +194,7 @@ class HandlerCollector:
     def default_message_handler(
         self,
         handler_func: IncomingMessageHandlerFunc,
-    ) -> IncomingMessageHandlerFunc: ...  # noqa: WPS428
+    ) -> IncomingMessageHandlerFunc: ...  # noqa: WPS428, E704
 
     @overload
     def default_message_handler(
@@ -204,7 +204,7 @@ class HandlerCollector:
     ) -> Callable[
         [IncomingMessageHandlerFunc],
         IncomingMessageHandlerFunc,
-    ]: ...  # noqa: WPS428
+    ]: ...  # noqa: WPS428, E704
 
     def default_message_handler(  # noqa: WPS320
         self,
