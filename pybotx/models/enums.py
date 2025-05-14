@@ -311,7 +311,9 @@ def convert_chat_type_to_domain(
 
 
 @overload
-def convert_chat_type_to_domain(chat_type: str) -> UNSUPPORTED: ...  # noqa: WPS428, E704
+def convert_chat_type_to_domain(
+    chat_type: str,
+) -> UNSUPPORTED: ...  # noqa: WPS428, E704
 
 
 def convert_chat_type_to_domain(
