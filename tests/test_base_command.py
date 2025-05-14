@@ -21,7 +21,9 @@ pytestmark = [
 ]
 
 
-async def test__async_execute_raw_bot_command__invalid_payload_value_error_raised() -> None:
+async def test__async_execute_raw_bot_command__invalid_payload_value_error_raised() -> (
+    None
+):
     # - Arrange -
     payload = {"invalid": "command"}
     built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[])
@@ -35,7 +37,9 @@ async def test__async_execute_raw_bot_command__invalid_payload_value_error_raise
     assert "validation" in str(exc.value)
 
 
-async def test__async_execute_raw_bot_command__unsupported_bot_api_version_error_raised() -> None:
+async def test__async_execute_raw_bot_command__unsupported_bot_api_version_error_raised() -> (
+    None
+):
     # - Arrange -
     payload = {"proto_version": "3"}
     built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[])

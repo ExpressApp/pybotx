@@ -307,13 +307,13 @@ def convert_chat_type_from_domain(chat_type: ChatTypes) -> APIChatTypes:
 @overload
 def convert_chat_type_to_domain(
     chat_type: APIChatTypes,
-) -> ChatTypes:
-    ...  # noqa: WPS428
+) -> ChatTypes: ...  # noqa: WPS428, E704
 
 
 @overload
-def convert_chat_type_to_domain(chat_type: str) -> UNSUPPORTED:
-    ...  # noqa: WPS428
+def convert_chat_type_to_domain(
+    chat_type: str,
+) -> UNSUPPORTED: ...  # noqa: WPS428, E704
 
 
 def convert_chat_type_to_domain(
@@ -340,15 +340,13 @@ def convert_chat_type_to_domain(
 @overload
 def convert_sync_source_type_to_domain(
     sync_type: APISyncSourceTypes,
-) -> SyncSourceTypes:
-    ...  # noqa: WPS428
+) -> SyncSourceTypes: ...  # noqa: WPS428, E704
 
 
 @overload
 def convert_sync_source_type_to_domain(
     sync_type: str,
-) -> UNSUPPORTED:
-    ...  # noqa: WPS428
+) -> UNSUPPORTED: ...  # noqa: WPS428, E704
 
 
 def convert_sync_source_type_to_domain(

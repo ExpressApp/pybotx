@@ -1,3 +1,4 @@
+import abc
 import os
 from typing import Optional
 
@@ -8,26 +9,30 @@ except ImportError:
 
 
 class AsyncBufferBase(Protocol):
-    async def seek(self, cursor: int, whence: int = os.SEEK_SET) -> int:
-        ...  # noqa: WPS428
+    async def seek(
+        self,
+        cursor: int,
+        whence: int = os.SEEK_SET,
+    ) -> int: ...
 
-    async def tell(self) -> int:
-        ...  # noqa: WPS428
+    async def tell(self) -> int: ...
 
 
 class AsyncBufferWritable(AsyncBufferBase):
-    async def write(self, content: bytes) -> int:
-        ...  # noqa: WPS428
+    @abc.abstractmethod
+    async def write(self, content: bytes) -> int: ...
 
 
 class AsyncBufferReadable(AsyncBufferBase):
-    async def read(self, bytes_to_read: Optional[int] = None) -> bytes:
-        ...  # noqa: WPS428
+    @abc.abstractmethod
+    async def read(
+        self,
+        bytes_to_read: Optional[int] = None,
+    ) -> bytes: ...
 
 
 async def get_file_size(async_buffer: AsyncBufferReadable) -> int:
     await async_buffer.seek(0, os.SEEK_END)
     file_size = await async_buffer.tell()
     await async_buffer.seek(0)
-
     return file_size
