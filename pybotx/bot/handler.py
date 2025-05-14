@@ -8,7 +8,6 @@ from typing import (
     Literal,
     TypeVar,
     Union,
-    cast,
 )
 
 from pybotx.models.commands import BotCommand
@@ -78,10 +77,7 @@ class BaseIncomingMessageHandler:
         handler_func = self.handler_func
 
         for middleware in self.middlewares[::-1]:
-            handler_func = cast(
-                HandlerFunc,
-                partial(middleware, call_next=handler_func),
-            )  # type: ignore[type-arg, call-arg]
+            handler_func = partial(middleware, call_next=handler_func)  # type: ignore[call-arg]
 
         await handler_func(message, bot)
 

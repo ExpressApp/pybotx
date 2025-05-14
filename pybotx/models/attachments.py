@@ -220,10 +220,10 @@ def convert_api_attachment_to_domain(  # noqa: WPS212
     attachment_type = convert_attachment_type_to_domain(api_attachment.type)
 
     if attachment_type == AttachmentTypes.IMAGE:
-        attachment_type = cast(
+        attachment_type = cast(  # type: ignore[redundant-cast]
             Literal[AttachmentTypes.IMAGE],
             attachment_type,
-        )  # type: ignore[redundant-cast]
+        )
         api_attachment = cast(BotAPIAttachmentImage, api_attachment)
         content = decode_rfc2397(api_attachment.data.content)
 
@@ -236,10 +236,10 @@ def convert_api_attachment_to_domain(  # noqa: WPS212
         )
 
     if attachment_type == AttachmentTypes.VIDEO:
-        attachment_type = cast(
+        attachment_type = cast(  # type: ignore[redundant-cast]
             Literal[AttachmentTypes.VIDEO],
             attachment_type,
-        )  # type: ignore[redundant-cast]
+        )
         api_attachment = cast(BotAPIAttachmentVideo, api_attachment)
         content = decode_rfc2397(api_attachment.data.content)
 
@@ -253,10 +253,10 @@ def convert_api_attachment_to_domain(  # noqa: WPS212
         )
 
     if attachment_type == AttachmentTypes.DOCUMENT:
-        attachment_type = cast(
+        attachment_type = cast(  # type: ignore[redundant-cast]
             Literal[AttachmentTypes.DOCUMENT],
             attachment_type,
-        )  # type: ignore[redundant-cast]
+        )
         api_attachment = cast(BotAPIAttachmentDocument, api_attachment)
         content = decode_rfc2397(api_attachment.data.content)
 
@@ -269,10 +269,10 @@ def convert_api_attachment_to_domain(  # noqa: WPS212
         )
 
     if attachment_type == AttachmentTypes.VOICE:
-        attachment_type = cast(
+        attachment_type = cast(  # type: ignore[redundant-cast]
             Literal[AttachmentTypes.VOICE],
             attachment_type,
-        )  # type: ignore[redundant-cast]
+        )
         api_attachment = cast(BotAPIAttachmentVoice, api_attachment)
         content = decode_rfc2397(api_attachment.data.content)
         attachment_extension = get_attachment_extension_from_encoded_content(
@@ -289,10 +289,10 @@ def convert_api_attachment_to_domain(  # noqa: WPS212
         )
 
     if attachment_type == AttachmentTypes.LOCATION:
-        attachment_type = cast(
+        attachment_type = cast(  # type: ignore[redundant-cast]
             Literal[AttachmentTypes.LOCATION],
             attachment_type,
-        )  # type: ignore[redundant-cast]
+        )
         api_attachment = cast(BotAPIAttachmentLocation, api_attachment)
 
         return Location(
@@ -303,10 +303,10 @@ def convert_api_attachment_to_domain(  # noqa: WPS212
         )
 
     if attachment_type == AttachmentTypes.CONTACT:
-        attachment_type = cast(
+        attachment_type = cast(  # type: ignore[redundant-cast]
             Literal[AttachmentTypes.CONTACT],
             attachment_type,
-        )  # type: ignore[redundant-cast]
+        )
         api_attachment = cast(BotAPIAttachmentContact, api_attachment)
 
         return Contact(
