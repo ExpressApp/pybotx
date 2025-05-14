@@ -20,7 +20,7 @@ jobs:
         env:
           BOT_CREDENTIALS: ${{ secrets.END_TO_END_TESTS_BOT_CREDENTIALS }}
         run: |
-          poetry run ./scripts/test --cov-report=xml
+          poetry run ./scripts/test --cov=pybotx --cov-report=xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
