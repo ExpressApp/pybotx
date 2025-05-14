@@ -77,7 +77,10 @@ class BaseIncomingMessageHandler:
         handler_func = self.handler_func
 
         for middleware in self.middlewares[::-1]:
-            handler_func = partial(middleware, call_next=handler_func)  # type: ignore[call-arg]
+            handler_func = partial(
+                middleware,
+                call_next=handler_func,  # type: ignore[call-arg]
+            )
 
         await handler_func(message, bot)
 
