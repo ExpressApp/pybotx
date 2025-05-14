@@ -13,27 +13,25 @@ except ImportError:
 
 
 class CallbackRepoProto(Protocol):
-    async def create_botx_method_callback(self, sync_id: UUID) -> None:
-        ...  # noqa: WPS428
+    async def create_botx_method_callback(
+        self,
+        sync_id: UUID,
+    ) -> None: ...  # noqa: WPS428
 
     async def set_botx_method_callback_result(
         self,
         callback: BotXMethodCallback,
-    ) -> None:
-        ...  # noqa: WPS428
+    ) -> None: ...  # noqa: WPS428
 
     async def wait_botx_method_callback(
         self,
         sync_id: UUID,
         timeout: float,
-    ) -> BotXMethodCallback:
-        ...  # noqa: WPS428
+    ) -> BotXMethodCallback: ...  # noqa: WPS428
 
     async def pop_botx_method_callback(
         self,
         sync_id: UUID,
-    ) -> "Future[BotXMethodCallback]":
-        ...  # noqa: WPS428
+    ) -> "Future[BotXMethodCallback]": ...  # noqa: WPS428
 
-    async def stop_callbacks_waiting(self) -> None:
-        ...  # noqa: WPS428
+    async def stop_callbacks_waiting(self) -> None: ...  # noqa: WPS428

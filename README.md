@@ -7,6 +7,7 @@
 [![Coverage](https://codecov.io/gh/ExpressApp/pybotx/branch/master/graph/badge.svg)](https://codecov.io/gh/ExpressApp/pybotx/branch/master)
 [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
+
 ## Особенности
 
 * Простая для использования
@@ -14,6 +15,7 @@
 * Легко интегрируется с асинхронными веб-фреймворками
 * Полное покрытие тестами
 * Полное покрытие аннотациями типов
+
 
 ## Установка
 
@@ -26,14 +28,15 @@ poetry add pybotx
 **Предупреждение:** Данный проект находится в активной разработке (`0.y.z`) и
 его API может быть изменён при повышении минорной версии.
 
+
 ## Информация о мессенджере eXpress и платформе BotX
 
-[Документация](https://docs.express.ms/) по мессенджеру (включая руководство пользователя и администратора).
+Документацию по мессенджеру (включая руководство пользователя и администратора)
+можно найти на [официальном сайте](https://express.ms/).
 
 Перед тем, как продолжать знакомство с библиотекой `pybotx`,
-советуем прочитать данные
-статьи: Что
-такое [чат-боты](https://docs.express.ms/chatbots/developer-guide/#%D1%87%D0%B0%D1%82-%D0%B1%D0%BE%D1%82-%D0%B8-smartapp)
+советуем прочитать данные статьи: Что такое [чат-боты]
+(https://docs.express.ms/chatbots/developer-guide/#%D1%87%D0%B0%D1%82-%D0%B1%D0%BE%D1%82-%D0%B8-smartapp)
 и [SmartApp](https://docs.express.ms/smartapps/developer-guide/)
 и [Взаимодействие с Bot API и BotX API](https://docs.express.ms/chatbots/developer-guide/api/).
 В этих статьях находятся исчерпывающие примеры работы с платформой, которые
@@ -41,6 +44,7 @@ poetry add pybotx
 
 Также не будет лишним ознакомиться с [документацией по плаформе BotX
 ](https://hackmd.ccsteam.ru/s/botx_platform).
+
 
 ## Примеры готовых проектов на базе pybotx
 
@@ -50,6 +54,7 @@ poetry add pybotx
   дел.
 * [Weather SmartApp](https://github.com/ExpressApp/weather-smartapp) -
   приложение для просмотра погоды.
+
 
 ## Минимальный пример бота (интеграция с FastAPI)
 
@@ -145,11 +150,11 @@ async def callback_handler(request: Request) -> JSONResponse:
 
 ## Примеры
 
+
 ### Получение сообщений
 
 *([подробное описание функции](
 https://docs.express.ms/chatbots/developer-guide/api/bot-api/command/))*
-
 ```python
 from uuid import UUID
 
@@ -192,11 +197,11 @@ async def default_handler(_: IncomingMessage, bot: Bot) -> None:
     print("Hello from default handler")
 ```
 
+
 ### Получение системных событий
 
 *([подробное описание функции](
 https://docs.express.ms/chatbots/developer-guide/api/bot-api/command/#%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%BD%D1%8B%D0%B5-%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B))*
-
 ```python
 from pybotx import *
 
@@ -215,6 +220,7 @@ async def smartapp_event_handler(event: SmartAppEvent, bot: Bot) -> None:
     print(f"Got `smartapp_event` event: {event}")
 ```
 
+
 ### Получение синхронных SmartApp событий
 
 ```python
@@ -226,7 +232,7 @@ collector = HandlerCollector()
 # Обработчик синхронных Smartapp событий, приходящих на эндпоинт `/smartapps/request`
 @collector.sync_smartapp_event
 async def handle_sync_smartapp_event(
-        event: SmartAppEvent, bot: Bot,
+    event: SmartAppEvent, bot: Bot,
 ) -> BotAPISyncSmartAppEventResultResponse:
     print(f"Got sync smartapp event: {event}")
     return BotAPISyncSmartAppEventResultResponse.from_domain(
@@ -234,6 +240,7 @@ async def handle_sync_smartapp_event(
         files=[],
     )
 ```
+
 
 ### Middlewares
 
@@ -248,9 +255,9 @@ collector = HandlerCollector()
 
 
 async def custom_api_client_middleware(
-        message: IncomingMessage,
-        bot: Bot,
-        call_next: IncomingMessageHandlerFunc,
+    message: IncomingMessage,
+    bot: Bot,
+    call_next: IncomingMessageHandlerFunc,
 ) -> None:
     # До вызова `call_next` (обязателен в каждой миддлвари) располагается
     # код, который выполняется до того, как сообщение дойдёт до
@@ -292,18 +299,18 @@ ADMIN_HUIDS = (UUID("123e4567-e89b-12d3-a456-426614174000"),)
 
 
 async def request_id_middleware(
-        message: IncomingMessage,
-        bot: Bot,
-        call_next: IncomingMessageHandlerFunc,
+    message: IncomingMessage,
+    bot: Bot,
+    call_next: IncomingMessageHandlerFunc,
 ) -> None:
     message.state.request_id = uuid4()
     await call_next(message, bot)
 
 
 async def ensure_admin_middleware(
-        message: IncomingMessage,
-        bot: Bot,
-        call_next: IncomingMessageHandlerFunc,
+    message: IncomingMessage,
+    bot: Bot,
+    call_next: IncomingMessageHandlerFunc,
 ) -> None:
     if message.sender.huid not in ADMIN_HUIDS:
         await bot.answer_message("You are not admin")
@@ -327,11 +334,11 @@ admin_collector = HandlerCollector(middlewares=[ensure_admin_middleware])
 main_collector.include(admin_collector)
 ```
 
+
 ### Отправка сообщения
 
 *([подробное описание функции](
 https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F))*
-
 ```python
 from uuid import UUID
 
@@ -382,11 +389,11 @@ async def prebuild_answer_handler(message: IncomingMessage, bot: Bot) -> None:
     await bot.send(message=answer)
 ```
 
+
 #### Отправка сообщения с кнопками
 
 *([подробное описание функции](
 https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F-%D1%81-%D0%BA%D0%BD%D0%BE%D0%BF%D0%BA%D0%B0%D0%BC%D0%B8))*
-
 ```python
 from pybotx import *
 
@@ -428,11 +435,11 @@ async def bubbles_handler(message: IncomingMessage, bot: Bot) -> None:
     )
 ```
 
+
 #### Упоминание пользователя
 
 *([подробное описание функции](
 https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D1%83%D0%BF%D0%BE%D0%BC%D0%B8%D0%BD%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F))*
-
 ```python
 from pybotx import *
 
@@ -455,11 +462,11 @@ async def echo_contact_handler(message: IncomingMessage, bot: Bot) -> None:
     await bot.answer_message(answer)
 ```
 
+
 #### Отправка файла в сообщении
 
 *([подробное описание функции](
 https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%84%D0%B0%D0%B9%D0%BB%D0%B0-%D0%B2-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B8))*
-
 ```python
 from aiofiles.tempfile import NamedTemporaryFile
 
@@ -494,7 +501,6 @@ async def echo_file_handler(message: IncomingMessage, bot: Bot) -> None:
 
 *([подробное описание функции](
 https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D1%80%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B9))*
-
 ```python
 from pybotx import *
 
@@ -533,7 +539,6 @@ async def increment_handler(message: IncomingMessage, bot: Bot) -> None:
 
 *([подробное описание функции](
 https://hackmd.ccsteam.ru/s/E9MPeOxjP#%D0%A3%D0%B4%D0%B0%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F))*
-
 ```python
 from pybotx import *
 
@@ -558,6 +563,7 @@ async def deleted_message_handler(message: IncomingMessage, bot: Bot) -> None:
     await bot.answer_message("Self-deleted message", bubbles=bubbles)
 ```
 
+
 ### Обработчики ошибок
 
 *(Этот функционал относится исключительно к `pybotx`)*
@@ -569,9 +575,9 @@ from pybotx import *
 
 
 async def internal_error_handler(
-        message: IncomingMessage,
-        bot: Bot,
-        exc: Exception,
+    message: IncomingMessage,
+    bot: Bot,
+    exc: Exception,
 ) -> None:
     logger.exception("Internal error:")
 
@@ -593,7 +599,6 @@ bot = Bot(
 
 *([подробное описание функции](
 https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-%D1%87%D0%B0%D1%82%D0%B0))*
-
 ```python
 from pybotx import *
 
@@ -625,7 +630,6 @@ async def create_group_chat_handler(message: IncomingMessage, bot: Bot) -> None:
 
 *([подробное описание функции](
 https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D0%BF%D0%BE%D0%B8%D1%81%D0%BA-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F))*
-
 ```python
 import dataclasses
 
@@ -652,7 +656,6 @@ async def search_user_handler(message: IncomingMessage, bot: Bot) -> None:
 
 *([подробное описание функции](
 https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BF%D0%B8%D1%81%D0%BA%D0%B0-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D0%B5%D0%B9-%D0%BD%D0%B0-cts))*
-
 ```python
 from pybotx import *
 
@@ -662,10 +665,10 @@ collector = HandlerCollector()
 @collector.command("/get_users_list", description="Get a list of users")
 async def users_list_handler(message: IncomingMessage, bot: Bot) -> None:
     async with bot.users_as_csv(
-            bot_id=message.bot.id,
-            cts_user=True,
-            unregistered=False,
-            botx=False,
+        bot_id=message.bot.id,
+        cts_user=True,
+        unregistered=False,
+        botx=False,
     ) as users:
         async for user in users:
             print(user)

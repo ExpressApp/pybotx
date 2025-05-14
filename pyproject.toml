@@ -15,40 +15,44 @@ repository = "https://github.com/ExpressApp/pybotx"
 [tool.poetry.dependencies]
 python = ">=3.9,<=3.13"
 
-aiofiles = ">=0.7.0,<24.0.0"
-httpx = "^0.25.0"
+aiofiles = ">=0.7.0,<=24.1.0"
+httpx = "^0.28.0"
 # The v1.0.3 cause some troubles with no-wait callbacks functionality.
 # It will be fixed in the next versions.
 # https://github.com/encode/httpcore/pull/880
 httpcore = "1.0.9"
 loguru = ">=0.6.0,<0.7.0"
 pydantic = ">=1.6.0,<1.11.0"
-aiocsv = ">=1.2.3,<1.3.0"
+aiocsv = ">=1.2.3,<=1.4.0"
 pyjwt = ">=2.0.0,<3.0.0"
-mypy-extensions = ">=0.2.0,<0.5.0"
-factory-boy = "^3.3.3"
-deepdiff = "^8.5.0"
+mypy-extensions = ">=0.2.0,<=1.1.0"
+factory-boy = ">=3.3.3,<=4.0.0"
+deepdiff = "^8.5.0,<=9.0.0"
 
 [tool.poetry.group.dev.dependencies]
-add-trailing-comma = "2.2.1"
-autoflake = "1.7.8"
-black = "22.3.0"
-isort = "5.10.1"
-mypy = "0.910.0"
+add-trailing-comma = "3.1.0"
+autoflake = "2.3.1"
+black = "25.1.0"
+isort = "6.0.1"
+mypy = "1.15.0"
 typing-extensions = ">=3.7.4,<5.0.0"
-wemake-python-styleguide = "0.16.0"
-bandit = "1.7.2"  # https://github.com/PyCQA/bandit/issues/837
+wemake-python-styleguide = "0.19.2"
+bandit = "1.8.3"  # https://github.com/PyCQA/bandit/issues/837
 
-pytest = "7.2.0"
-pytest-asyncio = "0.16.0"
-pytest-cov = "4.0.0"
-requests = "2.31.0"
-respx = "0.20.2"
+pytest = "8.3.5"
+pytest-asyncio = "0.26.0"
+pytest-cov = "6.1.1"
+requests = "2.32.3"
+respx = "0.22.0"
 
-fastapi = "0.95.2"
-starlette = "0.27.0"  # TODO: Drop dependency after updating end-to-end test
-uvicorn = "0.16.0"
+fastapi = "0.115.12 "
+starlette = "0.46.2"  # TODO: Drop dependency after updating end-to-end test
+uvicorn = "0.34.2"
 
 [build-system]
-requires = ["poetry>=0.12"]
+requires = ["poetry>=2.1.3"]
 build-backend = "poetry.masonry.api"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
