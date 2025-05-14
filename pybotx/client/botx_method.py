@@ -12,7 +12,6 @@ from typing import (
     Type,
     TypeVar,
 )
-from urllib.parse import urljoin
 from uuid import UUID
 
 import httpx
@@ -88,8 +87,8 @@ class BotXMethod:
         raise NotImplementedError("You should define `execute` method")
 
     def _build_url(self, path: str) -> str:
-        host = self._bot_accounts_storage.get_host(self._bot_id)
-        return urljoin(f"https://{host}", path)
+        cts_url = self._bot_accounts_storage.get_cts_url(self._bot_id)
+        return "/".join(part.strip("/") for part in (cts_url, path))
 
     def _verify_and_extract_api_model(
         self,

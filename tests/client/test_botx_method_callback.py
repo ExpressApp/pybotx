@@ -128,6 +128,7 @@ async def test__botx_method_callback__callback_not_found(
                         ),
                     },
                 },
+                verify_request=False,
             )
 
     # - Assert -
@@ -180,6 +181,7 @@ async def test__botx_method_callback__error_callback_error_handler_called(
                     ),
                 },
             },
+            verify_request=False,
         )
 
         with pytest.raises(FooBarError) as exc:
@@ -235,6 +237,7 @@ async def test__botx_method_callback__error_callback_received(
                     ),
                 },
             },
+            verify_request=False,
         )
 
         with pytest.raises(BotXMethodFailedCallbackReceivedError) as exc:
@@ -323,6 +326,7 @@ async def test__botx_method_callback__callback_received_after_timeout(
                         ),
                     },
                 },
+                verify_request=False,
             )
 
     # - Assert -
@@ -440,6 +444,7 @@ async def test__botx_method_callback__callback_successful_received(
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -
@@ -488,6 +493,7 @@ async def test__botx_method_callback__callback_successful_received_with_custom_r
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -
@@ -538,6 +544,7 @@ async def test__botx_method_callback__bot_wait_callback_before_its_receiving(
                 "status": "ok",
                 "result": {},
             },
+            verify_request=False,
         )
 
         callback = await task
@@ -590,6 +597,7 @@ async def test__botx_method_callback__bot_wait_callback_after_its_receiving(
                 "status": "ok",
                 "result": {},
             },
+            verify_request=False,
         )
 
         callback = await bot.wait_botx_method_callback(foo_bar)
@@ -637,7 +645,7 @@ async def test__botx_method_callback__bot_dont_wait_received_callback(
     async with lifespan_wrapper(built_bot) as bot:
         await bot.call_foo_bar(bot_id, baz=1, callback_timeout=0, wait_callback=False)
 
-        # Return control to event loop
+        # Return control to event-loop
         await asyncio.sleep(0)
 
         await bot.set_raw_botx_method_result(
@@ -646,6 +654,7 @@ async def test__botx_method_callback__bot_dont_wait_received_callback(
                 "status": "ok",
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -
@@ -693,6 +702,7 @@ async def test__botx_method_callback__bot_wait_already_waited_callback(
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
+            verify_request=False,
         )
 
         foo_bar = await task

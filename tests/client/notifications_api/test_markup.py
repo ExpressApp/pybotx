@@ -45,7 +45,7 @@ async def test__markup__defaults_filled(
                             "command": "/bubble-button",
                             "data": {},
                             "label": "Bubble button",
-                            "opts": {"silent": True},
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                 ],
@@ -55,7 +55,7 @@ async def test__markup__defaults_filled(
                             "command": "/keyboard-button",
                             "data": {},
                             "label": "Keyboard button",
-                            "opts": {"silent": True},
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                 ],
@@ -105,6 +105,7 @@ async def test__markup__defaults_filled(
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -
@@ -133,13 +134,13 @@ async def test__markup__correctly_built(
                             "command": "/bubble-button-1",
                             "data": {},
                             "label": "Bubble button 1",
-                            "opts": {"silent": True},
+                            "opts": {"silent": True, "align": "center"},
                         },
                         {
                             "command": "/bubble-button-2",
                             "data": {},
                             "label": "Bubble button 2",
-                            "opts": {"silent": True},
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                     [
@@ -147,7 +148,7 @@ async def test__markup__correctly_built(
                             "command": "/bubble-button-3",
                             "data": {},
                             "label": "Bubble button 3",
-                            "opts": {"silent": True},
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                     [
@@ -155,13 +156,13 @@ async def test__markup__correctly_built(
                             "command": "/bubble-button-4",
                             "data": {},
                             "label": "Bubble button 4",
-                            "opts": {"silent": True},
+                            "opts": {"silent": True, "align": "center"},
                         },
                         {
                             "command": "/bubble-button-5",
                             "data": {},
                             "label": "Bubble button 5",
-                            "opts": {"silent": True},
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                 ],
@@ -225,6 +226,7 @@ async def test__markup__correctly_built(
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -
@@ -364,11 +366,137 @@ async def test__markup__color_and_align(
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -
     assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
     assert endpoint.called
+
+
+async def test__markup__link(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.post(
+        f"https://{host}/api/v4/botx/notifications/direct",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        json={
+            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
+            "notification": {
+                "body": "Buttons links:",
+                "bubble": [
+                    [
+                        {
+                            "data": {},
+                            "label": "Open me",
+                            "opts": {
+                                "silent": True,
+                                "align": "center",
+                                "handler": "client",
+                                "link": "https://example.com",
+                            },
+                        },
+                    ],
+                ],
+                "keyboard": [
+                    [
+                        {
+                            "data": {},
+                            "label": "Open me",
+                            "opts": {
+                                "silent": True,
+                                "align": "center",
+                                "handler": "client",
+                                "link": "https://example.com",
+                            },
+                        },
+                    ],
+                ],
+                "status": "ok",
+            },
+        },
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        ),
+    )
+
+    bubbles = BubbleMarkup()
+    bubbles.add_button(
+        label="Open me",
+        silent=True,
+        link="https://example.com",
+    )
+
+    keyboard = KeyboardMarkup()
+    keyboard.add_button(
+        label="Open me",
+        silent=True,
+        link="https://example.com",
+    )
+
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        task = asyncio.create_task(
+            bot.send_message(
+                body="Buttons links:",
+                bot_id=bot_id,
+                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+                bubbles=bubbles,
+                keyboard=keyboard,
+            ),
+        )
+
+        await asyncio.sleep(0)  # Return control to event loop
+
+        await bot.set_raw_botx_method_result(
+            {
+                "status": "ok",
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "result": {},
+            },
+            verify_request=False,
+        )
+
+    # - Assert -
+    assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert endpoint.called
+
+
+def test__markup__bubble_without_command_error_raised() -> None:
+    # - Arrange -
+    bubbles = BubbleMarkup()
+
+    # - Act -
+    with pytest.raises(ValueError) as exc:
+        bubbles.add_button(
+            label="label",
+            silent=True,
+        )
+
+    # - Assert -
+    assert "Command arg is required" in str(exc.value)
+
+
+def test__markup__built_button_without_command_error_raised2() -> None:
+    # - Arrange -
+    with pytest.raises(ValueError) as exc:
+        Button(
+            label="Bubble",
+        )
+
+    # - Assert -
+    assert "Either 'command' or 'link' must be provided" in str(exc.value)
 
 
 def test__markup__comparison() -> None:

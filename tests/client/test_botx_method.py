@@ -240,3 +240,49 @@ async def test__botx_method__succeed(
     # - Assert -
     assert botx_api_foo_bar.to_domain() == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
     assert endpoint.called
+
+
+@pytest.mark.parametrize(
+    "cts_url",
+    (
+        "http://127.0.0.1",
+        "http://localhost",
+        "http://cts.ru",
+        "https://cts.ru",
+        "http://cts.ru:8000",
+        "http://cts.ru/foo/bar",
+        "http://cts.ru:8000/foo/bar/",
+    ),
+)
+async def test__build_botx_url_with_different_bot_cts_urls(
+    bot_id: UUID,
+    cts_url: str,
+    respx_mock: MockRouter,
+    httpx_client: httpx.AsyncClient,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.post(
+        "/".join(parts.strip("/") for parts in (cts_url, "/foo/bar")),
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.OK,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        ),
+    )
+
+    method = FooBarMethod(
+        bot_id,
+        httpx_client,
+        BotAccountsStorage([bot_account]),
+    )
+    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+
+    # - Act -
+    await method.execute(payload)
+
+    # - Assert -
+    assert endpoint.called

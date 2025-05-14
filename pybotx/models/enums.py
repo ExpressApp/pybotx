@@ -36,6 +36,7 @@ class ClientPlatforms(AutoName):
     ANDROID = auto()
     IOS = auto()
     DESKTOP = auto()
+    AURORA = auto()
 
 
 class MentionTypes(AutoName):
@@ -94,12 +95,14 @@ class BotAPICommandTypes(StrEnum):
 class BotAPISystemEventTypes(StrEnum):
     ADDED_TO_CHAT = "system:added_to_chat"
     CHAT_CREATED = "system:chat_created"
+    CHAT_DELETED_BY_USER = "system:chat_deleted_by_user"
     CTS_LOGIN = "system:cts_login"
     CTS_LOGOUT = "system:cts_logout"
     DELETED_FROM_CHAT = "system:deleted_from_chat"
     INTERNAL_BOT_NOTIFICATION = "system:internal_bot_notification"
     LEFT_FROM_CHAT = "system:left_from_chat"
     SMARTAPP_EVENT = "system:smartapp_event"
+    EVENT_EDIT = "system:event_edit"
 
 
 class BotAPIClientPlatforms(Enum):
@@ -107,6 +110,7 @@ class BotAPIClientPlatforms(Enum):
     ANDROID = "android"
     IOS = "ios"
     DESKTOP = "desktop"
+    AURORA = "aurora"
 
 
 class BotAPIEntityTypes(StrEnum):
@@ -150,6 +154,12 @@ class APISyncSourceTypes(Enum):
     BOTX = "botx"
 
 
+class SmartappManifestWebLayoutChoices(StrEnum):
+    minimal = "minimal"
+    half = "half"
+    full = "full"
+
+
 def convert_client_platform_to_domain(
     client_platform: BotAPIClientPlatforms,
 ) -> ClientPlatforms:
@@ -158,6 +168,7 @@ def convert_client_platform_to_domain(
         BotAPIClientPlatforms.ANDROID: ClientPlatforms.ANDROID,
         BotAPIClientPlatforms.IOS: ClientPlatforms.IOS,
         BotAPIClientPlatforms.DESKTOP: ClientPlatforms.DESKTOP,
+        BotAPIClientPlatforms.AURORA: ClientPlatforms.AURORA,
     }
 
     converted_type = client_platforms_mapping.get(client_platform)
@@ -257,7 +268,9 @@ def convert_chat_type_from_domain(chat_type: ChatTypes) -> APIChatTypes:
 
 
 @overload
-def convert_chat_type_to_domain(chat_type: APIChatTypes) -> ChatTypes:
+def convert_chat_type_to_domain(
+    chat_type: APIChatTypes,
+) -> ChatTypes:
     ...  # noqa: WPS428
 
 
@@ -295,7 +308,9 @@ def convert_sync_source_type_to_domain(
 
 
 @overload
-def convert_sync_source_type_to_domain(sync_type: str) -> UNSUPPORTED:
+def convert_sync_source_type_to_domain(
+    sync_type: str,
+) -> UNSUPPORTED:
     ...  # noqa: WPS428
 
 

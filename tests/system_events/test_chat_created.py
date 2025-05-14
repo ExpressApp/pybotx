@@ -96,7 +96,7 @@ async def test__chat_created__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert chat_created == ChatCreatedEvent(

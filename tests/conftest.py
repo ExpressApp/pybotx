@@ -6,22 +6,27 @@ from unittest.mock import Mock
 from uuid import UUID, uuid4
 
 import httpx
+import jwt
 import pytest
 from aiofiles.tempfile import NamedTemporaryFile
 from pydantic import BaseModel
 from respx.router import MockRouter
 
 from pybotx import (
+    Bot,
     BotAccount,
     BotAccountWithSecret,
     Chat,
     ChatTypes,
+    HandlerCollector,
     IncomingMessage,
+    SmartAppEvent,
     UserDevice,
     UserSender,
 )
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
 from pybotx.logger import logger
+from pybotx.models.sync_smartapp_event import BotAPISyncSmartAppEventResultResponse
 
 
 @pytest.fixture(autouse=True)
@@ -57,17 +62,46 @@ def host() -> str:
 
 
 @pytest.fixture
+def cts_url() -> str:
+    return "https://cts.example.com"
+
+
+@pytest.fixture
 def bot_id() -> UUID:
     return UUID("24348246-6791-4ac0-9d86-b948cd6a0e46")
 
 
 @pytest.fixture
-def bot_account(host: str, bot_id: UUID) -> BotAccountWithSecret:
+def bot_account(cts_url: str, bot_id: UUID) -> BotAccountWithSecret:
     return BotAccountWithSecret(
         id=bot_id,
-        host=host,
+        cts_url=cts_url,
         secret_key="bee001",
     )
+
+
+@pytest.fixture
+def authorization_token_payload(bot_account: BotAccountWithSecret) -> Dict[str, Any]:
+    return {
+        "aud": [str(bot_account.id)],
+        "exp": datetime(year=3000, month=1, day=1).timestamp(),
+        "iat": datetime(year=2000, month=1, day=1).timestamp(),
+        "iss": bot_account.host,
+        "jti": "2uqpju31h6dgv4f41c005e1i",
+        "nbf": datetime(year=2000, month=1, day=1).timestamp(),
+    }
+
+
+@pytest.fixture
+def authorization_header(
+    bot_account: BotAccountWithSecret,
+    authorization_token_payload: Dict[str, Any],
+) -> Dict[str, str]:
+    token = jwt.encode(
+        payload=authorization_token_payload,
+        key=bot_account.secret_key,
+    )
+    return {"authorization": f"Bearer {token}"}
 
 
 @pytest.fixture
@@ -195,6 +229,44 @@ def api_incoming_message_factory() -> Callable[..., Dict[str, Any]]:
 
 
 @pytest.fixture
+def api_sync_smartapp_event_factory() -> Callable[..., Dict[str, Any]]:
+    def decorator(
+        *,
+        bot_id: Optional[UUID] = None,
+        group_chat_id: Optional[UUID] = None,
+        user_huid: Optional[UUID] = None,
+        async_file: Optional[Dict[str, Any]] = None,
+        method: Optional[str] = None,
+        params: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        return {
+            "bot_id": str(bot_id) if bot_id else "8dada2c8-67a6-4434-9dec-570d244e78ee",
+            "group_chat_id": (
+                str(group_chat_id)
+                if group_chat_id
+                else "30dc1980-643a-00ad-37fc-7cc10d74e935"
+            ),
+            "sender_info": {
+                "user_huid": (
+                    str(user_huid)
+                    if user_huid
+                    else "f16cdc5f-6366-5552-9ecd-c36290ab3d11"
+                ),
+                "platform": "web",
+                "udid": "49eac56a-c0d8-51d7-863e-925028f05110",
+            },
+            "method": method or "list.get",
+            "payload": {
+                "ref": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+                "data": params or {},
+                "files": [async_file] if async_file else [],
+            },
+        }
+
+    return decorator
+
+
+@pytest.fixture
 def incoming_message_factory(
     bot_id: UUID,
 ) -> Callable[..., IncomingMessage]:
@@ -258,3 +330,62 @@ def incorrect_handler_trigger() -> Mock:
 @pytest.fixture(autouse=True)
 def prevent_http_requests(respx_mock: MockRouter) -> None:
     pass
+
+
+@pytest.fixture
+def collector_with_sync_smartapp_event_handler() -> HandlerCollector:
+    collector = HandlerCollector()
+
+    @collector.sync_smartapp_event
+    async def handle_sync_smartapp_event(
+        event: SmartAppEvent,
+        _: Bot,
+    ) -> BotAPISyncSmartAppEventResultResponse:
+        return BotAPISyncSmartAppEventResultResponse.from_domain(
+            data=event.data,
+            files=event.files,
+        )
+
+    return collector
+
+
+@pytest.fixture
+def smartapp_event(bot_id: UUID, host: str) -> SmartAppEvent:
+    return SmartAppEvent(
+        bot=BotAccount(
+            id=bot_id,
+            host=host,
+        ),
+        raw_command=None,
+        ref=uuid4(),
+        smartapp_id=bot_id,
+        data={},
+        opts={},
+        smartapp_api_version=1,
+        files=[],
+        chat=Chat(
+            id=uuid4(),
+            type=ChatTypes.PERSONAL_CHAT,
+        ),
+        sender=UserSender(
+            huid=uuid4(),
+            udid=None,
+            ad_login=None,
+            ad_domain=None,
+            username=None,
+            is_chat_admin=True,
+            is_chat_creator=True,
+            device=UserDevice(
+                manufacturer=None,
+                device_name=None,
+                os=None,
+                pushes=None,
+                timezone=None,
+                permissions=None,
+                platform=None,
+                platform_package_id=None,
+                app_version=None,
+                locale=None,
+            ),
+        ),
+    )

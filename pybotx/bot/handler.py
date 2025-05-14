@@ -5,11 +5,14 @@ from typing import TYPE_CHECKING, Awaitable, Callable, List, Literal, TypeVar, U
 from pybotx.models.commands import BotCommand
 from pybotx.models.message.incoming_message import IncomingMessage
 from pybotx.models.status import StatusRecipient
+from pybotx.models.sync_smartapp_event import BotAPISyncSmartAppEventResponse
 from pybotx.models.system_events.added_to_chat import AddedToChatEvent
 from pybotx.models.system_events.chat_created import ChatCreatedEvent
+from pybotx.models.system_events.chat_deleted_by_user import ChatDeletedByUserEvent
 from pybotx.models.system_events.cts_login import CTSLoginEvent
 from pybotx.models.system_events.cts_logout import CTSLogoutEvent
 from pybotx.models.system_events.deleted_from_chat import DeletedFromChatEvent
+from pybotx.models.system_events.event_edit import EventEdit
 from pybotx.models.system_events.internal_bot_notification import (
     InternalBotNotificationEvent,
 )
@@ -22,16 +25,23 @@ if TYPE_CHECKING:  # To avoid circular import
 TBotCommand = TypeVar("TBotCommand", bound=BotCommand)
 HandlerFunc = Callable[[TBotCommand, "Bot"], Awaitable[None]]
 
+SyncSmartAppEventHandlerFunc = Callable[
+    [SmartAppEvent, "Bot"],
+    Awaitable[BotAPISyncSmartAppEventResponse],
+]
+
 IncomingMessageHandlerFunc = HandlerFunc[IncomingMessage]
 SystemEventHandlerFunc = Union[
     HandlerFunc[AddedToChatEvent],
     HandlerFunc[ChatCreatedEvent],
+    HandlerFunc[ChatDeletedByUserEvent],
     HandlerFunc[DeletedFromChatEvent],
     HandlerFunc[LeftFromChatEvent],
     HandlerFunc[CTSLoginEvent],
     HandlerFunc[CTSLogoutEvent],
     HandlerFunc[InternalBotNotificationEvent],
     HandlerFunc[SmartAppEvent],
+    HandlerFunc[EventEdit],
 ]
 
 VisibleFunc = Callable[[StatusRecipient, "Bot"], Awaitable[bool]]

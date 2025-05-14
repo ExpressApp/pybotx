@@ -118,6 +118,7 @@ async def test__send_internal_bot_notification__chat_not_found_error_raised(
                     ),
                 },
             },
+            verify_request=False,
         )
 
     with pytest.raises(ChatNotFoundError) as exc:
@@ -177,6 +178,7 @@ async def test__send_internal_bot_notification__bot_is_not_chat_member_error_rai
                     "error_description": "Bot is not a chat member",
                 },
             },
+            verify_request=False,
         )
 
     with pytest.raises(BotIsNotChatMemberError) as exc:
@@ -237,6 +239,7 @@ async def test__send_internal_bot_notification__final_recipients_list_empty_erro
                     "error_description": "Event recipients list is empty",
                 },
             },
+            verify_request=False,
         )
 
     with pytest.raises(FinalRecipientsListEmptyError) as exc:
@@ -290,6 +293,7 @@ async def test__send_internal_bot_notification__succeed(
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -

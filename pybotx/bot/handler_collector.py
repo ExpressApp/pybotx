@@ -2,11 +2,13 @@ import asyncio
 import re
 from typing import (
     TYPE_CHECKING,
+    Any,
     Callable,
     Dict,
     List,
     Optional,
     Sequence,
+    Set,
     Type,
     Union,
     overload,
@@ -21,6 +23,7 @@ from pybotx.bot.handler import (
     HiddenCommandHandler,
     IncomingMessageHandlerFunc,
     Middleware,
+    SyncSmartAppEventHandlerFunc,
     SystemEventHandlerFunc,
     VisibleCommandHandler,
     VisibleFunc,
@@ -29,16 +32,20 @@ from pybotx.bot.middlewares.exception_middleware import (
     ExceptionHandlersDict,
     ExceptionMiddleware,
 )
+from pybotx.client.smartapps_api.exceptions import SyncSmartAppEventHandlerNotFoundError
 from pybotx.converters import optional_sequence_to_list
 from pybotx.logger import logger
 from pybotx.models.commands import BotCommand, SystemEvent
 from pybotx.models.message.incoming_message import IncomingMessage
 from pybotx.models.status import BotMenu, StatusRecipient
+from pybotx.models.sync_smartapp_event import BotAPISyncSmartAppEventResponse
 from pybotx.models.system_events.added_to_chat import AddedToChatEvent
 from pybotx.models.system_events.chat_created import ChatCreatedEvent
+from pybotx.models.system_events.chat_deleted_by_user import ChatDeletedByUserEvent
 from pybotx.models.system_events.cts_login import CTSLoginEvent
 from pybotx.models.system_events.cts_logout import CTSLogoutEvent
 from pybotx.models.system_events.deleted_from_chat import DeletedFromChatEvent
+from pybotx.models.system_events.event_edit import EventEdit
 from pybotx.models.system_events.internal_bot_notification import (
     InternalBotNotificationEvent,
 )
@@ -59,12 +66,15 @@ class HandlerCollector:
             Type[BotCommand],
             SystemEventHandlerFunc,
         ] = {}
+        self._sync_smartapp_event_handler: Dict[
+            Type[SmartAppEvent],
+            SyncSmartAppEventHandlerFunc,
+        ] = {}
         self._middlewares = optional_sequence_to_list(middlewares)
         self._tasks: "WeakSet[asyncio.Task[None]]" = WeakSet()
 
     def include(self, *others: "HandlerCollector") -> None:
         """Include other `HandlerCollector`."""
-
         for collector in others:
             self._include_collector(collector)
 
@@ -110,6 +120,26 @@ class HandlerCollector:
         else:
             raise NotImplementedError(f"Unsupported event type: `{bot_command}`")
 
+    async def handle_sync_smartapp_event(
+        self,
+        bot: "Bot",
+        smartapp_event: SmartAppEvent,
+    ) -> BotAPISyncSmartAppEventResponse:
+        if not isinstance(smartapp_event, SmartAppEvent):
+            raise NotImplementedError(
+                f"Unsupported event type for sync smartapp event: `{smartapp_event}`",
+            )
+
+        event_handler = self._get_sync_smartapp_event_handler_or_none(smartapp_event)
+
+        if not event_handler:
+            raise SyncSmartAppEventHandlerNotFoundError(
+                "Handler for sync smartapp event not found",
+            )
+
+        self._fill_contextvars(smartapp_event, bot)
+        return await event_handler(smartapp_event, bot)
+
     async def get_bot_menu(
         self,
         status_recipient: StatusRecipient,
@@ -134,7 +164,6 @@ class HandlerCollector:
         middlewares: Optional[Sequence[Middleware]] = None,
     ) -> Callable[[IncomingMessageHandlerFunc], IncomingMessageHandlerFunc]:
         """Decorate command handler."""
-
         if not self.VALID_COMMAND_NAME_RE.match(command_name):
             raise ValueError("Command should start with '/' and doesn't include spaces")
 
@@ -205,9 +234,15 @@ class HandlerCollector:
         handler_func: HandlerFunc[ChatCreatedEvent],
     ) -> HandlerFunc[ChatCreatedEvent]:
         """Decorate `chat_created` event handler."""
-
         self._system_event(ChatCreatedEvent, handler_func)
+        return handler_func
 
+    def chat_deleted_by_user(
+        self,
+        handler_func: HandlerFunc[ChatDeletedByUserEvent],
+    ) -> HandlerFunc[ChatDeletedByUserEvent]:
+        """Decorate `chat_deleted_by_user` event handler."""
+        self._system_event(ChatDeletedByUserEvent, handler_func)
         return handler_func
 
     def added_to_chat(
@@ -215,9 +250,7 @@ class HandlerCollector:
         handler_func: HandlerFunc[AddedToChatEvent],
     ) -> HandlerFunc[AddedToChatEvent]:
         """Decorate `added_to_chat` event handler."""
-
         self._system_event(AddedToChatEvent, handler_func)
-
         return handler_func
 
     def deleted_from_chat(
@@ -225,9 +258,7 @@ class HandlerCollector:
         handler_func: HandlerFunc[DeletedFromChatEvent],
     ) -> HandlerFunc[DeletedFromChatEvent]:
         """Decorate `deleted_from_chat` event handler."""
-
         self._system_event(DeletedFromChatEvent, handler_func)
-
         return handler_func
 
     def left_from_chat(
@@ -235,9 +266,7 @@ class HandlerCollector:
         handler_func: HandlerFunc[LeftFromChatEvent],
     ) -> HandlerFunc[LeftFromChatEvent]:
         """Decorate `left_from_chat` event handler."""
-
         self._system_event(LeftFromChatEvent, handler_func)
-
         return handler_func
 
     def internal_bot_notification(
@@ -245,9 +274,7 @@ class HandlerCollector:
         handler_func: HandlerFunc[InternalBotNotificationEvent],
     ) -> HandlerFunc[InternalBotNotificationEvent]:
         """Decorate `internal_bot_notification` event handler."""
-
         self._system_event(InternalBotNotificationEvent, handler_func)
-
         return handler_func
 
     def cts_login(
@@ -255,9 +282,7 @@ class HandlerCollector:
         handler_func: HandlerFunc[CTSLoginEvent],
     ) -> HandlerFunc[CTSLoginEvent]:
         """Decorate `cts_login` event handler."""
-
         self._system_event(CTSLoginEvent, handler_func)
-
         return handler_func
 
     def cts_logout(
@@ -265,9 +290,15 @@ class HandlerCollector:
         handler_func: HandlerFunc[CTSLogoutEvent],
     ) -> HandlerFunc[CTSLogoutEvent]:
         """Decorate `cts_logout` event handler."""
-
         self._system_event(CTSLogoutEvent, handler_func)
+        return handler_func
 
+    def event_edit(
+        self,
+        handler_func: HandlerFunc[EventEdit],
+    ) -> HandlerFunc[EventEdit]:
+        """Decorate `event edit` event handler."""
+        self._system_event(EventEdit, handler_func)
         return handler_func
 
     def smartapp_event(
@@ -275,9 +306,15 @@ class HandlerCollector:
         handler_func: HandlerFunc[SmartAppEvent],
     ) -> HandlerFunc[SmartAppEvent]:
         """Decorate `smartapp` event handler."""
-
         self._system_event(SmartAppEvent, handler_func)
+        return handler_func
 
+    def sync_smartapp_event(
+        self,
+        handler_func: SyncSmartAppEventHandlerFunc,
+    ) -> SyncSmartAppEventHandlerFunc:
+        """Decorate `smartapp` sync event handler."""
+        self._sync_smartapp_event(SmartAppEvent, handler_func)
         return handler_func
 
     def insert_exception_middleware(
@@ -294,7 +331,7 @@ class HandlerCollector:
                 return_when=asyncio.ALL_COMPLETED,
             )
 
-    def _include_collector(self, other: "HandlerCollector") -> None:
+    def _include_collector(self, other: "HandlerCollector") -> None:  # noqa: WPS238
         # - Message handlers -
         command_duplicates = set(self._user_commands_handlers) & set(
             other._user_commands_handlers,
@@ -329,6 +366,19 @@ class HandlerCollector:
 
         self._system_events_handlers.update(other._system_events_handlers)
 
+        # - Sync smartapp event handler -
+        sync_events_duplicates: Set[Type[SmartAppEvent]] = set(
+            self._sync_smartapp_event_handler,
+        ) & set(
+            other._sync_smartapp_event_handler,
+        )
+        if sync_events_duplicates:
+            raise ValueError(
+                "Handler for sync smartapp event already registered",
+            )
+
+        self._sync_smartapp_event_handler.update(other._sync_smartapp_event_handler)
+
     def _get_incoming_message_handler(
         self,
         message: IncomingMessage,
@@ -362,6 +412,17 @@ class HandlerCollector:
         event_cls = event.__class__
 
         handler = self._system_events_handlers.get(event_cls)
+        self._log_system_event_handler_call(event_cls.__name__, handler)
+
+        return handler
+
+    def _get_sync_smartapp_event_handler_or_none(
+        self,
+        event: SmartAppEvent,
+    ) -> Optional[SyncSmartAppEventHandlerFunc]:
+        event_cls = event.__class__
+
+        handler = self._sync_smartapp_event_handler.get(event_cls)
         self._log_system_event_handler_call(event_cls.__name__, handler)
 
         return handler
@@ -411,6 +472,18 @@ class HandlerCollector:
 
         return handler_func
 
+    def _sync_smartapp_event(
+        self,
+        event_cls_name: Type[SmartAppEvent],
+        handler_func: SyncSmartAppEventHandlerFunc,
+    ) -> SyncSmartAppEventHandlerFunc:
+        if event_cls_name in self._sync_smartapp_event_handler:
+            raise ValueError("Handler for sync smartapp event already registered")
+
+        self._sync_smartapp_event_handler[event_cls_name] = handler_func
+
+        return handler_func
+
     def _fill_contextvars(self, bot_command: BotCommand, bot: "Bot") -> None:
         bot_var.set(bot)
         bot_id_var.set(bot_command.bot.id)
@@ -422,7 +495,7 @@ class HandlerCollector:
     def _log_system_event_handler_call(
         self,
         event_cls_name: str,
-        handler: Optional[SystemEventHandlerFunc],
+        handler: Any,
     ) -> None:
         if handler:
             logger.info(f"Found handler for `{event_cls_name}`")

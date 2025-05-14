@@ -25,8 +25,36 @@ class BotXAPIUserFromCSVResult(VerifiedPayloadBaseModel):
     company: Optional[str] = Field(alias="Company")
     department: Optional[str] = Field(alias="Department")
     position: Optional[str] = Field(alias="Position")
+    avatar: Optional[str] = Field(alias="Avatar")
+    avatar_preview: Optional[str] = Field(alias="Avatar preview")
+    office: Optional[str] = Field(alias="Office")
+    manager: Optional[str] = Field(alias="Manager")
+    manager_huid: Optional[UUID] = Field(alias="Manager HUID")
+    description: Optional[str] = Field(alias="Description")
+    phone: Optional[str] = Field(alias="Phone")
+    other_phone: Optional[str] = Field(alias="Other phone")
+    ip_phone: Optional[str] = Field(alias="IP phone")
+    other_ip_phone: Optional[str] = Field(alias="Other IP phone")
+    personnel_number: Optional[str] = Field(alias="Personnel number")
 
-    @validator("email", "company", "department", "position", pre=True)
+    @validator(
+        "email",
+        "company",
+        "department",
+        "position",
+        "avatar",
+        "avatar_preview",
+        "office",
+        "manager",
+        "manager_huid",
+        "description",
+        "phone",
+        "other_phone",
+        "ip_phone",
+        "other_ip_phone",
+        "personnel_number",
+        pre=True,
+    )
     @classmethod
     def replace_empty_string_with_none(cls, field_value: str) -> Optional[str]:
         if field_value == "":
@@ -47,4 +75,15 @@ class BotXAPIUserFromCSVResult(VerifiedPayloadBaseModel):
             company=self.company,
             department=self.department,
             position=self.position,
+            avatar=self.avatar,
+            avatar_preview=self.avatar_preview,
+            office=self.office,
+            manager=self.manager,
+            manager_huid=self.manager_huid,
+            description=self.description,
+            phone=self.phone,
+            other_phone=self.other_phone,
+            ip_phone=self.ip_phone,
+            other_ip_phone=self.other_ip_phone,
+            personnel_number=self.personnel_number,
         )

@@ -1,6 +1,4 @@
-from aiocsv.readers import AsyncDictReader
-
-from pybotx.async_buffer import AsyncBufferUnicodeWritable
+from pybotx.async_buffer import AsyncBufferWritable
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.client.botx_method import response_exception_thrower
 from pybotx.client.exceptions.users import NoUserKindSelectedError
@@ -35,8 +33,8 @@ class UsersAsCSVMethod(AuthorizedBotXMethod):
     async def execute(
         self,
         payload: BotXAPIUsersAsCSVRequestPayload,
-        async_buffer: AsyncBufferUnicodeWritable,
-    ) -> AsyncDictReader:
+        async_buffer: AsyncBufferWritable,
+    ) -> None:
         path = "/api/v3/botx/users/users_as_csv"
 
         async with self._botx_method_stream(
@@ -46,8 +44,4 @@ class UsersAsCSVMethod(AuthorizedBotXMethod):
         ) as response:
             # https://github.com/nedbat/coveragepy/issues/1223
             async for chunk in response.aiter_bytes():  # pragma: no cover
-                await async_buffer.write(chunk.decode())
-
-        await async_buffer.seek(0)
-
-        return AsyncDictReader(async_buffer)  # type: ignore[arg-type]
+                await async_buffer.write(chunk)
