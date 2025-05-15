@@ -35,8 +35,7 @@ poetry add pybotx
 можно найти на [официальном сайте](https://express.ms/).
 
 Перед тем, как продолжать знакомство с библиотекой `pybotx`,
-советуем прочитать данные статьи: Что такое [чат-боты]
-(https://docs.express.ms/chatbots/developer-guide/#%D1%87%D0%B0%D1%82-%D0%B1%D0%BE%D1%82-%D0%B8-smartapp)
+советуем прочитать данные статьи: Что такое [чат-боты](https://docs.express.ms/chatbots/developer-guide/#%D1%87%D0%B0%D1%82-%D0%B1%D0%BE%D1%82-%D0%B8-smartapp)
 и [SmartApp](https://docs.express.ms/smartapps/developer-guide/)
 и [Взаимодействие с Bot API и BotX API](https://docs.express.ms/chatbots/developer-guide/api/).
 В этих статьях находятся исчерпывающие примеры работы с платформой, которые
