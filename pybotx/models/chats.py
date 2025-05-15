@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from datetime import datetime
-from datetime import datetime as dt
 from typing import List, Optional
 from uuid import UUID
 
@@ -72,7 +71,7 @@ class ChatInfo:
     creator_id: Optional[UUID]
     description: Optional[str]
     chat_id: UUID
-    created_at: dt
+    created_at: datetime
     members: List[ChatInfoMember]
     name: str
     shared_history: bool

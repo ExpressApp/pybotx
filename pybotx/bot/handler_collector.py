@@ -59,6 +59,11 @@ from pybotx.models.system_events.user_joined_to_chat import JoinToChatEvent
 if TYPE_CHECKING:  # To avoid circular import
     from pybotx.bot.bot import Bot
 
+MessageHandlerDecorator = Callable[
+    [IncomingMessageHandlerFunc],
+    IncomingMessageHandlerFunc,
+]
+
 
 class HandlerCollector:
     VALID_COMMAND_NAME_RE = re.compile(r"^\/[^\s\/]+$", flags=re.UNICODE)
@@ -194,16 +199,14 @@ class HandlerCollector:
     def default_message_handler(
         self,
         handler_func: IncomingMessageHandlerFunc,
-    ) -> IncomingMessageHandlerFunc:
-        ...  # noqa: WPS428
+    ) -> IncomingMessageHandlerFunc: ...  # noqa: WPS428, E704
 
     @overload
     def default_message_handler(
         self,
         *,
         middlewares: Optional[Sequence[Middleware]] = None,
-    ) -> Callable[[IncomingMessageHandlerFunc], IncomingMessageHandlerFunc]:
-        ...  # noqa: WPS428
+    ) -> MessageHandlerDecorator: ...  # noqa: WPS428, E704
 
     def default_message_handler(  # noqa: WPS320
         self,

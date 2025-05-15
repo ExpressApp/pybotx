@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, Optional, cast
 from uuid import UUID
 
 import pytest
@@ -14,7 +14,7 @@ from pybotx import (
 )
 from pybotx.models.enums import ConferenceLinkTypes
 from pybotx.models.system_events.conference_changed import ConferenceChangedEvent
-from tests.system_events.factories import ConferenceChangedDataFactory  # type: ignore
+from tests.system_events.factories import ConferenceChangedDataFactory
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -32,9 +32,12 @@ async def test__conference_changed_succeed(
     api_incoming_message_factory: Callable[..., Dict[str, Any]],
 ) -> None:
     # - Arrange -
-    conference_change_data = ConferenceChangedDataFactory(
-        call_id=str(call_id),
-        link_type="public",
+    conference_change_data = cast(
+        Dict[str, Any],
+        ConferenceChangedDataFactory(
+            call_id=str(call_id),
+            link_type="public",
+        ),  # type: ignore[no-untyped-call]
     )
     payload = api_incoming_message_factory(
         body="system:conference_changed",
