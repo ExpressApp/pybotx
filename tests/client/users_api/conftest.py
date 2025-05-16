@@ -1,10 +1,15 @@
-from typing import Any, Dict
+import csv
+from http import HTTPStatus
+from io import StringIO
+from typing import Any, Dict, List
 from uuid import UUID
 
+import httpx
 import pytest
 
 from pybotx import UserFromSearch, UserKinds
 from tests.client.users_api.convert_to_datetime import convert_to_datetime
+from tests.client.users_api.factories import CsvUserResponseValues
 
 
 @pytest.fixture()
@@ -114,4 +119,80 @@ def user_from_search_without_data() -> UserFromSearch:
         public_name=None,
         rts_id=None,
         updated_at=None,
+    )
+
+
+@pytest.fixture
+def csv_users_from_api() -> list[dict[str, str]]:
+    """Generate a list of user dictionaries for CSV testing.
+
+    This fixture creates a list of dictionaries representing user data as it would
+    appear in a CSV response from the BotX API.
+
+    return: A list of dictionaries where each dictionary represents
+        a user with CSV column names as keys and corresponding values as strings.
+    """
+    return [
+        CsvUserResponseValues(
+            Manager_DN=f"manager_dn_{index}",
+            User_DN=f"user_dn_{index}",
+        )
+        for index in range(2)
+    ]
+
+
+@pytest.fixture
+def users_csv_response(csv_users_from_api: List[Dict[str, str]]) -> httpx.Response:
+    """
+    Create a mock HTTP response with CSV user data.
+
+    This fixture takes the user data from ``csv_users_from_api`` and converts it into
+    CSV format. It then returns an ``httpx.Response`` object containing the CSV content.
+
+    :param: A list of dictionaries containing user data for CSV conversion.
+
+    :return: An HTTP response object with status code 200 (OK) and CSV-formatted
+        user data as content.
+    """
+
+    csv_columns = [
+        "HUID",
+        "AD Login",
+        "Domain",
+        "AD E-mail",
+        "Name",
+        "Sync source",
+        "Active",
+        "Kind",
+        "User DN",
+        "Company",
+        "Department",
+        "Position",
+        "Manager",
+        "Manager HUID",
+        "Manager DN",
+        "Personnel number",
+        "Description",
+        "IP phone",
+        "Other IP phone",
+        "Phone",
+        "Other phone",
+        "Avatar",
+        "Office",
+        "Avatar preview",
+    ]
+
+    output = StringIO()
+    writer = csv.DictWriter(output, fieldnames=csv_columns)
+    writer.writeheader()
+
+    for user in csv_users_from_api:
+        ordered_row_values = {
+            column_name: user[column_name] for column_name in csv_columns
+        }
+        writer.writerow(ordered_row_values)
+
+    return httpx.Response(
+        status_code=HTTPStatus.OK,
+        content=output.getvalue().encode("utf-8"),
     )

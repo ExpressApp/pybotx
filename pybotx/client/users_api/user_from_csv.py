@@ -83,10 +83,8 @@ class BotXAPIUserFromCSVResult(VerifiedPayloadBaseModel):
             office=self.office,
             manager=self.manager,
             manager_huid=self.manager_huid,
-            #TODO: fix manager_dn=self.manager_dn,
-            manager_dn=str(self.manager_huid),
-            # TODO: fix remove else clause
-            user_dn = self.user_dn if self.user_dn else str(self.huid),
+            manager_dn=self.manager_dn,
+            user_dn=self.user_dn,
             description=self.description,
             phone=self.phone,
             other_phone=self.other_phone,

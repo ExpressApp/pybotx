@@ -111,6 +111,6 @@ class UserFromCSV:
     ip_phone: Optional[str] = None
     other_ip_phone: Optional[str] = None
     personnel_number: Optional[str] = None
-    #TODO: remove Optional from user_dn
+    # TODO: remove Optional from user_dn
     user_dn: Optional[str] = None
     manager_dn: Optional[str] = None
