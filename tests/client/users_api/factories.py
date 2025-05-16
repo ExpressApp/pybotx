@@ -17,7 +17,7 @@ class CsvUserResponseValues(DictFactory):
     Sync_source = "ad"
     Active = "true"
     Kind = "cts_user"
-    User_DN = Faker("uuid4")  # type: ignore
+    User_DN = Faker("name")  # type: ignore
     Company = Faker("company")  # type: ignore
     Department = Faker("catch_phrase")  # type: ignore
     Position = Faker("job")  # type: ignore

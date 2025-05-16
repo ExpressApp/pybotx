@@ -132,20 +132,10 @@ def csv_users_from_api() -> list[dict[str, str]]:
     :return: A list of dictionaries where each dictionary represents
         a user with CSV column names as keys and corresponding values as strings.
     """
-    result_list = [
-        CsvUserResponseValues(  # type: ignore
-            Manager_DN=f"manager_dn_{index}",
-            User_DN=f"user_dn_{index}",
-        )
-        for index in range(2)
-    ]
+    result_list = CsvUserResponseValues.create_batch(2)
 
     # add extra value for check APISyncSourceTypes convertion
-    result_list.append(CsvUserResponseValues(  # type: ignore
-        Manager_DN=f"manager_dn_unsupported_source",
-        User_DN=f"user_dn_unsupported_source",
-        Sync_source="unsupported", ),
-    )
+    result_list.append(CsvUserResponseValues(Sync_source="unsupported"))  # type: ignore
 
     return result_list
 
