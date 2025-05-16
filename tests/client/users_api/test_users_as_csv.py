@@ -39,7 +39,7 @@ def assert_csv_user_consist_csv_data(  # noqa:  WPS218
     if isinstance(csv_user.sync_source, SyncSourceTypes):
         assert str(csv_user.sync_source.value).lower() == original_row["Sync source"]
     else:
-        assert str(csv_user).lower() == original_row["Sync source"]
+        assert str(csv_user.sync_source).lower() == original_row["Sync source"]
 
     if original_row["Manager HUID"]:
         assert str(csv_user.manager_huid) == original_row["Manager HUID"]
