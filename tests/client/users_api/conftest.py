@@ -129,11 +129,11 @@ def csv_users_from_api() -> list[dict[str, str]]:
     This fixture creates a list of dictionaries representing user data as it would
     appear in a CSV response from the BotX API.
 
-    return: A list of dictionaries where each dictionary represents
+    :return: A list of dictionaries where each dictionary represents
         a user with CSV column names as keys and corresponding values as strings.
     """
     return [
-        CsvUserResponseValues(
+        CsvUserResponseValues(  # type: ignore
             Manager_DN=f"manager_dn_{index}",
             User_DN=f"user_dn_{index}",
         )

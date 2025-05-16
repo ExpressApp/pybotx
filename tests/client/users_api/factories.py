@@ -1,9 +1,7 @@
-from random import choice
-
-import factory  # type: ignore
+from factory import DictFactory, Faker  # type: ignore
 
 
-class CsvUserResponseValues(factory.DictFactory):  # type: ignore[misc]
+class CsvUserResponseValues(DictFactory):
     """Factory for generating CSV user response data.
 
     This factory creates dictionaries that simulate user data as it would appear
@@ -11,30 +9,30 @@ class CsvUserResponseValues(factory.DictFactory):  # type: ignore[misc]
 
     """
 
-    HUID = factory.Faker("uuid4")
-    AD_Login = factory.Faker("user_name")
+    HUID = Faker("uuid4")  # type: ignore
+    AD_Login = Faker("user_name")  # type: ignore
     Domain = "cts.example.com"
-    AD_E_mail = factory.Faker("email")
-    Name = factory.Faker("name")
+    AD_E_mail = Faker("email")  # type: ignore
+    Name = Faker("name")  # type: ignore
     Sync_source = "ad"
-    Active = factory.LazyFunction(lambda: choice(["true", "false"]))  # noqa: S311
+    Active = "true"
     Kind = "cts_user"
-    User_DN = factory.Faker("uuid4")
-    Company = factory.Faker("company")
-    Department = factory.Faker("catch_phrase")
-    Position = factory.Faker("job")
-    Manager = factory.Faker("name")
+    User_DN = Faker("uuid4")  # type: ignore
+    Company = Faker("company")  # type: ignore
+    Department = Faker("catch_phrase")  # type: ignore
+    Position = Faker("job")  # type: ignore
+    Manager = Faker("name")  # type: ignore
     Manager_HUID = ""
     Manager_DN = ""
     Personnel_number = ""
-    Description = factory.Faker("sentence")
-    IP_phone = factory.Faker("phone_number")
-    Other_IP_phone = factory.Faker("phone_number")
-    Phone = factory.Faker("phone_number")
-    Other_phone = factory.Faker("phone_number")
-    Avatar = factory.Faker("file_name", category="image")
-    Office = factory.Faker("city")
-    Avatar_preview = factory.Faker("file_name", category="image")
+    Description = Faker("sentence")  # type: ignore
+    IP_phone = Faker("phone_number")  # type: ignore
+    Other_IP_phone = Faker("phone_number")  # type: ignore
+    Phone = Faker("phone_number")  # type: ignore
+    Other_phone = Faker("phone_number")  # type: ignore
+    Avatar = Faker("file_name", category="image")  # type: ignore
+    Office = Faker("city")  # type: ignore
+    Avatar_preview = Faker("file_name", category="image")  # type: ignore
 
     class Meta:
         rename = {
