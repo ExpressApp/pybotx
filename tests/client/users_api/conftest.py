@@ -132,13 +132,22 @@ def csv_users_from_api() -> list[dict[str, str]]:
     :return: A list of dictionaries where each dictionary represents
         a user with CSV column names as keys and corresponding values as strings.
     """
-    return [
+    result_list = [
         CsvUserResponseValues(  # type: ignore
             Manager_DN=f"manager_dn_{index}",
             User_DN=f"user_dn_{index}",
         )
         for index in range(2)
     ]
+
+    # add extra value for check SyncSource convertion
+    result_list.append(CsvUserResponseValues(  # type: ignore
+        Manager_DN=f"manager_dn_unsupported_source",
+        User_DN=f"user_dn_unsupported_source",
+        Sync_source="unsupported", ),
+    )
+
+    return result_list
 
 
 @pytest.fixture
