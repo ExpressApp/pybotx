@@ -140,7 +140,7 @@ def csv_users_from_api() -> list[dict[str, str]]:
         for index in range(2)
     ]
 
-    # add extra value for check SyncSource convertion
+    # add extra value for check APISyncSourceTypes convertion
     result_list.append(CsvUserResponseValues(  # type: ignore
         Manager_DN=f"manager_dn_unsupported_source",
         User_DN=f"user_dn_unsupported_source",
