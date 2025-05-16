@@ -13,14 +13,17 @@ class AsyncBufferBase(Protocol):
         self,
         cursor: int,
         whence: int = os.SEEK_SET,
-    ) -> int: ...
+    ) -> int:
+        ...
 
-    async def tell(self) -> int: ...
+    async def tell(self) -> int:
+        ...
 
 
 class AsyncBufferWritable(AsyncBufferBase):
     @abc.abstractmethod
-    async def write(self, content: bytes) -> int: ...
+    async def write(self, content: bytes) -> int:
+        ...
 
 
 class AsyncBufferReadable(AsyncBufferBase):
@@ -28,7 +31,8 @@ class AsyncBufferReadable(AsyncBufferBase):
     async def read(
         self,
         bytes_to_read: Optional[int] = None,
-    ) -> bytes: ...
+    ) -> bytes:
+        ...
 
 
 async def get_file_size(async_buffer: AsyncBufferReadable) -> int:
