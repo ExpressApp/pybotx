@@ -168,7 +168,7 @@ async def test__botx_method__invalid_schema_raises_invalid_botx_response_payload
         await method.execute(payload)
 
     # - Assert -
-    assert '{"invalid": "schema"}' in str(exc.value)
+    assert '{"invalid":"schema"}' in str(exc.value)
     assert endpoint.called
 
 

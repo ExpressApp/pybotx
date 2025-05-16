@@ -1,7 +1,7 @@
 from pybotx.async_buffer import AsyncBufferReadable, get_file_size
 from pybotx.constants import STICKER_IMAGE_MAX_SIZE
 
-PNG_MAGIC_BYTES: bytes = b"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A"
+PNG_MAGIC_BYTES: bytes = b"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a"
 
 
 async def ensure_file_content_is_png(async_buffer: AsyncBufferReadable) -> None:

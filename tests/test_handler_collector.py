@@ -146,7 +146,9 @@ def test___handler_collector__merge_collectors_with_same_command_error_raised() 
     assert "/command" in str(exc.value)
 
 
-def test__handler_collector__merge_collectors_with_default_handlers_error_raised() -> None:
+def test__handler_collector__merge_collectors_with_default_handlers_error_raised() -> (
+    None
+):
     # - Arrange -
     collector = HandlerCollector()
 
@@ -169,7 +171,9 @@ def test__handler_collector__merge_collectors_with_default_handlers_error_raised
     assert "Default" in str(exc.value)
 
 
-def test__handler_collector__merge_collectors_with_same_system_events_handlers_error_raised() -> None:
+def test__handler_collector__merge_collectors_with_same_system_events_handlers_error_raised() -> (
+    None
+):
     # - Arrange -
     collector = HandlerCollector()
 
@@ -556,7 +560,8 @@ async def test__handler_collector__sync_smartapp_event__decorator__handler_alrea
     with pytest.raises(ValueError) as exc:
 
         @collector.sync_smartapp_event
-        async def duplicated_handle_sync_smartapp_event(*_: Any) -> Any:
-            ...
+        async def duplicated_handle_sync_smartapp_event(
+            *_: Any,
+        ) -> Any: ...  # noqa: E704
 
     assert str(exc.value) == "Handler for sync smartapp event already registered"

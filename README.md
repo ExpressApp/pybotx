@@ -35,10 +35,9 @@ poetry add pybotx
 можно найти на [официальном сайте](https://express.ms/).
 
 Перед тем, как продолжать знакомство с библиотекой `pybotx`,
-советуем прочитать данные статьи: [Что такое чат-боты и SmartApp
-](https://docs.express.ms/chatbots/developer-guide/getting-started/what-is-chatbot/)
-и [Взаимодействие с Bot API и BotX API
-](https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/).
+советуем прочитать данные статьи: Что такое [чат-боты](https://docs.express.ms/chatbots/developer-guide/#%D1%87%D0%B0%D1%82-%D0%B1%D0%BE%D1%82-%D0%B8-smartapp)
+и [SmartApp](https://docs.express.ms/smartapps/developer-guide/)
+и [Взаимодействие с Bot API и BotX API](https://docs.express.ms/chatbots/developer-guide/api/).
 В этих статьях находятся исчерпывающие примеры работы с платформой, которые
 легко повторить, используя `pybotx`.
 
@@ -154,8 +153,7 @@ async def callback_handler(request: Request) -> JSONResponse:
 ### Получение сообщений
 
 *([подробное описание функции](
-https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B9%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%BD%D1%8B%D1%85-%D1%81%D0%BE%D0%B1%D1%8B%D1%82%D0%B8%D0%B9))*
-
+https://docs.express.ms/chatbots/developer-guide/api/bot-api/command/))*
 ```python
 from uuid import UUID
 
@@ -202,7 +200,7 @@ async def default_handler(_: IncomingMessage, bot: Bot) -> None:
 ### Получение системных событий
 
 *([подробное описание функции](
-https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B9%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%BD%D1%8B%D1%85-%D1%81%D0%BE%D0%B1%D1%8B%D1%82%D0%B8%D0%B9))*
+https://docs.express.ms/chatbots/developer-guide/api/bot-api/command/#%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%BD%D1%8B%D0%B5-%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B))*
 ```python
 from pybotx import *
 
@@ -339,7 +337,7 @@ main_collector.include(admin_collector)
 ### Отправка сообщения
 
 *([подробное описание функции](
-https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F))*
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F))*
 ```python
 from uuid import UUID
 
@@ -394,7 +392,7 @@ async def prebuild_answer_handler(message: IncomingMessage, bot: Bot) -> None:
 #### Отправка сообщения с кнопками
 
 *([подробное описание функции](
-https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F-%D1%81-%D0%BA%D0%BD%D0%BE%D0%BF%D0%BA%D0%B0%D0%BC%D0%B8))*
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F-%D1%81-%D0%BA%D0%BD%D0%BE%D0%BF%D0%BA%D0%B0%D0%BC%D0%B8))*
 ```python
 from pybotx import *
 
@@ -440,7 +438,7 @@ async def bubbles_handler(message: IncomingMessage, bot: Bot) -> None:
 #### Упоминание пользователя
 
 *([подробное описание функции](
-https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D1%83%D0%BF%D0%BE%D0%BC%D0%B8%D0%BD%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F))*
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D1%83%D0%BF%D0%BE%D0%BC%D0%B8%D0%BD%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F))*
 ```python
 from pybotx import *
 
@@ -467,7 +465,7 @@ async def echo_contact_handler(message: IncomingMessage, bot: Bot) -> None:
 #### Отправка файла в сообщении
 
 *([подробное описание функции](
-https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%84%D0%B0%D0%B9%D0%BB%D0%B0-%D0%B2-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B8))*
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%84%D0%B0%D0%B9%D0%BB%D0%B0-%D0%B2-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B8))*
 ```python
 from aiofiles.tempfile import NamedTemporaryFile
 
@@ -501,7 +499,7 @@ async def echo_file_handler(message: IncomingMessage, bot: Bot) -> None:
 ### Редактирование сообщения
 
 *([подробное описание функции](
-https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D1%80%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B9))*
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D1%80%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B9))*
 ```python
 from pybotx import *
 
@@ -599,7 +597,7 @@ bot = Bot(
 ### Создание чата
 
 *([подробное описание функции](
-https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-%D1%87%D0%B0%D1%82%D0%B0))*
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-%D1%87%D0%B0%D1%82%D0%B0))*
 ```python
 from pybotx import *
 
@@ -630,7 +628,7 @@ async def create_group_chat_handler(message: IncomingMessage, bot: Bot) -> None:
 ### Поиск пользователей
 
 *([подробное описание функции](
-https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D0%BF%D0%BE%D0%B8%D1%81%D0%BA-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F))*
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D0%BF%D0%BE%D0%B8%D1%81%D0%BA-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F))*
 ```python
 import dataclasses
 
@@ -656,7 +654,7 @@ async def search_user_handler(message: IncomingMessage, bot: Bot) -> None:
 ### Получение списка пользователей
 
 *([подробное описание функции](
-https://docs.express.ms/chatbots/developer-guide/development-and-debugging/backend/interaction-with-bot-api-and-botx-api/#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BF%D0%B8%D1%81%D0%BA%D0%B0-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D0%B5%D0%B9-%D0%BD%D0%B0-cts))*
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BF%D0%B8%D1%81%D0%BA%D0%B0-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D0%B5%D0%B9-%D0%BD%D0%B0-cts))*
 ```python
 from pybotx import *
 

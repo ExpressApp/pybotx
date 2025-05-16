@@ -154,11 +154,9 @@ def _convert_bot_api_mention_to_domain(api_mention_data: BotAPIMentionData) -> M
 
 def convert_bot_api_entity_to_domain(api_entity: BotAPIEntity) -> Entity:
     if api_entity.type == BotAPIEntityTypes.MENTION:
-        api_entity = cast(BotAPIMention, api_entity)
         return _convert_bot_api_mention_to_domain(api_entity.data)
 
     if api_entity.type == BotAPIEntityTypes.FORWARD:
-        api_entity = cast(BotAPIForward, api_entity)
 
         return Forward(
             chat_id=api_entity.data.group_chat_id,
@@ -170,7 +168,6 @@ def convert_bot_api_entity_to_domain(api_entity: BotAPIEntity) -> Entity:
         )
 
     if api_entity.type == BotAPIEntityTypes.REPLY:
-        api_entity = cast(BotAPIReply, api_entity)
 
         mentions = MentionList()
         for api_mention_data in api_entity.data.mentions:

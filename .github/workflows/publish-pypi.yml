@@ -11,6 +11,6 @@ jobs:
       - name: Assert tag is from master
         run: git branch -a --contains $(git describe --tags) | grep master
       - name: Build and publish to pypi
-        uses: JRubics/poetry-publish@v1.8
+        uses: JRubics/poetry-publish@v2.1
         with:
           pypi_token: ${{ secrets.PYPI_TOKEN }}

@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Dict, Optional, cast
 from uuid import UUID
 
 import pytest
@@ -13,7 +13,7 @@ from pybotx import (
     lifespan_wrapper,
 )
 from pybotx.models.system_events.user_joined_to_chat import JoinToChatEvent
-from tests.system_events.factories import BotAPIJoinToChatFactory  # type: ignore
+from tests.system_events.factories import BotAPIJoinToChatFactory
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -33,7 +33,10 @@ async def test__join_to_chat__succeed(
     3. The registered user_joined_to_chat handler is called with this event
     """
 
-    payload: dict[str, Any] = BotAPIJoinToChatFactory(bot_id=bot_account.id.hex)
+    payload: Dict[str, Any] = cast(
+        Dict[str, Any],
+        BotAPIJoinToChatFactory(bot_id=bot_account.id.hex),  # type: ignore[no-untyped-call]
+    )
 
     collector = HandlerCollector()
     join_to_chat: Optional[JoinToChatEvent] = None
