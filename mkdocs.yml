@@ -1,20 +1,84 @@
-site_name: pybotx-next
-site_url: !!python/object/apply:os.getenv ["SITE_URL", "https://expressapp.github.io/pybotx-next"]
-site_description: A little python library for building bots for Express
+site_name: pybotx
+site_url: !!python/object/apply:os.getenv [ "SITE_URL", "https://expressapp.github.io/pybotx" ]
+site_description: Библиотека для создания ботов для платформы BotX
 
 theme:
   name: "material"
+  language: ru
+  palette:
+    primary: indigo
+    accent: indigo
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - search.share
 
 repo_name: ExpressApp/pybotx
 repo_url: https://github.com/ExpressApp/pybotx
 edit_uri: ''
 
 nav:
-  - Introduction: 'index.md'
-  - BotX API: 'botx_api.md'
+  - Введение: 'index.md'
+  - Быстрый старт: 'quick_start.md'
+  - Архитектура:
+      - Обзор: 'architecture/overview.md'
+      - Жизненный цикл: 'architecture/lifecycle.md'
+      - Типизация: 'architecture/typing.md'
+  - Обработчики:
+      - Команды: 'handlers/commands.md'
+      - Обработчик по умолчанию: 'handlers/default.md'
+      - События: 'handlers/events.md'
+      - Middleware: 'handlers/middlewares.md'
+      - Коллекторы: 'handlers/collectors.md'
+  - Сообщения:
+      - Отправка: 'messages/sending.md'
+      - Редактирование: 'messages/editing.md'
+      - Удаление: 'messages/deleting.md'
+      - Кнопки: 'messages/bubbles.md'
+      - Упоминания: 'messages/mentions.md'
+      - Вложения: 'messages/attachments.md'
+  - Чаты:
+      - Создание: 'chats/create.md'
+  - Пользователи:
+      - Поиск: 'users/search.md'
+      - Список участников: 'users/list.md'
+  - SmartApp:
+      - Обзор: 'smartapps/overview.md'
+      - RPC: 'smartapps/rpc.md'
+      - Push-уведомления: 'smartapps/push.md'
+      - UI-компоненты: 'smartapps/ui.md'
+  - Интеграция:
+      - FastAPI: 'integration/fastapi.md'
+  - Деплой:
+      - Docker: 'deployment/docker.md'
+      - CI/CD: 'deployment/ci_cd.md'
+  - Тестирование:
+      - Модульное: 'testing/unit.md'
+      - Интеграционное: 'testing/integration.md'
+  - Отладка:
+      - Логирование: 'debug/logging.md'
+  - Расширения:
+      - Конечные автоматы: 'extensions/fsm.md'
+      - Плагины: 'extensions/plugins.md'
+  - API Reference: 'api_reference.md'
+  - Changelog: 'changelog.md'
+  - Миграция: 'migration.md'
 
 plugins:
   - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_category_heading: true
+            show_if_no_docstring: false
+
 
 markdown_extensions:
   - admonition
@@ -22,9 +86,29 @@ markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
       linenums: true
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - codehilite:
       css_class: highlight
+  - toc:
+      permalink: true
+
 
 extra_css:
   - css/custom.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/ExpressApp/pybotx
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/pybotx/
