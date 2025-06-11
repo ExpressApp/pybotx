@@ -31,7 +31,7 @@ class BotXAPIUserFromCSVResult(VerifiedPayloadBaseModel):
     manager: Optional[str] = Field(alias="Manager")
     manager_huid: Optional[UUID] = Field(alias="Manager HUID")
     manager_dn: Optional[str] = Field(alias="Manager DN")
-    user_dn: Optional[str] = Field(alias="User DN")
+    user_dn: str = Field(alias="User DN")
     description: Optional[str] = Field(alias="Description")
     phone: Optional[str] = Field(alias="Phone")
     other_phone: Optional[str] = Field(alias="Other phone")
