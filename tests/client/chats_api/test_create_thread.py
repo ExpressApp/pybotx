@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from typing import Any
 from uuid import UUID
 
 import httpx
@@ -51,7 +52,10 @@ async def test__create_chat__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        created_thread_id = await bot.create_thread(bot_id=bot_id, sync_id=UUID(sync_id))
+        created_thread_id = await bot.create_thread(
+            bot_id=bot_id,
+            sync_id=UUID(sync_id),
+        )
 
     # - Assert -
     assert str(created_thread_id) == thread_id
@@ -188,9 +192,9 @@ async def test__create_thread__botx_error_raised(
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
-    return_json,
-    response_status,
-    expected_exc_type,
+    return_json: dict[str, Any],
+    response_status: int,
+    expected_exc_type: type[BaseException],
 ) -> None:
     # - Arrange -
     sync_id = "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"
@@ -206,7 +210,8 @@ async def test__create_thread__botx_error_raised(
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(expected_exc_type) as exc:
             await bot.create_thread(
-                bot_id=bot_id, sync_id=UUID(sync_id)
+                bot_id=bot_id,
+                sync_id=UUID(sync_id),
             )
 
     # - Assert -

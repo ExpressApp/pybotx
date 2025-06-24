@@ -33,7 +33,7 @@ class BotXAPICreateThreadResponsePayload(VerifiedPayloadBaseModel):
 
 
 class CreateThreadMethod(AuthorizedBotXMethod):
-    status_handlers: typing.ClassVar = {
+    status_handlers = {
         **AuthorizedBotXMethod.status_handlers,
         403: response_exception_thrower(ThreadCreationProhibitedError),
         404: response_exception_thrower(ThreadCreationEventNotFoundError),
