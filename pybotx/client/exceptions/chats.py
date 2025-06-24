@@ -23,6 +23,8 @@ class ThreadCreationError(BaseClientError):
 
 class ThreadCreationProhibitedError(BaseClientError):
     """
+    Error while permission checks.
+
     1. Bot has no permissions to create thread
     2. Threads are not allowed for that message
     3. Bot is not a chat member where message is located
