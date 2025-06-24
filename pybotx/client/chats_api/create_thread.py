@@ -1,4 +1,3 @@
-import typing
 from typing import Literal
 from uuid import UUID
 
@@ -6,9 +5,9 @@ from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.client.botx_method import response_exception_thrower
 from pybotx.client.exceptions.chats import (
     ThreadCreationError,
-    ThreadCreationEventNotFoundError,
     ThreadCreationProhibitedError,
 )
+from pybotx.client.exceptions.event import EventNotFoundError
 from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 
 
@@ -36,7 +35,7 @@ class CreateThreadMethod(AuthorizedBotXMethod):
     status_handlers = {
         **AuthorizedBotXMethod.status_handlers,
         403: response_exception_thrower(ThreadCreationProhibitedError),
-        404: response_exception_thrower(ThreadCreationEventNotFoundError),
+        404: response_exception_thrower(EventNotFoundError),
         422: response_exception_thrower(ThreadCreationError),
     }
 

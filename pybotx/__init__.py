@@ -40,7 +40,6 @@ from pybotx.client.exceptions.chats import (
     ChatCreationProhibitedError,
     InvalidUsersListError,
     ThreadCreationError,
-    ThreadCreationEventNotFoundError,
     ThreadCreationProhibitedError,
 )
 from pybotx.client.exceptions.common import (

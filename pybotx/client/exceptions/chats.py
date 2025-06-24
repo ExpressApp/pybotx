@@ -34,7 +34,3 @@ class ThreadCreationProhibitedError(BaseClientError):
     9. Message in stealth mode
     10. Message is deleted
     """
-
-
-class ThreadCreationEventNotFoundError(BaseClientError):
-    """Event not found"""

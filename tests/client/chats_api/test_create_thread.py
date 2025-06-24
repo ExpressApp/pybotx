@@ -9,9 +9,9 @@ from respx.router import MockRouter
 from pybotx import (
     Bot,
     BotAccountWithSecret,
+    EventNotFoundError,
     HandlerCollector,
     ThreadCreationError,
-    ThreadCreationEventNotFoundError,
     ThreadCreationProhibitedError,
     lifespan_wrapper,
 )
@@ -173,7 +173,7 @@ async def test__create_chat__succeed(
                 "error_data": {"bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46"},
             },
             HTTPStatus.NOT_FOUND,
-            ThreadCreationEventNotFoundError,
+            EventNotFoundError,
         ),
         (
             {
