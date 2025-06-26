@@ -1,9 +1,10 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Callable
 from uuid import UUID
 
 import httpx
 import pytest
+from respx import Route
 from respx.router import MockRouter
 
 from pybotx import (
@@ -25,27 +26,44 @@ pytestmark = [
 ENDPOINT = "api/v3/botx/chats/create_thread"
 
 
-async def test__create_chat__succeed(
+@pytest.fixture
+def sync_id() -> str:
+    return "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"
+
+
+@pytest.fixture
+def create_mocked_endpoint(
     respx_mock: MockRouter,
     host: str,
+    sync_id: str,
+) -> Callable[[dict[str, Any], int], Route]:
+    def mocked_endpoint(json_response: dict[str, Any], status_code: int) -> Route:
+        return respx_mock.post(
+            f"https://{host}/{ENDPOINT}",
+            headers={
+                "Authorization": "Bearer token",
+                "Content-Type": "application/json",
+            },
+            json={"sync_id": sync_id},
+        ).mock(return_value=httpx.Response(status_code, json=json_response))
+
+    return mocked_endpoint
+
+
+async def test__create_thread__succeed(
+    create_mocked_endpoint: Callable[[dict[str, Any], int], Route],
+    sync_id: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    sync_id = "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"
     thread_id = "2a8c0d1e-c4d1-4308-b024-6e1a9f4a4b6d"
-    endpoint = respx_mock.post(
-        f"https://{host}/{ENDPOINT}",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
-        json={"sync_id": sync_id},
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.OK,
-            json={
-                "status": "ok",
-                "result": {"thread_id": thread_id},
-            },
-        ),
+    endpoint = create_mocked_endpoint(
+        {
+            "status": "ok",
+            "result": {"thread_id": thread_id},
+        },
+        HTTPStatus.OK,
     )
 
     built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
@@ -185,11 +203,39 @@ async def test__create_chat__succeed(
             HTTPStatus.UNPROCESSABLE_ENTITY,
             ThreadCreationError,
         ),
+        (
+            {
+                "status": "error",
+                "reason": None,
+                "errors": [],
+                "error_data": {},
+            },
+            HTTPStatus.FORBIDDEN,
+            ThreadCreationProhibitedError,
+        ),
+        (
+            {
+                "status": "error",
+                "errors": [],
+                "error_data": {},
+            },
+            HTTPStatus.FORBIDDEN,
+            ThreadCreationProhibitedError,
+        ),
+        (
+            {
+                "status": "error",
+                "reason": "unexpected reason",
+                "errors": [],
+            },
+            HTTPStatus.FORBIDDEN,
+            ThreadCreationProhibitedError,
+        ),
     ),
 )
 async def test__create_thread__botx_error_raised(
-    respx_mock: MockRouter,
-    host: str,
+    create_mocked_endpoint: Callable[[dict[str, Any], int], Route],
+    sync_id: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
     return_json: dict[str, Any],
@@ -197,13 +243,7 @@ async def test__create_thread__botx_error_raised(
     expected_exc_type: type[BaseException],
 ) -> None:
     # - Arrange -
-    sync_id = "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"
-    endpoint = respx_mock.post(
-        f"https://{host}/{ENDPOINT}",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
-        json={"sync_id": sync_id},
-    ).mock(return_value=httpx.Response(response_status, json=return_json))
-
+    endpoint = create_mocked_endpoint(return_json, response_status)
     built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
@@ -216,4 +256,6 @@ async def test__create_thread__botx_error_raised(
 
     # - Assert -
     assert endpoint.called
-    assert return_json["reason"] in str(exc.value)
+
+    if return_json.get("reason"):
+        assert return_json["reason"] in str(exc.value)
