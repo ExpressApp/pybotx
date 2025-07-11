@@ -1,4 +1,3 @@
-
 from pybotx.models.message.incoming_message import BotAPIIncomingMessage
 from pybotx.models.message.mentions import BotAPIMention
 
@@ -25,7 +24,8 @@ def test_validate_items_dict() -> None:
     # - Act -
     # Call validate_items with a list containing a dict item
     result = BotAPIIncomingMessage.validate_items(
-        [entity_dict], MockValidationInfo(field_name="entities")  # type: ignore[call-arg, arg-type]
+        [entity_dict],
+        MockValidationInfo(field_name="entities"),  # type: ignore[call-arg, arg-type]
     )
 
     # - Assert -
@@ -43,7 +43,8 @@ def test_validate_items_non_dict() -> None:
     # Call validate_items with a list containing a non-dict item
     # The non-dict item will not be processed and not added to the result list
     result = BotAPIIncomingMessage.validate_items(
-        [non_dict_entity], MockValidationInfo(field_name="entities")  # type: ignore[call-arg, arg-type]
+        [non_dict_entity],
+        MockValidationInfo(field_name="entities"),  # type: ignore[call-arg, arg-type]
     )
 
     # - Assert -

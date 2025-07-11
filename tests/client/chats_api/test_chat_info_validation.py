@@ -1,4 +1,3 @@
-
 from uuid import UUID
 
 from pybotx.client.chats_api.chat_info import (
@@ -26,7 +25,10 @@ def test_validate_members_non_dict() -> None:
 
     # - Act -
     # Call validate_members with a list containing a non-dict item
-    result = BotXAPIChatInfoResult.validate_members([non_dict_member], MockValidationInfo(field_name="members"))  # type: ignore[call-arg, arg-type]
+    result = BotXAPIChatInfoResult.validate_members(  # type: ignore[call-arg]
+        [non_dict_member],
+        MockValidationInfo(field_name="members"),  # type: ignore[arg-type]
+    )
 
     # - Assert -
     # Verify that the non-dict item is included in the result

@@ -71,7 +71,7 @@ class BaseMarkup:
             raise NotImplementedError
 
         # https://github.com/wemake-services/wemake-python-styleguide/issues/2172
-        return self._buttons == other._buttons  # noqa: WPS437
+        return self._buttons == other._buttons
 
     def __repr__(self) -> str:
         buttons = []
@@ -184,7 +184,7 @@ class BotXAPIButton(UnverifiedPayloadBaseModel):
 
 
 class BotXAPIMarkup(RootModel[List[List[BotXAPIButton]]]):
-    def json(self) -> str:  # type: ignore [override]
+    def json(self) -> str:  # type: ignore[override]
         clean_dict = _remove_undefined(self.model_dump())
         return json.dumps(clean_dict, default=to_jsonable_python, ensure_ascii=False)
 
