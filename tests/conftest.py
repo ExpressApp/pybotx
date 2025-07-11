@@ -9,7 +9,6 @@ import httpx
 import jwt
 import pytest
 from aiofiles.tempfile import NamedTemporaryFile
-from pydantic import BaseModel
 from respx.router import MockRouter
 
 from pybotx import (
@@ -27,6 +26,7 @@ from pybotx import (
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
 from pybotx.logger import logger
 from pybotx.models.sync_smartapp_event import BotAPISyncSmartAppEventResultResponse
+from pydantic import BaseModel
 
 
 @pytest.fixture(autouse=True)

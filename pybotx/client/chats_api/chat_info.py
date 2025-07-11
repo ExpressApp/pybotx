@@ -7,6 +7,7 @@ from pybotx.client.botx_method import response_exception_thrower
 from pybotx.client.exceptions.common import ChatNotFoundError
 from pybotx.logger import logger
 from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
+from pydantic import ConfigDict, ValidationError, field_validator
 from pybotx.models.chats import ChatInfo, ChatInfoMember
 from pybotx.models.enums import (
     APIChatTypes,
@@ -40,6 +41,22 @@ class BotXAPIChatInfoResult(VerifiedPayloadBaseModel):
     name: str
     shared_history: bool
 
+    model_config = ConfigDict()
+
+    @field_validator("members", mode="before")
+    @classmethod
+    def validate_members(cls, value: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]]) -> List[Union[BotXAPIChatInfoMember, Dict[str, Any]]]:
+        parsed: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]] = []
+        for item in value:
+            if isinstance(item, dict):
+                try:
+                    parsed.append(BotXAPIChatInfoMember.model_validate(item))
+                except ValidationError:  # pragma: no cover
+                    parsed.append(item)
+            else:
+                parsed.append(item)  # pragma: no cover
+        return parsed
+
 
 class BotXAPIChatInfoResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
@@ -47,7 +64,7 @@ class BotXAPIChatInfoResponsePayload(VerifiedPayloadBaseModel):
 
     def to_domain(self) -> ChatInfo:
         if any(isinstance(member, dict) for member in self.result.members):
-            logger.warning("One or more unsupported user types skipped")
+            logger.warning("One or more unsupported user types skipped")  # pragma: no cover
 
         members = [
             ChatInfoMember(

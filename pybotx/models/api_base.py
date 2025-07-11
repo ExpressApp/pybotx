@@ -1,10 +1,9 @@
 import json
 from typing import Any, Dict, List, Optional, Set, Union, cast
 
-from pydantic import BaseModel
-from pydantic.json import pydantic_encoder
-
 from pybotx.missing import Undefined
+from pydantic import BaseModel, ConfigDict
+from pydantic_core import to_jsonable_python
 
 
 def _remove_undefined(
@@ -47,8 +46,8 @@ def _remove_undefined(
 
 class PayloadBaseModel(BaseModel):
     def json(self) -> str:  # type: ignore [override]
-        clean_dict = _remove_undefined(self.dict())
-        return json.dumps(clean_dict, default=pydantic_encoder, ensure_ascii=False)
+        clean_dict = _remove_undefined(self.model_dump())
+        return json.dumps(clean_dict, default=to_jsonable_python, ensure_ascii=False)
 
     def jsonable_dict(self) -> Dict[str, Any]:
         return cast(
@@ -67,8 +66,7 @@ class UnverifiedPayloadBaseModel(PayloadBaseModel):
         _fields_set: Optional[Set[str]] = None,
         **kwargs: Any,
     ) -> None:
-        model = BaseModel.construct(_fields_set, **kwargs)
+        model = self.__class__.model_construct(_fields_set=_fields_set, **kwargs)
         self.__dict__.update(model.__dict__)  # noqa: WPS609 (Replace self attrs)
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)

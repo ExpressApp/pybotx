@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from typing import Any, Dict, Literal, Optional, Union
 from uuid import UUID
 
-from pydantic import validator
-
 from pybotx.bot.api.exceptions import (
     UnknownSystemEventError,
     UnsupportedBotAPIVersionError,
@@ -17,6 +15,7 @@ from pybotx.models.enums import (
     BotAPICommandTypes,
     BotAPISystemEventTypes,
 )
+from pydantic import field_validator
 
 
 class BotAPICommandPayload(VerifiedPayloadBaseModel):
@@ -27,9 +26,9 @@ class BotAPICommandPayload(VerifiedPayloadBaseModel):
 
 
 class BotAPIDeviceMeta(VerifiedPayloadBaseModel):
-    pushes: Optional[bool]
-    timezone: Optional[str]
-    permissions: Optional[Dict[str, Any]]
+    pushes: Optional[bool] = None
+    timezone: Optional[str] = None
+    permissions: Optional[Dict[str, Any]] = None
 
 
 class BaseBotAPIContext(VerifiedPayloadBaseModel):
@@ -38,12 +37,12 @@ class BaseBotAPIContext(VerifiedPayloadBaseModel):
 
 class BotAPIUserContext(BaseBotAPIContext):
     user_huid: UUID
-    user_udid: Optional[UUID]
-    ad_domain: Optional[str]
-    ad_login: Optional[str]
-    username: Optional[str]
-    is_admin: Optional[bool]
-    is_creator: Optional[bool]
+    user_udid: Optional[UUID] = None
+    ad_domain: Optional[str] = None
+    ad_login: Optional[str] = None
+    username: Optional[str] = None
+    is_admin: Optional[bool] = None
+    is_creator: Optional[bool] = None
 
 
 class BotAPIChatContext(BaseBotAPIContext):
@@ -52,14 +51,14 @@ class BotAPIChatContext(BaseBotAPIContext):
 
 
 class BotAPIDeviceContext(BaseBotAPIContext):
-    app_version: Optional[str]
-    platform: Optional[BotAPIClientPlatforms]
-    platform_package_id: Optional[str]
-    device: Optional[str]
-    device_meta: Optional[BotAPIDeviceMeta]
-    device_software: Optional[str]
-    manufacturer: Optional[str]
-    locale: Optional[str]
+    app_version: Optional[str] = None
+    platform: Optional[BotAPIClientPlatforms] = None
+    platform_package_id: Optional[str] = None
+    device: Optional[str] = None
+    device_meta: Optional[BotAPIDeviceMeta] = None
+    device_software: Optional[str] = None
+    manufacturer: Optional[str] = None
+    locale: Optional[str] = None
 
 
 class BotAPIBaseCommand(VerifiedPayloadBaseModel):
@@ -67,7 +66,7 @@ class BotAPIBaseCommand(VerifiedPayloadBaseModel):
     sync_id: UUID
     proto_version: int
 
-    @validator("proto_version", pre=True)
+    @field_validator("proto_version", mode="before")
     @classmethod
     def validate_proto_version(cls, version: Any) -> int:
         if isinstance(version, int) and version == BOT_API_VERSION:
@@ -79,7 +78,7 @@ class BotAPIBaseCommand(VerifiedPayloadBaseModel):
 class BotAPIBaseSystemEventPayload(VerifiedPayloadBaseModel):
     command_type: Literal[BotAPICommandTypes.SYSTEM]
 
-    @validator("body", pre=True, check_fields=False)
+    @field_validator("body", mode="before", check_fields=False)
     @classmethod
     def find_unknown_system_event(cls, body: str) -> str:
         if body not in BotAPISystemEventTypes.__members__.values():  # noqa: WPS609

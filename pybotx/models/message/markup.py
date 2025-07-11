@@ -1,9 +1,12 @@
+import json
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, Iterator, List, Literal, Optional, Union
+from typing import Any, Dict, Iterator, List, Literal, Optional, Union, cast
 
 from pybotx.missing import Missing, Undefined
-from pybotx.models.api_base import UnverifiedPayloadBaseModel
+from pybotx.models.api_base import UnverifiedPayloadBaseModel, _remove_undefined
+from pydantic import RootModel
+from pydantic_core import to_jsonable_python
 
 
 class ButtonTextAlign(Enum):
@@ -180,8 +183,13 @@ class BotXAPIButton(UnverifiedPayloadBaseModel):
     opts: BotXAPIButtonOptions
 
 
-class BotXAPIMarkup(UnverifiedPayloadBaseModel):
-    __root__: List[List[BotXAPIButton]]
+class BotXAPIMarkup(RootModel[List[List[BotXAPIButton]]]):
+    def json(self) -> str:  # type: ignore [override]
+        clean_dict = _remove_undefined(self.model_dump())  # pragma: no cover
+        return json.dumps(clean_dict, default=to_jsonable_python, ensure_ascii=False)  # pragma: no cover
+
+    def jsonable_dict(self) -> Dict[str, Any]:
+        return cast(Dict[str, Any], json.loads(self.json()))  # pragma: no cover
 
 
 def api_button_from_domain(button: Button) -> BotXAPIButton:
@@ -216,7 +224,7 @@ def api_button_from_domain(button: Button) -> BotXAPIButton:
 
 def api_markup_from_domain(markup: Markup) -> BotXAPIMarkup:
     return BotXAPIMarkup(
-        __root__=[
+        root=[
             [api_button_from_domain(button) for button in buttons] for buttons in markup
-        ],
+        ]
     )

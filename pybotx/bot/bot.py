@@ -23,11 +23,11 @@ import httpx
 import jwt
 from aiocsv.readers import AsyncDictReader
 from aiofiles.tempfile import NamedTemporaryFile, TemporaryDirectory
-from pydantic import ValidationError, parse_obj_as
 
 from pybotx.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
 from pybotx.bot.callbacks.callback_manager import CallbackManager
+from pydantic import TypeAdapter
 from pybotx.bot.callbacks.callback_memory_repo import CallbackMemoryRepo
 from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
 from pybotx.bot.contextvars import bot_id_var, chat_id_var
@@ -234,8 +234,13 @@ from pybotx.models.attachments import IncomingFileAttachment, OutgoingAttachment
 from pybotx.models.bot_account import BotAccountWithSecret
 from pybotx.models.bot_catalog import BotsListItem
 from pybotx.models.chats import ChatInfo, ChatListItem
-from pybotx.models.commands import BotAPICommand, BotCommand
-from pybotx.models.enums import ChatTypes
+from pybotx.models.commands import (
+    BotAPICommand,
+    BotAPISystemEvent,
+    BotAPIIncomingMessage,
+    BotCommand,
+)
+from pybotx.models.enums import BotAPICommandTypes, ChatTypes
 from pybotx.models.message.edit_message import EditMessage
 from pybotx.models.message.markup import BubbleMarkup, KeyboardMarkup
 from pybotx.models.message.message_status import MessageStatus
@@ -256,6 +261,7 @@ from pybotx.models.sync_smartapp_event import (
 )
 from pybotx.models.system_events.smartapp_event import SmartAppEvent
 from pybotx.models.users import UserFromCSV, UserFromSearch
+from pydantic import ValidationError
 
 MissingOptionalAttachment = MissingOptional[
     Union[IncomingFileAttachment, OutgoingAttachment]
@@ -312,11 +318,11 @@ class Bot:
             self._verify_request(request_headers, trusted_issuers=trusted_issuers)
 
         try:
-            bot_api_command: BotAPICommand = parse_obj_as(
-                # Same ignore as in pydantic
-                BotAPICommand,  # type: ignore[arg-type]
-                raw_bot_command,
-            )
+            command_type = raw_bot_command.get("command", {}).get("command_type")
+            if command_type == BotAPICommandTypes.USER:
+                bot_api_command = BotAPIIncomingMessage.model_validate(raw_bot_command)
+            else:
+                bot_api_command = TypeAdapter(BotAPISystemEvent).validate_python(raw_bot_command)
         except ValidationError as validation_exc:
             raise ValueError("Bot command validation error") from validation_exc
 
@@ -350,9 +356,8 @@ class Bot:
             self._verify_request(request_headers, trusted_issuers=trusted_issuers)
 
         try:
-            bot_api_smartapp_event: BotAPISyncSmartAppEvent = parse_obj_as(
-                BotAPISyncSmartAppEvent,
-                raw_smartapp_event,
+            bot_api_smartapp_event = BotAPISyncSmartAppEvent.model_validate(
+                raw_smartapp_event
             )
         except ValidationError as validation_exc:
             raise ValueError(
@@ -388,7 +393,7 @@ class Bot:
             self._verify_request(request_headers, trusted_issuers=trusted_issuers)
 
         try:
-            bot_api_status_recipient = BotAPIStatusRecipient.parse_obj(query_params)
+            bot_api_status_recipient = BotAPIStatusRecipient.model_validate(query_params)
         except ValidationError as exc:
             raise ValueError("Status request validation error") from exc
 
@@ -415,9 +420,7 @@ class Bot:
         if verify_request:
             self._verify_request(request_headers, trusted_issuers=trusted_issuers)
 
-        callback: BotXMethodCallback = parse_obj_as(
-            # Same ignore as in pydantic
-            BotXMethodCallback,  # type: ignore[arg-type]
+        callback = TypeAdapter(BotXMethodCallback).validate_python(
             raw_botx_method_result,
         )
 

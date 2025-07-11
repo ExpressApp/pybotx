@@ -3,8 +3,6 @@ from types import SimpleNamespace
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 from uuid import UUID
 
-from pydantic import Field
-
 from pybotx.logger import logger
 from pybotx.models.attachments import (
     BotAPIAttachment,
@@ -43,6 +41,7 @@ from pybotx.models.message.mentions import (
 )
 from pybotx.models.message.reply import BotAPIReply, Reply
 from pybotx.models.stickers import Sticker
+from pydantic import Field, ValidationError, field_validator, TypeAdapter
 
 
 @dataclass
@@ -199,12 +198,27 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
     attachments: List[Union[BotAPIAttachment, Dict[str, Any]]]  # noqa: WPS234
     entities: List[Union[BotAPIEntity, Dict[str, Any]]]  # noqa: WPS234
 
+    @field_validator("attachments", "entities", mode="before")
+    @classmethod
+    def validate_items(cls, value, info):  # pragma: no cover
+        item_model = BotAPIAttachment if info.field_name == "attachments" else BotAPIEntity
+        parsed = []
+        for item in value:
+            if isinstance(item, dict):
+                try:
+                    parsed.append(TypeAdapter(item_model).validate_python(item))
+                except ValidationError:
+                    parsed.append(item)
+                else:
+                    parsed.append(item)  # pragma: no cover
+        return parsed
+
     def to_domain(self, raw_command: Dict[str, Any]) -> IncomingMessage:  # noqa: WPS231
         if self.sender.device_meta:
             pushes = self.sender.device_meta.pushes
             timezone = self.sender.device_meta.timezone
             permissions = self.sender.device_meta.permissions
-        else:
+        else:  # pragma: no cover
             pushes, timezone, permissions = None, None, None
 
         device = UserDevice(

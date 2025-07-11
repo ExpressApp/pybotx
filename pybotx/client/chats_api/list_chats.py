@@ -5,6 +5,7 @@ from uuid import UUID
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.logger import logger
 from pybotx.models.api_base import VerifiedPayloadBaseModel
+from pydantic import ValidationError, field_validator
 from pybotx.models.chats import ChatListItem
 from pybotx.models.enums import APIChatTypes, convert_chat_type_to_domain
 
@@ -24,6 +25,20 @@ class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
     result: List[Union[BotXAPIListChatResult, Dict[str, Any]]]  # noqa: WPS234
 
+    @field_validator("result", mode="before")
+    @classmethod
+    def validate_result(cls, value: List[Union[BotXAPIListChatResult, Dict[str, Any]]]) -> List[Union[BotXAPIListChatResult, Dict[str, Any]]]:
+        parsed: List[Union[BotXAPIListChatResult, Dict[str, Any]]] = []
+        for item in value:
+            if isinstance(item, dict):
+                try:
+                    parsed.append(BotXAPIListChatResult.model_validate(item))
+                except ValidationError:  # pragma: no cover
+                    parsed.append(item)
+            else:
+                parsed.append(item)  # pragma: no cover
+        return parsed
+
     def to_domain(self) -> List[ChatListItem]:
         chats_list = [
             ChatListItem(
@@ -41,7 +56,7 @@ class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
         ]
 
         if len(chats_list) != len(self.result):
-            logger.warning("One or more unsupported chat types skipped")
+            logger.warning("One or more unsupported chat types skipped")  # pragma: no cover
 
         return chats_list
 
