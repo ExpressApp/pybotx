@@ -423,7 +423,7 @@ class Bot:
         if verify_request:
             self._verify_request(request_headers, trusted_issuers=trusted_issuers)
 
-        callback = TypeAdapter(BotXMethodCallback).validate_python(
+        callback: BotXMethodCallback = TypeAdapter(BotXMethodCallback).validate_python(
             raw_botx_method_result,
         )
 

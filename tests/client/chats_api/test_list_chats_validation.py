@@ -31,9 +31,9 @@ def test_validate_result_non_dict() -> None:
 
     # - Act -
     # Call validate_result with a list containing a non-dict item
-    result = BotXAPIListChatResponsePayload.validate_result(  # type: ignore[call-arg]
+    result = BotXAPIListChatResponsePayload.validate_result(
         [non_dict_result],
-        MockValidationInfo(field_name="result"),  # type: ignore[arg-type]
+        MockValidationInfo(field_name="result"),
     )
 
     # - Assert -

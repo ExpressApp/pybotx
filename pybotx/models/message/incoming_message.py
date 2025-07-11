@@ -204,7 +204,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
         item_model = (
             BotAPIAttachment if info.field_name == "attachments" else BotAPIEntity
         )
-        parsed = []
+        parsed: List[Any] = []
         for item in value:
             if isinstance(item, dict):
                 try:
