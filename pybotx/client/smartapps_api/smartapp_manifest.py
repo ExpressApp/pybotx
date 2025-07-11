@@ -1,12 +1,11 @@
 from typing import List, Literal
 from uuid import UUID
 
-from pydantic import Field
-
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.missing import Missing, Undefined
 from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from pybotx.models.enums import SmartappManifestWebLayoutChoices as WebLayoutChoices
+from pydantic import Field
 
 
 class SmartappManifestIosParams(VerifiedPayloadBaseModel):

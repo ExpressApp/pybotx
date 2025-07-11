@@ -7,6 +7,7 @@ from pybotx.client.botx_method import response_exception_thrower
 from pybotx.client.exceptions.common import ChatNotFoundError
 from pybotx.logger import logger
 from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
+from pydantic import ConfigDict, ValidationError, field_validator
 from pybotx.models.chats import ChatInfo, ChatInfoMember
 from pybotx.models.enums import (
     APIChatTypes,
@@ -39,6 +40,24 @@ class BotXAPIChatInfoResult(VerifiedPayloadBaseModel):
     members: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]]  # noqa: WPS234
     name: str
     shared_history: bool
+
+    model_config = ConfigDict()
+
+    @field_validator("members", mode="before")
+    @classmethod
+    def validate_members(
+        cls, value: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]], info: Any
+    ) -> List[Union[BotXAPIChatInfoMember, Dict[str, Any]]]:
+        parsed: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]] = []
+        for item in value:
+            if isinstance(item, dict):
+                try:
+                    parsed.append(BotXAPIChatInfoMember.model_validate(item))
+                except ValidationError:
+                    parsed.append(item)
+            else:
+                parsed.append(item)
+        return parsed
 
 
 class BotXAPIChatInfoResponsePayload(VerifiedPayloadBaseModel):

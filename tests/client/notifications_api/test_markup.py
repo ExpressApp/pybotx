@@ -18,12 +18,12 @@ from pybotx import (
 from pybotx.models.message.markup import ButtonTextAlign
 
 pytestmark = [
-    pytest.mark.asyncio,
     pytest.mark.mock_authorization,
     pytest.mark.usefixtures("respx_mock"),
 ]
 
 
+@pytest.mark.asyncio
 async def test__markup__defaults_filled(
     respx_mock: MockRouter,
     host: str,
@@ -113,6 +113,7 @@ async def test__markup__defaults_filled(
     assert endpoint.called
 
 
+@pytest.mark.asyncio
 async def test__markup__correctly_built(
     respx_mock: MockRouter,
     host: str,
@@ -234,6 +235,7 @@ async def test__markup__correctly_built(
     assert endpoint.called
 
 
+@pytest.mark.asyncio
 async def test__markup__color_and_align(
     respx_mock: MockRouter,
     host: str,
@@ -374,6 +376,7 @@ async def test__markup__color_and_align(
     assert endpoint.called
 
 
+@pytest.mark.asyncio
 async def test__markup__link(
     respx_mock: MockRouter,
     host: str,

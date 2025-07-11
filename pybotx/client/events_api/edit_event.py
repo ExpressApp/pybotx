@@ -42,6 +42,7 @@ class BotXAPIEditEventRequestPayload(UnverifiedPayloadBaseModel):
     sync_id: UUID
     payload: BotXAPIEditEvent
     file: Missing[BotXAPIAttachment]
+    opts: BotXAPIEditEventOpts
 
     @classmethod
     def from_domain(

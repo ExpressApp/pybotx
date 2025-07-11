@@ -43,5 +43,5 @@ class UsersAsCSVMethod(AuthorizedBotXMethod):
             params=payload.jsonable_dict(),
         ) as response:
             # https://github.com/nedbat/coveragepy/issues/1223
-            async for chunk in response.aiter_bytes():  # pragma: no cover
+            async for chunk in response.aiter_bytes():  # pragma: no branch
                 await async_buffer.write(chunk)

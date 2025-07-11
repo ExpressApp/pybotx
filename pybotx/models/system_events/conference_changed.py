@@ -3,8 +3,6 @@ from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional
 from uuid import UUID
 
-from pydantic import Field
-
 from pybotx.models.api_base import VerifiedPayloadBaseModel
 from pybotx.models.base_command import (
     BaseBotAPIContext,
@@ -19,6 +17,7 @@ from pybotx.models.enums import (
     ConferenceLinkTypes,
     convert_conference_link_type_to_domain,
 )
+from pydantic import Field
 
 
 @dataclass

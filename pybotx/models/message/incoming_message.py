@@ -3,8 +3,6 @@ from types import SimpleNamespace
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 from uuid import UUID
 
-from pydantic import Field
-
 from pybotx.logger import logger
 from pybotx.models.attachments import (
     BotAPIAttachment,
@@ -43,6 +41,7 @@ from pybotx.models.message.mentions import (
 )
 from pybotx.models.message.reply import BotAPIReply, Reply
 from pybotx.models.stickers import Sticker
+from pydantic import Field, ValidationError, field_validator, TypeAdapter
 
 
 @dataclass
@@ -157,7 +156,6 @@ def convert_bot_api_entity_to_domain(api_entity: BotAPIEntity) -> Entity:
         return _convert_bot_api_mention_to_domain(api_entity.data)
 
     if api_entity.type == BotAPIEntityTypes.FORWARD:
-
         return Forward(
             chat_id=api_entity.data.group_chat_id,
             author_id=api_entity.data.sender_huid,
@@ -168,7 +166,6 @@ def convert_bot_api_entity_to_domain(api_entity: BotAPIEntity) -> Entity:
         )
 
     if api_entity.type == BotAPIEntityTypes.REPLY:
-
         mentions = MentionList()
         for api_mention_data in api_entity.data.mentions:
             mentions.append(_convert_bot_api_mention_to_domain(api_mention_data))
@@ -198,6 +195,23 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
     source_sync_id: Optional[UUID]
     attachments: List[Union[BotAPIAttachment, Dict[str, Any]]]  # noqa: WPS234
     entities: List[Union[BotAPIEntity, Dict[str, Any]]]  # noqa: WPS234
+
+    @field_validator("attachments", "entities", mode="before")
+    @classmethod
+    def validate_items(
+        cls, value: List[Union[Dict[str, Any], Any]], info: Any
+    ) -> List[Any]:
+        item_model = (
+            BotAPIAttachment if info.field_name == "attachments" else BotAPIEntity
+        )
+        parsed: List[Any] = []
+        for item in value:
+            if isinstance(item, dict):
+                try:
+                    parsed.append(TypeAdapter(item_model).validate_python(item))
+                except ValidationError:
+                    parsed.append(item)
+        return parsed
 
     def to_domain(self, raw_command: Dict[str, Any]) -> IncomingMessage:  # noqa: WPS231
         if self.sender.device_meta:

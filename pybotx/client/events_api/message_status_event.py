@@ -42,7 +42,6 @@ class BotXAPIMessageStatusResponsePayload(VerifiedPayloadBaseModel):
     result: BotXAPIMessageStatusResult
 
     def to_domain(self) -> MessageStatus:
-
         return MessageStatus(
             group_chat_id=self.result.group_chat_id,
             sent_to=self.result.sent_to,
