@@ -18,10 +18,10 @@ class BotAccountWithSecret(BaseModel):
     cts_url: AnyHttpUrl
     secret_key: str
 
-    model_config = ConfigDict()
+    model_config = ConfigDict(frozen=True)
 
     def __setattr__(self, name: str, value: object) -> None:  # pragma: no cover
-        if not self.Config.allow_mutation and name in self.model_fields:
+        if not getattr(self.model_config, "frozen", True) and name in self.model_fields:
             raise TypeError("BotAccountWithSecret is immutable")  # pragma: no cover
         super().__setattr__(name, value)  # pragma: no cover
 
@@ -33,10 +33,3 @@ class BotAccountWithSecret(BaseModel):
             raise ValueError("Could not parse host from cts_url.")
 
         return hostname
-
-
-class _Config:
-    allow_mutation = False
-
-
-BotAccountWithSecret.Config = _Config

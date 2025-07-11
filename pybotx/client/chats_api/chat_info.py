@@ -45,7 +45,9 @@ class BotXAPIChatInfoResult(VerifiedPayloadBaseModel):
 
     @field_validator("members", mode="before")
     @classmethod
-    def validate_members(cls, value: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]]) -> List[Union[BotXAPIChatInfoMember, Dict[str, Any]]]:
+    def validate_members(
+        cls, value: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]]
+    ) -> List[Union[BotXAPIChatInfoMember, Dict[str, Any]]]:
         parsed: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]] = []
         for item in value:
             if isinstance(item, dict):
@@ -64,7 +66,9 @@ class BotXAPIChatInfoResponsePayload(VerifiedPayloadBaseModel):
 
     def to_domain(self) -> ChatInfo:
         if any(isinstance(member, dict) for member in self.result.members):
-            logger.warning("One or more unsupported user types skipped")  # pragma: no cover
+            logger.warning(
+                "One or more unsupported user types skipped"
+            )  # pragma: no cover
 
         members = [
             ChatInfoMember(

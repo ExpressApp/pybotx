@@ -156,7 +156,6 @@ def convert_bot_api_entity_to_domain(api_entity: BotAPIEntity) -> Entity:
         return _convert_bot_api_mention_to_domain(api_entity.data)
 
     if api_entity.type == BotAPIEntityTypes.FORWARD:
-
         return Forward(
             chat_id=api_entity.data.group_chat_id,
             author_id=api_entity.data.sender_huid,
@@ -167,7 +166,6 @@ def convert_bot_api_entity_to_domain(api_entity: BotAPIEntity) -> Entity:
         )
 
     if api_entity.type == BotAPIEntityTypes.REPLY:
-
         mentions = MentionList()
         for api_mention_data in api_entity.data.mentions:
             mentions.append(_convert_bot_api_mention_to_domain(api_mention_data))
@@ -200,8 +198,12 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
 
     @field_validator("attachments", "entities", mode="before")
     @classmethod
-    def validate_items(cls, value, info):  # pragma: no cover
-        item_model = BotAPIAttachment if info.field_name == "attachments" else BotAPIEntity
+    def validate_items(
+        cls, value: List[Union[Dict[str, Any], Any]], info: Any
+    ) -> List[Any]:  # pragma: no cover
+        item_model = (
+            BotAPIAttachment if info.field_name == "attachments" else BotAPIEntity
+        )
         parsed = []
         for item in value:
             if isinstance(item, dict):

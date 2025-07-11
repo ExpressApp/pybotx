@@ -28,13 +28,8 @@ pyjwt = ">=2.0.0,<3.0.0"
 mypy-extensions = ">=0.2.0,<=1.1.0"
 
 [tool.poetry.group.dev.dependencies]
-add-trailing-comma = "3.1.0"
-autoflake = "2.3.1"
-black = "25.1.0"
-isort = "6.0.1"
 mypy = "1.15.0"
 typing-extensions = ">=3.7.4,<5.0.0"
-wemake-python-styleguide = "0.19.2"
 bandit = "1.8.3"  # https://github.com/PyCQA/bandit/issues/837
 
 pytest = "8.3.5"
@@ -48,6 +43,7 @@ deepdiff = "^8.5.0,<=9.0.0"
 fastapi = "0.115.12 "
 starlette = "0.46.2"  # TODO: Drop dependency after updating end-to-end test
 uvicorn = "0.34.2"
+ruff = "0.12.3"
 
 [build-system]
 requires = ["poetry>=1.2.0"]
@@ -73,3 +69,7 @@ markers = [
 filterwarnings = [
   "ignore:Pydantic serializer warnings:UserWarning",
 ]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 88

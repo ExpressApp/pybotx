@@ -155,9 +155,9 @@ class BotXMethod:
         callback_timeout: Optional[float],
         default_callback_timeout: float,
     ) -> Optional[BotXMethodCallback]:
-        assert (
-            self._callbacks_manager is not None
-        ), "CallbackManager hasn't been passed to this method"
+        assert self._callbacks_manager is not None, (
+            "CallbackManager hasn't been passed to this method"
+        )
 
         await self._callbacks_manager.create_botx_method_callback(sync_id)
 

@@ -27,7 +27,9 @@ class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
 
     @field_validator("result", mode="before")
     @classmethod
-    def validate_result(cls, value: List[Union[BotXAPIListChatResult, Dict[str, Any]]]) -> List[Union[BotXAPIListChatResult, Dict[str, Any]]]:
+    def validate_result(
+        cls, value: List[Union[BotXAPIListChatResult, Dict[str, Any]]]
+    ) -> List[Union[BotXAPIListChatResult, Dict[str, Any]]]:
         parsed: List[Union[BotXAPIListChatResult, Dict[str, Any]]] = []
         for item in value:
             if isinstance(item, dict):
@@ -56,7 +58,9 @@ class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
         ]
 
         if len(chats_list) != len(self.result):
-            logger.warning("One or more unsupported chat types skipped")  # pragma: no cover
+            logger.warning(
+                "One or more unsupported chat types skipped"
+            )  # pragma: no cover
 
         return chats_list
 

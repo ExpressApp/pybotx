@@ -235,7 +235,6 @@ from pybotx.models.bot_account import BotAccountWithSecret
 from pybotx.models.bot_catalog import BotsListItem
 from pybotx.models.chats import ChatInfo, ChatListItem
 from pybotx.models.commands import (
-    BotAPICommand,
     BotAPISystemEvent,
     BotAPIIncomingMessage,
     BotCommand,
@@ -322,7 +321,9 @@ class Bot:
             if command_type == BotAPICommandTypes.USER:
                 bot_api_command = BotAPIIncomingMessage.model_validate(raw_bot_command)
             else:
-                bot_api_command = TypeAdapter(BotAPISystemEvent).validate_python(raw_bot_command)
+                bot_api_command = TypeAdapter(BotAPISystemEvent).validate_python(
+                    raw_bot_command
+                )
         except ValidationError as validation_exc:
             raise ValueError("Bot command validation error") from validation_exc
 
@@ -393,7 +394,9 @@ class Bot:
             self._verify_request(request_headers, trusted_issuers=trusted_issuers)
 
         try:
-            bot_api_status_recipient = BotAPIStatusRecipient.model_validate(query_params)
+            bot_api_status_recipient = BotAPIStatusRecipient.model_validate(
+                query_params
+            )
         except ValidationError as exc:
             raise ValueError("Status request validation error") from exc
 
@@ -551,7 +554,7 @@ class Bot:
         :return: Notification sync_id.
         """
 
-        try:  # noqa: WPS229
+        try:
             bot_id = bot_id_var.get()
             chat_id = chat_id_var.get()
         except LookupError as exc:
@@ -2069,7 +2072,7 @@ class Bot:
         )
         await method.execute(payload)
 
-    def _verify_request(  # noqa: WPS231, WPS238
+    def _verify_request(
         self,
         headers: Optional[Mapping[str, str]],
         *,
