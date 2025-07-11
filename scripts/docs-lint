@@ -15,6 +15,6 @@ while IFS= read -d '' -r snippet || [[ -n "${snippet}" ]]; do
 done < <(grep -Pzo '(?s)(?<=```python\n).*?(?=```)' README.md);
 
 mypy "${snippets_dir_path}"
-ruff lint "${snippets_dir_path}"
+ruff check "${snippets_dir_path}"
 
 rm -rf "${snippets_dir_path}"
