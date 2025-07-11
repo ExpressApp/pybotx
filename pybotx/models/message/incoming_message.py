@@ -200,7 +200,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
     @classmethod
     def validate_items(
         cls, value: List[Union[Dict[str, Any], Any]], info: Any
-    ) -> List[Any]:  # pragma: no cover
+    ) -> List[Any]:
         item_model = (
             BotAPIAttachment if info.field_name == "attachments" else BotAPIEntity
         )
@@ -211,8 +211,6 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
                     parsed.append(TypeAdapter(item_model).validate_python(item))
                 except ValidationError:
                     parsed.append(item)
-                else:
-                    parsed.append(item)  # pragma: no cover
         return parsed
 
     def to_domain(self, raw_command: Dict[str, Any]) -> IncomingMessage:  # noqa: WPS231
@@ -220,7 +218,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             pushes = self.sender.device_meta.pushes
             timezone = self.sender.device_meta.timezone
             permissions = self.sender.device_meta.permissions
-        else:  # pragma: no cover
+        else:
             pushes, timezone, permissions = None, None, None
 
         device = UserDevice(

@@ -1,4 +1,3 @@
-# pragma: no cover
 import abc
 import os
 from typing import Optional
@@ -33,7 +32,7 @@ class AsyncBufferReadable(AsyncBufferBase):
 
 
 async def get_file_size(async_buffer: AsyncBufferReadable) -> int:
-    await async_buffer.seek(0, os.SEEK_END)  # pragma: no cover
-    file_size = await async_buffer.tell()  # pragma: no cover
-    await async_buffer.seek(0)  # pragma: no cover
-    return file_size  # pragma: no cover
+    await async_buffer.seek(0, os.SEEK_END)
+    file_size = await async_buffer.tell()
+    await async_buffer.seek(0)
+    return file_size

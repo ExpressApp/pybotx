@@ -185,13 +185,11 @@ class BotXAPIButton(UnverifiedPayloadBaseModel):
 
 class BotXAPIMarkup(RootModel[List[List[BotXAPIButton]]]):
     def json(self) -> str:  # type: ignore [override]
-        clean_dict = _remove_undefined(self.model_dump())  # pragma: no cover
-        return json.dumps(
-            clean_dict, default=to_jsonable_python, ensure_ascii=False
-        )  # pragma: no cover
+        clean_dict = _remove_undefined(self.model_dump())
+        return json.dumps(clean_dict, default=to_jsonable_python, ensure_ascii=False)
 
-    def jsonable_dict(self) -> Dict[str, Any]:
-        return cast(Dict[str, Any], json.loads(self.json()))  # pragma: no cover
+    def jsonable_dict(self) -> List[List[Dict[str, Any]]]:
+        return cast(List[List[Dict[str, Any]]], json.loads(self.json()))
 
 
 def api_button_from_domain(button: Button) -> BotXAPIButton:

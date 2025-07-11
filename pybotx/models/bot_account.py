@@ -20,10 +20,10 @@ class BotAccountWithSecret(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
-    def __setattr__(self, name: str, value: object) -> None:  # pragma: no cover
+    def __setattr__(self, name: str, value: object) -> None:
         if not getattr(self.model_config, "frozen", True) and name in self.model_fields:
             raise TypeError("BotAccountWithSecret is immutable")  # pragma: no cover
-        super().__setattr__(name, value)  # pragma: no cover
+        super().__setattr__(name, value)
 
     @property
     def host(self) -> str:
