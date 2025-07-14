@@ -87,7 +87,7 @@ class BotXMethod:
         raise NotImplementedError("You should define `execute` method")
 
     def _build_url(self, path: str) -> str:
-        cts_url = str(self._bot_accounts_storage.get_cts_url(self._bot_id))
+        cts_url = self._bot_accounts_storage.get_cts_url(self._bot_id)
         return "/".join(part.strip("/") for part in (cts_url, path))
 
     def _verify_and_extract_api_model(
