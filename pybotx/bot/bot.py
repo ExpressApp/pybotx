@@ -53,6 +53,10 @@ from pybotx.client.chats_api.chat_info import (
     BotXAPIChatInfoRequestPayload,
     ChatInfoMethod,
 )
+from pybotx.client.chats_api.personal_chat import (
+    BotXAPIPersonalChatRequestPayload,
+    PersonalChatMethod,
+)
 from pybotx.client.chats_api.create_chat import (
     BotXAPICreateChatRequestPayload,
     CreateChatMethod,
@@ -1012,6 +1016,29 @@ class Bot:
         botx_api_chat_info = await method.execute(payload)
 
         return botx_api_chat_info.to_domain()
+
+    async def personal_chat(
+        self,
+        *,
+        bot_id: UUID,
+        user_huid: UUID,
+    ) -> ChatInfo:
+        """Get personal chat between bot and user.
+
+        :param bot_id: Bot which should perform the request.
+        :param user_huid: User identifier.
+
+        :return: Chat information.
+        """
+
+        method = PersonalChatMethod(
+            bot_id, self._httpx_client, self._bot_accounts_storage
+        )
+
+        payload = BotXAPIPersonalChatRequestPayload.from_domain(user_huid=user_huid)
+        botx_api_personal_chat = await method.execute(payload)
+
+        return botx_api_personal_chat.to_domain()
 
     async def add_users_to_chat(
         self,

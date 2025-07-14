@@ -23,12 +23,11 @@ class BotXAPIListChatResult(VerifiedPayloadBaseModel):
 
 class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
-    result: List[Union[BotXAPIListChatResult, Dict[str, Any]]]  # noqa: WPS234
+    result: List[Union[BotXAPIListChatResult, Dict[str, Any]]]
 
-    @field_validator("result", mode="before")
-    @classmethod
+    @staticmethod
     def validate_result(
-        cls, value: List[Union[BotXAPIListChatResult, Dict[str, Any]]], info: Any
+        value: List[Union[BotXAPIListChatResult, Dict[str, Any]]], info: Any
     ) -> List[Union[BotXAPIListChatResult, Dict[str, Any]]]:
         parsed: List[Union[BotXAPIListChatResult, Dict[str, Any]]] = []
         for item in value:
@@ -40,6 +39,14 @@ class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
             else:
                 parsed.append(item)
         return parsed
+
+    @field_validator("result", mode="before")
+    @classmethod
+    def _validate_result_field(
+        cls, value: List[Union[BotXAPIListChatResult, Dict[str, Any]]], info: Any
+    ) -> List[Union[BotXAPIListChatResult, Dict[str, Any]]]:
+        # Pydantic-валидатор: просто делегируем статическому методу
+        return cls.validate_result(value, info)
 
     def to_domain(self) -> List[ChatListItem]:
         chats_list = [

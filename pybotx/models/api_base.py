@@ -45,7 +45,7 @@ def _remove_undefined(
 
 
 class PayloadBaseModel(BaseModel):
-    def json(self) -> str:  # type: ignore [override]
+    def json(self) -> str:  # type: ignore[override]
         clean_dict = _remove_undefined(self.model_dump())
         return json.dumps(clean_dict, default=to_jsonable_python, ensure_ascii=False)
 
@@ -67,6 +67,6 @@ class UnverifiedPayloadBaseModel(PayloadBaseModel):
         **kwargs: Any,
     ) -> None:
         model = self.__class__.model_construct(_fields_set=_fields_set, **kwargs)
-        self.__dict__.update(model.__dict__)  # noqa: WPS609 (Replace self attrs)
+        self.__dict__.update(model.__dict__)
 
     model_config = ConfigDict(arbitrary_types_allowed=True)

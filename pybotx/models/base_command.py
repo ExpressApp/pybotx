@@ -81,7 +81,7 @@ class BotAPIBaseSystemEventPayload(VerifiedPayloadBaseModel):
     @field_validator("body", mode="before", check_fields=False)
     @classmethod
     def find_unknown_system_event(cls, body: str) -> str:
-        if body not in BotAPISystemEventTypes.__members__.values():  # noqa: WPS609
+        if body not in BotAPISystemEventTypes.__members__.values():
             raise UnknownSystemEventError(body)
 
         return body

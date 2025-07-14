@@ -193,14 +193,11 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
     sender: BotAPIIncomingMessageContext = Field(..., alias="from")
 
     source_sync_id: Optional[UUID]
-    attachments: List[Union[BotAPIAttachment, Dict[str, Any]]]  # noqa: WPS234
-    entities: List[Union[BotAPIEntity, Dict[str, Any]]]  # noqa: WPS234
+    attachments: List[Union[BotAPIAttachment, Dict[str, Any]]]
+    entities: List[Union[BotAPIEntity, Dict[str, Any]]]
 
-    @field_validator("attachments", "entities", mode="before")
-    @classmethod
-    def validate_items(
-        cls, value: List[Union[Dict[str, Any], Any]], info: Any
-    ) -> List[Any]:
+    @staticmethod
+    def validate_items(value: List[Union[Dict[str, Any], Any]], info: Any) -> List[Any]:
         item_model = (
             BotAPIAttachment if info.field_name == "attachments" else BotAPIEntity
         )
@@ -213,7 +210,15 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
                     parsed.append(item)
         return parsed
 
-    def to_domain(self, raw_command: Dict[str, Any]) -> IncomingMessage:  # noqa: WPS231
+    @field_validator("attachments", "entities", mode="before")
+    @classmethod
+    def _validate_items_field(
+        cls, value: List[Union[Dict[str, Any], Any]], info: Any
+    ) -> List[Any]:
+        # Pydantic-валидатор: просто делегируем статическому методу
+        return cls.validate_items(value, info)
+
+    def to_domain(self, raw_command: Dict[str, Any]) -> IncomingMessage:
         if self.sender.device_meta:
             pushes = self.sender.device_meta.pushes
             timezone = self.sender.device_meta.timezone
@@ -269,7 +274,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
                     self.attachments[0],
                     self.payload.body,
                 )
-                if isinstance(attachment_domain, FileAttachmentBase):  # noqa: WPS223
+                if isinstance(attachment_domain, FileAttachmentBase):
                     file = attachment_domain
                 elif isinstance(attachment_domain, Location):
                     location = attachment_domain
@@ -292,7 +297,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
                 entity_domain = convert_bot_api_entity_to_domain(entity)
                 if isinstance(
                     entity_domain,
-                    Mention.__args__,  # type: ignore [attr-defined]  # noqa: WPS609
+                    Mention.__args__,  # type: ignore [attr-defined]
                 ):
                     mentions.append(entity_domain)
                 elif isinstance(entity_domain, Forward):
