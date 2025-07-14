@@ -22,7 +22,7 @@ class BotXAPISmartAppEntity(VerifiedPayloadBaseModel):
     app_id: str
     enabled: bool
     id: UUID
-    name: str
+    name: Optional[str] = None
     avatar: Optional[str] = None
     avatar_preview: Optional[str] = None
 
