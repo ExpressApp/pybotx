@@ -32,7 +32,7 @@ add-trailing-comma = "3.1.0"
 autoflake = "2.3.1"
 black = "25.1.0"
 isort = "6.0.1"
-mypy = "1.15.0"
+mypy = "1.17.0"
 typing-extensions = ">=3.7.4,<5.0.0"
 wemake-python-styleguide = "0.19.2"
 bandit = "1.8.3"  # https://github.com/PyCQA/bandit/issues/837
