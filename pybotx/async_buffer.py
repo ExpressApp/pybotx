@@ -5,7 +5,7 @@ from typing import Optional
 try:
     from typing import Protocol
 except ImportError:
-    from typing_extensions import Protocol  # type: ignore  # noqa: WPS440
+    from typing_extensions import Protocol  # type: ignore
 
 
 class AsyncBufferBase(Protocol):

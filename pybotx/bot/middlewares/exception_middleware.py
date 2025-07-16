@@ -33,7 +33,7 @@ class ExceptionMiddleware:
             if exception_handler is None:
                 raise message_handler_exc
 
-            try:  # noqa: WPS505
+            try:
                 await exception_handler(message, bot, message_handler_exc)
             except Exception as error_handler_exc:
                 exc_name = type(message_handler_exc).__name__

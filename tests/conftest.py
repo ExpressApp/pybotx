@@ -47,7 +47,7 @@ def prepared_bot_accounts_storage(
 
 @pytest.fixture
 def datetime_formatter() -> Callable[[str], datetime]:
-    class DateTimeFormatter(BaseModel):  # noqa: WPS431
+    class DateTimeFormatter(BaseModel):
         value: datetime
 
     def factory(dt_str: str) -> datetime:
@@ -149,7 +149,7 @@ def loguru_caplog(
 ) -> Generator[pytest.LogCaptureFixture, None, None]:
     # https://github.com/Delgan/loguru/issues/59
 
-    class PropogateHandler(logging.Handler):  # noqa: WPS431
+    class PropogateHandler(logging.Handler):
         def emit(self, record: logging.LogRecord) -> None:
             logging.getLogger(record.name).handle(record)
 

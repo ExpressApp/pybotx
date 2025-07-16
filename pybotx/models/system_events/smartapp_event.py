@@ -38,7 +38,7 @@ class SmartAppEvent(BotCommandBase):
 
     ref: Optional[UUID]
     smartapp_id: UUID
-    data: Dict[str, Any]  # noqa: WPS110
+    data: Dict[str, Any]
     opts: Optional[Dict[str, Any]]
     smartapp_api_version: Optional[int]
     files: List[File]
@@ -49,7 +49,7 @@ class SmartAppEvent(BotCommandBase):
 class BotAPISmartAppData(VerifiedPayloadBaseModel):
     ref: UUID
     smartapp_id: UUID
-    data: Dict[str, Any]  # noqa: WPS110
+    data: Dict[str, Any]
     opts: Dict[str, Any]
     smartapp_api_version: int
 

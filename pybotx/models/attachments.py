@@ -213,7 +213,7 @@ IncomingAttachment = Union[
 ]
 
 
-def convert_api_attachment_to_domain(  # noqa: WPS212
+def convert_api_attachment_to_domain(
     api_attachment: BotAPIAttachment,
     message_body: str,
 ) -> IncomingAttachment:

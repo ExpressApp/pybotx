@@ -35,7 +35,7 @@ async def test__middlewares__correct_order(
             bot: Bot,
             call_next: IncomingMessageHandlerFunc,
         ) -> None:
-            middlewares_called_order.append(number)  # noqa: F824
+            middlewares_called_order.append(number)
 
             await call_next(message, bot)
 
@@ -83,7 +83,7 @@ async def test__middlewares__called_in_default_handler(
             bot: Bot,
             call_next: IncomingMessageHandlerFunc,
         ) -> None:
-            middlewares_called_order.append(number)  # noqa: F824
+            middlewares_called_order.append(number)
 
             await call_next(message, bot)
 
@@ -127,7 +127,7 @@ async def test__middlewares__correct_child_collector_middlewares(
             bot: Bot,
             call_next: IncomingMessageHandlerFunc,
         ) -> None:
-            middlewares_called_order.append(number)  # noqa: F824
+            middlewares_called_order.append(number)
 
             await call_next(message, bot)
 
@@ -174,7 +174,7 @@ async def test__middlewares__correct_parent_collector_middlewares(
             bot: Bot,
             call_next: IncomingMessageHandlerFunc,
         ) -> None:
-            nonlocal middlewares_called_order  # noqa: F824
+            nonlocal middlewares_called_order
             middlewares_called_order.append(number)
 
             await call_next(message, bot)

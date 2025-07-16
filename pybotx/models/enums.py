@@ -83,7 +83,7 @@ IncomingChatTypes = Union[ChatTypes, UNSUPPORTED]
 IncomingSyncSourceTypes = Union[SyncSourceTypes, UNSUPPORTED]
 
 
-class StrEnum(str, Enum):  # noqa: WPS600 (pydantic needs this inheritance)
+class StrEnum(str, Enum):  # (pydantic needs this inheritance)
     """Enum base for API models."""
 
     # https://github.com/pydantic/pydantic/issues/3850
@@ -311,13 +311,13 @@ def convert_chat_type_from_domain(chat_type: ChatTypes) -> APIChatTypes:
 @overload
 def convert_chat_type_to_domain(
     chat_type: APIChatTypes,
-) -> ChatTypes: ...  # noqa: WPS428, E704
+) -> ChatTypes: ...
 
 
 @overload
 def convert_chat_type_to_domain(
     chat_type: str,
-) -> UNSUPPORTED: ...  # noqa: WPS428, E704
+) -> UNSUPPORTED: ...
 
 
 def convert_chat_type_to_domain(
@@ -345,13 +345,13 @@ def convert_chat_type_to_domain(
 @overload
 def convert_sync_source_type_to_domain(
     sync_type: APISyncSourceTypes,
-) -> SyncSourceTypes: ...  # noqa: WPS428, E704
+) -> SyncSourceTypes: ...
 
 
 @overload
 def convert_sync_source_type_to_domain(
     sync_type: str,
-) -> UNSUPPORTED: ...  # noqa: WPS428, E704
+) -> UNSUPPORTED: ...
 
 
 def convert_sync_source_type_to_domain(

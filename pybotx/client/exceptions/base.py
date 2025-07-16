@@ -22,7 +22,7 @@ class BaseClientError(Exception):
         content = response.content
 
         message = (
-            f"{method} {url}\n"  # noqa: WPS221 (Strange error on CI)
+            f"{method} {url}\n"  # (Strange error on CI)
             f"failed with code {status_code} and payload:\n"
             f"{content!r}"
         )
