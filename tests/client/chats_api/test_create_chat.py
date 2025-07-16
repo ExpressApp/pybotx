@@ -169,7 +169,7 @@ def test__create_chat_payload__invalid_avatar_non_data_url_error() -> None:
     # Test the validator directly since UnverifiedPayloadBaseModel bypasses validation
     # The validator is a classmethod that expects (cls, value)
     with pytest.raises(ValueError, match="Avatar must be a data URL \\(RFC2397\\)"):
-        BotXAPICreateChatRequestPayload._validate_avatar("invalid-url")  # type: ignore[call-arg]
+        BotXAPICreateChatRequestPayload._validate_avatar("invalid-url")
 
 
 def test__create_chat_payload__invalid_avatar_bad_rfc2397_format_error() -> None:
@@ -178,7 +178,7 @@ def test__create_chat_payload__invalid_avatar_bad_rfc2397_format_error() -> None
 
     # Test the validator directly since UnverifiedPayloadBaseModel bypasses validation
     with pytest.raises(ValueError, match="Invalid data URL format"):
-        BotXAPICreateChatRequestPayload._validate_avatar("data:invalid-format")  # type: ignore[call-arg]
+        BotXAPICreateChatRequestPayload._validate_avatar("data:invalid-format")
 
 
 def test__create_chat_payload__avatar_validator_with_none() -> None:
@@ -186,7 +186,7 @@ def test__create_chat_payload__avatar_validator_with_none() -> None:
     from pybotx.client.chats_api.create_chat import BotXAPICreateChatRequestPayload
 
     # Test the validator directly with None value
-    result = BotXAPICreateChatRequestPayload._validate_avatar(None)  # type: ignore[call-arg]
+    result = BotXAPICreateChatRequestPayload._validate_avatar(None)
     assert result is None
 
 
@@ -195,7 +195,7 @@ def test__create_chat_payload__avatar_validator_with_valid_data_url() -> None:
     from pybotx.client.chats_api.create_chat import BotXAPICreateChatRequestPayload
 
     valid_avatar = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
-    result = BotXAPICreateChatRequestPayload._validate_avatar(valid_avatar)  # type: ignore[call-arg]
+    result = BotXAPICreateChatRequestPayload._validate_avatar(valid_avatar)
     assert result == valid_avatar
 
 
