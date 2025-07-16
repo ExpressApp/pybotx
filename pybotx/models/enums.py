@@ -54,11 +54,13 @@ class ChatTypes(AutoName):
         PERSONAL_CHAT: Personal chat with user.
         GROUP_CHAT: Group chat.
         CHANNEL: Public channel.
+        THREAD: Thread in a chat.
     """
 
     PERSONAL_CHAT = auto()
     GROUP_CHAT = auto()
     CHANNEL = auto()
+    THREAD = auto()
 
 
 class SyncSourceTypes(AutoName):
@@ -92,6 +94,7 @@ class APIChatTypes(Enum):
     CHAT = "chat"
     GROUP_CHAT = "group_chat"
     CHANNEL = "channel"
+    THREAD = "thread"
 
 
 class BotAPICommandTypes(StrEnum):
@@ -295,6 +298,7 @@ def convert_chat_type_from_domain(chat_type: ChatTypes) -> APIChatTypes:
         ChatTypes.PERSONAL_CHAT: APIChatTypes.CHAT,
         ChatTypes.GROUP_CHAT: APIChatTypes.GROUP_CHAT,
         ChatTypes.CHANNEL: APIChatTypes.CHANNEL,
+        ChatTypes.THREAD: APIChatTypes.THREAD,
     }
 
     converted_type = chat_types_mapping.get(chat_type)
@@ -323,6 +327,7 @@ def convert_chat_type_to_domain(
         APIChatTypes.CHAT: ChatTypes.PERSONAL_CHAT,
         APIChatTypes.GROUP_CHAT: ChatTypes.GROUP_CHAT,
         APIChatTypes.CHANNEL: ChatTypes.CHANNEL,
+        APIChatTypes.THREAD: ChatTypes.THREAD,
     }
 
     converted_type: Optional[IncomingChatTypes]

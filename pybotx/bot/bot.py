@@ -1178,6 +1178,7 @@ class Bot:
         huids: List[UUID],
         description: Optional[str] = None,
         shared_history: Missing[bool] = Undefined,
+        avatar: Optional[str] = None,
     ) -> UUID:
         """Create chat.
 
@@ -1188,6 +1189,7 @@ class Bot:
         :param description: Chat description.
         :param shared_history: (BotX default: False) Open old chat history for
             new added users.
+        :param avatar: Chat avatar in data URL format (RFC 2397).
 
         :return: Created chat uuid.
         """
@@ -1198,12 +1200,13 @@ class Bot:
             self._bot_accounts_storage,
         )
 
-        payload = BotXAPICreateChatRequestPayload.from_domain(
+        payload = BotXAPICreateChatRequestPayload(
             name=name,
             chat_type=chat_type,
-            huids=huids,
+            members=huids,
             shared_history=shared_history,
             description=description,
+            avatar=avatar,
         )
         botx_api_chat_id = await method.execute(payload)
 

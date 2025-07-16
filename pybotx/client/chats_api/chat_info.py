@@ -74,7 +74,7 @@ class BotXAPIChatInfoResult(VerifiedPayloadBaseModel):
             elif isinstance(item, BotXAPIChatInfoMember):
                 parsed.append(item)
             else:
-                logger.warning("Unknown member type: %s", item) # pragma: no cover
+                logger.warning("Unknown member type: %s", item)  # pragma: no cover
         return parsed
 
     @field_validator("members", mode="before")
