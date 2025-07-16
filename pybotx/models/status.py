@@ -2,8 +2,6 @@ from dataclasses import asdict, dataclass
 from typing import Any, Dict, List, Literal, NewType, Optional, Union
 from uuid import UUID
 
-from pydantic import validator
-
 from pybotx.models.api_base import VerifiedPayloadBaseModel
 from pybotx.models.enums import (
     APIChatTypes,
@@ -11,6 +9,7 @@ from pybotx.models.enums import (
     convert_chat_type_to_domain,
 )
 from pybotx.models.message.incoming_message import IncomingMessage
+from pydantic import field_validator
 
 BotMenu = NewType("BotMenu", Dict[str, str])
 
@@ -42,12 +41,12 @@ class StatusRecipient:
 class BotAPIStatusRecipient(VerifiedPayloadBaseModel):
     bot_id: UUID
     user_huid: UUID
-    ad_login: Optional[str]
-    ad_domain: Optional[str]
-    is_admin: Optional[bool]
+    ad_login: Optional[str] = None
+    ad_domain: Optional[str] = None
+    is_admin: Optional[bool] = None
     chat_type: Union[APIChatTypes, str]
 
-    @validator("ad_login", "ad_domain", "is_admin", pre=True)
+    @field_validator("ad_login", "ad_domain", "is_admin", mode="before")
     @classmethod
     def replace_empty_string(
         cls,

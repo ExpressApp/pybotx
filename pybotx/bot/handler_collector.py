@@ -119,7 +119,7 @@ class HandlerCollector:
 
         elif isinstance(
             bot_command,
-            SystemEvent.__args__,  # type: ignore [attr-defined]  # noqa: WPS609
+            SystemEvent.__args__,  # type: ignore [attr-defined]
         ):
             event_handler = self._get_system_event_handler_or_none(bot_command)
             if event_handler:

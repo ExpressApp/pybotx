@@ -45,7 +45,7 @@ async def test__users_as_csv__no_user_kind_selected_error(
     # - Act -
     with pytest.raises(NoUserKindSelectedError) as exc:
         async with lifespan_wrapper(built_bot) as bot:
-            async with bot.users_as_csv(  # noqa: WPS328
+            async with bot.users_as_csv(
                 bot_id=bot_id,
                 cts_user=False,
                 unregistered=False,

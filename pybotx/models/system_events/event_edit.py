@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Literal, Optional
 from uuid import UUID
 
-from pydantic import Field
-
 from pybotx.models.api_base import VerifiedPayloadBaseModel
 from pybotx.models.attachments import (
     BotAPIAttachment,
@@ -23,6 +21,7 @@ from pybotx.models.message.incoming_message import (
     Entity,
     convert_bot_api_entity_to_domain,
 )
+from pydantic import Field
 
 
 @dataclass

@@ -562,6 +562,6 @@ async def test__handler_collector__sync_smartapp_event__decorator__handler_alrea
         @collector.sync_smartapp_event
         async def duplicated_handle_sync_smartapp_event(
             *_: Any,
-        ) -> Any: ...  # noqa: E704
+        ) -> Any: ...
 
     assert str(exc.value) == "Handler for sync smartapp event already registered"

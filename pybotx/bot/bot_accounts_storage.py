@@ -25,7 +25,7 @@ class BotAccountsStorage:
 
     def get_cts_url(self, bot_id: UUID) -> str:
         bot_account = self.get_bot_account(bot_id)
-        return bot_account.cts_url
+        return str(bot_account.cts_url)
 
     def set_token(self, bot_id: UUID, token: str) -> None:
         self._auth_tokens[bot_id] = token

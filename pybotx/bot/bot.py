@@ -23,11 +23,11 @@ import httpx
 import jwt
 from aiocsv.readers import AsyncDictReader
 from aiofiles.tempfile import NamedTemporaryFile, TemporaryDirectory
-from pydantic import ValidationError, parse_obj_as
 
 from pybotx.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
 from pybotx.bot.callbacks.callback_manager import CallbackManager
+from pydantic import TypeAdapter
 from pybotx.bot.callbacks.callback_memory_repo import CallbackMemoryRepo
 from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
 from pybotx.bot.contextvars import bot_id_var, chat_id_var
@@ -52,6 +52,10 @@ from pybotx.client.chats_api.add_user import AddUserMethod, BotXAPIAddUserReques
 from pybotx.client.chats_api.chat_info import (
     BotXAPIChatInfoRequestPayload,
     ChatInfoMethod,
+)
+from pybotx.client.chats_api.personal_chat import (
+    BotXAPIPersonalChatRequestPayload,
+    PersonalChatMethod,
 )
 from pybotx.client.chats_api.create_chat import (
     BotXAPICreateChatRequestPayload,
@@ -234,8 +238,12 @@ from pybotx.models.attachments import IncomingFileAttachment, OutgoingAttachment
 from pybotx.models.bot_account import BotAccountWithSecret
 from pybotx.models.bot_catalog import BotsListItem
 from pybotx.models.chats import ChatInfo, ChatListItem
-from pybotx.models.commands import BotAPICommand, BotCommand
-from pybotx.models.enums import ChatTypes
+from pybotx.models.commands import (
+    BotAPISystemEvent,
+    BotAPIIncomingMessage,
+    BotCommand,
+)
+from pybotx.models.enums import BotAPICommandTypes, ChatTypes
 from pybotx.models.message.edit_message import EditMessage
 from pybotx.models.message.markup import BubbleMarkup, KeyboardMarkup
 from pybotx.models.message.message_status import MessageStatus
@@ -256,6 +264,7 @@ from pybotx.models.sync_smartapp_event import (
 )
 from pybotx.models.system_events.smartapp_event import SmartAppEvent
 from pybotx.models.users import UserFromCSV, UserFromSearch
+from pydantic import ValidationError
 
 MissingOptionalAttachment = MissingOptional[
     Union[IncomingFileAttachment, OutgoingAttachment]
@@ -312,11 +321,13 @@ class Bot:
             self._verify_request(request_headers, trusted_issuers=trusted_issuers)
 
         try:
-            bot_api_command: BotAPICommand = parse_obj_as(
-                # Same ignore as in pydantic
-                BotAPICommand,  # type: ignore[arg-type]
-                raw_bot_command,
-            )
+            command_type = raw_bot_command.get("command", {}).get("command_type")
+            if command_type == BotAPICommandTypes.USER:
+                bot_api_command = BotAPIIncomingMessage.model_validate(raw_bot_command)
+            else:
+                bot_api_command = TypeAdapter(BotAPISystemEvent).validate_python(
+                    raw_bot_command
+                )
         except ValidationError as validation_exc:
             raise ValueError("Bot command validation error") from validation_exc
 
@@ -350,9 +361,8 @@ class Bot:
             self._verify_request(request_headers, trusted_issuers=trusted_issuers)
 
         try:
-            bot_api_smartapp_event: BotAPISyncSmartAppEvent = parse_obj_as(
-                BotAPISyncSmartAppEvent,
-                raw_smartapp_event,
+            bot_api_smartapp_event = BotAPISyncSmartAppEvent.model_validate(
+                raw_smartapp_event
             )
         except ValidationError as validation_exc:
             raise ValueError(
@@ -388,7 +398,9 @@ class Bot:
             self._verify_request(request_headers, trusted_issuers=trusted_issuers)
 
         try:
-            bot_api_status_recipient = BotAPIStatusRecipient.parse_obj(query_params)
+            bot_api_status_recipient = BotAPIStatusRecipient.model_validate(
+                query_params
+            )
         except ValidationError as exc:
             raise ValueError("Status request validation error") from exc
 
@@ -415,9 +427,7 @@ class Bot:
         if verify_request:
             self._verify_request(request_headers, trusted_issuers=trusted_issuers)
 
-        callback: BotXMethodCallback = parse_obj_as(
-            # Same ignore as in pydantic
-            BotXMethodCallback,  # type: ignore[arg-type]
+        callback: BotXMethodCallback = TypeAdapter(BotXMethodCallback).validate_python(
             raw_botx_method_result,
         )
 
@@ -548,7 +558,7 @@ class Bot:
         :return: Notification sync_id.
         """
 
-        try:  # noqa: WPS229
+        try:
             bot_id = bot_id_var.get()
             chat_id = chat_id_var.get()
         except LookupError as exc:
@@ -1007,6 +1017,29 @@ class Bot:
 
         return botx_api_chat_info.to_domain()
 
+    async def personal_chat(
+        self,
+        *,
+        bot_id: UUID,
+        user_huid: UUID,
+    ) -> ChatInfo:
+        """Get personal chat between bot and user.
+
+        :param bot_id: Bot which should perform the request.
+        :param user_huid: User identifier.
+
+        :return: Chat information.
+        """
+
+        method = PersonalChatMethod(
+            bot_id, self._httpx_client, self._bot_accounts_storage
+        )
+
+        payload = BotXAPIPersonalChatRequestPayload.from_domain(user_huid=user_huid)
+        botx_api_personal_chat = await method.execute(payload)
+
+        return botx_api_personal_chat.to_domain()
+
     async def add_users_to_chat(
         self,
         *,
@@ -1145,6 +1178,7 @@ class Bot:
         huids: List[UUID],
         description: Optional[str] = None,
         shared_history: Missing[bool] = Undefined,
+        avatar: Optional[str] = None,
     ) -> UUID:
         """Create chat.
 
@@ -1155,6 +1189,7 @@ class Bot:
         :param description: Chat description.
         :param shared_history: (BotX default: False) Open old chat history for
             new added users.
+        :param avatar: Chat avatar in data URL format (RFC 2397).
 
         :return: Created chat uuid.
         """
@@ -1165,12 +1200,13 @@ class Bot:
             self._bot_accounts_storage,
         )
 
-        payload = BotXAPICreateChatRequestPayload.from_domain(
+        payload = BotXAPICreateChatRequestPayload(
             name=name,
             chat_type=chat_type,
-            huids=huids,
+            members=huids,
             shared_history=shared_history,
             description=description,
+            avatar=avatar,
         )
         botx_api_chat_id = await method.execute(payload)
 
@@ -2066,7 +2102,7 @@ class Bot:
         )
         await method.execute(payload)
 
-    def _verify_request(  # noqa: WPS231, WPS238
+    def _verify_request(
         self,
         headers: Optional[Mapping[str, str]],
         *,

@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Literal, Optional
 from uuid import UUID
 
-from pydantic import Field
-
 from pybotx.models.api_base import VerifiedPayloadBaseModel
 from pybotx.models.async_files import APIAsyncFile, File, convert_async_file_to_domain
 from pybotx.models.base_command import (
@@ -22,6 +20,7 @@ from pybotx.models.enums import (
     convert_client_platform_to_domain,
 )
 from pybotx.models.message.incoming_message import UserDevice, UserSender
+from pydantic import Field
 
 
 @dataclass
@@ -39,7 +38,7 @@ class SmartAppEvent(BotCommandBase):
 
     ref: Optional[UUID]
     smartapp_id: UUID
-    data: Dict[str, Any]  # noqa: WPS110
+    data: Dict[str, Any]
     opts: Optional[Dict[str, Any]]
     smartapp_api_version: Optional[int]
     files: List[File]
@@ -50,7 +49,7 @@ class SmartAppEvent(BotCommandBase):
 class BotAPISmartAppData(VerifiedPayloadBaseModel):
     ref: UUID
     smartapp_id: UUID
-    data: Dict[str, Any]  # noqa: WPS110
+    data: Dict[str, Any]
     opts: Dict[str, Any]
     smartapp_api_version: int
 

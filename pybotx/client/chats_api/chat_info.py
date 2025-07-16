@@ -2,6 +2,7 @@ from datetime import datetime as dt
 from typing import Any, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
+from pydantic import ConfigDict, ValidationError, field_validator
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.client.botx_method import response_exception_thrower
 from pybotx.client.exceptions.common import ChatNotFoundError
@@ -19,15 +20,22 @@ from pybotx.models.enums import (
 class BotXAPIChatInfoRequestPayload(UnverifiedPayloadBaseModel):
     group_chat_id: UUID
 
+    model_config = ConfigDict(extra="forbid")
+
     @classmethod
     def from_domain(cls, chat_id: UUID) -> "BotXAPIChatInfoRequestPayload":
         return cls(group_chat_id=chat_id)
+
+    def as_query_params(self) -> Dict[str, Any]:
+        return self.model_dump(mode="json")
 
 
 class BotXAPIChatInfoMember(VerifiedPayloadBaseModel):
     admin: bool
     user_huid: UUID
     user_kind: APIUserKinds
+
+    model_config = ConfigDict(extra="ignore")
 
 
 class BotXAPIChatInfoResult(VerifiedPayloadBaseModel):
@@ -36,14 +44,54 @@ class BotXAPIChatInfoResult(VerifiedPayloadBaseModel):
     description: Optional[str] = None
     group_chat_id: UUID
     inserted_at: dt
-    members: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]]  # noqa: WPS234
+    members: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]] = []
     name: str
     shared_history: bool
+
+    model_config = ConfigDict(extra="ignore")
+
+    @staticmethod
+    def validate_members(
+        items: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]],
+        info: Any,
+    ) -> List[Union[BotXAPIChatInfoMember, Dict[str, Any]]]:
+        """
+        Публичный helper для парсинга списка участников:
+        - dict → BotXAPIChatInfoMember
+        - уже готовый BotXAPIChatInfoMember остаётся как есть
+        - всё остальное логируется и пропускается
+        """
+        parsed: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]] = []
+        for item in items:
+            if isinstance(item, dict):
+                try:
+                    parsed.append(BotXAPIChatInfoMember.model_validate(item))
+                except ValidationError:
+                    # Сохраняем оригинал, чтобы downstream-логика могла
+                    # увидеть и обработать «неожиданную» структуру
+                    parsed.append(item)
+                    logger.warning("Unsupported member structure encountered: %s", item)
+            elif isinstance(item, BotXAPIChatInfoMember):
+                parsed.append(item)
+            else:
+                logger.warning("Unknown member type: %s", item)  # pragma: no cover
+        return parsed
+
+    @field_validator("members", mode="before")
+    @classmethod
+    def _validate_members_field(
+        cls,
+        value: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]],
+        info: Any,
+    ) -> List[Union[BotXAPIChatInfoMember, Dict[str, Any]]]:
+        return cls.validate_members(value, info)
 
 
 class BotXAPIChatInfoResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
     result: BotXAPIChatInfoResult
+
+    model_config = ConfigDict(extra="ignore")
 
     def to_domain(self) -> ChatInfo:
         if any(isinstance(member, dict) for member in self.result.members):
@@ -86,7 +134,7 @@ class ChatInfoMethod(AuthorizedBotXMethod):
         response = await self._botx_method_call(
             "GET",
             self._build_url(path),
-            params=payload.jsonable_dict(),
+            params=payload.as_query_params(),
         )
 
         return self._verify_and_extract_api_model(

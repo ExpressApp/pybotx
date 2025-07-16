@@ -22,19 +22,14 @@ httpx = "^0.28.0"
 # https://github.com/encode/httpcore/pull/880
 httpcore = "1.0.9"
 loguru = ">=0.6.0,<0.7.0"
-pydantic = ">=1.6.0,<1.11.0"
+pydantic = ">=2.8.2,<3.0"
 aiocsv = ">=1.2.3,<=1.4.0"
 pyjwt = ">=2.0.0,<3.0.0"
 mypy-extensions = ">=0.2.0,<=1.1.0"
 
 [tool.poetry.group.dev.dependencies]
-add-trailing-comma = "3.1.0"
-autoflake = "2.3.1"
-black = "25.1.0"
-isort = "6.0.1"
 mypy = "1.15.0"
 typing-extensions = ">=3.7.4,<5.0.0"
-wemake-python-styleguide = "0.19.2"
 bandit = "1.8.3"  # https://github.com/PyCQA/bandit/issues/837
 
 pytest = "8.3.5"
@@ -48,6 +43,7 @@ deepdiff = "^8.5.0,<=9.0.0"
 fastapi = "0.115.12 "
 starlette = "0.46.2"  # TODO: Drop dependency after updating end-to-end test
 uvicorn = "0.34.2"
+ruff = "0.12.3"
 
 [build-system]
 requires = ["poetry>=1.2.0"]
@@ -56,3 +52,24 @@ build-backend = "poetry.masonry.api"
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+addopts = [
+  "--strict-markers",
+  "--tb=short",
+  "--cov=pybotx",
+  "--cov-report=term-missing",
+  "--cov-branch",
+  "--no-cov-on-fail",
+  "--cov-fail-under=100",
+]
+markers = [
+  "wip: Work in progress",
+  "mock_authorization: Mock authorization",
+]
+filterwarnings = [
+  "ignore:Pydantic serializer warnings:UserWarning",
+]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 88
