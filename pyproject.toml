@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "pybotx"
-version = "0.75.1"
+version = "0.75.2"
 description = "A python library for interacting with eXpress BotX API"
 authors = [
     "Sidnev Nikolay <nsidnev@ccsteam.ru>",
     "Maxim Gorbachev <mgorbachev@ccsteam.ru>",
     "Alexander Samoylenko <alexandr.samojlenko@ccsteam.ru>",
-    "Arseniy Zhiltsov <arseniy.zhiltsov@ccsteam.ru>"
+    "Arseniy Zhiltsov <arseniy.zhiltsov@ccsteam.ru>",
 ]
 readme = "README.md"
 repository = "https://github.com/ExpressApp/pybotx"

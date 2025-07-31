@@ -1,17 +1,13 @@
 from asyncio import Task
+from collections.abc import AsyncIterable, AsyncIterator, Iterator, Mapping, Sequence
 from contextlib import asynccontextmanager
 from datetime import datetime
 from types import SimpleNamespace
 from typing import (
     Any,
-    AsyncIterable,
-    AsyncIterator,
     Dict,
-    Iterator,
     List,
-    Mapping,
     Optional,
-    Sequence,
     Set,
     Tuple,
     Union,
@@ -56,6 +52,10 @@ from pybotx.client.chats_api.chat_info import (
 from pybotx.client.chats_api.create_chat import (
     BotXAPICreateChatRequestPayload,
     CreateChatMethod,
+)
+from pybotx.client.chats_api.create_thread import (
+    BotXAPICreateThreadRequestPayload,
+    CreateThreadMethod,
 )
 from pybotx.client.chats_api.disable_stealth import (
     BotXAPIDisableStealthRequestPayload,
@@ -1175,6 +1175,27 @@ class Bot:
         botx_api_chat_id = await method.execute(payload)
 
         return botx_api_chat_id.to_domain()
+
+    async def create_thread(self, bot_id: UUID, sync_id: UUID) -> UUID:
+        """
+        Create thread.
+
+        :param bot_id: Bot which should perform the request.
+        :param sync_id: Message for which thread should be created
+
+        :return: Created thread uuid.
+        """
+
+        method = CreateThreadMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        payload = BotXAPICreateThreadRequestPayload.from_domain(sync_id=sync_id)
+        botx_api_thread_id = await method.execute(payload)
+
+        return botx_api_thread_id.to_domain()
 
     async def pin_message(
         self,
