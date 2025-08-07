@@ -9,7 +9,7 @@ from pybotx.client.exceptions.callbacks import CallbackNotReceivedError
 from pybotx.models.method_callbacks import BotXMethodCallback
 
 if TYPE_CHECKING:
-    from asyncio import Future  # noqa: WPS458
+    from asyncio import Future
 
 
 class CallbackWrapper:
@@ -20,8 +20,8 @@ class CallbackWrapper:
     ):
         self.sync_id = sync_id
         self.main_loop = main_loop
-        self._result = None
-        self._exception = None
+        self._result: Optional[BotXMethodCallback] = None
+        self._exception: Optional[Exception] = None
         self._event = threading.Event()
         self._future: Optional["Future[BotXMethodCallback]"] = None
 
@@ -34,14 +34,14 @@ class CallbackWrapper:
                     self._future = asyncio.Future()
                 else:
 
-                    def create_future():
+                    def create_future() -> None:
                         self._future = asyncio.Future()
 
                     self.main_loop.call_soon_threadsafe(create_future)
             except RuntimeError:
                 if self.main_loop is not None:
 
-                    def create_future():
+                    def create_future() -> None:
                         self._future = asyncio.Future()
 
                     self.main_loop.call_soon_threadsafe(create_future)
@@ -50,7 +50,7 @@ class CallbackWrapper:
         else:
             self._future = asyncio.Future()
 
-    def set_result(self, result) -> None:
+    def set_result(self, result: BotXMethodCallback) -> None:
         """Set the result in a thread-safe manner."""
         self._result = result
         self._event.set()
@@ -70,7 +70,7 @@ class CallbackWrapper:
             else:
                 self._future.set_result(result)
 
-    def set_exception(self, exception) -> None:
+    def set_exception(self, exception: Exception) -> None:
         """Set an exception in a thread-safe manner."""
         self._exception = exception
         self._event.set()
@@ -93,7 +93,7 @@ class CallbackWrapper:
             else:
                 self._future.set_exception(exception)
 
-    async def wait_for_result(self, timeout: float):
+    async def wait_for_result(self, timeout: float) -> BotXMethodCallback:
         """Wait for the result with timeout."""
         try:
             current_loop = asyncio.get_running_loop()
@@ -105,7 +105,7 @@ class CallbackWrapper:
                 return await asyncio.wait_for(self._future, timeout=timeout)
             else:
 
-                def wait_with_timeout():
+                def wait_with_timeout() -> bool:
                     return self._event.wait(timeout)
 
                 loop = asyncio.get_running_loop()
@@ -117,6 +117,9 @@ class CallbackWrapper:
                 if self._exception is not None:
                     raise self._exception
 
+                assert self._result is not None, (
+                    "Result should be set when no exception occurred"
+                )
                 return self._result
         except RuntimeError:
             success = self._event.wait(timeout)
@@ -126,6 +129,9 @@ class CallbackWrapper:
             if self._exception is not None:
                 raise self._exception
 
+            assert self._result is not None, (
+                "Result should be set when no exception occurred"
+            )
             return self._result
 
     def get_future(self) -> "Future[BotXMethodCallback]":
@@ -174,7 +180,7 @@ class CallbackMemoryRepo(CallbackRepoProto):
         try:
             return await wrapper.wait_for_result(timeout)
         except asyncio.TimeoutError as exc:
-            del self._callback_wrappers[sync_id]  # noqa: WPS420
+            del self._callback_wrappers[sync_id]
             raise CallbackNotReceivedError(sync_id) from exc
 
     async def pop_botx_method_callback(

@@ -1,5 +1,6 @@
+import asyncio
 from http import HTTPStatus
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 from unittest.mock import Mock, patch
 from uuid import UUID
 
@@ -10,6 +11,9 @@ from respx.router import MockRouter
 from pybotx import Bot, BotAccountWithSecret, HandlerCollector, IncomingMessage
 from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
 from pybotx.bot.testing import lifespan_wrapper
+
+if TYPE_CHECKING:
+    from pybotx.models.method_callbacks import BotXMethodCallback
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -155,19 +159,25 @@ async def test__startup__callback_repo_without_set_main_loop(
 
     # Create a custom callback repo without set_main_loop method
     class CallbackRepoWithoutSetMainLoop(CallbackRepoProto):
-        async def create_botx_method_callback(self, sync_id):
+        async def create_botx_method_callback(self, sync_id: UUID) -> None:
             pass
 
-        async def set_botx_method_callback_result(self, callback):
+        async def set_botx_method_callback_result(
+            self, callback: "BotXMethodCallback"
+        ) -> None:
             pass
 
-        async def wait_botx_method_callback(self, sync_id, timeout):
-            pass
+        async def wait_botx_method_callback(
+            self, sync_id: UUID, timeout: float
+        ) -> "BotXMethodCallback":
+            raise NotImplementedError
 
-        async def pop_botx_method_callback(self, sync_id):
-            pass
+        async def pop_botx_method_callback(
+            self, sync_id: UUID
+        ) -> "asyncio.Future[BotXMethodCallback]":
+            raise NotImplementedError
 
-        async def stop_callbacks_waiting(self):
+        async def stop_callbacks_waiting(self) -> None:
             pass
 
         # Note: no set_main_loop method

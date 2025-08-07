@@ -1,6 +1,11 @@
 import asyncio
+from typing import Any, List, Union, overload
+from uuid import UUID, uuid4
+
 import pytest
-from uuid import uuid4
+from typing_extensions import Literal
+
+from pybotx.models.method_callbacks import BotXMethodCallback
 
 from pybotx.bot.callbacks.callback_manager import (
     CallbackManager,
@@ -11,27 +16,36 @@ from pybotx.bot.exceptions import BotXMethodCallbackNotFoundError
 
 
 @pytest.mark.asyncio
-async def test_delegation_to_repo_methods(monkeypatch):
+async def test_delegation_to_repo_methods(monkeypatch: pytest.MonkeyPatch) -> None:
     """Проверяем, что CallbackManager делегирует все вызовы в CallbackRepoProto."""
     sync_id = uuid4()
-    calls = []
+    calls: List[Any] = []
 
     class DummyRepo:
-        async def create_botx_method_callback(self, sid):
+        async def create_botx_method_callback(self, sid: UUID) -> None:
             calls.append(("create", sid))
 
-        async def set_botx_method_callback_result(self, cb):
+        async def set_botx_method_callback_result(self, cb: BotXMethodCallback) -> None:
             calls.append(("set", cb))
 
-        async def wait_botx_method_callback(self, sid, timeout):
+        async def wait_botx_method_callback(
+            self, sid: UUID, timeout: float
+        ) -> BotXMethodCallback:
             calls.append(("wait", sid, timeout))
-            return "result"
+            # Create a mock BotXMethodCallback
+            mock_callback = type("MockCallback", (), {"sync_id": sid})()
+            return mock_callback  # type: ignore
 
-        async def pop_botx_method_callback(self, sid):
+        async def pop_botx_method_callback(
+            self, sid: UUID
+        ) -> "asyncio.Future[BotXMethodCallback]":
             calls.append(("pop", sid))
-            return "future"
+            # Create a mock Future
+            future: "asyncio.Future[BotXMethodCallback]" = asyncio.Future()
+            future.set_result(type("MockCallback", (), {"sync_id": sid})())
+            return future
 
-        async def stop_callbacks_waiting(self):
+        async def stop_callbacks_waiting(self) -> None:
             calls.append(("stop",))
 
     repo = DummyRepo()
@@ -43,10 +57,10 @@ async def test_delegation_to_repo_methods(monkeypatch):
     await mgr.set_botx_method_callback_result(dummy_cb)
     # wait
     res = await mgr.wait_botx_method_callback(sync_id, timeout=2.5)
-    assert res == "result"
+    assert hasattr(res, "sync_id")
     # pop
     fut = await mgr.pop_botx_method_callback(sync_id)
-    assert fut == "future"
+    assert isinstance(fut, asyncio.Future)
     # stop
     await mgr.stop_callbacks_waiting()
 
@@ -59,7 +73,7 @@ async def test_delegation_to_repo_methods(monkeypatch):
     ]
 
 
-def test_get_event_loop_prefers_main_loop():
+def test_get_event_loop_prefers_main_loop() -> None:
     """Если задан основной луп, _get_event_loop возвращает именно его."""
     repo = type("R", (), {})()
     mgr = CallbackManager(repo)
@@ -68,7 +82,7 @@ def test_get_event_loop_prefers_main_loop():
     assert mgr._get_event_loop() is loop
 
 
-def test_get_event_loop_fallback_to_current():
+def test_get_event_loop_fallback_to_current() -> None:
     """Если основной луп не задан, _get_event_loop возвращает текущий луп."""
     repo = type("R", (), {})()
     mgr = CallbackManager(repo)
@@ -80,7 +94,7 @@ def test_get_event_loop_fallback_to_current():
 
 
 @pytest.mark.asyncio
-async def test_setup_and_cancel_alarm_default_and_with_return():
+async def test_setup_and_cancel_alarm_default_and_with_return() -> None:
     """
     Проверяем, что setup_callback_timeout_alarm создаёт задачу,
     а cancel_callback_timeout_alarm:
@@ -133,7 +147,7 @@ async def test_setup_and_cancel_alarm_default_and_with_return():
         alarm2.task.result()
 
 
-def test_cancel_nonexistent_raises():
+def test_cancel_nonexistent_raises() -> None:
     """Если нет такого таймера, должно быть BotXMethodCallbackNotFoundError."""
     repo = type("R", (), {})()
     mgr = CallbackManager(repo)
@@ -142,39 +156,57 @@ def test_cancel_nonexistent_raises():
 
 
 @pytest.mark.asyncio
-async def test_callback_timeout_alarm_triggers(monkeypatch):
+async def test_callback_timeout_alarm_triggers(monkeypatch: pytest.MonkeyPatch) -> None:
     """
     Проверяем логику _callback_timeout_alarm:
       - после await sleep вызывает cancel_callback_timeout_alarm и pop_botx_method_callback;
       - логирует ошибку.
     """
     sid = uuid4()
-    calls = []
+    calls: List[Any] = []
 
     class DummyMgr(CallbackManager):
-        def __init__(self):
-            super().__init__(None)
+        def __init__(self) -> None:
+            super().__init__(None)  # type: ignore
 
-        def cancel_callback_timeout_alarm(self, sync_id):
+        @overload
+        def cancel_callback_timeout_alarm(self, sync_id: UUID) -> None: ...
+
+        @overload
+        def cancel_callback_timeout_alarm(
+            self, sync_id: UUID, return_remaining_time: Literal[True]
+        ) -> float: ...
+
+        def cancel_callback_timeout_alarm(
+            self, sync_id: UUID, return_remaining_time: bool = False
+        ) -> Union[None, float]:
             calls.append(("cancel", sync_id))
+            if return_remaining_time:
+                return 0.0
+            return None
 
-        async def pop_botx_method_callback(self, sync_id):
+        async def pop_botx_method_callback(
+            self, sync_id: UUID
+        ) -> "asyncio.Future[BotXMethodCallback]":
             calls.append(("pop", sync_id))
+            future: "asyncio.Future[BotXMethodCallback]" = asyncio.Future()
+            future.set_result(type("MockCallback", (), {"sync_id": sync_id})())
+            return future
 
     mgr = DummyMgr()
 
     # Подменяем sleep, чтобы не ждать реальное время
-    async def fake_sleep(t):
+    async def fake_sleep(t: float) -> None:
         calls.append(("sleep", t))
         # не ждём
 
     monkeypatch.setattr(asyncio, "sleep", fake_sleep)
 
     # Подменяем logger.error
-    logged = {}
+    logged: dict[str, Any] = {}
     from pybotx.logger import logger
 
-    def fake_error(msg, **kwargs):
+    def fake_error(msg: str, **kwargs: Any) -> None:
         logged["msg"] = msg
         logged["kwargs"] = kwargs
 
