@@ -16,17 +16,18 @@ from pybotx.client.exceptions.chats import (
     ChatCreationProhibitedError,
 )
 from pybotx.missing import Missing, Undefined
-from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
+from pybotx.models.api_base import VerifiedPayloadBaseModel
 from pybotx.models.attachments import decode_rfc2397
 from pybotx.models.enums import APIChatTypes, ChatTypes, convert_chat_type_from_domain
 
 
-class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
+class BotXAPICreateChatRequestPayload(VerifiedPayloadBaseModel):
     model_config = ConfigDict(
         validate_assignment=True,
         frozen=True,
         str_strip_whitespace=True,
         use_enum_values=True,
+        arbitrary_types_allowed=True,
     )
 
     name: str = Field(..., min_length=1)
@@ -56,8 +57,10 @@ class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
         return v
 
     @field_serializer("chat_type")
-    def _serialize_chat_type(self, v: APIChatTypes) -> str:
-        return v.value.lower()
+    def _serialize_chat_type(self, v: Union[APIChatTypes, str]) -> str:
+        if isinstance(v, APIChatTypes):
+            return v.value.lower() # pragma: no cover
+        return v.lower()
 
 
 class BotXAPIChatIdResult(VerifiedPayloadBaseModel):
