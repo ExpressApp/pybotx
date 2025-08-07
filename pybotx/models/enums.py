@@ -309,13 +309,13 @@ def convert_chat_type_from_domain(chat_type: ChatTypes) -> APIChatTypes:
 
 
 @overload
-def convert_chat_type_to_domain(
+def convert_chat_type_to_domain(  # pragma: no cover
     chat_type: APIChatTypes,
 ) -> ChatTypes: ...
 
 
 @overload
-def convert_chat_type_to_domain(
+def convert_chat_type_to_domain(  # pragma: no cover
     chat_type: str,
 ) -> UNSUPPORTED: ...
 
@@ -343,13 +343,13 @@ def convert_chat_type_to_domain(
 
 
 @overload
-def convert_sync_source_type_to_domain(
+def convert_sync_source_type_to_domain(  # pragma: no cover
     sync_type: APISyncSourceTypes,
 ) -> SyncSourceTypes: ...
 
 
 @overload
-def convert_sync_source_type_to_domain(
+def convert_sync_source_type_to_domain(  # pragma: no cover
     sync_type: str,
 ) -> UNSUPPORTED: ...
 
