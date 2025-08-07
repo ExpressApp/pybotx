@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from typing import Callable
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from uuid import UUID
 
 import httpx
@@ -8,6 +8,7 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import Bot, BotAccountWithSecret, HandlerCollector, IncomingMessage
+from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
 from pybotx.bot.testing import lifespan_wrapper
 
 pytestmark = [
@@ -123,6 +124,67 @@ async def test__startup__can_skip_fetching_tokens(
 
     # - Assert -
     assert not token_endpoint.called
+
+    # Cleanup
+    await bot.shutdown()
+
+
+async def test__startup__runtime_error_handling(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    """Test that startup handles RuntimeError from asyncio.get_running_loop()."""
+    # - Arrange -
+    collector = HandlerCollector()
+    bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+
+    # - Act & Assert -
+    with patch("asyncio.get_running_loop", side_effect=RuntimeError("No running loop")):
+        # This should not raise an exception, RuntimeError should be caught
+        await bot.startup(fetch_tokens=False)
+
+    # Cleanup
+    await bot.shutdown()
+
+
+async def test__startup__callback_repo_without_set_main_loop(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    """Test startup with callback repo that doesn't have set_main_loop method."""
+    # - Arrange -
+    collector = HandlerCollector()
+
+    # Create a custom callback repo without set_main_loop method
+    class CallbackRepoWithoutSetMainLoop(CallbackRepoProto):
+        async def create_botx_method_callback(self, sync_id):
+            pass
+
+        async def set_botx_method_callback_result(self, callback):
+            pass
+
+        async def wait_botx_method_callback(self, sync_id, timeout):
+            pass
+
+        async def pop_botx_method_callback(self, sync_id):
+            pass
+
+        async def stop_callbacks_waiting(self):
+            pass
+
+        # Note: no set_main_loop method
+
+    bot = Bot(
+        collectors=[collector],
+        bot_accounts=[bot_account],
+        callback_repo=CallbackRepoWithoutSetMainLoop(),
+    )
+
+    # - Act -
+    # This should execute the branch where hasattr returns False
+    await bot.startup(fetch_tokens=False)
+
+    # - Assert -
+    # The test passes if no exception is raised and the branch is covered
+    assert not hasattr(bot._callbacks_manager._callback_repo, "set_main_loop")
 
     # Cleanup
     await bot.shutdown()

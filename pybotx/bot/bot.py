@@ -1,3 +1,4 @@
+import asyncio
 from asyncio import Task
 from collections.abc import AsyncIterable, AsyncIterator, Iterator, Mapping, Sequence
 from contextlib import asynccontextmanager
@@ -462,6 +463,15 @@ class Bot:
             self._bot_accounts_storage.set_token(bot_account.id, token)
 
     async def startup(self, *, fetch_tokens: bool = True) -> None:
+        try:
+            main_loop = asyncio.get_running_loop()
+            self._callbacks_manager.set_main_loop(main_loop)
+
+            if hasattr(self._callbacks_manager._callback_repo, "set_main_loop"):
+                self._callbacks_manager._callback_repo.set_main_loop(main_loop)
+        except RuntimeError:
+            pass
+
         if fetch_tokens:
             await self.fetch_tokens()
 

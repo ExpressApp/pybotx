@@ -31,6 +31,17 @@ class CallbackManager:
     def __init__(self, callback_repo: CallbackRepoProto) -> None:
         self._callback_repo = callback_repo
         self._callback_alarms: Dict[UUID, CallbackAlarm] = {}
+        self._main_loop: Optional[asyncio.AbstractEventLoop] = None
+
+    def set_main_loop(self, loop: asyncio.AbstractEventLoop) -> None:
+        """Set the main event loop to use for callback operations."""
+        self._main_loop = loop
+
+    def _get_event_loop(self) -> asyncio.AbstractEventLoop:
+        """Get the event loop to use for callback operations."""
+        if self._main_loop is not None:
+            return self._main_loop
+        return asyncio.get_event_loop()
 
     async def create_botx_method_callback(self, sync_id: UUID) -> None:
         await self._callback_repo.create_botx_method_callback(sync_id)
@@ -58,7 +69,7 @@ class CallbackManager:
         await self._callback_repo.stop_callbacks_waiting()
 
     def setup_callback_timeout_alarm(self, sync_id: UUID, timeout: float) -> None:
-        loop = asyncio.get_event_loop()
+        loop = self._get_event_loop()
 
         self._callback_alarms[sync_id] = CallbackAlarm(
             alarm_time=loop.time() + timeout,
@@ -91,7 +102,7 @@ class CallbackManager:
         time_before_alarm: Optional[float] = None
 
         if return_remaining_time:
-            loop = asyncio.get_event_loop()
+            loop = self._get_event_loop()
             time_before_alarm = alarm_time - loop.time()
 
         alarm.cancel()
