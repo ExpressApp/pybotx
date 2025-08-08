@@ -8,8 +8,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v1
-      - name: Assert tag is from master
-        run: git branch -a --contains $(git describe --tags) | grep master
+      - name: Assert tag is from master or release-candidate
+        run: git branch -a --contains $(git describe --tags) | grep -E "master|release-candidate"
       - name: Build and publish to pypi
         uses: JRubics/poetry-publish@v2.1
         with:
