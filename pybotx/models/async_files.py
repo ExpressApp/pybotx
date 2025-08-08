@@ -8,6 +8,7 @@ from aiofiles.tempfile import SpooledTemporaryFile
 from pybotx.bot.contextvars import bot_id_var, bot_var, chat_id_var
 from pybotx.constants import CHUNK_SIZE
 from pybotx.models.api_base import VerifiedPayloadBaseModel
+from pydantic import ConfigDict
 from pybotx.models.enums import (
     APIAttachmentTypes,
     AttachmentTypes,
@@ -75,8 +76,7 @@ class APIAsyncFileBase(VerifiedPayloadBaseModel):
     file_size: int
     file_hash: str
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class ApiAsyncFileImage(APIAsyncFileBase):

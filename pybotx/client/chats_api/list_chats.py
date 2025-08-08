@@ -5,6 +5,7 @@ from uuid import UUID
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.logger import logger
 from pybotx.models.api_base import VerifiedPayloadBaseModel
+from pydantic import ValidationError, field_validator
 from pybotx.models.chats import ChatListItem
 from pybotx.models.enums import APIChatTypes, convert_chat_type_to_domain
 
@@ -22,7 +23,30 @@ class BotXAPIListChatResult(VerifiedPayloadBaseModel):
 
 class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
-    result: List[Union[BotXAPIListChatResult, Dict[str, Any]]]  # noqa: WPS234
+    result: List[Union[BotXAPIListChatResult, Dict[str, Any]]]
+
+    @staticmethod
+    def validate_result(
+        value: List[Union[BotXAPIListChatResult, Dict[str, Any]]], info: Any
+    ) -> List[Union[BotXAPIListChatResult, Dict[str, Any]]]:
+        parsed: List[Union[BotXAPIListChatResult, Dict[str, Any]]] = []
+        for item in value:
+            if isinstance(item, dict):
+                try:
+                    parsed.append(BotXAPIListChatResult.model_validate(item))
+                except ValidationError:
+                    parsed.append(item)
+            else:
+                parsed.append(item)
+        return parsed
+
+    @field_validator("result", mode="before")
+    @classmethod
+    def _validate_result_field(
+        cls, value: List[Union[BotXAPIListChatResult, Dict[str, Any]]], info: Any
+    ) -> List[Union[BotXAPIListChatResult, Dict[str, Any]]]:
+        # Pydantic-валидатор: просто делегируем статическому методу
+        return cls.validate_result(value, info)
 
     def to_domain(self) -> List[ChatListItem]:
         chats_list = [

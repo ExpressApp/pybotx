@@ -2,11 +2,10 @@ from datetime import datetime
 from typing import List, Literal, Optional
 from uuid import UUID
 
-from pydantic import Field
-
 from pybotx.models.api_base import VerifiedPayloadBaseModel
 from pybotx.models.enums import APIUserKinds, convert_user_kind_to_domain
 from pybotx.models.users import UserFromSearch
+from pydantic import Field
 
 
 class BotXAPISearchUserResult(VerifiedPayloadBaseModel):

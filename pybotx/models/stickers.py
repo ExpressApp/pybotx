@@ -29,7 +29,7 @@ class Sticker:
     ) -> None:
         bot = bot_var.get()
 
-        response = await bot._httpx_client.get(self.image_link)  # noqa: WPS437
+        response = await bot._httpx_client.get(self.image_link)
         response.raise_for_status()
 
         await async_buffer.write(response.content)

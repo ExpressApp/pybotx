@@ -3,8 +3,6 @@ from dataclasses import dataclass
 from typing import Dict, List, Literal, Optional, Tuple, Union
 from uuid import UUID, uuid4
 
-from pydantic import Field, validator
-
 from pybotx.missing import Missing, Undefined
 from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from pybotx.models.enums import (
@@ -13,6 +11,7 @@ from pybotx.models.enums import (
     MentionTypes,
     convert_mention_type_from_domain,
 )
+from pydantic import Field, field_validator
 
 
 def build_embed_mention(
@@ -176,7 +175,7 @@ class BotAPIMentionData(VerifiedPayloadBaseModel):
     mention_id: UUID
     mention_data: Optional[BotAPINestedMentionData]
 
-    @validator("mention_data", pre=True)
+    @field_validator("mention_data", mode="before")
     @classmethod
     def validate_mention_data(
         cls,

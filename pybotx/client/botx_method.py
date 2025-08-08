@@ -16,7 +16,6 @@ from uuid import UUID
 
 import httpx
 from mypy_extensions import Arg
-from pydantic import ValidationError, parse_obj_as
 
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
 from pybotx.bot.callbacks.callback_manager import CallbackManager
@@ -32,6 +31,7 @@ from pybotx.models.method_callbacks import (
     BotAPIMethodFailedCallback,
     BotXMethodCallback,
 )
+from pydantic import ValidationError
 
 StatusHandler = Callable[[Arg(httpx.Response, "response")], NoReturn]  # noqa: F821
 StatusHandlers = Mapping[int, StatusHandler]
@@ -106,7 +106,7 @@ class BotXMethod:
         )
 
         try:
-            api_model = parse_obj_as(model_cls, raw_model)
+            api_model = model_cls.model_validate(raw_model)
         except ValidationError as validation_exc:
             raise InvalidBotXResponsePayloadError(response) from validation_exc
 
@@ -155,9 +155,9 @@ class BotXMethod:
         callback_timeout: Optional[float],
         default_callback_timeout: float,
     ) -> Optional[BotXMethodCallback]:
-        assert (
-            self._callbacks_manager is not None
-        ), "CallbackManager hasn't been passed to this method"
+        assert self._callbacks_manager is not None, (
+            "CallbackManager hasn't been passed to this method"
+        )
 
         await self._callbacks_manager.create_botx_method_callback(sync_id)
 

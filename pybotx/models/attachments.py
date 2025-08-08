@@ -152,8 +152,8 @@ class BotAPIAttachmentVoice(VerifiedPayloadBaseModel):
 class BotAPIAttachmentLocationData(VerifiedPayloadBaseModel):
     location_name: str
     location_address: str
-    location_lat: str
-    location_lng: str
+    location_lat: Union[str, float]
+    location_lng: Union[str, float]
 
 
 class BotAPIAttachmentLocation(VerifiedPayloadBaseModel):
@@ -213,7 +213,7 @@ IncomingAttachment = Union[
 ]
 
 
-def convert_api_attachment_to_domain(  # noqa: WPS212
+def convert_api_attachment_to_domain(
     api_attachment: BotAPIAttachment,
     message_body: str,
 ) -> IncomingAttachment:
@@ -298,8 +298,8 @@ def convert_api_attachment_to_domain(  # noqa: WPS212
         return Location(
             name=api_attachment.data.location_name,
             address=api_attachment.data.location_address,
-            latitude=api_attachment.data.location_lat,
-            longitude=api_attachment.data.location_lng,
+            latitude=str(api_attachment.data.location_lat),
+            longitude=str(api_attachment.data.location_lng),
         )
 
     if attachment_type == AttachmentTypes.CONTACT:
