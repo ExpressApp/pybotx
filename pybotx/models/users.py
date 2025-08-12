@@ -79,6 +79,8 @@ class UserFromCSV:
         office: Office info.
         manager: User's manager full name.
         manager_huid: User's manager huid.
+        manager_dn: User's manager DN.
+        user_dn: User DN.
         description: Description.
         phone: Phone number.
         other_phone: Extra phone number.
@@ -109,3 +111,5 @@ class UserFromCSV:
     ip_phone: Optional[str] = None
     other_ip_phone: Optional[str] = None
     personnel_number: Optional[str] = None
+    user_dn: Optional[str] = None
+    manager_dn: Optional[str] = None

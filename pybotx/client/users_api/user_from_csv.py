@@ -30,6 +30,8 @@ class BotXAPIUserFromCSVResult(VerifiedPayloadBaseModel):
     office: Optional[str] = Field(alias="Office")
     manager: Optional[str] = Field(alias="Manager")
     manager_huid: Optional[UUID] = Field(alias="Manager HUID")
+    manager_dn: Optional[str] = Field(alias="Manager DN")
+    user_dn: str = Field(alias="User DN")
     description: Optional[str] = Field(alias="Description")
     phone: Optional[str] = Field(alias="Phone")
     other_phone: Optional[str] = Field(alias="Other phone")
@@ -47,6 +49,7 @@ class BotXAPIUserFromCSVResult(VerifiedPayloadBaseModel):
         "office",
         "manager",
         "manager_huid",
+        "manager_dn",
         "description",
         "phone",
         "other_phone",
@@ -80,6 +83,8 @@ class BotXAPIUserFromCSVResult(VerifiedPayloadBaseModel):
             office=self.office,
             manager=self.manager,
             manager_huid=self.manager_huid,
+            manager_dn=self.manager_dn,
+            user_dn=self.user_dn,
             description=self.description,
             phone=self.phone,
             other_phone=self.other_phone,
