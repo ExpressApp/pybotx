@@ -205,14 +205,12 @@ def test__create_chat_payload__convert_chat_type_validator() -> None:
     from pybotx.models.enums import ChatTypes, APIChatTypes
 
     # Test with ChatTypes enum
-    values = {"chat_type": ChatTypes.GROUP_CHAT}
-    result = BotXAPICreateChatRequestPayload._convert_chat_type(values)  # type: ignore[operator]
-    assert result["chat_type"] == APIChatTypes.GROUP_CHAT
+    result = BotXAPICreateChatRequestPayload._convert_chat_type(ChatTypes.GROUP_CHAT)  # type: ignore[operator]
+    assert result == APIChatTypes.GROUP_CHAT
 
     # Test with non-ChatTypes value (should remain unchanged)
-    values = {"chat_type": APIChatTypes.CHAT}  # type: ignore[dict-item]
-    result = BotXAPICreateChatRequestPayload._convert_chat_type(values)  # type: ignore[operator]
-    assert result["chat_type"] == APIChatTypes.CHAT
+    result = BotXAPICreateChatRequestPayload._convert_chat_type(APIChatTypes.CHAT)  # type: ignore[operator]
+    assert result == APIChatTypes.CHAT
 
     # Test with missing chat_type key
     values = {"name": "test"}  # type: ignore[dict-item]
