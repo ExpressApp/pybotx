@@ -3,15 +3,7 @@ from collections.abc import AsyncIterable, AsyncIterator, Iterator, Mapping, Seq
 from contextlib import asynccontextmanager
 from datetime import datetime
 from types import SimpleNamespace
-from typing import (
-    Any,
-    Dict,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    Union,
-)
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 from uuid import UUID
 
 import aiofiles
