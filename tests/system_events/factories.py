@@ -77,3 +77,13 @@ class ConferenceChangedDataFactory(DictFactory):
     operation = "change_conference_info"
     sip_number = 12345678
     start_at = "2025-04-15T11:00:39.634000Z"
+
+
+class DeleteEventFactory(DictFactory):
+    deleted_at = "2025-09-23T09:04:49.787078Z"
+    group_chat_id = "30dc1980-643a-00ad-37fc-7cc10d74e935"
+    meta = {
+        "deleted_by": "fbc84c63-e432-4ff1-99bd-c3275f053866",
+        "deleted_by_admin": True,
+    }
+    sync_ids = ["36c4f12a-7082-599a-9842-cd146730e179"]

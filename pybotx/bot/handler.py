@@ -1,14 +1,6 @@
 from dataclasses import dataclass
 from functools import partial
-from typing import (
-    TYPE_CHECKING,
-    Awaitable,
-    Callable,
-    List,
-    Literal,
-    TypeVar,
-    Union,
-)
+from typing import TYPE_CHECKING, Awaitable, Callable, List, Literal, TypeVar, Union
 
 from pybotx.models.commands import BotCommand
 from pybotx.models.message.incoming_message import IncomingMessage
@@ -23,6 +15,7 @@ from pybotx.models.system_events.conference_deleted import ConferenceDeletedEven
 from pybotx.models.system_events.cts_login import CTSLoginEvent
 from pybotx.models.system_events.cts_logout import CTSLogoutEvent
 from pybotx.models.system_events.deleted_from_chat import DeletedFromChatEvent
+from pybotx.models.system_events.event_delete import EventDeleted
 from pybotx.models.system_events.event_edit import EventEdit
 from pybotx.models.system_events.internal_bot_notification import (
     InternalBotNotificationEvent,
@@ -53,6 +46,7 @@ SystemEventHandlerFunc = Union[
     HandlerFunc[CTSLogoutEvent],
     HandlerFunc[InternalBotNotificationEvent],
     HandlerFunc[SmartAppEvent],
+    HandlerFunc[EventDeleted],
     HandlerFunc[EventEdit],
     HandlerFunc[JoinToChatEvent],
     HandlerFunc[ConferenceChangedEvent],
