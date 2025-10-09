@@ -46,6 +46,7 @@ async def test__send_smartapp_manifest__all_params_provided__succeed(
                     "fullscreen_layout": False,
                 },
                 "web": {
+                    "allowed_layouts": None,
                     "always_pinned": True,
                     "default_layout": "full",
                     "expanded_layout": "full",
@@ -69,6 +70,7 @@ async def test__send_smartapp_manifest__all_params_provided__succeed(
                         "fullscreen_layout": False,
                     },
                     "web": {
+                        "allowed_layouts": None,
                         "always_pinned": True,
                         "default_layout": "full",
                         "expanded_layout": "full",
@@ -155,6 +157,7 @@ async def test__send_smartapp_manifest__only_default_params_provided__succeed(
                         "fullscreen_layout": False,
                     },
                     "web": {
+                        "allowed_layouts": None,
                         "always_pinned": False,
                         "default_layout": "minimal",
                         "expanded_layout": "half",
@@ -194,5 +197,326 @@ async def test__send_smartapp_manifest__only_default_params_provided__succeed(
             user_huid=[],
             group_chat_id=[],
             app_id=[],
+        ),
+    )
+
+
+async def test__send_smartapp_manifest__with_only_full_layout__succeed(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.post(
+        f"https://{host}/api/v1/botx/smartapps/manifest",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        json={
+            "manifest": {
+                "android": {"fullscreen_layout": False},
+                "ios": {"fullscreen_layout": False},
+                "unread_counter_link": {
+                    "app_id": ["test_app"],
+                    "group_chat_id": [],
+                    "user_huid": [],
+                },
+                "web": {
+                    "allowed_layouts": ["full"],
+                    "always_pinned": False,
+                    "default_layout": "full",
+                    "expanded_layout": "full",
+                },
+            },
+        },
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "result": {
+                    "android": {
+                        "always_pinned": False,
+                        "fullscreen_layout": False,
+                        "lock_portrait_orientation": False,
+                    },
+                    "ios": {"always_pinned": False, "fullscreen_layout": False},
+                    "unread_counter_link": {
+                        "app_id": ["test_app"],
+                        "group_chat_id": [],
+                        "user_huid": [],
+                    },
+                    "web": {
+                        "allowed_layouts": ["full"],
+                        "always_pinned": False,
+                        "default_layout": "full",
+                        "expanded_layout": "full",
+                        "raster_icon": None,
+                        "vector_icon": None,
+                    },
+                },
+                "status": "ok",
+            },
+        ),
+    )
+
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        smartapp_manifest = await bot.send_smartapp_manifest(
+            bot_id=bot_id,
+            ios=SmartappManifestIosParams(
+                fullscreen_layout=False,
+            ),
+            android=SmartappManifestAndroidParams(
+                fullscreen_layout=False,
+            ),
+            web_layout=SmartappManifestWebParams(
+                default_layout=SmartappManifestWebLayoutChoices.full,
+                expanded_layout=SmartappManifestWebLayoutChoices.full,
+                allowed_layouts=[SmartappManifestWebLayoutChoices.full],
+                always_pinned=False,
+            ),
+            unread_counter=SmartappManifestUnreadCounterParams(
+                user_huid=[],
+                group_chat_id=[],
+                app_id=["test_app"],
+            ),
+        )
+
+    # - Assert -
+    assert endpoint.called
+    assert smartapp_manifest == SmartappManifest(
+        ios=SmartappManifestIosParams(
+            fullscreen_layout=False,
+        ),
+        android=SmartappManifestAndroidParams(
+            fullscreen_layout=False,
+        ),
+        web=SmartappManifestWebParams(
+            default_layout=SmartappManifestWebLayoutChoices.full,
+            expanded_layout=SmartappManifestWebLayoutChoices.full,
+            allowed_layouts=[SmartappManifestWebLayoutChoices.full],
+            always_pinned=False,
+        ),
+        unread_counter_link=SmartappManifestUnreadCounterParams(
+            user_huid=[],
+            group_chat_id=[],
+            app_id=["test_app"],
+        ),
+    )
+
+
+async def test__send_smartapp_manifest__with_only_minimal_and_full_layout__succeed(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.post(
+        f"https://{host}/api/v1/botx/smartapps/manifest",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        json={
+            "manifest": {
+                "android": {"fullscreen_layout": False},
+                "ios": {"fullscreen_layout": False},
+                "unread_counter_link": {
+                    "app_id": ["test_app"],
+                    "group_chat_id": [],
+                    "user_huid": [],
+                },
+                "web": {
+                    "allowed_layouts": ["minimal", "full"],
+                    "always_pinned": False,
+                    "default_layout": "minimal",
+                    "expanded_layout": "full",
+                },
+            },
+        },
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "result": {
+                    "android": {
+                        "always_pinned": False,
+                        "fullscreen_layout": False,
+                        "lock_portrait_orientation": False,
+                    },
+                    "ios": {"always_pinned": False, "fullscreen_layout": False},
+                    "unread_counter_link": {
+                        "app_id": ["test_app"],
+                        "group_chat_id": [],
+                        "user_huid": [],
+                    },
+                    "web": {
+                        "allowed_layouts": ["minimal", "full"],
+                        "always_pinned": False,
+                        "default_layout": "minimal",
+                        "expanded_layout": "full",
+                        "raster_icon": None,
+                        "vector_icon": None,
+                    },
+                },
+                "status": "ok",
+            },
+        ),
+    )
+
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        smartapp_manifest = await bot.send_smartapp_manifest(
+            bot_id=bot_id,
+            ios=SmartappManifestIosParams(
+                fullscreen_layout=False,
+            ),
+            android=SmartappManifestAndroidParams(
+                fullscreen_layout=False,
+            ),
+            web_layout=SmartappManifestWebParams(
+                default_layout=SmartappManifestWebLayoutChoices.minimal,
+                expanded_layout=SmartappManifestWebLayoutChoices.full,
+                allowed_layouts=[
+                    SmartappManifestWebLayoutChoices.minimal,
+                    SmartappManifestWebLayoutChoices.full,
+                ],
+                always_pinned=False,
+            ),
+            unread_counter=SmartappManifestUnreadCounterParams(
+                user_huid=[],
+                group_chat_id=[],
+                app_id=["test_app"],
+            ),
+        )
+
+    # - Assert -
+    assert endpoint.called
+    assert smartapp_manifest == SmartappManifest(
+        ios=SmartappManifestIosParams(
+            fullscreen_layout=False,
+        ),
+        android=SmartappManifestAndroidParams(
+            fullscreen_layout=False,
+        ),
+        web=SmartappManifestWebParams(
+            default_layout=SmartappManifestWebLayoutChoices.minimal,
+            expanded_layout=SmartappManifestWebLayoutChoices.full,
+            allowed_layouts=[
+                SmartappManifestWebLayoutChoices.minimal,
+                SmartappManifestWebLayoutChoices.full,
+            ],
+            always_pinned=False,
+        ),
+        unread_counter_link=SmartappManifestUnreadCounterParams(
+            user_huid=[],
+            group_chat_id=[],
+            app_id=["test_app"],
+        ),
+    )
+
+
+async def test__send_smartapp_manifest__with_empty_layout__succeed(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.post(
+        f"https://{host}/api/v1/botx/smartapps/manifest",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        json={
+            "manifest": {
+                "android": {"fullscreen_layout": False},
+                "ios": {"fullscreen_layout": False},
+                "unread_counter_link": {
+                    "app_id": ["test_app"],
+                    "group_chat_id": [],
+                    "user_huid": [],
+                },
+                "web": {
+                    "allowed_layouts": [],
+                    "always_pinned": False,
+                    "default_layout": "minimal",
+                    "expanded_layout": "full",
+                },
+            },
+        },
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "result": {
+                    "android": {
+                        "always_pinned": False,
+                        "fullscreen_layout": False,
+                        "lock_portrait_orientation": False,
+                    },
+                    "ios": {"always_pinned": False, "fullscreen_layout": False},
+                    "unread_counter_link": {
+                        "app_id": ["test_app"],
+                        "group_chat_id": [],
+                        "user_huid": [],
+                    },
+                    "web": {
+                        "allowed_layouts": [],
+                        "always_pinned": False,
+                        "default_layout": "minimal",
+                        "expanded_layout": "full",
+                        "raster_icon": None,
+                        "vector_icon": None,
+                    },
+                },
+                "status": "ok",
+            },
+        ),
+    )
+
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        smartapp_manifest = await bot.send_smartapp_manifest(
+            bot_id=bot_id,
+            ios=SmartappManifestIosParams(
+                fullscreen_layout=False,
+            ),
+            android=SmartappManifestAndroidParams(
+                fullscreen_layout=False,
+            ),
+            web_layout=SmartappManifestWebParams(
+                default_layout=SmartappManifestWebLayoutChoices.minimal,
+                expanded_layout=SmartappManifestWebLayoutChoices.full,
+                allowed_layouts=[],
+                always_pinned=False,
+            ),
+            unread_counter=SmartappManifestUnreadCounterParams(
+                user_huid=[],
+                group_chat_id=[],
+                app_id=["test_app"],
+            ),
+        )
+
+    # - Assert -
+    assert endpoint.called
+    assert smartapp_manifest == SmartappManifest(
+        ios=SmartappManifestIosParams(
+            fullscreen_layout=False,
+        ),
+        android=SmartappManifestAndroidParams(
+            fullscreen_layout=False,
+        ),
+        web=SmartappManifestWebParams(
+            default_layout=SmartappManifestWebLayoutChoices.minimal,
+            expanded_layout=SmartappManifestWebLayoutChoices.full,
+            allowed_layouts=[],
+            always_pinned=False,
+        ),
+        unread_counter_link=SmartappManifestUnreadCounterParams(
+            user_huid=[],
+            group_chat_id=[],
+            app_id=["test_app"],
         ),
     )

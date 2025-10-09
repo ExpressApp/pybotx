@@ -1,4 +1,4 @@
-from typing import List, Literal
+from typing import List, Literal, Optional
 from uuid import UUID
 
 from pydantic import Field
@@ -24,6 +24,7 @@ class SmartappManifestAuroraParams(VerifiedPayloadBaseModel):
 class SmartappManifestWebParams(VerifiedPayloadBaseModel):
     default_layout: WebLayoutChoices = WebLayoutChoices.minimal
     expanded_layout: WebLayoutChoices = WebLayoutChoices.half
+    allowed_layouts: Optional[list[WebLayoutChoices]] = None
     always_pinned: bool = False
 
 
