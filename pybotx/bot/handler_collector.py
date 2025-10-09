@@ -199,16 +199,16 @@ class HandlerCollector:
     def default_message_handler(
         self,
         handler_func: IncomingMessageHandlerFunc,
-    ) -> IncomingMessageHandlerFunc: ...  # noqa: WPS428, E704
+    ) -> IncomingMessageHandlerFunc: ...
 
     @overload
     def default_message_handler(
         self,
         *,
         middlewares: Optional[Sequence[Middleware]] = None,
-    ) -> MessageHandlerDecorator: ...  # noqa: WPS428, E704
+    ) -> MessageHandlerDecorator: ...
 
-    def default_message_handler(  # noqa: WPS320
+    def default_message_handler(
         self,
         handler_func: Optional[IncomingMessageHandlerFunc] = None,
         *,
@@ -222,7 +222,7 @@ class HandlerCollector:
             raise ValueError("Default command handler already registered")
 
         def decorator(
-            handler_func: IncomingMessageHandlerFunc,  # noqa: WPS442
+            handler_func: IncomingMessageHandlerFunc,
         ) -> IncomingMessageHandlerFunc:
             self._default_message_handler = DefaultMessageHandler(
                 handler_func=handler_func,
@@ -370,7 +370,7 @@ class HandlerCollector:
                 return_when=asyncio.ALL_COMPLETED,
             )
 
-    def _include_collector(self, other: "HandlerCollector") -> None:  # noqa: WPS238
+    def _include_collector(self, other: "HandlerCollector") -> None:
         # - Message handlers -
         command_duplicates = set(self._user_commands_handlers) & set(
             other._user_commands_handlers,

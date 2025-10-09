@@ -1,10 +1,9 @@
-from typing import Any, Dict, List, Literal, Optional, Set, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import (
     Field,
     ConfigDict,
-    field_serializer,
     field_validator,
     model_validator,
 )
@@ -33,7 +32,7 @@ class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
     description: Optional[str] = None
     chat_type: Union[APIChatTypes, ChatTypes]
     members: List[UUID]
-    shared_history: Missing[bool]
+    shared_history: Missing[bool] = Undefined
     avatar: Optional[str] = None
 
     @model_validator(mode="before")
@@ -54,10 +53,6 @@ class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
         except Exception as e:
             raise ValueError(f"Invalid data URL format: {e}")
         return v
-
-    @field_serializer("chat_type")
-    def _serialize_chat_type(self, v: APIChatTypes) -> str:
-        return v.value.lower()
 
 
 class BotXAPIChatIdResult(VerifiedPayloadBaseModel):
@@ -90,11 +85,7 @@ class CreateChatMethod(AuthorizedBotXMethod):
         """
         url = self._build_url("/api/v3/botx/chats/create")
 
-        exclude: Set[str] = (
-            {"shared_history"} if payload.shared_history is Undefined else set()
-        )
-
-        body = payload.model_dump(mode="json", exclude=exclude)
+        body = payload.jsonable_dict()
 
         response = await self._botx_method_call(
             "POST",

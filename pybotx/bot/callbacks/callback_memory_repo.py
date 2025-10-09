@@ -8,7 +8,7 @@ from pybotx.client.exceptions.callbacks import CallbackNotReceivedError
 from pybotx.models.method_callbacks import BotXMethodCallback
 
 if TYPE_CHECKING:
-    from asyncio import Future  # noqa: WPS458
+    from asyncio import Future
 
 
 class CallbackMemoryRepo(CallbackRepoProto):
@@ -37,7 +37,7 @@ class CallbackMemoryRepo(CallbackRepoProto):
         try:
             return await asyncio.wait_for(future, timeout=timeout)
         except asyncio.TimeoutError as exc:
-            del self._callback_futures[sync_id]  # noqa: WPS420
+            del self._callback_futures[sync_id]
             raise CallbackNotReceivedError(sync_id) from exc
 
     async def pop_botx_method_callback(

@@ -2,7 +2,7 @@ from typing import List, Literal, Optional
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
-from pybotx.missing import Undefined
+from pybotx.missing import MissingOptional, Undefined
 from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from pybotx.models.stickers import StickerPackFromList, StickerPackPage
 
@@ -10,7 +10,7 @@ from pybotx.models.stickers import StickerPackFromList, StickerPackPage
 class BotXAPIGetStickerPacksRequestPayload(UnverifiedPayloadBaseModel):
     user_huid: UUID
     limit: int
-    after: Optional[str]
+    after: MissingOptional[str]
 
     @classmethod
     def from_domain(

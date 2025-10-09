@@ -66,7 +66,7 @@ class UnverifiedPayloadBaseModel(PayloadBaseModel):
         _fields_set: Optional[Set[str]] = None,
         **kwargs: Any,
     ) -> None:
-        model = self.__class__.model_construct(_fields_set=_fields_set, **kwargs)
+        model = self.__class__.model_validate(kwargs)
         self.__dict__.update(model.__dict__)
 
     model_config = ConfigDict(arbitrary_types_allowed=True)

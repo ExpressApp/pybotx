@@ -86,10 +86,14 @@ class SmartAppManifestMethod(AuthorizedBotXMethod):
     ) -> BotXAPISmartAppManifestResponsePayload:
         path = "/api/v1/botx/smartapps/manifest"
 
+        body = payload.jsonable_dict()
+        if not body or "manifest" not in body:
+            body = {"manifest": {}}
+
         response = await self._botx_method_call(
             "POST",
             self._build_url(path),
-            json=payload.jsonable_dict(),
+            json=body,
         )
 
         return self._verify_and_extract_api_model(

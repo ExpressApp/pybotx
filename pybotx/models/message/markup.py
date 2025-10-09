@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, Iterator, List, Literal, Optional, Union, cast
 
-from pybotx.missing import Missing, Undefined
+from pybotx.missing import Missing, MissingOptional, Undefined
 from pybotx.models.api_base import UnverifiedPayloadBaseModel, _remove_undefined
 from pydantic import RootModel
 from pydantic_core import to_jsonable_python
@@ -166,18 +166,18 @@ Markup = Union[BubbleMarkup, KeyboardMarkup]
 
 class BotXAPIButtonOptions(UnverifiedPayloadBaseModel):
     silent: Missing[bool]
-    font_color: Missing[str]
-    background_color: Missing[str]
+    font_color: MissingOptional[str]
+    background_color: MissingOptional[str]
     align: Missing[str]
-    h_size: Missing[int]
-    show_alert: Missing[Literal[True]]
-    alert_text: Missing[str]
-    handler: Missing[Literal["client"]]
-    link: Missing[str]
+    h_size: MissingOptional[int]
+    show_alert: MissingOptional[Literal[True]]
+    alert_text: MissingOptional[str]
+    handler: MissingOptional[Literal["client"]]
+    link: MissingOptional[str]
 
 
 class BotXAPIButton(UnverifiedPayloadBaseModel):
-    command: str
+    command: MissingOptional[str]
     label: str
     data: Dict[str, Any]
     opts: BotXAPIButtonOptions

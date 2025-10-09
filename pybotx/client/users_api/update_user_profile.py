@@ -17,7 +17,7 @@ class BotXAPIUpdateUserProfileRequestPayload(UnverifiedPayloadBaseModel):
     user_huid: UUID
     name: Missing[str] = Undefined
     public_name: Missing[str] = Undefined
-    avatar: Missing[BotXAPIAttachment] = Undefined
+    avatar: Missing[str] = Undefined
     company: Missing[str] = Undefined
     company_position: Missing[str] = Undefined
     description: Missing[str] = Undefined

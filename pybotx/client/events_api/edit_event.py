@@ -32,7 +32,7 @@ class BotXAPIEditEventOpts(UnverifiedPayloadBaseModel):
 class BotXAPIEditEvent(UnverifiedPayloadBaseModel):
     body: Missing[str]
     metadata: Missing[Dict[str, Any]]
-    opts: Missing[BotXAPIEditEventOpts]
+    opts: Missing[BotXAPIEditEventPayloadOpts]
     bubble: Missing[BotXAPIMarkup]
     keyboard: Missing[BotXAPIMarkup]
     mentions: Missing[List[BotXAPIMention]]
@@ -41,7 +41,7 @@ class BotXAPIEditEvent(UnverifiedPayloadBaseModel):
 class BotXAPIEditEventRequestPayload(UnverifiedPayloadBaseModel):
     sync_id: UUID
     payload: BotXAPIEditEvent
-    file: Missing[BotXAPIAttachment]
+    file: MissingOptional[BotXAPIAttachment]
     opts: BotXAPIEditEventOpts
 
     @classmethod
