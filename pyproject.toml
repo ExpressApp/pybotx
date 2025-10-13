@@ -15,7 +15,7 @@ repository = "https://github.com/ExpressApp/pybotx"
 [tool.poetry.dependencies]
 python = ">=3.9,<3.14"
 
-aiofiles = ">=0.7.0,<=24.1.0"
+aiofiles = ">=0.7.0,<=25.1.0"
 httpx = "^0.28.0"
 # The v1.0.3 cause some troubles with no-wait callbacks functionality.
 # It will be fixed in the next versions.
