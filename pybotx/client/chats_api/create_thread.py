@@ -1,9 +1,12 @@
-from typing import Literal
+from typing import Literal, NoReturn
 from uuid import UUID
+
+import httpx
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.client.botx_method import response_exception_thrower
 from pybotx.client.exceptions.chats import (
+    ThreadAlreadyExistsError,
     ThreadCreationError,
     ThreadCreationProhibitedError,
 )
@@ -31,12 +34,21 @@ class BotXAPICreateThreadResponsePayload(VerifiedPayloadBaseModel):
         return self.result.thread_id
 
 
+def conflict_error_handler(response: httpx.Response) -> NoReturn:
+    reason = response.json().get("reason")
+
+    if reason == "thread_already_created":
+        raise ThreadAlreadyExistsError.from_response(response)
+
+    raise ThreadCreationError.from_response(response)
+
+
 class CreateThreadMethod(AuthorizedBotXMethod):
     status_handlers = {
         **AuthorizedBotXMethod.status_handlers,
         403: response_exception_thrower(ThreadCreationProhibitedError),
         404: response_exception_thrower(EventNotFoundError),
-        422: response_exception_thrower(ThreadCreationError),
+        409: conflict_error_handler,
     }
 
     async def execute(
