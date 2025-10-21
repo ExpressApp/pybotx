@@ -28,7 +28,7 @@ pyjwt = ">=2.0.0,<3.0.0"
 mypy-extensions = ">=0.2.0,<=1.1.0"
 
 [tool.poetry.group.dev.dependencies]
-add-trailing-comma = "3.1.0"
+add-trailing-comma = "3.2.0"
 autoflake = "2.3.1"
 black = "25.1.0"
 isort = "6.0.1"
