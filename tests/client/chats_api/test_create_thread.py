@@ -1,5 +1,6 @@
+from collections.abc import Callable
 from http import HTTPStatus
-from typing import Any, Callable
+from typing import Any
 from uuid import UUID
 
 import httpx
@@ -12,6 +13,7 @@ from pybotx import (
     BotAccountWithSecret,
     EventNotFoundError,
     HandlerCollector,
+    ThreadAlreadyExistsError,
     ThreadCreationError,
     ThreadCreationProhibitedError,
     lifespan_wrapper,
@@ -57,11 +59,10 @@ async def test__create_thread__succeed(
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    thread_id = "2a8c0d1e-c4d1-4308-b024-6e1a9f4a4b6d"
     endpoint = create_mocked_endpoint(
         {
             "status": "ok",
-            "result": {"thread_id": thread_id},
+            "result": {"thread_id": sync_id},
         },
         HTTPStatus.OK,
     )
@@ -76,7 +77,7 @@ async def test__create_thread__succeed(
         )
 
     # - Assert -
-    assert str(created_thread_id) == thread_id
+    assert str(created_thread_id) == sync_id
     assert endpoint.called
 
 
@@ -146,16 +147,6 @@ async def test__create_thread__succeed(
         (
             {
                 "status": "error",
-                "reason": "thread_already_created",
-                "errors": ["Thread already created"],
-                "error_data": {"bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46"},
-            },
-            HTTPStatus.FORBIDDEN,
-            ThreadCreationProhibitedError,
-        ),
-        (
-            {
-                "status": "error",
                 "reason": "no_access_for_message",
                 "errors": ["There is no access for this message"],
                 "error_data": {"bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46"},
@@ -176,16 +167,6 @@ async def test__create_thread__succeed(
         (
             {
                 "status": "error",
-                "reason": "event_already_deleted",
-                "errors": ["This event already deleted"],
-                "error_data": {"bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46"},
-            },
-            HTTPStatus.FORBIDDEN,
-            ThreadCreationProhibitedError,
-        ),
-        (
-            {
-                "status": "error",
                 "reason": "event_not_found",
                 "errors": ["Event not found"],
                 "error_data": {"bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46"},
@@ -196,12 +177,22 @@ async def test__create_thread__succeed(
         (
             {
                 "status": "error",
-                "reason": "|specified reason|",
-                "errors": ["|specified errors|"],
-                "error_data": {},
+                "reason": "event_already_deleted",
+                "errors": ["This event already deleted"],
+                "error_data": {"bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46"},
             },
-            HTTPStatus.UNPROCESSABLE_ENTITY,
+            HTTPStatus.CONFLICT,
             ThreadCreationError,
+        ),
+        (
+            {
+                "status": "error",
+                "reason": "thread_already_created",
+                "errors": ["Thread already created"],
+                "error_data": {"bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46"},
+            },
+            HTTPStatus.CONFLICT,
+            ThreadAlreadyExistsError,
         ),
         (
             {

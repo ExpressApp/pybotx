@@ -39,6 +39,7 @@ from pybotx.client.exceptions.chats import (
     ChatCreationError,
     ChatCreationProhibitedError,
     InvalidUsersListError,
+    ThreadAlreadyExistsError,
     ThreadCreationError,
     ThreadCreationProhibitedError,
 )
@@ -264,8 +265,8 @@ __all__ = (
     "SyncSmartAppEventHandlerFunc",
     "SyncSmartAppEventHandlerNotFoundError",
     "SyncSourceTypes",
+    "ThreadAlreadyExistsError",
     "ThreadCreationError",
-    "ThreadCreationEventNotFoundError",
     "ThreadCreationProhibitedError",
     "UnknownBotAccountError",
     "UnknownSystemEventError",
