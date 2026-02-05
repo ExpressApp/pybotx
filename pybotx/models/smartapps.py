@@ -1,9 +1,8 @@
 from dataclasses import dataclass
-from typing import Optional
 from uuid import UUID
 
 
-@dataclass
+@dataclass(slots=True)
 class SmartApp:
     """SmartApp from list of SmartApps.
 
@@ -20,5 +19,5 @@ class SmartApp:
     enabled: bool
     id: UUID
     name: str
-    avatar: Optional[str] = None
-    avatar_preview: Optional[str] = None
+    avatar: str | None = None
+    avatar_preview: str | None = None

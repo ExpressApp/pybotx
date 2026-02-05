@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -14,8 +14,8 @@ class BotXAPIListChatResult(VerifiedPayloadBaseModel):
     group_chat_id: UUID
     chat_type: APIChatTypes
     name: str
-    description: Optional[str] = None
-    members: List[UUID]
+    description: str | None = None
+    members: list[UUID]
     inserted_at: datetime
     updated_at: datetime
     shared_history: bool
@@ -23,13 +23,13 @@ class BotXAPIListChatResult(VerifiedPayloadBaseModel):
 
 class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
-    result: List[Union[BotXAPIListChatResult, Dict[str, Any]]]
+    result: list[BotXAPIListChatResult | dict[str, Any]]
 
     @staticmethod
     def validate_result(
-        value: List[Union[BotXAPIListChatResult, Dict[str, Any]]], info: Any
-    ) -> List[Union[BotXAPIListChatResult, Dict[str, Any]]]:
-        parsed: List[Union[BotXAPIListChatResult, Dict[str, Any]]] = []
+        value: list[BotXAPIListChatResult | dict[str, Any]], info: Any
+    ) -> list[BotXAPIListChatResult | dict[str, Any]]:
+        parsed: list[BotXAPIListChatResult | dict[str, Any]] = []
         for item in value:
             if isinstance(item, dict):
                 try:
@@ -43,12 +43,12 @@ class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
     @field_validator("result", mode="before")
     @classmethod
     def _validate_result_field(
-        cls, value: List[Union[BotXAPIListChatResult, Dict[str, Any]]], info: Any
-    ) -> List[Union[BotXAPIListChatResult, Dict[str, Any]]]:
+        cls, value: list[BotXAPIListChatResult | dict[str, Any]], info: Any
+    ) -> list[BotXAPIListChatResult | dict[str, Any]]:
         # Pydantic-валидатор: просто делегируем статическому методу
         return cls.validate_result(value, info)
 
-    def to_domain(self) -> List[ChatListItem]:
+    def to_domain(self) -> list[ChatListItem]:
         chats_list = [
             ChatListItem(
                 chat_id=chat_item.group_chat_id,

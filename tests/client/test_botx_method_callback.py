@@ -4,7 +4,6 @@ import asyncio
 import time
 import types
 from http import HTTPStatus
-from typing import Optional
 from uuid import UUID
 
 import httpx
@@ -63,7 +62,7 @@ class FooBarCallbackMethod(BotXMethod):
         self,
         payload: BotXAPIFooBarRequestPayload,
         wait_callback: bool,
-        callback_timeout: Optional[float],
+        callback_timeout: float | None,
         default_callback_timeout: float,
     ) -> BotXAPIFooBarResponsePayload:
         path = "/foo/bar"
@@ -93,7 +92,7 @@ async def call_foo_bar(
     bot_id: UUID,
     baz: int,
     wait_callback: bool = True,
-    callback_timeout: Optional[float] = None,
+    callback_timeout: float | None = None,
 ) -> UUID:
     method = FooBarCallbackMethod(
         bot_id,

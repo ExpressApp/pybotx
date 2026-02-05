@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 import pytest
@@ -69,7 +68,7 @@ async def test__internal_bot_notification__succeed(
     }
 
     collector = HandlerCollector()
-    internal_bot_notification: Optional[InternalBotNotificationEvent] = None
+    internal_bot_notification: InternalBotNotificationEvent | None = None
 
     @collector.internal_bot_notification
     async def internal_bot_notification_handler(

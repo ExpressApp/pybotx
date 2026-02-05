@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 from uuid import UUID
 
 import pytest
@@ -8,7 +8,7 @@ from tests.client.users_api.convert_to_datetime import convert_to_datetime
 
 
 @pytest.fixture()
-def user_from_search_with_data_json() -> Dict[str, Any]:
+def user_from_search_with_data_json() -> dict[str, Any]:
     return {
         "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
         "ad_login": "ad_user_login",
@@ -63,7 +63,7 @@ def user_from_search_with_data() -> UserFromSearch:
 
 
 @pytest.fixture
-def user_from_search_without_data_json() -> Dict[str, Any]:
+def user_from_search_without_data_json() -> dict[str, Any]:
     return {
         "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
         "ad_login": "ad_user_login",

@@ -1,6 +1,7 @@
 import asyncio
 from http import HTTPStatus
-from typing import Any, Sequence, Type
+from typing import Any
+from collections.abc import Sequence
 from uuid import UUID
 
 import pytest
@@ -106,7 +107,7 @@ async def test__send_internal_bot_notification__rate_limit_reached_error_raised(
 async def test__send_internal_bot_notification__callback_error_raised(
     reason: str,
     error_data: dict[str, Any],
-    expected_exc: Type[Exception],
+    expected_exc: type[Exception],
     expected_fragments: Sequence[str],
     respx_mock: MockRouter,
     host: str,

@@ -2,16 +2,9 @@ import logging
 import socket
 from datetime import datetime
 from http import HTTPStatus
-from typing import (
-    Any,
-    AsyncContextManager,
-    AsyncGenerator,
-    Callable,
-    Dict,
-    Generator,
-    List,
-    Optional,
-)
+from typing import Any
+from contextlib import AbstractAsyncContextManager
+from collections.abc import AsyncGenerator, Callable, Generator
 from unittest.mock import Mock
 from uuid import UUID, uuid4
 
@@ -124,7 +117,7 @@ def bot_account(cts_url: str, bot_id: UUID) -> BotAccountWithSecret:
 
 
 @pytest.fixture
-def authorization_token_payload(bot_account: BotAccountWithSecret) -> Dict[str, Any]:
+def authorization_token_payload(bot_account: BotAccountWithSecret) -> dict[str, Any]:
     return {
         "aud": bot_account.host,
         "exp": datetime(year=3000, month=1, day=1).timestamp(),
@@ -137,7 +130,7 @@ def authorization_token_payload(bot_account: BotAccountWithSecret) -> Dict[str, 
 
 
 @pytest.fixture
-def authorization_token_payload_v1(bot_account: BotAccountWithSecret) -> Dict[str, Any]:
+def authorization_token_payload_v1(bot_account: BotAccountWithSecret) -> dict[str, Any]:
     return {
         "aud": [str(bot_account.id)],
         "exp": datetime(year=3000, month=1, day=1).timestamp(),
@@ -151,8 +144,8 @@ def authorization_token_payload_v1(bot_account: BotAccountWithSecret) -> Dict[st
 @pytest.fixture
 def authorization_header(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
-) -> Dict[str, str]:
+    authorization_token_payload: dict[str, Any],
+) -> dict[str, str]:
     token = jwt.encode(
         payload=authorization_token_payload,
         key=bot_account.secret_key,
@@ -163,8 +156,8 @@ def authorization_header(
 @pytest.fixture
 def authorization_header_v1(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload_v1: Dict[str, Any],
-) -> Dict[str, str]:
+    authorization_token_payload_v1: dict[str, Any],
+) -> dict[str, str]:
     token = jwt.encode(
         payload=authorization_token_payload_v1,
         key=bot_account.secret_key,
@@ -208,11 +201,11 @@ def mock_authorization(
 @pytest.fixture
 def bot_factory(
     bot_account: BotAccountWithSecret,
-) -> Callable[..., AsyncContextManager[Bot]]:
+) -> Callable[..., AbstractAsyncContextManager[Bot]]:
     @asynccontextmanager
     async def factory(
         *,
-        collectors: Optional[List[HandlerCollector]] = None,
+        collectors: list[HandlerCollector] | None = None,
         **kwargs: Any,
     ) -> AsyncGenerator[Bot, None]:
         collectors = collectors or [HandlerCollector()]
@@ -224,7 +217,7 @@ def bot_factory(
 
 
 @pytest.hookimpl(trylast=True)
-def pytest_collection_modifyitems(items: List[pytest.Function]) -> None:
+def pytest_collection_modifyitems(items: list[pytest.Function]) -> None:
     for item in items:
         if item.get_closest_marker("mock_authorization"):
             item.fixturenames.append("mock_authorization")
@@ -258,20 +251,20 @@ async def async_buffer() -> AsyncGenerator[NamedTemporaryFile, None]:
 
 
 @pytest.fixture
-def api_incoming_message_factory() -> Callable[..., Dict[str, Any]]:
+def api_incoming_message_factory() -> Callable[..., dict[str, Any]]:
     def decorator(
         *,
         body: str = "/hello",
         command_type: str = "user",
-        data: Optional[Dict[str, Any]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-        bot_id: Optional[UUID] = None,
-        group_chat_id: Optional[UUID] = None,
-        user_huid: Optional[UUID] = None,
-        host: Optional[str] = None,
-        attachment: Optional[Dict[str, Any]] = None,
-        async_file: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        data: dict[str, Any] | None = None,
+        metadata: dict[str, Any] | None = None,
+        bot_id: UUID | None = None,
+        group_chat_id: UUID | None = None,
+        user_huid: UUID | None = None,
+        host: str | None = None,
+        attachment: dict[str, Any] | None = None,
+        async_file: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         return {
             "bot_id": str(bot_id) if bot_id else "24348246-6791-4ac0-9d86-b948cd6a0e46",
             "command": {
@@ -324,16 +317,16 @@ def api_incoming_message_factory() -> Callable[..., Dict[str, Any]]:
 
 
 @pytest.fixture
-def api_sync_smartapp_event_factory() -> Callable[..., Dict[str, Any]]:
+def api_sync_smartapp_event_factory() -> Callable[..., dict[str, Any]]:
     def decorator(
         *,
-        bot_id: Optional[UUID] = None,
-        group_chat_id: Optional[UUID] = None,
-        user_huid: Optional[UUID] = None,
-        async_file: Optional[Dict[str, Any]] = None,
-        method: Optional[str] = None,
-        params: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        bot_id: UUID | None = None,
+        group_chat_id: UUID | None = None,
+        user_huid: UUID | None = None,
+        async_file: dict[str, Any] | None = None,
+        method: str | None = None,
+        params: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         return {
             "bot_id": str(bot_id) if bot_id else "8dada2c8-67a6-4434-9dec-570d244e78ee",
             "group_chat_id": (
@@ -368,8 +361,8 @@ def incoming_message_factory(
     def decorator(
         *,
         body: str = "",
-        ad_login: Optional[str] = None,
-        ad_domain: Optional[str] = None,
+        ad_login: str | None = None,
+        ad_domain: str | None = None,
     ) -> IncomingMessage:
         return IncomingMessage(
             bot=BotAccount(

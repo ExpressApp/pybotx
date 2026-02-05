@@ -1,7 +1,7 @@
 import base64
 import hashlib
 import hmac
-from typing import Dict, Iterator, List, Optional
+from collections.abc import Iterator
 from uuid import UUID
 
 from pybotx.auth import BotXAuthVersion, build_botx_jwt_v2
@@ -12,11 +12,11 @@ from pybotx.models.bot_account import BotAccountWithSecret
 class BotAccountsStorage:
     def __init__(
         self,
-        bot_accounts: List[BotAccountWithSecret],
+        bot_accounts: list[BotAccountWithSecret],
         auth_version: BotXAuthVersion = BotXAuthVersion.V2,
     ) -> None:
         self._bot_accounts = bot_accounts
-        self._auth_tokens: Dict[UUID, str] = {}
+        self._auth_tokens: dict[UUID, str] = {}
         self._auth_version = auth_version
 
     def get_bot_account(self, bot_id: UUID) -> BotAccountWithSecret:
@@ -39,7 +39,7 @@ class BotAccountsStorage:
     def set_token(self, bot_id: UUID, token: str) -> None:
         self._auth_tokens[bot_id] = token
 
-    def get_token_or_none(self, bot_id: UUID) -> Optional[str]:
+    def get_token_or_none(self, bot_id: UUID) -> str | None:
         return self._auth_tokens.get(bot_id)
 
     def build_jwt_v2(self, bot_id: UUID) -> str:

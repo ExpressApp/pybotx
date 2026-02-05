@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 import pytest
@@ -92,7 +91,7 @@ async def test__smartapp__succeed(
     }
 
     collector = HandlerCollector()
-    smartapp: Optional[SmartAppEvent] = None
+    smartapp: SmartAppEvent | None = None
 
     @collector.smartapp_event
     async def smartapp_handler(event: SmartAppEvent, bot: Bot) -> None:

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Dict
+from typing import Any
 from uuid import UUID
 
 import pytest
@@ -57,7 +57,7 @@ async def test__search_user_by_email_post__succeed(
     host: str,
     bot_id: UUID,
     user_from_search_with_data: UserFromSearch,
-    user_from_search_with_data_json: Dict[str, Any],
+    user_from_search_with_data_json: dict[str, Any],
     bot_factory: Any,
 ) -> None:
     # - Arrange -
@@ -91,7 +91,7 @@ async def test__search_user_by_email_post_without_extra_data__succeed(
     host: str,
     bot_id: UUID,
     user_from_search_without_data: UserFromSearch,
-    user_from_search_without_data_json: Dict[str, Any],
+    user_from_search_without_data_json: dict[str, Any],
     bot_factory: Any,
 ) -> None:
     # - Arrange -
@@ -124,7 +124,7 @@ async def test__search_user_by_email_post__list_response_logs_warning(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    user_from_search_with_data_json: Dict[str, Any],
+    user_from_search_with_data_json: dict[str, Any],
     bot_factory: Any,
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
@@ -213,7 +213,7 @@ async def test__search_user_by_email_post__invalid_payload_raises_invalid_respon
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    user_from_search_with_data_json: Dict[str, Any],
+    user_from_search_with_data_json: dict[str, Any],
     bot_factory: Any,
 ) -> None:
     request = BotXRequest(

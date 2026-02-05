@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from typing import AsyncGenerator, Literal, Optional, Union, cast
+from typing import Literal, cast
+from collections.abc import AsyncGenerator
 from uuid import UUID
 
 from aiofiles.tempfile import SpooledTemporaryFile
@@ -18,7 +19,7 @@ from pybotx.models.enums import (
 )
 
 
-@dataclass
+@dataclass(slots=True)
 class AsyncFileBase:
     type: AttachmentTypes
     filename: str
@@ -30,12 +31,12 @@ class AsyncFileBase:
     _file_url: str
     _file_mimetype: str
     _file_hash: str
-    file_preview: Optional[str] = None
-    file_preview_height: Optional[int] = None
-    file_preview_width: Optional[int] = None
-    file_encryption_algo: Optional[str] = None
-    chunk_size: Optional[int] = None
-    caption: Optional[str] = None
+    file_preview: str | None = None
+    file_preview_height: int | None = None
+    file_preview_width: int | None = None
+    file_encryption_algo: str | None = None
+    chunk_size: int | None = None
+    caption: str | None = None
 
     @property
     def file_url(self) -> str:
@@ -65,23 +66,23 @@ class AsyncFileBase:
             yield tmp_file
 
 
-@dataclass
+@dataclass(slots=True)
 class Image(AsyncFileBase):
     type: Literal[AttachmentTypes.IMAGE]
 
 
-@dataclass
+@dataclass(slots=True)
 class Video(AsyncFileBase):
     type: Literal[AttachmentTypes.VIDEO]
     duration: int = 0
 
 
-@dataclass
+@dataclass(slots=True)
 class Document(AsyncFileBase):
     type: Literal[AttachmentTypes.DOCUMENT]
 
 
-@dataclass
+@dataclass(slots=True)
 class Voice(AsyncFileBase):
     type: Literal[AttachmentTypes.VOICE]
     duration: int = 0
@@ -123,23 +124,23 @@ class ApiAsyncFileVoice(APIAsyncFileBase):
     duration: int
 
 
-APIAsyncFile = Union[
-    ApiAsyncFileImage,
-    ApiAsyncFileVideo,
-    ApiAsyncFileDocument,
-    ApiAsyncFileVoice,
-]
+APIAsyncFile = (
+    ApiAsyncFileImage
+    | ApiAsyncFileVideo
+    | ApiAsyncFileDocument
+    | ApiAsyncFileVoice
+)
 
-File = Union[Image, Video, Document, Voice]
+File = Image | Video | Document | Voice
 
 
-def _to_optional(value: MissingOptional[Union[str, int]]) -> Optional[Union[str, int]]:
+def _to_optional(value: MissingOptional[str | int]) -> str | int | None:
     if value is Undefined:
         return None
-    return cast(Optional[Union[str, int]], value)
+    return cast(str | int | None, value)
 
 
-def _to_missing(value: Optional[Union[str, int]]) -> MissingOptional[Union[str, int]]:
+def _to_missing(value: str | int | None) -> MissingOptional[str | int]:
     return Undefined if value is None else value
 
 
@@ -242,21 +243,21 @@ def convert_async_file_to_domain(async_file: APIAsyncFile) -> File:
             _file_mimetype=async_file.file_mime_type,
             _file_url=async_file.file,
             _file_hash=async_file.file_hash,
-            file_preview=cast(Optional[str], _to_optional(async_file.file_preview)),
+            file_preview=cast(str | None, _to_optional(async_file.file_preview)),
             file_preview_height=cast(
-                Optional[int],
+                int | None,
                 _to_optional(async_file.file_preview_height),
             ),
             file_preview_width=cast(
-                Optional[int],
+                int | None,
                 _to_optional(async_file.file_preview_width),
             ),
             file_encryption_algo=cast(
-                Optional[str],
+                str | None,
                 _to_optional(async_file.file_encryption_algo),
             ),
-            chunk_size=cast(Optional[int], _to_optional(async_file.chunk_size)),
-            caption=cast(Optional[str], _to_optional(async_file.caption)),
+            chunk_size=cast(int | None, _to_optional(async_file.chunk_size)),
+            caption=cast(str | None, _to_optional(async_file.caption)),
         )
 
     if attachment_type == AttachmentTypes.VIDEO:
@@ -272,21 +273,21 @@ def convert_async_file_to_domain(async_file: APIAsyncFile) -> File:
             _file_mimetype=async_file.file_mime_type,
             _file_url=async_file.file,
             _file_hash=async_file.file_hash,
-            file_preview=cast(Optional[str], _to_optional(async_file.file_preview)),
+            file_preview=cast(str | None, _to_optional(async_file.file_preview)),
             file_preview_height=cast(
-                Optional[int],
+                int | None,
                 _to_optional(async_file.file_preview_height),
             ),
             file_preview_width=cast(
-                Optional[int],
+                int | None,
                 _to_optional(async_file.file_preview_width),
             ),
             file_encryption_algo=cast(
-                Optional[str],
+                str | None,
                 _to_optional(async_file.file_encryption_algo),
             ),
-            chunk_size=cast(Optional[int], _to_optional(async_file.chunk_size)),
-            caption=cast(Optional[str], _to_optional(async_file.caption)),
+            chunk_size=cast(int | None, _to_optional(async_file.chunk_size)),
+            caption=cast(str | None, _to_optional(async_file.caption)),
         )
 
     if attachment_type == AttachmentTypes.DOCUMENT:
@@ -301,21 +302,21 @@ def convert_async_file_to_domain(async_file: APIAsyncFile) -> File:
             _file_mimetype=async_file.file_mime_type,
             _file_url=async_file.file,
             _file_hash=async_file.file_hash,
-            file_preview=cast(Optional[str], _to_optional(async_file.file_preview)),
+            file_preview=cast(str | None, _to_optional(async_file.file_preview)),
             file_preview_height=cast(
-                Optional[int],
+                int | None,
                 _to_optional(async_file.file_preview_height),
             ),
             file_preview_width=cast(
-                Optional[int],
+                int | None,
                 _to_optional(async_file.file_preview_width),
             ),
             file_encryption_algo=cast(
-                Optional[str],
+                str | None,
                 _to_optional(async_file.file_encryption_algo),
             ),
-            chunk_size=cast(Optional[int], _to_optional(async_file.chunk_size)),
-            caption=cast(Optional[str], _to_optional(async_file.caption)),
+            chunk_size=cast(int | None, _to_optional(async_file.chunk_size)),
+            caption=cast(str | None, _to_optional(async_file.caption)),
         )
 
     if attachment_type == AttachmentTypes.VOICE:
@@ -331,21 +332,21 @@ def convert_async_file_to_domain(async_file: APIAsyncFile) -> File:
             _file_mimetype=async_file.file_mime_type,
             _file_url=async_file.file,
             _file_hash=async_file.file_hash,
-            file_preview=cast(Optional[str], _to_optional(async_file.file_preview)),
+            file_preview=cast(str | None, _to_optional(async_file.file_preview)),
             file_preview_height=cast(
-                Optional[int],
+                int | None,
                 _to_optional(async_file.file_preview_height),
             ),
             file_preview_width=cast(
-                Optional[int],
+                int | None,
                 _to_optional(async_file.file_preview_width),
             ),
             file_encryption_algo=cast(
-                Optional[str],
+                str | None,
                 _to_optional(async_file.file_encryption_algo),
             ),
-            chunk_size=cast(Optional[int], _to_optional(async_file.chunk_size)),
-            caption=cast(Optional[str], _to_optional(async_file.caption)),
+            chunk_size=cast(int | None, _to_optional(async_file.chunk_size)),
+            caption=cast(str | None, _to_optional(async_file.caption)),
         )
 
     raise NotImplementedError(f"Unsupported attachment type: {attachment_type}")

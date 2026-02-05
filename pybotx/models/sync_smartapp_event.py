@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 from uuid import UUID
 
 from pybotx.missing import Missing, Undefined
@@ -23,13 +23,13 @@ from pybotx.models.system_events.smartapp_event import SmartAppEvent
 
 class BotAPISyncSmartAppSender(VerifiedPayloadBaseModel):
     user_huid: UUID
-    udid: Optional[UUID]
-    platform: Optional[BotAPIClientPlatforms]
+    udid: UUID | None
+    platform: BotAPIClientPlatforms | None
 
 
 class BotAPISyncSmartAppPayload(VerifiedPayloadBaseModel):
-    data: Dict[str, Any]
-    files: List[APIAsyncFile]
+    data: dict[str, Any]
+    files: list[APIAsyncFile]
 
 
 class BotAPISyncSmartAppEvent(VerifiedPayloadBaseModel):
@@ -39,7 +39,7 @@ class BotAPISyncSmartAppEvent(VerifiedPayloadBaseModel):
     method: str
     payload: BotAPISyncSmartAppPayload
 
-    def to_domain(self, raw_smartapp_event: Dict[str, Any]) -> SmartAppEvent:
+    def to_domain(self, raw_smartapp_event: dict[str, Any]) -> SmartAppEvent:
         platform = (
             convert_client_platform_to_domain(self.sender_info.platform)
             if self.sender_info.platform
@@ -93,15 +93,15 @@ class BotAPISyncSmartAppEvent(VerifiedPayloadBaseModel):
 
 class BotAPISyncSmartAppEventResultResponse(UnverifiedPayloadBaseModel):
     data: Any
-    files: List[APIAsyncFile]
+    files: list[APIAsyncFile]
 
     @classmethod
     def from_domain(
         cls,
         data: Any,
-        files: Missing[List[File]] = Undefined,
+        files: Missing[list[File]] = Undefined,
     ) -> "BotAPISyncSmartAppEventResultResponse":
-        api_async_files: List[APIAsyncFile] = []
+        api_async_files: list[APIAsyncFile] = []
         if files:
             api_async_files = [convert_async_file_from_domain(file) for file in files]
 
@@ -110,7 +110,7 @@ class BotAPISyncSmartAppEventResultResponse(UnverifiedPayloadBaseModel):
             files=api_async_files,
         )
 
-    def jsonable_dict(self) -> Dict[str, Any]:
+    def jsonable_dict(self) -> dict[str, Any]:
         return {
             "status": "ok",
             "result": json.loads(self.json()),
@@ -119,15 +119,15 @@ class BotAPISyncSmartAppEventResultResponse(UnverifiedPayloadBaseModel):
 
 class BotAPISyncSmartAppEventErrorResponse(UnverifiedPayloadBaseModel):
     reason: str
-    errors: List[Any]
-    error_data: Dict[str, Any]
+    errors: list[Any]
+    error_data: dict[str, Any]
 
     @classmethod
     def from_domain(
         cls,
         reason: Missing[str] = Undefined,
-        errors: Missing[List[Any]] = Undefined,
-        error_data: Missing[Dict[str, Any]] = Undefined,
+        errors: Missing[list[Any]] = Undefined,
+        error_data: Missing[dict[str, Any]] = Undefined,
     ) -> "BotAPISyncSmartAppEventErrorResponse":
         return cls(
             reason="smartapp_error" if reason is Undefined else reason,
@@ -135,14 +135,14 @@ class BotAPISyncSmartAppEventErrorResponse(UnverifiedPayloadBaseModel):
             error_data={} if error_data is Undefined else error_data,
         )
 
-    def jsonable_dict(self) -> Dict[str, Any]:
+    def jsonable_dict(self) -> dict[str, Any]:
         return {
             "status": "error",
             **json.loads(self.json()),
         }
 
 
-BotAPISyncSmartAppEventResponse = Union[
-    BotAPISyncSmartAppEventResultResponse,
-    BotAPISyncSmartAppEventErrorResponse,
-]
+BotAPISyncSmartAppEventResponse = (
+    BotAPISyncSmartAppEventResultResponse
+    | BotAPISyncSmartAppEventErrorResponse
+)

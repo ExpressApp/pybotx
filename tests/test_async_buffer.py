@@ -1,6 +1,5 @@
 import os
 import pytest
-from typing import Optional
 
 from pybotx.async_buffer import (
     AsyncBufferReadable,
@@ -38,7 +37,7 @@ class ConcreteAsyncBuffer(AsyncBufferReadable, AsyncBufferWritable):
         self._position += len(content)
         return len(content)
 
-    async def read(self, bytes_to_read: Optional[int] = None) -> bytes:
+    async def read(self, bytes_to_read: int | None = None) -> bytes:
         if bytes_to_read is None:
             result = bytes(self._buffer[self._position :])
             self._position = len(self._buffer)

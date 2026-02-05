@@ -1,6 +1,7 @@
 import asyncio
 from http import HTTPStatus
-from typing import Any, Callable, Dict, Sequence, Type
+from typing import Any
+from collections.abc import Callable, Sequence
 from uuid import UUID
 
 import pytest
@@ -49,7 +50,7 @@ async def test__send__succeed(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_factory: Any,
 ) -> None:
     # - Arrange -
@@ -192,7 +193,7 @@ async def test__answer_message__succeed(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_factory: Any,
 ) -> None:
     # - Arrange -
@@ -372,7 +373,7 @@ async def test__send_message__unknown_bot_account_error_raised(
 async def test__send_message__callback_error_raised(
     reason: str,
     error_data: dict[str, Any],
-    expected_exc: Type[Exception],
+    expected_exc: type[Exception],
     expected_fragments: Sequence[str],
     respx_mock: MockRouter,
     host: str,

@@ -1,13 +1,13 @@
 from dataclasses import asdict, dataclass, field
-from typing import Any, Dict, List, Literal
+from typing import Any, Literal
 
 
-@dataclass
+@dataclass(slots=True)
 class BotAPIBotDisabledErrorData:
     status_message: str
 
 
-@dataclass
+@dataclass(slots=True)
 class BotAPIBotDisabledResponse:
     """Disabled bot response model.
 
@@ -16,11 +16,11 @@ class BotAPIBotDisabledResponse:
     """
 
     error_data: BotAPIBotDisabledErrorData
-    errors: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
     reason: Literal["bot_disabled"] = "bot_disabled"
 
 
-def build_bot_disabled_response(status_message: str) -> Dict[str, Any]:
+def build_bot_disabled_response(status_message: str) -> dict[str, Any]:
     """Build bot disabled response for BotX.
 
     It should be sent if the bot can't process the command.

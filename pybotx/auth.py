@@ -1,7 +1,6 @@
 import secrets
 import time
 from enum import Enum
-from typing import Optional
 from uuid import UUID
 
 import jwt
@@ -17,8 +16,8 @@ def build_botx_jwt_v2(
     bot_id: UUID,
     bot_host: str,
     secret_key: str,
-    issued_at: Optional[int] = None,
-    token_id: Optional[str] = None,
+    issued_at: int | None = None,
+    token_id: str | None = None,
 ) -> str:
     iat = int(time.time()) if issued_at is None else issued_at
     jti = token_id or secrets.token_hex(12)

@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal
+from typing import Any, Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -12,10 +12,10 @@ class BotXAPISmartAppEventRequestPayload(UnverifiedPayloadBaseModel):
     ref: MissingOptional[UUID]
     smartapp_id: UUID
     group_chat_id: UUID
-    data: Dict[str, Any]
-    opts: Missing[Dict[str, Any]]
+    data: dict[str, Any]
+    opts: Missing[dict[str, Any]]
     smartapp_api_version: int
-    async_files: Missing[List[APIAsyncFile]]
+    async_files: Missing[list[APIAsyncFile]]
     encrypted: bool
 
     @classmethod
@@ -24,12 +24,12 @@ class BotXAPISmartAppEventRequestPayload(UnverifiedPayloadBaseModel):
         ref: MissingOptional[UUID],
         smartapp_id: UUID,
         chat_id: UUID,
-        data: Dict[str, Any],
-        opts: Missing[Dict[str, Any]],
-        files: Missing[List[File]],
+        data: dict[str, Any],
+        opts: Missing[dict[str, Any]],
+        files: Missing[list[File]],
         encrypted: bool,
     ) -> "BotXAPISmartAppEventRequestPayload":
-        api_async_files: Missing[List[APIAsyncFile]] = Undefined
+        api_async_files: Missing[list[APIAsyncFile]] = Undefined
         if files:
             api_async_files = [convert_async_file_from_domain(file) for file in files]
 

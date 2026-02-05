@@ -1,4 +1,4 @@
-from typing import Callable, Tuple
+from collections.abc import Callable
 
 import pytest
 
@@ -73,7 +73,7 @@ def test__argument__filled(
 def test__arguments__not_filled(
     incoming_message_factory: Callable[..., IncomingMessage],
     body: str,
-    argument_answer: Tuple[str, ...],
+    argument_answer: tuple[str, ...],
 ) -> None:
     # - Arrange -
     message = incoming_message_factory(body=body)
@@ -92,7 +92,7 @@ def test__arguments__not_filled(
 def test__arguments__filled(
     incoming_message_factory: Callable[..., IncomingMessage],
     body: str,
-    argument_answer: Tuple[str, ...],
+    argument_answer: tuple[str, ...],
 ) -> None:
     # - Arrange -
     message = incoming_message_factory(body=body)

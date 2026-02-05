@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Literal, Optional
+from typing import Literal
 from uuid import UUID
 
 from pybotx.models.api_base import VerifiedPayloadBaseModel
@@ -10,27 +10,27 @@ from pydantic import Field
 
 class BotXAPISearchUserResult(VerifiedPayloadBaseModel):
     user_huid: UUID
-    ad_login: Optional[str] = None
-    ad_domain: Optional[str] = None
+    ad_login: str | None = None
+    ad_domain: str | None = None
     name: str
-    company: Optional[str] = None
-    company_position: Optional[str] = None
-    department: Optional[str] = None
-    emails: List[str] = Field(default_factory=list)
-    other_id: Optional[str] = None
+    company: str | None = None
+    company_position: str | None = None
+    department: str | None = None
+    emails: list[str] = Field(default_factory=list)
+    other_id: str | None = None
     user_kind: APIUserKinds
-    active: Optional[bool] = None
-    description: Optional[str] = None
-    ip_phone: Optional[str] = None
-    manager: Optional[str] = None
-    office: Optional[str] = None
-    other_ip_phone: Optional[str] = None
-    other_phone: Optional[str] = None
-    public_name: Optional[str] = None
-    cts_id: Optional[UUID] = None
-    rts_id: Optional[UUID] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    active: bool | None = None
+    description: str | None = None
+    ip_phone: str | None = None
+    manager: str | None = None
+    office: str | None = None
+    other_ip_phone: str | None = None
+    other_phone: str | None = None
+    public_name: str | None = None
+    cts_id: UUID | None = None
+    rts_id: UUID | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 class BotXAPISearchUserResponsePayload(VerifiedPayloadBaseModel):
@@ -66,9 +66,9 @@ class BotXAPISearchUserResponsePayload(VerifiedPayloadBaseModel):
 
 class BotXAPISearchUserByEmailsResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
-    result: List[BotXAPISearchUserResult]
+    result: list[BotXAPISearchUserResult]
 
-    def to_domain(self) -> List[UserFromSearch]:
+    def to_domain(self) -> list[UserFromSearch]:
         return [
             UserFromSearch(
                 huid=user.user_huid,

@@ -1,4 +1,4 @@
-from typing import Literal, NoReturn, Optional
+from typing import Literal, NoReturn
 from uuid import UUID
 
 import httpx
@@ -19,15 +19,15 @@ from pybotx.models.enums import ChatLinkTypes
 
 class BotXAPIChatLinkParams(UnverifiedPayloadBaseModel):
     link_type: ChatLinkTypes
-    access_code: Missing[Optional[str]]
-    link_ttl: Missing[Optional[int]]
+    access_code: Missing[str | None]
+    link_ttl: Missing[int | None]
 
     @classmethod
     def from_domain(
         cls,
         link_type: ChatLinkTypes,
-        access_code: Missing[Optional[str]],
-        link_ttl: Missing[Optional[int]],
+        access_code: Missing[str | None],
+        link_ttl: Missing[int | None],
     ) -> "BotXAPIChatLinkParams":
         return cls(
             link_type=link_type,
@@ -45,8 +45,8 @@ class BotXAPICreateChatLinkRequestPayload(UnverifiedPayloadBaseModel):
         cls,
         chat_id: UUID,
         link_type: ChatLinkTypes,
-        access_code: Missing[Optional[str]] = Undefined,
-        link_ttl: Missing[Optional[int]] = Undefined,
+        access_code: Missing[str | None] = Undefined,
+        link_ttl: Missing[int | None] = Undefined,
     ) -> "BotXAPICreateChatLinkRequestPayload":
         return cls(
             chat_id=chat_id,
@@ -61,8 +61,8 @@ class BotXAPICreateChatLinkRequestPayload(UnverifiedPayloadBaseModel):
 class BotXAPIChatLinkResult(VerifiedPayloadBaseModel):
     url: str
     link_type: ChatLinkTypes
-    access_code: Optional[str]
-    link_ttl: Optional[int]
+    access_code: str | None
+    link_ttl: int | None
 
     def to_domain(self) -> ChatLink:
         return ChatLink(

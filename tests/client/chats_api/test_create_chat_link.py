@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Type
+from typing import Any
 from uuid import UUID
 
 import pytest
@@ -135,7 +135,7 @@ async def test__create_chat_link__succeed(
 async def test__create_chat_link__error_response(
     return_json: dict[str, Any],
     response_status: int,
-    expected_exc_type: Type[Exception],
+    expected_exc_type: type[Exception],
     respx_mock: MockRouter,
     host: str,
     chat_id: str,

@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Literal, Optional, Tuple, Union
+from typing import Literal
 from uuid import UUID, uuid4
 
 from pybotx.missing import Missing, Undefined
@@ -16,21 +16,21 @@ from pydantic import Field, field_validator
 
 def build_embed_mention(
     mention_type: MentionTypes,
-    entity_id: Optional[UUID] = None,
-    name: Optional[str] = None,
+    entity_id: UUID | None = None,
+    name: str | None = None,
 ) -> str:
     name = name or ""
     entity_id_str = "" if entity_id is None else str(entity_id)
     return f"<embed_mention>{mention_type.value}:{entity_id_str}:{name}</embed_mention>"
 
 
-@dataclass
+@dataclass(slots=True)
 class BaseTargetMention:
     entity_id: UUID
-    name: Optional[str]
+    name: str | None
 
 
-@dataclass
+@dataclass(slots=True)
 class MentionUser(BaseTargetMention):
     type: Literal[MentionTypes.USER]
 
@@ -38,7 +38,7 @@ class MentionUser(BaseTargetMention):
         return build_embed_mention(self.type, self.entity_id, self.name)
 
 
-@dataclass
+@dataclass(slots=True)
 class MentionContact(BaseTargetMention):
     type: Literal[MentionTypes.CONTACT]
 
@@ -46,7 +46,7 @@ class MentionContact(BaseTargetMention):
         return build_embed_mention(self.type, self.entity_id, self.name)
 
 
-@dataclass
+@dataclass(slots=True)
 class MentionChat(BaseTargetMention):
     type: Literal[MentionTypes.CHAT]
 
@@ -54,7 +54,7 @@ class MentionChat(BaseTargetMention):
         return build_embed_mention(self.type, self.entity_id, self.name)
 
 
-@dataclass
+@dataclass(slots=True)
 class MentionChannel(BaseTargetMention):
     type: Literal[MentionTypes.CHANNEL]
 
@@ -62,7 +62,7 @@ class MentionChannel(BaseTargetMention):
         return build_embed_mention(self.type, self.entity_id, self.name)
 
 
-@dataclass
+@dataclass(slots=True)
 class MentionAll:
     type: Literal[MentionTypes.ALL]
 
@@ -70,18 +70,18 @@ class MentionAll:
         return build_embed_mention(self.type)
 
 
-Mention = Union[
-    MentionUser,
-    MentionContact,
-    MentionChat,
-    MentionChannel,
-    MentionAll,
-]
+Mention = (
+    MentionUser
+    | MentionContact
+    | MentionChat
+    | MentionChannel
+    | MentionAll
+)
 
 
 class MentionBuilder:
     @classmethod
-    def user(cls, entity_id: UUID, name: Optional[str] = None) -> MentionUser:
+    def user(cls, entity_id: UUID, name: str | None = None) -> MentionUser:
         return MentionUser(
             type=MentionTypes.USER,
             entity_id=entity_id,
@@ -92,7 +92,7 @@ class MentionBuilder:
     def contact(
         cls,
         entity_id: UUID,
-        name: Optional[str] = None,
+        name: str | None = None,
     ) -> MentionContact:
         return MentionContact(
             type=MentionTypes.CONTACT,
@@ -101,7 +101,7 @@ class MentionBuilder:
         )
 
     @classmethod
-    def chat(cls, entity_id: UUID, name: Optional[str] = None) -> MentionChat:
+    def chat(cls, entity_id: UUID, name: str | None = None) -> MentionChat:
         return MentionChat(
             type=MentionTypes.CHAT,
             entity_id=entity_id,
@@ -112,7 +112,7 @@ class MentionBuilder:
     def channel(
         cls,
         entity_id: UUID,
-        name: Optional[str] = None,
+        name: str | None = None,
     ) -> MentionChannel:
         return MentionChannel(
             type=MentionTypes.CHANNEL,
@@ -127,21 +127,21 @@ class MentionBuilder:
         )
 
 
-class MentionList(List[Mention]):
+class MentionList(list[Mention]):
     @property
-    def contacts(self) -> List[MentionContact]:
+    def contacts(self) -> list[MentionContact]:
         return [mention for mention in self if isinstance(mention, MentionContact)]
 
     @property
-    def chats(self) -> List[MentionChat]:
+    def chats(self) -> list[MentionChat]:
         return [mention for mention in self if isinstance(mention, MentionChat)]
 
     @property
-    def channels(self) -> List[MentionChannel]:
+    def channels(self) -> list[MentionChannel]:
         return [mention for mention in self if isinstance(mention, MentionChannel)]
 
     @property
-    def users(self) -> List[MentionUser]:
+    def users(self) -> list[MentionUser]:
         return [mention for mention in self if isinstance(mention, MentionUser)]
 
     @property
@@ -164,23 +164,23 @@ class BotAPINestedGroupMentionData(VerifiedPayloadBaseModel):
     name: str
 
 
-BotAPINestedMentionData = Union[
-    BotAPINestedPersonalMentionData,
-    BotAPINestedGroupMentionData,
-]
+BotAPINestedMentionData = (
+    BotAPINestedPersonalMentionData
+    | BotAPINestedGroupMentionData
+)
 
 
 class BotAPIMentionData(VerifiedPayloadBaseModel):
     mention_type: BotAPIMentionTypes
     mention_id: UUID
-    mention_data: Optional[BotAPINestedMentionData]
+    mention_data: BotAPINestedMentionData | None
 
     @field_validator("mention_data", mode="before")
     @classmethod
     def validate_mention_data(
         cls,
-        mention_data: Dict[str, str],
-    ) -> Optional[Dict[str, str]]:
+        mention_data: dict[str, str],
+    ) -> dict[str, str] | None:
         # Mention data can be an empty dict
         if not mention_data:
             return None
@@ -247,17 +247,17 @@ class BotXAPIAllMention(UnverifiedPayloadBaseModel):
         return f"@{{mention:{self.mention_id}}}"
 
 
-BotXAPIMention = Union[
-    BotXAPIUserMention,
-    BotXAPIContactMention,
-    BotXAPIChatMention,
-    BotXAPIChannelMention,
-    BotXAPIAllMention,
-]
+BotXAPIMention = (
+    BotXAPIUserMention
+    | BotXAPIContactMention
+    | BotXAPIChatMention
+    | BotXAPIChannelMention
+    | BotXAPIAllMention
+)
 
 
 def build_botx_api_embed_mention(
-    mention_dict: Dict[str, str],
+    mention_dict: dict[str, str],
 ) -> BotXAPIMention:
     mention_type = MentionTypes(mention_dict["mention_type"])
     mentioned_entity_id = mention_dict["mentioned_entity_id"]
@@ -324,7 +324,7 @@ EMBED_MENTION_RE = re.compile(
 )
 
 
-def find_and_replace_embed_mentions(body: str) -> Tuple[str, List[BotXAPIMention]]:
+def find_and_replace_embed_mentions(body: str) -> tuple[str, list[BotXAPIMention]]:
     mentions = []
 
     for match in EMBED_MENTION_RE.finditer(body):

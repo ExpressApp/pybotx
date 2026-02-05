@@ -1,9 +1,9 @@
 from asyncio import Task
 from collections.abc import AsyncIterable, AsyncIterator, Iterator, Mapping, Sequence
-from contextlib import asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager
 from datetime import datetime
 from types import SimpleNamespace
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, TypeAlias
 from uuid import UUID
 
 import aiofiles
@@ -265,8 +265,8 @@ from pybotx.models.system_events.smartapp_event import SmartAppEvent
 from pybotx.models.users import UserFromCSV, UserFromSearch
 from pydantic import ValidationError
 
-MissingOptionalAttachment = MissingOptional[
-    Union[IncomingFileAttachment, OutgoingAttachment]
+MissingOptionalAttachment: TypeAlias = MissingOptional[
+    IncomingFileAttachment | OutgoingAttachment
 ]
 
 
@@ -276,11 +276,11 @@ class Bot:
         *,
         collectors: Sequence[HandlerCollector],
         bot_accounts: Sequence[BotAccountWithSecret],
-        middlewares: Optional[Sequence[Middleware]] = None,
-        httpx_client: Optional[httpx.AsyncClient] = None,
-        exception_handlers: Optional[ExceptionHandlersDict] = None,
+        middlewares: Sequence[Middleware] | None = None,
+        httpx_client: httpx.AsyncClient | None = None,
+        exception_handlers: ExceptionHandlersDict | None = None,
         default_callback_timeout: float = BOTX_DEFAULT_TIMEOUT,
-        callback_repo: Optional[CallbackRepoProto] = None,
+        callback_repo: CallbackRepoProto | None = None,
         auth_version: BotXAuthVersion = BotXAuthVersion.V2,
     ) -> None:
         if not collectors:
@@ -311,11 +311,11 @@ class Bot:
 
     def async_execute_raw_bot_command(
         self,
-        raw_bot_command: Dict[str, Any],
+        raw_bot_command: dict[str, Any],
         verify_request: bool = True,
-        request_headers: Optional[Mapping[str, str]] = None,
+        request_headers: Mapping[str, str] | None = None,
         logging_command: bool = True,
-        trusted_issuers: Optional[Set[str]] = None,
+        trusted_issuers: set[str] | None = None,
     ) -> None:
         if logging_command:
             log_incoming_request(raw_bot_command, message="Got command: ")
@@ -348,11 +348,11 @@ class Bot:
 
     async def sync_execute_raw_smartapp_event(
         self,
-        raw_smartapp_event: Dict[str, Any],
+        raw_smartapp_event: dict[str, Any],
         verify_request: bool = True,
-        request_headers: Optional[Mapping[str, str]] = None,
+        request_headers: Mapping[str, str] | None = None,
         logging_command: bool = True,
-        trusted_issuers: Optional[Set[str]] = None,
+        trusted_issuers: set[str] | None = None,
     ) -> BotAPISyncSmartAppEventResponse:
         if logging_command:
             log_incoming_request(
@@ -387,11 +387,11 @@ class Bot:
 
     async def raw_get_status(
         self,
-        query_params: Dict[str, str],
+        query_params: dict[str, str],
         verify_request: bool = True,
-        request_headers: Optional[Mapping[str, str]] = None,
-        trusted_issuers: Optional[Set[str]] = None,
-    ) -> Dict[str, Any]:
+        request_headers: Mapping[str, str] | None = None,
+        trusted_issuers: set[str] | None = None,
+    ) -> dict[str, Any]:
         logger.opt(lazy=True).debug(
             "Got status: {status}",
             status=lambda: pformat_jsonable_obj(query_params),
@@ -420,10 +420,10 @@ class Bot:
 
     async def set_raw_botx_method_result(
         self,
-        raw_botx_method_result: Dict[str, Any],
+        raw_botx_method_result: dict[str, Any],
         verify_request: bool = True,
-        request_headers: Optional[Mapping[str, str]] = None,
-        trusted_issuers: Optional[Set[str]] = None,
+        request_headers: Mapping[str, str] | None = None,
+        trusted_issuers: set[str] | None = None,
     ) -> None:
         logger.debug("Got callback: {callback}", callback=raw_botx_method_result)
 
@@ -495,7 +495,7 @@ class Bot:
         *,
         bot_id: UUID,
         since: Missing[datetime] = Undefined,
-    ) -> Tuple[List[BotsListItem], datetime]:
+    ) -> tuple[list[BotsListItem], datetime]:
         """Get list of Bots on the current CTS.
 
         :param bot_id: Bot which should perform the request.
@@ -520,18 +520,18 @@ class Bot:
         self,
         body: str,
         *,
-        metadata: Missing[Dict[str, Any]] = Undefined,
+        metadata: Missing[dict[str, Any]] = Undefined,
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
-        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
-        recipients: Missing[List[UUID]] = Undefined,
+        file: Missing[IncomingFileAttachment | OutgoingAttachment] = Undefined,
+        recipients: Missing[list[UUID]] = Undefined,
         silent_response: Missing[bool] = Undefined,
         markup_auto_adjust: Missing[bool] = Undefined,
         stealth_mode: Missing[bool] = Undefined,
         send_push: Missing[bool] = Undefined,
         ignore_mute: Missing[bool] = Undefined,
         wait_callback: bool = True,
-        callback_timeout: Optional[float] = None,
+        callback_timeout: float | None = None,
     ) -> UUID:
         """Answer to incoming message.
 
@@ -592,7 +592,7 @@ class Bot:
         *,
         message: OutgoingMessage,
         wait_callback: bool = True,
-        callback_timeout: Optional[float] = None,
+        callback_timeout: float | None = None,
     ) -> UUID:
         """Send internal notification.
 
@@ -627,18 +627,18 @@ class Bot:
         bot_id: UUID,
         chat_id: UUID,
         body: str,
-        metadata: Missing[Dict[str, Any]] = Undefined,
+        metadata: Missing[dict[str, Any]] = Undefined,
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
-        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        file: Missing[IncomingFileAttachment | OutgoingAttachment] = Undefined,
         silent_response: Missing[bool] = Undefined,
         markup_auto_adjust: Missing[bool] = Undefined,
-        recipients: Missing[List[UUID]] = Undefined,
+        recipients: Missing[list[UUID]] = Undefined,
         stealth_mode: Missing[bool] = Undefined,
         send_push: Missing[bool] = Undefined,
         ignore_mute: Missing[bool] = Undefined,
         wait_callback: bool = True,
-        callback_timeout: Optional[float] = None,
+        callback_timeout: float | None = None,
     ) -> UUID:
         """Send message to chat.
 
@@ -702,13 +702,13 @@ class Bot:
         bot_id: UUID,
         chat_id: UUID,
         body: str,
-        metadata: Missing[Dict[str, Any]] = Undefined,
+        metadata: Missing[dict[str, Any]] = Undefined,
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
-        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        file: Missing[IncomingFileAttachment | OutgoingAttachment] = Undefined,
         silent_response: Missing[bool] = Undefined,
         markup_auto_adjust: Missing[bool] = Undefined,
-        recipients: Missing[List[UUID]] = Undefined,
+        recipients: Missing[list[UUID]] = Undefined,
         stealth_mode: Missing[bool] = Undefined,
         send_push: Missing[bool] = Undefined,
         ignore_mute: Missing[bool] = Undefined,
@@ -765,11 +765,11 @@ class Bot:
         *,
         bot_id: UUID,
         chat_id: UUID,
-        data: Dict[str, Any],
-        opts: Missing[Dict[str, Any]] = Undefined,
-        recipients: Missing[List[UUID]] = Undefined,
+        data: dict[str, Any],
+        opts: Missing[dict[str, Any]] = Undefined,
+        recipients: Missing[list[UUID]] = Undefined,
         wait_callback: bool = True,
-        callback_timeout: Optional[float] = None,
+        callback_timeout: float | None = None,
     ) -> UUID:
         """Send internal notification.
 
@@ -834,7 +834,7 @@ class Bot:
         bot_id: UUID,
         sync_id: UUID,
         body: Missing[str] = Undefined,
-        metadata: Missing[Dict[str, Any]] = Undefined,
+        metadata: Missing[dict[str, Any]] = Undefined,
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
         file: MissingOptionalAttachment = Undefined,
@@ -905,10 +905,10 @@ class Bot:
         bot_id: UUID,
         sync_id: UUID,
         body: str,
-        metadata: Missing[Dict[str, Any]] = Undefined,
+        metadata: Missing[dict[str, Any]] = Undefined,
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
-        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        file: Missing[IncomingFileAttachment | OutgoingAttachment] = Undefined,
         silent_response: Missing[bool] = Undefined,
         markup_auto_adjust: Missing[bool] = Undefined,
         stealth_mode: Missing[bool] = Undefined,
@@ -1047,7 +1047,7 @@ class Bot:
         self,
         *,
         bot_id: UUID,
-    ) -> List[ChatListItem]:
+    ) -> list[ChatListItem]:
         """Get all bot chats.
 
         :param bot_id: Bot which should perform the request.
@@ -1114,7 +1114,7 @@ class Bot:
         *,
         bot_id: UUID,
         user_huid: UUID,
-        name: Optional[str] = None,
+        name: str | None = None,
     ) -> ChatInfo:
         """Get or create personal chat with user.
 
@@ -1145,7 +1145,7 @@ class Bot:
         *,
         bot_id: UUID,
         chat_id: UUID,
-        huids: List[UUID],
+        huids: list[UUID],
     ) -> None:
         """Add user to chat.
 
@@ -1164,7 +1164,7 @@ class Bot:
         *,
         bot_id: UUID,
         chat_id: UUID,
-        huids: List[UUID],
+        huids: list[UUID],
     ) -> None:
         """Remove eXpress accounts from chat.
 
@@ -1190,7 +1190,7 @@ class Bot:
         *,
         bot_id: UUID,
         chat_id: UUID,
-        huids: List[UUID],
+        huids: list[UUID],
     ) -> None:
         """Promote users in chat to admins.
 
@@ -1275,10 +1275,10 @@ class Bot:
         bot_id: UUID,
         name: str,
         chat_type: ChatTypes,
-        huids: List[UUID],
-        description: Optional[str] = None,
+        huids: list[UUID],
+        description: str | None = None,
         shared_history: Missing[bool] = Undefined,
-        avatar: Optional[str] = None,
+        avatar: str | None = None,
     ) -> UUID:
         """Create chat.
 
@@ -1318,8 +1318,8 @@ class Bot:
         bot_id: UUID,
         chat_id: UUID,
         link_type: ChatLinkTypes,
-        access_code: Missing[Optional[str]] = Undefined,
-        link_ttl: Missing[Optional[int]] = Undefined,
+        access_code: Missing[str | None] = Undefined,
+        link_ttl: Missing[int | None] = Undefined,
     ) -> ChatLink:
         """Create chat invite link (BotX >= 3.58).
 
@@ -1420,8 +1420,8 @@ class Bot:
         self,
         *,
         bot_id: UUID,
-        emails: List[str],
-    ) -> List[UserFromSearch]:
+        emails: list[str],
+    ) -> list[UserFromSearch]:
         """Search user by emails for search.
 
         :param bot_id: Bot which should perform the request.
@@ -1584,7 +1584,7 @@ class Bot:
         *,
         bot_id: UUID,
         user_huid: UUID,
-        avatar: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        avatar: Missing[IncomingFileAttachment | OutgoingAttachment] = Undefined,
         name: Missing[str] = Undefined,
         public_name: Missing[str] = Undefined,
         company: Missing[str] = Undefined,
@@ -1658,7 +1658,8 @@ class Bot:
             botx=botx,
         )
 
-        async with TemporaryDirectory() as tmpdir:
+        async with AsyncExitStack() as stack:
+            tmpdir = await stack.enter_async_context(TemporaryDirectory())
             async with NamedTemporaryFile(
                 mode="wb",
                 dir=tmpdir,
@@ -1667,11 +1668,13 @@ class Bot:
                 write_buffer_path = write_buffer.name
                 await method.execute(payload, write_buffer)
 
-            async with aiofiles.open(write_buffer_path, mode="r") as read_buffer:
-                yield (
-                    BotXAPIUserFromCSVResult(**row).to_domain()
-                    async for row in AsyncDictReader(read_buffer)
-                )
+            read_buffer = await stack.enter_async_context(
+                aiofiles.open(write_buffer_path),
+            )
+            yield (
+                BotXAPIUserFromCSVResult(**row).to_domain()
+                async for row in AsyncDictReader(read_buffer)
+            )
 
     # - SmartApps API -
     async def send_smartapp_event(
@@ -1679,11 +1682,11 @@ class Bot:
         *,
         bot_id: UUID,
         chat_id: UUID,
-        data: Dict[str, Any],
+        data: dict[str, Any],
         encrypted: bool = True,
         ref: MissingOptional[UUID] = Undefined,
-        opts: Missing[Dict[str, Any]] = Undefined,
-        files: Missing[List[File]] = Undefined,
+        opts: Missing[dict[str, Any]] = Undefined,
+        files: Missing[list[File]] = Undefined,
     ) -> None:
         """Send SmartApp event.
 
@@ -1719,8 +1722,8 @@ class Bot:
         chat_id: UUID,
         smartapp_counter: int,
         body: Missing[str] = Undefined,
-        opts: Missing[Dict[str, Any]] = Undefined,
-        meta: Missing[Dict[str, Any]] = Undefined,
+        opts: Missing[dict[str, Any]] = Undefined,
+        meta: Missing[dict[str, Any]] = Undefined,
     ) -> None:
         """Send SmartApp notification.
 
@@ -1752,7 +1755,7 @@ class Bot:
         *,
         bot_id: UUID,
         version: Missing[int] = Undefined,
-    ) -> Tuple[List[SmartApp], int]:
+    ) -> tuple[list[SmartApp], int]:
         """Get list of SmartApps on the current CTS.
 
         :param bot_id: Bot which should perform the request.
@@ -1839,9 +1842,9 @@ class Bot:
         group_chat_id: UUID,
         title: str,
         body: str,
-        meta: Missing[Dict[str, Any]] = Undefined,
+        meta: Missing[dict[str, Any]] = Undefined,
         wait_callback: bool = True,
-        callback_timeout: Optional[float] = None,
+        callback_timeout: float | None = None,
     ) -> UUID:
         """Send SmartApp custom notification.
 
@@ -1886,7 +1889,7 @@ class Bot:
         group_chat_id: UUID,
         counter: int,
         wait_callback: bool = True,
-        callback_timeout: Optional[float] = None,
+        callback_timeout: float | None = None,
     ) -> UUID:
         """Send SmartApp unread counter.
 
@@ -2135,7 +2138,7 @@ class Bot:
         sticker_pack_id: UUID,
         name: str,
         preview: UUID,
-        stickers_order: List[UUID],
+        stickers_order: list[UUID],
     ) -> StickerPack:
         """Edit Sticker pack.
 
@@ -2239,7 +2242,7 @@ class Bot:
         *,
         bot_id: UUID,
         huid: UUID,
-        ref: Optional[UUID] = None,
+        ref: UUID | None = None,
     ) -> None:
         """Refresh OpenID access token.
 
@@ -2266,7 +2269,7 @@ class Bot:
         self,
         bot_id: UUID,
         bot_function: str,
-        huids: List[UUID],
+        huids: list[UUID],
         chat_id: UUID,
     ) -> None:
         """Collect a new use of the bot function.
@@ -2292,9 +2295,9 @@ class Bot:
 
     def _verify_request(
         self,
-        headers: Optional[Mapping[str, str]],
+        headers: Mapping[str, str] | None,
         *,
-        trusted_issuers: Optional[Set[str]] = None,
+        trusted_issuers: set[str] | None = None,
     ) -> None:
         if headers is None:
             raise RequestHeadersNotProvidedError
@@ -2347,7 +2350,7 @@ class Bot:
         self,
         token: str,
         token_payload: Mapping[str, Any],
-        decode_algorithms: List[str],
+        decode_algorithms: list[str],
     ) -> None:
         issuer = token_payload.get("iss")
         if issuer is None:
@@ -2387,8 +2390,8 @@ class Bot:
         self,
         token: str,
         token_payload: Mapping[str, Any],
-        decode_algorithms: List[str],
-        trusted_issuers: Optional[Set[str]],
+        decode_algorithms: list[str],
+        trusted_issuers: set[str] | None,
     ) -> None:
         audience = token_payload.get("aud")
         if (
@@ -2430,8 +2433,8 @@ class Bot:
     @staticmethod
     def _build_main_collector(
         collectors: Sequence[HandlerCollector],
-        middlewares: List[Middleware],
-        exception_handlers: Optional[ExceptionHandlersDict] = None,
+        middlewares: list[Middleware],
+        exception_handlers: ExceptionHandlersDict | None = None,
     ) -> HandlerCollector:
         main_collector = HandlerCollector(middlewares=middlewares)
         main_collector.insert_exception_middleware(exception_handlers)

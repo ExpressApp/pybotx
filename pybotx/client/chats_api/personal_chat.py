@@ -1,5 +1,5 @@
 from datetime import datetime as dt
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import ConfigDict, ValidationError, field_validator, Field
@@ -28,7 +28,7 @@ class BotXAPIPersonalChatRequestPayload(UnverifiedPayloadBaseModel):
     def from_domain(cls, user_huid: UUID) -> "BotXAPIPersonalChatRequestPayload":
         return cls(user_huid=user_huid)
 
-    def as_query_params(self) -> Dict[str, Any]:
+    def as_query_params(self) -> dict[str, Any]:
         return self.model_dump(mode="json")
 
 
@@ -46,12 +46,12 @@ class BotXAPIPersonalChatResult(VerifiedPayloadBaseModel):
     """Результат API-ответа по персональному чату."""
 
     chat_type: APIChatTypes
-    creator: Optional[UUID] = None
-    description: Optional[str] = None
+    creator: UUID | None = None
+    description: str | None = None
     group_chat_id: UUID
     inserted_at: dt
-    updated_at: Optional[dt] = None
-    members: List[Union[BotXAPIPersonalChatMember, Dict[str, Any], UUID]] = Field(
+    updated_at: dt | None = None
+    members: list[BotXAPIPersonalChatMember | dict[str, Any] | UUID] = Field(
         default_factory=list,
     )
     name: str
@@ -63,17 +63,17 @@ class BotXAPIPersonalChatResult(VerifiedPayloadBaseModel):
     @classmethod
     def validate_members(
         cls,
-        value: List[Union[BotXAPIPersonalChatMember, Dict[str, Any], UUID, str]],
+        value: list[BotXAPIPersonalChatMember | dict[str, Any] | UUID | str],
         info: Any,
-    ) -> List[Union[BotXAPIPersonalChatMember, Dict[str, Any], UUID]]:
+    ) -> list[BotXAPIPersonalChatMember | dict[str, Any] | UUID]:
         return cls._parse_members(value)
 
     @staticmethod
     def _parse_members(
-        members_data: List[Union[BotXAPIPersonalChatMember, Dict[str, Any], UUID, str]],
-    ) -> List[Union[BotXAPIPersonalChatMember, Dict[str, Any], UUID]]:
+        members_data: list[BotXAPIPersonalChatMember | dict[str, Any] | UUID | str],
+    ) -> list[BotXAPIPersonalChatMember | dict[str, Any] | UUID]:
         # Явная аннотация решает проблему инвариантности List в mypy
-        parsed: List[Union[BotXAPIPersonalChatMember, Dict[str, Any], UUID]] = []
+        parsed: list[BotXAPIPersonalChatMember | dict[str, Any] | UUID] = []
         for item in members_data:
             if isinstance(item, dict):
                 try:
@@ -110,7 +110,7 @@ class BotXAPIPersonalChatResponsePayload(VerifiedPayloadBaseModel):
         ):
             logger.warning("Unsupported user type skipped in members list")
 
-        members: List[ChatInfoMember] = []
+        members: list[ChatInfoMember] = []
         for member in self.result.members:
             if isinstance(member, BotXAPIPersonalChatMember):
                 try:

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Dict
+from typing import Any
 from uuid import UUID
 
 import pytest
@@ -54,7 +54,7 @@ async def test__search_user_by_ad__succeed(
     host: str,
     bot_id: UUID,
     user_from_search_with_data: UserFromSearch,
-    user_from_search_with_data_json: Dict[str, Any],
+    user_from_search_with_data_json: dict[str, Any],
     bot_factory: Any,
 ) -> None:
     # - Arrange -
@@ -89,7 +89,7 @@ async def test__search_user_by_ad_without_data__succeed(
     host: str,
     bot_id: UUID,
     user_from_search_without_data: UserFromSearch,
-    user_from_search_without_data_json: Dict[str, Any],
+    user_from_search_without_data_json: dict[str, Any],
     bot_factory: Any,
 ) -> None:
     # - Arrange -

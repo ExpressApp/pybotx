@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
-from typing import Any, AsyncGenerator, Dict
+from typing import Any
+from collections.abc import AsyncGenerator
 import warnings
 
 import httpx
@@ -40,7 +41,7 @@ class AuthorizedBotXMethod(BotXMethod):
         ) as response:
             yield response
 
-    async def _add_authorization_headers(self, headers: Dict[str, Any]) -> None:
+    async def _add_authorization_headers(self, headers: dict[str, Any]) -> None:
         auth_version = self._bot_accounts_storage.get_auth_version()
         if auth_version == BotXAuthVersion.V2:
             token = self._bot_accounts_storage.build_jwt_v2(self._bot_id)

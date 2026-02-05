@@ -29,7 +29,6 @@ mypy-extensions = "^1.1.0"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.19.1"
-typing-extensions = "^4.15.0"
 bandit = "^1.9.3"  # https://github.com/PyCQA/bandit/issues/837
 
 pytest = "^9.0.2"
@@ -80,5 +79,5 @@ filterwarnings = [
 ]
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py310"
 line-length = 88

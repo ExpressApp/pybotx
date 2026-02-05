@@ -1,5 +1,6 @@
 from http import HTTPStatus
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
+from collections.abc import Callable
 from uuid import UUID
 
 import httpx
@@ -50,8 +51,8 @@ async def handle_sync_smartapp_event(
 
 
 def bot_factory(
-    bot_accounts: List[BotAccountWithSecret],
-    bot_collector: Optional[HandlerCollector] = None,
+    bot_accounts: list[BotAccountWithSecret],
+    bot_collector: HandlerCollector | None = None,
 ) -> Bot:
     return Bot(collectors=[bot_collector or collector], bot_accounts=bot_accounts)
 
@@ -478,7 +479,7 @@ def test__web_app__sync_smartapp_event__success(bot: Bot, bot_id: UUID) -> None:
 def test__web_app__sync_smartapp_event__error(
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
-    api_sync_smartapp_event_factory: Callable[..., Dict[str, Any]],
+    api_sync_smartapp_event_factory: Callable[..., dict[str, Any]],
 ) -> None:
     # - Arrange -
     request_payload = api_sync_smartapp_event_factory(bot_id=bot_id)

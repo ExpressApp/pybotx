@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Type
+from typing import Any
 from uuid import UUID
 
 import pytest
@@ -71,7 +71,7 @@ async def test__send_message_sync__succeed(
 )
 async def test__send_message_sync__known_error_reason_raised(
     reason: str,
-    exc_type: Type[Exception],
+    exc_type: type[Exception],
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,

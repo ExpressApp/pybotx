@@ -1,6 +1,7 @@
 import json
 import logging
-from typing import Any, Callable, Dict
+from typing import Any
+from collections.abc import Callable
 
 import pytest
 
@@ -105,14 +106,12 @@ async def test__async_execute_raw_bot_command__unknown_system_event() -> None:
 async def test__async_execute_raw_bot_command__logging_incoming_request(
     bot_account: BotAccountWithSecret,
     loguru_caplog: pytest.LogCaptureFixture,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     mock_authorization: None,
 ) -> None:
     # - Arrange -
     payload = api_incoming_message_factory(bot_id=bot_account.id)
-    log_message = "Got command: {command}".format(
-        command=json.dumps(payload, sort_keys=True, indent=4, ensure_ascii=False),
-    )
+    log_message = f"Got command: {json.dumps(payload, sort_keys=True, indent=4, ensure_ascii=False)}"
     built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
@@ -127,14 +126,12 @@ async def test__async_execute_raw_bot_command__logging_incoming_request(
 async def test__async_execute_raw_bot_command__not_logging_incoming_request(
     bot_account: BotAccountWithSecret,
     loguru_caplog: pytest.LogCaptureFixture,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     mock_authorization: None,
 ) -> None:
     # - Arrange -
     payload = api_incoming_message_factory(bot_id=bot_account.id)
-    log_message = "Got command: {command}".format(
-        command=json.dumps(payload, sort_keys=True, indent=4, ensure_ascii=False),
-    )
+    log_message = f"Got command: {json.dumps(payload, sort_keys=True, indent=4, ensure_ascii=False)}"
     built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
@@ -153,14 +150,12 @@ async def test__async_execute_raw_bot_command__not_logging_incoming_request(
 async def test__sync_execute_raw_smartapp_event__logging_incoming_request(
     bot_account: BotAccountWithSecret,
     loguru_caplog: pytest.LogCaptureFixture,
-    api_sync_smartapp_event_factory: Callable[..., Dict[str, Any]],
+    api_sync_smartapp_event_factory: Callable[..., dict[str, Any]],
     collector_with_sync_smartapp_event_handler: HandlerCollector,
 ) -> None:
     # - Arrange -
     payload = api_sync_smartapp_event_factory(bot_id=bot_account.id)
-    log_message = "Got sync smartapp event: {command}".format(
-        command=json.dumps(payload, sort_keys=True, indent=4, ensure_ascii=False),
-    )
+    log_message = f"Got sync smartapp event: {json.dumps(payload, sort_keys=True, indent=4, ensure_ascii=False)}"
     built_bot = Bot(
         collectors=[collector_with_sync_smartapp_event_handler],
         bot_accounts=[bot_account],
@@ -178,14 +173,12 @@ async def test__sync_execute_raw_smartapp_event__logging_incoming_request(
 async def test__sync_execute_raw_smartapp_event__not_logging_incoming_request(
     bot_account: BotAccountWithSecret,
     loguru_caplog: pytest.LogCaptureFixture,
-    api_sync_smartapp_event_factory: Callable[..., Dict[str, Any]],
+    api_sync_smartapp_event_factory: Callable[..., dict[str, Any]],
     collector_with_sync_smartapp_event_handler: HandlerCollector,
 ) -> None:
     # - Arrange -
     payload = api_sync_smartapp_event_factory(bot_id=bot_account.id)
-    log_message = "Got sync smartapp event: {command}".format(
-        command=json.dumps(payload, sort_keys=True, indent=4, ensure_ascii=False),
-    )
+    log_message = f"Got sync smartapp event: {json.dumps(payload, sort_keys=True, indent=4, ensure_ascii=False)}"
     built_bot = Bot(
         collectors=[collector_with_sync_smartapp_event_handler],
         bot_accounts=[bot_account],
@@ -206,7 +199,7 @@ async def test__sync_execute_raw_smartapp_event__not_logging_incoming_request(
 
 async def test__sync_execute_raw_smartapp_event__headers_not_provided(
     bot_account: BotAccountWithSecret,
-    api_sync_smartapp_event_factory: Callable[..., Dict[str, Any]],
+    api_sync_smartapp_event_factory: Callable[..., dict[str, Any]],
     collector_with_sync_smartapp_event_handler: HandlerCollector,
 ) -> None:
     # - Arrange -
@@ -224,9 +217,9 @@ async def test__sync_execute_raw_smartapp_event__headers_not_provided(
 
 async def test__sync_execute_raw_smartapp_event__request_verified(
     bot_account: BotAccountWithSecret,
-    api_sync_smartapp_event_factory: Callable[..., Dict[str, Any]],
+    api_sync_smartapp_event_factory: Callable[..., dict[str, Any]],
     collector_with_sync_smartapp_event_handler: HandlerCollector,
-    authorization_header: Dict[str, str],
+    authorization_header: dict[str, str],
 ) -> None:
     # - Arrange -
     payload = api_sync_smartapp_event_factory(bot_id=bot_account.id)

@@ -1,8 +1,8 @@
-from __future__ import annotations
 
 from dataclasses import dataclass
 from http import HTTPStatus
-from typing import Any, Mapping, Optional, Union, cast
+from typing import Any, cast
+from collections.abc import Mapping
 
 import httpx
 from deepdiff import DeepDiff
@@ -13,9 +13,9 @@ from respx.router import MockRouter, Route  # type: ignore[attr-defined]
 class BotXRequest:
     method: str
     path: str
-    json: Optional[dict[str, Any]] = None
-    params: Optional[dict[str, Any]] = None
-    headers: Optional[Mapping[str, str]] = None
+    json: dict[str, Any] | None = None
+    params: dict[str, Any] | None = None
+    headers: Mapping[str, str] | None = None
     require_auth: bool = True
 
 
@@ -30,9 +30,9 @@ def mock_botx(
     respx_mock: MockRouter,
     host: str,
     request: BotXRequest,
-    response_json: Optional[Union[dict[str, Any], list[Any]]],
+    response_json: dict[str, Any] | list[Any] | None,
     status: int = HTTPStatus.OK,
-    response_content: Optional[Union[bytes, str]] = None,
+    response_content: bytes | str | None = None,
 ) -> Route:
     if response_json is not None and response_content is not None:
         raise ValueError("Provide either response_json or response_content, not both.")
@@ -73,8 +73,8 @@ def ok_payload(result: Any) -> dict[str, Any]:
 def error_payload(
     reason: str,
     *,
-    error_data: Optional[dict[str, Any]] = None,
-    errors: Optional[list[str]] = None,
+    error_data: dict[str, Any] | None = None,
+    errors: list[str] | None = None,
 ) -> dict[str, Any]:
     return {
         "status": "error",

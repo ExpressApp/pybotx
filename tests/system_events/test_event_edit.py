@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 import pytest
@@ -84,7 +83,7 @@ async def test__event_edit__succeed(
     }
 
     collector = HandlerCollector()
-    event_edit: Optional[EventEdit] = None
+    event_edit: EventEdit | None = None
 
     @collector.event_edit
     async def event_edit_handler(event: EventEdit, _: Bot) -> None:

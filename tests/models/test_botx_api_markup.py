@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Any, List
+from typing import Any
 
 
 from pybotx.models.message.markup import (
@@ -93,7 +93,7 @@ def test_botx_api_markup_jsonable_dict() -> None:
     jsonable_dict = markup.jsonable_dict()
 
     # - Assert -
-    expected_dict: List[List[Dict[str, Any]]] = [
+    expected_dict: list[list[dict[str, Any]]] = [
         [
             {
                 "command": "/test",

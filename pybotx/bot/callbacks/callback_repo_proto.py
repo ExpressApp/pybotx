@@ -6,10 +6,7 @@ from pybotx.models.method_callbacks import BotXMethodCallback
 if TYPE_CHECKING:
     from asyncio import Future
 
-try:
-    from typing import Protocol
-except ImportError:
-    from typing_extensions import Protocol
+from typing import Protocol
 
 
 class CallbackRepoProto(Protocol):

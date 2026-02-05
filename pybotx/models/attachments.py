@@ -2,7 +2,8 @@ import base64
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import AsyncGenerator, Literal, Union, cast
+from typing import Literal, TypeGuard
+from collections.abc import AsyncGenerator
 from uuid import UUID
 
 from aiofiles.tempfile import SpooledTemporaryFile
@@ -10,15 +11,11 @@ from aiofiles.tempfile import SpooledTemporaryFile
 from pybotx.async_buffer import AsyncBufferReadable
 from pybotx.constants import CHUNK_SIZE
 from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
-from pybotx.models.enums import (
-    APIAttachmentTypes,
-    AttachmentTypes,
-    convert_attachment_type_to_domain,
-)
+from pybotx.models.enums import APIAttachmentTypes, AttachmentTypes
 from pybotx.models.stickers import Sticker
 
 
-@dataclass
+@dataclass(slots=True)
 class FileAttachmentBase:
     type: AttachmentTypes
     filename: str
@@ -37,31 +34,31 @@ class FileAttachmentBase:
             yield tmp_file
 
 
-@dataclass
+@dataclass(slots=True)
 class AttachmentImage(FileAttachmentBase):
     type: Literal[AttachmentTypes.IMAGE]
 
 
-@dataclass
+@dataclass(slots=True)
 class AttachmentVideo(FileAttachmentBase):
     type: Literal[AttachmentTypes.VIDEO]
 
     duration: int
 
 
-@dataclass
+@dataclass(slots=True)
 class AttachmentDocument(FileAttachmentBase):
     type: Literal[AttachmentTypes.DOCUMENT]
 
 
-@dataclass
+@dataclass(slots=True)
 class AttachmentVoice(FileAttachmentBase):
     type: Literal[AttachmentTypes.VOICE]
 
     duration: int
 
 
-@dataclass
+@dataclass(slots=True)
 class Location:
     name: str
     address: str
@@ -69,12 +66,12 @@ class Location:
     longitude: str
 
 
-@dataclass
+@dataclass(slots=True)
 class Contact:
     name: str
 
 
-@dataclass
+@dataclass(slots=True)
 class Link:
     url: str
     title: str
@@ -82,15 +79,15 @@ class Link:
     text: str
 
 
-IncomingFileAttachment = Union[
-    AttachmentImage,
-    AttachmentVideo,
-    AttachmentDocument,
-    AttachmentVoice,
-]
+IncomingFileAttachment = (
+    AttachmentImage
+    | AttachmentVideo
+    | AttachmentDocument
+    | AttachmentVoice
+)
 
 
-@dataclass
+@dataclass(slots=True)
 class OutgoingAttachment:
     content: bytes
     filename: str
@@ -152,8 +149,8 @@ class BotAPIAttachmentVoice(VerifiedPayloadBaseModel):
 class BotAPIAttachmentLocationData(VerifiedPayloadBaseModel):
     location_name: str
     location_address: str
-    location_lat: Union[str, float]
-    location_lng: Union[str, float]
+    location_lat: str | float
+    location_lng: str | float
 
 
 class BotAPIAttachmentLocation(VerifiedPayloadBaseModel):
@@ -193,147 +190,189 @@ class BotAPIAttachmentLink(VerifiedPayloadBaseModel):
     data: BotAPIAttachmentLinkData
 
 
-BotAPIAttachment = Union[
-    BotAPIAttachmentVideo,
-    BotAPIAttachmentImage,
-    BotAPIAttachmentDocument,
-    BotAPIAttachmentVoice,
-    BotAPIAttachmentLocation,
-    BotAPIAttachmentContact,
-    BotAPIAttachmentLink,
-    BotAPIAttachmentSticker,
-]
+BotAPIAttachment = (
+    BotAPIAttachmentVideo
+    | BotAPIAttachmentImage
+    | BotAPIAttachmentDocument
+    | BotAPIAttachmentVoice
+    | BotAPIAttachmentLocation
+    | BotAPIAttachmentContact
+    | BotAPIAttachmentLink
+    | BotAPIAttachmentSticker
+)
 
-IncomingAttachment = Union[
-    IncomingFileAttachment,
-    Location,
-    Contact,
-    Link,
-    Sticker,
-]
+IncomingAttachment = (
+    IncomingFileAttachment
+    | Location
+    | Contact
+    | Link
+    | Sticker
+)
+
+
+def _is_api_image_attachment(
+    attachment: BotAPIAttachment,
+) -> TypeGuard[BotAPIAttachmentImage]:
+    return attachment.type == APIAttachmentTypes.IMAGE
+
+
+def _is_api_video_attachment(
+    attachment: BotAPIAttachment,
+) -> TypeGuard[BotAPIAttachmentVideo]:
+    return attachment.type == APIAttachmentTypes.VIDEO
+
+
+def _is_api_document_attachment(
+    attachment: BotAPIAttachment,
+) -> TypeGuard[BotAPIAttachmentDocument]:
+    return attachment.type == APIAttachmentTypes.DOCUMENT
+
+
+def _is_api_voice_attachment(
+    attachment: BotAPIAttachment,
+) -> TypeGuard[BotAPIAttachmentVoice]:
+    return attachment.type == APIAttachmentTypes.VOICE
+
+
+def _is_api_location_attachment(
+    attachment: BotAPIAttachment,
+) -> TypeGuard[BotAPIAttachmentLocation]:
+    return attachment.type == APIAttachmentTypes.LOCATION
+
+
+def _is_api_contact_attachment(
+    attachment: BotAPIAttachment,
+) -> TypeGuard[BotAPIAttachmentContact]:
+    return attachment.type == APIAttachmentTypes.CONTACT
+
+
+def _is_api_link_attachment(
+    attachment: BotAPIAttachment,
+) -> TypeGuard[BotAPIAttachmentLink]:
+    return attachment.type == APIAttachmentTypes.LINK
+
+
+def _is_api_sticker_attachment(
+    attachment: BotAPIAttachment,
+) -> TypeGuard[BotAPIAttachmentSticker]:
+    return attachment.type == APIAttachmentTypes.STICKER
 
 
 def convert_api_attachment_to_domain(
     api_attachment: BotAPIAttachment,
     message_body: str,
 ) -> IncomingAttachment:
-    attachment_type = convert_attachment_type_to_domain(api_attachment.type)
+    match api_attachment.type:
+        case APIAttachmentTypes.IMAGE:
+            if not _is_api_image_attachment(api_attachment):
+                raise NotImplementedError(
+                    f"Unsupported attachment type: {api_attachment.type}",
+                )
+            content = decode_rfc2397(api_attachment.data.content)
 
-    if attachment_type == AttachmentTypes.IMAGE:
-        attachment_type = cast(  # type: ignore[redundant-cast]
-            Literal[AttachmentTypes.IMAGE],
-            attachment_type,
-        )
-        api_attachment = cast(BotAPIAttachmentImage, api_attachment)
-        content = decode_rfc2397(api_attachment.data.content)
+            return AttachmentImage(
+                type=AttachmentTypes.IMAGE,
+                filename=api_attachment.data.file_name,
+                size=len(content),
+                is_async_file=False,
+                content=content,
+            )
+        case APIAttachmentTypes.VIDEO:
+            if not _is_api_video_attachment(api_attachment):
+                raise NotImplementedError(
+                    f"Unsupported attachment type: {api_attachment.type}",
+                )
+            content = decode_rfc2397(api_attachment.data.content)
 
-        return AttachmentImage(
-            type=attachment_type,
-            filename=api_attachment.data.file_name,
-            size=len(content),
-            is_async_file=False,
-            content=content,
-        )
+            return AttachmentVideo(
+                type=AttachmentTypes.VIDEO,
+                filename=api_attachment.data.file_name,
+                size=len(content),
+                is_async_file=False,
+                content=content,
+                duration=api_attachment.data.duration,
+            )
+        case APIAttachmentTypes.DOCUMENT:
+            if not _is_api_document_attachment(api_attachment):
+                raise NotImplementedError(
+                    f"Unsupported attachment type: {api_attachment.type}",
+                )
+            content = decode_rfc2397(api_attachment.data.content)
 
-    if attachment_type == AttachmentTypes.VIDEO:
-        attachment_type = cast(  # type: ignore[redundant-cast]
-            Literal[AttachmentTypes.VIDEO],
-            attachment_type,
-        )
-        api_attachment = cast(BotAPIAttachmentVideo, api_attachment)
-        content = decode_rfc2397(api_attachment.data.content)
+            return AttachmentDocument(
+                type=AttachmentTypes.DOCUMENT,
+                filename=api_attachment.data.file_name,
+                size=len(content),
+                is_async_file=False,
+                content=content,
+            )
+        case APIAttachmentTypes.VOICE:
+            if not _is_api_voice_attachment(api_attachment):
+                raise NotImplementedError(
+                    f"Unsupported attachment type: {api_attachment.type}",
+                )
+            content = decode_rfc2397(api_attachment.data.content)
+            attachment_extension = get_attachment_extension_from_encoded_content(
+                api_attachment.data.content,
+            )
 
-        return AttachmentVideo(
-            type=attachment_type,
-            filename=api_attachment.data.file_name,
-            size=len(content),
-            is_async_file=False,
-            content=content,
-            duration=api_attachment.data.duration,
-        )
+            return AttachmentVoice(
+                type=AttachmentTypes.VOICE,
+                filename=f"record.{attachment_extension}",
+                size=len(content),
+                is_async_file=False,
+                content=content,
+                duration=api_attachment.data.duration,
+            )
+        case APIAttachmentTypes.LOCATION:
+            if not _is_api_location_attachment(api_attachment):
+                raise NotImplementedError(
+                    f"Unsupported attachment type: {api_attachment.type}",
+                )
 
-    if attachment_type == AttachmentTypes.DOCUMENT:
-        attachment_type = cast(  # type: ignore[redundant-cast]
-            Literal[AttachmentTypes.DOCUMENT],
-            attachment_type,
-        )
-        api_attachment = cast(BotAPIAttachmentDocument, api_attachment)
-        content = decode_rfc2397(api_attachment.data.content)
+            return Location(
+                name=api_attachment.data.location_name,
+                address=api_attachment.data.location_address,
+                latitude=str(api_attachment.data.location_lat),
+                longitude=str(api_attachment.data.location_lng),
+            )
+        case APIAttachmentTypes.CONTACT:
+            if not _is_api_contact_attachment(api_attachment):
+                raise NotImplementedError(
+                    f"Unsupported attachment type: {api_attachment.type}",
+                )
 
-        return AttachmentDocument(
-            type=attachment_type,
-            filename=api_attachment.data.file_name,
-            size=len(content),
-            is_async_file=False,
-            content=content,
-        )
+            return Contact(
+                name=api_attachment.data.contact_name,
+            )
+        case APIAttachmentTypes.LINK:
+            if not _is_api_link_attachment(api_attachment):
+                raise NotImplementedError(
+                    f"Unsupported attachment type: {api_attachment.type}",
+                )
 
-    if attachment_type == AttachmentTypes.VOICE:
-        attachment_type = cast(  # type: ignore[redundant-cast]
-            Literal[AttachmentTypes.VOICE],
-            attachment_type,
-        )
-        api_attachment = cast(BotAPIAttachmentVoice, api_attachment)
-        content = decode_rfc2397(api_attachment.data.content)
-        attachment_extension = get_attachment_extension_from_encoded_content(
-            api_attachment.data.content,
-        )
+            return Link(
+                url=api_attachment.data.url,
+                title=api_attachment.data.url_title,
+                preview=api_attachment.data.url_preview,
+                text=api_attachment.data.url_text,
+            )
+        case APIAttachmentTypes.STICKER:
+            if not _is_api_sticker_attachment(api_attachment):
+                raise NotImplementedError(
+                    f"Unsupported attachment type: {api_attachment.type}",
+                )
 
-        return AttachmentVoice(
-            type=attachment_type,
-            filename=f"record.{attachment_extension}",
-            size=len(content),
-            is_async_file=False,
-            content=content,
-            duration=api_attachment.data.duration,
-        )
-
-    if attachment_type == AttachmentTypes.LOCATION:
-        attachment_type = cast(  # type: ignore[redundant-cast]
-            Literal[AttachmentTypes.LOCATION],
-            attachment_type,
-        )
-        api_attachment = cast(BotAPIAttachmentLocation, api_attachment)
-
-        return Location(
-            name=api_attachment.data.location_name,
-            address=api_attachment.data.location_address,
-            latitude=str(api_attachment.data.location_lat),
-            longitude=str(api_attachment.data.location_lng),
-        )
-
-    if attachment_type == AttachmentTypes.CONTACT:
-        attachment_type = cast(  # type: ignore[redundant-cast]
-            Literal[AttachmentTypes.CONTACT],
-            attachment_type,
-        )
-        api_attachment = cast(BotAPIAttachmentContact, api_attachment)
-
-        return Contact(
-            name=api_attachment.data.contact_name,
-        )
-
-    if attachment_type == AttachmentTypes.LINK:
-        api_attachment = cast(BotAPIAttachmentLink, api_attachment)
-
-        return Link(
-            url=api_attachment.data.url,
-            title=api_attachment.data.url_title,
-            preview=api_attachment.data.url_preview,
-            text=api_attachment.data.url_text,
-        )
-
-    if attachment_type == AttachmentTypes.STICKER:
-        api_attachment = cast(BotAPIAttachmentSticker, api_attachment)
-
-        return Sticker(
-            id=api_attachment.data.id,
-            image_link=api_attachment.data.link,
-            pack_id=api_attachment.data.pack,
-            emoji=message_body,
-        )
-
-    raise NotImplementedError(f"Unsupported attachment type: {attachment_type}")
+            return Sticker(
+                id=api_attachment.data.id,
+                image_link=api_attachment.data.link,
+                pack_id=api_attachment.data.pack,
+                emoji=message_body,
+            )
+        case _:
+            raise NotImplementedError(
+                f"Unsupported attachment type: {api_attachment.type}",
+            )
 
 
 def get_attachment_extension_from_encoded_content(
@@ -469,7 +508,7 @@ class BotXAPIAttachment(UnverifiedPayloadBaseModel):
     @classmethod
     def from_file_attachment(
         cls,
-        attachment: Union[IncomingFileAttachment, OutgoingAttachment],
+        attachment: IncomingFileAttachment | OutgoingAttachment,
     ) -> "BotXAPIAttachment":
         assert attachment.content is not None
 

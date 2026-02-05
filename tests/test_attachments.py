@@ -1,5 +1,7 @@
 import asyncio
-from typing import Any, Callable, Dict, Optional
+from types import SimpleNamespace
+from typing import Any, cast
+from collections.abc import Callable
 from uuid import UUID
 
 import pytest
@@ -18,10 +20,12 @@ from pybotx.models.attachments import (
     AttachmentImage,
     AttachmentVideo,
     AttachmentVoice,
+    BotAPIAttachment,
     Contact,
     IncomingAttachment,
     Link,
     Location,
+    convert_api_attachment_to_domain,
 )
 
 pytestmark = [
@@ -35,7 +39,7 @@ async def test__attachment__open(
     host: str,
     bot_account: BotAccountWithSecret,
     bot_id: UUID,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
 ) -> None:
     # - Arrange -
     payload = api_incoming_message_factory(
@@ -51,7 +55,7 @@ async def test__attachment__open(
         host=host,
     )
     collector = HandlerCollector()
-    incoming_message: Optional[IncomingMessage] = None
+    incoming_message: IncomingMessage | None = None
 
     @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
@@ -153,17 +157,17 @@ API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
     API_AND_DOMAIN_NON_FILE_ATTACHMENTS,
 )
 async def test__async_execute_raw_bot_command__non_file_attachments_types(
-    api_attachment: Dict[str, Any],
+    api_attachment: dict[str, Any],
     domain_attachment: IncomingAttachment,
     attr_name: str,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     payload = api_incoming_message_factory(body="😀", attachment=api_attachment)
 
     collector = HandlerCollector()
-    incoming_message: Optional[IncomingMessage] = None
+    incoming_message: IncomingMessage | None = None
 
     @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
@@ -275,16 +279,16 @@ API_AND_DOMAIN_FILE_ATTACHMENTS = (
     API_AND_DOMAIN_FILE_ATTACHMENTS,
 )
 async def test__async_execute_raw_bot_command__file_attachments_types(
-    api_attachment: Dict[str, Any],
+    api_attachment: dict[str, Any],
     domain_attachment: IncomingAttachment,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     payload = api_incoming_message_factory(attachment=api_attachment)
 
     collector = HandlerCollector()
-    incoming_message: Optional[IncomingMessage] = None
+    incoming_message: IncomingMessage | None = None
 
     @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
@@ -304,8 +308,18 @@ async def test__async_execute_raw_bot_command__file_attachments_types(
     assert incoming_message.file == domain_attachment
 
 
+async def test__convert_api_attachment_to_domain__unsupported_type() -> None:
+    api_attachment = cast(
+        BotAPIAttachment,
+        SimpleNamespace(type="unsupported"),
+    )
+
+    with pytest.raises(NotImplementedError):
+        convert_api_attachment_to_domain(api_attachment, "body")
+
+
 async def test__async_execute_raw_bot_command__unknown_attachment_type(
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_account: BotAccountWithSecret,
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
@@ -326,7 +340,7 @@ async def test__async_execute_raw_bot_command__unknown_attachment_type(
 
 
 async def test__async_execute_raw_bot_command__empty_attachment(
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_account: BotAccountWithSecret,
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
@@ -341,7 +355,7 @@ async def test__async_execute_raw_bot_command__empty_attachment(
     payload = api_incoming_message_factory(attachment=empty_attachment)
 
     collector = HandlerCollector()
-    incoming_message: Optional[IncomingMessage] = None
+    incoming_message: IncomingMessage | None = None
 
     @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:

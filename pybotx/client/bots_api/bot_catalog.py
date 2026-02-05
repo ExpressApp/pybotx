@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Literal, Optional, Tuple
+from typing import Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -23,20 +23,20 @@ class BotXAPIBotItem(VerifiedPayloadBaseModel):
     user_huid: UUID
     name: str
     description: str
-    avatar: Optional[str] = None
+    avatar: str | None = None
     enabled: bool
 
 
 class BotXAPIBotsListResult(VerifiedPayloadBaseModel):
     generated_at: datetime
-    bots: List[BotXAPIBotItem]
+    bots: list[BotXAPIBotItem]
 
 
 class BotXAPIBotsListResponsePayload(VerifiedPayloadBaseModel):
     result: BotXAPIBotsListResult
     status: Literal["ok"]
 
-    def to_domain(self) -> Tuple[List[BotsListItem], datetime]:
+    def to_domain(self) -> tuple[list[BotsListItem], datetime]:
         bots_list = [
             BotsListItem(
                 id=bot.user_huid,

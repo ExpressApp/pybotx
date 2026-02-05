@@ -1,6 +1,7 @@
 from datetime import datetime
 from http import HTTPStatus
-from typing import Any, Callable
+from typing import Any
+from collections.abc import Callable
 from uuid import UUID
 
 import pytest

@@ -1,5 +1,6 @@
 from http import HTTPStatus
-from typing import Any, Callable, Dict, Optional
+from typing import Any
+from collections.abc import Callable
 from uuid import UUID
 
 import httpx
@@ -32,7 +33,7 @@ async def test__async_file__open(
     host: str,
     bot_account: BotAccountWithSecret,
     bot_id: UUID,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
 ) -> None:
     # - Arrange -
     endpoint = respx_mock.get(
@@ -113,7 +114,7 @@ async def test__async_file__open(
     }
 
     collector = HandlerCollector()
-    read_content: Optional[bytes] = None
+    read_content: bytes | None = None
 
     @collector.smartapp_event
     async def smartapp_event_handler(event: SmartAppEvent, bot: Bot) -> None:
@@ -271,9 +272,9 @@ API_AND_DOMAIN_FILES = (
     API_AND_DOMAIN_FILES,
 )
 async def test__async_execute_raw_bot_command__different_file_types(
-    api_async_file: Dict[str, Any],
+    api_async_file: dict[str, Any],
     domain_async_file: File,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
@@ -325,7 +326,7 @@ async def test__async_execute_raw_bot_command__different_file_types(
     }
 
     collector = HandlerCollector()
-    smartapp_event: Optional[SmartAppEvent] = None
+    smartapp_event: SmartAppEvent | None = None
 
     @collector.smartapp_event
     async def smartapp_event_handler(event: SmartAppEvent, bot: Bot) -> None:

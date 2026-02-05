@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Dict
+from typing import Any
 from uuid import UUID
 
 import httpx
@@ -73,7 +73,7 @@ async def test__search_user_by_email__succeed(
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
     user_from_search_with_data: UserFromSearch,
-    user_from_search_with_data_json: Dict[str, Any],
+    user_from_search_with_data_json: dict[str, Any],
 ) -> None:
     # - Arrange -
     endpoint = respx_mock.get(
@@ -112,7 +112,7 @@ async def test__search_user_by_email_without_extra_data__succeed(
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
     user_from_search_without_data: UserFromSearch,
-    user_from_search_without_data_json: Dict[str, Any],
+    user_from_search_without_data_json: dict[str, Any],
 ) -> None:
     # - Arrange -
     endpoint = respx_mock.get(
@@ -151,7 +151,7 @@ async def test__search_user_by_email__legacy_warning_suppressed(
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
     user_from_search_with_data: UserFromSearch,
-    user_from_search_with_data_json: Dict[str, Any],
+    user_from_search_with_data_json: dict[str, Any],
 ) -> None:
     # - Arrange -
     SearchUserByEmailMethod._legacy_get_warned = True

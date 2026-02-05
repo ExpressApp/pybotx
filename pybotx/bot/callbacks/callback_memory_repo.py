@@ -1,5 +1,5 @@
 import asyncio
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
@@ -13,10 +13,11 @@ if TYPE_CHECKING:
 
 class CallbackMemoryRepo(CallbackRepoProto):
     def __init__(self) -> None:
-        self._callback_futures: Dict[UUID, "Future[BotXMethodCallback]"] = {}
+        self._callback_futures: dict[UUID, Future[BotXMethodCallback]] = {}
 
     async def create_botx_method_callback(self, sync_id: UUID) -> None:
-        self._callback_futures[sync_id] = asyncio.Future()
+        loop = asyncio.get_running_loop()
+        self._callback_futures[sync_id] = loop.create_future()
 
     async def set_botx_method_callback_result(
         self,

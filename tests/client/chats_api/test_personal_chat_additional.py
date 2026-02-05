@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 from uuid import UUID
 
 
@@ -28,7 +28,7 @@ def test_parse_members_various_types() -> None:
     """Проверяем все ветки _parse_members: dict → модель, готовый экземпляр и неизвестный тип."""
     uid = uuid.uuid4()
 
-    dict_valid: Dict[str, Any] = {
+    dict_valid: dict[str, Any] = {
         "admin": True,
         "user_huid": str(uid),
         "user_kind": APIUserKinds.USER.value,
@@ -89,7 +89,7 @@ def test_to_domain_handles_conversion_error(monkeypatch: Any) -> None:
 def test_to_domain_skips_unsupported_member_type() -> None:
     """Если в result.members передан не-BotXAPIPersonalChatMember — пропускаем."""
     uid = UUID("00000000-0000-0000-0000-000000000002")
-    unsupported: Dict[str, Any] = {"foo": "bar"}
+    unsupported: dict[str, Any] = {"foo": "bar"}
     result = BotXAPIPersonalChatResult(
         chat_type=APIChatTypes.CHAT,
         creator=None,

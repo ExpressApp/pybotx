@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import Any, Callable, Coroutine, Dict
+from typing import Any
+from collections.abc import Callable, Coroutine
 from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
@@ -25,7 +26,7 @@ pytestmark = [
 
 async def test__verify_request__success_attempt(
     bot_account: BotAccountWithSecret,
-    authorization_header: Dict[str, str],
+    authorization_header: dict[str, str],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -67,7 +68,7 @@ async def test__verify_request__cannot_decode_token(
 
 async def test__verify_request__aud_is_not_provided(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload: dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -89,7 +90,7 @@ async def test__verify_request__aud_is_not_provided(
 
 async def test__verify_request__aud_is_not_string(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload: dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -111,7 +112,7 @@ async def test__verify_request__aud_is_not_string(
 
 async def test__verify_request__aud_is_invalid_value(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload: dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -133,7 +134,7 @@ async def test__verify_request__aud_is_invalid_value(
 
 async def test__verify_request__v2_without_version_claim(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload: dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -151,7 +152,7 @@ async def test__verify_request__v2_without_version_claim(
 
 async def test__verify_request__unknown_issuer_value(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload: dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -174,7 +175,7 @@ async def test__verify_request__unknown_issuer_value(
 
 async def test__verify_request__invalid_token_secret(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload: dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -195,7 +196,7 @@ async def test__verify_request__invalid_token_secret(
 
 async def test__verify_request__expired_signature(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload: dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -217,7 +218,7 @@ async def test__verify_request__expired_signature(
 
 async def test__verify_request__token_is_not_yet_valid_by_nbf(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload: dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -239,7 +240,7 @@ async def test__verify_request__token_is_not_yet_valid_by_nbf(
 
 async def test__verify_request__token_is_not_yet_valid_by_iat(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload: dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -261,7 +262,7 @@ async def test__verify_request__token_is_not_yet_valid_by_iat(
 
 async def test__verify_request__invalid_issuer(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload: dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -283,7 +284,7 @@ async def test__verify_request__invalid_issuer(
 
 async def test__verify_request__issuer_is_not_string(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload: dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -302,7 +303,7 @@ async def test__verify_request__issuer_is_not_string(
 
 async def test__verify_request__token_issuer_is_missed(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload: dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -334,7 +335,7 @@ async def test__verify_request__token_issuer_is_missed(
     ),
 )
 async def test__verify_request__without_headers(
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_account: BotAccountWithSecret,
     target_func_name: str,
 ) -> None:
@@ -356,7 +357,7 @@ async def test__verify_request__without_headers(
 
 
 async def test__async_execute_raw_bot_command__verify_request__called(
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
@@ -378,7 +379,7 @@ async def test__async_execute_raw_bot_command__verify_request__called(
 
 
 async def test__sync_execute_raw_smartapp_event__verify_request__called(
-    api_sync_smartapp_event_factory: Callable[..., Dict[str, Any]],
+    api_sync_smartapp_event_factory: Callable[..., dict[str, Any]],
     collector_with_sync_smartapp_event_handler: HandlerCollector,
     bot_account: BotAccountWithSecret,
 ) -> None:
@@ -403,7 +404,7 @@ async def test__sync_execute_raw_smartapp_event__verify_request__called(
 
 
 async def test__raw_get_status__verify_request__called(
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
@@ -428,7 +429,7 @@ async def test__raw_get_status__verify_request__called(
 
 
 async def test__set_raw_botx_method_result__verify_request__called(
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
@@ -456,7 +457,7 @@ async def test__set_raw_botx_method_result__verify_request__called(
 
 
 async def test__async_execute_raw_bot_command__verify_request__not_called(
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
@@ -476,7 +477,7 @@ async def test__async_execute_raw_bot_command__verify_request__not_called(
 
 
 async def test__sync_execute_raw_smartapp_event__verify_request__not_called(
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
@@ -496,7 +497,7 @@ async def test__sync_execute_raw_smartapp_event__verify_request__not_called(
 
 
 async def test__raw_get_status__verify_request__not_called(
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -

@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict, Literal, NamedTuple, Optional, Set, overload
+from typing import Literal, NamedTuple, overload
 from uuid import UUID
 
 from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
@@ -14,8 +14,7 @@ ORPHAN_PENDING_CALLBACKS_LIMIT = 1000
 
 class CallbackAlarm(NamedTuple):
     alarm_time: float
-    # TODO: Fix after dropping Python 3.8
-    task: asyncio.Future  # type: ignore
+    task: asyncio.Task[None]
 
 
 async def _callback_timeout_alarm(
@@ -50,11 +49,11 @@ async def _orphan_callback_alarm(
 class CallbackManager:
     def __init__(self, callback_repo: CallbackRepoProto) -> None:
         self._callback_repo = callback_repo
-        self._callback_alarms: Dict[UUID, CallbackAlarm] = {}
-        self._orphan_callback_alarms: Dict[UUID, CallbackAlarm] = {}
-        self._expected_sync_ids: Set[UUID] = set()
-        self._pending_callbacks: Dict[UUID, BotXMethodCallback] = {}
-        self._expired_sync_ids: Set[UUID] = set()
+        self._callback_alarms: dict[UUID, CallbackAlarm] = {}
+        self._orphan_callback_alarms: dict[UUID, CallbackAlarm] = {}
+        self._expected_sync_ids: set[UUID] = set()
+        self._pending_callbacks: dict[UUID, BotXMethodCallback] = {}
+        self._expired_sync_ids: set[UUID] = set()
 
     def register_expected_callback(self, sync_id: UUID) -> None:
         self._expected_sync_ids.add(sync_id)
@@ -123,7 +122,7 @@ class CallbackManager:
         await self._callback_repo.stop_callbacks_waiting()
 
     def setup_callback_timeout_alarm(self, sync_id: UUID, timeout: float) -> None:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
 
         self._callback_alarms[sync_id] = CallbackAlarm(
             alarm_time=loop.time() + timeout,
@@ -147,16 +146,16 @@ class CallbackManager:
         self,
         sync_id: UUID,
         return_remaining_time: bool = False,
-    ) -> Optional[float]:
+    ) -> float | None:
         try:
             alarm_time, alarm = self._callback_alarms.pop(sync_id)
         except KeyError:
             raise BotXMethodCallbackNotFoundError(sync_id) from None
 
-        time_before_alarm: Optional[float] = None
+        time_before_alarm: float | None = None
 
         if return_remaining_time:
-            loop = asyncio.get_event_loop()
+            loop = asyncio.get_running_loop()
             time_before_alarm = alarm_time - loop.time()
 
         alarm.cancel()
@@ -166,7 +165,7 @@ class CallbackManager:
     def _setup_orphan_callback_alarm(self, sync_id: UUID, timeout: float) -> None:
         if sync_id in self._orphan_callback_alarms:
             return
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         self._orphan_callback_alarms[sync_id] = CallbackAlarm(
             alarm_time=loop.time() + timeout,
             task=asyncio.create_task(_orphan_callback_alarm(self, sync_id, timeout)),

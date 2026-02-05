@@ -1,5 +1,6 @@
 from http import HTTPStatus
-from typing import Any, Sequence, Type
+from typing import Any
+from collections.abc import Sequence
 from uuid import UUID
 
 import pytest
@@ -56,7 +57,7 @@ REQUEST = BotXRequest(
 async def test__disable_stealth__error_response(
     response_status: int,
     response_json: dict[str, Any],
-    expected_exc: Type[Exception],
+    expected_exc: type[Exception],
     expected_fragments: Sequence[str],
     respx_mock: MockRouter,
     host: str,

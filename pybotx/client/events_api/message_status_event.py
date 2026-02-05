@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Literal
+from typing import Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -18,13 +18,13 @@ class BotXAPIMessageStatusRequestPayload(UnverifiedPayloadBaseModel):
         return cls(sync_id=sync_id)
 
 
-@dataclass
+@dataclass(slots=True)
 class BotXAPIMessageStatusReadUser:
     user_huid: UUID
     read_at: datetime
 
 
-@dataclass
+@dataclass(slots=True)
 class BotXAPIMessageStatusReceivedUser:
     user_huid: UUID
     received_at: datetime
@@ -32,9 +32,9 @@ class BotXAPIMessageStatusReceivedUser:
 
 class BotXAPIMessageStatusResult(VerifiedPayloadBaseModel):
     group_chat_id: UUID
-    sent_to: List[UUID]
-    read_by: List[BotXAPIMessageStatusReadUser]
-    received_by: List[BotXAPIMessageStatusReceivedUser]
+    sent_to: list[UUID]
+    read_by: list[BotXAPIMessageStatusReadUser]
+    received_by: list[BotXAPIMessageStatusReceivedUser]
 
 
 class BotXAPIMessageStatusResponsePayload(VerifiedPayloadBaseModel):
