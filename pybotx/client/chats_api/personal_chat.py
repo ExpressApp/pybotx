@@ -39,40 +39,41 @@ class BotXAPIPersonalChatMember(VerifiedPayloadBaseModel):
     user_huid: UUID
     user_kind: APIUserKinds
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="ignore")
 
 
 class BotXAPIPersonalChatResult(VerifiedPayloadBaseModel):
     """Результат API-ответа по персональному чату."""
 
     chat_type: APIChatTypes
-    creator: Optional[UUID]
+    creator: Optional[UUID] = None
     description: Optional[str] = None
     group_chat_id: UUID
     inserted_at: dt
-    members: List[Union[BotXAPIPersonalChatMember, Dict[str, Any]]] = Field(
-        default_factory=list
+    updated_at: Optional[dt] = None
+    members: List[Union[BotXAPIPersonalChatMember, Dict[str, Any], UUID]] = Field(
+        default_factory=list,
     )
     name: str
     shared_history: bool
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="ignore")
 
     @field_validator("members", mode="before")
     @classmethod
     def validate_members(
         cls,
-        value: List[Union[BotXAPIPersonalChatMember, Dict[str, Any]]],
+        value: List[Union[BotXAPIPersonalChatMember, Dict[str, Any], UUID, str]],
         info: Any,
-    ) -> List[Union[BotXAPIPersonalChatMember, Dict[str, Any]]]:
+    ) -> List[Union[BotXAPIPersonalChatMember, Dict[str, Any], UUID]]:
         return cls._parse_members(value)
 
     @staticmethod
     def _parse_members(
-        members_data: List[Union[BotXAPIPersonalChatMember, Dict[str, Any]]],
-    ) -> List[Union[BotXAPIPersonalChatMember, Dict[str, Any]]]:
+        members_data: List[Union[BotXAPIPersonalChatMember, Dict[str, Any], UUID, str]],
+    ) -> List[Union[BotXAPIPersonalChatMember, Dict[str, Any], UUID]]:
         # Явная аннотация решает проблему инвариантности List в mypy
-        parsed: List[Union[BotXAPIPersonalChatMember, Dict[str, Any]]] = []
+        parsed: List[Union[BotXAPIPersonalChatMember, Dict[str, Any], UUID]] = []
         for item in members_data:
             if isinstance(item, dict):
                 try:
@@ -82,6 +83,13 @@ class BotXAPIPersonalChatResult(VerifiedPayloadBaseModel):
                     parsed.append(item)
             elif isinstance(item, BotXAPIPersonalChatMember):
                 parsed.append(item)
+            elif isinstance(item, UUID):
+                parsed.append(item)
+            elif isinstance(item, str):
+                try:
+                    parsed.append(UUID(item))
+                except ValueError:
+                    logger.warning("Unknown member type: %s", item)
             else:
                 logger.warning("Unknown member type: %s", item)
         return parsed
@@ -96,6 +104,12 @@ class BotXAPIPersonalChatResponsePayload(VerifiedPayloadBaseModel):
     model_config = ConfigDict(extra="forbid")
 
     def to_domain(self) -> ChatInfo:
+        if any(
+            not isinstance(member, BotXAPIPersonalChatMember)
+            for member in self.result.members
+        ):
+            logger.warning("Unsupported user type skipped in members list")
+
         members: List[ChatInfoMember] = []
         for member in self.result.members:
             if isinstance(member, BotXAPIPersonalChatMember):
@@ -109,10 +123,6 @@ class BotXAPIPersonalChatResponsePayload(VerifiedPayloadBaseModel):
                     )
                 except Exception as exc:
                     logger.warning("Failed to convert member kind: %s", exc)
-            else:
-                logger.warning(
-                    "Unsupported user type skipped in members list: %s", member
-                )
 
         return ChatInfo(
             chat_type=convert_chat_type_to_domain(self.result.chat_type),

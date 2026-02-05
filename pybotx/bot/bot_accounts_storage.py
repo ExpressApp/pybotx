@@ -13,7 +13,7 @@ class BotAccountsStorage:
     def __init__(
         self,
         bot_accounts: List[BotAccountWithSecret],
-        auth_version: BotXAuthVersion = BotXAuthVersion.V1,
+        auth_version: BotXAuthVersion = BotXAuthVersion.V2,
     ) -> None:
         self._bot_accounts = bot_accounts
         self._auth_tokens: Dict[UUID, str] = {}

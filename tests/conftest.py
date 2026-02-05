@@ -1,4 +1,5 @@
 import logging
+import socket
 from datetime import datetime
 from http import HTTPStatus
 from typing import Any, AsyncGenerator, Callable, Dict, Generator, List, Optional
@@ -22,11 +23,14 @@ from pybotx import (
     SmartAppEvent,
     UserDevice,
     UserSender,
+    BotXAuthVersion,
+    lifespan_wrapper,
 )
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
 from pybotx.logger import logger
 from pybotx.models.sync_smartapp_event import BotAPISyncSmartAppEventResultResponse
 from pydantic import BaseModel
+from contextlib import asynccontextmanager
 
 
 @pytest.fixture(autouse=True)
@@ -34,12 +38,30 @@ def enable_logger() -> None:
     logger.enable("pybotx")
 
 
+@pytest.fixture(autouse=True)
+def block_network(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> None:
+    if request.node.get_closest_marker("allow_network"):
+        return
+
+    def guard(*args: Any, **kwargs: Any) -> None:
+        raise RuntimeError(
+            "Network access is disabled during tests. "
+            "Use @pytest.mark.allow_network to override.",
+        )
+
+    monkeypatch.setattr(socket, "create_connection", guard)
+    monkeypatch.setattr(socket.socket, "connect", guard, raising=True)
+
+
 @pytest.fixture
 def prepared_bot_accounts_storage(
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
 ) -> BotAccountsStorage:
-    bot_accounts_storage = BotAccountsStorage([bot_account])
+    bot_accounts_storage = BotAccountsStorage(
+        [bot_account],
+        auth_version=BotXAuthVersion.V1,
+    )
     bot_accounts_storage.set_token(bot_id, "token")
 
     return bot_accounts_storage
@@ -81,12 +103,25 @@ def bot_account(cts_url: str, bot_id: UUID) -> BotAccountWithSecret:
     return BotAccountWithSecret(
         id=bot_id,
         cts_url=cts_url,
-        secret_key="bee001",
+        secret_key="bee001bee001bee001bee001bee001bee001",
     )
 
 
 @pytest.fixture
 def authorization_token_payload(bot_account: BotAccountWithSecret) -> Dict[str, Any]:
+    return {
+        "aud": bot_account.host,
+        "exp": datetime(year=3000, month=1, day=1).timestamp(),
+        "iat": datetime(year=2000, month=1, day=1).timestamp(),
+        "iss": str(bot_account.id),
+        "jti": "2uqpju31h6dgv4f41c005e1i",
+        "nbf": datetime(year=2000, month=1, day=1).timestamp(),
+        "version": 2,
+    }
+
+
+@pytest.fixture
+def authorization_token_payload_v1(bot_account: BotAccountWithSecret) -> Dict[str, Any]:
     return {
         "aud": [str(bot_account.id)],
         "exp": datetime(year=3000, month=1, day=1).timestamp(),
@@ -110,18 +145,36 @@ def authorization_header(
 
 
 @pytest.fixture
+def authorization_header_v1(
+    bot_account: BotAccountWithSecret,
+    authorization_token_payload_v1: Dict[str, Any],
+) -> Dict[str, str]:
+    token = jwt.encode(
+        payload=authorization_token_payload_v1,
+        key=bot_account.secret_key,
+    )
+    return {"authorization": f"Bearer {token}"}
+
+
+@pytest.fixture
 def bot_signature() -> str:
-    return "E050AEEA197E0EF0A6E1653E18B7D41C7FDEC0FCFBA44C44FCCD2A88CEABD130"
+    return "5393FDE463800BB05C4271111AF68D54A4B5EC03EBE808BC2B1FCB4F91BE2DCF"
 
 
 @pytest.fixture
 def mock_authorization(
     respx_mock: MockRouter,
+    monkeypatch: pytest.MonkeyPatch,
     host: str,
     bot_id: UUID,
     bot_signature: str,
 ) -> None:
     """Fixture should be used as a marker."""
+    monkeypatch.setattr(
+        BotAccountsStorage,
+        "build_jwt_v2",
+        lambda _self, _bot_id: "token",
+    )
     respx_mock.get(
         f"https://{host}/api/v2/botx/bots/{bot_id}/token",
         params={"signature": bot_signature},
@@ -134,6 +187,24 @@ def mock_authorization(
             },
         ),
     )
+
+
+@pytest.fixture
+def bot_factory(
+    bot_account: BotAccountWithSecret,
+) -> Callable[..., AsyncGenerator[Bot, None]]:
+    @asynccontextmanager
+    async def factory(
+        *,
+        collectors: Optional[List[HandlerCollector]] = None,
+        **kwargs: Any,
+    ) -> AsyncGenerator[Bot, None]:
+        collectors = collectors or [HandlerCollector()]
+        bot = Bot(collectors=collectors, bot_accounts=[bot_account], **kwargs)
+        async with lifespan_wrapper(bot) as running_bot:
+            yield running_bot
+
+    return factory
 
 
 @pytest.hookimpl(trylast=True)

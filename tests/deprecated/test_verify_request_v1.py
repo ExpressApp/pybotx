@@ -25,7 +25,7 @@ pytestmark = [
 
 async def test__verify_request__success_attempt(
     bot_account: BotAccountWithSecret,
-    authorization_header: Dict[str, str],
+    authorization_header_v1: Dict[str, str],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -33,10 +33,10 @@ async def test__verify_request__success_attempt(
 
     # - Act and Assert -
     async with lifespan_wrapper(built_bot) as bot:
-        bot._verify_request(authorization_header)
+        bot._verify_request(authorization_header_v1)
 
 
-async def test__verify_request__no_authorization_header_provided(
+async def test__verify_request__no_authorization_header_v1_provided(
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
@@ -67,14 +67,14 @@ async def test__verify_request__cannot_decode_token(
 
 async def test__verify_request__aud_is_not_provided(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload_v1: Dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
     built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
-    authorization_token_payload.pop("aud")
+    authorization_token_payload_v1.pop("aud")
     token = jwt.encode(
-        payload=authorization_token_payload,
+        payload=authorization_token_payload_v1,
         key=bot_account.secret_key,
     )
 
@@ -87,16 +87,16 @@ async def test__verify_request__aud_is_not_provided(
     assert "Invalid audience parameter was provided." in str(exc.value)
 
 
-async def test__verify_request__aud_is_not_string(
+async def test__verify_request__aud_is_not_sequence(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload_v1: Dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
     built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
-    authorization_token_payload["aud"] = 12345
+    authorization_token_payload_v1["aud"] = 12345
     token = jwt.encode(
-        payload=authorization_token_payload,
+        payload=authorization_token_payload_v1,
         key=bot_account.secret_key,
     )
 
@@ -109,16 +109,16 @@ async def test__verify_request__aud_is_not_string(
     assert "Invalid audience parameter was provided." in str(exc.value)
 
 
-async def test__verify_request__aud_is_invalid_value(
+async def test__verify_request__aud_is_string(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload_v1: Dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
     built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
-    authorization_token_payload["aud"] = "another.example.com"
+    authorization_token_payload_v1["aud"] = "not-a-list"
     token = jwt.encode(
-        payload=authorization_token_payload,
+        payload=authorization_token_payload_v1,
         key=bot_account.secret_key,
     )
 
@@ -131,35 +131,39 @@ async def test__verify_request__aud_is_invalid_value(
     assert "Invalid audience parameter was provided." in str(exc.value)
 
 
-async def test__verify_request__v2_without_version_claim(
+async def test__verify_request__too_many_aud_values(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload_v1: Dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
     built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
-    del authorization_token_payload["version"]
+    authorization_token_payload_v1["aud"] = [str(bot_account.id), str(uuid4())]
     token = jwt.encode(
-        payload=authorization_token_payload,
+        payload=authorization_token_payload_v1,
         key=bot_account.secret_key,
     )
 
-    # - Act and Assert -
+    # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot._verify_request({"authorization": f"Bearer {token}"})
+        with pytest.raises(UnverifiedRequestError) as exc:
+            bot._verify_request({"authorization": f"Bearer {token}"})
+
+    # - Assert -
+    assert "Invalid audience parameter was provided." in str(exc.value)
 
 
-async def test__verify_request__unknown_issuer_value(
+async def test__verify_request__unknown_aud_value(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload_v1: Dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
     built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
     random_bot_id = uuid4()
-    authorization_token_payload["iss"] = str(random_bot_id)
+    authorization_token_payload_v1["aud"] = [str(random_bot_id)]
     token = jwt.encode(
-        payload=authorization_token_payload,
+        payload=authorization_token_payload_v1,
         key=bot_account.secret_key,
     )
 
@@ -174,13 +178,13 @@ async def test__verify_request__unknown_issuer_value(
 
 async def test__verify_request__invalid_token_secret(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload_v1: Dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
     built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
     token = jwt.encode(
-        payload=authorization_token_payload,
+        payload=authorization_token_payload_v1,
         key=str(uuid4()),
     )
 
@@ -195,14 +199,14 @@ async def test__verify_request__invalid_token_secret(
 
 async def test__verify_request__expired_signature(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload_v1: Dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
     built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
-    authorization_token_payload["exp"] = datetime(year=2000, month=1, day=1).timestamp()
+    authorization_token_payload_v1["exp"] = datetime(year=2000, month=1, day=1).timestamp()
     token = jwt.encode(
-        payload=authorization_token_payload,
+        payload=authorization_token_payload_v1,
         key=bot_account.secret_key,
     )
 
@@ -217,14 +221,14 @@ async def test__verify_request__expired_signature(
 
 async def test__verify_request__token_is_not_yet_valid_by_nbf(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload_v1: Dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
     built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
-    authorization_token_payload["nbf"] = datetime(year=3000, month=1, day=1).timestamp()
+    authorization_token_payload_v1["nbf"] = datetime(year=3000, month=1, day=1).timestamp()
     token = jwt.encode(
-        payload=authorization_token_payload,
+        payload=authorization_token_payload_v1,
         key=bot_account.secret_key,
     )
 
@@ -239,14 +243,14 @@ async def test__verify_request__token_is_not_yet_valid_by_nbf(
 
 async def test__verify_request__token_is_not_yet_valid_by_iat(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload_v1: Dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
     built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
-    authorization_token_payload["iat"] = datetime(year=3000, month=1, day=1).timestamp()
+    authorization_token_payload_v1["iat"] = datetime(year=3000, month=1, day=1).timestamp()
     token = jwt.encode(
-        payload=authorization_token_payload,
+        payload=authorization_token_payload_v1,
         key=bot_account.secret_key,
     )
 
@@ -261,14 +265,14 @@ async def test__verify_request__token_is_not_yet_valid_by_iat(
 
 async def test__verify_request__invalid_issuer(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload_v1: Dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
     built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
-    authorization_token_payload["iss"] = "another.example.com"
+    authorization_token_payload_v1["iss"] = "another.example.com"
     token = jwt.encode(
-        payload=authorization_token_payload,
+        payload=authorization_token_payload_v1,
         key=bot_account.secret_key,
     )
 
@@ -281,20 +285,48 @@ async def test__verify_request__invalid_issuer(
     assert "Invalid issuer" in str(exc.value)
 
 
-async def test__verify_request__issuer_is_not_string(
+async def test__verify_request__trusted_issuers_have_token_issuer(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload_v1: Dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
     built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
-    token_payload = dict(authorization_token_payload)
-    token_payload["iss"] = 12345
+    token_issuer = "another.example.com"
+    authorization_token_payload_v1["iss"] = token_issuer
+    token = jwt.encode(
+        payload=authorization_token_payload_v1,
+        key=bot_account.secret_key,
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        bot._verify_request(
+            {"authorization": f"Bearer {token}"},
+            trusted_issuers={token_issuer},
+        )
+
+
+async def test__verify_request__trusted_issuers_have_not_token_issuer(
+    bot_account: BotAccountWithSecret,
+    authorization_token_payload_v1: Dict[str, Any],
+) -> None:
+    # - Arrange -
+    collector = HandlerCollector()
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    authorization_token_payload_v1["iss"] = "another.example.com"
+    token = jwt.encode(
+        payload=authorization_token_payload_v1,
+        key=bot_account.secret_key,
+    )
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnverifiedRequestError) as exc:
-            bot._verify_request_v2("token", token_payload, ["HS256"])
+            bot._verify_request(
+                {"authorization": f"Bearer {token}"},
+                trusted_issuers={"another-another.example.com"},
+            )
 
     # - Assert -
     assert "Invalid issuer" in str(exc.value)
@@ -302,14 +334,14 @@ async def test__verify_request__issuer_is_not_string(
 
 async def test__verify_request__token_issuer_is_missed(
     bot_account: BotAccountWithSecret,
-    authorization_token_payload: Dict[str, Any],
+    authorization_token_payload_v1: Dict[str, Any],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
     built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
-    del authorization_token_payload["iss"]
+    del authorization_token_payload_v1["iss"]
     token = jwt.encode(
-        payload=authorization_token_payload,
+        payload=authorization_token_payload_v1,
         key=bot_account.secret_key,
     )
 

@@ -103,7 +103,7 @@ from pybotx.client.events_api.typing_event import (
     BotXAPITypingEventRequestPayload,
     TypingEventMethod,
 )
-from pybotx.client.exceptions.common import InvalidBotAccountError
+from pybotx.client.exceptions.common import ChatNotFoundError, InvalidBotAccountError
 from pybotx.client.files_api.download_file import (
     BotXAPIDownloadFileRequestPayload,
     DownloadFileMethod,
@@ -281,7 +281,7 @@ class Bot:
         exception_handlers: Optional[ExceptionHandlersDict] = None,
         default_callback_timeout: float = BOTX_DEFAULT_TIMEOUT,
         callback_repo: Optional[CallbackRepoProto] = None,
-        auth_version: BotXAuthVersion = BotXAuthVersion.V1,
+        auth_version: BotXAuthVersion = BotXAuthVersion.V2,
     ) -> None:
         if not collectors:
             logger.warning("Bot has no connected collectors")
@@ -1109,6 +1109,37 @@ class Bot:
 
         return botx_api_personal_chat.to_domain()
 
+    async def ensure_personal_chat(
+        self,
+        *,
+        bot_id: UUID,
+        user_huid: UUID,
+        name: Optional[str] = None,
+    ) -> ChatInfo:
+        """Get or create personal chat with user.
+
+        Tries to fetch existing personal chat. If not found, creates it and
+        returns chat info for the new chat.
+
+        :param bot_id: Bot which should perform the request.
+        :param user_huid: Target user HUID.
+        :param name: Optional chat name for creation.
+
+        :return: Chat information.
+        """
+
+        try:
+            return await self.personal_chat(bot_id=bot_id, user_huid=user_huid)
+        except ChatNotFoundError:
+            chat_name = name or f"Personal chat {user_huid}"
+            chat_id = await self.create_chat(
+                bot_id=bot_id,
+                name=chat_name,
+                chat_type=ChatTypes.PERSONAL_CHAT,
+                huids=[user_huid],
+            )
+            return await self.chat_info(bot_id=bot_id, chat_id=chat_id)
+
     async def add_users_to_chat(
         self,
         *,
@@ -1418,6 +1449,8 @@ class Bot:
         email: str,
     ) -> UserFromSearch:
         """Search user by email for search.
+
+        For multiple emails use `search_user_by_emails`.
 
         :param bot_id: Bot which should perform the request.
         :param email: User email.
@@ -2279,9 +2312,87 @@ class Bot:
             )
         except jwt.DecodeError as decode_exc:
             raise UnverifiedRequestError(decode_exc.args[0]) from decode_exc
+        if self._is_v2_payload(token_payload):
+            self._verify_request_v2(token, token_payload, decode_algorithms)
+        else:
+            self._verify_request_v1(
+                token,
+                token_payload,
+                decode_algorithms,
+                trusted_issuers,
+            )
+
+    @staticmethod
+    def _is_v2_payload(token_payload: Mapping[str, Any]) -> bool:
+        if token_payload.get("version") == 2:
+            return True
 
         audience = token_payload.get("aud")
-        if not audience or not isinstance(audience, Sequence) or len(audience) != 1:
+        issuer = token_payload.get("iss")
+        if not isinstance(audience, str) or not isinstance(issuer, str):
+            return False
+
+        try:
+            UUID(issuer)
+        except (TypeError, ValueError):
+            return False
+
+        return True
+
+    def _verify_request_v2(
+        self,
+        token: str,
+        token_payload: Mapping[str, Any],
+        decode_algorithms: List[str],
+    ) -> None:
+        issuer = token_payload.get("iss")
+        if issuer is None:
+            raise UnverifiedRequestError('Token is missing the "iss" claim')
+        if not isinstance(issuer, str):
+            raise UnverifiedRequestError("Invalid issuer")
+
+        try:
+            bot_id = UUID(issuer)
+        except (TypeError, ValueError) as exc:
+            raise UnverifiedRequestError("Invalid issuer") from exc
+
+        try:
+            bot_account = self._bot_accounts_storage.get_bot_account(bot_id)
+        except UnknownBotAccountError as unknown_bot_exc:
+            raise UnverifiedRequestError(unknown_bot_exc.args[0]) from unknown_bot_exc
+
+        audience = token_payload.get("aud")
+        if not audience or not isinstance(audience, str):
+            raise UnverifiedRequestError("Invalid audience parameter was provided.")
+        if audience != bot_account.host:
+            raise UnverifiedRequestError("Invalid audience parameter was provided.")
+
+        try:
+            jwt.decode(
+                jwt=token,
+                key=bot_account.secret_key,
+                algorithms=decode_algorithms,
+                issuer=str(bot_account.id),
+                audience=bot_account.host,
+                leeway=1,
+            )
+        except jwt.InvalidTokenError as exc:
+            raise UnverifiedRequestError(exc.args[0]) from exc
+
+    def _verify_request_v1(
+        self,
+        token: str,
+        token_payload: Mapping[str, Any],
+        decode_algorithms: List[str],
+        trusted_issuers: Optional[Set[str]],
+    ) -> None:
+        audience = token_payload.get("aud")
+        if (
+            not audience
+            or not isinstance(audience, Sequence)
+            or isinstance(audience, str)
+            or len(audience) != 1
+        ):
             raise UnverifiedRequestError("Invalid audience parameter was provided.")
 
         try:

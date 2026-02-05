@@ -1,15 +1,14 @@
 from http import HTTPStatus
+from typing import Any
 from uuid import UUID
 
-import httpx
 import pytest
 from respx.router import MockRouter
 
-from pybotx import Bot, HandlerCollector, lifespan_wrapper
 from pybotx.client.exceptions.users import InvalidProfileDataError
 from pybotx.models.attachments import AttachmentImage
-from pybotx.models.bot_account import BotAccountWithSecret
 from pybotx.models.enums import AttachmentTypes
+from tests.testkit import BotXRequest, error_payload, mock_botx, ok_payload
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -33,29 +32,26 @@ async def test__update_user_profile__minimal_update_succeed(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = respx_mock.put(
-        f"https://{host}/api/v3/botx/users/update_profile",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+    request = BotXRequest(
+        method="PUT",
+        path="/api/v3/botx/users/update_profile",
         json={
             "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
         },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.OK,
-            json={
-                "status": "ok",
-                "result": True,
-            },
-        ),
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload(True),
+        HTTPStatus.OK,
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         await bot.update_user_profile(
             bot_id=bot_id,
             user_huid=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
@@ -69,13 +65,13 @@ async def test__update_user_profile__maximum_update_succeed(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
     avatar: AttachmentImage,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = respx_mock.put(
-        f"https://{host}/api/v3/botx/users/update_profile",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+    request = BotXRequest(
+        method="PUT",
+        path="/api/v3/botx/users/update_profile",
         json={
             "avatar": "data:image/png;base64,SGVsbG8sIHdvcmxkIQ==",
             "company": "Doge Co",
@@ -88,20 +84,17 @@ async def test__update_user_profile__maximum_update_succeed(
             "public_name": "Johny B.",
             "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
         },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.OK,
-            json={
-                "status": "ok",
-                "result": True,
-            },
-        ),
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload(True),
+        HTTPStatus.OK,
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         await bot.update_user_profile(
             bot_id=bot_id,
             user_huid=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
@@ -124,12 +117,12 @@ async def test__update_user_profile__invalid_profile_data_error(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = respx_mock.put(
-        f"https://{host}/api/v3/botx/users/update_profile",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+    request = BotXRequest(
+        method="PUT",
+        path="/api/v3/botx/users/update_profile",
         json={
             "company": "Doge Co",
             "company_position": "Chief",
@@ -141,26 +134,24 @@ async def test__update_user_profile__invalid_profile_data_error(
             "public_name": "Johny B.",
             "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
         },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.BAD_REQUEST,
-            json={
-                "status": "error",
-                "reason": "invalid_profile",
-                "errors": [],
-                "error_data": {
-                    "errors": {"field": "invalid"},
-                    "error_description": "Invalid profile data",
-                    "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
-                },
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        error_payload(
+            "invalid_profile",
+            error_data={
+                "errors": {"field": "invalid"},
+                "error_description": "Invalid profile data",
+                "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
             },
         ),
+        HTTPStatus.BAD_REQUEST,
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         with pytest.raises(InvalidProfileDataError):
             await bot.update_user_profile(
                 bot_id=bot_id,

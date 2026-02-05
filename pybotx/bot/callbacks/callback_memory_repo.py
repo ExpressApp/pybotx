@@ -54,6 +54,9 @@ class CallbackMemoryRepo(CallbackRepoProto):
                         f"Callback with sync_id `{sync_id!s}` can't be received",
                     ),
                 )
+                # Mark exception as retrieved to avoid "Future exception was never retrieved"
+                future.exception()
+        self._callback_futures.clear()
 
     def _get_botx_method_callback(self, sync_id: UUID) -> "Future[BotXMethodCallback]":
         try:

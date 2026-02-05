@@ -1,23 +1,24 @@
-from collections.abc import Callable
 from http import HTTPStatus
 from typing import Any, Type
 from uuid import UUID
 
-import httpx
 import pytest
-from respx import Route
 from respx.router import MockRouter
 
 from pybotx import (
-    Bot,
-    BotAccountWithSecret,
+    ChatLink,
     ChatLinkCreationError,
     ChatLinkCreationProhibitedError,
     ChatLinkTypes,
     ChatNotFoundError,
-    HandlerCollector,
     InvalidBotXStatusCodeError,
-    lifespan_wrapper,
+)
+from tests.testkit import (
+    BotXRequest,
+    assert_deep_equal,
+    error_payload,
+    mock_botx,
+    ok_payload,
 )
 
 pytestmark = [
@@ -26,7 +27,7 @@ pytestmark = [
     pytest.mark.usefixtures("respx_mock"),
 ]
 
-ENDPOINT = "api/v3/botx/chats/create_link"
+ENDPOINT = "/api/v3/botx/chats/create_link"
 
 
 @pytest.fixture
@@ -34,56 +35,43 @@ def chat_id() -> str:
     return "f102c2a6-bae5-5ade-9ace-10e5bd96102d"
 
 
-@pytest.fixture
-def create_mocked_endpoint(
+async def test__create_chat_link__succeed(
     respx_mock: MockRouter,
     host: str,
     chat_id: str,
-) -> Callable[[dict[str, Any], int], Route]:
-    def mocked_endpoint(json_response: dict[str, Any], status_code: int) -> Route:
-        return respx_mock.post(
-            f"https://{host}/{ENDPOINT}",
-            headers={
-                "Authorization": "Bearer token",
-                "Content-Type": "application/json",
-            },
-            json={
-                "chat_id": chat_id,
-                "link": {
-                    "link_type": "public",
-                    "access_code": "1234",
-                    "link_ttl": 3600,
-                },
-            },
-        ).mock(return_value=httpx.Response(status_code, json=json_response))
-
-    return mocked_endpoint
-
-
-async def test__create_chat_link__succeed(
-    create_mocked_endpoint: Callable[[dict[str, Any], int], Route],
-    chat_id: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = create_mocked_endpoint(
-        {
-            "status": "ok",
-            "result": {
-                "url": "https://xlnk.ms/ASjalqtRVgGZQrtFCfJI8w",
+    request = BotXRequest(
+        method="POST",
+        path=ENDPOINT,
+        json={
+            "chat_id": chat_id,
+            "link": {
                 "link_type": "public",
                 "access_code": "1234",
                 "link_ttl": 3600,
             },
         },
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload(
+            {
+                "url": "https://xlnk.ms/ASjalqtRVgGZQrtFCfJI8w",
+                "link_type": "public",
+                "access_code": "1234",
+                "link_ttl": 3600,
+            },
+        ),
         HTTPStatus.OK,
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         chat_link = await bot.create_chat_link(
             bot_id=bot_id,
             chat_id=UUID(chat_id),
@@ -93,10 +81,15 @@ async def test__create_chat_link__succeed(
         )
 
     # - Assert -
-    assert chat_link.url == "https://xlnk.ms/ASjalqtRVgGZQrtFCfJI8w"
-    assert chat_link.link_type == ChatLinkTypes.PUBLIC
-    assert chat_link.access_code == "1234"
-    assert chat_link.link_ttl == 3600
+    assert_deep_equal(
+        chat_link,
+        ChatLink(
+            url="https://xlnk.ms/ASjalqtRVgGZQrtFCfJI8w",
+            link_type=ChatLinkTypes.PUBLIC,
+            access_code="1234",
+            link_ttl=3600,
+        ),
+    )
     assert endpoint.called
 
 
@@ -143,18 +136,35 @@ async def test__create_chat_link__error_response(
     return_json: dict[str, Any],
     response_status: int,
     expected_exc_type: Type[Exception],
-    create_mocked_endpoint: Callable[[dict[str, Any], int], Route],
+    respx_mock: MockRouter,
+    host: str,
     chat_id: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = create_mocked_endpoint(return_json, response_status)
-
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    request = BotXRequest(
+        method="POST",
+        path=ENDPOINT,
+        json={
+            "chat_id": chat_id,
+            "link": {
+                "link_type": "public",
+                "access_code": "1234",
+                "link_ttl": 3600,
+            },
+        },
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        return_json,
+        response_status,
+    )
 
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         with pytest.raises(expected_exc_type):
             await bot.create_chat_link(
                 bot_id=bot_id,
@@ -169,26 +179,35 @@ async def test__create_chat_link__error_response(
 
 
 async def test__create_chat_link__unknown_server_error_reason(
-    create_mocked_endpoint: Callable[[dict[str, Any], int], Route],
+    respx_mock: MockRouter,
+    host: str,
     chat_id: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = create_mocked_endpoint(
-        {
-            "status": "error",
-            "reason": "unknown_reason",
-            "errors": [],
-            "error_data": {},
+    request = BotXRequest(
+        method="POST",
+        path=ENDPOINT,
+        json={
+            "chat_id": chat_id,
+            "link": {
+                "link_type": "public",
+                "access_code": "1234",
+                "link_ttl": 3600,
+            },
         },
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        error_payload("unknown_reason"),
         HTTPStatus.INTERNAL_SERVER_ERROR,
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         with pytest.raises(InvalidBotXStatusCodeError):
             await bot.create_chat_link(
                 bot_id=bot_id,

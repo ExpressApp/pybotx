@@ -1,18 +1,12 @@
 from http import HTTPStatus
+from typing import Any, Sequence, Type
 from uuid import UUID
 
-import httpx
 import pytest
 from respx.router import MockRouter
 
-from pybotx import (
-    Bot,
-    BotAccountWithSecret,
-    ChatNotFoundError,
-    HandlerCollector,
-    PermissionDeniedError,
-    lifespan_wrapper,
-)
+from pybotx import ChatNotFoundError, PermissionDeniedError
+from tests.testkit import BotXRequest, error_payload, mock_botx, ok_payload
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -20,89 +14,82 @@ pytestmark = [
     pytest.mark.usefixtures("respx_mock"),
 ]
 
+ENDPOINT = "/api/v3/botx/chats/stealth_set"
 
-async def test__enable_stealth__permission_denied_error_raised(
-    respx_mock: MockRouter,
-    host: str,
-    bot_id: UUID,
-    bot_account: BotAccountWithSecret,
-) -> None:
-    # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v3/botx/chats/stealth_set",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
-        json={
-            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
-        },
-    ).mock(
-        return_value=httpx.Response(
+REQUEST_BASE = BotXRequest(
+    method="POST",
+    path=ENDPOINT,
+    json={
+        "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
+    },
+)
+
+REQUEST_FULL = BotXRequest(
+    method="POST",
+    path=ENDPOINT,
+    json={
+        "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
+        "disable_web": True,
+        "burn_in": 100,
+        "expire_in": 1000,
+    },
+)
+
+
+@pytest.mark.parametrize(
+    ("response_status", "response_json", "expected_exc", "expected_fragments"),
+    [
+        (
             HTTPStatus.FORBIDDEN,
-            json={
-                "status": "error",
-                "reason": "no_permission_for_operation",
-                "errors": ["Sender is not chat admin"],
-                "error_data": {
+            error_payload(
+                "no_permission_for_operation",
+                errors=["Sender is not chat admin"],
+                error_data={
                     "group_chat_id": "dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4",
                     "sender": "a465f0f3-1354-491c-8f11-f400164295cb",
                 },
-            },
+            ),
+            PermissionDeniedError,
+            ("no_permission_for_operation",),
         ),
-    )
-
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
-    # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(PermissionDeniedError) as exc:
-            await bot.enable_stealth(
-                bot_id=bot_id,
-                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
-            )
-
-    # - Assert -
-    assert "no_permission_for_operation" in str(exc.value)
-    assert endpoint.called
-
-
-async def test__enable_stealth__chat_not_found_raised(
+        (
+            HTTPStatus.NOT_FOUND,
+            error_payload(
+                "chat_not_found",
+                errors=["Chat not found"],
+                error_data={
+                    "group_chat_id": "dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4",
+                },
+            ),
+            ChatNotFoundError,
+            ("chat_not_found",),
+        ),
+    ],
+)
+async def test__enable_stealth__error_response(
+    response_status: int,
+    response_json: dict[str, Any],
+    expected_exc: Type[Exception],
+    expected_fragments: Sequence[str],
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v3/botx/chats/stealth_set",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
-        json={
-            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
-        },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.NOT_FOUND,
-            json={
-                "status": "error",
-                "reason": "chat_not_found",
-                "errors": ["Chat not found"],
-                "error_data": {
-                    "group_chat_id": "dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4",
-                },
-            },
-        ),
-    )
-
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    endpoint = mock_botx(respx_mock, host, REQUEST_BASE, response_json, response_status)
 
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(ChatNotFoundError) as exc:
+    async with bot_factory() as bot:
+        with pytest.raises(expected_exc) as exc:
             await bot.enable_stealth(
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             )
 
     # - Assert -
-    assert "chat_not_found" in str(exc.value)
+    for fragment in expected_fragments:
+        assert fragment in str(exc.value)
     assert endpoint.called
 
 
@@ -110,32 +97,13 @@ async def test__enable_stealth__maximum_filled_succeed(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v3/botx/chats/stealth_set",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
-        json={
-            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
-            "disable_web": True,
-            "burn_in": 100,
-            "expire_in": 1000,
-        },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.OK,
-            json={
-                "status": "ok",
-                "result": True,
-            },
-        ),
-    )
-
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    endpoint = mock_botx(respx_mock, host, REQUEST_FULL, ok_payload(True), HTTPStatus.OK)
 
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         await bot.enable_stealth(
             bot_id=bot_id,
             chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
