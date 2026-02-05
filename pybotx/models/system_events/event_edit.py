@@ -37,7 +37,7 @@ class EventEdit(BotCommandBase):
         entities: Entities from updated message.
     """
 
-    body: str
+    body: Optional[str]
     sync_id: UUID
     chat_id: UUID
     huid: UUID
