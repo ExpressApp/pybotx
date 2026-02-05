@@ -13,6 +13,7 @@ from pybotx.bot.api.responses.unverified_request import (
     BotAPIUnverifiedRequestResponse,
     build_unverified_request_response,
 )
+from pybotx.auth import BotXAuthVersion
 from pybotx.bot.bot import Bot
 from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
 from pybotx.bot.exceptions import (
@@ -38,6 +39,8 @@ from pybotx.client.exceptions.chats import (
     CantUpdatePersonalChatError,
     ChatCreationError,
     ChatCreationProhibitedError,
+    ChatLinkCreationError,
+    ChatLinkCreationProhibitedError,
     InvalidUsersListError,
     ThreadAlreadyExistsError,
     ThreadCreationError,
@@ -88,9 +91,16 @@ from pybotx.models.attachments import (
 from pybotx.models.bot_account import BotAccount, BotAccountWithSecret
 from pybotx.models.bot_catalog import BotsListItem
 from pybotx.models.bot_sender import BotSender
-from pybotx.models.chats import Chat, ChatInfo, ChatInfoMember, ChatListItem
+from pybotx.models.chats import (
+    Chat,
+    ChatInfo,
+    ChatInfoMember,
+    ChatLink,
+    ChatListItem,
+)
 from pybotx.models.enums import (
     AttachmentTypes,
+    ChatLinkTypes,
     ChatTypes,
     ClientPlatforms,
     ConferenceLinkTypes,
@@ -173,6 +183,7 @@ __all__ = (
     "BotAPIUnverifiedRequestResponse",
     "BotAccount",
     "BotAccountWithSecret",
+    "BotXAuthVersion",
     "BotIsNotChatMemberError",
     "BotMenu",
     "BotSender",
@@ -197,8 +208,12 @@ __all__ = (
     "ChatDeletedByUserEvent",
     "ChatInfo",
     "ChatInfoMember",
+    "ChatLink",
+    "ChatLinkCreationError",
+    "ChatLinkCreationProhibitedError",
     "ChatListItem",
     "ChatNotFoundError",
+    "ChatLinkTypes",
     "ChatTypes",
     "ClientPlatforms",
     "ConferenceChangedEvent",

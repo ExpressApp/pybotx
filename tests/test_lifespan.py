@@ -7,7 +7,13 @@ import httpx
 import pytest
 from respx.router import MockRouter
 
-from pybotx import Bot, BotAccountWithSecret, HandlerCollector, IncomingMessage
+from pybotx import (
+    Bot,
+    BotAccountWithSecret,
+    BotXAuthVersion,
+    HandlerCollector,
+    IncomingMessage,
+)
 from pybotx.bot.testing import lifespan_wrapper
 
 pytestmark = [
@@ -123,6 +129,28 @@ async def test__startup__can_skip_fetching_tokens(
 
     # - Assert -
     assert not token_endpoint.called
+
+    # Cleanup
+    await bot.shutdown()
+
+
+async def test__fetch_tokens__skips_for_auth_v2(
+    respx_mock: MockRouter,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    collector = HandlerCollector()
+    bot = Bot(
+        collectors=[collector],
+        bot_accounts=[bot_account],
+        auth_version=BotXAuthVersion.V2,
+    )
+
+    # - Act -
+    await bot.fetch_tokens()
+
+    # - Assert -
+    assert len(respx_mock.calls) == 0
 
     # Cleanup
     await bot.shutdown()

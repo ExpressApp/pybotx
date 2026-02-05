@@ -35,6 +35,18 @@ from tests.client.test_botx_method import (
 )
 
 
+class SlowCreateCallbackRepo(CallbackMemoryRepo):
+    def __init__(self, started: asyncio.Event, proceed: asyncio.Event) -> None:
+        super().__init__()
+        self._started = started
+        self._proceed = proceed
+
+    async def create_botx_method_callback(self, sync_id: UUID) -> None:
+        self._started.set()
+        await self._proceed.wait()
+        await super().create_botx_method_callback(sync_id)
+
+
 class FooBarError(BaseClientError):
     """Test exception."""
 
@@ -109,33 +121,124 @@ pytestmark = [
 
 async def test__botx_method_callback__callback_not_found(
     bot_account: BotAccountWithSecret,
+    loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     # - Arrange -
     built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(BotXMethodCallbackNotFoundError) as exc:
-            await bot.set_raw_botx_method_result(
-                {
-                    "status": "error",
-                    "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
-                    "reason": "chat_not_found",
-                    "errors": [],
-                    "error_data": {
-                        "group_chat_id": "705df263-6bfd-536a-9d51-13524afaab5c",
-                        "error_description": (
-                            "Chat with id 705df263-6bfd-536a-9d51-13524afaab5c not found"
-                        ),
-                    },
+        await bot.set_raw_botx_method_result(
+            {
+                "status": "error",
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "reason": "chat_not_found",
+                "errors": [],
+                "error_data": {
+                    "group_chat_id": "705df263-6bfd-536a-9d51-13524afaab5c",
+                    "error_description": (
+                        "Chat with id 705df263-6bfd-536a-9d51-13524afaab5c not found"
+                    ),
                 },
-                verify_request=False,
-            )
+            },
+            verify_request=False,
+        )
 
     # - Assert -
-    assert "Callback `21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3` doesn't exist" in str(
-        exc.value,
+    assert "received without a registered handler" in loguru_caplog.text
+
+
+async def test__botx_method_callback__orphan_callback_expires(
+    bot_account: BotAccountWithSecret,
+    loguru_caplog: pytest.LogCaptureFixture,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # - Arrange -
+    import pybotx.bot.callbacks.callback_manager as callback_manager_module
+
+    monkeypatch.setattr(callback_manager_module, "ORPHAN_CALLBACK_TTL_SECONDS", 0.01)
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    payload = {
+        "status": "ok",
+        "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+        "result": {},
+    }
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        await bot.set_raw_botx_method_result(payload, verify_request=False)
+        await bot.set_raw_botx_method_result(payload, verify_request=False)
+
+        await asyncio.sleep(0.05)
+
+        bot._callbacks_manager.mark_callback_expired(  # type: ignore[attr-defined]
+            UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+        )
+
+    # - Assert -
+    assert "received without a registered handler and expired" in loguru_caplog.text
+
+
+async def test__botx_method_callback__pending_limit_drops_orphan(
+    bot_account: BotAccountWithSecret,
+    loguru_caplog: pytest.LogCaptureFixture,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # - Arrange -
+    import pybotx.bot.callbacks.callback_manager as callback_manager_module
+
+    monkeypatch.setattr(callback_manager_module, "ORPHAN_PENDING_CALLBACKS_LIMIT", 1)
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    payload_1 = {
+        "status": "ok",
+        "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+        "result": {},
+    }
+    payload_2 = {
+        "status": "ok",
+        "sync_id": "d4d3d774-1f90-4b53-9b92-7f3867dbb2f8",
+        "result": {},
+    }
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        await bot.set_raw_botx_method_result(payload_1, verify_request=False)
+        await bot.set_raw_botx_method_result(payload_2, verify_request=False)
+
+    # - Assert -
+    assert "Pending callbacks limit reached; dropping orphan callback" in (
+        loguru_caplog.text
     )
+
+
+async def test__botx_method_callback__orphan_alarm_already_exists(
+    bot_account: BotAccountWithSecret,
+    loguru_caplog: pytest.LogCaptureFixture,
+) -> None:
+    # - Arrange -
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    payload = {
+        "status": "ok",
+        "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+        "result": {},
+    }
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        await bot.set_raw_botx_method_result(payload, verify_request=False)
+
+        bot._callbacks_manager._pending_callbacks.pop(  # type: ignore[attr-defined]
+            UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"),
+            None,
+        )
+
+        await bot.set_raw_botx_method_result(payload, verify_request=False)
+
+    # - Assert -
+    assert "received without a registered handler; buffering" in loguru_caplog.text
 
 
 async def test__botx_method_callback__error_callback_error_handler_called(
@@ -499,6 +602,60 @@ async def test__botx_method_callback__callback_successful_received_with_custom_r
 
     # - Assert -
     assert await task == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert endpoint.called
+
+
+async def test__botx_method_callback__callback_received_before_repo_create(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.post(
+        f"https://{host}/foo/bar",
+        json={"baz": 1},
+        headers={"Content-Type": "application/json"},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        ),
+    )
+
+    started = asyncio.Event()
+    proceed = asyncio.Event()
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        callback_repo=SlowCreateCallbackRepo(started, proceed),
+    )
+    built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        task = asyncio.create_task(
+            bot.call_foo_bar(bot_id, baz=1),
+        )
+
+        await started.wait()
+
+        await bot.set_raw_botx_method_result(
+            {
+                "status": "ok",
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "result": {},
+            },
+            verify_request=False,
+        )
+
+        proceed.set()
+        assert await task == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+
+    # - Assert -
     assert endpoint.called
 
 

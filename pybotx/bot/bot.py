@@ -14,6 +14,7 @@ from aiofiles.tempfile import NamedTemporaryFile, TemporaryDirectory
 
 from pybotx.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
+from pybotx.auth import BotXAuthVersion
 from pybotx.bot.callbacks.callback_manager import CallbackManager
 from pydantic import TypeAdapter
 from pybotx.bot.callbacks.callback_memory_repo import CallbackMemoryRepo
@@ -48,6 +49,10 @@ from pybotx.client.chats_api.personal_chat import (
 from pybotx.client.chats_api.create_chat import (
     BotXAPICreateChatRequestPayload,
     CreateChatMethod,
+)
+from pybotx.client.chats_api.create_chat_link import (
+    BotXAPICreateChatLinkRequestPayload,
+    CreateChatLinkMethod,
 )
 from pybotx.client.chats_api.create_thread import (
     BotXAPICreateThreadRequestPayload,
@@ -115,6 +120,7 @@ from pybotx.client.mertics_api.collect_bot_function import (
 from pybotx.client.notifications_api.direct_notification import (
     BotXAPIDirectNotificationRequestPayload,
     DirectNotificationMethod,
+    DirectNotificationSyncMethod,
 )
 from pybotx.client.notifications_api.internal_bot_notification import (
     BotXAPIInternalBotNotificationRequestPayload,
@@ -191,6 +197,7 @@ from pybotx.client.stickers_api.get_sticker_packs import (
 from pybotx.client.users_api.search_user_by_email import (
     BotXAPISearchUserByEmailRequestPayload,
     SearchUserByEmailMethod,
+    SearchUserByEmailPostMethod,
 )
 from pybotx.client.users_api.search_user_by_emails import (
     BotXAPISearchUserByEmailsRequestPayload,
@@ -229,13 +236,13 @@ from pybotx.models.async_files import File
 from pybotx.models.attachments import IncomingFileAttachment, OutgoingAttachment
 from pybotx.models.bot_account import BotAccountWithSecret
 from pybotx.models.bot_catalog import BotsListItem
-from pybotx.models.chats import ChatInfo, ChatListItem
+from pybotx.models.chats import ChatInfo, ChatLink, ChatListItem
 from pybotx.models.commands import (
     BotAPISystemEvent,
     BotAPIIncomingMessage,
     BotCommand,
 )
-from pybotx.models.enums import BotAPICommandTypes, ChatTypes
+from pybotx.models.enums import BotAPICommandTypes, ChatLinkTypes, ChatTypes
 from pybotx.models.message.edit_message import EditMessage
 from pybotx.models.message.markup import BubbleMarkup, KeyboardMarkup
 from pybotx.models.message.message_status import MessageStatus
@@ -274,6 +281,7 @@ class Bot:
         exception_handlers: Optional[ExceptionHandlersDict] = None,
         default_callback_timeout: float = BOTX_DEFAULT_TIMEOUT,
         callback_repo: Optional[CallbackRepoProto] = None,
+        auth_version: BotXAuthVersion = BotXAuthVersion.V1,
     ) -> None:
         if not collectors:
             logger.warning("Bot has no connected collectors")
@@ -288,7 +296,10 @@ class Bot:
         )
 
         self._default_callback_timeout = default_callback_timeout
-        self._bot_accounts_storage = BotAccountsStorage(list(bot_accounts))
+        self._bot_accounts_storage = BotAccountsStorage(
+            list(bot_accounts),
+            auth_version=auth_version,
+        )
         self._httpx_client = httpx_client or httpx.AsyncClient()
 
         if not callback_repo:
@@ -441,6 +452,8 @@ class Bot:
         yield from self._bot_accounts_storage.iter_bot_accounts()
 
     async def fetch_tokens(self) -> None:
+        if self._bot_accounts_storage.get_auth_version() != BotXAuthVersion.V1:
+            return
         for bot_account in self.bot_accounts:
             try:
                 token = await self.get_token(bot_id=bot_account.id)
@@ -680,6 +693,70 @@ class Bot:
             callback_timeout,
             self._default_callback_timeout,
         )
+
+        return botx_api_sync_id.to_domain()
+
+    async def send_message_sync(
+        self,
+        *,
+        bot_id: UUID,
+        chat_id: UUID,
+        body: str,
+        metadata: Missing[Dict[str, Any]] = Undefined,
+        bubbles: Missing[BubbleMarkup] = Undefined,
+        keyboard: Missing[KeyboardMarkup] = Undefined,
+        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        silent_response: Missing[bool] = Undefined,
+        markup_auto_adjust: Missing[bool] = Undefined,
+        recipients: Missing[List[UUID]] = Undefined,
+        stealth_mode: Missing[bool] = Undefined,
+        send_push: Missing[bool] = Undefined,
+        ignore_mute: Missing[bool] = Undefined,
+    ) -> UUID:
+        """Send message to chat synchronously (BotX >= 3.58).
+
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
+        :param body: Message body.
+        :param metadata: Notification options.
+        :param bubbles: Bubbles (buttons attached to message) markup.
+        :param keyboard: Keyboard (buttons below message input) markup.
+        :param file: Attachment.
+        :param recipients: List of recipients, empty for all in chat.
+        :param silent_response: (BotX default: False) Exclude next user
+            messages from history.
+        :param markup_auto_adjust: (BotX default: False) Move button to next
+            row, if its text doesn't fit.
+        :param stealth_mode: (BotX default: False) Enable stealth mode.
+        :param send_push: (BotX default: True) Send push notification on
+            devices.
+        :param ignore_mute: (BotX default: False) Ignore mute or dnd (do not
+            disturb).
+
+        :return: Notification sync_id.
+        """
+
+        method = DirectNotificationSyncMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        payload = BotXAPIDirectNotificationRequestPayload.from_domain(
+            chat_id=chat_id,
+            body=body,
+            metadata=metadata,
+            bubbles=bubbles,
+            keyboard=keyboard,
+            file=file,
+            recipients=recipients,
+            silent_response=silent_response,
+            markup_auto_adjust=markup_auto_adjust,
+            stealth_mode=stealth_mode,
+            send_push=send_push,
+            ignore_mute=ignore_mute,
+        )
+        botx_api_sync_id = await method.execute(payload)
 
         return botx_api_sync_id.to_domain()
 
@@ -1204,6 +1281,42 @@ class Bot:
 
         return botx_api_chat_id.to_domain()
 
+    async def create_chat_link(
+        self,
+        *,
+        bot_id: UUID,
+        chat_id: UUID,
+        link_type: ChatLinkTypes,
+        access_code: Missing[Optional[str]] = Undefined,
+        link_ttl: Missing[Optional[int]] = Undefined,
+    ) -> ChatLink:
+        """Create chat invite link (BotX >= 3.58).
+
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
+        :param link_type: Link type.
+        :param access_code: Link access code (or `None` to make it public).
+        :param link_ttl: Link ttl in seconds (or `None` for infinite).
+
+        :return: Created chat link.
+        """
+
+        method = CreateChatLinkMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        payload = BotXAPICreateChatLinkRequestPayload.from_domain(
+            chat_id=chat_id,
+            link_type=link_type,
+            access_code=access_code,
+            link_ttl=link_ttl,
+        )
+        botx_api_chat_link = await method.execute(payload)
+
+        return botx_api_chat_link.to_domain()
+
     async def create_thread(self, bot_id: UUID, sync_id: UUID) -> UUID:
         """
         Create thread.
@@ -1298,6 +1411,31 @@ class Bot:
         return botx_api_users_from_search.to_domain()
 
     # - Users API -
+    async def search_user_by_email_post(
+        self,
+        *,
+        bot_id: UUID,
+        email: str,
+    ) -> UserFromSearch:
+        """Search user by email for search.
+
+        :param bot_id: Bot which should perform the request.
+        :param email: User email.
+
+        :return: User information.
+        """
+
+        method = SearchUserByEmailPostMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPISearchUserByEmailRequestPayload.from_domain(email=email)
+
+        botx_api_user_from_search = await method.execute(payload)
+
+        return botx_api_user_from_search.to_domain()
+
     async def search_user_by_email(
         self,
         *,
@@ -1306,7 +1444,7 @@ class Bot:
     ) -> UserFromSearch:
         """Search user by email for search.
 
-        DEPRECATED.
+        DEPRECATED. Use `search_user_by_email_post`.
 
         :param bot_id: Bot which should perform the request.
         :param email: User email.

@@ -220,6 +220,37 @@ def test__create_chat_payload__convert_chat_type_validator() -> None:
     assert result == {"name": "test"}
 
 
+def test__create_chat_payload__serialize_chat_type_from_domain() -> None:
+    """Test that chat_type serialization converts ChatTypes to API value."""
+    from pybotx.client.chats_api.create_chat import BotXAPICreateChatRequestPayload
+    from pybotx.models.enums import ChatTypes, APIChatTypes
+    from pybotx.missing import Undefined
+
+    payload = BotXAPICreateChatRequestPayload(
+        name="Test chat name",
+        description=None,
+        chat_type=ChatTypes.PERSONAL_CHAT,
+        members=[],
+        shared_history=Undefined,
+        avatar=None,
+    )
+
+    dumped = payload.model_dump(mode="json", exclude={"shared_history"})
+    assert dumped["chat_type"] == "chat"
+
+    payload_api = BotXAPICreateChatRequestPayload(
+        name="Test chat name",
+        description=None,
+        chat_type=APIChatTypes.GROUP_CHAT,
+        members=[],
+        shared_history=Undefined,
+        avatar=None,
+    )
+
+    dumped_api = payload_api.model_dump(mode="json", exclude={"shared_history"})
+    assert dumped_api["chat_type"] == "group_chat"
+
+
 async def test__create_chat__with_valid_avatar_succeed(
     respx_mock: MockRouter,
     host: str,

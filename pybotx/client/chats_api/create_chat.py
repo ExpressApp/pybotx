@@ -56,8 +56,10 @@ class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
         return v
 
     @field_serializer("chat_type")
-    def _serialize_chat_type(self, v: APIChatTypes) -> str:
-        return v.value.lower()
+    def _serialize_chat_type(self, v: Union[APIChatTypes, ChatTypes]) -> str:
+        if isinstance(v, ChatTypes):
+            v = convert_chat_type_from_domain(v)
+        return v.value
 
 
 class BotXAPIChatIdResult(VerifiedPayloadBaseModel):

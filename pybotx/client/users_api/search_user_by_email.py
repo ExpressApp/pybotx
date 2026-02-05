@@ -1,3 +1,5 @@
+import warnings
+
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.client.botx_method import response_exception_thrower
 from pybotx.client.exceptions.users import UserNotFoundError
@@ -18,6 +20,40 @@ class SearchUserByEmailMethod(AuthorizedBotXMethod):
         **AuthorizedBotXMethod.status_handlers,
         404: response_exception_thrower(UserNotFoundError),
     }
+    _legacy_get_warned: bool = False
+
+    async def execute(
+        self,
+        payload: BotXAPISearchUserByEmailRequestPayload,
+    ) -> BotXAPISearchUserResponsePayload:
+        if not type(self)._legacy_get_warned:
+            warnings.warn(
+                "GET /api/v3/botx/users/by_email is deprecated; "
+                "use POST /api/v3/botx/users/by_email instead",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            type(self)._legacy_get_warned = True
+
+        path = "/api/v3/botx/users/by_email"
+
+        response = await self._botx_method_call(
+            "GET",
+            self._build_url(path),
+            params=payload.jsonable_dict(),
+        )
+
+        return self._verify_and_extract_api_model(
+            BotXAPISearchUserResponsePayload,
+            response,
+        )
+
+
+class SearchUserByEmailPostMethod(AuthorizedBotXMethod):
+    status_handlers = {
+        **AuthorizedBotXMethod.status_handlers,
+        404: response_exception_thrower(UserNotFoundError),
+    }
 
     async def execute(
         self,
@@ -26,9 +62,9 @@ class SearchUserByEmailMethod(AuthorizedBotXMethod):
         path = "/api/v3/botx/users/by_email"
 
         response = await self._botx_method_call(
-            "GET",
+            "POST",
             self._build_url(path),
-            params=payload.jsonable_dict(),
+            json=payload.jsonable_dict(),
         )
 
         return self._verify_and_extract_api_model(

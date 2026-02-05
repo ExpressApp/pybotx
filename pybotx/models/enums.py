@@ -90,8 +90,16 @@ class StrEnum(str, Enum):  # (pydantic needs this inheritance)
     # TODO: Use plain enums after migrating to Pydantic 2.0
 
 
+class ChatLinkTypes(StrEnum):
+    PUBLIC = "public"
+    TRUSTS = "trusts"
+    CORPORATE = "corporate"
+    SERVER = "server"
+
+
 class APIChatTypes(Enum):
     CHAT = "chat"
+    NOTES = "notes"
     GROUP_CHAT = "group_chat"
     CHANNEL = "channel"
     THREAD = "thread"
@@ -326,6 +334,7 @@ def convert_chat_type_to_domain(
 ) -> IncomingChatTypes:
     chat_types_mapping = {
         APIChatTypes.CHAT: ChatTypes.PERSONAL_CHAT,
+        APIChatTypes.NOTES: ChatTypes.PERSONAL_CHAT,
         APIChatTypes.GROUP_CHAT: ChatTypes.GROUP_CHAT,
         APIChatTypes.CHANNEL: ChatTypes.CHANNEL,
         APIChatTypes.THREAD: ChatTypes.THREAD,

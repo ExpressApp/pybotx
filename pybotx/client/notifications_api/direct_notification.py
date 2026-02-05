@@ -9,6 +9,7 @@ from pybotx.client.exceptions.notifications import (
     FinalRecipientsListEmptyError,
     StealthModeDisabledError,
 )
+from pybotx.client.exceptions.http import InvalidBotXResponsePayloadError
 from pybotx.constants import MAX_NOTIFICATION_BODY_LENGTH
 from pybotx.missing import Missing, Undefined
 from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
@@ -126,6 +127,33 @@ class BotXAPIDirectNotificationResponsePayload(VerifiedPayloadBaseModel):
         return self.result.sync_id
 
 
+class BotXAPIDirectNotificationSyncResponsePayload(VerifiedPayloadBaseModel):
+    status: Literal["ok", "error"]
+    result: Optional[BotXAPISyncIdResult] = None
+    reason: Optional[str] = None
+    errors: Optional[List[str]] = None
+    error_data: Optional[Dict[str, Any]] = None
+
+
+_DIRECT_NOTIFICATION_SYNC_ERROR_MAP = {
+    "chat_not_found": ChatNotFoundError,
+    "bot_is_not_a_chat_member": BotIsNotChatMemberError,
+    "event_recipients_list_is_empty": FinalRecipientsListEmptyError,
+    "stealth_mode_disabled": StealthModeDisabledError,
+}
+
+
+def _raise_direct_notification_sync_error(
+    response: "httpx.Response",
+    reason: Optional[str],
+) -> None:
+    exc_type = _DIRECT_NOTIFICATION_SYNC_ERROR_MAP.get(reason or "")
+    if exc_type is None:
+        raise InvalidBotXResponsePayloadError(response)
+
+    raise exc_type.from_response(response)
+
+
 class DirectNotificationMethod(AuthorizedBotXMethod):
     error_callback_handlers = {
         **AuthorizedBotXMethod.error_callback_handlers,
@@ -166,3 +194,31 @@ class DirectNotificationMethod(AuthorizedBotXMethod):
             default_callback_timeout,
         )
         return api_model
+
+
+class DirectNotificationSyncMethod(AuthorizedBotXMethod):
+    async def execute(
+        self,
+        payload: BotXAPIDirectNotificationRequestPayload,
+    ) -> BotXAPIDirectNotificationResponsePayload:
+        path = "/api/v4/botx/notifications/direct/sync"
+
+        response = await self._botx_method_call(
+            "POST",
+            self._build_url(path),
+            json=payload.jsonable_dict(),
+        )
+
+        api_model = self._verify_and_extract_api_model(
+            BotXAPIDirectNotificationSyncResponsePayload,
+            response,
+        )
+
+        if api_model.status == "error":
+            _raise_direct_notification_sync_error(response, api_model.reason)
+
+        assert api_model.result is not None
+        return BotXAPIDirectNotificationResponsePayload(
+            status="ok",
+            result=api_model.result,
+        )

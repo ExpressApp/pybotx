@@ -144,6 +144,73 @@ async def test__chat_info__succeed(
     assert endpoint.called
 
 
+async def test__chat_info__notes_chat_type_mapped_to_personal_chat(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    datetime_formatter: Callable[[str], dt],
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.get(
+        f"https://{host}/api/v3/botx/chats/info",
+        headers={"Authorization": "Bearer token"},
+        params={"group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa"},
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.OK,
+            json={
+                "status": "ok",
+                "result": {
+                    "chat_type": "notes",
+                    "creator": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+                    "description": None,
+                    "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
+                    "inserted_at": "2019-08-29T11:22:48.358586Z",
+                    "members": [
+                        {
+                            "admin": True,
+                            "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+                            "user_kind": "user",
+                        },
+                    ],
+                    "name": "Saved messages",
+                    "shared_history": False,
+                },
+            },
+        ),
+    )
+
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        chat_info = await bot.chat_info(
+            bot_id=bot_id,
+            chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+        )
+
+    # - Assert -
+    assert chat_info == ChatInfo(
+        chat_type=ChatTypes.PERSONAL_CHAT,
+        creator_id=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
+        description=None,
+        chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+        created_at=datetime_formatter("2019-08-29T11:22:48.358586Z"),
+        members=[
+            ChatInfoMember(
+                is_admin=True,
+                huid=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
+                kind=UserKinds.RTS_USER,
+            ),
+        ],
+        name="Saved messages",
+        shared_history=False,
+    )
+
+    assert endpoint.called
+
+
 async def test__chat_info__skipped_members(
     respx_mock: MockRouter,
     host: str,

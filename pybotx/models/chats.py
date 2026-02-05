@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from pybotx.models.enums import ChatTypes, IncomingChatTypes, UserKinds
+from pybotx.models.enums import ChatLinkTypes, ChatTypes, IncomingChatTypes, UserKinds
 
 
 @dataclass
@@ -75,3 +75,13 @@ class ChatInfo:
     members: List[ChatInfoMember]
     name: str
     shared_history: bool
+
+
+@dataclass
+class ChatLink:
+    """Chat invite link."""
+
+    url: str
+    link_type: ChatLinkTypes
+    access_code: Optional[str]
+    link_ttl: Optional[int]

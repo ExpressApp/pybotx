@@ -159,6 +159,7 @@ class BotXMethod:
             "CallbackManager hasn't been passed to this method"
         )
 
+        self._callbacks_manager.register_expected_callback(sync_id)
         await self._callbacks_manager.create_botx_method_callback(sync_id)
 
         if callback_timeout is None:
