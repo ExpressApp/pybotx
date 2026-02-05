@@ -52,14 +52,16 @@ class AuthorizedBotXMethod(BotXMethod):
                     stacklevel=2,
                 )
                 self._legacy_auth_warned = True
-            token = self._bot_accounts_storage.get_token_or_none(self._bot_id)
-            if not token:
+            token_or_none = self._bot_accounts_storage.get_token_or_none(self._bot_id)
+            if token_or_none is None:
                 token = await get_token(
                     self._bot_id,
                     self._httpx_client,
                     self._bot_accounts_storage,
                 )
                 self._bot_accounts_storage.set_token(self._bot_id, token)
+            else:
+                token = token_or_none
         else:
             raise NotImplementedError(f"Unsupported auth version: {auth_version}")
 

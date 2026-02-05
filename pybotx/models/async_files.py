@@ -134,7 +134,9 @@ File = Union[Image, Video, Document, Voice]
 
 
 def _to_optional(value: MissingOptional[Union[str, int]]) -> Optional[Union[str, int]]:
-    return None if value is Undefined else value
+    if value is Undefined:
+        return None
+    return cast(Optional[Union[str, int]], value)
 
 
 def _to_missing(value: Optional[Union[str, int]]) -> MissingOptional[Union[str, int]]:

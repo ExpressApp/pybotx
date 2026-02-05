@@ -137,10 +137,14 @@ from pybotx.models.message.message_status import MessageStatus
 from pybotx.models.message.outgoing_message import OutgoingMessage
 from pybotx.models.message.reply import Reply
 from pybotx.models.message.reply_message import ReplyMessage
-from pybotx.models.method_callbacks import BotAPIMethodFailedCallback
+from pybotx.models.method_callbacks import (
+    BotAPIMethodFailedCallback,
+    BotAPIMethodSuccessfulCallback,
+    BotXMethodCallback,
+)
 from pybotx.models.smartapps import SmartApp
 from pybotx.models.status import BotMenu, StatusRecipient
-from pybotx.models.stickers import Sticker, StickerPack
+from pybotx.models.stickers import Sticker, StickerPack, StickerPackFromList
 from pybotx.models.sync_smartapp_event import (
     BotAPISyncSmartAppEventErrorResponse,
     BotAPISyncSmartAppEventResponse,
@@ -176,6 +180,7 @@ __all__ = (
     "BotAPIBotDisabledErrorData",
     "BotAPIBotDisabledResponse",
     "BotAPIMethodFailedCallback",
+    "BotAPIMethodSuccessfulCallback",
     "BotAPISyncSmartAppEventErrorResponse",
     "BotAPISyncSmartAppEventResponse",
     "BotAPISyncSmartAppEventResultResponse",
@@ -190,6 +195,7 @@ __all__ = (
     "BotShuttingDownError",
     "BotXMethodCallbackNotFoundError",
     "BotXMethodFailedCallbackReceivedError",
+    "BotXMethodCallback",
     "BotsListItem",
     "BubbleMarkup",
     "Button",
@@ -276,6 +282,7 @@ __all__ = (
     "StealthModeDisabledError",
     "Sticker",
     "StickerPack",
+    "StickerPackFromList",
     "StickerPackOrStickerNotFoundError",
     "SyncSmartAppEventHandlerFunc",
     "SyncSmartAppEventHandlerNotFoundError",

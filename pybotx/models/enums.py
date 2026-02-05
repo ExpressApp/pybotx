@@ -326,7 +326,7 @@ def convert_chat_type_to_domain(  # pragma: no cover
 @overload
 def convert_chat_type_to_domain(  # pragma: no cover
     chat_type: str,
-) -> UNSUPPORTED: ...
+) -> IncomingChatTypes: ...
 
 
 def convert_chat_type_to_domain(

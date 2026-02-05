@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 from uuid import UUID
 
 import pytest
@@ -35,7 +35,7 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    payload = {
+    payload: dict[str, Any] = {
         "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
         "command": {
             "body": "/hello",
@@ -132,7 +132,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    payload = {
+    payload: dict[str, Any] = {
         "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
         "command": {
             "body": "/hello",
@@ -325,7 +325,7 @@ async def test__async_execute_raw_bot_command__all_mention_types(
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    payload = {
+    payload: dict[str, Any] = {
         "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
         "command": {
             "body": "/hello",
@@ -466,7 +466,7 @@ async def test__async_execute_raw_bot_command__unknown_entity_type(
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     # - Arrange -
-    payload = {
+    payload: dict[str, Any] = {
         "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
         "command": {
             "body": "/hello",
@@ -528,7 +528,7 @@ async def test__async_execute_raw_bot_command__unsupported_chat_type_accepted(
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    payload = {
+    payload: dict[str, Any] = {
         "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
         "command": {
             "body": "/hello",

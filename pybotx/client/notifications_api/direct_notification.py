@@ -1,6 +1,8 @@
 from typing import Any, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
+import httpx
+
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.client.botx_method import callback_exception_thrower
 from pybotx.client.exceptions.common import ChatNotFoundError

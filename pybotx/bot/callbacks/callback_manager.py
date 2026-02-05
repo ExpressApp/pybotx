@@ -134,14 +134,14 @@ class CallbackManager:
     def cancel_callback_timeout_alarm(
         self,
         sync_id: UUID,
-    ) -> None: ...  # noqa: WPS428, E704
+    ) -> None: ...
 
     @overload
     def cancel_callback_timeout_alarm(
         self,
         sync_id: UUID,
         return_remaining_time: Literal[True],
-    ) -> float: ...  # noqa: WPS428, E704
+    ) -> float: ...
 
     def cancel_callback_timeout_alarm(
         self,

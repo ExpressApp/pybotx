@@ -2,7 +2,16 @@ import logging
 import socket
 from datetime import datetime
 from http import HTTPStatus
-from typing import Any, AsyncGenerator, Callable, Dict, Generator, List, Optional
+from typing import (
+    Any,
+    AsyncContextManager,
+    AsyncGenerator,
+    Callable,
+    Dict,
+    Generator,
+    List,
+    Optional,
+)
 from unittest.mock import Mock
 from uuid import UUID, uuid4
 
@@ -192,7 +201,7 @@ def mock_authorization(
 @pytest.fixture
 def bot_factory(
     bot_account: BotAccountWithSecret,
-) -> Callable[..., AsyncGenerator[Bot, None]]:
+) -> Callable[..., AsyncContextManager[Bot]]:
     @asynccontextmanager
     async def factory(
         *,

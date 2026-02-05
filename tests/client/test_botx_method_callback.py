@@ -172,7 +172,7 @@ async def test__botx_method_callback__orphan_callback_expires(
 
         await asyncio.sleep(0.05)
 
-        bot._callbacks_manager.mark_callback_expired(  # type: ignore[attr-defined]
+        bot._callbacks_manager.mark_callback_expired(
             UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
         )
 
@@ -230,7 +230,7 @@ async def test__botx_method_callback__orphan_alarm_already_exists(
     async with lifespan_wrapper(built_bot) as bot:
         await bot.set_raw_botx_method_result(payload, verify_request=False)
 
-        bot._callbacks_manager._pending_callbacks.pop(  # type: ignore[attr-defined]
+        bot._callbacks_manager._pending_callbacks.pop(
             UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"),
             None,
         )

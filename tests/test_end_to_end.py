@@ -258,7 +258,7 @@ def test__web_app__bot_command(
         ),
     )
 
-    command_payload = {
+    command_payload: dict[str, Any] = {
         "bot_id": str(bot_id),
         "command": {
             "body": "/debug",
@@ -325,7 +325,7 @@ def test__web_app__unknown_bot_response(
     bot: Bot,
 ) -> None:
     # - Arrange -
-    payload = {
+    payload: dict[str, Any] = {
         "bot_id": "c755e147-30a5-45df-b46a-c75aa6089c8f",
         "command": {
             "body": "/debug",

@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from http import HTTPStatus
-from typing import Any, Mapping, Optional, Union
+from typing import Any, Mapping, Optional, Union, cast
 
 import httpx
 from deepdiff import DeepDiff
-from respx.router import MockRouter, Route
+from respx.router import MockRouter, Route  # type: ignore[attr-defined]
 
 
 @dataclass(frozen=True)
@@ -49,15 +49,21 @@ def mock_botx(
     if request.params is not None:
         route_kwargs["params"] = request.params
 
-    route = getattr(respx_mock, request.method.lower())(
-        f"https://{host}{request.path}",
-        **route_kwargs,
+    route = cast(
+        Route,
+        getattr(respx_mock, request.method.lower())(
+            f"https://{host}{request.path}",
+            **route_kwargs,
+        ),
     )
     if response_json is not None:
-        return route.mock(return_value=httpx.Response(status, json=response_json))
+        route.mock(return_value=httpx.Response(status, json=response_json))
+        return route
     if response_content is None:
-        return route.mock(return_value=httpx.Response(status))
-    return route.mock(return_value=httpx.Response(status, content=response_content))
+        route.mock(return_value=httpx.Response(status))
+        return route
+    route.mock(return_value=httpx.Response(status, content=response_content))
+    return route
 
 
 def ok_payload(result: Any) -> dict[str, Any]:

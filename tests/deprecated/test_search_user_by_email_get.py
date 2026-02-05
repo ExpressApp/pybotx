@@ -15,18 +15,13 @@ from pybotx import (
     lifespan_wrapper,
 )
 from pybotx.client.users_api.search_user_by_email import SearchUserByEmailMethod
-from tests.client.users_api.conftest import (  # noqa: F401
-    user_from_search_with_data,
-    user_from_search_with_data_json,
-    user_from_search_without_data,
-    user_from_search_without_data_json,
-)
 
 pytestmark = [
     pytest.mark.asyncio,
     pytest.mark.mock_authorization,
     pytest.mark.usefixtures("respx_mock"),
 ]
+pytest_plugins = ["tests.client.users_api.conftest"]
 
 
 @pytest.fixture(autouse=True)
