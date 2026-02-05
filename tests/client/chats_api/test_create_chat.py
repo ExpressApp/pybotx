@@ -14,6 +14,7 @@ from pybotx import (
     HandlerCollector,
     lifespan_wrapper,
 )
+from pybotx.missing import Undefined
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -204,20 +205,41 @@ def test__create_chat_payload__convert_chat_type_validator() -> None:
     from pybotx.client.chats_api.create_chat import BotXAPICreateChatRequestPayload
     from pybotx.models.enums import ChatTypes, APIChatTypes
 
-    # Test with ChatTypes enum
-    values = {"chat_type": ChatTypes.GROUP_CHAT}
-    result = BotXAPICreateChatRequestPayload._convert_chat_type(values)  # type: ignore[operator]
-    assert result["chat_type"] == APIChatTypes.GROUP_CHAT
+    # Arrange
+    name = "Test Chat"
+    description = "Test Description"
+    chat_type = ChatTypes.PERSONAL_CHAT
+    members = [UUID("2fc83441-366a-49ba-81fc-6c39f065bb58")]
+    shared_history = Undefined
+    avatar = None
 
-    # Test with non-ChatTypes value (should remain unchanged)
-    values = {"chat_type": APIChatTypes.CHAT}  # type: ignore[dict-item]
-    result = BotXAPICreateChatRequestPayload._convert_chat_type(values)  # type: ignore[operator]
-    assert result["chat_type"] == APIChatTypes.CHAT
+    # Act
+    payload = BotXAPICreateChatRequestPayload.from_domain(
+        name=name,
+        chat_type=chat_type,
+        members=members,
+        shared_history=shared_history,
+        description=description,
+        avatar=avatar,
+    )
 
-    # Test with missing chat_type key
-    values = {"name": "test"}  # type: ignore[dict-item]
-    result = BotXAPICreateChatRequestPayload._convert_chat_type(values)  # type: ignore[operator]
-    assert result == {"name": "test"}
+    # Assert
+    assert payload.name == name
+    assert payload.description == description
+    assert payload.chat_type == APIChatTypes.CHAT
+    assert payload.members == members
+
+    # Test with APIChatTypes
+    api_chat_type = APIChatTypes.CHANNEL
+    payload = BotXAPICreateChatRequestPayload.from_domain(
+        name=name,
+        chat_type=api_chat_type,
+        members=members,
+        shared_history=shared_history,
+        description=description,
+        avatar=avatar,
+    )
+    assert payload.chat_type == api_chat_type
 
 
 async def test__create_chat__with_valid_avatar_succeed(

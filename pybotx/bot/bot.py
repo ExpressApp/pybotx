@@ -1192,7 +1192,7 @@ class Bot:
             self._bot_accounts_storage,
         )
 
-        payload = BotXAPICreateChatRequestPayload(
+        payload = BotXAPICreateChatRequestPayload.from_domain(
             name=name,
             chat_type=chat_type,
             members=huids,

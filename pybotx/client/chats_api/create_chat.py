@@ -1,13 +1,7 @@
-from typing import Any, Dict, List, Literal, Optional, Set, Union
+from typing import List, Literal, Optional, Set, Union
 from uuid import UUID
 
-from pydantic import (
-    Field,
-    ConfigDict,
-    field_serializer,
-    field_validator,
-    model_validator,
-)
+from pydantic import Field, ConfigDict, field_serializer, field_validator
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.client.botx_method import response_exception_thrower
@@ -36,12 +30,11 @@ class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
     shared_history: Missing[bool]
     avatar: Optional[str] = None
 
-    @model_validator(mode="before")
-    def _convert_chat_type(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        ct = values.get("chat_type")
-        if isinstance(ct, ChatTypes):
-            values["chat_type"] = convert_chat_type_from_domain(ct)
-        return values
+    @classmethod
+    def _convert_chat_type(cls, v: Union[APIChatTypes, ChatTypes]) -> APIChatTypes:
+        if isinstance(v, ChatTypes):
+            return convert_chat_type_from_domain(v)
+        return v
 
     @field_validator("avatar")
     def _validate_avatar(cls, v: Optional[str]) -> Optional[str]:
@@ -58,6 +51,26 @@ class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
     @field_serializer("chat_type")
     def _serialize_chat_type(self, v: APIChatTypes) -> str:
         return v.value.lower()
+
+    @classmethod
+    def from_domain(
+        cls,
+        name: str,
+        chat_type: Union[APIChatTypes, ChatTypes],
+        members: List[UUID],
+        shared_history: Missing[bool],
+        description: Optional[str] = None,
+        avatar: Optional[str] = None,
+    ) -> "BotXAPICreateChatRequestPayload":
+        converted_chat_type = cls._convert_chat_type(chat_type)
+        return cls(
+            name=name,
+            chat_type=converted_chat_type,
+            members=members,
+            shared_history=shared_history,
+            description=description,
+            avatar=avatar,
+        )
 
 
 class BotXAPIChatIdResult(VerifiedPayloadBaseModel):
