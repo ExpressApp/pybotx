@@ -39,6 +39,7 @@ from pybotx.client.exceptions.chats import (
     ChatCreationError,
     ChatCreationProhibitedError,
     InvalidUsersListError,
+    ThreadAlreadyExistsError,
     ThreadCreationError,
     ThreadCreationProhibitedError,
 )
@@ -144,6 +145,7 @@ from pybotx.models.system_events.conference_deleted import ConferenceDeletedEven
 from pybotx.models.system_events.cts_login import CTSLoginEvent
 from pybotx.models.system_events.cts_logout import CTSLogoutEvent
 from pybotx.models.system_events.deleted_from_chat import DeletedFromChatEvent
+from pybotx.models.system_events.event_delete import EventDeleted
 from pybotx.models.system_events.event_edit import EventEdit
 from pybotx.models.system_events.internal_bot_notification import (
     InternalBotNotificationEvent,
@@ -206,6 +208,7 @@ __all__ = (
     "DeletedFromChatEvent",
     "Document",
     "EditMessage",
+    "EventDeleted",
     "EventEdit",
     "EventNotFoundError",
     "File",
@@ -262,8 +265,8 @@ __all__ = (
     "SyncSmartAppEventHandlerFunc",
     "SyncSmartAppEventHandlerNotFoundError",
     "SyncSourceTypes",
+    "ThreadAlreadyExistsError",
     "ThreadCreationError",
-    "ThreadCreationEventNotFoundError",
     "ThreadCreationProhibitedError",
     "UnknownBotAccountError",
     "UnknownSystemEventError",

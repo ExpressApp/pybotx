@@ -48,6 +48,7 @@ from pybotx.models.system_events.conference_deleted import ConferenceDeletedEven
 from pybotx.models.system_events.cts_login import CTSLoginEvent
 from pybotx.models.system_events.cts_logout import CTSLogoutEvent
 from pybotx.models.system_events.deleted_from_chat import DeletedFromChatEvent
+from pybotx.models.system_events.event_delete import EventDeleted
 from pybotx.models.system_events.event_edit import EventEdit
 from pybotx.models.system_events.internal_bot_notification import (
     InternalBotNotificationEvent,
@@ -314,6 +315,14 @@ class HandlerCollector:
     ) -> HandlerFunc[EventEdit]:
         """Decorate `event edit` event handler."""
         self._system_event(EventEdit, handler_func)
+        return handler_func
+
+    def event_deleted(
+        self,
+        handler_func: HandlerFunc[EventDeleted],
+    ) -> HandlerFunc[EventDeleted]:
+        """Decorate `event deleted` event handler."""
+        self._system_event(EventDeleted, handler_func)
         return handler_func
 
     def conference_changed(
