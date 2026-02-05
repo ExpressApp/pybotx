@@ -343,3 +343,20 @@ async def test__async_execute_raw_bot_command__different_file_types(
     # - Assert -
     assert smartapp_event
     assert smartapp_event.files == [domain_async_file]
+
+
+async def test__async_file_properties_expose_private_fields() -> None:
+    image = Image(
+        type=AttachmentTypes.IMAGE,
+        filename="pass.png",
+        size=1502345,
+        is_async_file=True,
+        _file_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
+        _file_url="https://link.to/file",
+        _file_mimetype="image/png",
+        _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+    )
+
+    assert image.file_url == "https://link.to/file"
+    assert image.file_mimetype == "image/png"
+    assert image.file_hash == "Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0="

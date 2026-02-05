@@ -21,7 +21,6 @@ pytestmark = [
     pytest.mark.mock_authorization,
     pytest.mark.usefixtures("respx_mock"),
 ]
-pytest_plugins = ["tests.client.users_api.conftest"]
 
 
 @pytest.fixture(autouse=True)

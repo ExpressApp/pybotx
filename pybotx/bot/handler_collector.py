@@ -200,14 +200,14 @@ class HandlerCollector:
     def default_message_handler(
         self,
         handler_func: IncomingMessageHandlerFunc,
-    ) -> IncomingMessageHandlerFunc: ...
+    ) -> IncomingMessageHandlerFunc: ...  # pragma: no cover
 
     @overload
     def default_message_handler(
         self,
         *,
         middlewares: Optional[Sequence[Middleware]] = None,
-    ) -> MessageHandlerDecorator: ...
+    ) -> MessageHandlerDecorator: ...  # pragma: no cover
 
     def default_message_handler(
         self,

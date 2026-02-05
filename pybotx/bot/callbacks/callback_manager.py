@@ -134,14 +134,14 @@ class CallbackManager:
     def cancel_callback_timeout_alarm(
         self,
         sync_id: UUID,
-    ) -> None: ...
+    ) -> None: ...  # pragma: no cover
 
     @overload
     def cancel_callback_timeout_alarm(
         self,
         sync_id: UUID,
         return_remaining_time: Literal[True],
-    ) -> float: ...
+    ) -> float: ...  # pragma: no cover
 
     def cancel_callback_timeout_alarm(
         self,

@@ -16,22 +16,22 @@ class CallbackRepoProto(Protocol):
     async def create_botx_method_callback(
         self,
         sync_id: UUID,
-    ) -> None: ...
+    ) -> None: ...  # pragma: no cover
 
     async def set_botx_method_callback_result(
         self,
         callback: BotXMethodCallback,
-    ) -> None: ...
+    ) -> None: ...  # pragma: no cover
 
     async def wait_botx_method_callback(
         self,
         sync_id: UUID,
         timeout: float,
-    ) -> BotXMethodCallback: ...
+    ) -> BotXMethodCallback: ...  # pragma: no cover
 
     async def pop_botx_method_callback(
         self,
         sync_id: UUID,
-    ) -> "Future[BotXMethodCallback]": ...
+    ) -> "Future[BotXMethodCallback]": ...  # pragma: no cover
 
-    async def stop_callbacks_waiting(self) -> None: ...
+    async def stop_callbacks_waiting(self) -> None: ...  # pragma: no cover
