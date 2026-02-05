@@ -1450,6 +1450,7 @@ class Bot:
     ) -> UserFromSearch:
         """Search user by email for search.
 
+        Wraps the single email into a list payload and returns the first result.
         For multiple emails use `search_user_by_emails`.
 
         :param bot_id: Bot which should perform the request.
@@ -2171,6 +2172,7 @@ class Bot:
         chat_id: UUID,
         file_id: UUID,
         async_buffer: AsyncBufferWritable,
+        is_preview: bool = False,
     ) -> None:
         """Download file form file service.
 
@@ -2178,6 +2180,7 @@ class Bot:
         :param chat_id: Target chat id.
         :param file_id: Async file id.
         :param async_buffer: Buffer to write downloaded file.
+        :param is_preview: If true and file has preview, return it instead of original.
         """
 
         method = DownloadFileMethod(
@@ -2188,6 +2191,7 @@ class Bot:
         payload = BotXAPIDownloadFileRequestPayload.from_domain(
             chat_id=chat_id,
             file_id=file_id,
+            is_preview=is_preview,
         )
 
         await method.execute(payload, async_buffer)

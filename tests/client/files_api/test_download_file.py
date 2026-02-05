@@ -37,6 +37,7 @@ async def test__download_file__unexpected_not_found_error_raised(
         params={
             "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "file_id": "c3b9def2-b2c8-4732-b61f-99b9b110fa80",
+            "is_preview": False,
         },
         headers={"Authorization": "Bearer token"},
     ).mock(
@@ -84,6 +85,7 @@ async def test__download_file__file_metadata_not_found_error_raised(
         params={
             "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "file_id": "c3b9def2-b2c8-4732-b61f-99b9b110fa80",
+            "is_preview": False,
         },
         headers={"Authorization": "Bearer token"},
     ).mock(
@@ -132,6 +134,7 @@ async def test__download_file__file_deleted_error_raised(
         params={
             "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "file_id": "c3b9def2-b2c8-4732-b61f-99b9b110fa80",
+            "is_preview": False,
         },
         headers={"Authorization": "Bearer token"},
     ).mock(
@@ -179,6 +182,7 @@ async def test__download_file__chat_not_found_error_raised(
         params={
             "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "file_id": "c3b9def2-b2c8-4732-b61f-99b9b110fa80",
+            "is_preview": False,
         },
         headers={"Authorization": "Bearer token"},
     ).mock(
@@ -226,6 +230,7 @@ async def test__download_file__succeed(
         params={
             "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "file_id": "c3b9def2-b2c8-4732-b61f-99b9b110fa80",
+            "is_preview": False,
         },
         headers={"Authorization": "Bearer token"},
     ).mock(

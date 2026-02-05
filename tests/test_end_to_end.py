@@ -465,6 +465,8 @@ def test__web_app__sync_smartapp_event__success(bot: Bot, bot_id: UUID) -> None:
                     "file_size": 349372,
                     "file_hash": "qVSzEUJITWP+TgCvcF3UCzQrBaY3RHqB92CHObz4E70=",
                     "file_mime_type": "application/octet-stream",
+                    "chunk_size": 2097152,
+                    "file_encryption_algo": "stream",
                     "file_id": "a0ec914f-8235-5021-9b8d-05c3cd303536",
                     "type": "document",
                 },

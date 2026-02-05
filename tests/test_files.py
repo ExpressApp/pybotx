@@ -40,6 +40,7 @@ async def test__async_file__open(
         params={
             "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "file_id": "c3b9def2-b2c8-4732-b61f-99b9b110fa80",
+            "is_preview": False,
         },
         headers={"Authorization": "Bearer token"},
     ).mock(
@@ -158,6 +159,11 @@ API_AND_DOMAIN_FILES = (
             _file_url="https://link.to/file",
             _file_mimetype="image/png",
             _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+            file_preview="https://link.to/preview",
+            file_preview_height=300,
+            file_preview_width=300,
+            file_encryption_algo="stream",
+            chunk_size=2097152,
         ),
     ),
     (
@@ -186,6 +192,11 @@ API_AND_DOMAIN_FILES = (
             _file_url="https://link.to/file",
             _file_mimetype="video/mp4",
             _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+            file_preview="https://link.to/preview",
+            file_preview_height=300,
+            file_preview_width=300,
+            file_encryption_algo="stream",
+            chunk_size=2097152,
         ),
     ),
     (
@@ -212,6 +223,11 @@ API_AND_DOMAIN_FILES = (
             _file_url="https://link.to/file",
             _file_mimetype="plain/text",
             _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+            file_preview="https://link.to/preview",
+            file_preview_height=300,
+            file_preview_width=300,
+            file_encryption_algo="stream",
+            chunk_size=2097152,
         ),
     ),
     (
@@ -240,6 +256,11 @@ API_AND_DOMAIN_FILES = (
             _file_url="https://link.to/file",
             _file_mimetype="audio/mp3",
             _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+            file_preview="https://link.to/preview",
+            file_preview_height=300,
+            file_preview_width=300,
+            file_encryption_algo="stream",
+            chunk_size=2097152,
         ),
     ),
 )

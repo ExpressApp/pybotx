@@ -29,7 +29,7 @@ async def test__search_user_by_email_post__user_not_found_error_raised(
     request = BotXRequest(
         method="POST",
         path="/api/v3/botx/users/by_email",
-        json={"email": "ad_user@cts.com"},
+        json={"emails": ["ad_user@cts.com"]},
     )
     endpoint = mock_botx(
         respx_mock,
@@ -64,13 +64,13 @@ async def test__search_user_by_email_post__succeed(
     request = BotXRequest(
         method="POST",
         path="/api/v3/botx/users/by_email",
-        json={"email": "ad_user@cts.com"},
+        json={"emails": ["ad_user@cts.com"]},
     )
     endpoint = mock_botx(
         respx_mock,
         host,
         request,
-        ok_payload(user_from_search_with_data_json),
+        ok_payload([user_from_search_with_data_json]),
         HTTPStatus.OK,
     )
 
@@ -98,13 +98,13 @@ async def test__search_user_by_email_post_without_extra_data__succeed(
     request = BotXRequest(
         method="POST",
         path="/api/v3/botx/users/by_email",
-        json={"email": "ad_user@cts.com"},
+        json={"emails": ["ad_user@cts.com"]},
     )
     endpoint = mock_botx(
         respx_mock,
         host,
         request,
-        ok_payload(user_from_search_without_data_json),
+        ok_payload([user_from_search_without_data_json]),
         HTTPStatus.OK,
     )
 
@@ -120,36 +120,34 @@ async def test__search_user_by_email_post_without_extra_data__succeed(
     assert endpoint.called
 
 
-async def test__search_user_by_email_post__list_response_is_invalid(
+async def test__search_user_by_email_post__list_response_logs_warning(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     user_from_search_with_data_json: Dict[str, Any],
     bot_factory: Any,
+    loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
-    # - Arrange -
     request = BotXRequest(
         method="POST",
         path="/api/v3/botx/users/by_email",
-        json={"email": "ad_user@cts.com"},
+        json={"emails": ["ad_user@cts.com"]},
     )
     endpoint = mock_botx(
         respx_mock,
         host,
         request,
-        ok_payload([user_from_search_with_data_json]),
+        ok_payload([user_from_search_with_data_json, user_from_search_with_data_json]),
         HTTPStatus.OK,
     )
 
-    # - Act -
     async with bot_factory() as bot:
-        with pytest.raises(InvalidBotXResponsePayloadError):
-            await bot.search_user_by_email_post(
-                bot_id=bot_id,
-                email="ad_user@cts.com",
-            )
+        await bot.search_user_by_email_post(
+            bot_id=bot_id,
+            email="ad_user@cts.com",
+        )
 
-    # - Assert -
+    assert "multiple users" in loguru_caplog.text
     assert endpoint.called
 
 
@@ -162,7 +160,7 @@ async def test__search_user_by_email_post__non_400_status_is_not_retried(
     request = BotXRequest(
         method="POST",
         path="/api/v3/botx/users/by_email",
-        json={"email": "ad_user@cts.com"},
+        json={"emails": ["ad_user@cts.com"]},
     )
     endpoint = mock_botx(
         respx_mock,
@@ -182,7 +180,7 @@ async def test__search_user_by_email_post__non_400_status_is_not_retried(
     assert endpoint.called
 
 
-async def test__search_user_by_email_post__invalid_payload_raises_invalid_response(
+async def test__search_user_by_email_post__empty_list_raises_user_not_found(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
@@ -191,13 +189,43 @@ async def test__search_user_by_email_post__invalid_payload_raises_invalid_respon
     request = BotXRequest(
         method="POST",
         path="/api/v3/botx/users/by_email",
-        json={"email": "ad_user@cts.com"},
+        json={"emails": ["ad_user@cts.com"]},
     )
     endpoint = mock_botx(
         respx_mock,
         host,
         request,
-        ok_payload({"foo": "bar"}),
+        ok_payload([]),
+        HTTPStatus.OK,
+    )
+
+    async with bot_factory() as bot:
+        with pytest.raises(UserNotFoundError):
+            await bot.search_user_by_email_post(
+                bot_id=bot_id,
+                email="ad_user@cts.com",
+            )
+
+    assert endpoint.called
+
+
+async def test__search_user_by_email_post__invalid_payload_raises_invalid_response(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    user_from_search_with_data_json: Dict[str, Any],
+    bot_factory: Any,
+) -> None:
+    request = BotXRequest(
+        method="POST",
+        path="/api/v3/botx/users/by_email",
+        json={"emails": ["ad_user@cts.com"]},
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload(user_from_search_with_data_json),
         HTTPStatus.OK,
     )
 
