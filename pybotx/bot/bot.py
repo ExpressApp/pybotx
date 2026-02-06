@@ -1300,7 +1300,7 @@ class Bot:
             self._bot_accounts_storage,
         )
 
-        payload = BotXAPICreateChatRequestPayload.from_domain(
+        payload = BotXAPICreateChatRequestPayload(
             name=name,
             chat_type=chat_type,
             members=huids,

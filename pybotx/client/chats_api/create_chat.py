@@ -1,4 +1,4 @@
-from typing import Literal, Union
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import (
@@ -6,6 +6,7 @@ from pydantic import (
     ConfigDict,
     field_serializer,
     field_validator,
+    model_validator,
 )
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -35,31 +36,12 @@ class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
     shared_history: Missing[bool]
     avatar: str | None = None
 
-    @classmethod
-    def from_domain(
-        cls,
-        name: str,
-        chat_type: Union[APIChatTypes, ChatTypes],
-        members: list[UUID],
-        shared_history: Missing[bool],
-        description: str | None = None,
-        avatar: str | None = None,
-    ) -> "BotXAPICreateChatRequestPayload":
-        converted_chat_type = cls._convert_chat_type(chat_type)
-        return cls(
-            name=name,
-            chat_type=converted_chat_type,
-            members=members,
-            shared_history=shared_history,
-            description=description,
-            avatar=avatar,
-        )
-
-    @classmethod
-    def _convert_chat_type(cls, v: Union[APIChatTypes, ChatTypes]) -> APIChatTypes:
-        if isinstance(v, ChatTypes):
-            return convert_chat_type_from_domain(v)
-        return v
+    @model_validator(mode="before")
+    def _convert_chat_type(cls, values: dict[str, Any]) -> dict[str, Any]:
+        chat_type = values.get("chat_type")
+        if isinstance(chat_type, ChatTypes):
+            values["chat_type"] = convert_chat_type_from_domain(chat_type)
+        return values
 
     @field_validator("avatar")
     def _validate_avatar(cls, v: str | None) -> str | None:
