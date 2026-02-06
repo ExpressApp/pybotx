@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 from uuid import UUID
 
 from pybotx.models.api_base import VerifiedPayloadBaseModel
@@ -22,7 +22,7 @@ from pybotx.models.enums import (
 from pydantic import Field
 
 
-@dataclass
+@dataclass(slots=True)
 class ChatCreatedMember:
     """ChatCreatedEvent member.
 
@@ -35,11 +35,11 @@ class ChatCreatedMember:
 
     is_admin: bool
     huid: UUID
-    username: Optional[str]
+    username: str | None
     kind: UserKinds
 
 
-@dataclass
+@dataclass(slots=True)
 class ChatCreatedEvent(BotCommandBase):
     """Event `system:chat_created`.
 
@@ -57,13 +57,13 @@ class ChatCreatedEvent(BotCommandBase):
     sync_id: UUID
     chat_name: str
     creator_id: UUID
-    members: List[ChatCreatedMember]
+    members: list[ChatCreatedMember]
 
 
 class BotAPIChatMember(VerifiedPayloadBaseModel):
     is_admin: bool = Field(..., alias="admin")
     huid: UUID
-    name: Optional[str]
+    name: str | None
     user_kind: APIUserKinds
 
 
@@ -71,7 +71,7 @@ class BotAPIChatCreatedData(VerifiedPayloadBaseModel):
     chat_type: APIChatTypes
     creator: UUID
     group_chat_id: UUID
-    members: List[BotAPIChatMember]
+    members: list[BotAPIChatMember]
     name: str
 
 
@@ -84,7 +84,7 @@ class BotAPIChatCreated(BotAPIBaseCommand):
     payload: BotAPIChatCreatedPayload = Field(..., alias="command")
     sender: BotAPIChatContext = Field(..., alias="from")
 
-    def to_domain(self, raw_command: Dict[str, Any]) -> ChatCreatedEvent:
+    def to_domain(self, raw_command: dict[str, Any]) -> ChatCreatedEvent:
         members = [
             ChatCreatedMember(
                 is_admin=member.is_admin,

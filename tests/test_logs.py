@@ -1,5 +1,6 @@
 from http import HTTPStatus
-from typing import Any, Callable, Dict, Optional, cast
+from typing import Any, cast
+from collections.abc import Callable
 from uuid import UUID
 
 import httpx
@@ -25,7 +26,7 @@ pytestmark = [
 
 async def test__attachment__trimmed_in_incoming_message(
     bot_account: BotAccountWithSecret,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     payload = api_incoming_message_factory(
@@ -43,7 +44,7 @@ async def test__attachment__trimmed_in_incoming_message(
         },
     )
     collector = HandlerCollector()
-    file_data: Optional[bytes] = None
+    file_data: bytes | None = None
 
     @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:

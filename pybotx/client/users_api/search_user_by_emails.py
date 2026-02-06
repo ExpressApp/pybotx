@@ -1,4 +1,3 @@
-from typing import List
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.client.users_api.user_from_search import (
@@ -8,12 +7,12 @@ from pybotx.models.api_base import UnverifiedPayloadBaseModel
 
 
 class BotXAPISearchUserByEmailsRequestPayload(UnverifiedPayloadBaseModel):
-    emails: List[str]
+    emails: list[str]
 
     @classmethod
     def from_domain(
         cls,
-        emails: List[str],
+        emails: list[str],
     ) -> "BotXAPISearchUserByEmailsRequestPayload":
         return cls(emails=emails)
 

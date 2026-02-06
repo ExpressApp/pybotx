@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 import pytest
@@ -92,7 +91,7 @@ async def test__smartapp__succeed(
     }
 
     collector = HandlerCollector()
-    smartapp: Optional[SmartAppEvent] = None
+    smartapp: SmartAppEvent | None = None
 
     @collector.smartapp_event
     async def smartapp_handler(event: SmartAppEvent, bot: Bot) -> None:
@@ -134,6 +133,11 @@ async def test__smartapp__succeed(
                 _file_url="https://link.to/file",
                 _file_mimetype="image/png",
                 _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+                file_preview="https://link.to/preview",
+                file_preview_height=300,
+                file_preview_width=300,
+                file_encryption_algo="stream",
+                chunk_size=2097152,
             ),
         ],
         chat=Chat(

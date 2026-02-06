@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 from uuid import UUID
 
 from pybotx.models.api_base import VerifiedPayloadBaseModel
@@ -24,7 +24,7 @@ from pybotx.models.message.incoming_message import (
 from pydantic import Field
 
 
-@dataclass
+@dataclass(slots=True)
 class EventEdit(BotCommandBase):
     """Event `system:event_edit`.
 
@@ -37,16 +37,16 @@ class EventEdit(BotCommandBase):
         entities: Entities from updated message.
     """
 
-    body: Optional[str]
+    body: str | None
     sync_id: UUID
     chat_id: UUID
     huid: UUID
-    attachments: List[IncomingAttachment]
-    entities: List[Entity]
+    attachments: list[IncomingAttachment]
+    entities: list[Entity]
 
 
 class BotAPIEventEditData(VerifiedPayloadBaseModel):
-    body: Optional[str]
+    body: str | None
 
 
 class BotAPIEventEditPayload(BotAPIBaseSystemEventPayload):
@@ -63,10 +63,10 @@ class BotAPIBotContext(BotAPIUserContext):
 class BotAPIEventEdit(BotAPIBaseCommand):
     payload: BotAPIEventEditPayload = Field(..., alias="command")
     sender: BotAPIBotContext = Field(..., alias="from")
-    attachments: List[BotAPIAttachment]
-    entities: List[BotAPIEntity]
+    attachments: list[BotAPIAttachment]
+    entities: list[BotAPIEntity]
 
-    def to_domain(self, raw_command: Dict[str, Any]) -> EventEdit:
+    def to_domain(self, raw_command: dict[str, Any]) -> EventEdit:
         return EventEdit(
             bot=BotAccount(
                 id=self.bot_id,

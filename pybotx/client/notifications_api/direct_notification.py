@@ -1,5 +1,7 @@
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Literal
 from uuid import UUID
+
+import httpx
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.client.botx_method import callback_exception_thrower
@@ -9,6 +11,7 @@ from pybotx.client.exceptions.notifications import (
     FinalRecipientsListEmptyError,
     StealthModeDisabledError,
 )
+from pybotx.client.exceptions.http import InvalidBotXResponsePayloadError
 from pybotx.constants import MAX_NOTIFICATION_BODY_LENGTH
 from pybotx.missing import Missing, Undefined
 from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
@@ -47,18 +50,18 @@ class BotXAPIDirectNotificationOpts(UnverifiedPayloadBaseModel):
 class BotXAPIDirectNotification(UnverifiedPayloadBaseModel):
     status: Literal["ok"]
     body: str
-    metadata: Missing[Dict[str, Any]]
+    metadata: Missing[dict[str, Any]]
     opts: Missing[BotXAPIDirectNotificationMessageOpts]
     bubble: Missing[BotXAPIMarkup]
     keyboard: Missing[BotXAPIMarkup]
-    mentions: Missing[List[BotXAPIMention]]
+    mentions: Missing[list[BotXAPIMention]]
 
 
 class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
     group_chat_id: UUID
     notification: BotXAPIDirectNotification
     file: Missing[BotXAPIAttachment]
-    recipients: Missing[List[UUID]]
+    recipients: Missing[list[UUID]]
     opts: Missing[BotXAPIDirectNotificationOpts]
 
     @classmethod
@@ -66,11 +69,11 @@ class BotXAPIDirectNotificationRequestPayload(UnverifiedPayloadBaseModel):
         cls,
         chat_id: UUID,
         body: str,
-        metadata: Missing[Dict[str, Any]],
+        metadata: Missing[dict[str, Any]],
         bubbles: Missing[BubbleMarkup],
         keyboard: Missing[KeyboardMarkup],
-        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]],
-        recipients: Missing[List[UUID]],
+        file: Missing[IncomingFileAttachment | OutgoingAttachment],
+        recipients: Missing[list[UUID]],
         silent_response: Missing[bool],
         markup_auto_adjust: Missing[bool],
         stealth_mode: Missing[bool],
@@ -126,6 +129,33 @@ class BotXAPIDirectNotificationResponsePayload(VerifiedPayloadBaseModel):
         return self.result.sync_id
 
 
+class BotXAPIDirectNotificationSyncResponsePayload(VerifiedPayloadBaseModel):
+    status: Literal["ok", "error"]
+    result: BotXAPISyncIdResult | None = None
+    reason: str | None = None
+    errors: list[str] | None = None
+    error_data: dict[str, Any] | None = None
+
+
+_DIRECT_NOTIFICATION_SYNC_ERROR_MAP = {
+    "chat_not_found": ChatNotFoundError,
+    "bot_is_not_a_chat_member": BotIsNotChatMemberError,
+    "event_recipients_list_is_empty": FinalRecipientsListEmptyError,
+    "stealth_mode_disabled": StealthModeDisabledError,
+}
+
+
+def _raise_direct_notification_sync_error(
+    response: "httpx.Response",
+    reason: str | None,
+) -> None:
+    exc_type = _DIRECT_NOTIFICATION_SYNC_ERROR_MAP.get(reason or "")
+    if exc_type is None:
+        raise InvalidBotXResponsePayloadError(response)
+
+    raise exc_type.from_response(response)
+
+
 class DirectNotificationMethod(AuthorizedBotXMethod):
     error_callback_handlers = {
         **AuthorizedBotXMethod.error_callback_handlers,
@@ -143,7 +173,7 @@ class DirectNotificationMethod(AuthorizedBotXMethod):
         self,
         payload: BotXAPIDirectNotificationRequestPayload,
         wait_callback: bool,
-        callback_timeout: Optional[float],
+        callback_timeout: float | None,
         default_callback_timeout: float,
     ) -> BotXAPIDirectNotificationResponsePayload:
         path = "/api/v4/botx/notifications/direct"
@@ -166,3 +196,31 @@ class DirectNotificationMethod(AuthorizedBotXMethod):
             default_callback_timeout,
         )
         return api_model
+
+
+class DirectNotificationSyncMethod(AuthorizedBotXMethod):
+    async def execute(
+        self,
+        payload: BotXAPIDirectNotificationRequestPayload,
+    ) -> BotXAPIDirectNotificationResponsePayload:
+        path = "/api/v4/botx/notifications/direct/sync"
+
+        response = await self._botx_method_call(
+            "POST",
+            self._build_url(path),
+            json=payload.jsonable_dict(),
+        )
+
+        api_model = self._verify_and_extract_api_model(
+            BotXAPIDirectNotificationSyncResponsePayload,
+            response,
+        )
+
+        if api_model.status == "error":
+            _raise_direct_notification_sync_error(response, api_model.reason)
+
+        assert api_model.result is not None
+        return BotXAPIDirectNotificationResponsePayload(
+            status="ok",
+            result=api_model.result,
+        )

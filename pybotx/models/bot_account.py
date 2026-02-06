@@ -1,16 +1,15 @@
 from dataclasses import dataclass
 
-from typing import Optional
 from urllib.parse import urlparse
 from uuid import UUID
 
 from pydantic import AnyHttpUrl, BaseModel, ConfigDict
 
 
-@dataclass
+@dataclass(slots=True)
 class BotAccount:
     id: UUID
-    host: Optional[str]
+    host: str | None
 
 
 class BotAccountWithSecret(BaseModel):

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, Literal, Optional, Union
+from typing import Any, Literal
 from uuid import UUID
 
 from pybotx.bot.api.exceptions import (
@@ -21,14 +21,14 @@ from pydantic import field_validator
 class BotAPICommandPayload(VerifiedPayloadBaseModel):
     body: str
     command_type: Literal[BotAPICommandTypes.USER]
-    data: Dict[str, Any]
-    metadata: Dict[str, Any]
+    data: dict[str, Any]
+    metadata: dict[str, Any]
 
 
 class BotAPIDeviceMeta(VerifiedPayloadBaseModel):
-    pushes: Optional[bool] = None
-    timezone: Optional[str] = None
-    permissions: Optional[Dict[str, Any]] = None
+    pushes: bool | None = None
+    timezone: str | None = None
+    permissions: dict[str, Any] | None = None
 
 
 class BaseBotAPIContext(VerifiedPayloadBaseModel):
@@ -37,28 +37,28 @@ class BaseBotAPIContext(VerifiedPayloadBaseModel):
 
 class BotAPIUserContext(BaseBotAPIContext):
     user_huid: UUID
-    user_udid: Optional[UUID] = None
-    ad_domain: Optional[str] = None
-    ad_login: Optional[str] = None
-    username: Optional[str] = None
-    is_admin: Optional[bool] = None
-    is_creator: Optional[bool] = None
+    user_udid: UUID | None = None
+    ad_domain: str | None = None
+    ad_login: str | None = None
+    username: str | None = None
+    is_admin: bool | None = None
+    is_creator: bool | None = None
 
 
 class BotAPIChatContext(BaseBotAPIContext):
     group_chat_id: UUID
-    chat_type: Union[APIChatTypes, str]
+    chat_type: APIChatTypes | str
 
 
 class BotAPIDeviceContext(BaseBotAPIContext):
-    app_version: Optional[str] = None
-    platform: Optional[BotAPIClientPlatforms] = None
-    platform_package_id: Optional[str] = None
-    device: Optional[str] = None
-    device_meta: Optional[BotAPIDeviceMeta] = None
-    device_software: Optional[str] = None
-    manufacturer: Optional[str] = None
-    locale: Optional[str] = None
+    app_version: str | None = None
+    platform: BotAPIClientPlatforms | None = None
+    platform_package_id: str | None = None
+    device: str | None = None
+    device_meta: BotAPIDeviceMeta | None = None
+    device_software: str | None = None
+    manufacturer: str | None = None
+    locale: str | None = None
 
 
 class BotAPIBaseCommand(VerifiedPayloadBaseModel):
@@ -87,7 +87,7 @@ class BotAPIBaseSystemEventPayload(VerifiedPayloadBaseModel):
         return body
 
 
-@dataclass
+@dataclass(slots=True)
 class BotCommandBase:
     bot: BotAccount
-    raw_command: Optional[Dict[str, Any]]
+    raw_command: dict[str, Any] | None

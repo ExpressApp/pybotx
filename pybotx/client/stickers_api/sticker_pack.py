@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional
+from typing import Literal
 from uuid import UUID
 
 from pybotx.models.api_base import VerifiedPayloadBaseModel
@@ -15,8 +15,8 @@ class BotXAPIGetStickerPackResult(VerifiedPayloadBaseModel):
     id: UUID
     name: str
     public: bool
-    stickers_order: Optional[List[UUID]]
-    stickers: List[BotXAPIGetStickerResult]
+    stickers_order: list[UUID] | None
+    stickers: list[BotXAPIGetStickerResult]
 
 
 class BotXAPIGetStickerPackResponsePayload(VerifiedPayloadBaseModel):

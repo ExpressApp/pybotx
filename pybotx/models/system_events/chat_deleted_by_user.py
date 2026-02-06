@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, Literal
+from typing import Any, Literal
 from uuid import UUID
 
 from pybotx.models.api_base import VerifiedPayloadBaseModel
@@ -14,7 +14,7 @@ from pybotx.models.enums import BotAPISystemEventTypes
 from pydantic import Field
 
 
-@dataclass
+@dataclass(slots=True)
 class ChatDeletedByUserEvent(BotCommandBase):
     """Event `system:chat_deleted_by_user`.
 
@@ -43,7 +43,7 @@ class BotAPIChatDeletedByUser(BotAPIBaseCommand):
     payload: BotAPIChatDeletedByUserPayload = Field(..., alias="command")
     sender: BaseBotAPIContext = Field(..., alias="from")
 
-    def to_domain(self, raw_command: Dict[str, Any]) -> ChatDeletedByUserEvent:
+    def to_domain(self, raw_command: dict[str, Any]) -> ChatDeletedByUserEvent:
         return ChatDeletedByUserEvent(
             sync_id=self.sync_id,
             bot=BotAccount(

@@ -1,5 +1,5 @@
 from datetime import datetime as dt
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import ConfigDict, ValidationError, field_validator
@@ -26,7 +26,7 @@ class BotXAPIChatInfoRequestPayload(UnverifiedPayloadBaseModel):
     def from_domain(cls, chat_id: UUID) -> "BotXAPIChatInfoRequestPayload":
         return cls(group_chat_id=chat_id)
 
-    def as_query_params(self) -> Dict[str, Any]:
+    def as_query_params(self) -> dict[str, Any]:
         return self.model_dump(mode="json")
 
 
@@ -40,11 +40,11 @@ class BotXAPIChatInfoMember(VerifiedPayloadBaseModel):
 
 class BotXAPIChatInfoResult(VerifiedPayloadBaseModel):
     chat_type: APIChatTypes
-    creator: Optional[UUID]
-    description: Optional[str] = None
+    creator: UUID | None
+    description: str | None = None
     group_chat_id: UUID
     inserted_at: dt
-    members: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]] = []
+    members: list[BotXAPIChatInfoMember | dict[str, Any]] = []
     name: str
     shared_history: bool
 
@@ -52,16 +52,16 @@ class BotXAPIChatInfoResult(VerifiedPayloadBaseModel):
 
     @staticmethod
     def validate_members(
-        items: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]],
+        items: list[BotXAPIChatInfoMember | dict[str, Any]],
         info: Any,
-    ) -> List[Union[BotXAPIChatInfoMember, Dict[str, Any]]]:
+    ) -> list[BotXAPIChatInfoMember | dict[str, Any]]:
         """
         Публичный helper для парсинга списка участников:
         - dict → BotXAPIChatInfoMember
         - уже готовый BotXAPIChatInfoMember остаётся как есть
         - всё остальное логируется и пропускается
         """
-        parsed: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]] = []
+        parsed: list[BotXAPIChatInfoMember | dict[str, Any]] = []
         for item in items:
             if isinstance(item, dict):
                 try:
@@ -81,9 +81,9 @@ class BotXAPIChatInfoResult(VerifiedPayloadBaseModel):
     @classmethod
     def _validate_members_field(
         cls,
-        value: List[Union[BotXAPIChatInfoMember, Dict[str, Any]]],
+        value: list[BotXAPIChatInfoMember | dict[str, Any]],
         info: Any,
-    ) -> List[Union[BotXAPIChatInfoMember, Dict[str, Any]]]:
+    ) -> list[BotXAPIChatInfoMember | dict[str, Any]]:
         return cls.validate_members(value, info)
 
 

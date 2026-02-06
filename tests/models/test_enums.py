@@ -1,7 +1,12 @@
 import pytest
 from unittest.mock import Mock
 
-from pybotx.models.enums import convert_chat_type_from_domain, ChatTypes, APIChatTypes
+from pybotx.models.enums import (
+    APIChatTypes,
+    ChatTypes,
+    convert_chat_type_from_domain,
+    convert_chat_type_to_domain,
+)
 
 
 def test__convert_chat_type_from_domain__successful_conversion() -> None:
@@ -22,3 +27,8 @@ def test__convert_chat_type_from_domain__unsupported_chat_type_raises_error() ->
     # - Act & Assert -
     with pytest.raises(NotImplementedError, match="Unsupported chat type"):
         convert_chat_type_from_domain(unsupported_chat_type)
+
+
+def test__convert_chat_type_to_domain__notes_maps_to_personal_chat() -> None:
+    assert convert_chat_type_to_domain(APIChatTypes.NOTES) == ChatTypes.PERSONAL_CHAT
+    assert convert_chat_type_to_domain("notes") == ChatTypes.PERSONAL_CHAT

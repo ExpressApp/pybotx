@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import Any, Callable, Dict, Optional
+from typing import Any
+from collections.abc import Callable
 from uuid import UUID
 
 import pytest
@@ -27,7 +28,7 @@ async def test__event_delete__succeed(
     bot_id: UUID,
     host: str,
     datetime_formatter: Callable[[str], datetime],
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
 ) -> None:
     # - Arrange -
     event_deleted_data = DeleteEventFactory.create()
@@ -41,7 +42,7 @@ async def test__event_delete__succeed(
     )
 
     collector = HandlerCollector()
-    event_deleted: Optional[EventDeleted] = None
+    event_deleted: EventDeleted | None = None
 
     @collector.event_deleted
     async def event_deleted_handler(event: EventDeleted, _: Bot) -> None:

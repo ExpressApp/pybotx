@@ -1,9 +1,8 @@
 from dataclasses import dataclass
-from typing import Optional
 from uuid import UUID
 
 
-@dataclass
+@dataclass(slots=True)
 class BotsListItem:
     """Bot from list of bots.
 
@@ -18,5 +17,5 @@ class BotsListItem:
     id: UUID
     name: str
     description: str
-    avatar: Optional[str]
+    avatar: str | None
     enabled: bool

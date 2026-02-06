@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 import pytest
@@ -63,7 +62,7 @@ async def test__cts_login__succeed(
     }
 
     collector = HandlerCollector()
-    cts_login: Optional[CTSLoginEvent] = None
+    cts_login: CTSLoginEvent | None = None
 
     @collector.cts_login
     async def cts_login_handler(event: CTSLoginEvent, bot: Bot) -> None:

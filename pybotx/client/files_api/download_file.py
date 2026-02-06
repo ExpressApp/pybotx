@@ -22,11 +22,12 @@ class BotXAPIDownloadFileRequestPayload(UnverifiedPayloadBaseModel):
         cls,
         chat_id: UUID,
         file_id: UUID,
+        is_preview: bool = False,
     ) -> "BotXAPIDownloadFileRequestPayload":
         return cls(
             group_chat_id=chat_id,
             file_id=file_id,
-            is_preview=False,
+            is_preview=is_preview,
         )
 
 
