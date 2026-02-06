@@ -1,12 +1,11 @@
 from dataclasses import dataclass
-from typing import List, Optional
 from uuid import UUID
 
 from pybotx.async_buffer import AsyncBufferWritable
 from pybotx.bot.contextvars import bot_var
 
 
-@dataclass
+@dataclass(slots=True)
 class Sticker:
     """Sticker from sticker pack.
 
@@ -37,7 +36,7 @@ class Sticker:
         await async_buffer.seek(0)
 
 
-@dataclass
+@dataclass(slots=True)
 class StickerPack:
     """Sticker pack.
 
@@ -52,10 +51,10 @@ class StickerPack:
     id: UUID
     name: str
     is_public: bool
-    stickers: List[Sticker]
+    stickers: list[Sticker]
 
 
-@dataclass
+@dataclass(slots=True)
 class StickerPackFromList:
     """Sticker pack from list.
 
@@ -72,10 +71,10 @@ class StickerPackFromList:
     name: str
     is_public: bool
     stickers_count: int
-    sticker_ids: Optional[List[UUID]]  # Can be omitted in result
+    sticker_ids: list[UUID] | None  # Can be omitted in result
 
 
-@dataclass
+@dataclass(slots=True)
 class StickerPackPage:
     """Sticker pack page.
 
@@ -85,5 +84,5 @@ class StickerPackPage:
 
     """
 
-    sticker_packs: List[StickerPackFromList]
-    after: Optional[str]
+    sticker_packs: list[StickerPackFromList]
+    after: str | None

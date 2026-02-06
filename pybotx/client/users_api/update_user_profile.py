@@ -1,4 +1,4 @@
-from typing import Literal, Union
+from typing import Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -29,7 +29,7 @@ class BotXAPIUpdateUserProfileRequestPayload(UnverifiedPayloadBaseModel):
     def from_domain(
         cls,
         user_huid: UUID,
-        avatar: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        avatar: Missing[IncomingFileAttachment | OutgoingAttachment] = Undefined,
         name: Missing[str] = Undefined,
         public_name: Missing[str] = Undefined,
         company: Missing[str] = Undefined,

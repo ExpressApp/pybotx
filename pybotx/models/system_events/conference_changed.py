@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 from uuid import UUID
 
 from pybotx.models.api_base import VerifiedPayloadBaseModel
@@ -20,7 +20,7 @@ from pybotx.models.enums import (
 from pydantic import Field
 
 
-@dataclass
+@dataclass(slots=True)
 class ConferenceChangedEvent(BotCommandBase):
     """Event `system:conference_changed`.
 
@@ -42,17 +42,17 @@ class ConferenceChangedEvent(BotCommandBase):
         start_at: end conference.
     """
 
-    access_code: Optional[str]
-    actor: Optional[UUID]
-    added_users: List[UUID]
-    admins: List[UUID]
+    access_code: str | None
+    actor: UUID | None
+    added_users: list[UUID]
+    admins: list[UUID]
     call_id: UUID
-    deleted_users: List[UUID]
-    end_at: Optional[datetime]
+    deleted_users: list[UUID]
+    end_at: datetime | None
     link: str
     link_id: UUID
     link_type: ConferenceLinkTypes
-    members: List[UUID]
+    members: list[UUID]
     name: str
     operation: str
     sip_number: int
@@ -60,17 +60,17 @@ class ConferenceChangedEvent(BotCommandBase):
 
 
 class BotAPIConferenceChangedData(VerifiedPayloadBaseModel):
-    access_code: Optional[str]
-    actor: Optional[UUID]
-    added_users: List[UUID]
-    admins: List[UUID]
+    access_code: str | None
+    actor: UUID | None
+    added_users: list[UUID]
+    admins: list[UUID]
     call_id: UUID
-    deleted_users: List[UUID]
-    end_at: Optional[datetime]
+    deleted_users: list[UUID]
+    end_at: datetime | None
     link: str
     link_id: UUID
     link_type: BotAPIConferenceLinkTypes
-    members: List[UUID]
+    members: list[UUID]
     name: str
     operation: str
     sip_number: int
@@ -86,7 +86,7 @@ class BotAPIConferenceChanged(BotAPIBaseCommand):
     payload: BotAPIConferenceChangedPayload = Field(..., alias="command")
     sender: BaseBotAPIContext = Field(..., alias="from")
 
-    def to_domain(self, raw_command: Dict[str, Any]) -> ConferenceChangedEvent:
+    def to_domain(self, raw_command: dict[str, Any]) -> ConferenceChangedEvent:
         return ConferenceChangedEvent(
             bot=BotAccount(
                 id=self.bot_id,

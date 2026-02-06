@@ -2,25 +2,19 @@
 
 from datetime import datetime as dt
 from http import HTTPStatus
-from typing import Callable, Any
+from typing import Any
+from collections.abc import Callable, Sequence
 from uuid import UUID
 
-import httpx
 import pytest
-from deepdiff import DeepDiff
 from respx.router import MockRouter
 
-from pybotx import (
-    Bot,
-    BotAccountWithSecret,
-    ChatNotFoundError,
-    HandlerCollector,
-    lifespan_wrapper,
-)
+from pybotx import ChatNotFoundError
 from tests.client.chats_api.factories import (
     APIPersonalChatResponseFactory,
     ChatInfoFactory,
 )
+from tests.testkit import BotXRequest, assert_deep_equal, error_payload, mock_botx
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -28,45 +22,55 @@ pytestmark = [
     pytest.mark.usefixtures("respx_mock"),
 ]
 
+ENDPOINT = "/api/v1/botx/chats/personal"
 
-async def test__personal_chat__chat_not_found_error_raised(
-    respx_mock: MockRouter,
-    host: str,
-    bot_id: UUID,
-    bot_account: BotAccountWithSecret,
-) -> None:
-    # - Arrange -
-    endpoint = respx_mock.get(
-        f"https://{host}/api/v1/botx/chats/personal",
-        headers={"Authorization": "Bearer token"},
-        params={"user_huid": "dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4"},
-    ).mock(
-        return_value=httpx.Response(
+
+@pytest.mark.parametrize(
+    ("response_status", "response_json", "expected_exc", "expected_fragments"),
+    [
+        (
             HTTPStatus.NOT_FOUND,
-            json={
-                "status": "error",
-                "reason": "chat_not_found",
-                "errors": [],
-                "error_data": {
+            error_payload(
+                "chat_not_found",
+                error_data={
                     "user_huid": "dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4",
                     "error_description": "Chat with user dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4 not found",
                 },
-            },
+            ),
+            ChatNotFoundError,
+            ("chat_not_found",),
         ),
+    ],
+)
+async def test__personal_chat__error_response(
+    response_status: int,
+    response_json: dict[str, Any],
+    expected_exc: type[Exception],
+    expected_fragments: Sequence[str],
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_factory: Any,
+) -> None:
+    # - Arrange -
+    request = BotXRequest(
+        method="GET",
+        path=ENDPOINT,
+        params={"user_huid": "dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4"},
     )
-
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    endpoint = mock_botx(respx_mock, host, request, response_json, response_status)
 
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(ChatNotFoundError) as exc:
+    async with bot_factory() as bot:
+        with pytest.raises(expected_exc) as exc:
             await bot.personal_chat(
                 bot_id=bot_id,
                 user_huid=UUID("dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4"),
             )
 
     # - Assert -
-    assert "chat_not_found" in str(exc.value)
+    for fragment in expected_fragments:
+        assert fragment in str(exc.value)
     assert endpoint.called
 
 
@@ -75,26 +79,20 @@ async def test__personal_chat__succeed(
     host: str,
     bot_id: UUID,
     datetime_formatter: Callable[[str], dt],
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
     api_response: Any = APIPersonalChatResponseFactory()  # type: ignore[no-untyped-call]
 
-    endpoint = respx_mock.get(
-        f"https://{host}/api/v1/botx/chats/personal",
-        headers={"Authorization": "Bearer token"},
+    request = BotXRequest(
+        method="GET",
+        path=ENDPOINT,
         params={"user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364"},
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.OK,
-            json=api_response,
-        ),
     )
-
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    endpoint = mock_botx(respx_mock, host, request, api_response, HTTPStatus.OK)
 
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         chat_info = await bot.personal_chat(
             bot_id=bot_id,
             user_huid=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
@@ -105,9 +103,7 @@ async def test__personal_chat__succeed(
         created_at=datetime_formatter("2019-08-29T11:22:48.358586Z"),
     )  # type: ignore[no-untyped-call]
 
-    diff = DeepDiff(chat_info, expected_chat_info)
-    assert diff == {}, diff
-
+    assert_deep_equal(chat_info, expected_chat_info)
     assert endpoint.called
 
 
@@ -116,8 +112,8 @@ async def test__personal_chat__skipped_members(
     host: str,
     bot_id: UUID,
     datetime_formatter: Callable[[str], dt],
-    bot_account: BotAccountWithSecret,
     loguru_caplog: pytest.LogCaptureFixture,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
     api_response: Any = APIPersonalChatResponseFactory()  # type: ignore[no-untyped-call]
@@ -130,21 +126,15 @@ async def test__personal_chat__skipped_members(
         }
     )
 
-    endpoint = respx_mock.get(
-        f"https://{host}/api/v1/botx/chats/personal",
-        headers={"Authorization": "Bearer token"},
+    request = BotXRequest(
+        method="GET",
+        path=ENDPOINT,
         params={"user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364"},
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.OK,
-            json=api_response,
-        ),
     )
-
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    endpoint = mock_botx(respx_mock, host, request, api_response, HTTPStatus.OK)
 
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         chat_info = await bot.personal_chat(
             bot_id=bot_id,
             user_huid=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
@@ -155,8 +145,6 @@ async def test__personal_chat__skipped_members(
         created_at=datetime_formatter("2019-08-29T11:22:48.358586Z"),
     )  # type: ignore[no-untyped-call]
 
-    diff = DeepDiff(chat_info, expected_chat_info)
-    assert diff == {}, diff
-
+    assert_deep_equal(chat_info, expected_chat_info)
     assert "Unsupported user type skipped in members list" in loguru_caplog.text
     assert endpoint.called

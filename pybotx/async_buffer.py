@@ -1,11 +1,7 @@
 import abc
 import os
-from typing import Optional
 
-try:
-    from typing import Protocol
-except ImportError:
-    from typing_extensions import Protocol  # type: ignore
+from typing import Protocol
 
 
 class AsyncBufferBase(Protocol):
@@ -27,7 +23,7 @@ class AsyncBufferReadable(AsyncBufferBase):
     @abc.abstractmethod
     async def read(
         self,
-        bytes_to_read: Optional[int] = None,
+        bytes_to_read: int | None = None,
     ) -> bytes: ...  # pragma: no cover
 
 

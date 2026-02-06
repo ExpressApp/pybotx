@@ -1,5 +1,6 @@
 from http import HTTPStatus
-from typing import Any, Callable, Dict, Optional
+from typing import Any
+from collections.abc import Callable
 from uuid import UUID
 
 import httpx
@@ -32,7 +33,7 @@ async def test__async_file__open(
     host: str,
     bot_account: BotAccountWithSecret,
     bot_id: UUID,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
 ) -> None:
     # - Arrange -
     endpoint = respx_mock.get(
@@ -40,6 +41,7 @@ async def test__async_file__open(
         params={
             "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
             "file_id": "c3b9def2-b2c8-4732-b61f-99b9b110fa80",
+            "is_preview": False,
         },
         headers={"Authorization": "Bearer token"},
     ).mock(
@@ -112,7 +114,7 @@ async def test__async_file__open(
     }
 
     collector = HandlerCollector()
-    read_content: Optional[bytes] = None
+    read_content: bytes | None = None
 
     @collector.smartapp_event
     async def smartapp_event_handler(event: SmartAppEvent, bot: Bot) -> None:
@@ -158,6 +160,11 @@ API_AND_DOMAIN_FILES = (
             _file_url="https://link.to/file",
             _file_mimetype="image/png",
             _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+            file_preview="https://link.to/preview",
+            file_preview_height=300,
+            file_preview_width=300,
+            file_encryption_algo="stream",
+            chunk_size=2097152,
         ),
     ),
     (
@@ -186,6 +193,11 @@ API_AND_DOMAIN_FILES = (
             _file_url="https://link.to/file",
             _file_mimetype="video/mp4",
             _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+            file_preview="https://link.to/preview",
+            file_preview_height=300,
+            file_preview_width=300,
+            file_encryption_algo="stream",
+            chunk_size=2097152,
         ),
     ),
     (
@@ -212,6 +224,11 @@ API_AND_DOMAIN_FILES = (
             _file_url="https://link.to/file",
             _file_mimetype="plain/text",
             _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+            file_preview="https://link.to/preview",
+            file_preview_height=300,
+            file_preview_width=300,
+            file_encryption_algo="stream",
+            chunk_size=2097152,
         ),
     ),
     (
@@ -240,6 +257,11 @@ API_AND_DOMAIN_FILES = (
             _file_url="https://link.to/file",
             _file_mimetype="audio/mp3",
             _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+            file_preview="https://link.to/preview",
+            file_preview_height=300,
+            file_preview_width=300,
+            file_encryption_algo="stream",
+            chunk_size=2097152,
         ),
     ),
 )
@@ -250,9 +272,9 @@ API_AND_DOMAIN_FILES = (
     API_AND_DOMAIN_FILES,
 )
 async def test__async_execute_raw_bot_command__different_file_types(
-    api_async_file: Dict[str, Any],
+    api_async_file: dict[str, Any],
     domain_async_file: File,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
@@ -304,7 +326,7 @@ async def test__async_execute_raw_bot_command__different_file_types(
     }
 
     collector = HandlerCollector()
-    smartapp_event: Optional[SmartAppEvent] = None
+    smartapp_event: SmartAppEvent | None = None
 
     @collector.smartapp_event
     async def smartapp_event_handler(event: SmartAppEvent, bot: Bot) -> None:
@@ -322,3 +344,20 @@ async def test__async_execute_raw_bot_command__different_file_types(
     # - Assert -
     assert smartapp_event
     assert smartapp_event.files == [domain_async_file]
+
+
+async def test__async_file_properties_expose_private_fields() -> None:
+    image = Image(
+        type=AttachmentTypes.IMAGE,
+        filename="pass.png",
+        size=1502345,
+        is_async_file=True,
+        _file_id=UUID("8dada2c8-67a6-4434-9dec-570d244e78ee"),
+        _file_url="https://link.to/file",
+        _file_mimetype="image/png",
+        _file_hash="Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0=",
+    )
+
+    assert image.file_url == "https://link.to/file"
+    assert image.file_mimetype == "image/png"
+    assert image.file_hash == "Jd9r+OKpw5y+FSCg1xNTSUkwEo4nCW1Sn1AkotkOpH0="

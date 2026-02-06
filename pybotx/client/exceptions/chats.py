@@ -17,6 +17,14 @@ class ChatCreationError(BaseClientError):
     """Error while chat creation."""
 
 
+class ChatLinkCreationProhibitedError(BaseClientError):
+    """Bot doesn't have permissions to create chat link."""
+
+
+class ChatLinkCreationError(BaseClientError):
+    """Error while chat link creation."""
+
+
 class ThreadAlreadyExistsError(BaseClientError):
     """Thread is already exists."""
 

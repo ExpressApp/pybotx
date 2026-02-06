@@ -1,4 +1,4 @@
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -14,7 +14,7 @@ class BotXAPISmartAppCustomNotificationNestedPayload(UnverifiedPayloadBaseModel)
 class BotXAPISmartAppCustomNotificationRequestPayload(UnverifiedPayloadBaseModel):
     group_chat_id: UUID
     payload: BotXAPISmartAppCustomNotificationNestedPayload
-    meta: Missing[Dict[str, Any]]
+    meta: Missing[dict[str, Any]]
 
     @classmethod
     def from_domain(
@@ -22,7 +22,7 @@ class BotXAPISmartAppCustomNotificationRequestPayload(UnverifiedPayloadBaseModel
         group_chat_id: UUID,
         title: str,
         body: str,
-        meta: Missing[Dict[str, Any]],
+        meta: Missing[dict[str, Any]],
     ) -> "BotXAPISmartAppCustomNotificationRequestPayload":
         return cls(
             group_chat_id=group_chat_id,
@@ -55,7 +55,7 @@ class SmartAppCustomNotificationMethod(AuthorizedBotXMethod):
         self,
         payload: BotXAPISmartAppCustomNotificationRequestPayload,
         wait_callback: bool,
-        callback_timeout: Optional[float],
+        callback_timeout: float | None,
         default_callback_timeout: float,
     ) -> BotXAPISmartAppCustomNotificationResponsePayload:
         path = "/api/v4/botx/smartapps/notification"

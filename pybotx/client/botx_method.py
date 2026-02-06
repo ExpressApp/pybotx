@@ -3,15 +3,10 @@ from contextlib import asynccontextmanager
 from json.decoder import JSONDecodeError
 from typing import (
     Any,
-    AsyncGenerator,
-    Awaitable,
-    Callable,
-    Mapping,
     NoReturn,
-    Optional,
-    Type,
     TypeVar,
 )
+from collections.abc import AsyncGenerator, Awaitable, Callable, Mapping
 from uuid import UUID
 
 import httpx
@@ -45,8 +40,8 @@ TBotXAPIModel = TypeVar("TBotXAPIModel", bound=VerifiedPayloadBaseModel)
 
 
 def response_exception_thrower(
-    exc: Type[BaseClientError],
-    comment: Optional[str] = None,
+    exc: type[BaseClientError],
+    comment: str | None = None,
 ) -> StatusHandler:
     def factory(response: httpx.Response) -> NoReturn:
         raise exc.from_response(response, comment)
@@ -55,8 +50,8 @@ def response_exception_thrower(
 
 
 def callback_exception_thrower(
-    exc: Type[BaseClientError],
-    comment: Optional[str] = None,
+    exc: type[BaseClientError],
+    comment: str | None = None,
 ) -> CallbackExceptionHandler:  # noqa: F821
     def factory(callback: BotAPIMethodFailedCallback) -> NoReturn:
         raise exc.from_callback(callback, comment)
@@ -73,7 +68,7 @@ class BotXMethod:
         sender_bot_id: UUID,
         httpx_client: httpx.AsyncClient,
         bot_accounts_storage: BotAccountsStorage,
-        callbacks_manager: Optional[CallbackManager] = None,
+        callbacks_manager: CallbackManager | None = None,
     ) -> None:
         self._bot_id = sender_bot_id
         self._httpx_client = httpx_client
@@ -92,7 +87,7 @@ class BotXMethod:
 
     def _verify_and_extract_api_model(
         self,
-        model_cls: Type[TBotXAPIModel],
+        model_cls: type[TBotXAPIModel],
         response: httpx.Response,
     ) -> TBotXAPIModel:
         try:
@@ -152,13 +147,14 @@ class BotXMethod:
         self,
         sync_id: UUID,
         wait_callback: bool,
-        callback_timeout: Optional[float],
+        callback_timeout: float | None,
         default_callback_timeout: float,
-    ) -> Optional[BotXMethodCallback]:
+    ) -> BotXMethodCallback | None:
         assert self._callbacks_manager is not None, (
             "CallbackManager hasn't been passed to this method"
         )
 
+        self._callbacks_manager.register_expected_callback(sync_id)
         await self._callbacks_manager.create_botx_method_callback(sync_id)
 
         if callback_timeout is None:

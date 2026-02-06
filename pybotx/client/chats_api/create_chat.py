@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal, Optional, Set, Union
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import (
@@ -30,21 +30,21 @@ class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
     )
 
     name: str = Field(..., min_length=1)
-    description: Optional[str] = None
-    chat_type: Union[APIChatTypes, ChatTypes]
-    members: List[UUID]
+    description: str | None = None
+    chat_type: APIChatTypes | ChatTypes
+    members: list[UUID]
     shared_history: Missing[bool]
-    avatar: Optional[str] = None
+    avatar: str | None = None
 
     @model_validator(mode="before")
-    def _convert_chat_type(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        ct = values.get("chat_type")
-        if isinstance(ct, ChatTypes):
-            values["chat_type"] = convert_chat_type_from_domain(ct)
+    def _convert_chat_type(cls, values: dict[str, Any]) -> dict[str, Any]:
+        chat_type = values.get("chat_type")
+        if isinstance(chat_type, ChatTypes):
+            values["chat_type"] = convert_chat_type_from_domain(chat_type)
         return values
 
     @field_validator("avatar")
-    def _validate_avatar(cls, v: Optional[str]) -> Optional[str]:
+    def _validate_avatar(cls, v: str | None) -> str | None:
         if v is None:
             return None
         if not v.startswith("data:"):
@@ -56,8 +56,10 @@ class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
         return v
 
     @field_serializer("chat_type")
-    def _serialize_chat_type(self, v: APIChatTypes) -> str:
-        return v.value.lower()
+    def _serialize_chat_type(self, v: APIChatTypes | ChatTypes) -> str:
+        if isinstance(v, ChatTypes):
+            v = convert_chat_type_from_domain(v)
+        return v.value
 
 
 class BotXAPIChatIdResult(VerifiedPayloadBaseModel):
@@ -90,7 +92,7 @@ class CreateChatMethod(AuthorizedBotXMethod):
         """
         url = self._build_url("/api/v3/botx/chats/create")
 
-        exclude: Set[str] = (
+        exclude: set[str] = (
             {"shared_history"} if payload.shared_history is Undefined else set()
         )
 

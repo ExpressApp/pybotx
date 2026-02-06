@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from types import SimpleNamespace
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, TypeGuard, cast
 from uuid import UUID
 
 from pybotx.logger import logger
@@ -44,33 +44,33 @@ from pybotx.models.stickers import Sticker
 from pydantic import Field, ValidationError, field_validator, TypeAdapter
 
 
-@dataclass
+@dataclass(slots=True)
 class UserDevice:
-    manufacturer: Optional[str]
-    device_name: Optional[str]
-    os: Optional[str]
-    pushes: Optional[bool]
-    timezone: Optional[str]
-    permissions: Optional[Dict[str, Any]]
-    platform: Optional[ClientPlatforms]
-    platform_package_id: Optional[str]
-    app_version: Optional[str]
-    locale: Optional[str]
+    manufacturer: str | None
+    device_name: str | None
+    os: str | None
+    pushes: bool | None
+    timezone: str | None
+    permissions: dict[str, Any] | None
+    platform: ClientPlatforms | None
+    platform_package_id: str | None
+    app_version: str | None
+    locale: str | None
 
 
-@dataclass
+@dataclass(slots=True)
 class UserSender:
     huid: UUID
-    udid: Optional[UUID]
-    ad_login: Optional[str]
-    ad_domain: Optional[str]
-    username: Optional[str]
-    is_chat_admin: Optional[bool]
-    is_chat_creator: Optional[bool]
+    udid: UUID | None
+    ad_login: str | None
+    ad_domain: str | None
+    username: str | None
+    is_chat_admin: bool | None
+    is_chat_creator: bool | None
     device: UserDevice
 
     @property
-    def upn(self) -> Optional[str]:
+    def upn(self) -> str | None:
         # https://docs.microsoft.com/en-us/windows/win32/secauthn/user-name-formats
         if not (self.ad_login and self.ad_domain):
             return None
@@ -78,23 +78,23 @@ class UserSender:
         return f"{self.ad_login}@{self.ad_domain}"
 
 
-@dataclass
+@dataclass(slots=True)
 class IncomingMessage(BotCommandBase):
     sync_id: UUID
-    source_sync_id: Optional[UUID]
+    source_sync_id: UUID | None
     body: str
-    data: Dict[str, Any]
-    metadata: Dict[str, Any]
+    data: dict[str, Any]
+    metadata: dict[str, Any]
     sender: UserSender
     chat: Chat
     mentions: MentionList = field(default_factory=MentionList)
-    forward: Optional[Forward] = None
-    reply: Optional[Reply] = None
-    file: Optional[IncomingFileAttachment] = None
-    location: Optional[Location] = None
-    contact: Optional[Contact] = None
-    link: Optional[Link] = None
-    sticker: Optional[Sticker] = None
+    forward: Forward | None = None
+    reply: Reply | None = None
+    file: IncomingFileAttachment | None = None
+    location: Location | None = None
+    contact: Contact | None = None
+    link: Link | None = None
+    sticker: Sticker | None = None
 
     state: SimpleNamespace = field(default_factory=SimpleNamespace)
 
@@ -108,76 +108,96 @@ class IncomingMessage(BotCommandBase):
         return self.body[command_len:].strip()
 
     @property
-    def arguments(self) -> Tuple[str, ...]:
+    def arguments(self) -> tuple[str, ...]:
         return tuple(arg.strip() for arg in self.argument.split())
 
 
-BotAPIEntity = Union[BotAPIMention, BotAPIForward, BotAPIReply]
-Entity = Union[Mention, Forward, Reply]
+BotAPIEntity = BotAPIMention | BotAPIForward | BotAPIReply
+Entity = Mention | Forward | Reply
 
 
 def _convert_bot_api_mention_to_domain(api_mention_data: BotAPIMentionData) -> Mention:
     mention_data = cast(BotAPINestedMentionData, api_mention_data.mention_data)
 
-    if api_mention_data.mention_type == BotAPIMentionTypes.USER:
-        return MentionBuilder.user(
-            entity_id=mention_data.entity_id,
-            name=mention_data.name,
-        )
+    match api_mention_data.mention_type:
+        case BotAPIMentionTypes.USER:
+            return MentionBuilder.user(
+                entity_id=mention_data.entity_id,
+                name=mention_data.name,
+            )
+        case BotAPIMentionTypes.CHAT:
+            return MentionBuilder.chat(
+                entity_id=mention_data.entity_id,
+                name=mention_data.name,
+            )
+        case BotAPIMentionTypes.CONTACT:
+            return MentionBuilder.contact(
+                entity_id=mention_data.entity_id,
+                name=mention_data.name,
+            )
+        case BotAPIMentionTypes.CHANNEL:
+            return MentionBuilder.channel(
+                entity_id=mention_data.entity_id,
+                name=mention_data.name,
+            )
+        case BotAPIMentionTypes.ALL:
+            return MentionBuilder.all()
+        case _:
+            raise NotImplementedError(
+                f"Unsupported mention type: {api_mention_data.mention_type}",
+            )
 
-    if api_mention_data.mention_type == BotAPIMentionTypes.CHAT:
-        return MentionBuilder.chat(
-            entity_id=mention_data.entity_id,
-            name=mention_data.name,
-        )
 
-    if api_mention_data.mention_type == BotAPIMentionTypes.CONTACT:
-        return MentionBuilder.contact(
-            entity_id=mention_data.entity_id,
-            name=mention_data.name,
-        )
+def _is_bot_api_mention(entity: BotAPIEntity) -> TypeGuard[BotAPIMention]:
+    return entity.type == BotAPIEntityTypes.MENTION
 
-    if api_mention_data.mention_type == BotAPIMentionTypes.CHANNEL:
-        return MentionBuilder.channel(
-            entity_id=mention_data.entity_id,
-            name=mention_data.name,
-        )
 
-    if api_mention_data.mention_type == BotAPIMentionTypes.ALL:
-        return MentionBuilder.all()
+def _is_bot_api_forward(entity: BotAPIEntity) -> TypeGuard[BotAPIForward]:
+    return entity.type == BotAPIEntityTypes.FORWARD
 
-    raise NotImplementedError(
-        f"Unsupported mention type: {api_mention_data.mention_type}",
-    )
+
+def _is_bot_api_reply(entity: BotAPIEntity) -> TypeGuard[BotAPIReply]:
+    return entity.type == BotAPIEntityTypes.REPLY
 
 
 def convert_bot_api_entity_to_domain(api_entity: BotAPIEntity) -> Entity:
-    if api_entity.type == BotAPIEntityTypes.MENTION:
-        return _convert_bot_api_mention_to_domain(api_entity.data)
+    match api_entity.type:
+        case BotAPIEntityTypes.MENTION:
+            if not _is_bot_api_mention(api_entity):
+                raise NotImplementedError(
+                    f"Unsupported entity type: {api_entity.type}",
+                )
+            return _convert_bot_api_mention_to_domain(api_entity.data)
+        case BotAPIEntityTypes.FORWARD:
+            if not _is_bot_api_forward(api_entity):
+                raise NotImplementedError(
+                    f"Unsupported entity type: {api_entity.type}",
+                )
+            return Forward(
+                chat_id=api_entity.data.group_chat_id,
+                author_id=api_entity.data.sender_huid,
+                sync_id=api_entity.data.source_sync_id,
+                chat_name=api_entity.data.source_chat_name,
+                forward_type=convert_chat_type_to_domain(api_entity.data.forward_type),
+                inserted_at=api_entity.data.source_inserted_at,
+            )
+        case BotAPIEntityTypes.REPLY:
+            if not _is_bot_api_reply(api_entity):
+                raise NotImplementedError(
+                    f"Unsupported entity type: {api_entity.type}",
+                )
+            mentions = MentionList()
+            for api_mention_data in api_entity.data.mentions:
+                mentions.append(_convert_bot_api_mention_to_domain(api_mention_data))
 
-    if api_entity.type == BotAPIEntityTypes.FORWARD:
-        return Forward(
-            chat_id=api_entity.data.group_chat_id,
-            author_id=api_entity.data.sender_huid,
-            sync_id=api_entity.data.source_sync_id,
-            chat_name=api_entity.data.source_chat_name,
-            forward_type=convert_chat_type_to_domain(api_entity.data.forward_type),
-            inserted_at=api_entity.data.source_inserted_at,
-        )
-
-    if api_entity.type == BotAPIEntityTypes.REPLY:
-        mentions = MentionList()
-        for api_mention_data in api_entity.data.mentions:
-            mentions.append(_convert_bot_api_mention_to_domain(api_mention_data))
-
-        return Reply(
-            author_id=api_entity.data.sender,
-            sync_id=api_entity.data.source_sync_id,
-            body=api_entity.data.body,
-            mentions=mentions,
-        )
-
-    raise NotImplementedError(f"Unsupported entity type: {api_entity.type}")
+            return Reply(
+                author_id=api_entity.data.sender,
+                sync_id=api_entity.data.source_sync_id,
+                body=api_entity.data.body,
+                mentions=mentions,
+            )
+        case _:
+            raise NotImplementedError(f"Unsupported entity type: {api_entity.type}")
 
 
 class BotAPIIncomingMessageContext(
@@ -192,16 +212,16 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
     payload: BotAPICommandPayload = Field(..., alias="command")
     sender: BotAPIIncomingMessageContext = Field(..., alias="from")
 
-    source_sync_id: Optional[UUID]
-    attachments: List[Union[BotAPIAttachment, Dict[str, Any]]]
-    entities: List[Union[BotAPIEntity, Dict[str, Any]]]
+    source_sync_id: UUID | None
+    attachments: list[BotAPIAttachment | dict[str, Any]]
+    entities: list[BotAPIEntity | dict[str, Any]]
 
     @staticmethod
-    def validate_items(value: List[Union[Dict[str, Any], Any]], info: Any) -> List[Any]:
+    def validate_items(value: list[dict[str, Any] | Any], info: Any) -> list[Any]:
         item_model = (
             BotAPIAttachment if info.field_name == "attachments" else BotAPIEntity
         )
-        parsed: List[Any] = []
+        parsed: list[Any] = []
         for item in value:
             if isinstance(item, dict):
                 try:
@@ -213,12 +233,12 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
     @field_validator("attachments", "entities", mode="before")
     @classmethod
     def _validate_items_field(
-        cls, value: List[Union[Dict[str, Any], Any]], info: Any
-    ) -> List[Any]:
+        cls, value: list[dict[str, Any] | Any], info: Any
+    ) -> list[Any]:
         # Pydantic-валидатор: просто делегируем статическому методу
         return cls.validate_items(value, info)
 
-    def to_domain(self, raw_command: Dict[str, Any]) -> IncomingMessage:
+    def to_domain(self, raw_command: dict[str, Any]) -> IncomingMessage:
         if self.sender.device_meta:
             pushes = self.sender.device_meta.pushes
             timezone = self.sender.device_meta.timezone
@@ -259,11 +279,11 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
             type=convert_chat_type_to_domain(self.sender.chat_type),
         )
 
-        file: Optional[IncomingFileAttachment] = None
-        location: Optional[Location] = None
-        contact: Optional[Contact] = None
-        link: Optional[Link] = None
-        sticker: Optional[Sticker] = None
+        file: IncomingFileAttachment | None = None
+        location: Location | None = None
+        contact: Contact | None = None
+        link: Link | None = None
+        sticker: Sticker | None = None
 
         if self.attachments:
             # Always one attachment per-message
@@ -288,8 +308,8 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
                     raise NotImplementedError
 
         mentions: MentionList = MentionList()
-        forward: Optional[Forward] = None
-        reply: Optional[Reply] = None
+        forward: Forward | None = None
+        reply: Reply | None = None
         for entity in self.entities:
             if isinstance(entity, dict):
                 logger.warning("Received unknown entity type")
@@ -297,7 +317,7 @@ class BotAPIIncomingMessage(BotAPIBaseCommand):
                 entity_domain = convert_bot_api_entity_to_domain(entity)
                 if isinstance(
                     entity_domain,
-                    Mention.__args__,  # type: ignore [attr-defined]
+                    Mention.__args__,
                 ):
                     mentions.append(entity_domain)
                 elif isinstance(entity_domain, Forward):

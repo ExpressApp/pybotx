@@ -1,4 +1,4 @@
-from typing import Literal, Optional
+from typing import Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -42,7 +42,7 @@ class SmartAppUnreadCounterMethod(AuthorizedBotXMethod):
         self,
         payload: BotXAPISmartAppUnreadCounterRequestPayload,
         wait_callback: bool,
-        callback_timeout: Optional[float],
+        callback_timeout: float | None,
         default_callback_timeout: float,
     ) -> BotXAPISmartAppUnreadCounterResponsePayload:
         path = "/api/v4/botx/smartapps/unread_counter"

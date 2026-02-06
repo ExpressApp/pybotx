@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from functools import partial
-from typing import TYPE_CHECKING, Awaitable, Callable, List, Literal, TypeVar, Union
+from typing import TYPE_CHECKING, Literal, TypeVar
+from collections.abc import Awaitable, Callable
 
 from pybotx.models.commands import BotCommand
 from pybotx.models.message.incoming_message import IncomingMessage
@@ -36,23 +37,23 @@ SyncSmartAppEventHandlerFunc = Callable[
 ]
 
 IncomingMessageHandlerFunc = HandlerFunc[IncomingMessage]
-SystemEventHandlerFunc = Union[
-    HandlerFunc[AddedToChatEvent],
-    HandlerFunc[ChatCreatedEvent],
-    HandlerFunc[ChatDeletedByUserEvent],
-    HandlerFunc[DeletedFromChatEvent],
-    HandlerFunc[LeftFromChatEvent],
-    HandlerFunc[CTSLoginEvent],
-    HandlerFunc[CTSLogoutEvent],
-    HandlerFunc[InternalBotNotificationEvent],
-    HandlerFunc[SmartAppEvent],
-    HandlerFunc[EventDeleted],
-    HandlerFunc[EventEdit],
-    HandlerFunc[JoinToChatEvent],
-    HandlerFunc[ConferenceChangedEvent],
-    HandlerFunc[ConferenceCreatedEvent],
-    HandlerFunc[ConferenceDeletedEvent],
-]
+SystemEventHandlerFunc = (
+    HandlerFunc[AddedToChatEvent]
+    | HandlerFunc[ChatCreatedEvent]
+    | HandlerFunc[ChatDeletedByUserEvent]
+    | HandlerFunc[DeletedFromChatEvent]
+    | HandlerFunc[LeftFromChatEvent]
+    | HandlerFunc[CTSLoginEvent]
+    | HandlerFunc[CTSLogoutEvent]
+    | HandlerFunc[InternalBotNotificationEvent]
+    | HandlerFunc[SmartAppEvent]
+    | HandlerFunc[EventDeleted]
+    | HandlerFunc[EventEdit]
+    | HandlerFunc[JoinToChatEvent]
+    | HandlerFunc[ConferenceChangedEvent]
+    | HandlerFunc[ConferenceCreatedEvent]
+    | HandlerFunc[ConferenceDeletedEvent]
+)
 
 VisibleFunc = Callable[[StatusRecipient, "Bot"], Awaitable[bool]]
 
@@ -62,10 +63,10 @@ Middleware = Callable[
 ]
 
 
-@dataclass
+@dataclass(slots=True)
 class BaseIncomingMessageHandler:
     handler_func: IncomingMessageHandlerFunc
-    middlewares: List[Middleware]
+    middlewares: list[Middleware]
 
     async def __call__(self, message: IncomingMessage, bot: "Bot") -> None:
         handler_func = self.handler_func
@@ -78,25 +79,25 @@ class BaseIncomingMessageHandler:
 
         await handler_func(message, bot)
 
-    def add_middlewares(self, middlewares: List[Middleware]) -> None:
+    def add_middlewares(self, middlewares: list[Middleware]) -> None:
         self.middlewares = middlewares + self.middlewares
 
 
-@dataclass
+@dataclass(slots=True)
 class HiddenCommandHandler(BaseIncomingMessageHandler):
     # Default should be here, see: https://github.com/python/mypy/issues/6113
     visible: Literal[False] = False
 
 
-@dataclass
+@dataclass(slots=True)
 class VisibleCommandHandler(BaseIncomingMessageHandler):
     description: str
-    visible: Union[Literal[True], VisibleFunc] = True
+    visible: Literal[True] | VisibleFunc = True
 
 
-@dataclass
+@dataclass(slots=True)
 class DefaultMessageHandler(BaseIncomingMessageHandler):
     """Just for separate type."""
 
 
-CommandHandler = Union[HiddenCommandHandler, VisibleCommandHandler]
+CommandHandler = HiddenCommandHandler | VisibleCommandHandler

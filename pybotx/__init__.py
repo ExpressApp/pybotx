@@ -13,6 +13,7 @@ from pybotx.bot.api.responses.unverified_request import (
     BotAPIUnverifiedRequestResponse,
     build_unverified_request_response,
 )
+from pybotx.auth import BotXAuthVersion
 from pybotx.bot.bot import Bot
 from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
 from pybotx.bot.exceptions import (
@@ -38,6 +39,8 @@ from pybotx.client.exceptions.chats import (
     CantUpdatePersonalChatError,
     ChatCreationError,
     ChatCreationProhibitedError,
+    ChatLinkCreationError,
+    ChatLinkCreationProhibitedError,
     InvalidUsersListError,
     ThreadAlreadyExistsError,
     ThreadCreationError,
@@ -88,9 +91,16 @@ from pybotx.models.attachments import (
 from pybotx.models.bot_account import BotAccount, BotAccountWithSecret
 from pybotx.models.bot_catalog import BotsListItem
 from pybotx.models.bot_sender import BotSender
-from pybotx.models.chats import Chat, ChatInfo, ChatInfoMember, ChatListItem
+from pybotx.models.chats import (
+    Chat,
+    ChatInfo,
+    ChatInfoMember,
+    ChatLink,
+    ChatListItem,
+)
 from pybotx.models.enums import (
     AttachmentTypes,
+    ChatLinkTypes,
     ChatTypes,
     ClientPlatforms,
     ConferenceLinkTypes,
@@ -127,10 +137,14 @@ from pybotx.models.message.message_status import MessageStatus
 from pybotx.models.message.outgoing_message import OutgoingMessage
 from pybotx.models.message.reply import Reply
 from pybotx.models.message.reply_message import ReplyMessage
-from pybotx.models.method_callbacks import BotAPIMethodFailedCallback
+from pybotx.models.method_callbacks import (
+    BotAPIMethodFailedCallback,
+    BotAPIMethodSuccessfulCallback,
+    BotXMethodCallback,
+)
 from pybotx.models.smartapps import SmartApp
 from pybotx.models.status import BotMenu, StatusRecipient
-from pybotx.models.stickers import Sticker, StickerPack
+from pybotx.models.stickers import Sticker, StickerPack, StickerPackFromList
 from pybotx.models.sync_smartapp_event import (
     BotAPISyncSmartAppEventErrorResponse,
     BotAPISyncSmartAppEventResponse,
@@ -166,6 +180,7 @@ __all__ = (
     "BotAPIBotDisabledErrorData",
     "BotAPIBotDisabledResponse",
     "BotAPIMethodFailedCallback",
+    "BotAPIMethodSuccessfulCallback",
     "BotAPISyncSmartAppEventErrorResponse",
     "BotAPISyncSmartAppEventResponse",
     "BotAPISyncSmartAppEventResultResponse",
@@ -173,12 +188,14 @@ __all__ = (
     "BotAPIUnverifiedRequestResponse",
     "BotAccount",
     "BotAccountWithSecret",
+    "BotXAuthVersion",
     "BotIsNotChatMemberError",
     "BotMenu",
     "BotSender",
     "BotShuttingDownError",
     "BotXMethodCallbackNotFoundError",
     "BotXMethodFailedCallbackReceivedError",
+    "BotXMethodCallback",
     "BotsListItem",
     "BubbleMarkup",
     "Button",
@@ -197,8 +214,12 @@ __all__ = (
     "ChatDeletedByUserEvent",
     "ChatInfo",
     "ChatInfoMember",
+    "ChatLink",
+    "ChatLinkCreationError",
+    "ChatLinkCreationProhibitedError",
     "ChatListItem",
     "ChatNotFoundError",
+    "ChatLinkTypes",
     "ChatTypes",
     "ClientPlatforms",
     "ConferenceChangedEvent",
@@ -261,6 +282,7 @@ __all__ = (
     "StealthModeDisabledError",
     "Sticker",
     "StickerPack",
+    "StickerPackFromList",
     "StickerPackOrStickerNotFoundError",
     "SyncSmartAppEventHandlerFunc",
     "SyncSmartAppEventHandlerNotFoundError",

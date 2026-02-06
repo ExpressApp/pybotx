@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, cast
+from typing import Any, cast
 from uuid import UUID
 
 import pytest
@@ -33,13 +33,13 @@ async def test__join_to_chat__succeed(
     3. The registered user_joined_to_chat handler is called with this event
     """
 
-    payload: Dict[str, Any] = cast(
-        Dict[str, Any],
+    payload: dict[str, Any] = cast(
+        dict[str, Any],
         BotAPIJoinToChatFactory(bot_id=bot_account.id.hex),  # type: ignore[no-untyped-call]
     )
 
     collector = HandlerCollector()
-    join_to_chat: Optional[JoinToChatEvent] = None
+    join_to_chat: JoinToChatEvent | None = None
 
     @collector.user_joined_to_chat
     async def join_to_chat_handler(event: JoinToChatEvent, bot: Bot) -> None:

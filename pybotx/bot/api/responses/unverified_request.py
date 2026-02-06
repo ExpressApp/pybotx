@@ -1,13 +1,13 @@
 from dataclasses import asdict, dataclass, field
-from typing import Any, Dict, List, Literal
+from typing import Any, Literal
 
 
-@dataclass
+@dataclass(slots=True)
 class BotAPIUnverifiedRequestErrorData:
     status_message: str
 
 
-@dataclass
+@dataclass(slots=True)
 class BotAPIUnverifiedRequestResponse:
     """`Unverified request` response model.
 
@@ -16,11 +16,11 @@ class BotAPIUnverifiedRequestResponse:
     """
 
     error_data: BotAPIUnverifiedRequestErrorData
-    errors: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
     reason: Literal["unverified_request"] = "unverified_request"
 
 
-def build_unverified_request_response(status_message: str) -> Dict[str, Any]:
+def build_unverified_request_response(status_message: str) -> dict[str, Any]:
     """Build `unverified request` response for BotX.
 
     It should be sent if the header with the authorization token is missing or

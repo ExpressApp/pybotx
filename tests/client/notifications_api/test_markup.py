@@ -1,26 +1,23 @@
 import asyncio
 from http import HTTPStatus
+from typing import Any
 from uuid import UUID
 
-import httpx
 import pytest
 from respx.router import MockRouter
 
-from pybotx import (
-    Bot,
-    BotAccountWithSecret,
-    BubbleMarkup,
-    Button,
-    HandlerCollector,
-    KeyboardMarkup,
-    lifespan_wrapper,
-)
+from pybotx import BubbleMarkup, Button, KeyboardMarkup
 from pybotx.models.message.markup import ButtonTextAlign
+from tests.testkit import BotXRequest, mock_botx, ok_payload
 
 pytestmark = [
     pytest.mark.mock_authorization,
     pytest.mark.usefixtures("respx_mock"),
 ]
+
+ENDPOINT = "/api/v4/botx/notifications/direct"
+CHAT_ID = "054af49e-5e18-4dca-ad73-4f96b6de63fa"
+SYNC_ID = "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"
 
 
 @pytest.mark.asyncio
@@ -28,14 +25,14 @@ async def test__markup__defaults_filled(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+    request = BotXRequest(
+        method="POST",
+        path=ENDPOINT,
         json={
-            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
+            "group_chat_id": CHAT_ID,
             "notification": {
                 "status": "ok",
                 "body": "Hi!",
@@ -61,14 +58,13 @@ async def test__markup__defaults_filled(
                 ],
             },
         },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.ACCEPTED,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload({"sync_id": SYNC_ID}),
+        HTTPStatus.ACCEPTED,
     )
 
     bubbles = BubbleMarkup()
@@ -83,15 +79,13 @@ async def test__markup__defaults_filled(
         label="Keyboard button",
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         task = asyncio.create_task(
             bot.send_message(
                 body="Hi!",
                 bot_id=bot_id,
-                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+                chat_id=UUID(CHAT_ID),
                 bubbles=bubbles,
                 keyboard=keyboard,
             ),
@@ -102,14 +96,14 @@ async def test__markup__defaults_filled(
         await bot.set_raw_botx_method_result(
             {
                 "status": "ok",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "sync_id": SYNC_ID,
                 "result": {},
             },
             verify_request=False,
         )
 
     # - Assert -
-    assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert (await task) == UUID(SYNC_ID)
     assert endpoint.called
 
 
@@ -118,14 +112,14 @@ async def test__markup__correctly_built(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+    request = BotXRequest(
+        method="POST",
+        path=ENDPOINT,
         json={
-            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
+            "group_chat_id": CHAT_ID,
             "notification": {
                 "status": "ok",
                 "body": "Hi!",
@@ -169,14 +163,13 @@ async def test__markup__correctly_built(
                 ],
             },
         },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.ACCEPTED,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload({"sync_id": SYNC_ID}),
+        HTTPStatus.ACCEPTED,
     )
 
     bubbles = BubbleMarkup()
@@ -206,15 +199,13 @@ async def test__markup__correctly_built(
     )
     bubbles.add_row([button_4, button_5])
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         task = asyncio.create_task(
             bot.send_message(
                 body="Hi!",
                 bot_id=bot_id,
-                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+                chat_id=UUID(CHAT_ID),
                 bubbles=bubbles,
             ),
         )
@@ -224,14 +215,14 @@ async def test__markup__correctly_built(
         await bot.set_raw_botx_method_result(
             {
                 "status": "ok",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "sync_id": SYNC_ID,
                 "result": {},
             },
             verify_request=False,
         )
 
     # - Assert -
-    assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert (await task) == UUID(SYNC_ID)
     assert endpoint.called
 
 
@@ -240,14 +231,14 @@ async def test__markup__color_and_align(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+    request = BotXRequest(
+        method="POST",
+        path=ENDPOINT,
         json={
-            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
+            "group_chat_id": CHAT_ID,
             "notification": {
                 "body": "Buttons styles:",
                 "bubble": [
@@ -306,14 +297,13 @@ async def test__markup__color_and_align(
                 "status": "ok",
             },
         },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.ACCEPTED,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload({"sync_id": SYNC_ID}),
+        HTTPStatus.ACCEPTED,
     )
 
     bubbles = BubbleMarkup()
@@ -346,15 +336,13 @@ async def test__markup__color_and_align(
         align=ButtonTextAlign.LEFT,
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         task = asyncio.create_task(
             bot.send_message(
                 body="Buttons styles:",
                 bot_id=bot_id,
-                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+                chat_id=UUID(CHAT_ID),
                 bubbles=bubbles,
                 keyboard=keyboard,
             ),
@@ -365,14 +353,14 @@ async def test__markup__color_and_align(
         await bot.set_raw_botx_method_result(
             {
                 "status": "ok",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "sync_id": SYNC_ID,
                 "result": {},
             },
             verify_request=False,
         )
 
     # - Assert -
-    assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert (await task) == UUID(SYNC_ID)
     assert endpoint.called
 
 
@@ -381,14 +369,14 @@ async def test__markup__link(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+    request = BotXRequest(
+        method="POST",
+        path=ENDPOINT,
         json={
-            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
+            "group_chat_id": CHAT_ID,
             "notification": {
                 "body": "Buttons links:",
                 "bubble": [
@@ -422,14 +410,13 @@ async def test__markup__link(
                 "status": "ok",
             },
         },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.ACCEPTED,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload({"sync_id": SYNC_ID}),
+        HTTPStatus.ACCEPTED,
     )
 
     bubbles = BubbleMarkup()
@@ -446,15 +433,13 @@ async def test__markup__link(
         link="https://example.com",
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         task = asyncio.create_task(
             bot.send_message(
                 body="Buttons links:",
                 bot_id=bot_id,
-                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+                chat_id=UUID(CHAT_ID),
                 bubbles=bubbles,
                 keyboard=keyboard,
             ),
@@ -465,14 +450,14 @@ async def test__markup__link(
         await bot.set_raw_botx_method_result(
             {
                 "status": "ok",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "sync_id": SYNC_ID,
                 "result": {},
             },
             verify_request=False,
         )
 
     # - Assert -
-    assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert (await task) == UUID(SYNC_ID)
     assert endpoint.called
 
 

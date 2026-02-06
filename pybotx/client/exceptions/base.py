@@ -1,4 +1,3 @@
-from typing import Optional
 
 import httpx
 
@@ -14,7 +13,7 @@ class BaseClientError(Exception):
     def from_response(
         cls,
         response: httpx.Response,
-        comment: Optional[str] = None,
+        comment: str | None = None,
     ) -> "BaseClientError":
         method = response.request.method
         url = response.request.url
@@ -36,7 +35,7 @@ class BaseClientError(Exception):
     def from_callback(
         cls,
         callback: BotAPIMethodFailedCallback,
-        comment: Optional[str] = None,
+        comment: str | None = None,
     ) -> "BaseClientError":
         message = (
             f"BotX method call with sync_id `{callback.sync_id!s}` "

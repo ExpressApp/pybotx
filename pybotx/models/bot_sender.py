@@ -1,10 +1,9 @@
 from dataclasses import dataclass
-from typing import Optional
 from uuid import UUID
 
 
-@dataclass
+@dataclass(slots=True)
 class BotSender:
     huid: UUID
-    is_chat_admin: Optional[bool]
-    is_chat_creator: Optional[bool]
+    is_chat_admin: bool | None
+    is_chat_creator: bool | None

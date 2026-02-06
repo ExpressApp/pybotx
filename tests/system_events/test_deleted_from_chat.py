@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 import pytest
@@ -66,7 +65,7 @@ async def test__deleted_from_chat__succeed(
     }
 
     collector = HandlerCollector()
-    deleted_from_chat: Optional[DeletedFromChatEvent] = None
+    deleted_from_chat: DeletedFromChatEvent | None = None
 
     @collector.deleted_from_chat
     async def deleted_from_chat_handler(event: DeletedFromChatEvent, bot: Bot) -> None:

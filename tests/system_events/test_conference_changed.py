@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import Any, Callable, Dict, Optional, cast
+from typing import Any, cast
+from collections.abc import Callable
 from uuid import UUID
 
 import pytest
@@ -29,11 +30,11 @@ async def test__conference_changed_succeed(
     bot_id: UUID,
     call_id: UUID,
     host: str,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
 ) -> None:
     # - Arrange -
     conference_change_data = cast(
-        Dict[str, Any],
+        dict[str, Any],
         ConferenceChangedDataFactory(
             call_id=str(call_id),
             link_type="public",
@@ -48,7 +49,7 @@ async def test__conference_changed_succeed(
     )
 
     collector = HandlerCollector()
-    conference_changed: Optional[ConferenceChangedEvent] = None
+    conference_changed: ConferenceChangedEvent | None = None
 
     @collector.conference_changed
     async def conference_changed_handler(
