@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, call
 import pytest
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccountWithSecret,
     HandlerCollector,
@@ -35,7 +36,7 @@ async def test__exception_middleware__handler_called(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         raise exc
 
-    built_bot = Bot(
+    built_bot = build_bot(
         collectors=[collector],
         bot_accounts=[bot_account],
         exception_handlers={ValueError: value_error_handler},
@@ -64,7 +65,7 @@ async def test__exception_middleware__without_handler_logs(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         raise ValueError("Testing exception middleware")
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -96,7 +97,7 @@ async def test__exception_middleware__error_in_handler_logs(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         raise ValueError("Testing exception middleware")
 
-    built_bot = Bot(
+    built_bot = build_bot(
         collectors=[collector],
         bot_accounts=[bot_account],
         exception_handlers={Exception: exception_handler},

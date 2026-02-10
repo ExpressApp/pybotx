@@ -5,10 +5,10 @@ from uuid import UUID
 import pytest
 from respx.router import MockRouter
 
-from pybotx.client.exceptions.users import InvalidProfileDataError
-from pybotx.models.attachments import AttachmentImage
-from pybotx.models.enums import AttachmentTypes
-from tests.testkit import BotXRequest, error_payload, mock_botx, ok_payload
+from pybotx.infrastructure.client.exceptions.users import InvalidProfileDataError
+from pybotx.domain.models.attachments import AttachmentImage
+from pybotx.domain.models.enums import AttachmentTypes
+from pybotx.testkit import BotXRequest, error_payload, mock_botx, ok_payload
 
 pytestmark = [
     pytest.mark.asyncio,

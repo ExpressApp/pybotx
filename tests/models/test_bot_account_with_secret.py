@@ -3,7 +3,7 @@ from pydantic import ValidationError
 from unittest.mock import patch
 from uuid import UUID
 
-from pybotx.models.bot_account import BotAccountWithSecret
+from pybotx.domain.models.bot_account import BotAccountWithSecret
 
 
 def test_bot_account_with_secret_immutable() -> None:

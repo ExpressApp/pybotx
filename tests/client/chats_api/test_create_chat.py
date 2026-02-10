@@ -7,7 +7,7 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import ChatCreationError, ChatCreationProhibitedError, ChatTypes
-from tests.testkit import BotXRequest, error_payload, mock_botx, ok_payload
+from pybotx.testkit import BotXRequest, error_payload, mock_botx, ok_payload
 
 pytestmark = [
     pytest.mark.mock_authorization,
@@ -174,27 +174,29 @@ async def test__create_chat__with_valid_avatar_succeed(
 
 
 def test__create_chat_payload__invalid_avatar_non_data_url_error() -> None:
-    """Test that BotXAPICreateChatRequestPayload validator raises ValueError for non-data URL avatar."""
-    from pybotx.client.chats_api.create_chat import BotXAPICreateChatRequestPayload
+    """Test that BotXAPICreateChatRequestPayload validator raises InvalidAvatarDataError for non-data URL avatar."""
+    from pybotx.infrastructure.client.chats_api.create_chat import BotXAPICreateChatRequestPayload
+    from pybotx import InvalidAvatarDataError
 
     # Test the validator directly since UnverifiedPayloadBaseModel bypasses validation
     # The validator is a classmethod that expects (cls, value)
-    with pytest.raises(ValueError, match="Avatar must be a data URL \\(RFC2397\\)"):
+    with pytest.raises(InvalidAvatarDataError, match="Avatar must be a data URL \\(RFC2397\\)"):
         BotXAPICreateChatRequestPayload._validate_avatar("invalid-url")
 
 
 def test__create_chat_payload__invalid_avatar_bad_rfc2397_format_error() -> None:
-    """Test that BotXAPICreateChatRequestPayload validator raises ValueError for invalid RFC2397 format."""
-    from pybotx.client.chats_api.create_chat import BotXAPICreateChatRequestPayload
+    """Test that BotXAPICreateChatRequestPayload validator raises InvalidAvatarDataError for invalid RFC2397 format."""
+    from pybotx.infrastructure.client.chats_api.create_chat import BotXAPICreateChatRequestPayload
+    from pybotx import InvalidAvatarDataError
 
     # Test the validator directly since UnverifiedPayloadBaseModel bypasses validation
-    with pytest.raises(ValueError, match="Invalid data URL format"):
+    with pytest.raises(InvalidAvatarDataError, match="Invalid data URL format"):
         BotXAPICreateChatRequestPayload._validate_avatar("data:invalid-format")
 
 
 def test__create_chat_payload__avatar_validator_with_none() -> None:
     """Test that BotXAPICreateChatRequestPayload avatar validator handles None correctly."""
-    from pybotx.client.chats_api.create_chat import BotXAPICreateChatRequestPayload
+    from pybotx.infrastructure.client.chats_api.create_chat import BotXAPICreateChatRequestPayload
 
     # Test the validator directly with None value
     result = BotXAPICreateChatRequestPayload._validate_avatar(None)
@@ -203,7 +205,7 @@ def test__create_chat_payload__avatar_validator_with_none() -> None:
 
 def test__create_chat_payload__avatar_validator_with_valid_data_url() -> None:
     """Test that BotXAPICreateChatRequestPayload avatar validator handles valid data URL correctly."""
-    from pybotx.client.chats_api.create_chat import BotXAPICreateChatRequestPayload
+    from pybotx.infrastructure.client.chats_api.create_chat import BotXAPICreateChatRequestPayload
 
     valid_avatar = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
     result = BotXAPICreateChatRequestPayload._validate_avatar(valid_avatar)
@@ -212,8 +214,9 @@ def test__create_chat_payload__avatar_validator_with_valid_data_url() -> None:
 
 def test__create_chat_payload__convert_chat_type_validator() -> None:
     """Test that BotXAPICreateChatRequestPayload converts ChatTypes to APIChatTypes."""
-    from pybotx.client.chats_api.create_chat import BotXAPICreateChatRequestPayload
-    from pybotx.models.enums import ChatTypes, APIChatTypes
+    from pybotx.infrastructure.client.chats_api.create_chat import BotXAPICreateChatRequestPayload
+    from pybotx.domain.models.enums import ChatTypes
+    from pybotx.infrastructure.contracts.enums import APIChatTypes
 
     # Test with ChatTypes enum
     values = {"chat_type": ChatTypes.GROUP_CHAT}
@@ -233,9 +236,10 @@ def test__create_chat_payload__convert_chat_type_validator() -> None:
 
 def test__create_chat_payload__serialize_chat_type_from_domain() -> None:
     """Test that chat_type serialization converts ChatTypes to API value."""
-    from pybotx.client.chats_api.create_chat import BotXAPICreateChatRequestPayload
-    from pybotx.models.enums import ChatTypes, APIChatTypes
-    from pybotx.missing import Undefined
+    from pybotx.infrastructure.client.chats_api.create_chat import BotXAPICreateChatRequestPayload
+    from pybotx.domain.models.enums import ChatTypes
+    from pybotx.infrastructure.contracts.enums import APIChatTypes
+    from pybotx.domain.missing import Undefined
 
     payload = BotXAPICreateChatRequestPayload(
         name="Test chat name",

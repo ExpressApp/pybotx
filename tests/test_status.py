@@ -4,16 +4,19 @@ from uuid import UUID, uuid4
 import pytest
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccountWithSecret,
     BotMenu,
     ChatTypes,
     HandlerCollector,
     IncomingMessage,
+    StatusRequestValidationError,
     StatusRecipient,
     UnknownBotAccountError,
     lifespan_wrapper,
 )
+from pybotx.presentation.raw_handlers import raw_get_status
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -46,7 +49,7 @@ async def test__get_status__hidden_command_not_in_menu(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         incorrect_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -70,7 +73,7 @@ async def test__get_status__visible_command_in_menu(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         incorrect_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -97,7 +100,7 @@ async def test__get_status__command_not_in_menu_if_visible_func_return_false(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         incorrect_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -124,7 +127,7 @@ async def test__get_status__command_in_menu_if_visible_func_return_true(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         incorrect_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -146,12 +149,12 @@ async def test__raw_get_status__invalid_query() -> None:
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         pass
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[])
 
     # - Act -
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(StatusRequestValidationError) as exc:
         async with lifespan_wrapper(built_bot) as bot:
-            await bot.raw_get_status(query, verify_request=False)
+            await raw_get_status(bot, query, verify_request=False)
 
     # - Assert -
     assert "validation error" in str(exc.value)
@@ -165,12 +168,12 @@ async def test__raw_get_status__unknown_bot_account_error_raised() -> None:
         "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
     }
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnknownBotAccountError) as exc:
-            await bot.raw_get_status(query, verify_request=False)
+            await raw_get_status(bot, query, verify_request=False)
 
     # - Assert -
     assert "123e4567-e89b-12d3-a456-426655440000" in str(exc.value)
@@ -187,11 +190,11 @@ async def test__raw_get_status__minimally_filled_succeed(
         "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
     }
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        status = await bot.raw_get_status(query, verify_request=False)
+        status = await raw_get_status(bot, query, verify_request=False)
 
     # - Assert -
     assert status
@@ -211,11 +214,11 @@ async def test__raw_get_status__minimum_filled_succeed(
         "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
     }
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        status = await bot.raw_get_status(query, verify_request=False)
+        status = await raw_get_status(bot, query, verify_request=False)
 
     # - Assert -
     assert status
@@ -235,11 +238,11 @@ async def test__raw_get_status__maximum_filled_succeed(
         "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
     }
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        status = await bot.raw_get_status(query, verify_request=False)
+        status = await raw_get_status(bot, query, verify_request=False)
 
     # - Assert -
     assert status
@@ -262,11 +265,11 @@ async def test__raw_get_status__hidden_command_not_in_status(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         pass
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        status = await bot.raw_get_status(query, verify_request=False)
+        status = await raw_get_status(bot, query, verify_request=False)
 
     # - Assert -
     assert status == {
@@ -296,11 +299,11 @@ async def test__raw_get_status__visible_command_in_status(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         pass
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        status = await bot.raw_get_status(query, verify_request=False)
+        status = await raw_get_status(bot, query, verify_request=False)
 
     # - Assert -
     assert status == {
@@ -333,11 +336,11 @@ async def test__get_status__unsupported_chat_type_accepted(
         "is_admin": "true",
     }
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        status = await bot.raw_get_status(query, verify_request=False)
+        status = await raw_get_status(bot, query, verify_request=False)
 
     # - Assert -
     assert status

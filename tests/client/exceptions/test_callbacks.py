@@ -1,8 +1,8 @@
 import pickle
 from uuid import UUID
 
-from pybotx.client.exceptions.callbacks import BotXMethodFailedCallbackReceivedError
-from pybotx.models.method_callbacks import BotAPIMethodFailedCallback
+from pybotx.infrastructure.client.exceptions.callbacks import BotXMethodFailedCallbackReceivedError
+from pybotx.infrastructure.contracts.method_callbacks import BotAPIMethodFailedCallback
 
 
 def test_botx_method_failed_callback_received_error_reduce() -> None:

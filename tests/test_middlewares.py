@@ -4,6 +4,7 @@ from unittest.mock import Mock
 import pytest
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccountWithSecret,
     HandlerCollector,
@@ -53,7 +54,7 @@ async def test__middlewares__correct_order(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(
+    built_bot = build_bot(
         collectors=[collector],
         bot_accounts=[bot_account],
         middlewares=[middleware_factory(1), middleware_factory(2)],
@@ -99,7 +100,7 @@ async def test__middlewares__called_in_default_handler(
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         pass
 
-    built_bot = Bot(
+    built_bot = build_bot(
         collectors=[collector],
         bot_accounts=[bot_account],
         middlewares=[middleware_factory(1), middleware_factory(2)],
@@ -150,7 +151,7 @@ async def test__middlewares__correct_child_collector_middlewares(
         pass
 
     collector_1.include(collector_2)
-    built_bot = Bot(collectors=[collector_1], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector_1], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -198,7 +199,7 @@ async def test__middlewares__correct_parent_collector_middlewares(
         pass
 
     collector_1.include(collector_2)
-    built_bot = Bot(collectors=[collector_1], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector_1], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

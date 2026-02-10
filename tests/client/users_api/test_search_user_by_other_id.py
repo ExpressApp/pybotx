@@ -6,7 +6,7 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import UserFromSearch, UserNotFoundError
-from tests.testkit import BotXRequest, assert_deep_equal, error_payload, mock_botx, ok_payload
+from pybotx.testkit import BotXRequest, assert_deep_equal, error_payload, mock_botx, ok_payload
 
 pytestmark = [
     pytest.mark.asyncio,

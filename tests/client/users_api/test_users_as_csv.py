@@ -5,10 +5,10 @@ from uuid import UUID
 import pytest
 from respx.router import MockRouter
 
-from pybotx.client.exceptions.users import NoUserKindSelectedError
-from pybotx.models.enums import SyncSourceTypes, UserKinds
-from pybotx.models.users import UserFromCSV
-from tests.testkit import BotXRequest, assert_deep_equal, error_payload, mock_botx
+from pybotx.infrastructure.client.exceptions.users import NoUserKindSelectedError
+from pybotx.domain.models.enums import SyncSourceTypes, UserKinds
+from pybotx.domain.models.users import UserFromCSV
+from pybotx.testkit import BotXRequest, assert_deep_equal, error_payload, mock_botx
 
 pytestmark = [
     pytest.mark.asyncio,

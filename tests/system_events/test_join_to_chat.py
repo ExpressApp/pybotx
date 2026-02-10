@@ -4,6 +4,7 @@ from uuid import UUID
 import pytest
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccount,
     BotAccountWithSecret,
@@ -12,7 +13,9 @@ from pybotx import (
     HandlerCollector,
     lifespan_wrapper,
 )
-from pybotx.models.system_events.user_joined_to_chat import JoinToChatEvent
+from pybotx.presentation.raw_handlers import async_execute_raw_bot_command
+
+from pybotx.domain.models.system_events.user_joined_to_chat import JoinToChatEvent
 from tests.system_events.factories import BotAPIJoinToChatFactory
 
 pytestmark = [
@@ -48,11 +51,11 @@ async def test__join_to_chat__succeed(
         # Drop `raw_command` from asserting
         join_to_chat.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     expected_event = JoinToChatEvent(

@@ -6,13 +6,14 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     BotIsNotChatMemberError,
     ChatNotFoundError,
     FinalRecipientsListEmptyError,
     StealthModeDisabledError,
 )
-from pybotx.client.exceptions.http import InvalidBotXResponsePayloadError
-from tests.testkit import BotXRequest, error_payload, mock_botx, ok_payload
+from pybotx.infrastructure.client.exceptions.http import InvalidBotXResponsePayloadError
+from pybotx.testkit import BotXRequest, error_payload, mock_botx, ok_payload
 
 pytestmark = [
     pytest.mark.asyncio,

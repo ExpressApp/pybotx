@@ -9,6 +9,7 @@ from aiofiles.tempfile import NamedTemporaryFile
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     AnswerDestinationLookupError,
     Bot,
     BotIsNotChatMemberError,
@@ -19,12 +20,18 @@ from pybotx import (
     IncomingMessage,
     KeyboardMarkup,
     MentionBuilder,
+    NotificationBodyTooLongError,
     OutgoingAttachment,
     OutgoingMessage,
     StealthModeDisabledError,
     UnknownBotAccountError,
 )
-from tests.testkit import BotXRequest, mock_botx, ok_payload
+from pybotx.presentation.raw_handlers import (
+    async_execute_raw_bot_command,
+    set_raw_botx_method_result,
+)
+
+from pybotx.testkit import BotXRequest, mock_botx, ok_payload
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -158,11 +165,11 @@ async def test__send__succeed(
 
     # - Act -
     async with bot_factory(collectors=[collector]) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "ok",
                 "sync_id": SYNC_ID,
@@ -279,11 +286,11 @@ async def test__answer_message__succeed(
 
     # - Act -
     async with bot_factory(collectors=[collector]) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "ok",
                 "sync_id": SYNC_ID,
@@ -401,7 +408,7 @@ async def test__send_message__callback_error_raised(
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "error",
                 "sync_id": SYNC_ID,
@@ -448,7 +455,7 @@ async def test__send_message__miminally_filled_succeed(
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "ok",
                 "sync_id": SYNC_ID,
@@ -471,7 +478,7 @@ async def test__send_message__maximum_filled_succeed(
 ) -> None:
     # - Arrange -
     monkeypatch.setattr(
-        "pybotx.models.message.mentions.uuid4",
+        "pybotx.infrastructure.contracts.message.mentions.uuid4",
         lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
     )
 
@@ -607,7 +614,7 @@ async def test__send_message__maximum_filled_succeed(
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "ok",
                 "sync_id": SYNC_ID,
@@ -630,7 +637,7 @@ async def test__send_message__all_mentions_types_succeed(
 ) -> None:
     # - Arrange -
     monkeypatch.setattr(
-        "pybotx.models.message.mentions.uuid4",
+        "pybotx.infrastructure.contracts.message.mentions.uuid4",
         lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
     )
 
@@ -729,7 +736,7 @@ async def test__send_message__all_mentions_types_succeed(
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "ok",
                 "sync_id": SYNC_ID,
@@ -769,7 +776,7 @@ async def test__send_message__message_body_max_length_error_raised(
 
     # - Act -
     async with bot_factory() as bot:
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(NotificationBodyTooLongError) as exc:
             await bot.send_message(
                 body=too_long_body,
                 bot_id=bot_id,
@@ -816,7 +823,7 @@ async def test__send_message__message_body_max_length_succeed(
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "ok",
                 "sync_id": SYNC_ID,

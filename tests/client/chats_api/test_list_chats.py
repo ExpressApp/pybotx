@@ -8,7 +8,7 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import ChatListItem, ChatTypes
-from tests.testkit import BotXRequest, assert_deep_equal, mock_botx, ok_payload
+from pybotx.testkit import BotXRequest, assert_deep_equal, mock_botx, ok_payload
 
 pytestmark = [
     pytest.mark.asyncio,

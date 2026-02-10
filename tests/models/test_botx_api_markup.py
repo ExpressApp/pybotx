@@ -2,7 +2,7 @@ import json
 from typing import Any
 
 
-from pybotx.models.message.markup import (
+from pybotx.infrastructure.contracts.message.markup import (
     BotXAPIMarkup,
     BotXAPIButton,
     BotXAPIButtonOptions,

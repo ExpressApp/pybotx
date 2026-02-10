@@ -6,7 +6,8 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import BotAccountWithSecret, BotXAuthVersion, InvalidBotAccountError
-from pybotx.bot.bot_accounts_storage import BotAccountsStorage
+from pybotx.infrastructure.bot_accounts_storage import BotAccountsStorage
+from pybotx.infrastructure.jwt_encoder import PyJwtEncoder
 from tests.client.test_authorized_botx_method import FooBarMethod
 from tests.client.test_botx_method import BotXAPIFooBarRequestPayload
 
@@ -49,7 +50,11 @@ async def test__authorized_botx_method__unauthorized(
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        BotAccountsStorage([bot_account], auth_version=BotXAuthVersion.V1),
+        BotAccountsStorage(
+            [bot_account],
+            auth_version=BotXAuthVersion.V1,
+            jwt_encoder=PyJwtEncoder(),
+        ),
     )
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 
@@ -103,7 +108,11 @@ async def test__authorized_botx_method__succeed(
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        BotAccountsStorage([bot_account], auth_version=BotXAuthVersion.V1),
+        BotAccountsStorage(
+            [bot_account],
+            auth_version=BotXAuthVersion.V1,
+            jwt_encoder=PyJwtEncoder(),
+        ),
     )
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 
@@ -195,7 +204,11 @@ async def test__authorized_botx_method__legacy_warning_suppressed(
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        BotAccountsStorage([bot_account], auth_version=BotXAuthVersion.V1),
+        BotAccountsStorage(
+            [bot_account],
+            auth_version=BotXAuthVersion.V1,
+            jwt_encoder=PyJwtEncoder(),
+        ),
     )
     method._legacy_auth_warned = True
 

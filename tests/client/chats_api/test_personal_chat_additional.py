@@ -4,15 +4,15 @@ from typing import Any
 from uuid import UUID
 
 
-import pybotx.client.chats_api.personal_chat as personal_chat_module
-from pybotx.client.chats_api.personal_chat import (
+import pybotx.infrastructure.client.chats_api.personal_chat as personal_chat_module
+from pybotx.infrastructure.client.chats_api.personal_chat import (
     BotXAPIPersonalChatRequestPayload,
     BotXAPIPersonalChatResult,
     BotXAPIPersonalChatMember,
     BotXAPIPersonalChatResponsePayload,
 )
-from pybotx.models.enums import APIUserKinds, APIChatTypes
-from pybotx.models.enums import ChatTypes
+from pybotx.infrastructure.contracts.enums import APIUserKinds, APIChatTypes
+from pybotx.domain.models.enums import ChatTypes
 
 
 def test_request_payload_as_query_params_returns_string_uuid() -> None:

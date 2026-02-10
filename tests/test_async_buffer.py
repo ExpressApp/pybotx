@@ -1,7 +1,7 @@
 import os
 import pytest
 
-from pybotx.async_buffer import (
+from pybotx.domain.ports.async_buffer import (
     AsyncBufferReadable,
     AsyncBufferWritable,
     get_file_size,

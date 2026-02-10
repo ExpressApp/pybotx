@@ -6,13 +6,20 @@ from collections.abc import Callable
 import pytest
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccountWithSecret,
+    BotCommandValidationError,
     HandlerCollector,
     RequestHeadersNotProvidedError,
+    SyncSmartAppEventValidationError,
     UnknownSystemEventError,
     UnsupportedBotAPIVersionError,
     lifespan_wrapper,
+)
+from pybotx.presentation.raw_handlers import (
+    async_execute_raw_bot_command,
+    sync_execute_raw_smartapp_event,
 )
 
 pytestmark = [
@@ -27,12 +34,12 @@ async def test__async_execute_raw_bot_command__invalid_payload_value_error_raise
 ):
     # - Arrange -
     payload = {"invalid": "command"}
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(ValueError) as exc:
-            bot.async_execute_raw_bot_command(payload, verify_request=False)
+        with pytest.raises(BotCommandValidationError) as exc:
+            async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert "validation" in str(exc.value)
@@ -43,12 +50,12 @@ async def test__async_execute_raw_bot_command__unsupported_bot_api_version_error
 ):
     # - Arrange -
     payload = {"proto_version": "3"}
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnsupportedBotAPIVersionError) as exc:
-            bot.async_execute_raw_bot_command(payload, verify_request=False)
+            async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert "Unsupported" in str(exc.value)
@@ -91,12 +98,12 @@ async def test__async_execute_raw_bot_command__unknown_system_event() -> None:
         "source_sync_id": None,
         "sync_id": "2b97fa97-4236-5ebf-b299-a618bf8c3fef",
     }
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnknownSystemEventError) as exc:
-            bot.async_execute_raw_bot_command(payload, verify_request=False)
+            async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert "Unknown system event" in str(exc.value)
@@ -112,12 +119,12 @@ async def test__async_execute_raw_bot_command__logging_incoming_request(
     # - Arrange -
     payload = api_incoming_message_factory(bot_id=bot_account.id)
     log_message = f"Got command: {json.dumps(payload, sort_keys=True, indent=4, ensure_ascii=False)}"
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with loguru_caplog.at_level(logging.DEBUG):
-            bot.async_execute_raw_bot_command(payload, verify_request=False)
+            async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert log_message in loguru_caplog.messages
@@ -132,12 +139,12 @@ async def test__async_execute_raw_bot_command__not_logging_incoming_request(
     # - Arrange -
     payload = api_incoming_message_factory(bot_id=bot_account.id)
     log_message = f"Got command: {json.dumps(payload, sort_keys=True, indent=4, ensure_ascii=False)}"
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with loguru_caplog.at_level(logging.DEBUG):
-            bot.async_execute_raw_bot_command(
+            async_execute_raw_bot_command(bot, 
                 payload,
                 verify_request=False,
                 logging_command=False,
@@ -156,7 +163,7 @@ async def test__sync_execute_raw_smartapp_event__logging_incoming_request(
     # - Arrange -
     payload = api_sync_smartapp_event_factory(bot_id=bot_account.id)
     log_message = f"Got sync smartapp event: {json.dumps(payload, sort_keys=True, indent=4, ensure_ascii=False)}"
-    built_bot = Bot(
+    built_bot = build_bot(
         collectors=[collector_with_sync_smartapp_event_handler],
         bot_accounts=[bot_account],
     )
@@ -164,7 +171,7 @@ async def test__sync_execute_raw_smartapp_event__logging_incoming_request(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with loguru_caplog.at_level(logging.DEBUG):
-            await bot.sync_execute_raw_smartapp_event(payload, verify_request=False)
+            await sync_execute_raw_smartapp_event(bot, payload, verify_request=False)
 
     # - Assert -
     assert log_message in loguru_caplog.messages
@@ -179,7 +186,7 @@ async def test__sync_execute_raw_smartapp_event__not_logging_incoming_request(
     # - Arrange -
     payload = api_sync_smartapp_event_factory(bot_id=bot_account.id)
     log_message = f"Got sync smartapp event: {json.dumps(payload, sort_keys=True, indent=4, ensure_ascii=False)}"
-    built_bot = Bot(
+    built_bot = build_bot(
         collectors=[collector_with_sync_smartapp_event_handler],
         bot_accounts=[bot_account],
     )
@@ -187,7 +194,7 @@ async def test__sync_execute_raw_smartapp_event__not_logging_incoming_request(
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with loguru_caplog.at_level(logging.DEBUG):
-            await bot.sync_execute_raw_smartapp_event(
+            await sync_execute_raw_smartapp_event(bot, 
                 payload,
                 verify_request=False,
                 logging_command=False,
@@ -204,7 +211,7 @@ async def test__sync_execute_raw_smartapp_event__headers_not_provided(
 ) -> None:
     # - Arrange -
     payload = api_sync_smartapp_event_factory(bot_id=bot_account.id)
-    built_bot = Bot(
+    built_bot = build_bot(
         collectors=[collector_with_sync_smartapp_event_handler],
         bot_accounts=[bot_account],
     )
@@ -212,7 +219,7 @@ async def test__sync_execute_raw_smartapp_event__headers_not_provided(
     # - Act and Assert-
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(RequestHeadersNotProvidedError):
-            await bot.sync_execute_raw_smartapp_event(payload, verify_request=True)
+            await sync_execute_raw_smartapp_event(bot, payload, verify_request=True)
 
 
 async def test__sync_execute_raw_smartapp_event__request_verified(
@@ -223,14 +230,14 @@ async def test__sync_execute_raw_smartapp_event__request_verified(
 ) -> None:
     # - Arrange -
     payload = api_sync_smartapp_event_factory(bot_id=bot_account.id)
-    built_bot = Bot(
+    built_bot = build_bot(
         collectors=[collector_with_sync_smartapp_event_handler],
         bot_accounts=[bot_account],
     )
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        response = await bot.sync_execute_raw_smartapp_event(
+        response = await sync_execute_raw_smartapp_event(bot, 
             payload,
             verify_request=True,
             request_headers=authorization_header,
@@ -245,15 +252,15 @@ async def test__sync_execute_raw_smartapp_event__incorrect_payload(
 ) -> None:
     # - Arrange -
     payload = {"incorrect": "payload"}
-    built_bot = Bot(
+    built_bot = build_bot(
         collectors=[collector_with_sync_smartapp_event_handler],
         bot_accounts=[bot_account],
     )
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(ValueError):
-            await bot.sync_execute_raw_smartapp_event(
+        with pytest.raises(SyncSmartAppEventValidationError):
+            await sync_execute_raw_smartapp_event(bot, 
                 payload,
                 verify_request=False,
                 logging_command=False,

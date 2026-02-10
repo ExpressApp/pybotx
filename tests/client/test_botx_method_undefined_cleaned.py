@@ -7,10 +7,14 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import BotAccountWithSecret
-from pybotx.bot.bot_accounts_storage import BotAccountsStorage
-from pybotx.client.botx_method import BotXMethod
-from pybotx.missing import Undefined
-from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
+from pybotx.infrastructure.bot_accounts_storage import BotAccountsStorage
+from pybotx.infrastructure.client.botx_method import BotXMethod
+from pybotx.infrastructure.jwt_encoder import PyJwtEncoder
+from pybotx.domain.missing import Undefined
+from pybotx.infrastructure.contracts.api_base import (
+    UnverifiedPayloadBaseModel,
+    VerifiedPayloadBaseModel,
+)
 
 
 class BotXAPIFooBarRequestPayload(UnverifiedPayloadBaseModel):
@@ -84,7 +88,7 @@ async def test__botx_method__undefined_cleaned(
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        BotAccountsStorage([bot_account]),
+        BotAccountsStorage([bot_account], jwt_encoder=PyJwtEncoder()),
     )
     payload = BotXAPIFooBarRequestPayload.from_domain(
         baz={

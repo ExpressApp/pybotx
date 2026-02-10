@@ -7,6 +7,7 @@ from uuid import UUID
 import pytest
 
 from pybotx import (
+    build_bot,
     AttachmentTypes,
     Bot,
     BotAccountWithSecret,
@@ -15,17 +16,21 @@ from pybotx import (
     Sticker,
     lifespan_wrapper,
 )
-from pybotx.models.attachments import (
+from pybotx.presentation.raw_handlers import async_execute_raw_bot_command
+
+from pybotx.presentation.contracts.attachments import (
+    BotAPIAttachment,
+    convert_api_attachment_to_domain,
+)
+from pybotx.domain.models.attachments import (
     AttachmentDocument,
     AttachmentImage,
     AttachmentVideo,
     AttachmentVoice,
-    BotAPIAttachment,
     Contact,
     IncomingAttachment,
     Link,
     Location,
-    convert_api_attachment_to_domain,
 )
 
 pytestmark = [
@@ -65,11 +70,11 @@ async def test__attachment__open(
         # Drop `raw_command` from asserting
         incoming_message.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
         await asyncio.sleep(0)  # Return control to event loop
 
@@ -176,11 +181,11 @@ async def test__async_execute_raw_bot_command__non_file_attachments_types(
         # Drop `raw_command` from asserting
         incoming_message.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert getattr(incoming_message, attr_name) == domain_attachment
@@ -297,11 +302,11 @@ async def test__async_execute_raw_bot_command__file_attachments_types(
         # Drop `raw_command` from asserting
         incoming_message.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert incoming_message
@@ -329,11 +334,11 @@ async def test__async_execute_raw_bot_command__unknown_attachment_type(
 
     collector = HandlerCollector()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert "Received unknown attachment type" in loguru_caplog.text
@@ -364,11 +369,11 @@ async def test__async_execute_raw_bot_command__empty_attachment(
         # Drop `raw_command` from asserting
         incoming_message.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert incoming_message

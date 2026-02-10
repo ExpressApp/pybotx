@@ -14,7 +14,7 @@ from tests.client.chats_api.factories import (
     APIPersonalChatResponseFactory,
     ChatInfoFactory,
 )
-from tests.testkit import BotXRequest, assert_deep_equal, error_payload, mock_botx
+from pybotx.testkit import BotXRequest, assert_deep_equal, error_payload, mock_botx
 
 pytestmark = [
     pytest.mark.asyncio,

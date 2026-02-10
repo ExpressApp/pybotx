@@ -6,11 +6,15 @@ from unittest.mock import Mock
 import pytest
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccountWithSecret,
     ChatCreatedEvent,
+    CommandDescriptionRequiredError,
     HandlerCollector,
+    HandlerAlreadyRegisteredError,
     IncomingMessage,
+    InvalidCommandNameError,
     SmartAppEvent,
     SyncSmartAppEventHandlerNotFoundError,
     lifespan_wrapper,
@@ -26,7 +30,7 @@ def test__handler_collector__command_with_space_error_raised() -> None:
     # - Arrange -
     collector = HandlerCollector()
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(InvalidCommandNameError) as exc:
 
         @collector.command("/ command", description="My command")
         async def handler(message: IncomingMessage, bot: Bot) -> None:
@@ -40,7 +44,7 @@ def test__handler_collector__command_without_leading_slash_error_raised() -> Non
     # - Arrange -
     collector = HandlerCollector()
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(InvalidCommandNameError) as exc:
 
         @collector.command("command", description="My command")
         async def handler(message: IncomingMessage, bot: Bot) -> None:
@@ -54,7 +58,7 @@ def test__handler_collector__visible_command_without_description_error_raised() 
     # - Act -
     collector = HandlerCollector()
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(CommandDescriptionRequiredError) as exc:
 
         @collector.command("/command")
         async def handler(message: IncomingMessage, bot: Bot) -> None:
@@ -73,7 +77,7 @@ def test__handler_collector__two_same_commands_error_raised() -> None:
         pass
 
     # - Act -
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(HandlerAlreadyRegisteredError) as exc:
 
         @collector.command("/command", description="My command")
         async def handler_2(message: IncomingMessage, bot: Bot) -> None:
@@ -93,7 +97,7 @@ def test__handler_collector__two_default_handlers_error_raised() -> None:
         pass
 
     # - Act -
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(HandlerAlreadyRegisteredError) as exc:
 
         @collector.default_message_handler
         async def handler_2(message: IncomingMessage, bot: Bot) -> None:
@@ -113,7 +117,7 @@ def test__handler_collector__two_same_system_events_handlers_error_raised() -> N
         pass
 
     # - Act -
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(HandlerAlreadyRegisteredError) as exc:
 
         @collector.chat_created
         async def handler_2(message: ChatCreatedEvent, bot: Bot) -> None:
@@ -139,7 +143,7 @@ def test___handler_collector__merge_collectors_with_same_command_error_raised() 
         pass
 
     # - Act -
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(HandlerAlreadyRegisteredError) as exc:
         collector.include(other_collector)
 
     # - Assert -
@@ -164,7 +168,7 @@ def test__handler_collector__merge_collectors_with_default_handlers_error_raised
         pass
 
     # - Act -
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(HandlerAlreadyRegisteredError) as exc:
         collector.include(other_collector)
 
     # - Assert -
@@ -189,7 +193,7 @@ def test__handler_collector__merge_collectors_with_same_system_events_handlers_e
         pass
 
     # - Act -
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(HandlerAlreadyRegisteredError) as exc:
         collector.include(other_collector)
 
     # - Assert -
@@ -211,7 +215,7 @@ async def test__handler_collector__command_handler_called(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -235,7 +239,7 @@ async def test__handler_collector__unicode_command_error_raised(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -264,7 +268,7 @@ async def test__handler_collector__correct_command_handler_called(
     async def incorrect_handler(message: IncomingMessage, bot: Bot) -> None:
         incorrect_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -296,7 +300,7 @@ async def test__handler_collector__correct_command_handler_called_in_merged_coll
     async def incorrect_handler(message: IncomingMessage, bot: Bot) -> None:
         incorrect_handler_trigger()
 
-    built_bot = Bot(collectors=[collector_1, collector_2], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector_1, collector_2], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -321,7 +325,7 @@ async def test__handler_collector__default_handler_called(
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -345,7 +349,7 @@ async def test__handler_collector__empty_command_goes_to_default_handler(
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -369,7 +373,7 @@ async def test__handler_collector__invalid_command_goes_to_default_handler(
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -389,7 +393,7 @@ async def test__handler_collector__handler_not_found_logged(
     user_command = incoming_message_factory(body="/command")
     collector = HandlerCollector()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -415,7 +419,7 @@ async def test__handler_collector__default_handler_in_first_collector_called(
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector_1, collector_2], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector_1, collector_2], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -441,7 +445,7 @@ async def test__handler_collector__default_handler_in_second_collector_called(
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector_1, collector_2], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector_1, collector_2], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -458,7 +462,7 @@ async def test__handler_collector__handler_not_found_exception_logged(
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     # - Arrange -
-    bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     bot.async_execute_bot_command(incoming_message_factory(body="/command"))
@@ -476,7 +480,7 @@ async def test__handler_collector__handle_incoming_message_by_command_handler_no
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -503,7 +507,7 @@ async def test__handler_collector__handle_incoming_message_by_command_succeed(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -524,7 +528,7 @@ async def test__handler_collector__handle_sync_smartapp_event__handler_not_found
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act and Assert -
     async with lifespan_wrapper(built_bot) as bot:
@@ -544,7 +548,7 @@ async def test__handler_collector__sync_smartapp_event__include__handler_already
     collector2 = deepcopy(collector_with_sync_smartapp_event_handler)
 
     # - Act and Assert -
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(HandlerAlreadyRegisteredError) as exc:
         collector1.include(collector2)
 
     assert str(exc.value) == "Handler for sync smartapp event already registered"
@@ -558,7 +562,7 @@ async def test__handler_collector__sync_smartapp_event__decorator__handler_alrea
     collector = collector_with_sync_smartapp_event_handler
 
     # - Act and Assert -
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(HandlerAlreadyRegisteredError) as exc:
 
         @collector.sync_smartapp_event
         async def duplicated_handle_sync_smartapp_event(

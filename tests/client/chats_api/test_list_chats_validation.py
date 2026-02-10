@@ -1,11 +1,11 @@
 from datetime import datetime
 from uuid import UUID
 
-from pybotx.client.chats_api.list_chats import (
+from pybotx.infrastructure.client.chats_api.list_chats import (
     BotXAPIListChatResponsePayload,
     BotXAPIListChatResult,
 )
-from pybotx.models.enums import APIChatTypes
+from pybotx.infrastructure.contracts.enums import APIChatTypes
 
 
 class MockValidationInfo:

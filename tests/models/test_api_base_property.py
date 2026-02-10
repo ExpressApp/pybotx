@@ -3,8 +3,8 @@ from typing import Any
 from deepdiff import DeepDiff
 from hypothesis import given, strategies as st
 
-from pybotx.missing import Undefined
-from pybotx.models.api_base import PayloadBaseModel
+from pybotx.domain.missing import Undefined
+from pybotx.infrastructure.contracts.api_base import PayloadBaseModel
 
 
 class DummyPayload(PayloadBaseModel):

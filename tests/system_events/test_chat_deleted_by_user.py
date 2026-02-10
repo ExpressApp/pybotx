@@ -3,13 +3,16 @@ from uuid import UUID
 import pytest
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccount,
     BotAccountWithSecret,
     HandlerCollector,
     lifespan_wrapper,
 )
-from pybotx.models.system_events.chat_deleted_by_user import ChatDeletedByUserEvent
+from pybotx.presentation.raw_handlers import async_execute_raw_bot_command
+
+from pybotx.domain.models.system_events.chat_deleted_by_user import ChatDeletedByUserEvent
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -70,11 +73,11 @@ async def test__chat_deleted_by_user__succeed(
         # Drop `raw_command` from asserting
         chat_deleted.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert chat_deleted == ChatDeletedByUserEvent(

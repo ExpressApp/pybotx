@@ -1,3 +1,4 @@
+import inspect
 import logging
 import socket
 from datetime import datetime
@@ -13,8 +14,12 @@ import jwt
 import pytest
 from aiofiles.tempfile import NamedTemporaryFile
 from respx.router import MockRouter
+from respx import mocks
+from respx import router as respx_router
+from httpx._client import ClientState, UseClientDefault, USE_CLIENT_DEFAULT
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccount,
     BotAccountWithSecret,
@@ -28,9 +33,11 @@ from pybotx import (
     BotXAuthVersion,
     lifespan_wrapper,
 )
-from pybotx.bot.bot_accounts_storage import BotAccountsStorage
-from pybotx.logger import logger
-from pybotx.models.sync_smartapp_event import BotAPISyncSmartAppEventResultResponse
+from pybotx.infrastructure.bot_accounts_storage import BotAccountsStorage
+from pybotx.infrastructure.httpx_client import HttpxClientAdapter
+from pybotx.domain.logger import logger
+from pybotx.domain.models.sync_smartapp_event import SyncSmartAppEventResult
+from pybotx.infrastructure.jwt_encoder import PyJwtEncoder
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
 
@@ -40,6 +47,113 @@ from tests.fixtures.users_api import (  # noqa: F401
     user_from_search_without_data,
     user_from_search_without_data_json,
 )
+
+
+_respx_prepare_async_request = mocks.AbstractRequestMocker.prepare_async_request
+
+
+@classmethod
+async def _prepare_async_request(cls, httpx_request, **kwargs):  # type: ignore[no-untyped-def]
+    read = httpx_request.read
+    if inspect.iscoroutinefunction(read):
+        await read()
+    else:
+        read()
+    return httpx_request, kwargs
+
+
+mocks.AbstractRequestMocker.prepare_async_request = _prepare_async_request
+
+
+_respx_aresolve = respx_router.Router.aresolve
+
+
+async def _router_aresolve(self, request: httpx.Request):  # type: ignore[no-untyped-def]
+    with self.resolver(request) as resolved:
+        for route in self.routes:
+            prospect = route.match(request)
+
+            if inspect.isawaitable(prospect):
+                try:
+                    prospect = await prospect
+                except Exception as error:
+                    raise respx_router.SideEffectError(
+                        route,
+                        origin=error,
+                    ) from error
+
+            if prospect is not None:
+                resolved.route = route
+                resolved.response = prospect
+                break
+
+    if resolved.response and isinstance(
+        resolved.response.stream,
+        httpx.ByteStream,
+    ):
+        read = resolved.response.read
+        if inspect.iscoroutinefunction(read):
+            await read()
+        else:
+            read()
+
+    return resolved
+
+
+respx_router.Router.aresolve = _router_aresolve
+
+
+_httpx_async_send = httpx.AsyncClient.send
+
+
+async def _asyncclient_send(  # type: ignore[no-untyped-def]
+    self: httpx.AsyncClient,
+    request: httpx.Request,
+    *,
+    stream: bool = False,
+    auth: Any = USE_CLIENT_DEFAULT,
+    follow_redirects: Any = USE_CLIENT_DEFAULT,
+) -> httpx.Response:
+    if self._state == ClientState.CLOSED:
+        raise RuntimeError("Cannot send a request, as the client has been closed.")
+
+    self._state = ClientState.OPENED
+    follow_redirects = (
+        self.follow_redirects
+        if isinstance(follow_redirects, UseClientDefault)
+        else follow_redirects
+    )
+
+    self._set_timeout(request)
+
+    auth = self._build_request_auth(request, auth)
+
+    response = await self._send_handling_auth(
+        request,
+        auth=auth,
+        follow_redirects=follow_redirects,
+        history=[],
+    )
+    try:
+        if not stream:
+            if isinstance(response.stream, httpx.AsyncByteStream) and not isinstance(
+                response.stream,
+                httpx.SyncByteStream,
+            ):
+                response._content = b"".join(  # type: ignore[attr-defined]
+                    [chunk async for chunk in response.aiter_bytes()]
+                )
+            else:
+                response.read()
+
+        return response
+
+    except BaseException as exc:
+        await response.aclose()
+        raise exc
+
+
+httpx.AsyncClient.send = _asyncclient_send
 
 
 @pytest.fixture(autouse=True)
@@ -70,6 +184,7 @@ def prepared_bot_accounts_storage(
     bot_accounts_storage = BotAccountsStorage(
         [bot_account],
         auth_version=BotXAuthVersion.V1,
+        jwt_encoder=PyJwtEncoder(),
     )
     bot_accounts_storage.set_token(bot_id, "token")
 
@@ -209,7 +324,7 @@ def bot_factory(
         **kwargs: Any,
     ) -> AsyncGenerator[Bot, None]:
         collectors = collectors or [HandlerCollector()]
-        bot = Bot(collectors=collectors, bot_accounts=[bot_account], **kwargs)
+        bot = build_bot(collectors=collectors, bot_accounts=[bot_account], **kwargs)
         async with lifespan_wrapper(bot) as running_bot:
             yield running_bot
 
@@ -239,9 +354,9 @@ def loguru_caplog(
 
 
 @pytest.fixture
-async def httpx_client() -> AsyncGenerator[httpx.AsyncClient, None]:
+async def httpx_client() -> AsyncGenerator[HttpxClientAdapter, None]:
     async with httpx.AsyncClient() as client:
-        yield client
+        yield HttpxClientAdapter(client)
 
 
 @pytest.fixture
@@ -428,11 +543,8 @@ def collector_with_sync_smartapp_event_handler() -> HandlerCollector:
     async def handle_sync_smartapp_event(
         event: SmartAppEvent,
         _: Bot,
-    ) -> BotAPISyncSmartAppEventResultResponse:
-        return BotAPISyncSmartAppEventResultResponse.from_domain(
-            data=event.data,
-            files=event.files,
-        )
+    ) -> SyncSmartAppEventResult:
+        return SyncSmartAppEventResult(data=event.data, files=event.files)
 
     return collector
 

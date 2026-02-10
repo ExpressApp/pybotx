@@ -7,14 +7,19 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     BotAccountWithSecret,
     InvalidBotXResponsePayloadError,
     InvalidBotXStatusCodeError,
 )
-from pybotx.bot.bot_accounts_storage import BotAccountsStorage
-from pybotx.client.botx_method import BotXMethod, response_exception_thrower
-from pybotx.client.exceptions.base import BaseClientError
-from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
+from pybotx.infrastructure.bot_accounts_storage import BotAccountsStorage
+from pybotx.infrastructure.client.botx_method import BotXMethod, response_exception_thrower
+from pybotx.infrastructure.client.exceptions.base import BaseClientError
+from pybotx.infrastructure.jwt_encoder import PyJwtEncoder
+from pybotx.infrastructure.contracts.api_base import (
+    UnverifiedPayloadBaseModel,
+    VerifiedPayloadBaseModel,
+)
 
 
 class FooBarError(BaseClientError):
@@ -89,7 +94,7 @@ async def test__botx_method__invalid_botx_status_code_error_raised(
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        BotAccountsStorage([bot_account]),
+        BotAccountsStorage([bot_account], jwt_encoder=PyJwtEncoder()),
     )
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 
@@ -124,7 +129,7 @@ async def test__botx_method__invalid_json_raises_invalid_botx_response_payload_e
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        BotAccountsStorage([bot_account]),
+        BotAccountsStorage([bot_account], jwt_encoder=PyJwtEncoder()),
     )
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 
@@ -159,7 +164,7 @@ async def test__botx_method__invalid_schema_raises_invalid_botx_response_payload
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        BotAccountsStorage([bot_account]),
+        BotAccountsStorage([bot_account], jwt_encoder=PyJwtEncoder()),
     )
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 
@@ -191,7 +196,7 @@ async def test__botx_method__status_handler_called(
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        BotAccountsStorage([bot_account]),
+        BotAccountsStorage([bot_account], jwt_encoder=PyJwtEncoder()),
     )
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 
@@ -230,7 +235,7 @@ async def test__botx_method__succeed(
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        BotAccountsStorage([bot_account]),
+        BotAccountsStorage([bot_account], jwt_encoder=PyJwtEncoder()),
     )
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 
@@ -277,7 +282,7 @@ async def test__build_botx_url_with_different_bot_cts_urls(
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        BotAccountsStorage([bot_account]),
+        BotAccountsStorage([bot_account], jwt_encoder=PyJwtEncoder()),
     )
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 

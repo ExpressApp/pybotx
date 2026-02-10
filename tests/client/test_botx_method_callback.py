@@ -1,4 +1,5 @@
 # mypy: disable-error-code=attr-defined
+from pybotx.presentation.raw_handlers import set_raw_botx_method_result
 
 import asyncio
 import time
@@ -11,6 +12,7 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccountWithSecret,
     BotShuttingDownError,
@@ -20,14 +22,16 @@ from pybotx import (
     HandlerCollector,
     lifespan_wrapper,
 )
-from pybotx.bot.callbacks.callback_memory_repo import CallbackMemoryRepo
-from pybotx.client.botx_method import (
+from pybotx.infrastructure.callbacks.callback_memory_repo import CallbackMemoryRepo
+from pybotx.infrastructure.client.botx_method import (
     BotXMethod,
     ErrorCallbackHandlers,
     callback_exception_thrower,
 )
-from pybotx.client.exceptions.base import BaseClientError
-from pybotx.models.method_callbacks import BotAPIMethodSuccessfulCallback
+from pybotx.infrastructure.client.exceptions.base import BaseClientError
+from pybotx.presentation.contracts.method_callbacks import (
+    BotAPIMethodSuccessfulCallback,
+)
 from tests.client.test_botx_method import (
     BotXAPIFooBarRequestPayload,
     BotXAPIFooBarResponsePayload,
@@ -94,9 +98,11 @@ async def call_foo_bar(
     wait_callback: bool = True,
     callback_timeout: float | None = None,
 ) -> UUID:
+    http_client = self._botx_api.get_http_client()
+    default_callback_timeout = self._botx_api.get_default_callback_timeout()
     method = FooBarCallbackMethod(
         bot_id,
-        self._httpx_client,
+        http_client,
         self._bot_accounts_storage,
         self._callbacks_manager,
     )
@@ -106,7 +112,7 @@ async def call_foo_bar(
         payload,
         wait_callback,
         callback_timeout,
-        self._default_callback_timeout,
+        default_callback_timeout,
     )
     return botx_api_foo_bar.to_domain()
 
@@ -123,11 +129,11 @@ async def test__botx_method_callback__callback_not_found(
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     # - Arrange -
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "error",
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
@@ -153,10 +159,10 @@ async def test__botx_method_callback__orphan_callback_expires(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # - Arrange -
-    import pybotx.bot.callbacks.callback_manager as callback_manager_module
+    import pybotx.application.callbacks.callback_manager as callback_manager_module
 
     monkeypatch.setattr(callback_manager_module, "ORPHAN_CALLBACK_TTL_SECONDS", 0.01)
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     payload = {
         "status": "ok",
@@ -166,8 +172,8 @@ async def test__botx_method_callback__orphan_callback_expires(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        await bot.set_raw_botx_method_result(payload, verify_request=False)
-        await bot.set_raw_botx_method_result(payload, verify_request=False)
+        await set_raw_botx_method_result(bot, payload, verify_request=False)
+        await set_raw_botx_method_result(bot, payload, verify_request=False)
 
         await asyncio.sleep(0.05)
 
@@ -185,10 +191,10 @@ async def test__botx_method_callback__pending_limit_drops_orphan(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # - Arrange -
-    import pybotx.bot.callbacks.callback_manager as callback_manager_module
+    import pybotx.application.callbacks.callback_manager as callback_manager_module
 
     monkeypatch.setattr(callback_manager_module, "ORPHAN_PENDING_CALLBACKS_LIMIT", 1)
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     payload_1 = {
         "status": "ok",
@@ -203,8 +209,8 @@ async def test__botx_method_callback__pending_limit_drops_orphan(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        await bot.set_raw_botx_method_result(payload_1, verify_request=False)
-        await bot.set_raw_botx_method_result(payload_2, verify_request=False)
+        await set_raw_botx_method_result(bot, payload_1, verify_request=False)
+        await set_raw_botx_method_result(bot, payload_2, verify_request=False)
 
     # - Assert -
     assert "Pending callbacks limit reached; dropping orphan callback" in (
@@ -217,7 +223,7 @@ async def test__botx_method_callback__orphan_alarm_already_exists(
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     # - Arrange -
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     payload = {
         "status": "ok",
@@ -227,14 +233,14 @@ async def test__botx_method_callback__orphan_alarm_already_exists(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        await bot.set_raw_botx_method_result(payload, verify_request=False)
+        await set_raw_botx_method_result(bot, payload, verify_request=False)
 
         bot._callbacks_manager._pending_callbacks.pop(
             UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"),
             None,
         )
 
-        await bot.set_raw_botx_method_result(payload, verify_request=False)
+        await set_raw_botx_method_result(bot, payload, verify_request=False)
 
     # - Assert -
     assert "received without a registered handler; buffering" in loguru_caplog.text
@@ -260,7 +266,7 @@ async def test__botx_method_callback__error_callback_error_handler_called(
             },
         ),
     )
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
@@ -271,7 +277,7 @@ async def test__botx_method_callback__error_callback_error_handler_called(
         )
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "error",
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
@@ -316,7 +322,7 @@ async def test__botx_method_callback__error_callback_received(
             },
         ),
     )
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
@@ -327,7 +333,7 @@ async def test__botx_method_callback__error_callback_received(
         )
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "error",
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
@@ -371,7 +377,7 @@ async def test__botx_method_callback__cancelled_callback_future_during_shutdown(
             },
         ),
     )
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
@@ -406,7 +412,7 @@ async def test__botx_method_callback__callback_received_after_timeout(
             },
         ),
     )
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
@@ -416,7 +422,7 @@ async def test__botx_method_callback__callback_received_after_timeout(
             await bot.call_foo_bar(bot_id, baz=1, callback_timeout=0)
 
         with pytest.raises(BotXMethodCallbackNotFoundError) as not_found_exc:
-            await bot.set_raw_botx_method_result(
+            await set_raw_botx_method_result(bot, 
                 {
                     "status": "error",
                     "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
@@ -458,7 +464,7 @@ async def test__botx_method_callback__dont_wait_for_callback(
             },
         ),
     )
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
@@ -491,7 +497,7 @@ async def test__botx_method_callback__pending_callback_future_during_shutdown(
             },
         ),
     )
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
@@ -530,7 +536,7 @@ async def test__botx_method_callback__callback_successful_received(
             },
         ),
     )
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
@@ -541,7 +547,7 @@ async def test__botx_method_callback__callback_successful_received(
         )
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "ok",
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
@@ -575,7 +581,7 @@ async def test__botx_method_callback__callback_successful_received_with_custom_r
             },
         ),
     )
-    built_bot = Bot(
+    built_bot = build_bot(
         collectors=[HandlerCollector()],
         bot_accounts=[bot_account],
         callback_repo=CallbackMemoryRepo(),
@@ -590,7 +596,7 @@ async def test__botx_method_callback__callback_successful_received_with_custom_r
         )
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "ok",
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
@@ -627,7 +633,7 @@ async def test__botx_method_callback__callback_received_before_repo_create(
 
     started = asyncio.Event()
     proceed = asyncio.Event()
-    built_bot = Bot(
+    built_bot = build_bot(
         collectors=[HandlerCollector()],
         bot_accounts=[bot_account],
         callback_repo=SlowCreateCallbackRepo(started, proceed),
@@ -642,7 +648,7 @@ async def test__botx_method_callback__callback_received_before_repo_create(
 
         await started.wait()
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "ok",
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
@@ -679,10 +685,10 @@ async def test__botx_method_callback__bot_wait_callback_before_its_receiving(
             },
         ),
     )
-    built_bot = Bot(
+    built_bot = build_bot(
         collectors=[HandlerCollector()],
         bot_accounts=[bot_account],
-        httpx_client=httpx_client,
+        raw_http_client=httpx_client,
     )
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
@@ -695,7 +701,7 @@ async def test__botx_method_callback__bot_wait_callback_before_its_receiving(
         # Return control to event loop
         await asyncio.sleep(0)
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "status": "ok",
@@ -736,10 +742,10 @@ async def test__botx_method_callback__bot_wait_callback_after_its_receiving(
             },
         ),
     )
-    built_bot = Bot(
+    built_bot = build_bot(
         collectors=[HandlerCollector()],
         bot_accounts=[bot_account],
-        httpx_client=httpx_client,
+        raw_http_client=httpx_client,
     )
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
@@ -748,7 +754,7 @@ async def test__botx_method_callback__bot_wait_callback_after_its_receiving(
     async with lifespan_wrapper(built_bot) as bot:
         foo_bar = await bot.call_foo_bar(bot_id, baz=1, wait_callback=False)
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "status": "ok",
@@ -790,10 +796,10 @@ async def test__botx_method_callback__bot_dont_wait_received_callback(
             },
         ),
     )
-    built_bot = Bot(
+    built_bot = build_bot(
         collectors=[HandlerCollector()],
         bot_accounts=[bot_account],
-        httpx_client=httpx_client,
+        raw_http_client=httpx_client,
     )
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
@@ -804,7 +810,7 @@ async def test__botx_method_callback__bot_dont_wait_received_callback(
 
         await asyncio.sleep(0)  # дать шанс callback обработаться
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
                 "status": "ok",
@@ -848,7 +854,7 @@ async def test__botx_method_callback__bot_wait_already_waited_callback(
             },
         ),
     )
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 
@@ -859,7 +865,7 @@ async def test__botx_method_callback__bot_wait_already_waited_callback(
         )
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "ok",
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
@@ -901,7 +907,7 @@ async def test__botx_method_callback__bot_wait_timeouted_callback(
             },
         ),
     )
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     built_bot.call_foo_bar = types.MethodType(call_foo_bar, built_bot)
 

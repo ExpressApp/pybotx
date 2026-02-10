@@ -1,10 +1,10 @@
 from uuid import UUID
 
-from pybotx.client.chats_api.chat_info import (
+from pybotx.infrastructure.client.chats_api.chat_info import (
     BotXAPIChatInfoResult,
     BotXAPIChatInfoMember,
 )
-from pybotx.models.enums import APIUserKinds
+from pybotx.infrastructure.contracts.enums import APIUserKinds
 
 
 class MockValidationInfo:

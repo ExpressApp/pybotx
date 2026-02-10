@@ -2,6 +2,7 @@
 
 set -ex
 
+python scripts/generate_botx_facets.py --check
 mypy pybotx tests
 ruff check pybotx tests
 

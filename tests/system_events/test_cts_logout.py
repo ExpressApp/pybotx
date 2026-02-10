@@ -3,6 +3,7 @@ from uuid import UUID
 import pytest
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccount,
     BotAccountWithSecret,
@@ -10,6 +11,7 @@ from pybotx import (
     HandlerCollector,
     lifespan_wrapper,
 )
+from pybotx.presentation.raw_handlers import async_execute_raw_bot_command
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -71,11 +73,11 @@ async def test__cts_logout__succeed(
         # Drop `raw_command` from asserting
         cts_logout.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert cts_logout == CTSLogoutEvent(

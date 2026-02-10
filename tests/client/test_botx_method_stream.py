@@ -7,10 +7,11 @@ from aiofiles.tempfile import NamedTemporaryFile
 from respx.router import MockRouter
 
 from pybotx import BotAccountWithSecret, InvalidBotXStatusCodeError
-from pybotx.async_buffer import AsyncBufferWritable
-from pybotx.bot.bot_accounts_storage import BotAccountsStorage
-from pybotx.client.botx_method import BotXMethod, response_exception_thrower
-from pybotx.client.exceptions.base import BaseClientError
+from pybotx.domain.ports.async_buffer import AsyncBufferWritable
+from pybotx.infrastructure.bot_accounts_storage import BotAccountsStorage
+from pybotx.infrastructure.client.botx_method import BotXMethod, response_exception_thrower
+from pybotx.infrastructure.client.exceptions.base import BaseClientError
+from pybotx.infrastructure.jwt_encoder import PyJwtEncoder
 from tests.client.test_botx_method import BotXAPIFooBarRequestPayload
 
 
@@ -35,7 +36,7 @@ class FooBarStreamMethod(BotXMethod):
             self._build_url(path),
             params=payload.jsonable_dict(),
         ) as response:
-            async for chunk in response.aiter_bytes():
+            async for chunk in response.iter_bytes():
                 await async_buffer.write(chunk)
 
         await async_buffer.seek(0)
@@ -64,7 +65,7 @@ async def test__botx_method_stream__invalid_botx_status_code_error_raised(
     method = FooBarStreamMethod(
         bot_id,
         httpx_client,
-        BotAccountsStorage([bot_account]),
+        BotAccountsStorage([bot_account], jwt_encoder=PyJwtEncoder()),
     )
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 
@@ -93,7 +94,7 @@ async def test__botx_method_stream__status_handler_called(
     method = FooBarStreamMethod(
         bot_id,
         httpx_client,
-        BotAccountsStorage([bot_account]),
+        BotAccountsStorage([bot_account], jwt_encoder=PyJwtEncoder()),
     )
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 
@@ -125,7 +126,7 @@ async def test__botx_method_stream__succeed(
     method = FooBarStreamMethod(
         bot_id,
         httpx_client,
-        BotAccountsStorage([bot_account]),
+        BotAccountsStorage([bot_account], jwt_encoder=PyJwtEncoder()),
     )
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 

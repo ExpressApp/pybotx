@@ -1,12 +1,12 @@
 import pytest
 from unittest.mock import Mock
 
-from pybotx.models.enums import (
+from pybotx.infrastructure.contracts.enums import (
     APIChatTypes,
-    ChatTypes,
     convert_chat_type_from_domain,
     convert_chat_type_to_domain,
 )
+from pybotx.domain.models.enums import ChatTypes
 
 
 def test__convert_chat_type_from_domain__successful_conversion() -> None:

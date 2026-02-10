@@ -6,6 +6,7 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccountWithSecret,
     HandlerCollector,
@@ -34,7 +35,7 @@ async def test__get_token__invalid_bot_account_error_raised(
         return_value=httpx.Response(HTTPStatus.UNAUTHORIZED),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     with pytest.raises(InvalidBotAccountError) as exc:
@@ -67,7 +68,7 @@ async def test__get_token__succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

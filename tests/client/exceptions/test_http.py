@@ -1,7 +1,7 @@
 import pickle
 import httpx
 
-from pybotx.client.exceptions.http import InvalidBotXResponseError
+from pybotx.infrastructure.client.exceptions.http import InvalidBotXResponseError
 
 
 def test_invalid_botx_response_error_reduce() -> None:

@@ -6,10 +6,11 @@ from uuid import UUID
 import pytest
 from respx.router import MockRouter
 
-from pybotx import BubbleMarkup, Button, KeyboardMarkup
-from pybotx.models.message.markup import ButtonTextAlign
-from tests.testkit import BotXRequest, mock_botx, ok_payload
+from pybotx import BubbleMarkup, Button, InvalidMarkupError, KeyboardMarkup
+from pybotx.domain.models.message.markup import ButtonTextAlign
+from pybotx.testkit import BotXRequest, mock_botx, ok_payload
 
+from pybotx.presentation.raw_handlers import set_raw_botx_method_result
 pytestmark = [
     pytest.mark.mock_authorization,
     pytest.mark.usefixtures("respx_mock"),
@@ -93,7 +94,7 @@ async def test__markup__defaults_filled(
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "ok",
                 "sync_id": SYNC_ID,
@@ -212,7 +213,7 @@ async def test__markup__correctly_built(
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "ok",
                 "sync_id": SYNC_ID,
@@ -350,7 +351,7 @@ async def test__markup__color_and_align(
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "ok",
                 "sync_id": SYNC_ID,
@@ -447,7 +448,7 @@ async def test__markup__link(
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "ok",
                 "sync_id": SYNC_ID,
@@ -466,7 +467,7 @@ def test__markup__bubble_without_command_error_raised() -> None:
     bubbles = BubbleMarkup()
 
     # - Act -
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(InvalidMarkupError) as exc:
         bubbles.add_button(
             label="label",
             silent=True,
@@ -478,7 +479,7 @@ def test__markup__bubble_without_command_error_raised() -> None:
 
 def test__markup__built_button_without_command_error_raised2() -> None:
     # - Arrange -
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(InvalidMarkupError) as exc:
         Button(
             label="Bubble",
         )

@@ -6,6 +6,7 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import Bot, BotAccountWithSecret, BotXAuthVersion, HandlerCollector
+from pybotx import build_bot
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -37,7 +38,7 @@ async def test__startup__authorize_cant_get_token(
 
     collector = HandlerCollector()
 
-    bot = Bot(
+    bot = build_bot(
         collectors=[collector],
         bot_accounts=[bot_account],
         auth_version=BotXAuthVersion.V1,
@@ -71,7 +72,7 @@ async def test__startup__can_skip_fetching_tokens(
 
     collector = HandlerCollector()
 
-    bot = Bot(
+    bot = build_bot(
         collectors=[collector],
         bot_accounts=[bot_account],
         auth_version=BotXAuthVersion.V1,
@@ -109,7 +110,7 @@ async def test__fetch_tokens__succeeds_for_auth_v1(
     )
 
     collector = HandlerCollector()
-    bot = Bot(
+    bot = build_bot(
         collectors=[collector],
         bot_accounts=[bot_account],
         auth_version=BotXAuthVersion.V1,

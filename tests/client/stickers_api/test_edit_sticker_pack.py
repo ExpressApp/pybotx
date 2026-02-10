@@ -6,13 +6,14 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccountWithSecret,
     HandlerCollector,
     StickerPackOrStickerNotFoundError,
     lifespan_wrapper,
 )
-from pybotx.models.stickers import Sticker, StickerPack
+from pybotx.domain.models.stickers import Sticker, StickerPack
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -43,7 +44,7 @@ async def test__edit_sticker_pack__sticker_pack_not_found_error_raised(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -122,7 +123,7 @@ async def test__edit_sticker__succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

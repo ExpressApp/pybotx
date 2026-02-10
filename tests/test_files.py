@@ -8,6 +8,7 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     AttachmentTypes,
     Bot,
     BotAccountWithSecret,
@@ -19,7 +20,9 @@ from pybotx import (
     Voice,
     lifespan_wrapper,
 )
-from pybotx.models.system_events.smartapp_event import SmartAppEvent
+from pybotx.presentation.raw_handlers import async_execute_raw_bot_command
+
+from pybotx.domain.models.system_events.smartapp_event import SmartAppEvent
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -124,11 +127,11 @@ async def test__async_file__open(
         async with event.files[0].open() as fo:
             read_content = await fo.read()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert read_content == b"Hello, world!\n"
@@ -335,11 +338,11 @@ async def test__async_execute_raw_bot_command__different_file_types(
         # Drop `raw_command` from asserting
         smartapp_event.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert smartapp_event

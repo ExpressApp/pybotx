@@ -3,6 +3,7 @@ from collections.abc import Callable
 import pytest
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccountWithSecret,
     HandlerCollector,
@@ -40,7 +41,7 @@ async def test__bot_state__save_changes_between_middleware_and_handler(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         pass
 
-    built_bot = Bot(
+    built_bot = build_bot(
         collectors=[collector],
         bot_accounts=[bot_account],
         middlewares=[middleware],
@@ -78,7 +79,7 @@ async def test__message_state__save_changes_between_middleware_and_handler(
         nonlocal incoming_message
         incoming_message = message
 
-    built_bot = Bot(
+    built_bot = build_bot(
         collectors=[collector],
         bot_accounts=[bot_account],
         middlewares=[middleware],

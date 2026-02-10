@@ -7,13 +7,14 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     CantUpdatePersonalChatError,
     ChatNotFoundError,
     InvalidBotXStatusCodeError,
     InvalidUsersListError,
     PermissionDeniedError,
 )
-from tests.testkit import BotXRequest, error_payload, mock_botx, ok_payload
+from pybotx.testkit import BotXRequest, error_payload, mock_botx, ok_payload
 
 pytestmark = [
     pytest.mark.asyncio,

@@ -7,8 +7,9 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import BotAccountWithSecret, BotXAuthVersion
-from pybotx.bot.bot_accounts_storage import BotAccountsStorage
-from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
+from pybotx.infrastructure.bot_accounts_storage import BotAccountsStorage
+from pybotx.infrastructure.client.authorized_botx_method import AuthorizedBotXMethod
+from pybotx.infrastructure.jwt_encoder import PyJwtEncoder
 from tests.client.test_botx_method import (
     BotXAPIFooBarRequestPayload,
     BotXAPIFooBarResponsePayload,
@@ -93,7 +94,11 @@ async def test__authorized_botx_method__v2_succeed(
     method = FooBarMethod(
         bot_id,
         httpx_client,
-        BotAccountsStorage([bot_account], auth_version=BotXAuthVersion.V2),
+        BotAccountsStorage(
+            [bot_account],
+            auth_version=BotXAuthVersion.V2,
+            jwt_encoder=PyJwtEncoder(),
+        ),
     )
     payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
 

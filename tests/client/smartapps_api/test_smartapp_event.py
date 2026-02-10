@@ -6,8 +6,9 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import Bot, BotAccountWithSecret, HandlerCollector, lifespan_wrapper
-from pybotx.models.async_files import Document, Image, Video, Voice
-from pybotx.models.enums import AttachmentTypes
+from pybotx import build_bot
+from pybotx.domain.models.async_files import Document, Image, Video, Voice
+from pybotx.domain.models.enums import AttachmentTypes
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -45,7 +46,7 @@ async def test__send_smartapp_event__miminally_filled_succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -130,7 +131,7 @@ async def test__send_smartapp_event__maximum_filled_succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

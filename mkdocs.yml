@@ -11,7 +11,23 @@ edit_uri: ''
 
 nav:
   - Introduction: 'index.md'
+  - Full Guide: 'guide.md'
   - BotX API: 'botx_api.md'
+  - Architecture: 'architecture.md'
+  - Dependency Injection: 'di.md'
+  - Bot API: 'bot.md'
+  - Bot Command Link: 'bot_command_link.md'
+  - Builders and Options: 'builders.md'
+  - Bulk Operations: 'bulk.md'
+  - Widgets: 'widgets.md'
+  - Widgets Guide: 'widgets_guide.md'
+  - Text Builder: 'text.md'
+  - Attachments: 'attachments.md'
+  - HTTP and Retry: 'http.md'
+  - Adapters: 'adapters.md'
+  - Todo Bot Example: 'examples_todo.md'
+  - Migration: 'migration.md'
+  - FAQ / Best Practices: 'faq.md'
 
 plugins:
   - search

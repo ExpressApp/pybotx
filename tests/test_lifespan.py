@@ -5,13 +5,14 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccountWithSecret,
     BotXAuthVersion,
     HandlerCollector,
     IncomingMessage,
 )
-from pybotx.bot.testing import lifespan_wrapper
+from pybotx.application.lifespan import lifespan_wrapper
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -33,7 +34,7 @@ async def test__async_execute_bot_command__wait_for_task_execution(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(bot):
@@ -56,7 +57,7 @@ async def test__shutdown__wait_for_active_handlers(
     async def handler(message: IncomingMessage, bot: Bot) -> None:
         correct_handler_trigger()
 
-    bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     bot.async_execute_bot_command(user_command)
@@ -72,7 +73,7 @@ async def test__fetch_tokens__skips_for_auth_v2(
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
-    bot = Bot(
+    bot = build_bot(
         collectors=[collector],
         bot_accounts=[bot_account],
         auth_version=BotXAuthVersion.V2,

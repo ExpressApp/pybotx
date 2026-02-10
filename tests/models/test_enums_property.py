@@ -2,21 +2,14 @@ from hypothesis import given, strategies as st
 
 import pytest
 
-from pybotx.models.enums import (
+from pybotx.infrastructure.contracts.enums import (
     APIAttachmentTypes,
     APIChatTypes,
     APIUserKinds,
     APISyncSourceTypes,
-    AttachmentTypes,
     BotAPIClientPlatforms,
-    BotAPIMentionTypes,
     BotAPIConferenceLinkTypes,
-    ChatTypes,
-    ClientPlatforms,
-    ConferenceLinkTypes,
-    MentionTypes,
-    SyncSourceTypes,
-    UserKinds,
+    BotAPIMentionTypes,
     convert_attachment_type_from_domain,
     convert_attachment_type_to_domain,
     convert_chat_type_from_domain,
@@ -26,6 +19,15 @@ from pybotx.models.enums import (
     convert_mention_type_from_domain,
     convert_sync_source_type_to_domain,
     convert_user_kind_to_domain,
+)
+from pybotx.domain.models.enums import (
+    AttachmentTypes,
+    ChatTypes,
+    ClientPlatforms,
+    ConferenceLinkTypes,
+    MentionTypes,
+    SyncSourceTypes,
+    UserKinds,
 )
 
 API_CHAT_VALUES = [chat_type.value for chat_type in APIChatTypes]

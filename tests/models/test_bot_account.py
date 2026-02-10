@@ -3,7 +3,7 @@ from uuid import UUID
 import pytest
 from pydantic import ConfigDict
 
-from pybotx import BotAccountWithSecret
+from pybotx import BotAccountWithSecret, InvalidCtsUrlError
 
 
 def test__bot_account__could_not_parse_host(bot_id: UUID, cts_url: str) -> None:
@@ -20,5 +20,5 @@ def test__bot_account__could_not_parse_host(bot_id: UUID, cts_url: str) -> None:
     bot_account.cts_url = "cts_url"  # type: ignore
 
     # - Assert -
-    with pytest.raises(ValueError):
+    with pytest.raises(InvalidCtsUrlError):
         bot_account.host

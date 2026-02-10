@@ -7,6 +7,7 @@ from aiofiles.tempfile import NamedTemporaryFile
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccountWithSecret,
     BubbleMarkup,
@@ -53,7 +54,7 @@ async def test__reply_message__minimal_filled_reply_succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -62,6 +63,49 @@ async def test__reply_message__minimal_filled_reply_succeed(
             sync_id=UUID("8ba66c5b-40bf-5c77-911d-519cb4e382e9"),
             body="Replied",
         )
+
+    # - Assert -
+    assert endpoint.called
+
+
+async def test__reply_to__minimal_reply_succeed(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+    incoming_message_factory,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.post(
+        f"https://{host}/api/v3/botx/events/reply_event",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        json={
+            "source_sync_id": "8ba66c5b-40bf-5c77-911d-519cb4e382e9",
+            "reply": {
+                "status": "ok",
+                "body": "Replied",
+            },
+            "opts": {"raw_mentions": True},
+        },
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": "bot_reply_pushed",
+            },
+        ),
+    )
+
+    incoming_message = incoming_message_factory()
+    incoming_message.sync_id = UUID("8ba66c5b-40bf-5c77-911d-519cb4e382e9")
+    incoming_message.bot.id = bot_id
+
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        await bot.reply_to(incoming_message, body="Replied")
 
     # - Assert -
     assert endpoint.called
@@ -76,7 +120,7 @@ async def test__reply_message__maximum_filled_reply_succeed(
 ) -> None:
     # - Arrange -
     monkeypatch.setattr(
-        "pybotx.models.message.mentions.uuid4",
+        "pybotx.infrastructure.contracts.message.mentions.uuid4",
         lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
     )
 
@@ -143,7 +187,7 @@ async def test__reply_message__maximum_filled_reply_succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     bubbles = BubbleMarkup()
     bubbles.add_button(command="/bubble-button", label="Bubble button")
@@ -187,7 +231,7 @@ async def test__reply__succeed(
 ) -> None:
     # - Arrange -
     monkeypatch.setattr(
-        "pybotx.models.message.mentions.uuid4",
+        "pybotx.infrastructure.contracts.message.mentions.uuid4",
         lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
     )
     endpoint = respx_mock.post(
@@ -253,7 +297,7 @@ async def test__reply__succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     bubbles = BubbleMarkup()
     bubbles.add_button(command="/bubble-button", label="Bubble button")

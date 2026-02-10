@@ -7,6 +7,7 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccountWithSecret,
     HandlerCollector,
@@ -14,7 +15,7 @@ from pybotx import (
     UserNotFoundError,
     lifespan_wrapper,
 )
-from pybotx.client.users_api.search_user_by_email import SearchUserByEmailMethod
+from pybotx.infrastructure.client.users_api.search_user_by_email import SearchUserByEmailMethod
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -51,7 +52,7 @@ async def test__search_user_by_email__user_not_found_error_raised(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -90,7 +91,7 @@ async def test__search_user_by_email__succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -129,7 +130,7 @@ async def test__search_user_by_email_without_extra_data__succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -169,7 +170,7 @@ async def test__search_user_by_email__legacy_warning_suppressed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

@@ -6,12 +6,13 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     EventNotFoundError,
     ThreadAlreadyExistsError,
     ThreadCreationError,
     ThreadCreationProhibitedError,
 )
-from tests.testkit import BotXRequest, mock_botx, ok_payload
+from pybotx.testkit import BotXRequest, mock_botx, ok_payload
 
 pytestmark = [
     pytest.mark.asyncio,

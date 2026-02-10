@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 import pytest
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccount,
     BotAccountWithSecret,
@@ -64,7 +65,7 @@ async def test__system_event_handler__called(
     async def chat_created_handler(event: ChatCreatedEvent, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -82,7 +83,7 @@ async def test__system_event_handler__no_handler_for_system_event(
     # - Arrange -
     collector = HandlerCollector()
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -105,7 +106,7 @@ async def test__system_event_handler__handler_in_first_collector(
     async def chat_created_handler(event: ChatCreatedEvent, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector_1, collector_2], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector_1, collector_2], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -128,7 +129,7 @@ async def test__system_event_handler__handler_in_second_collector(
     async def chat_created_handler(event: ChatCreatedEvent, bot: Bot) -> None:
         correct_handler_trigger()
 
-    built_bot = Bot(collectors=[collector_1, collector_2], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector_1, collector_2], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

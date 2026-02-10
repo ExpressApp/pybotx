@@ -12,22 +12,32 @@ from loguru import logger
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccountWithSecret,
+    BotCommandValidationError,
     HandlerCollector,
     IncomingMessage,
     SmartAppEvent,
+    SyncSmartAppEventValidationError,
     UnknownBotAccountError,
     UnverifiedRequestError,
     build_bot_disabled_response,
     build_command_accepted_response,
 )
-from pybotx.bot.api.responses.unverified_request import (
+from pybotx.presentation.raw_handlers import (
+    async_execute_raw_bot_command,
+    raw_get_status,
+    set_raw_botx_method_result,
+    sync_execute_raw_smartapp_event,
+)
+
+from pybotx.presentation.api.responses.unverified_request import (
     build_unverified_request_response,
 )
-from pybotx.models.sync_smartapp_event import (
-    BotAPISyncSmartAppEventErrorResponse,
-    BotAPISyncSmartAppEventResultResponse,
+from pybotx.domain.models.sync_smartapp_event import (
+    SyncSmartAppEventError,
+    SyncSmartAppEventResult,
 )
 
 # - Bot setup -
@@ -43,18 +53,15 @@ async def debug_handler(message: IncomingMessage, bot: Bot) -> None:
 async def handle_sync_smartapp_event(
     event: SmartAppEvent,
     _: Bot,
-) -> BotAPISyncSmartAppEventResultResponse:
-    return BotAPISyncSmartAppEventResultResponse.from_domain(
-        data=event.data["params"],
-        files=event.files,
-    )
+) -> SyncSmartAppEventResult:
+    return SyncSmartAppEventResult(data=event.data["params"], files=event.files)
 
 
 def bot_factory(
     bot_accounts: list[BotAccountWithSecret],
     bot_collector: HandlerCollector | None = None,
 ) -> Bot:
-    return Bot(collectors=[bot_collector or collector], bot_accounts=bot_accounts)
+    return build_bot(collectors=[bot_collector or collector], bot_accounts=bot_accounts)
 
 
 # - FastAPI integration -
@@ -75,8 +82,8 @@ async def command_handler(
     bot: Bot = bot_dependency,
 ) -> JSONResponse:
     try:
-        bot.async_execute_raw_bot_command(await request.json(), verify_request=False)
-    except ValueError:
+        async_execute_raw_bot_command(bot, await request.json(), verify_request=False)
+    except BotCommandValidationError:
         error_label = "Bot command validation error"
         logger.exception(error_label)
 
@@ -105,11 +112,11 @@ async def sync_smartapp_event_handler(
     bot: Bot = bot_dependency,
 ) -> JSONResponse:
     try:
-        response = await bot.sync_execute_raw_smartapp_event(
+        response = await sync_execute_raw_smartapp_event(bot, 
             await request.json(),
             verify_request=False,
         )
-    except ValueError:
+    except SyncSmartAppEventValidationError:
         error_label = "Bot command validation error"
         logger.exception(error_label)
 
@@ -131,7 +138,7 @@ async def sync_smartapp_event_handler(
 
 @router.get("/status")
 async def status_handler(request: Request, bot: Bot = bot_dependency) -> JSONResponse:
-    status = await bot.raw_get_status(dict(request.query_params), verify_request=False)
+    status = await raw_get_status(bot, dict(request.query_params), verify_request=False)
     return JSONResponse(status)
 
 
@@ -141,7 +148,7 @@ async def status_handler__unverified_request(
     bot: Bot = bot_dependency,
 ) -> JSONResponse:
     try:
-        status = await bot.raw_get_status(
+        status = await raw_get_status(bot, 
             dict(request.query_params),
             request_headers=request.headers,
         )
@@ -160,7 +167,7 @@ async def callback_handler(
     request: Request,
     bot: Bot = bot_dependency,
 ) -> JSONResponse:
-    await bot.set_raw_botx_method_result(await request.json(), verify_request=False)
+    await set_raw_botx_method_result(bot, await request.json(), verify_request=False)
     return JSONResponse(
         build_command_accepted_response(),
         status_code=HTTPStatus.ACCEPTED,
@@ -488,10 +495,8 @@ def test__web_app__sync_smartapp_event__error(
     @local_collector.sync_smartapp_event
     async def handle_sync_smartapp_event_with_error(
         *_: Any,
-    ) -> BotAPISyncSmartAppEventErrorResponse:
-        return BotAPISyncSmartAppEventErrorResponse.from_domain(
-            errors=[{"id": "Error", "reason": "some error"}],
-        )
+    ) -> SyncSmartAppEventError:
+        return SyncSmartAppEventError(errors=[{"id": "Error", "reason": "some error"}])
 
     bot = bot_factory(bot_accounts=[bot_account], bot_collector=local_collector)
 

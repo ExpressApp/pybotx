@@ -7,6 +7,7 @@ from aiofiles.tempfile import NamedTemporaryFile
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccountWithSecret,
     BubbleMarkup,
@@ -48,7 +49,7 @@ async def test__edit_message__minimal_edit_succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -61,6 +62,56 @@ async def test__edit_message__minimal_edit_succeed(
     assert endpoint.called
 
 
+async def test__edit_from__minimal_edit_succeed(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+    incoming_message_factory,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.post(
+        f"https://{host}/api/v3/botx/events/edit_event",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        json={
+            "sync_id": "8ba66c5b-40bf-5c77-911d-519cb4e382e9",
+        },
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={
+                "status": "ok",
+                "result": "bot_command_result_pushed",
+            },
+        ),
+    )
+
+    incoming_message = incoming_message_factory()
+    incoming_message.source_sync_id = UUID("8ba66c5b-40bf-5c77-911d-519cb4e382e9")
+    incoming_message.bot.id = bot_id
+
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        await bot.edit_from(incoming_message)
+
+    # - Assert -
+    assert endpoint.called
+
+
+async def test__edit_from__missing_source_sync_id_raises(
+    bot_account: BotAccountWithSecret,
+    incoming_message_factory,
+) -> None:
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    incoming_message = incoming_message_factory()
+
+    async with lifespan_wrapper(built_bot) as bot:
+        with pytest.raises(ValueError, match="source_sync_id"):
+            await bot.edit_from(incoming_message)
+
+
 async def test__edit_message__maximum_edit_succeed(
     respx_mock: MockRouter,
     host: str,
@@ -70,7 +121,7 @@ async def test__edit_message__maximum_edit_succeed(
 ) -> None:
     # - Arrange -
     monkeypatch.setattr(
-        "pybotx.models.message.mentions.uuid4",
+        "pybotx.infrastructure.contracts.message.mentions.uuid4",
         lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
     )
 
@@ -128,7 +179,7 @@ async def test__edit_message__maximum_edit_succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     bubbles = BubbleMarkup()
     bubbles.add_button(command="/bubble-button", label="Bubble button")
@@ -189,7 +240,7 @@ async def test__edit_message__clean_message_succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -216,7 +267,7 @@ async def test__edit__succeed(
 ) -> None:
     # - Arrange -
     monkeypatch.setattr(
-        "pybotx.models.message.mentions.uuid4",
+        "pybotx.infrastructure.contracts.message.mentions.uuid4",
         lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
     )
 
@@ -274,7 +325,7 @@ async def test__edit__succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     bubbles = BubbleMarkup()
     bubbles.add_button(command="/bubble-button", label="Bubble button")

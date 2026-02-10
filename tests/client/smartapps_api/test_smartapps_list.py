@@ -6,8 +6,9 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import Bot, HandlerCollector, lifespan_wrapper
-from pybotx.models.bot_account import BotAccountWithSecret
-from pybotx.models.smartapps import SmartApp
+from pybotx import build_bot
+from pybotx.domain.models.bot_account import BotAccountWithSecret
+from pybotx.domain.models.smartapps import SmartApp
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -48,7 +49,7 @@ async def test__smartapps_list__succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

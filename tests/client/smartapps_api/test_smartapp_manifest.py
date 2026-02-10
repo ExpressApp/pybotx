@@ -6,18 +6,17 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccountWithSecret,
     HandlerCollector,
     SmartappManifest,
-    SmartappManifestWebLayoutChoices,
-    SmartappManifestWebParams,
-    lifespan_wrapper,
-)
-from pybotx.client.smartapps_api.smartapp_manifest import (
     SmartappManifestAndroidParams,
     SmartappManifestIosParams,
     SmartappManifestUnreadCounterParams,
+    SmartappManifestWebLayoutChoices,
+    SmartappManifestWebParams,
+    lifespan_wrapper,
 )
 
 pytestmark = [
@@ -86,7 +85,7 @@ async def test__send_smartapp_manifest__all_params_provided__succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -173,7 +172,7 @@ async def test__send_smartapp_manifest__only_default_params_provided__succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -258,7 +257,7 @@ async def test__send_smartapp_manifest__with_only_full_layout__succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -363,7 +362,7 @@ async def test__send_smartapp_manifest__with_only_minimal_and_full_layout__succe
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -474,7 +473,7 @@ async def test__send_smartapp_manifest__with_empty_layout__succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

@@ -7,13 +7,16 @@ from aiofiles.tempfile import NamedTemporaryFile
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccountWithSecret,
     HandlerCollector,
     InvalidBotXStatusCodeError,
     InvalidEmojiError,
     InvalidImageError,
+    InvalidStickerImageError,
     Sticker,
+    StickerImageTooLargeError,
     StickerPackOrStickerNotFoundError,
     lifespan_wrapper,
 )
@@ -47,11 +50,11 @@ async def test__add_sticker__is_not_png_error_raised(
     await async_buffer.write(b"Hello, world!\n")
     await async_buffer.seek(0)
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(InvalidStickerImageError) as exc:
             await bot.add_sticker(
                 bot_id=bot_id,
                 sticker_pack_id=UUID("26080153-a57d-5a8c-af0e-fdecee3c4435"),
@@ -73,11 +76,11 @@ async def test__add_sticker__bad_file_size_error_raised(
     await async_buffer.write(PNG_IMAGE + b"\x00" * (512 * 1024 + 1))
     await async_buffer.seek(0)
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(StickerImageTooLargeError) as exc:
             await bot.add_sticker(
                 bot_id=bot_id,
                 sticker_pack_id=UUID("26080153-a57d-5a8c-af0e-fdecee3c4435"),
@@ -116,7 +119,7 @@ async def test__add_sticker__unexpected_bad_request_error_raised(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -160,7 +163,7 @@ async def test__add_sticker__sticker_pack_not_found_error_raised(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -204,7 +207,7 @@ async def test__add_sticker__invalid_emoji_error_raised(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -248,7 +251,7 @@ async def test__add_sticker__invalid_image_error_raised(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -297,7 +300,7 @@ async def test__add_sticker__succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

@@ -6,7 +6,7 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import (
-    Bot,
+    build_bot,
     BotAccountWithSecret,
     HandlerCollector,
     StickerPackOrStickerNotFoundError,
@@ -47,10 +47,10 @@ async def test__delete_sticker__sticker_or_pack_not_found_error_raised(
         ),
     )
 
-    build_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
-    async with lifespan_wrapper(build_bot) as bot:
+    async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(StickerPackOrStickerNotFoundError) as exc:
             await bot.delete_sticker(
                 bot_id=bot_id,
@@ -85,7 +85,7 @@ async def test__delete_sticker__succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

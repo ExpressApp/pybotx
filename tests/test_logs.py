@@ -9,13 +9,16 @@ from aiofiles.tempfile import NamedTemporaryFile
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     Bot,
     BotAccountWithSecret,
     HandlerCollector,
     IncomingMessage,
     lifespan_wrapper,
 )
-from pybotx.models.attachments import AttachmentDocument, OutgoingAttachment
+from pybotx.presentation.raw_handlers import async_execute_raw_bot_command
+
+from pybotx.domain.models.attachments import AttachmentDocument, OutgoingAttachment
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -52,11 +55,11 @@ async def test__attachment__trimmed_in_incoming_message(
         file = cast(AttachmentDocument, message.file)
         file_data = file.content
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert "...<trimmed>" in loguru_caplog.text
@@ -100,7 +103,7 @@ async def test__attachment__trimmed_in_outgoing_message(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     async with NamedTemporaryFile("wb+") as async_buffer:
         await async_buffer.write(

@@ -6,6 +6,7 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import (
+    build_bot,
     ChatLink,
     ChatLinkCreationError,
     ChatLinkCreationProhibitedError,
@@ -13,7 +14,7 @@ from pybotx import (
     ChatNotFoundError,
     InvalidBotXStatusCodeError,
 )
-from tests.testkit import (
+from pybotx.testkit import (
     BotXRequest,
     assert_deep_equal,
     error_payload,

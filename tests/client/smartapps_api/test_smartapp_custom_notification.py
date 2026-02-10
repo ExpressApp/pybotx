@@ -7,7 +7,9 @@ import pytest
 from respx.router import MockRouter
 
 from pybotx import Bot, BotAccountWithSecret, HandlerCollector, lifespan_wrapper
+from pybotx import build_bot
 
+from pybotx.presentation.raw_handlers import set_raw_botx_method_result
 pytestmark = [
     pytest.mark.asyncio,
     pytest.mark.mock_authorization,
@@ -43,7 +45,7 @@ async def test__send_smartapp_custom_notification__succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -58,7 +60,7 @@ async def test__send_smartapp_custom_notification__succeed(
         )
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await set_raw_botx_method_result(bot, 
             {
                 "status": "ok",
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",

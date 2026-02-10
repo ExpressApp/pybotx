@@ -7,6 +7,7 @@ from uuid import UUID
 import pytest
 
 from pybotx import (
+    build_bot,
     AttachmentTypes,
     Bot,
     BotAccount,
@@ -24,14 +25,16 @@ from pybotx import (
     UserSender,
     lifespan_wrapper,
 )
-from pybotx.models.attachments import AttachmentImage
-from pybotx.models.enums import BotAPIMentionTypes
-from pybotx.models.message.incoming_message import (
+from pybotx.presentation.raw_handlers import async_execute_raw_bot_command
+
+from pybotx.domain.models.attachments import AttachmentImage
+from pybotx.presentation.contracts.enums import BotAPIMentionTypes
+from pybotx.presentation.contracts.message.incoming_message import (
     BotAPIEntity,
     _convert_bot_api_mention_to_domain,
     convert_bot_api_entity_to_domain,
 )
-from pybotx.models.message.mentions import BotAPIMentionData
+from pybotx.presentation.contracts.message.mentions import BotAPIMentionData
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -90,11 +93,11 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
         # Drop `raw_command` from asserting
         incoming_message.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert incoming_message == IncomingMessage(
@@ -248,11 +251,11 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
         # Drop `raw_command` from asserting
         incoming_message.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert incoming_message == IncomingMessage(
@@ -439,11 +442,11 @@ async def test__async_execute_raw_bot_command__all_mention_types(
         # Drop `raw_command` from asserting
         incoming_message.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert incoming_message
@@ -523,11 +526,11 @@ async def test__async_execute_raw_bot_command__unknown_entity_type(
     }
 
     collector = HandlerCollector()
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert "Received unknown entity type" in loguru_caplog.text
@@ -583,11 +586,11 @@ async def test__async_execute_raw_bot_command__unsupported_chat_type_accepted(
         # Drop `raw_command` from asserting
         incoming_message.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert incoming_message

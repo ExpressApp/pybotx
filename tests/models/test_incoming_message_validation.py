@@ -1,5 +1,5 @@
-from pybotx.models.message.incoming_message import BotAPIIncomingMessage
-from pybotx.models.message.mentions import BotAPIMention
+from pybotx.presentation.contracts.message.incoming_message import BotAPIIncomingMessage
+from pybotx.presentation.contracts.message.mentions import BotAPIMention
 
 
 class MockValidationInfo:

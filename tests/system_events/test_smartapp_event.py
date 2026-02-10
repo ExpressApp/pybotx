@@ -3,6 +3,7 @@ from uuid import UUID
 import pytest
 
 from pybotx import (
+    build_bot,
     AttachmentTypes,
     Bot,
     BotAccount,
@@ -12,9 +13,11 @@ from pybotx import (
     SmartAppEvent,
     lifespan_wrapper,
 )
-from pybotx.models.chats import Chat
-from pybotx.models.enums import ChatTypes
-from pybotx.models.message.incoming_message import UserDevice, UserSender
+from pybotx.presentation.raw_handlers import async_execute_raw_bot_command
+
+from pybotx.domain.models.chats import Chat
+from pybotx.domain.models.enums import ChatTypes
+from pybotx.domain.models.message.incoming_message import UserDevice, UserSender
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -100,11 +103,11 @@ async def test__smartapp__succeed(
         # Drop `raw_command` from asserting
         smartapp.raw_command = None
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[collector], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload, verify_request=False)
+        async_execute_raw_bot_command(bot, payload, verify_request=False)
 
     # - Assert -
     assert smartapp == SmartAppEvent(

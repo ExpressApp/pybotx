@@ -7,7 +7,8 @@ from aiofiles.tempfile import NamedTemporaryFile
 from respx.router import MockRouter
 
 from pybotx import Bot, BotAccountWithSecret, HandlerCollector, lifespan_wrapper
-from pybotx.client.exceptions.files import FileTypeNotAllowed
+from pybotx import build_bot
+from pybotx.infrastructure.client.exceptions.files import FileTypeNotAllowed
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -47,7 +48,7 @@ async def test__upload_static_file__wrong_file_type(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
@@ -91,7 +92,7 @@ async def test__upload_static_file__succeed(
         ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    built_bot = build_bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:

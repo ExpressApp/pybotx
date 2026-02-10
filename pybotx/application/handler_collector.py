@@ -1,0 +1,567 @@
+import asyncio
+import re
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    overload,
+)
+from collections.abc import Callable, Sequence
+from weakref import WeakSet
+
+from pybotx.domain.contextvars import bot_id_var, bot_var, chat_id_var
+from pybotx.application.handler import (
+    CommandHandler,
+    DefaultMessageHandler,
+    HandlerFunc,
+    HiddenCommandHandler,
+    IncomingMessageHandlerFunc,
+    Middleware,
+    SyncSmartAppEventHandlerFunc,
+    SystemEventHandlerFunc,
+    VisibleCommandHandler,
+    VisibleFunc,
+)
+from pybotx.application.middlewares.exception_middleware import (
+    ExceptionHandlersDict,
+    ExceptionMiddleware,
+)
+from pybotx.domain.errors import (
+    CommandDescriptionRequiredError,
+    HandlerAlreadyRegisteredError,
+    InvalidCommandNameError,
+    SyncSmartAppEventHandlerNotFoundError,
+)
+from pybotx.domain.converters import optional_sequence_to_list
+from pybotx.domain.logger import logger
+from pybotx.domain.models.commands import BotCommand, SystemEvent
+from pybotx.domain.models.message.incoming_message import IncomingMessage
+from pybotx.domain.models.status import BotMenu, StatusRecipient
+from pybotx.domain.models.sync_smartapp_event import SyncSmartAppEventResponse
+from pybotx.domain.models.system_events.added_to_chat import AddedToChatEvent
+from pybotx.domain.models.system_events.chat_created import ChatCreatedEvent
+from pybotx.domain.models.system_events.chat_deleted_by_user import ChatDeletedByUserEvent
+from pybotx.domain.models.system_events.conference_changed import ConferenceChangedEvent
+from pybotx.domain.models.system_events.conference_created import ConferenceCreatedEvent
+from pybotx.domain.models.system_events.conference_deleted import ConferenceDeletedEvent
+from pybotx.domain.models.system_events.cts_login import CTSLoginEvent
+from pybotx.domain.models.system_events.cts_logout import CTSLogoutEvent
+from pybotx.domain.models.system_events.deleted_from_chat import DeletedFromChatEvent
+from pybotx.domain.models.system_events.event_delete import EventDeleted
+from pybotx.domain.models.system_events.event_edit import EventEdit
+from pybotx.domain.models.system_events.internal_bot_notification import (
+    InternalBotNotificationEvent,
+)
+from pybotx.domain.models.system_events.left_from_chat import LeftFromChatEvent
+from pybotx.domain.models.system_events.smartapp_event import SmartAppEvent
+from pybotx.domain.models.system_events.user_joined_to_chat import JoinToChatEvent
+
+if TYPE_CHECKING:  # To avoid circular import
+    from pybotx.application.bot import Bot
+
+MessageHandlerDecorator = Callable[
+    [IncomingMessageHandlerFunc],
+    IncomingMessageHandlerFunc,
+]
+
+
+class HandlerCollector:
+    VALID_COMMAND_NAME_RE = re.compile(r"^\/[^\s\/]+$", flags=re.UNICODE)
+
+    def __init__(self, middlewares: Sequence[Middleware] | None = None) -> None:
+        self._user_commands_handlers: dict[str, CommandHandler] = {}
+        self._default_message_handler: DefaultMessageHandler | None = None
+        self._system_events_handlers: dict[
+            type[BotCommand],
+            SystemEventHandlerFunc,
+        ] = {}
+        self._sync_smartapp_event_handler: dict[
+            type[SmartAppEvent],
+            SyncSmartAppEventHandlerFunc,
+        ] = {}
+        self._middlewares = optional_sequence_to_list(middlewares)
+        self._tasks: WeakSet[asyncio.Task[None]] = WeakSet()
+
+    def include(self, *others: "HandlerCollector") -> None:
+        """Include other `HandlerCollector`."""
+        for collector in others:
+            self._include_collector(collector)
+
+    def async_handle_bot_command(
+        self,
+        bot: "Bot",
+        bot_command: BotCommand,
+    ) -> "asyncio.Task[None]":
+        task = asyncio.create_task(
+            self.handle_bot_command(bot_command, bot),
+        )
+        self._tasks.add(task)
+
+        return task
+
+    async def handle_incoming_message_by_command(
+        self,
+        message: IncomingMessage,
+        bot: "Bot",
+        command: str,
+    ) -> None:
+        message_handler = self._get_command_handler(command)
+        if message_handler:
+            self._fill_contextvars(message, bot)
+            await message_handler(message, bot)
+
+    async def handle_bot_command(self, bot_command: BotCommand, bot: "Bot") -> None:
+        if isinstance(bot_command, IncomingMessage):
+            message_handler = self._get_incoming_message_handler(bot_command)
+            if message_handler:
+                self._fill_contextvars(bot_command, bot)
+                await message_handler(bot_command, bot)
+
+        elif isinstance(
+            bot_command,
+            SystemEvent.__args__,
+        ):
+            event_handler = self._get_system_event_handler_or_none(bot_command)
+            if event_handler:
+                self._fill_contextvars(bot_command, bot)
+                await event_handler(bot_command, bot)
+
+        else:
+            raise NotImplementedError(f"Unsupported event type: `{bot_command}`")
+
+    async def handle_sync_smartapp_event(
+        self,
+        bot: "Bot",
+        smartapp_event: SmartAppEvent,
+    ) -> SyncSmartAppEventResponse:
+        if not isinstance(smartapp_event, SmartAppEvent):
+            raise NotImplementedError(
+                f"Unsupported event type for sync smartapp event: `{smartapp_event}`",
+            )
+
+        event_handler = self._get_sync_smartapp_event_handler_or_none(smartapp_event)
+
+        if not event_handler:
+            raise SyncSmartAppEventHandlerNotFoundError(
+                "Handler for sync smartapp event not found",
+            )
+
+        self._fill_contextvars(smartapp_event, bot)
+        return await event_handler(smartapp_event, bot)
+
+    async def get_bot_menu(
+        self,
+        status_recipient: StatusRecipient,
+        bot: "Bot",
+    ) -> BotMenu:
+        bot_menu = {}
+
+        for command_name, handler in self._user_commands_handlers.items():
+            if handler.visible is True or (
+                callable(handler.visible)
+                and await handler.visible(status_recipient, bot)
+            ):
+                bot_menu[command_name] = handler.description
+
+        return BotMenu(bot_menu)
+
+    def command(
+        self,
+        command_name: str,
+        visible: bool | VisibleFunc = True,
+        description: str | None = None,
+        middlewares: Sequence[Middleware] | None = None,
+    ) -> Callable[[IncomingMessageHandlerFunc], IncomingMessageHandlerFunc]:
+        """Decorate command handler."""
+        if not self.VALID_COMMAND_NAME_RE.match(command_name):
+            raise InvalidCommandNameError(
+                "Command should start with '/' and doesn't include spaces",
+            )
+
+        def decorator(
+            handler_func: IncomingMessageHandlerFunc,
+        ) -> IncomingMessageHandlerFunc:
+            if command_name in self._user_commands_handlers:
+                raise HandlerAlreadyRegisteredError(
+                    f"Handler for command `{command_name}` already registered",
+                )
+
+            self._user_commands_handlers[command_name] = self._build_command_handler(
+                handler_func,
+                visible,
+                description,
+                self._middlewares + optional_sequence_to_list(middlewares),
+            )
+
+            return handler_func
+
+        return decorator
+
+    @overload
+    def default_message_handler(
+        self,
+        handler_func: IncomingMessageHandlerFunc,
+    ) -> IncomingMessageHandlerFunc: ...  # pragma: no cover
+
+    @overload
+    def default_message_handler(
+        self,
+        *,
+        middlewares: Sequence[Middleware] | None = None,
+    ) -> MessageHandlerDecorator: ...  # pragma: no cover
+
+    def default_message_handler(
+        self,
+        handler_func: IncomingMessageHandlerFunc | None = None,
+        *,
+        middlewares: Sequence[Middleware] | None = None,
+    ) -> IncomingMessageHandlerFunc | Callable[[IncomingMessageHandlerFunc], IncomingMessageHandlerFunc]:
+        """Decorate fallback messages handler."""
+        if self._default_message_handler:
+            raise HandlerAlreadyRegisteredError(
+                "Default command handler already registered",
+            )
+
+        def decorator(
+            handler_func: IncomingMessageHandlerFunc,
+        ) -> IncomingMessageHandlerFunc:
+            self._default_message_handler = DefaultMessageHandler(
+                handler_func=handler_func,
+                middlewares=self._middlewares + optional_sequence_to_list(middlewares),
+            )
+
+            return handler_func
+
+        if callable(handler_func) and not middlewares:
+            return decorator(handler_func)
+
+        return decorator
+
+    def chat_created(
+        self,
+        handler_func: HandlerFunc[ChatCreatedEvent],
+    ) -> HandlerFunc[ChatCreatedEvent]:
+        """Decorate `chat_created` event handler."""
+        self._system_event(ChatCreatedEvent, handler_func)
+        return handler_func
+
+    def chat_deleted_by_user(
+        self,
+        handler_func: HandlerFunc[ChatDeletedByUserEvent],
+    ) -> HandlerFunc[ChatDeletedByUserEvent]:
+        """Decorate `chat_deleted_by_user` event handler."""
+        self._system_event(ChatDeletedByUserEvent, handler_func)
+        return handler_func
+
+    def added_to_chat(
+        self,
+        handler_func: HandlerFunc[AddedToChatEvent],
+    ) -> HandlerFunc[AddedToChatEvent]:
+        """Decorate `added_to_chat` event handler."""
+        self._system_event(AddedToChatEvent, handler_func)
+        return handler_func
+
+    def deleted_from_chat(
+        self,
+        handler_func: HandlerFunc[DeletedFromChatEvent],
+    ) -> HandlerFunc[DeletedFromChatEvent]:
+        """Decorate `deleted_from_chat` event handler."""
+        self._system_event(DeletedFromChatEvent, handler_func)
+        return handler_func
+
+    def left_from_chat(
+        self,
+        handler_func: HandlerFunc[LeftFromChatEvent],
+    ) -> HandlerFunc[LeftFromChatEvent]:
+        """Decorate `left_from_chat` event handler."""
+        self._system_event(LeftFromChatEvent, handler_func)
+        return handler_func
+
+    def user_joined_to_chat(
+        self,
+        handler_func: HandlerFunc[JoinToChatEvent],
+    ) -> HandlerFunc[JoinToChatEvent]:
+        """Decorate `user_joined_to_chat` event handler."""
+        self._system_event(JoinToChatEvent, handler_func)
+        return handler_func
+
+    def internal_bot_notification(
+        self,
+        handler_func: HandlerFunc[InternalBotNotificationEvent],
+    ) -> HandlerFunc[InternalBotNotificationEvent]:
+        """Decorate `internal_bot_notification` event handler."""
+        self._system_event(InternalBotNotificationEvent, handler_func)
+        return handler_func
+
+    def cts_login(
+        self,
+        handler_func: HandlerFunc[CTSLoginEvent],
+    ) -> HandlerFunc[CTSLoginEvent]:
+        """Decorate `cts_login` event handler."""
+        self._system_event(CTSLoginEvent, handler_func)
+        return handler_func
+
+    def cts_logout(
+        self,
+        handler_func: HandlerFunc[CTSLogoutEvent],
+    ) -> HandlerFunc[CTSLogoutEvent]:
+        """Decorate `cts_logout` event handler."""
+        self._system_event(CTSLogoutEvent, handler_func)
+        return handler_func
+
+    def event_edit(
+        self,
+        handler_func: HandlerFunc[EventEdit],
+    ) -> HandlerFunc[EventEdit]:
+        """Decorate `event edit` event handler."""
+        self._system_event(EventEdit, handler_func)
+        return handler_func
+
+    def event_deleted(
+        self,
+        handler_func: HandlerFunc[EventDeleted],
+    ) -> HandlerFunc[EventDeleted]:
+        """Decorate `event deleted` event handler."""
+        self._system_event(EventDeleted, handler_func)
+        return handler_func
+
+    def conference_changed(
+        self,
+        handler_func: HandlerFunc[ConferenceChangedEvent],
+    ) -> HandlerFunc[ConferenceChangedEvent]:
+        """Decorate `conference changed` event handler."""
+        self._system_event(ConferenceChangedEvent, handler_func)
+        return handler_func
+
+    def conference_created(
+        self,
+        handler_func: HandlerFunc[ConferenceCreatedEvent],
+    ) -> HandlerFunc[ConferenceCreatedEvent]:
+        """Decorate `conference created` event handler."""
+        self._system_event(ConferenceCreatedEvent, handler_func)
+        return handler_func
+
+    def conference_deleted(
+        self,
+        handler_func: HandlerFunc[ConferenceDeletedEvent],
+    ) -> HandlerFunc[ConferenceDeletedEvent]:
+        """Decorate `conference deleted` event handler."""
+        self._system_event(ConferenceDeletedEvent, handler_func)
+        return handler_func
+
+    def smartapp_event(
+        self,
+        handler_func: HandlerFunc[SmartAppEvent],
+    ) -> HandlerFunc[SmartAppEvent]:
+        """Decorate `smartapp` event handler."""
+        self._system_event(SmartAppEvent, handler_func)
+        return handler_func
+
+    def sync_smartapp_event(
+        self,
+        handler_func: SyncSmartAppEventHandlerFunc,
+    ) -> SyncSmartAppEventHandlerFunc:
+        """Decorate `smartapp` sync event handler."""
+        self._sync_smartapp_event(SmartAppEvent, handler_func)
+        return handler_func
+
+    def insert_exception_middleware(
+        self,
+        exception_handlers: ExceptionHandlersDict | None = None,
+    ) -> None:
+        exception_middleware = ExceptionMiddleware(exception_handlers or {})
+        self._middlewares.insert(0, exception_middleware.dispatch)
+
+    async def wait_active_tasks(self) -> None:
+        if self._tasks:
+            await asyncio.wait(
+                self._tasks,
+                return_when=asyncio.ALL_COMPLETED,
+            )
+
+    def _include_collector(self, other: "HandlerCollector") -> None:
+        # - Message handlers -
+        command_duplicates = set(self._user_commands_handlers) & set(
+            other._user_commands_handlers,
+        )
+        if command_duplicates:
+            raise HandlerAlreadyRegisteredError(
+                f"Handlers for {command_duplicates} commands already registered",
+            )
+
+        other_handlers = other._user_commands_handlers
+        for handler in other_handlers.values():
+            handler.add_middlewares(self._middlewares)
+
+        self._user_commands_handlers.update(other_handlers)
+
+        # - Default message handler -
+        if self._default_message_handler and other._default_message_handler:
+            raise HandlerAlreadyRegisteredError(
+                "Default message handler already registered",
+            )
+
+        if not self._default_message_handler and other._default_message_handler:
+            other._default_message_handler.add_middlewares(self._middlewares)
+            self._default_message_handler = other._default_message_handler
+
+        # - System events -
+        events_duplicates = set(self._system_events_handlers) & set(
+            other._system_events_handlers,
+        )
+        if events_duplicates:
+            raise HandlerAlreadyRegisteredError(
+                f"Handlers for {events_duplicates} events already registered",
+            )
+
+        self._system_events_handlers.update(other._system_events_handlers)
+
+        # - Sync smartapp event handler -
+        sync_events_duplicates: set[type[SmartAppEvent]] = set(
+            self._sync_smartapp_event_handler,
+        ) & set(
+            other._sync_smartapp_event_handler,
+        )
+        if sync_events_duplicates:
+            raise HandlerAlreadyRegisteredError(
+                "Handler for sync smartapp event already registered",
+            )
+
+        self._sync_smartapp_event_handler.update(other._sync_smartapp_event_handler)
+
+    def _get_incoming_message_handler(
+        self,
+        message: IncomingMessage,
+    ) -> CommandHandler | DefaultMessageHandler | None:
+        return self._get_command_handler(message.body)
+
+    def _get_command_handler(
+        self,
+        command: str,
+    ) -> CommandHandler | DefaultMessageHandler | None:
+        handler: CommandHandler | DefaultMessageHandler | None = None
+
+        command_name = self._get_command_name(command)
+        if command_name:
+            handler = self._user_commands_handlers.get(command_name)
+            if handler:
+                logger.info(f"Found handler for command `{command_name}`")
+                return handler
+
+        if self._default_message_handler:
+            self._log_default_handler_call(command_name)
+            return self._default_message_handler
+
+        logger.warning(f"Handler for message text `{command}` not found")
+        return None
+
+    def _get_system_event_handler_or_none(
+        self,
+        event: SystemEvent,
+    ) -> SystemEventHandlerFunc | None:
+        event_cls = event.__class__
+
+        handler = self._system_events_handlers.get(event_cls)
+        self._log_system_event_handler_call(event_cls.__name__, handler)
+
+        return handler
+
+    def _get_sync_smartapp_event_handler_or_none(
+        self,
+        event: SmartAppEvent,
+    ) -> SyncSmartAppEventHandlerFunc | None:
+        event_cls = event.__class__
+
+        handler = self._sync_smartapp_event_handler.get(event_cls)
+        self._log_system_event_handler_call(event_cls.__name__, handler)
+
+        return handler
+
+    def _get_command_name(self, body: str) -> str | None:
+        if not body:
+            return None
+
+        command_name = body.split(maxsplit=1)[0]
+        if self.VALID_COMMAND_NAME_RE.match(command_name):
+            return command_name
+
+        return None
+
+    def _build_command_handler(
+        self,
+        handler_func: IncomingMessageHandlerFunc,
+        visible: bool | VisibleFunc,
+        description: str | None,
+        middlewares: list[Middleware],
+    ) -> CommandHandler:
+        if visible is True or callable(visible):
+            if not description:
+                raise CommandDescriptionRequiredError(
+                    "Description is required for visible command",
+                )
+
+            return VisibleCommandHandler(
+                handler_func=handler_func,
+                visible=visible,
+                description=description,
+                middlewares=middlewares,
+            )
+
+        return HiddenCommandHandler(
+            handler_func=handler_func,
+            middlewares=middlewares,
+        )
+
+    def _system_event(
+        self,
+        event_cls_name: type[BotCommand],
+        handler_func: SystemEventHandlerFunc,
+    ) -> SystemEventHandlerFunc:
+        if event_cls_name in self._system_events_handlers:
+            raise HandlerAlreadyRegisteredError(
+                f"Handler for {event_cls_name} already registered",
+            )
+
+        self._system_events_handlers[event_cls_name] = handler_func
+
+        return handler_func
+
+    def _sync_smartapp_event(
+        self,
+        event_cls_name: type[SmartAppEvent],
+        handler_func: SyncSmartAppEventHandlerFunc,
+    ) -> SyncSmartAppEventHandlerFunc:
+        if event_cls_name in self._sync_smartapp_event_handler:
+            raise HandlerAlreadyRegisteredError(
+                "Handler for sync smartapp event already registered",
+            )
+
+        self._sync_smartapp_event_handler[event_cls_name] = handler_func
+
+        return handler_func
+
+    def _fill_contextvars(self, bot_command: BotCommand, bot: "Bot") -> None:
+        bot_var.set(bot)
+        bot_id_var.set(bot_command.bot.id)
+
+        chat = getattr(bot_command, "chat", None)
+        if chat:
+            chat_id_var.set(chat.id)
+
+    def _log_system_event_handler_call(
+        self,
+        event_cls_name: str,
+        handler: Any,
+    ) -> None:
+        if handler:
+            logger.info(f"Found handler for `{event_cls_name}`")
+        else:
+            logger.info(f"Handler for `{event_cls_name}` not found")
+
+    def _log_default_handler_call(self, command_name: str | None) -> None:
+        if command_name:
+            logger.info(
+                f"Handler for command `{command_name}` not found, "
+                "using default handler",
+            )
+        else:
+            logger.info("No command found, using default handler")
