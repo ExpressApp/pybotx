@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pybotx"
-version = "0.75.5"
+version = "0.76.0"
 description = "A python library for interacting with eXpress BotX API"
 authors = [
     "Sidnev Nikolay <nsidnev@ccsteam.ru>",
@@ -13,41 +13,39 @@ repository = "https://github.com/ExpressApp/pybotx"
 
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.14"
+python = ">=3.10,<4.0"
 
-aiofiles = ">=0.7.0,<=24.1.0"
-httpx = "^0.28.0"
+aiofiles = "^25.1.0"
+httpx = "^0.28.1"
 # The v1.0.3 cause some troubles with no-wait callbacks functionality.
 # It will be fixed in the next versions.
 # https://github.com/encode/httpcore/pull/880
-httpcore = "1.0.9"
-loguru = ">=0.6.0,<0.7.0"
-pydantic = ">=1.6.0,<1.11.0"
-aiocsv = ">=1.2.3,<=1.4.0"
-pyjwt = ">=2.0.0,<3.0.0"
-mypy-extensions = ">=0.2.0,<=1.1.0"
+httpcore = "^1.0.9"
+loguru = "^0.7.3"
+pydantic = "^2.12.5"
+aiocsv = "^1.4.0"
+pyjwt = "^2.11.0"
+mypy-extensions = "^1.1.0"
 
 [tool.poetry.group.dev.dependencies]
-add-trailing-comma = "3.1.0"
-autoflake = "2.3.1"
-black = "25.1.0"
-isort = "6.0.1"
-mypy = "1.15.0"
-typing-extensions = ">=3.7.4,<5.0.0"
-wemake-python-styleguide = "0.19.2"
-bandit = "1.8.3"  # https://github.com/PyCQA/bandit/issues/837
+mypy = "^1.19.1"
+bandit = "^1.9.3"  # https://github.com/PyCQA/bandit/issues/837
 
-pytest = "8.3.5"
-pytest-asyncio = "0.26.0"
-pytest-cov = "6.1.1"
-requests = "2.32.3"
-respx = "0.22.0"
-factory-boy = ">=3.3.3,<=4.0.0"
-deepdiff = "^8.5.0,<=9.0.0"
+pytest = "^9.0.2"
+pytest-asyncio = "^1.3.0"
+pytest-cov = "^7.0.0"
+pytest-timeout = "^2.4.0"
+pytest-xdist = "^3.8.0"
+hypothesis = "^6.151.5"
+requests = "^2.32.5"
+respx = "^0.22.0"
+factory-boy = "^3.3.3"
+deepdiff = "^8.6.1"
 
-fastapi = "0.115.12 "
-starlette = "0.46.2"  # TODO: Drop dependency after updating end-to-end test
-uvicorn = "0.34.2"
+fastapi = "^0.128.1"
+starlette = ">=0.40,<0.51"  # TODO: Drop dependency after updating end-to-end test
+uvicorn = "^0.40.0"
+ruff = "^0.15.0"
 
 [build-system]
 requires = ["poetry>=1.2.0"]
@@ -56,3 +54,30 @@ build-backend = "poetry.masonry.api"
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+addopts = [
+  "--strict-markers",
+  "--tb=short",
+  "-n",
+  "auto",
+  "--dist=loadscope",
+  "--cov=pybotx",
+  "--cov-report=term-missing",
+  "--cov-branch",
+  "--no-cov-on-fail",
+  "--cov-fail-under=100",
+  "--timeout=10",
+  "--timeout-method=thread",
+]
+markers = [
+  "wip: Work in progress",
+  "mock_authorization: Mock authorization",
+  "allow_network: Allow real network access in a test",
+]
+filterwarnings = [
+  "ignore:Pydantic serializer warnings:UserWarning",
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88

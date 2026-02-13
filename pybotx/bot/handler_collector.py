@@ -3,16 +3,9 @@ import re
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
-    Dict,
-    List,
-    Optional,
-    Sequence,
-    Set,
-    Type,
-    Union,
     overload,
 )
+from collections.abc import Callable, Sequence
 from weakref import WeakSet
 
 from pybotx.bot.contextvars import bot_id_var, bot_var, chat_id_var
@@ -69,19 +62,19 @@ MessageHandlerDecorator = Callable[
 class HandlerCollector:
     VALID_COMMAND_NAME_RE = re.compile(r"^\/[^\s\/]+$", flags=re.UNICODE)
 
-    def __init__(self, middlewares: Optional[Sequence[Middleware]] = None) -> None:
-        self._user_commands_handlers: Dict[str, CommandHandler] = {}
-        self._default_message_handler: Optional[DefaultMessageHandler] = None
-        self._system_events_handlers: Dict[
-            Type[BotCommand],
+    def __init__(self, middlewares: Sequence[Middleware] | None = None) -> None:
+        self._user_commands_handlers: dict[str, CommandHandler] = {}
+        self._default_message_handler: DefaultMessageHandler | None = None
+        self._system_events_handlers: dict[
+            type[BotCommand],
             SystemEventHandlerFunc,
         ] = {}
-        self._sync_smartapp_event_handler: Dict[
-            Type[SmartAppEvent],
+        self._sync_smartapp_event_handler: dict[
+            type[SmartAppEvent],
             SyncSmartAppEventHandlerFunc,
         ] = {}
         self._middlewares = optional_sequence_to_list(middlewares)
-        self._tasks: "WeakSet[asyncio.Task[None]]" = WeakSet()
+        self._tasks: WeakSet[asyncio.Task[None]] = WeakSet()
 
     def include(self, *others: "HandlerCollector") -> None:
         """Include other `HandlerCollector`."""
@@ -120,7 +113,7 @@ class HandlerCollector:
 
         elif isinstance(
             bot_command,
-            SystemEvent.__args__,  # type: ignore [attr-defined]  # noqa: WPS609
+            SystemEvent.__args__,
         ):
             event_handler = self._get_system_event_handler_or_none(bot_command)
             if event_handler:
@@ -169,9 +162,9 @@ class HandlerCollector:
     def command(
         self,
         command_name: str,
-        visible: Union[bool, VisibleFunc] = True,
-        description: Optional[str] = None,
-        middlewares: Optional[Sequence[Middleware]] = None,
+        visible: bool | VisibleFunc = True,
+        description: str | None = None,
+        middlewares: Sequence[Middleware] | None = None,
     ) -> Callable[[IncomingMessageHandlerFunc], IncomingMessageHandlerFunc]:
         """Decorate command handler."""
         if not self.VALID_COMMAND_NAME_RE.match(command_name):
@@ -200,30 +193,27 @@ class HandlerCollector:
     def default_message_handler(
         self,
         handler_func: IncomingMessageHandlerFunc,
-    ) -> IncomingMessageHandlerFunc: ...  # noqa: WPS428, E704
+    ) -> IncomingMessageHandlerFunc: ...  # pragma: no cover
 
     @overload
     def default_message_handler(
         self,
         *,
-        middlewares: Optional[Sequence[Middleware]] = None,
-    ) -> MessageHandlerDecorator: ...  # noqa: WPS428, E704
+        middlewares: Sequence[Middleware] | None = None,
+    ) -> MessageHandlerDecorator: ...  # pragma: no cover
 
-    def default_message_handler(  # noqa: WPS320
+    def default_message_handler(
         self,
-        handler_func: Optional[IncomingMessageHandlerFunc] = None,
+        handler_func: IncomingMessageHandlerFunc | None = None,
         *,
-        middlewares: Optional[Sequence[Middleware]] = None,
-    ) -> Union[
-        IncomingMessageHandlerFunc,
-        Callable[[IncomingMessageHandlerFunc], IncomingMessageHandlerFunc],
-    ]:
+        middlewares: Sequence[Middleware] | None = None,
+    ) -> IncomingMessageHandlerFunc | Callable[[IncomingMessageHandlerFunc], IncomingMessageHandlerFunc]:
         """Decorate fallback messages handler."""
         if self._default_message_handler:
             raise ValueError("Default command handler already registered")
 
         def decorator(
-            handler_func: IncomingMessageHandlerFunc,  # noqa: WPS442
+            handler_func: IncomingMessageHandlerFunc,
         ) -> IncomingMessageHandlerFunc:
             self._default_message_handler = DefaultMessageHandler(
                 handler_func=handler_func,
@@ -367,7 +357,7 @@ class HandlerCollector:
 
     def insert_exception_middleware(
         self,
-        exception_handlers: Optional[ExceptionHandlersDict] = None,
+        exception_handlers: ExceptionHandlersDict | None = None,
     ) -> None:
         exception_middleware = ExceptionMiddleware(exception_handlers or {})
         self._middlewares.insert(0, exception_middleware.dispatch)
@@ -379,7 +369,7 @@ class HandlerCollector:
                 return_when=asyncio.ALL_COMPLETED,
             )
 
-    def _include_collector(self, other: "HandlerCollector") -> None:  # noqa: WPS238
+    def _include_collector(self, other: "HandlerCollector") -> None:
         # - Message handlers -
         command_duplicates = set(self._user_commands_handlers) & set(
             other._user_commands_handlers,
@@ -415,7 +405,7 @@ class HandlerCollector:
         self._system_events_handlers.update(other._system_events_handlers)
 
         # - Sync smartapp event handler -
-        sync_events_duplicates: Set[Type[SmartAppEvent]] = set(
+        sync_events_duplicates: set[type[SmartAppEvent]] = set(
             self._sync_smartapp_event_handler,
         ) & set(
             other._sync_smartapp_event_handler,
@@ -430,14 +420,14 @@ class HandlerCollector:
     def _get_incoming_message_handler(
         self,
         message: IncomingMessage,
-    ) -> Union[CommandHandler, DefaultMessageHandler, None]:
+    ) -> CommandHandler | DefaultMessageHandler | None:
         return self._get_command_handler(message.body)
 
     def _get_command_handler(
         self,
         command: str,
-    ) -> Union[CommandHandler, DefaultMessageHandler, None]:
-        handler: Optional[Union[CommandHandler, DefaultMessageHandler]] = None
+    ) -> CommandHandler | DefaultMessageHandler | None:
+        handler: CommandHandler | DefaultMessageHandler | None = None
 
         command_name = self._get_command_name(command)
         if command_name:
@@ -456,7 +446,7 @@ class HandlerCollector:
     def _get_system_event_handler_or_none(
         self,
         event: SystemEvent,
-    ) -> Optional[SystemEventHandlerFunc]:
+    ) -> SystemEventHandlerFunc | None:
         event_cls = event.__class__
 
         handler = self._system_events_handlers.get(event_cls)
@@ -467,7 +457,7 @@ class HandlerCollector:
     def _get_sync_smartapp_event_handler_or_none(
         self,
         event: SmartAppEvent,
-    ) -> Optional[SyncSmartAppEventHandlerFunc]:
+    ) -> SyncSmartAppEventHandlerFunc | None:
         event_cls = event.__class__
 
         handler = self._sync_smartapp_event_handler.get(event_cls)
@@ -475,7 +465,7 @@ class HandlerCollector:
 
         return handler
 
-    def _get_command_name(self, body: str) -> Optional[str]:
+    def _get_command_name(self, body: str) -> str | None:
         if not body:
             return None
 
@@ -488,9 +478,9 @@ class HandlerCollector:
     def _build_command_handler(
         self,
         handler_func: IncomingMessageHandlerFunc,
-        visible: Union[bool, VisibleFunc],
-        description: Optional[str],
-        middlewares: List[Middleware],
+        visible: bool | VisibleFunc,
+        description: str | None,
+        middlewares: list[Middleware],
     ) -> CommandHandler:
         if visible is True or callable(visible):
             if not description:
@@ -510,7 +500,7 @@ class HandlerCollector:
 
     def _system_event(
         self,
-        event_cls_name: Type[BotCommand],
+        event_cls_name: type[BotCommand],
         handler_func: SystemEventHandlerFunc,
     ) -> SystemEventHandlerFunc:
         if event_cls_name in self._system_events_handlers:
@@ -522,7 +512,7 @@ class HandlerCollector:
 
     def _sync_smartapp_event(
         self,
-        event_cls_name: Type[SmartAppEvent],
+        event_cls_name: type[SmartAppEvent],
         handler_func: SyncSmartAppEventHandlerFunc,
     ) -> SyncSmartAppEventHandlerFunc:
         if event_cls_name in self._sync_smartapp_event_handler:
@@ -550,7 +540,7 @@ class HandlerCollector:
         else:
             logger.info(f"Handler for `{event_cls_name}` not found")
 
-    def _log_default_handler_call(self, command_name: Optional[str]) -> None:
+    def _log_default_handler_call(self, command_name: str | None) -> None:
         if command_name:
             logger.info(
                 f"Handler for command `{command_name}` not found, "

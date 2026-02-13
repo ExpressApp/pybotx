@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Dict, Literal
+from typing import Any, Literal
 from uuid import UUID
 
 import httpx
@@ -14,10 +14,10 @@ from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBa
 
 
 class BotXAPIFooBarRequestPayload(UnverifiedPayloadBaseModel):
-    baz: Dict[str, Any]
+    baz: dict[str, Any]
 
     @classmethod
-    def from_domain(cls, baz: Dict[str, Any]) -> "BotXAPIFooBarRequestPayload":
+    def from_domain(cls, baz: dict[str, Any]) -> "BotXAPIFooBarRequestPayload":
         return cls(baz=baz)
 
 

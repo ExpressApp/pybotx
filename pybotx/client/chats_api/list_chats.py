@@ -1,10 +1,11 @@
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.logger import logger
 from pybotx.models.api_base import VerifiedPayloadBaseModel
+from pydantic import ValidationError, field_validator
 from pybotx.models.chats import ChatListItem
 from pybotx.models.enums import APIChatTypes, convert_chat_type_to_domain
 
@@ -13,8 +14,8 @@ class BotXAPIListChatResult(VerifiedPayloadBaseModel):
     group_chat_id: UUID
     chat_type: APIChatTypes
     name: str
-    description: Optional[str] = None
-    members: List[UUID]
+    description: str | None = None
+    members: list[UUID]
     inserted_at: datetime
     updated_at: datetime
     shared_history: bool
@@ -22,9 +23,32 @@ class BotXAPIListChatResult(VerifiedPayloadBaseModel):
 
 class BotXAPIListChatResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
-    result: List[Union[BotXAPIListChatResult, Dict[str, Any]]]  # noqa: WPS234
+    result: list[BotXAPIListChatResult | dict[str, Any]]
 
-    def to_domain(self) -> List[ChatListItem]:
+    @staticmethod
+    def validate_result(
+        value: list[BotXAPIListChatResult | dict[str, Any]], info: Any
+    ) -> list[BotXAPIListChatResult | dict[str, Any]]:
+        parsed: list[BotXAPIListChatResult | dict[str, Any]] = []
+        for item in value:
+            if isinstance(item, dict):
+                try:
+                    parsed.append(BotXAPIListChatResult.model_validate(item))
+                except ValidationError:
+                    parsed.append(item)
+            else:
+                parsed.append(item)
+        return parsed
+
+    @field_validator("result", mode="before")
+    @classmethod
+    def _validate_result_field(
+        cls, value: list[BotXAPIListChatResult | dict[str, Any]], info: Any
+    ) -> list[BotXAPIListChatResult | dict[str, Any]]:
+        # Pydantic-валидатор: просто делегируем статическому методу
+        return cls.validate_result(value, info)
+
+    def to_domain(self) -> list[ChatListItem]:
         chats_list = [
             ChatListItem(
                 chat_id=chat_item.group_chat_id,

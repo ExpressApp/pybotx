@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal, Union
+from typing import Any, Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -31,27 +31,28 @@ class BotXAPIEditEventOpts(UnverifiedPayloadBaseModel):
 
 class BotXAPIEditEvent(UnverifiedPayloadBaseModel):
     body: Missing[str]
-    metadata: Missing[Dict[str, Any]]
+    metadata: Missing[dict[str, Any]]
     opts: Missing[BotXAPIEditEventOpts]
     bubble: Missing[BotXAPIMarkup]
     keyboard: Missing[BotXAPIMarkup]
-    mentions: Missing[List[BotXAPIMention]]
+    mentions: Missing[list[BotXAPIMention]]
 
 
 class BotXAPIEditEventRequestPayload(UnverifiedPayloadBaseModel):
     sync_id: UUID
     payload: BotXAPIEditEvent
     file: Missing[BotXAPIAttachment]
+    opts: BotXAPIEditEventOpts
 
     @classmethod
     def from_domain(
         cls,
         sync_id: UUID,
         body: Missing[str],
-        metadata: Missing[Dict[str, Any]],
+        metadata: Missing[dict[str, Any]],
         bubbles: Missing[BubbleMarkup],
         keyboard: Missing[KeyboardMarkup],
-        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment, None]],
+        file: Missing[IncomingFileAttachment | OutgoingAttachment | None],
         markup_auto_adjust: Missing[bool],
     ) -> "BotXAPIEditEventRequestPayload":
         api_file: MissingOptional[BotXAPIAttachment] = Undefined
@@ -60,7 +61,7 @@ class BotXAPIEditEventRequestPayload(UnverifiedPayloadBaseModel):
         elif file is None:
             api_file = None
 
-        mentions: Missing[List[BotXAPIMention]] = Undefined
+        mentions: Missing[list[BotXAPIMention]] = Undefined
         if isinstance(body, str):
             body, mentions = find_and_replace_embed_mentions(body)
 

@@ -1,12 +1,11 @@
-from typing import List, Literal, Optional
+from typing import Literal
 from uuid import UUID
-
-from pydantic import Field
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.missing import Missing, Undefined
 from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from pybotx.models.enums import SmartappManifestWebLayoutChoices as WebLayoutChoices
+from pydantic import Field
 
 
 class SmartappManifestIosParams(VerifiedPayloadBaseModel):
@@ -24,14 +23,14 @@ class SmartappManifestAuroraParams(VerifiedPayloadBaseModel):
 class SmartappManifestWebParams(VerifiedPayloadBaseModel):
     default_layout: WebLayoutChoices = WebLayoutChoices.minimal
     expanded_layout: WebLayoutChoices = WebLayoutChoices.half
-    allowed_layouts: Optional[list[WebLayoutChoices]] = None
+    allowed_layouts: list[WebLayoutChoices] | None = None
     always_pinned: bool = False
 
 
 class SmartappManifestUnreadCounterParams(VerifiedPayloadBaseModel):
-    user_huid: List[UUID] = Field(default_factory=list)
-    group_chat_id: List[UUID] = Field(default_factory=list)
-    app_id: List[str] = Field(default_factory=list)
+    user_huid: list[UUID] = Field(default_factory=list)
+    group_chat_id: list[UUID] = Field(default_factory=list)
+    app_id: list[str] = Field(default_factory=list)
 
 
 class SmartappManifest(VerifiedPayloadBaseModel):

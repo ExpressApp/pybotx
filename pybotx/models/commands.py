@@ -1,9 +1,17 @@
-from typing import Union
 
 from pybotx.models.message.incoming_message import (
     BotAPIIncomingMessage,
     IncomingMessage,
 )
+
+__all__: list[str] = [
+    "BotAPIIncomingMessage",
+    "IncomingMessage",
+    "BotAPISystemEvent",
+    "BotAPICommand",
+    "SystemEvent",
+    "BotCommand",
+]
 from pybotx.models.system_events.added_to_chat import (
     AddedToChatEvent,
     BotAPIAddedToChat,
@@ -51,41 +59,41 @@ from pybotx.models.system_events.user_joined_to_chat import (
 )
 
 # Sorted by frequency of occurrence to speedup validation
-BotAPISystemEvent = Union[
-    BotAPISmartAppEvent,
-    BotAPIInternalBotNotification,
-    BotAPIChatCreated,
-    BotAPIChatDeletedByUser,
-    BotAPIAddedToChat,
-    BotAPIDeletedFromChat,
-    BotAPILeftFromChat,
-    BotAPICTSLogin,
-    BotAPICTSLogout,
-    BotAPIEventDeleted,
-    BotAPIEventEdit,
-    BotAPIJoinToChat,
-    BotAPIConferenceChanged,
-    BotAPIConferenceCreated,
-    BotAPIConferenceDeleted,
-]
-BotAPICommand = Union[BotAPIIncomingMessage, BotAPISystemEvent]
+BotAPISystemEvent = (
+    BotAPISmartAppEvent
+    | BotAPIInternalBotNotification
+    | BotAPIChatCreated
+    | BotAPIChatDeletedByUser
+    | BotAPIAddedToChat
+    | BotAPIDeletedFromChat
+    | BotAPILeftFromChat
+    | BotAPICTSLogin
+    | BotAPICTSLogout
+    | BotAPIEventDeleted
+    | BotAPIEventEdit
+    | BotAPIJoinToChat
+    | BotAPIConferenceChanged
+    | BotAPIConferenceCreated
+    | BotAPIConferenceDeleted
+)
+BotAPICommand = BotAPIIncomingMessage | BotAPISystemEvent
 
 # Just sorted as above, no real profits
-SystemEvent = Union[
-    SmartAppEvent,
-    InternalBotNotificationEvent,
-    ChatCreatedEvent,
-    ChatDeletedByUserEvent,
-    AddedToChatEvent,
-    DeletedFromChatEvent,
-    LeftFromChatEvent,
-    CTSLoginEvent,
-    CTSLogoutEvent,
-    EventDeleted,
-    EventEdit,
-    JoinToChatEvent,
-    ConferenceChangedEvent,
-    ConferenceCreatedEvent,
-    ConferenceDeletedEvent,
-]
-BotCommand = Union[IncomingMessage, SystemEvent]
+SystemEvent = (
+    SmartAppEvent
+    | InternalBotNotificationEvent
+    | ChatCreatedEvent
+    | ChatDeletedByUserEvent
+    | AddedToChatEvent
+    | DeletedFromChatEvent
+    | LeftFromChatEvent
+    | CTSLoginEvent
+    | CTSLogoutEvent
+    | EventDeleted
+    | EventEdit
+    | JoinToChatEvent
+    | ConferenceChangedEvent
+    | ConferenceCreatedEvent
+    | ConferenceDeletedEvent
+)
+BotCommand = IncomingMessage | SystemEvent

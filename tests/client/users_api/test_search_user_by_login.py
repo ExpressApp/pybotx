@@ -1,19 +1,12 @@
 from http import HTTPStatus
-from typing import Any, Dict
+from typing import Any
 from uuid import UUID
 
-import httpx
 import pytest
 from respx.router import MockRouter
 
-from pybotx import (
-    Bot,
-    BotAccountWithSecret,
-    HandlerCollector,
-    UserFromSearch,
-    UserNotFoundError,
-    lifespan_wrapper,
-)
+from pybotx import UserFromSearch, UserNotFoundError
+from tests.testkit import BotXRequest, assert_deep_equal, error_payload, mock_botx, ok_payload
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -26,29 +19,24 @@ async def test__search_user_by_ad__user_not_found_error_raised(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = respx_mock.get(
-        f"https://{host}/api/v3/botx/users/by_login",
-        headers={"Authorization": "Bearer token"},
+    request = BotXRequest(
+        method="GET",
+        path="/api/v3/botx/users/by_login",
         params={"ad_login": "ad_user_login", "ad_domain": "cts.com"},
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.NOT_FOUND,
-            json={
-                "status": "error",
-                "reason": "user_not_found",
-                "errors": [],
-                "error_data": {},
-            },
-        ),
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        error_payload("user_not_found"),
+        HTTPStatus.NOT_FOUND,
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         with pytest.raises(UserNotFoundError) as exc:
             await bot.search_user_by_ad(
                 bot_id=bot_id,
@@ -65,29 +53,26 @@ async def test__search_user_by_ad__succeed(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
     user_from_search_with_data: UserFromSearch,
-    user_from_search_with_data_json: Dict[str, Any],
+    user_from_search_with_data_json: dict[str, Any],
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = respx_mock.get(
-        f"https://{host}/api/v3/botx/users/by_login",
-        headers={"Authorization": "Bearer token"},
+    request = BotXRequest(
+        method="GET",
+        path="/api/v3/botx/users/by_login",
         params={"ad_login": "ad_user_login", "ad_domain": "cts.com"},
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.OK,
-            json={
-                "status": "ok",
-                "result": user_from_search_with_data_json,
-            },
-        ),
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload(user_from_search_with_data_json),
+        HTTPStatus.OK,
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         user = await bot.search_user_by_ad(
             bot_id=bot_id,
             ad_login="ad_user_login",
@@ -95,8 +80,7 @@ async def test__search_user_by_ad__succeed(
         )
 
     # - Assert -
-    assert user == user_from_search_with_data
-
+    assert_deep_equal(user, user_from_search_with_data)
     assert endpoint.called
 
 
@@ -104,29 +88,26 @@ async def test__search_user_by_ad_without_data__succeed(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
     user_from_search_without_data: UserFromSearch,
-    user_from_search_without_data_json: Dict[str, Any],
+    user_from_search_without_data_json: dict[str, Any],
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = respx_mock.get(
-        f"https://{host}/api/v3/botx/users/by_login",
-        headers={"Authorization": "Bearer token"},
+    request = BotXRequest(
+        method="GET",
+        path="/api/v3/botx/users/by_login",
         params={"ad_login": "ad_user_login", "ad_domain": "cts.com"},
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.OK,
-            json={
-                "status": "ok",
-                "result": user_from_search_without_data_json,
-            },
-        ),
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload(user_from_search_without_data_json),
+        HTTPStatus.OK,
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         user = await bot.search_user_by_ad(
             bot_id=bot_id,
             ad_login="ad_user_login",
@@ -134,6 +115,5 @@ async def test__search_user_by_ad_without_data__succeed(
         )
 
     # - Assert -
-    assert user == user_from_search_without_data
-
+    assert_deep_equal(user, user_from_search_without_data)
     assert endpoint.called

@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import Literal, Optional, Union, overload
+from typing import Literal, overload
 
 
 class AutoName(Enum):
@@ -54,6 +54,7 @@ class ChatTypes(AutoName):
         PERSONAL_CHAT: Personal chat with user.
         GROUP_CHAT: Group chat.
         CHANNEL: Public channel.
+        THREAD: Thread in a chat.
     """
 
     PERSONAL_CHAT = auto()
@@ -78,19 +79,27 @@ class ConferenceLinkTypes(AutoName):
 
 
 UNSUPPORTED = Literal["UNSUPPORTED"]
-IncomingChatTypes = Union[ChatTypes, UNSUPPORTED]
-IncomingSyncSourceTypes = Union[SyncSourceTypes, UNSUPPORTED]
+IncomingChatTypes = ChatTypes | UNSUPPORTED
+IncomingSyncSourceTypes = SyncSourceTypes | UNSUPPORTED
 
 
-class StrEnum(str, Enum):  # noqa: WPS600 (pydantic needs this inheritance)
+class StrEnum(str, Enum):  # (pydantic needs this inheritance)
     """Enum base for API models."""
 
     # https://github.com/pydantic/pydantic/issues/3850
     # TODO: Use plain enums after migrating to Pydantic 2.0
 
 
+class ChatLinkTypes(StrEnum):
+    PUBLIC = "public"
+    TRUSTS = "trusts"
+    CORPORATE = "corporate"
+    SERVER = "server"
+
+
 class APIChatTypes(Enum):
     CHAT = "chat"
+    NOTES = "notes"
     GROUP_CHAT = "group_chat"
     CHANNEL = "channel"
     THREAD = "thread"
@@ -309,28 +318,29 @@ def convert_chat_type_from_domain(chat_type: ChatTypes) -> APIChatTypes:
 
 
 @overload
-def convert_chat_type_to_domain(
+def convert_chat_type_to_domain(  # pragma: no cover
     chat_type: APIChatTypes,
-) -> ChatTypes: ...  # noqa: WPS428, E704
+) -> ChatTypes: ...
 
 
 @overload
-def convert_chat_type_to_domain(
+def convert_chat_type_to_domain(  # pragma: no cover
     chat_type: str,
-) -> UNSUPPORTED: ...  # noqa: WPS428, E704
+) -> IncomingChatTypes: ...
 
 
 def convert_chat_type_to_domain(
-    chat_type: Union[APIChatTypes, str],
+    chat_type: APIChatTypes | str,
 ) -> IncomingChatTypes:
     chat_types_mapping = {
         APIChatTypes.CHAT: ChatTypes.PERSONAL_CHAT,
+        APIChatTypes.NOTES: ChatTypes.PERSONAL_CHAT,
         APIChatTypes.GROUP_CHAT: ChatTypes.GROUP_CHAT,
         APIChatTypes.CHANNEL: ChatTypes.CHANNEL,
         APIChatTypes.THREAD: ChatTypes.THREAD,
     }
 
-    converted_type: Optional[IncomingChatTypes]
+    converted_type: IncomingChatTypes | None
     try:
         converted_type = chat_types_mapping.get(APIChatTypes(chat_type))
     except ValueError:
@@ -343,19 +353,19 @@ def convert_chat_type_to_domain(
 
 
 @overload
-def convert_sync_source_type_to_domain(
+def convert_sync_source_type_to_domain(  # pragma: no cover
     sync_type: APISyncSourceTypes,
-) -> SyncSourceTypes: ...  # noqa: WPS428, E704
+) -> SyncSourceTypes: ...
 
 
 @overload
-def convert_sync_source_type_to_domain(
+def convert_sync_source_type_to_domain(  # pragma: no cover
     sync_type: str,
-) -> UNSUPPORTED: ...  # noqa: WPS428, E704
+) -> UNSUPPORTED: ...
 
 
 def convert_sync_source_type_to_domain(
-    sync_type: Union[APISyncSourceTypes, str],
+    sync_type: APISyncSourceTypes | str,
 ) -> IncomingSyncSourceTypes:
     sync_source_types_mapping = {
         APISyncSourceTypes.AD: SyncSourceTypes.AD,
@@ -365,7 +375,7 @@ def convert_sync_source_type_to_domain(
         APISyncSourceTypes.BOTX: SyncSourceTypes.BOTX,
     }
 
-    converted_type: Optional[IncomingSyncSourceTypes]
+    converted_type: IncomingSyncSourceTypes | None
     try:
         converted_type = sync_source_types_mapping.get(APISyncSourceTypes(sync_type))
     except ValueError:

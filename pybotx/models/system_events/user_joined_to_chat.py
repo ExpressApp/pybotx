@@ -1,8 +1,6 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List, Literal
+from typing import Any, Literal
 from uuid import UUID
-
-from pydantic import Field
 
 from pybotx.models.api_base import VerifiedPayloadBaseModel
 from pybotx.models.base_command import (
@@ -14,9 +12,10 @@ from pybotx.models.base_command import (
 from pybotx.models.bot_account import BotAccount
 from pybotx.models.chats import Chat
 from pybotx.models.enums import BotAPISystemEventTypes, convert_chat_type_to_domain
+from pydantic import Field, ConfigDict
 
 
-@dataclass
+@dataclass(slots=True)
 class JoinToChatEvent(BotCommandBase):
     """Domain model for user joined to chat event.
 
@@ -30,7 +29,7 @@ class JoinToChatEvent(BotCommandBase):
         chat: The chat that users joined.
     """
 
-    huids: List[UUID]
+    huids: list[UUID]
     chat: Chat
 
 
@@ -44,7 +43,7 @@ class BotAPIJoinToChatData(VerifiedPayloadBaseModel):
         added_members: List of UUIDs of users who joined the chat.
     """
 
-    added_members: List[UUID]
+    added_members: list[UUID]
 
 
 class BotAPIJoinToChatPayload(BotAPIBaseSystemEventPayload):
@@ -76,7 +75,7 @@ class BotAPIJoinToChat(BotAPIBaseCommand):
     payload: BotAPIJoinToChatPayload = Field(..., alias="command")
     sender: BotAPIChatContext = Field(..., alias="from")
 
-    def to_domain(self, raw_command: Dict[str, Any]) -> JoinToChatEvent:
+    def to_domain(self, raw_command: dict[str, Any]) -> JoinToChatEvent:
         return JoinToChatEvent(
             bot=BotAccount(
                 id=self.bot_id,
@@ -90,5 +89,4 @@ class BotAPIJoinToChat(BotAPIBaseCommand):
             ),
         )
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)

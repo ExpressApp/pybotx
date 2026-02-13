@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal, Union
+from typing import Any, Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -29,11 +29,11 @@ class BotXAPIReplyEventMessageOpts(UnverifiedPayloadBaseModel):
 class BotXAPIReplyEvent(UnverifiedPayloadBaseModel):
     status: Literal["ok"]
     body: str
-    metadata: Missing[Dict[str, Any]]
+    metadata: Missing[dict[str, Any]]
     opts: Missing[BotXAPIReplyEventMessageOpts]
     bubble: Missing[BotXAPIMarkup]
     keyboard: Missing[BotXAPIMarkup]
-    mentions: Missing[List[BotXAPIMention]]
+    mentions: Missing[list[BotXAPIMention]]
 
 
 class BotXAPIReplyEventNestedOpts(UnverifiedPayloadBaseModel):
@@ -58,10 +58,10 @@ class BotXAPIReplyEventRequestPayload(UnverifiedPayloadBaseModel):
         cls,
         sync_id: UUID,
         body: str,
-        metadata: Missing[Dict[str, Any]],
+        metadata: Missing[dict[str, Any]],
         bubbles: Missing[BubbleMarkup],
         keyboard: Missing[KeyboardMarkup],
-        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]],
+        file: Missing[IncomingFileAttachment | OutgoingAttachment],
         silent_response: Missing[bool],
         markup_auto_adjust: Missing[bool],
         stealth_mode: Missing[bool],

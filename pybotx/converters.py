@@ -1,9 +1,10 @@
-from typing import List, Optional, Sequence, TypeVar
+from typing import TypeVar
+from collections.abc import Sequence
 
 TItem = TypeVar("TItem")
 
 
 def optional_sequence_to_list(
-    optional_sequence: Optional[Sequence[TItem]],
-) -> List[TItem]:
+    optional_sequence: Sequence[TItem] | None,
+) -> list[TItem]:
     return list(optional_sequence or [])

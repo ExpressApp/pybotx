@@ -7,7 +7,7 @@ from pybotx.models.api_base import VerifiedPayloadBaseModel
 from pybotx.models.enums import APIChatTypes, BotAPIEntityTypes, ChatTypes
 
 
-@dataclass
+@dataclass(slots=True)
 class Forward:
     chat_id: UUID
     author_id: UUID

@@ -1,9 +1,13 @@
+import json
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, Iterator, List, Literal, Optional, Union
+from typing import Any, Literal, cast
+from collections.abc import Iterator
 
 from pybotx.missing import Missing, Undefined
-from pybotx.models.api_base import UnverifiedPayloadBaseModel
+from pybotx.models.api_base import UnverifiedPayloadBaseModel, _remove_undefined
+from pydantic import RootModel
+from pydantic_core import to_jsonable_python
 
 
 class ButtonTextAlign(Enum):
@@ -12,7 +16,7 @@ class ButtonTextAlign(Enum):
     RIGHT = "right"
 
 
-@dataclass
+@dataclass(slots=True)
 class Button:
     """
     Button object.
@@ -37,7 +41,7 @@ class Button:
 
     label: str
     command: Missing[str] = Undefined
-    data: Dict[str, Any] = field(default_factory=dict)
+    data: dict[str, Any] = field(default_factory=dict)
     text_color: Missing[str] = Undefined
     background_color: Missing[str] = Undefined
     align: ButtonTextAlign = ButtonTextAlign.CENTER
@@ -53,11 +57,11 @@ class Button:
             raise ValueError("Either 'command' or 'link' must be provided")
 
 
-ButtonRow = List[Button]
+ButtonRow = list[Button]
 
 
 class BaseMarkup:
-    def __init__(self, buttons: Optional[List[ButtonRow]] = None) -> None:
+    def __init__(self, buttons: list[ButtonRow] | None = None) -> None:
         self._buttons = buttons or []
 
     def __iter__(self) -> Iterator[ButtonRow]:
@@ -68,7 +72,7 @@ class BaseMarkup:
             raise NotImplementedError
 
         # https://github.com/wemake-services/wemake-python-styleguide/issues/2172
-        return self._buttons == other._buttons  # noqa: WPS437
+        return self._buttons == other._buttons
 
     def __repr__(self) -> str:
         buttons = []
@@ -96,7 +100,7 @@ class BaseMarkup:
         self,
         label: str,
         command: Missing[str] = Undefined,
-        data: Optional[Dict[str, Any]] = None,
+        data: dict[str, Any] | None = None,
         text_color: Missing[str] = Undefined,
         background_color: Missing[str] = Undefined,
         align: ButtonTextAlign = ButtonTextAlign.CENTER,
@@ -158,7 +162,7 @@ class KeyboardMarkup(BaseMarkup):
     """Class for managing keyboard message buttons."""
 
 
-Markup = Union[BubbleMarkup, KeyboardMarkup]
+Markup = BubbleMarkup | KeyboardMarkup
 
 
 class BotXAPIButtonOptions(UnverifiedPayloadBaseModel):
@@ -176,12 +180,17 @@ class BotXAPIButtonOptions(UnverifiedPayloadBaseModel):
 class BotXAPIButton(UnverifiedPayloadBaseModel):
     command: str
     label: str
-    data: Dict[str, Any]
+    data: dict[str, Any]
     opts: BotXAPIButtonOptions
 
 
-class BotXAPIMarkup(UnverifiedPayloadBaseModel):
-    __root__: List[List[BotXAPIButton]]
+class BotXAPIMarkup(RootModel[list[list[BotXAPIButton]]]):
+    def json(self) -> str:  # type: ignore[override]
+        clean_dict = _remove_undefined(self.model_dump())
+        return json.dumps(clean_dict, default=to_jsonable_python, ensure_ascii=False)
+
+    def jsonable_dict(self) -> list[list[dict[str, Any]]]:
+        return cast(list[list[dict[str, Any]]], json.loads(self.json()))
 
 
 def api_button_from_domain(button: Button) -> BotXAPIButton:
@@ -216,7 +225,7 @@ def api_button_from_domain(button: Button) -> BotXAPIButton:
 
 def api_markup_from_domain(markup: Markup) -> BotXAPIMarkup:
     return BotXAPIMarkup(
-        __root__=[
+        root=[
             [api_button_from_domain(button) for button in buttons] for buttons in markup
-        ],
+        ]
     )

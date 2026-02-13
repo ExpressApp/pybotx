@@ -1,5 +1,6 @@
 from http import HTTPStatus
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
+from collections.abc import Callable
 from uuid import UUID
 
 import httpx
@@ -50,8 +51,8 @@ async def handle_sync_smartapp_event(
 
 
 def bot_factory(
-    bot_accounts: List[BotAccountWithSecret],
-    bot_collector: Optional[HandlerCollector] = None,
+    bot_accounts: list[BotAccountWithSecret],
+    bot_collector: HandlerCollector | None = None,
 ) -> Bot:
     return Bot(collectors=[bot_collector or collector], bot_accounts=bot_accounts)
 
@@ -258,7 +259,7 @@ def test__web_app__bot_command(
         ),
     )
 
-    command_payload = {
+    command_payload: dict[str, Any] = {
         "bot_id": str(bot_id),
         "command": {
             "body": "/debug",
@@ -325,7 +326,7 @@ def test__web_app__unknown_bot_response(
     bot: Bot,
 ) -> None:
     # - Arrange -
-    payload = {
+    payload: dict[str, Any] = {
         "bot_id": "c755e147-30a5-45df-b46a-c75aa6089c8f",
         "command": {
             "body": "/debug",
@@ -465,6 +466,8 @@ def test__web_app__sync_smartapp_event__success(bot: Bot, bot_id: UUID) -> None:
                     "file_size": 349372,
                     "file_hash": "qVSzEUJITWP+TgCvcF3UCzQrBaY3RHqB92CHObz4E70=",
                     "file_mime_type": "application/octet-stream",
+                    "chunk_size": 2097152,
+                    "file_encryption_algo": "stream",
                     "file_id": "a0ec914f-8235-5021-9b8d-05c3cd303536",
                     "type": "document",
                 },
@@ -476,7 +479,7 @@ def test__web_app__sync_smartapp_event__success(bot: Bot, bot_id: UUID) -> None:
 def test__web_app__sync_smartapp_event__error(
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
-    api_sync_smartapp_event_factory: Callable[..., Dict[str, Any]],
+    api_sync_smartapp_event_factory: Callable[..., dict[str, Any]],
 ) -> None:
     # - Arrange -
     request_payload = api_sync_smartapp_event_factory(bot_id=bot_id)

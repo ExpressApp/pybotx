@@ -1,12 +1,11 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Optional
 from uuid import UUID
 
 from pybotx.models.enums import IncomingSyncSourceTypes, UserKinds
 
 
-@dataclass
+@dataclass(slots=True)
 class UserFromSearch:
     """User from search.
 
@@ -36,30 +35,30 @@ class UserFromSearch:
     """
 
     huid: UUID
-    ad_login: Optional[str]
-    ad_domain: Optional[str]
+    ad_login: str | None
+    ad_domain: str | None
     username: str
-    company: Optional[str]
-    company_position: Optional[str]
-    department: Optional[str]
-    emails: List[str]
-    other_id: Optional[str]
+    company: str | None
+    company_position: str | None
+    department: str | None
+    emails: list[str]
+    other_id: str | None
     user_kind: UserKinds
-    active: Optional[bool] = None
-    description: Optional[str] = None
-    ip_phone: Optional[str] = None
-    manager: Optional[str] = None
-    office: Optional[str] = None
-    other_ip_phone: Optional[str] = None
-    other_phone: Optional[str] = None
-    public_name: Optional[str] = None
-    cts_id: Optional[UUID] = None
-    rts_id: Optional[UUID] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    active: bool | None = None
+    description: str | None = None
+    ip_phone: str | None = None
+    manager: str | None = None
+    office: str | None = None
+    other_ip_phone: str | None = None
+    other_phone: str | None = None
+    public_name: str | None = None
+    cts_id: UUID | None = None
+    rts_id: UUID | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
-@dataclass
+@dataclass(slots=True)
 class UserFromCSV:
     """User from a list of a CTS users.
 
@@ -94,18 +93,18 @@ class UserFromCSV:
     sync_source: IncomingSyncSourceTypes
     active: bool
     user_kind: UserKinds
-    email: Optional[str] = None
-    company: Optional[str] = None
-    department: Optional[str] = None
-    position: Optional[str] = None
-    avatar: Optional[str] = None
-    avatar_preview: Optional[str] = None
-    office: Optional[str] = None
-    manager: Optional[str] = None
-    manager_huid: Optional[UUID] = None
-    description: Optional[str] = None
-    phone: Optional[str] = None
-    other_phone: Optional[str] = None
-    ip_phone: Optional[str] = None
-    other_ip_phone: Optional[str] = None
-    personnel_number: Optional[str] = None
+    email: str | None = None
+    company: str | None = None
+    department: str | None = None
+    position: str | None = None
+    avatar: str | None = None
+    avatar_preview: str | None = None
+    office: str | None = None
+    manager: str | None = None
+    manager_huid: UUID | None = None
+    description: str | None = None
+    phone: str | None = None
+    other_phone: str | None = None
+    ip_phone: str | None = None
+    other_ip_phone: str | None = None
+    personnel_number: str | None = None

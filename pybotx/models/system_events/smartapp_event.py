@@ -1,8 +1,6 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 from uuid import UUID
-
-from pydantic import Field
 
 from pybotx.models.api_base import VerifiedPayloadBaseModel
 from pybotx.models.async_files import APIAsyncFile, File, convert_async_file_to_domain
@@ -22,9 +20,10 @@ from pybotx.models.enums import (
     convert_client_platform_to_domain,
 )
 from pybotx.models.message.incoming_message import UserDevice, UserSender
+from pydantic import Field
 
 
-@dataclass
+@dataclass(slots=True)
 class SmartAppEvent(BotCommandBase):
     """Event `system:smartapp_event`.
 
@@ -37,12 +36,12 @@ class SmartAppEvent(BotCommandBase):
         sender: Event sender.
     """
 
-    ref: Optional[UUID]
+    ref: UUID | None
     smartapp_id: UUID
-    data: Dict[str, Any]  # noqa: WPS110
-    opts: Optional[Dict[str, Any]]
-    smartapp_api_version: Optional[int]
-    files: List[File]
+    data: dict[str, Any]
+    opts: dict[str, Any] | None
+    smartapp_api_version: int | None
+    files: list[File]
     chat: Chat
     sender: UserSender
 
@@ -50,8 +49,8 @@ class SmartAppEvent(BotCommandBase):
 class BotAPISmartAppData(VerifiedPayloadBaseModel):
     ref: UUID
     smartapp_id: UUID
-    data: Dict[str, Any]  # noqa: WPS110
-    opts: Dict[str, Any]
+    data: dict[str, Any]
+    opts: dict[str, Any]
     smartapp_api_version: int
 
 
@@ -59,7 +58,7 @@ class BotAPISmartAppPayload(VerifiedPayloadBaseModel):
     body: Literal[BotAPISystemEventTypes.SMARTAPP_EVENT]
     command_type: Literal[BotAPICommandTypes.SYSTEM]
     data: BotAPISmartAppData
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
 
 
 class BotAPISmartAppEventContext(
@@ -73,9 +72,9 @@ class BotAPISmartAppEventContext(
 class BotAPISmartAppEvent(BotAPIBaseCommand):
     payload: BotAPISmartAppPayload = Field(..., alias="command")
     sender: BotAPISmartAppEventContext = Field(..., alias="from")
-    async_files: List[APIAsyncFile]
+    async_files: list[APIAsyncFile]
 
-    def to_domain(self, raw_command: Dict[str, Any]) -> SmartAppEvent:
+    def to_domain(self, raw_command: dict[str, Any]) -> SmartAppEvent:
         device = UserDevice(
             manufacturer=self.sender.manufacturer,
             device_name=self.sender.device,

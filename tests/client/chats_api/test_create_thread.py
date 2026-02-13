@@ -1,23 +1,17 @@
-from collections.abc import Callable
 from http import HTTPStatus
 from typing import Any
 from uuid import UUID
 
-import httpx
 import pytest
-from respx import Route
 from respx.router import MockRouter
 
 from pybotx import (
-    Bot,
-    BotAccountWithSecret,
     EventNotFoundError,
-    HandlerCollector,
     ThreadAlreadyExistsError,
     ThreadCreationError,
     ThreadCreationProhibitedError,
-    lifespan_wrapper,
 )
+from tests.testkit import BotXRequest, mock_botx, ok_payload
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -25,7 +19,7 @@ pytestmark = [
     pytest.mark.usefixtures("respx_mock"),
 ]
 
-ENDPOINT = "api/v3/botx/chats/create_thread"
+ENDPOINT = "/api/v3/botx/chats/create_thread"
 
 
 @pytest.fixture
@@ -33,44 +27,25 @@ def sync_id() -> str:
     return "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"
 
 
-@pytest.fixture
-def create_mocked_endpoint(
+async def test__create_thread__succeed(
     respx_mock: MockRouter,
     host: str,
     sync_id: str,
-) -> Callable[[dict[str, Any], int], Route]:
-    def mocked_endpoint(json_response: dict[str, Any], status_code: int) -> Route:
-        return respx_mock.post(
-            f"https://{host}/{ENDPOINT}",
-            headers={
-                "Authorization": "Bearer token",
-                "Content-Type": "application/json",
-            },
-            json={"sync_id": sync_id},
-        ).mock(return_value=httpx.Response(status_code, json=json_response))
-
-    return mocked_endpoint
-
-
-async def test__create_thread__succeed(
-    create_mocked_endpoint: Callable[[dict[str, Any], int], Route],
-    sync_id: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = create_mocked_endpoint(
-        {
-            "status": "ok",
-            "result": {"thread_id": sync_id},
-        },
+    request = BotXRequest(method="POST", path=ENDPOINT, json={"sync_id": sync_id})
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload({"thread_id": sync_id}),
         HTTPStatus.OK,
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         created_thread_id = await bot.create_thread(
             bot_id=bot_id,
             sync_id=UUID(sync_id),
@@ -225,20 +200,21 @@ async def test__create_thread__succeed(
     ),
 )
 async def test__create_thread__botx_error_raised(
-    create_mocked_endpoint: Callable[[dict[str, Any], int], Route],
+    respx_mock: MockRouter,
+    host: str,
     sync_id: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
     return_json: dict[str, Any],
     response_status: int,
     expected_exc_type: type[BaseException],
 ) -> None:
     # - Arrange -
-    endpoint = create_mocked_endpoint(return_json, response_status)
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    request = BotXRequest(method="POST", path=ENDPOINT, json={"sync_id": sync_id})
+    endpoint = mock_botx(respx_mock, host, request, return_json, response_status)
 
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         with pytest.raises(expected_exc_type) as exc:
             await bot.create_thread(
                 bot_id=bot_id,

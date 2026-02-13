@@ -1,6 +1,6 @@
 import json
 from copy import deepcopy
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 
 from loguru import logger as _logger
 
@@ -27,7 +27,7 @@ def trim_file_data_in_outgoing_json(json_body: Any) -> Any:
     return json_body
 
 
-def trim_file_data_in_incoming_json(json_body: Dict[str, Any]) -> Dict[str, Any]:
+def trim_file_data_in_incoming_json(json_body: dict[str, Any]) -> dict[str, Any]:
     if json_body.get("attachments"):
         # Max one attach per-message
         # Link and Location doesn't have content
@@ -41,7 +41,7 @@ def trim_file_data_in_incoming_json(json_body: Dict[str, Any]) -> Dict[str, Any]
     return json_body
 
 
-def log_incoming_request(request: Dict[str, Any], *, message: str = "") -> None:
+def log_incoming_request(request: dict[str, Any], *, message: str = "") -> None:
     logger.opt(lazy=True).debug(
         message + "{command}",
         command=lambda: pformat_jsonable_obj(

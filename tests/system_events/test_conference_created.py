@@ -1,4 +1,5 @@
-from typing import Any, Callable, Dict, Optional
+from typing import Any
+from collections.abc import Callable
 from uuid import UUID
 
 import pytest
@@ -25,7 +26,7 @@ async def test__conference_created_succeed(
     bot_id: UUID,
     host: str,
     call_id: UUID,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
 ) -> None:
     # - Arrange -
     payload = api_incoming_message_factory(
@@ -37,7 +38,7 @@ async def test__conference_created_succeed(
     )
 
     collector = HandlerCollector()
-    conference_created: Optional[ConferenceCreatedEvent] = None
+    conference_created: ConferenceCreatedEvent | None = None
 
     @collector.conference_created
     async def conference_created_handler(
