@@ -15,9 +15,17 @@ from pybotx.bot.api.responses.unverified_request import (
 )
 from pybotx.auth import BotXAuthVersion
 from pybotx.bot.bot import Bot
+from pybotx.bot.command_processing import (
+    BotCommandOverloadAction,
+    BotCommandOverloadStrategy,
+    BotCommandProcessingConfig,
+    DropOldestBotCommandOverloadStrategy,
+    RejectNewBotCommandOverloadStrategy,
+)
 from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
 from pybotx.bot.exceptions import (
     AnswerDestinationLookupError,
+    BotCommandRejectedError,
     BotShuttingDownError,
     BotXMethodCallbackNotFoundError,
     RequestHeadersNotProvidedError,
@@ -217,6 +225,10 @@ __all__ = (
     "BotXAuthVersion",
     "BotIsNotChatMemberError",
     "BotMenu",
+    "BotCommandOverloadAction",
+    "BotCommandOverloadStrategy",
+    "BotCommandProcessingConfig",
+    "BotCommandRejectedError",
     "BotSender",
     "BotShuttingDownError",
     "BotXMethodCallbackNotFoundError",
@@ -308,6 +320,7 @@ __all__ = (
     "RateLimitReachedError",
     "ReadinessCheck",
     "ReadinessCheckResult",
+    "RejectNewBotCommandOverloadStrategy",
     "Reply",
     "ReplyMessage",
     "RequestHeadersNotProvidedError",
@@ -332,6 +345,7 @@ __all__ = (
     "ThreadAlreadyExistsError",
     "ThreadCreationError",
     "ThreadCreationProhibitedError",
+    "DropOldestBotCommandOverloadStrategy",
     "UnknownBotAccountError",
     "UnknownSystemEventError",
     "UnsupportedBotAPIVersionError",

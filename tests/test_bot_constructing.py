@@ -7,6 +7,7 @@ import pytest
 from pybotx import (
     Bot,
     BotAccountWithSecret,
+    BotCommandProcessingConfig,
     BotXRequestMetadata,
     BotXRequestResult,
     BotXRetryPolicy,
@@ -180,3 +181,26 @@ def test__bot__passes_metrics_and_tracing_collectors(
         metrics_collector,
         tracing_collector,
     ]
+
+
+def test__bot__passes_command_processing_config_to_handler_collector(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    command_processing_config = BotCommandProcessingConfig(
+        max_concurrency=3,
+        max_queue_size=50,
+    )
+
+    # - Act -
+    bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        command_processing_config=command_processing_config,
+    )
+
+    # - Assert -
+    assert (
+        bot._handler_collector._command_processing_config
+        == command_processing_config
+    )

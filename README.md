@@ -368,6 +368,51 @@ bot = Bot(
 )
 ```
 
+### Ограничение параллелизма входящих команд (Queue + Semaphore + rejection policy)
+
+`pybotx` обрабатывает входящие команды через bounded pipeline:
+- очередь (`Queue`) ограничивает backlog;
+- воркеры и `Semaphore` ограничивают параллелизм;
+- стратегия перегруза решает, что делать при переполнении очереди.
+
+Параметры задаются через `command_processing_config` в `Bot(...)`.
+По умолчанию: `max_concurrency=100`, `max_queue_size=1000`,
+`RejectNewBotCommandOverloadStrategy`.
+
+```python
+from pybotx import *
+
+bot = Bot(
+    collectors=[collector],
+    bot_accounts=[bot_account],
+    command_processing_config=BotCommandProcessingConfig(
+        max_concurrency=64,
+        max_queue_size=2000,
+        overload_strategy=RejectNewBotCommandOverloadStrategy(),
+    ),
+)
+```
+
+Встроенные стратегии перегруза:
+- `RejectNewBotCommandOverloadStrategy` — отклоняет новый входящий command.
+- `DropOldestBotCommandOverloadStrategy` — выбрасывает самый старый queued command и принимает новый.
+
+Можно реализовать свою стратегию через `BotCommandOverloadStrategy`:
+
+```python
+class PreferDropOldestOnBigBurst(BotCommandOverloadStrategy):
+    def on_queue_overflow(self, *, queue_size: int, queue_max_size: int) -> BotCommandOverloadAction:
+        if queue_size > queue_max_size // 2:
+            return BotCommandOverloadAction.DROP_OLDEST
+        return BotCommandOverloadAction.REJECT_NEW
+```
+
+Если вы `await`-ите `bot.async_execute_bot_command(...)`, при отклонении получите
+`BotCommandRejectedError`.
+
+Trade-off: в пике увеличивается latency из-за очереди, зато предсказуемо ограничиваются
+память/конкурентность и снижается риск каскадных отказов.
+
 ## Примеры
 
 

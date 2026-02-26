@@ -29,3 +29,20 @@ class AnswerDestinationLookupError(Exception):
     def __init__(self) -> None:
         self.message = "No IncomingMessage received. Use `Bot.send` instead"
         super().__init__(self.message)
+
+
+class RequestHeadersNotProvidedError(Exception):
+    def __init__(self, *args: Any) -> None:
+        reason = "To verify the request you should provide headers."
+        message = args[0] if args else reason
+        super().__init__(message)
+
+
+class UnverifiedRequestError(Exception):
+    """The authorization header is missing or the token is invalid."""
+
+
+class BotCommandRejectedError(Exception):
+    def __init__(self, reason: str) -> None:
+        self.reason = reason
+        super().__init__(f"Bot command rejected: {reason}")

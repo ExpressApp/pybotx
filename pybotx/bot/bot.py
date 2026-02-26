@@ -16,6 +16,7 @@ from pybotx.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
 from pybotx.auth import BotXAuthVersion
 from pybotx.bot.callbacks.callback_manager import CallbackManager
+from pybotx.bot.command_processing import BotCommandProcessingConfig
 from pydantic import TypeAdapter
 from pybotx.bot.callbacks.callback_memory_repo import CallbackMemoryRepo
 from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
@@ -291,6 +292,7 @@ class Bot:
         retry_strategy: BotXRetryStrategy | None = None,
         metrics_collector: BotXRequestObserver | None = None,
         tracing_collector: BotXRequestObserver | None = None,
+        command_processing_config: BotCommandProcessingConfig | None = None,
         exception_handlers: ExceptionHandlersDict | None = None,
         default_callback_timeout: float = BOTX_DEFAULT_TIMEOUT,
         callback_repo: CallbackRepoProto | None = None,
@@ -305,6 +307,7 @@ class Bot:
         self._handler_collector = self._build_main_collector(
             collectors,
             middlewares,
+            command_processing_config,
             exception_handlers,
         )
 
@@ -2462,9 +2465,13 @@ class Bot:
     def _build_main_collector(
         collectors: Sequence[HandlerCollector],
         middlewares: list[Middleware],
+        command_processing_config: BotCommandProcessingConfig | None = None,
         exception_handlers: ExceptionHandlersDict | None = None,
     ) -> HandlerCollector:
-        main_collector = HandlerCollector(middlewares=middlewares)
+        main_collector = HandlerCollector(
+            middlewares=middlewares,
+            command_processing_config=command_processing_config,
+        )
         main_collector.insert_exception_middleware(exception_handlers)
         main_collector.include(*collectors)
 
