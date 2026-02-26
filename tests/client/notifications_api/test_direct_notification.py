@@ -1,9 +1,9 @@
 import asyncio
 from http import HTTPStatus
-from typing import Any, Callable, Dict
+from typing import Any
+from collections.abc import Callable, Sequence
 from uuid import UUID
 
-import httpx
 import pytest
 from aiofiles.tempfile import NamedTemporaryFile
 from respx.router import MockRouter
@@ -11,7 +11,6 @@ from respx.router import MockRouter
 from pybotx import (
     AnswerDestinationLookupError,
     Bot,
-    BotAccountWithSecret,
     BotIsNotChatMemberError,
     BubbleMarkup,
     ChatNotFoundError,
@@ -24,8 +23,8 @@ from pybotx import (
     OutgoingMessage,
     StealthModeDisabledError,
     UnknownBotAccountError,
-    lifespan_wrapper,
 )
+from tests.testkit import BotXRequest, mock_botx, ok_payload
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -33,20 +32,33 @@ pytestmark = [
     pytest.mark.usefixtures("respx_mock"),
 ]
 
+ENDPOINT = "/api/v4/botx/notifications/direct"
+CHAT_ID = "054af49e-5e18-4dca-ad73-4f96b6de63fa"
+SYNC_ID = "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"
+
+BASE_REQUEST = BotXRequest(
+    method="POST",
+    path=ENDPOINT,
+    json={
+        "group_chat_id": CHAT_ID,
+        "notification": {"status": "ok", "body": "Hi!"},
+    },
+)
+
 
 async def test__send__succeed(
     respx_mock: MockRouter,
     host: str,
-    bot_account: BotAccountWithSecret,
     bot_id: UUID,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+    request = BotXRequest(
+        method="POST",
+        path=ENDPOINT,
         json={
-            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
+            "group_chat_id": CHAT_ID,
             "notification": {
                 "opts": {
                     "silent_response": True,
@@ -61,7 +73,7 @@ async def test__send__succeed(
                             "command": "/bubble-button",
                             "data": {},
                             "label": "Bubble button",
-                            "opts": {"silent": True},
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                 ],
@@ -71,7 +83,7 @@ async def test__send__succeed(
                             "command": "/keyboard-button",
                             "data": {},
                             "label": "Keyboard button",
-                            "opts": {"silent": True},
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                 ],
@@ -89,20 +101,19 @@ async def test__send__succeed(
                 },
             },
         },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.ACCEPTED,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload({"sync_id": SYNC_ID}),
+        HTTPStatus.ACCEPTED,
     )
 
     payload = api_incoming_message_factory(
         bot_id=bot_id,
         host=host,
-        group_chat_id="054af49e-5e18-4dca-ad73-4f96b6de63fa",
+        group_chat_id=CHAT_ID,
     )
 
     bubbles = BubbleMarkup()
@@ -127,7 +138,7 @@ async def test__send__succeed(
 
     outgoing_message = OutgoingMessage(
         bot_id=bot_id,
-        chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+        chat_id=UUID(CHAT_ID),
         body="Hi!",
         metadata={"foo": "bar"},
         bubbles=bubbles,
@@ -145,20 +156,23 @@ async def test__send__succeed(
     async def hello_handler(message: IncomingMessage, bot: Bot) -> None:
         await bot.send(message=outgoing_message)
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+    async with bot_factory(collectors=[collector]) as bot:
+        await bot.dispatch_raw_command(
+            payload,
+            verify_request=False,
+            wait=False,
+        )
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await bot.deliver_raw_callback(
             {
                 "status": "ok",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "sync_id": SYNC_ID,
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -
@@ -166,15 +180,12 @@ async def test__send__succeed(
 
 
 async def test__answer_message__no_incoming_message_error_raised(
-    host: str,
-    bot_account: BotAccountWithSecret,
-    bot_id: UUID,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
 
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         with pytest.raises(AnswerDestinationLookupError) as exc:
             await bot.answer_message("Hi!")
 
@@ -185,16 +196,16 @@ async def test__answer_message__no_incoming_message_error_raised(
 async def test__answer_message__succeed(
     respx_mock: MockRouter,
     host: str,
-    bot_account: BotAccountWithSecret,
     bot_id: UUID,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+    request = BotXRequest(
+        method="POST",
+        path=ENDPOINT,
         json={
-            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
+            "group_chat_id": CHAT_ID,
             "notification": {
                 "status": "ok",
                 "body": "Hi!",
@@ -205,7 +216,7 @@ async def test__answer_message__succeed(
                             "command": "/bubble-button",
                             "data": {},
                             "label": "Bubble button",
-                            "opts": {"silent": True},
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                 ],
@@ -215,7 +226,7 @@ async def test__answer_message__succeed(
                             "command": "/keyboard-button",
                             "data": {},
                             "label": "Keyboard button",
-                            "opts": {"silent": True},
+                            "opts": {"silent": True, "align": "center"},
                         },
                     ],
                 ],
@@ -225,20 +236,19 @@ async def test__answer_message__succeed(
                 "data": "data:text/plain;base64,SGVsbG8sIHdvcmxkIQo=",
             },
         },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.ACCEPTED,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload({"sync_id": SYNC_ID}),
+        HTTPStatus.ACCEPTED,
     )
 
     payload = api_incoming_message_factory(
         bot_id=bot_id,
         host=host,
-        group_chat_id="054af49e-5e18-4dca-ad73-4f96b6de63fa",
+        group_chat_id=CHAT_ID,
     )
 
     bubbles = BubbleMarkup()
@@ -271,20 +281,23 @@ async def test__answer_message__succeed(
             file=file,
         )
 
-    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+    async with bot_factory(collectors=[collector]) as bot:
+        await bot.dispatch_raw_command(
+            payload,
+            verify_request=False,
+            wait=False,
+        )
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await bot.deliver_raw_callback(
             {
                 "status": "ok",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "sync_id": SYNC_ID,
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -
@@ -294,267 +307,125 @@ async def test__answer_message__succeed(
 async def test__send_message__unknown_bot_account_error_raised(
     respx_mock: MockRouter,
     host: str,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
     unknown_bot_id = UUID("51550ccc-dfd1-4d22-9b6f-a330145192b0")
-    direct_notification_endpoint = respx_mock.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        BASE_REQUEST,
+        ok_payload({"sync_id": SYNC_ID}),
+        HTTPStatus.ACCEPTED,
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         with pytest.raises(UnknownBotAccountError) as exc:
             await bot.send_message(
                 body="Hi!",
                 bot_id=unknown_bot_id,
-                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+                chat_id=UUID(CHAT_ID),
             )
 
     # - Assert -
-    assert not direct_notification_endpoint.called
     assert str(unknown_bot_id) in str(exc.value)
+    assert not endpoint.called
 
 
-async def test__send_message__chat_not_found_error_raised(
+@pytest.mark.parametrize(
+    ("reason", "error_data", "expected_exc", "expected_fragments"),
+    [
+        (
+            "chat_not_found",
+            {
+                "group_chat_id": CHAT_ID,
+                "error_description": "Chat with specified id not found",
+            },
+            ChatNotFoundError,
+            ("chat_not_found",),
+        ),
+        (
+            "bot_is_not_a_chat_member",
+            {
+                "group_chat_id": CHAT_ID,
+                "bot_id": "b165f00f-3154-412c-7f11-c120164257da",
+                "error_description": "Bot is not a chat member",
+            },
+            BotIsNotChatMemberError,
+            ("bot_is_not_a_chat_member",),
+        ),
+        (
+            "event_recipients_list_is_empty",
+            {
+                "group_chat_id": CHAT_ID,
+                "bot_id": "b165f00f-3154-412c-7f11-c120164257da",
+                "recipients_param": ["b165f00f-3154-412c-7f11-c120164257da"],
+                "error_description": "Event recipients list is empty",
+            },
+            FinalRecipientsListEmptyError,
+            ("event_recipients_list_is_empty",),
+        ),
+        (
+            "stealth_mode_disabled",
+            {
+                "group_chat_id": CHAT_ID,
+                "bot_id": "b165f00f-3154-412c-7f11-c120164257da",
+                "error_description": "Stealth mode disabled in specified chat",
+            },
+            StealthModeDisabledError,
+            ("stealth_mode_disabled",),
+        ),
+    ],
+)
+async def test__send_message__callback_error_raised(
+    reason: str,
+    error_data: dict[str, Any],
+    expected_exc: type[Exception],
+    expected_fragments: Sequence[str],
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
-        json={
-            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
-            "notification": {"status": "ok", "body": "Hi!"},
-        },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.ACCEPTED,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        BASE_REQUEST,
+        ok_payload({"sync_id": SYNC_ID}),
+        HTTPStatus.ACCEPTED,
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         task = asyncio.create_task(
             bot.send_message(
                 body="Hi!",
                 bot_id=bot_id,
-                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+                chat_id=UUID(CHAT_ID),
             ),
         )
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await bot.deliver_raw_callback(
             {
                 "status": "error",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
-                "reason": "chat_not_found",
+                "sync_id": SYNC_ID,
+                "reason": reason,
                 "errors": [],
-                "error_data": {
-                    "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
-                    "error_description": "Chat with specified id not found",
-                },
+                "error_data": error_data,
             },
+            verify_request=False,
         )
 
     # - Assert -
-    with pytest.raises(ChatNotFoundError) as exc:
+    with pytest.raises(expected_exc) as exc:
         await task
 
-    assert "chat_not_found" in str(exc.value)
-    assert endpoint.called
-
-
-async def test__send_message__bot_is_not_a_chat_member_error_raised(
-    respx_mock: MockRouter,
-    host: str,
-    bot_id: UUID,
-    bot_account: BotAccountWithSecret,
-) -> None:
-    # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
-        json={
-            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
-            "notification": {"status": "ok", "body": "Hi!"},
-        },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.ACCEPTED,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
-    )
-
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
-    # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
-        task = asyncio.create_task(
-            bot.send_message(
-                body="Hi!",
-                bot_id=bot_id,
-                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
-            ),
-        )
-
-        await asyncio.sleep(0)  # Return control to event loop
-
-        await bot.set_raw_botx_method_result(
-            {
-                "status": "error",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
-                "reason": "bot_is_not_a_chat_member",
-                "errors": [],
-                "error_data": {
-                    "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
-                    "bot_id": "b165f00f-3154-412c-7f11-c120164257da",
-                    "error_description": "Bot is not a chat member",
-                },
-            },
-        )
-
-    # - Assert -
-    with pytest.raises(BotIsNotChatMemberError) as exc:
-        await task
-
-    assert "bot_is_not_a_chat_member" in str(exc.value)
-    assert endpoint.called
-
-
-async def test__send_message__event_recipients_list_is_empty_error_raised(
-    respx_mock: MockRouter,
-    host: str,
-    bot_id: UUID,
-    bot_account: BotAccountWithSecret,
-) -> None:
-    # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
-        json={
-            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
-            "notification": {"status": "ok", "body": "Hi!"},
-        },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.ACCEPTED,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
-    )
-
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
-    # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
-        task = asyncio.create_task(
-            bot.send_message(
-                body="Hi!",
-                bot_id=bot_id,
-                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
-            ),
-        )
-
-        await asyncio.sleep(0)  # Return control to event loop
-
-        await bot.set_raw_botx_method_result(
-            {
-                "status": "error",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
-                "reason": "event_recipients_list_is_empty",
-                "errors": [],
-                "error_data": {
-                    "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
-                    "bot_id": "b165f00f-3154-412c-7f11-c120164257da",
-                    "recipients_param": ["b165f00f-3154-412c-7f11-c120164257da"],
-                    "error_description": "Event recipients list is empty",
-                },
-            },
-        )
-
-    # - Assert -
-    with pytest.raises(FinalRecipientsListEmptyError) as exc:
-        await task
-
-    assert "event_recipients_list_is_empty" in str(exc.value)
-    assert endpoint.called
-
-
-async def test__send_message__stealth_mode_disabled_error_raised(
-    respx_mock: MockRouter,
-    host: str,
-    bot_id: UUID,
-    bot_account: BotAccountWithSecret,
-) -> None:
-    # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
-        json={
-            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
-            "notification": {"status": "ok", "body": "Hi!"},
-        },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.ACCEPTED,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
-    )
-
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
-    # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
-        task = asyncio.create_task(
-            bot.send_message(
-                body="Hi!",
-                bot_id=bot_id,
-                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
-            ),
-        )
-
-        await asyncio.sleep(0)  # Return control to event loop
-
-        await bot.set_raw_botx_method_result(
-            {
-                "status": "error",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
-                "reason": "stealth_mode_disabled",
-                "errors": [],
-                "error_data": {
-                    "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
-                    "bot_id": "b165f00f-3154-412c-7f11-c120164257da",
-                    "error_description": "Stealth mode disabled in specified chat",
-                },
-            },
-        )
-
-    # - Assert -
-    with pytest.raises(StealthModeDisabledError) as exc:
-        await task
-
-    assert "stealth_mode_disabled" in str(exc.value)
+    for fragment in expected_fragments:
+        assert fragment in str(exc.value)
     assert endpoint.called
 
 
@@ -562,50 +433,40 @@ async def test__send_message__miminally_filled_succeed(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
-        json={
-            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
-            "notification": {"status": "ok", "body": "Hi!"},
-        },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.ACCEPTED,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        BASE_REQUEST,
+        ok_payload({"sync_id": SYNC_ID}),
+        HTTPStatus.ACCEPTED,
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         task = asyncio.create_task(
             bot.send_message(
                 body="Hi!",
                 bot_id=bot_id,
-                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+                chat_id=UUID(CHAT_ID),
             ),
         )
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await bot.deliver_raw_callback(
             {
                 "status": "ok",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "sync_id": SYNC_ID,
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -
-    assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert (await task) == UUID(SYNC_ID)
     assert endpoint.called
 
 
@@ -613,8 +474,8 @@ async def test__send_message__maximum_filled_succeed(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
     monkeypatch: pytest.MonkeyPatch,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
     monkeypatch.setattr(
@@ -625,11 +486,11 @@ async def test__send_message__maximum_filled_succeed(
     body = f"Hi, {MentionBuilder.user(UUID('8f3abcc8-ba00-4c89-88e0-b786beb8ec24'))}!"
     formatted_body = "Hi, @{mention:f3e176d5-ff46-4b18-b260-25008338c06e}!"
 
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+    request = BotXRequest(
+        method="POST",
+        path=ENDPOINT,
         json={
-            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
+            "group_chat_id": CHAT_ID,
             "notification": {
                 "opts": {
                     "silent_response": True,
@@ -650,6 +511,7 @@ async def test__send_message__maximum_filled_succeed(
                                 "alert_text": "Alert text 1",
                                 "show_alert": True,
                                 "handler": "client",
+                                "align": "center",
                             },
                         },
                     ],
@@ -665,6 +527,7 @@ async def test__send_message__maximum_filled_succeed(
                                 "h_size": 2,
                                 "alert_text": "Alert text 2",
                                 "show_alert": True,
+                                "align": "center",
                             },
                         },
                     ],
@@ -692,17 +555,15 @@ async def test__send_message__maximum_filled_succeed(
                 },
             },
         },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.ACCEPTED,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload({"sync_id": SYNC_ID}),
+        HTTPStatus.ACCEPTED,
+    )
 
     async with NamedTemporaryFile("wb+") as async_buffer:
         await async_buffer.write(b"Hello, world!\n")
@@ -733,12 +594,12 @@ async def test__send_message__maximum_filled_succeed(
     )
 
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         task = asyncio.create_task(
             bot.send_message(
                 body=body,
                 bot_id=bot_id,
-                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+                chat_id=UUID(CHAT_ID),
                 metadata={"foo": "bar"},
                 bubbles=bubbles,
                 keyboard=keyboard,
@@ -754,16 +615,17 @@ async def test__send_message__maximum_filled_succeed(
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await bot.deliver_raw_callback(
             {
                 "status": "ok",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "sync_id": SYNC_ID,
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -
-    assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert (await task) == UUID(SYNC_ID)
     assert endpoint.called
 
 
@@ -771,8 +633,8 @@ async def test__send_message__all_mentions_types_succeed(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
     monkeypatch: pytest.MonkeyPatch,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
     monkeypatch.setattr(
@@ -808,11 +670,11 @@ async def test__send_message__all_mentions_types_succeed(
         "I will notify you with @{mention:f3e176d5-ff46-4b18-b260-25008338c06e}, so you won't miss it."
     )
 
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+    request = BotXRequest(
+        method="POST",
+        path=ENDPOINT,
         json={
-            "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
+            "group_chat_id": CHAT_ID,
             "notification": {
                 "status": "ok",
                 "body": formatted_body,
@@ -853,40 +715,39 @@ async def test__send_message__all_mentions_types_succeed(
                 ],
             },
         },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.ACCEPTED,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload({"sync_id": SYNC_ID}),
+        HTTPStatus.ACCEPTED,
+    )
 
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         task = asyncio.create_task(
             bot.send_message(
                 body=body,
                 bot_id=bot_id,
-                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+                chat_id=UUID(CHAT_ID),
             ),
         )
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await bot.deliver_raw_callback(
             {
                 "status": "ok",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "sync_id": SYNC_ID,
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -
-    assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert (await task) == UUID(SYNC_ID)
     assert endpoint.called
 
 
@@ -894,32 +755,33 @@ async def test__send_message__message_body_max_length_error_raised(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
     too_long_body = "1" * 4097
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.ACCEPTED,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
+    request = BotXRequest(
+        method="POST",
+        path=ENDPOINT,
+        json={
+            "group_chat_id": CHAT_ID,
+            "notification": {"status": "ok", "body": too_long_body},
+        },
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload({"sync_id": SYNC_ID}),
+        HTTPStatus.ACCEPTED,
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         with pytest.raises(ValueError) as exc:
             await bot.send_message(
                 body=too_long_body,
                 bot_id=bot_id,
-                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+                chat_id=UUID(CHAT_ID),
             )
 
     # - Assert -
@@ -931,44 +793,46 @@ async def test__send_message__message_body_max_length_succeed(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     max_long_body = "1" * 4096
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.ACCEPTED,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
+    request = BotXRequest(
+        method="POST",
+        path=ENDPOINT,
+        json={
+            "group_chat_id": CHAT_ID,
+            "notification": {"status": "ok", "body": max_long_body},
+        },
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload({"sync_id": SYNC_ID}),
+        HTTPStatus.ACCEPTED,
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         task = asyncio.create_task(
             bot.send_message(
                 body=max_long_body,
                 bot_id=bot_id,
-                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+                chat_id=UUID(CHAT_ID),
             ),
         )
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await bot.deliver_raw_callback(
             {
                 "status": "ok",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "sync_id": SYNC_ID,
                 "result": {},
             },
+            verify_request=False,
         )
 
     # - Assert -
-    assert (await task) == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert (await task) == UUID(SYNC_ID)
     assert endpoint.called

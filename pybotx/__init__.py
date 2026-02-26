@@ -17,6 +17,14 @@ from pybotx.bot.exceptions import (
 )
 from pybotx.bot.handler import IncomingMessageHandlerFunc, Middleware
 from pybotx.bot.handler_collector import HandlerCollector
+from pybotx.bot.healthcheck import (
+    HealthStatus,
+    HealthcheckService,
+    ReadinessCheck,
+    ReadinessCheckResult,
+    build_healthcheck_router,
+    setup_healthcheck,
+)
 from pybotx.bot.testing import lifespan_wrapper
 from pybotx.client.exceptions.callbacks import (
     BotXMethodFailedCallbackReceivedError,
@@ -164,6 +172,8 @@ __all__ = (
     "FinalRecipientsListEmptyError",
     "Forward",
     "HandlerCollector",
+    "HealthStatus",
+    "HealthcheckService",
     "Image",
     "IncomingMessage",
     "IncomingMessageHandlerFunc",
@@ -191,6 +201,8 @@ __all__ = (
     "OutgoingMessage",
     "PermissionDeniedError",
     "RateLimitReachedError",
+    "ReadinessCheck",
+    "ReadinessCheckResult",
     "Reply",
     "ReplyMessage",
     "SmartApp",
@@ -214,8 +226,10 @@ __all__ = (
     "Video",
     "Voice",
     "build_bot_disabled_response",
+    "build_healthcheck_router",
     "build_command_accepted_response",
     "lifespan_wrapper",
+    "setup_healthcheck",
 )
 
 logger.disable("pybotx")

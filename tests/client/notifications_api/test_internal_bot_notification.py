@@ -105,7 +105,7 @@ async def test__send_internal_bot_notification__chat_not_found_error_raised(
         )
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await bot.deliver_raw_callback(
             {
                 "status": "error",
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
@@ -284,7 +284,7 @@ async def test__send_internal_bot_notification__succeed(
         )
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await bot.deliver_raw_callback(
             {
                 "status": "ok",
                 "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",

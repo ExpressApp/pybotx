@@ -19,14 +19,24 @@
 
 ## Установка
 
-Используя `poetry`:
+Используя `uv`:
 
 ```bash
-poetry add pybotx
+uv add pybotx
 ```
 
 **Предупреждение:** Данный проект находится в активной разработке (`0.y.z`) и
 его API может быть изменён при повышении минорной версии.
+
+## Документация по виджетам
+
+Подробное и исчерпывающее руководство по всем виджетам и API раннера:
+
+- `/Users/aleksandrosovskii/PycharmProjects/pybotx_stable/WIDGETS.md`
+
+Демо-бот с примерами всех виджетов:
+
+- `/Users/aleksandrosovskii/PycharmProjects/pybotx_stable/example/README.md`
 
 
 ## Информация о мессенджере eXpress и платформе BotX
@@ -128,6 +138,43 @@ async def callback_handler(request: Request) -> JSONResponse:
         status_code=HTTPStatus.ACCEPTED,
     )
 ```
+
+### Healthcheck (опционально, подключается явно)
+
+По умолчанию `pybotx` не регистрирует healthcheck-эндпоинты.
+Подключение выполняется явно:
+
+```python
+from pybotx import *
+
+app = FastAPI()
+
+healthcheck = setup_healthcheck(app)  # Роуты: /health/ и /health/ready
+
+
+async def db_readiness_check() -> ReadinessCheckResult:
+    # Пример: реальная проверка БД/кеша/внешнего API.
+    # Рекомендуется выставлять таймауты внутри проверки.
+    return ReadinessCheckResult(status="ok")
+
+
+healthcheck.add_readiness_check(
+    ReadinessCheck(
+        name="db",
+        check=db_readiness_check,
+        critical=True,
+        timeout_seconds=0.5,
+    ),
+)
+```
+
+`/health/`:
+- `200` — процесс жив (`status=ok`)
+- `500` — фатальное состояние (`status=fail`)
+
+`/health/ready`:
+- `200` — готов (`status=ok`) или частично деградирован (`status=degraded`)
+- `503` — не готов (`status=fail`, если упал хотя бы один `critical` check)
 
 ## Примеры
 

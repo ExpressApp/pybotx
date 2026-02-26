@@ -5,12 +5,24 @@ on:
       - "*.*.*"
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v1
-      - name: Assert tag is from master
-        run: git branch -a --contains $(git describe --tags) | grep master
-      - name: Build and publish to pypi
-        uses: JRubics/poetry-publish@v1.8
+      - uses: actions/checkout@v4
+      - name: Assert tag is from master or release-candidate
+        run: git branch -a --contains $(git describe --tags) | grep -E "master|release-candidate"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          pypi_token: ${{ secrets.PYPI_TOKEN }}
+          python-version: "3.13"
+
+      - name: Install uv
+        run: python -m pip install --upgrade pip uv
+
+      - name: Build package
+        run: uv build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_TOKEN }}

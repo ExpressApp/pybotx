@@ -1,49 +1,86 @@
-[tool.poetry]
+[project]
 name = "pybotx"
-version = "0.55.5"
+version = "0.76.0"
 description = "A python library for interacting with eXpress BotX API"
 authors = [
-    "Sidnev Nikolay <nsidnev@ccsteam.ru>",
-    "Maxim Gorbachev <mgorbachev@ccsteam.ru>",
-    "Alexander Samoylenko <alexandr.samojlenko@ccsteam.ru>",
-    "Arseniy Zhiltsov <arseniy.zhiltsov@ccsteam.ru>"
+    { name = "Sidnev Nikolay", email = "nsidnev@ccsteam.ru" },
+    { name = "Maxim Gorbachev", email = "mgorbachev@ccsteam.ru" },
+    { name = "Alexander Samoylenko", email = "alexandr.samojlenko@ccsteam.ru" },
+    { name = "Arseniy Zhiltsov", email = "arseniy.zhiltsov@ccsteam.ru" },
 ]
 readme = "README.md"
-documentation = "https://expressapp.github.io/pybotx"
-repository = "https://github.com/ExpressApp/pybotx"
+requires-python = ">=3.10,<4.0"
+dependencies = [
+    "aiofiles>=25.1.0,<26",
+    "httpx>=0.28.1,<0.29",
+    # The v1.0.3 cause some troubles with no-wait callbacks functionality.
+    # It will be fixed in the next versions.
+    # https://github.com/encode/httpcore/pull/880
+    "httpcore>=1.0.9,<2",
+    "loguru>=0.7.3,<0.8",
+    "pydantic>=2.12.5,<3",
+    "aiocsv>=1.4.0,<2",
+    "pyjwt>=2.11.0,<3",
+    "mypy-extensions>=1.1.0,<2",
+]
 
+[project.urls]
+Repository = "https://github.com/ExpressApp/pybotx"
 
-[tool.poetry.dependencies]
-python = ">=3.8,<3.12"
-
-aiofiles = ">=0.7.0,<0.9.0"
-httpx = "0.23.0"
-loguru = ">=0.6.0,<0.7.0"
-mypy-extensions = ">=0.2.0,<0.5.0"
-pydantic = ">=1.6.0,<1.11.0"
-typing-extensions = ">=3.7.4,<5.0.0"
-aiocsv = ">=1.2.3,<1.3.0"
-
-
-[tool.poetry.dev-dependencies]
-add-trailing-comma = "2.2.1"
-autoflake = "1.4.0"
-black = "22.3.0"
-isort = "5.10.1"
-mypy = "0.910.0"
-wemake-python-styleguide = "0.16.0"
-bandit = "1.7.2"  # https://github.com/PyCQA/bandit/issues/837
-
-pytest = "7.2.0"
-pytest-asyncio = "0.16.0"
-pytest-cov = "4.0.0"
-requests = "2.31.0"
-respx = "0.19.0"
-
-fastapi = "0.95.2"
-starlette = "0.27.0"  # TODO: Drop dependency after updating end-to-end test
-uvicorn = "0.16.0"
+[dependency-groups]
+dev = [
+    "mypy>=1.19.1,<2",
+    "bandit>=1.9.3,<2",  # https://github.com/PyCQA/bandit/issues/837
+    "pytest>=9.0.2,<10",
+    "pytest-asyncio>=1.3.0,<2",
+    "pytest-cov>=7.0.0,<8",
+    "pytest-timeout>=2.4.0,<3",
+    "pytest-xdist>=3.8.0,<4",
+    "hypothesis>=6.151.5,<7",
+    "requests>=2.32.5,<3",
+    "respx>=0.22.0,<0.23",
+    "factory-boy>=3.3.3,<4",
+    "deepdiff>=8.6.1,<9",
+    "fastapi>=0.128.1,<0.129",
+    "starlette>=0.40,<0.51",  # TODO: Drop dependency after updating end-to-end test
+    "uvicorn>=0.40.0,<0.41",
+    "ruff>=0.15.0,<0.16",
+]
 
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pybotx"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+addopts = [
+  "--strict-markers",
+  "--tb=short",
+  "-n",
+  "auto",
+  "--dist=loadscope",
+  "--cov=pybotx",
+  "--cov-report=term-missing",
+  "--cov-branch",
+  "--no-cov-on-fail",
+  "--cov-fail-under=100",
+  "--timeout=10",
+  "--timeout-method=thread",
+]
+markers = [
+  "wip: Work in progress",
+  "mock_authorization: Mock authorization",
+  "allow_network: Allow real network access in a test",
+]
+filterwarnings = [
+  "ignore:Pydantic serializer warnings:UserWarning",
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
