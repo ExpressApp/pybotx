@@ -1,34 +1,38 @@
 from asyncio import Task
-from contextlib import asynccontextmanager
+from collections.abc import AsyncIterable, AsyncIterator, Iterator, Mapping, Sequence
+from contextlib import AsyncExitStack, asynccontextmanager
+from datetime import datetime
 from types import SimpleNamespace
-from typing import (
-    Any,
-    AsyncIterable,
-    AsyncIterator,
-    Dict,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-)
+from typing import Any, TypeAlias
 from uuid import UUID
 
+import aiofiles
 import httpx
-from aiofiles.tempfile import SpooledTemporaryFile
-from pydantic import ValidationError, parse_obj_as
+import jwt
+from aiocsv.readers import AsyncDictReader
+from aiofiles.tempfile import NamedTemporaryFile, TemporaryDirectory
 
 from pybotx.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
+from pybotx.auth import BotXAuthVersion
 from pybotx.bot.callbacks.callback_manager import CallbackManager
+from pydantic import TypeAdapter
 from pybotx.bot.callbacks.callback_memory_repo import CallbackMemoryRepo
 from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
 from pybotx.bot.contextvars import bot_id_var, chat_id_var
-from pybotx.bot.exceptions import AnswerDestinationLookupError
+from pybotx.bot.exceptions import (
+    AnswerDestinationLookupError,
+    RequestHeadersNotProvidedError,
+    UnknownBotAccountError,
+    UnverifiedRequestError,
+)
 from pybotx.bot.handler import Middleware
 from pybotx.bot.handler_collector import HandlerCollector
 from pybotx.bot.middlewares.exception_middleware import ExceptionHandlersDict
+from pybotx.client.bots_api.bot_catalog import (
+    BotsListMethod,
+    BotXAPIBotsListRequestPayload,
+)
 from pybotx.client.chats_api.add_admin import (
     AddAdminMethod,
     BotXAPIAddAdminRequestPayload,
@@ -38,9 +42,21 @@ from pybotx.client.chats_api.chat_info import (
     BotXAPIChatInfoRequestPayload,
     ChatInfoMethod,
 )
+from pybotx.client.chats_api.personal_chat import (
+    BotXAPIPersonalChatRequestPayload,
+    PersonalChatMethod,
+)
 from pybotx.client.chats_api.create_chat import (
     BotXAPICreateChatRequestPayload,
     CreateChatMethod,
+)
+from pybotx.client.chats_api.create_chat_link import (
+    BotXAPICreateChatLinkRequestPayload,
+    CreateChatLinkMethod,
+)
+from pybotx.client.chats_api.create_thread import (
+    BotXAPICreateThreadRequestPayload,
+    CreateThreadMethod,
 )
 from pybotx.client.chats_api.disable_stealth import (
     BotXAPIDisableStealthRequestPayload,
@@ -63,6 +79,10 @@ from pybotx.client.chats_api.unpin_message import (
     BotXAPIUnpinMessageRequestPayload,
     UnpinMessageMethod,
 )
+from pybotx.client.events_api.delete_event import (
+    BotXAPIDeleteEventRequestPayload,
+    DeleteEventMethod,
+)
 from pybotx.client.events_api.edit_event import (
     BotXAPIEditEventRequestPayload,
     EditEventMethod,
@@ -83,7 +103,7 @@ from pybotx.client.events_api.typing_event import (
     BotXAPITypingEventRequestPayload,
     TypingEventMethod,
 )
-from pybotx.client.exceptions.common import InvalidBotAccountError
+from pybotx.client.exceptions.common import ChatNotFoundError, InvalidBotAccountError
 from pybotx.client.files_api.download_file import (
     BotXAPIDownloadFileRequestPayload,
     DownloadFileMethod,
@@ -93,9 +113,21 @@ from pybotx.client.files_api.upload_file import (
     UploadFileMethod,
 )
 from pybotx.client.get_token import get_token
+from pybotx.client.http_config import (
+    BotXRetryPolicy,
+    BotXRetryStrategy,
+    build_default_httpx_limits,
+    build_default_httpx_timeout,
+)
+from pybotx.client.observability import BotXRequestObserver
+from pybotx.client.mertics_api.collect_bot_function import (
+    BotXAPICollectBotFunctionRequestPayload,
+    CollectBotFunctionMethod,
+)
 from pybotx.client.notifications_api.direct_notification import (
     BotXAPIDirectNotificationRequestPayload,
     DirectNotificationMethod,
+    DirectNotificationSyncMethod,
 )
 from pybotx.client.notifications_api.internal_bot_notification import (
     BotXAPIInternalBotNotificationRequestPayload,
@@ -105,13 +137,30 @@ from pybotx.client.openid_api.refresh_access_token import (
     BotXAPIRefreshAccessTokenRequestPayload,
     RefreshAccessTokenMethod,
 )
+from pybotx.client.smartapps_api.smartapp_custom_notification import (
+    BotXAPISmartAppCustomNotificationRequestPayload,
+    SmartAppCustomNotificationMethod,
+)
 from pybotx.client.smartapps_api.smartapp_event import (
     BotXAPISmartAppEventRequestPayload,
     SmartAppEventMethod,
 )
+from pybotx.client.smartapps_api.smartapp_manifest import (
+    BotXAPISmartAppManifestRequestPayload,
+    SmartappManifest,
+    SmartappManifestAndroidParams,
+    SmartappManifestIosParams,
+    SmartAppManifestMethod,
+    SmartappManifestUnreadCounterParams,
+    SmartappManifestWebParams,
+)
 from pybotx.client.smartapps_api.smartapp_notification import (
     BotXAPISmartAppNotificationRequestPayload,
     SmartAppNotificationMethod,
+)
+from pybotx.client.smartapps_api.smartapp_unread_counter import (
+    BotXAPISmartAppUnreadCounterRequestPayload,
+    SmartAppUnreadCounterMethod,
 )
 from pybotx.client.smartapps_api.smartapps_list import (
     BotXAPISmartAppsListRequestPayload,
@@ -155,6 +204,11 @@ from pybotx.client.stickers_api.get_sticker_packs import (
 from pybotx.client.users_api.search_user_by_email import (
     BotXAPISearchUserByEmailRequestPayload,
     SearchUserByEmailMethod,
+    SearchUserByEmailPostMethod,
+)
+from pybotx.client.users_api.search_user_by_emails import (
+    BotXAPISearchUserByEmailsRequestPayload,
+    SearchUserByEmailsMethod,
 )
 from pybotx.client.users_api.search_user_by_huid import (
     BotXAPISearchUserByHUIDRequestPayload,
@@ -177,20 +231,25 @@ from pybotx.client.users_api.users_as_csv import (
     BotXAPIUsersAsCSVRequestPayload,
     UsersAsCSVMethod,
 )
-from pybotx.constants import BOTX_DEFAULT_TIMEOUT, CHUNK_SIZE, STICKER_PACKS_PER_PAGE
+from pybotx.constants import BOTX_DEFAULT_TIMEOUT, STICKER_PACKS_PER_PAGE
 from pybotx.converters import optional_sequence_to_list
 from pybotx.image_validators import (
     ensure_file_content_is_png,
     ensure_sticker_image_size_valid,
 )
-from pybotx.logger import logger, pformat_jsonable_obj, trim_file_data_in_incoming_json
+from pybotx.logger import log_incoming_request, logger, pformat_jsonable_obj
 from pybotx.missing import Missing, MissingOptional, Undefined
 from pybotx.models.async_files import File
 from pybotx.models.attachments import IncomingFileAttachment, OutgoingAttachment
-from pybotx.models.bot_account import BotAccount, BotAccountWithSecret
-from pybotx.models.chats import ChatInfo, ChatListItem
-from pybotx.models.commands import BotAPICommand, BotCommand
-from pybotx.models.enums import ChatTypes
+from pybotx.models.bot_account import BotAccountWithSecret
+from pybotx.models.bot_catalog import BotsListItem
+from pybotx.models.chats import ChatInfo, ChatLink, ChatListItem
+from pybotx.models.commands import (
+    BotAPISystemEvent,
+    BotAPIIncomingMessage,
+    BotCommand,
+)
+from pybotx.models.enums import BotAPICommandTypes, ChatLinkTypes, ChatTypes
 from pybotx.models.message.edit_message import EditMessage
 from pybotx.models.message.markup import BubbleMarkup, KeyboardMarkup
 from pybotx.models.message.message_status import MessageStatus
@@ -205,10 +264,16 @@ from pybotx.models.status import (
     build_bot_status_response,
 )
 from pybotx.models.stickers import Sticker, StickerPack, StickerPackFromList
+from pybotx.models.sync_smartapp_event import (
+    BotAPISyncSmartAppEvent,
+    BotAPISyncSmartAppEventResponse,
+)
+from pybotx.models.system_events.smartapp_event import SmartAppEvent
 from pybotx.models.users import UserFromCSV, UserFromSearch
+from pydantic import ValidationError
 
-MissingOptionalAttachment = MissingOptional[
-    Union[IncomingFileAttachment, OutgoingAttachment]
+MissingOptionalAttachment: TypeAlias = MissingOptional[
+    IncomingFileAttachment | OutgoingAttachment
 ]
 
 
@@ -218,11 +283,18 @@ class Bot:
         *,
         collectors: Sequence[HandlerCollector],
         bot_accounts: Sequence[BotAccountWithSecret],
-        middlewares: Optional[Sequence[Middleware]] = None,
-        httpx_client: Optional[httpx.AsyncClient] = None,
-        exception_handlers: Optional[ExceptionHandlersDict] = None,
+        middlewares: Sequence[Middleware] | None = None,
+        httpx_client: httpx.AsyncClient | None = None,
+        httpx_timeout: httpx.Timeout | None = None,
+        httpx_limits: httpx.Limits | None = None,
+        retry_policy: BotXRetryPolicy | None = None,
+        retry_strategy: BotXRetryStrategy | None = None,
+        metrics_collector: BotXRequestObserver | None = None,
+        tracing_collector: BotXRequestObserver | None = None,
+        exception_handlers: ExceptionHandlersDict | None = None,
         default_callback_timeout: float = BOTX_DEFAULT_TIMEOUT,
-        callback_repo: Optional[CallbackRepoProto] = None,
+        callback_repo: CallbackRepoProto | None = None,
+        auth_version: BotXAuthVersion = BotXAuthVersion.V2,
     ) -> None:
         if not collectors:
             logger.warning("Bot has no connected collectors")
@@ -237,8 +309,26 @@ class Bot:
         )
 
         self._default_callback_timeout = default_callback_timeout
-        self._bot_accounts_storage = BotAccountsStorage(list(bot_accounts))
-        self._httpx_client = httpx_client or httpx.AsyncClient()
+        self._bot_accounts_storage = BotAccountsStorage(
+            list(bot_accounts),
+            auth_version=auth_version,
+            retry_policy=retry_policy,
+            retry_strategy=retry_strategy,
+            metrics_collector=metrics_collector,
+            tracing_collector=tracing_collector,
+        )
+        if httpx_client is not None:
+            if httpx_timeout is not None or httpx_limits is not None:
+                raise ValueError(
+                    "`httpx_timeout` and `httpx_limits` can't be passed with"
+                    " custom `httpx_client`",
+                )
+            self._httpx_client = httpx_client
+        else:
+            self._httpx_client = httpx.AsyncClient(
+                timeout=httpx_timeout or build_default_httpx_timeout(),
+                limits=httpx_limits or build_default_httpx_limits(),
+            )
 
         if not callback_repo:
             callback_repo = CallbackMemoryRepo()
@@ -247,20 +337,28 @@ class Bot:
 
         self.state: SimpleNamespace = SimpleNamespace()
 
-    def async_execute_raw_bot_command(self, raw_bot_command: Dict[str, Any]) -> None:
-        logger.opt(lazy=True).debug(
-            "Got command: {command}",
-            command=lambda: pformat_jsonable_obj(
-                trim_file_data_in_incoming_json(raw_bot_command),
-            ),
-        )
+    def async_execute_raw_bot_command(
+        self,
+        raw_bot_command: dict[str, Any],
+        verify_request: bool = True,
+        request_headers: Mapping[str, str] | None = None,
+        logging_command: bool = True,
+        trusted_issuers: set[str] | None = None,
+    ) -> None:
+        if logging_command:
+            log_incoming_request(raw_bot_command, message="Got command: ")
+
+        if verify_request:
+            self._verify_request(request_headers, trusted_issuers=trusted_issuers)
 
         try:
-            bot_api_command: BotAPICommand = parse_obj_as(
-                # Same ignore as in pydantic
-                BotAPICommand,  # type: ignore[arg-type]
-                raw_bot_command,
-            )
+            command_type = raw_bot_command.get("command", {}).get("command_type")
+            if command_type == BotAPICommandTypes.USER:
+                bot_api_command = BotAPIIncomingMessage.model_validate(raw_bot_command)
+            else:
+                bot_api_command = TypeAdapter(BotAPISystemEvent).validate_python(
+                    raw_bot_command
+                )
         except ValidationError as validation_exc:
             raise ValueError("Bot command validation error") from validation_exc
 
@@ -276,14 +374,64 @@ class Bot:
 
         return self._handler_collector.async_handle_bot_command(self, bot_command)
 
-    async def raw_get_status(self, query_params: Dict[str, str]) -> Dict[str, Any]:
+    async def sync_execute_raw_smartapp_event(
+        self,
+        raw_smartapp_event: dict[str, Any],
+        verify_request: bool = True,
+        request_headers: Mapping[str, str] | None = None,
+        logging_command: bool = True,
+        trusted_issuers: set[str] | None = None,
+    ) -> BotAPISyncSmartAppEventResponse:
+        if logging_command:
+            log_incoming_request(
+                raw_smartapp_event,
+                message="Got sync smartapp event: ",
+            )
+
+        if verify_request:
+            self._verify_request(request_headers, trusted_issuers=trusted_issuers)
+
+        try:
+            bot_api_smartapp_event = BotAPISyncSmartAppEvent.model_validate(
+                raw_smartapp_event
+            )
+        except ValidationError as validation_exc:
+            raise ValueError(
+                "Sync smartapp event validation error",
+            ) from validation_exc
+
+        smartapp_event = bot_api_smartapp_event.to_domain(raw_smartapp_event)
+        return await self.sync_execute_smartapp_event(smartapp_event)
+
+    async def sync_execute_smartapp_event(
+        self,
+        smartapp_event: SmartAppEvent,
+    ) -> BotAPISyncSmartAppEventResponse:
+        self._bot_accounts_storage.ensure_bot_id_exists(smartapp_event.bot.id)
+        return await self._handler_collector.handle_sync_smartapp_event(
+            self,
+            smartapp_event,
+        )
+
+    async def raw_get_status(
+        self,
+        query_params: dict[str, str],
+        verify_request: bool = True,
+        request_headers: Mapping[str, str] | None = None,
+        trusted_issuers: set[str] | None = None,
+    ) -> dict[str, Any]:
         logger.opt(lazy=True).debug(
             "Got status: {status}",
             status=lambda: pformat_jsonable_obj(query_params),
         )
 
+        if verify_request:
+            self._verify_request(request_headers, trusted_issuers=trusted_issuers)
+
         try:
-            bot_api_status_recipient = BotAPIStatusRecipient.parse_obj(query_params)
+            bot_api_status_recipient = BotAPIStatusRecipient.model_validate(
+                query_params
+            )
         except ValidationError as exc:
             raise ValueError("Status request validation error") from exc
 
@@ -300,13 +448,17 @@ class Bot:
 
     async def set_raw_botx_method_result(
         self,
-        raw_botx_method_result: Dict[str, Any],
+        raw_botx_method_result: dict[str, Any],
+        verify_request: bool = True,
+        request_headers: Mapping[str, str] | None = None,
+        trusted_issuers: set[str] | None = None,
     ) -> None:
         logger.debug("Got callback: {callback}", callback=raw_botx_method_result)
 
-        callback: BotXMethodCallback = parse_obj_as(
-            # Same ignore as in pydantic
-            BotXMethodCallback,  # type: ignore[arg-type]
+        if verify_request:
+            self._verify_request(request_headers, trusted_issuers=trusted_issuers)
+
+        callback: BotXMethodCallback = TypeAdapter(BotXMethodCallback).validate_python(
             raw_botx_method_result,
         )
 
@@ -324,10 +476,12 @@ class Bot:
         return await self._callbacks_manager.wait_botx_method_callback(sync_id, timeout)
 
     @property
-    def bot_accounts(self) -> Iterator[BotAccount]:
+    def bot_accounts(self) -> Iterator[BotAccountWithSecret]:
         yield from self._bot_accounts_storage.iter_bot_accounts()
 
     async def fetch_tokens(self) -> None:
+        if self._bot_accounts_storage.get_auth_version() != BotXAuthVersion.V1:
+            return
         for bot_account in self.bot_accounts:
             try:
                 token = await self.get_token(bot_id=bot_account.id)
@@ -364,23 +518,48 @@ class Bot:
 
         return await get_token(bot_id, self._httpx_client, self._bot_accounts_storage)
 
+    async def get_bots_list(
+        self,
+        *,
+        bot_id: UUID,
+        since: Missing[datetime] = Undefined,
+    ) -> tuple[list[BotsListItem], datetime]:
+        """Get list of Bots on the current CTS.
+
+        :param bot_id: Bot which should perform the request.
+        :param since: Only return bots changed after this date.
+
+        :return: List of Bots, generated timestamp.
+        """
+
+        method = BotsListMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPIBotsListRequestPayload.from_domain(since=since)
+
+        botx_api_bots_list = await method.execute(payload)
+
+        return botx_api_bots_list.to_domain()
+
     # - Notifications API -
     async def answer_message(
         self,
         body: str,
         *,
-        metadata: Missing[Dict[str, Any]] = Undefined,
+        metadata: Missing[dict[str, Any]] = Undefined,
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
-        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
-        recipients: Missing[List[UUID]] = Undefined,
+        file: Missing[IncomingFileAttachment | OutgoingAttachment] = Undefined,
+        recipients: Missing[list[UUID]] = Undefined,
         silent_response: Missing[bool] = Undefined,
         markup_auto_adjust: Missing[bool] = Undefined,
         stealth_mode: Missing[bool] = Undefined,
         send_push: Missing[bool] = Undefined,
         ignore_mute: Missing[bool] = Undefined,
         wait_callback: bool = True,
-        callback_timeout: Optional[float] = None,
+        callback_timeout: float | None = None,
     ) -> UUID:
         """Answer to incoming message.
 
@@ -412,7 +591,7 @@ class Bot:
         :return: Notification sync_id.
         """
 
-        try:  # noqa: WPS229
+        try:
             bot_id = bot_id_var.get()
             chat_id = chat_id_var.get()
         except LookupError as exc:
@@ -441,7 +620,7 @@ class Bot:
         *,
         message: OutgoingMessage,
         wait_callback: bool = True,
-        callback_timeout: Optional[float] = None,
+        callback_timeout: float | None = None,
     ) -> UUID:
         """Send internal notification.
 
@@ -476,18 +655,18 @@ class Bot:
         bot_id: UUID,
         chat_id: UUID,
         body: str,
-        metadata: Missing[Dict[str, Any]] = Undefined,
+        metadata: Missing[dict[str, Any]] = Undefined,
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
-        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        file: Missing[IncomingFileAttachment | OutgoingAttachment] = Undefined,
         silent_response: Missing[bool] = Undefined,
         markup_auto_adjust: Missing[bool] = Undefined,
-        recipients: Missing[List[UUID]] = Undefined,
+        recipients: Missing[list[UUID]] = Undefined,
         stealth_mode: Missing[bool] = Undefined,
         send_push: Missing[bool] = Undefined,
         ignore_mute: Missing[bool] = Undefined,
         wait_callback: bool = True,
-        callback_timeout: Optional[float] = None,
+        callback_timeout: float | None = None,
     ) -> UUID:
         """Send message to chat.
 
@@ -545,16 +724,80 @@ class Bot:
 
         return botx_api_sync_id.to_domain()
 
+    async def send_message_sync(
+        self,
+        *,
+        bot_id: UUID,
+        chat_id: UUID,
+        body: str,
+        metadata: Missing[dict[str, Any]] = Undefined,
+        bubbles: Missing[BubbleMarkup] = Undefined,
+        keyboard: Missing[KeyboardMarkup] = Undefined,
+        file: Missing[IncomingFileAttachment | OutgoingAttachment] = Undefined,
+        silent_response: Missing[bool] = Undefined,
+        markup_auto_adjust: Missing[bool] = Undefined,
+        recipients: Missing[list[UUID]] = Undefined,
+        stealth_mode: Missing[bool] = Undefined,
+        send_push: Missing[bool] = Undefined,
+        ignore_mute: Missing[bool] = Undefined,
+    ) -> UUID:
+        """Send message to chat synchronously (BotX >= 3.58).
+
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
+        :param body: Message body.
+        :param metadata: Notification options.
+        :param bubbles: Bubbles (buttons attached to message) markup.
+        :param keyboard: Keyboard (buttons below message input) markup.
+        :param file: Attachment.
+        :param recipients: List of recipients, empty for all in chat.
+        :param silent_response: (BotX default: False) Exclude next user
+            messages from history.
+        :param markup_auto_adjust: (BotX default: False) Move button to next
+            row, if its text doesn't fit.
+        :param stealth_mode: (BotX default: False) Enable stealth mode.
+        :param send_push: (BotX default: True) Send push notification on
+            devices.
+        :param ignore_mute: (BotX default: False) Ignore mute or dnd (do not
+            disturb).
+
+        :return: Notification sync_id.
+        """
+
+        method = DirectNotificationSyncMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        payload = BotXAPIDirectNotificationRequestPayload.from_domain(
+            chat_id=chat_id,
+            body=body,
+            metadata=metadata,
+            bubbles=bubbles,
+            keyboard=keyboard,
+            file=file,
+            recipients=recipients,
+            silent_response=silent_response,
+            markup_auto_adjust=markup_auto_adjust,
+            stealth_mode=stealth_mode,
+            send_push=send_push,
+            ignore_mute=ignore_mute,
+        )
+        botx_api_sync_id = await method.execute(payload)
+
+        return botx_api_sync_id.to_domain()
+
     async def send_internal_bot_notification(
         self,
         *,
         bot_id: UUID,
         chat_id: UUID,
-        data: Dict[str, Any],
-        opts: Missing[Dict[str, Any]] = Undefined,
-        recipients: Missing[List[UUID]] = Undefined,
+        data: dict[str, Any],
+        opts: Missing[dict[str, Any]] = Undefined,
+        recipients: Missing[list[UUID]] = Undefined,
         wait_callback: bool = True,
-        callback_timeout: Optional[float] = None,
+        callback_timeout: float | None = None,
     ) -> UUID:
         """Send internal notification.
 
@@ -619,7 +862,7 @@ class Bot:
         bot_id: UUID,
         sync_id: UUID,
         body: Missing[str] = Undefined,
-        metadata: Missing[Dict[str, Any]] = Undefined,
+        metadata: Missing[dict[str, Any]] = Undefined,
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
         file: MissingOptionalAttachment = Undefined,
@@ -690,10 +933,10 @@ class Bot:
         bot_id: UUID,
         sync_id: UUID,
         body: str,
-        metadata: Missing[Dict[str, Any]] = Undefined,
+        metadata: Missing[dict[str, Any]] = Undefined,
         bubbles: Missing[BubbleMarkup] = Undefined,
         keyboard: Missing[KeyboardMarkup] = Undefined,
-        file: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        file: Missing[IncomingFileAttachment | OutgoingAttachment] = Undefined,
         silent_response: Missing[bool] = Undefined,
         markup_auto_adjust: Missing[bool] = Undefined,
         stealth_mode: Missing[bool] = Undefined,
@@ -803,12 +1046,36 @@ class Bot:
         )
         await method.execute(payload)
 
+    async def delete_message(
+        self,
+        *,
+        bot_id: UUID,
+        sync_id: UUID,
+    ) -> None:
+        """Delete message.
+
+        :param bot_id: Bot which should perform the request.
+        :param sync_id: Target sync_id.
+        """
+
+        payload = BotXAPIDeleteEventRequestPayload.from_domain(
+            sync_id=sync_id,
+        )
+
+        method = DeleteEventMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        await method.execute(payload)
+
     # - Chats API -
     async def list_chats(
         self,
         *,
         bot_id: UUID,
-    ) -> List[ChatListItem]:
+    ) -> list[ChatListItem]:
         """Get all bot chats.
 
         :param bot_id: Bot which should perform the request.
@@ -847,12 +1114,66 @@ class Bot:
 
         return botx_api_chat_info.to_domain()
 
+    async def personal_chat(
+        self,
+        *,
+        bot_id: UUID,
+        user_huid: UUID,
+    ) -> ChatInfo:
+        """Get personal chat between bot and user.
+
+        :param bot_id: Bot which should perform the request.
+        :param user_huid: User identifier.
+
+        :return: Chat information.
+        """
+
+        method = PersonalChatMethod(
+            bot_id, self._httpx_client, self._bot_accounts_storage
+        )
+
+        payload = BotXAPIPersonalChatRequestPayload.from_domain(user_huid=user_huid)
+        botx_api_personal_chat = await method.execute(payload)
+
+        return botx_api_personal_chat.to_domain()
+
+    async def ensure_personal_chat(
+        self,
+        *,
+        bot_id: UUID,
+        user_huid: UUID,
+        name: str | None = None,
+    ) -> ChatInfo:
+        """Get or create personal chat with user.
+
+        Tries to fetch existing personal chat. If not found, creates it and
+        returns chat info for the new chat.
+
+        :param bot_id: Bot which should perform the request.
+        :param user_huid: Target user HUID.
+        :param name: Optional chat name for creation.
+
+        :return: Chat information.
+        """
+
+        try:
+            return await self.personal_chat(bot_id=bot_id, user_huid=user_huid)
+        except ChatNotFoundError:
+            chat_name = name or f"Personal chat {user_huid}"
+            chat_id = await self.create_chat(
+                bot_id=bot_id,
+                name=chat_name,
+                chat_type=ChatTypes.PERSONAL_CHAT,
+                huids=[user_huid],
+            )
+            return await self.chat_info(bot_id=bot_id, chat_id=chat_id)
+
     async def add_users_to_chat(
         self,
         *,
         bot_id: UUID,
         chat_id: UUID,
-        huids: List[UUID],
+        huids: list[UUID],
     ) -> None:
         """Add user to chat.
 
@@ -871,7 +1192,7 @@ class Bot:
         *,
         bot_id: UUID,
         chat_id: UUID,
-        huids: List[UUID],
+        huids: list[UUID],
     ) -> None:
         """Remove eXpress accounts from chat.
 
@@ -897,7 +1218,7 @@ class Bot:
         *,
         bot_id: UUID,
         chat_id: UUID,
-        huids: List[UUID],
+        huids: list[UUID],
     ) -> None:
         """Promote users in chat to admins.
 
@@ -982,9 +1303,10 @@ class Bot:
         bot_id: UUID,
         name: str,
         chat_type: ChatTypes,
-        huids: List[UUID],
-        description: Optional[str] = None,
+        huids: list[UUID],
+        description: str | None = None,
         shared_history: Missing[bool] = Undefined,
+        avatar: str | None = None,
     ) -> UUID:
         """Create chat.
 
@@ -995,6 +1317,7 @@ class Bot:
         :param description: Chat description.
         :param shared_history: (BotX default: False) Open old chat history for
             new added users.
+        :param avatar: Chat avatar in data URL format (RFC 2397).
 
         :return: Created chat uuid.
         """
@@ -1005,16 +1328,74 @@ class Bot:
             self._bot_accounts_storage,
         )
 
-        payload = BotXAPICreateChatRequestPayload.from_domain(
+        payload = BotXAPICreateChatRequestPayload(
             name=name,
             chat_type=chat_type,
-            huids=huids,
+            members=huids,
             shared_history=shared_history,
             description=description,
+            avatar=avatar,
         )
         botx_api_chat_id = await method.execute(payload)
 
         return botx_api_chat_id.to_domain()
+
+    async def create_chat_link(
+        self,
+        *,
+        bot_id: UUID,
+        chat_id: UUID,
+        link_type: ChatLinkTypes,
+        access_code: Missing[str | None] = Undefined,
+        link_ttl: Missing[int | None] = Undefined,
+    ) -> ChatLink:
+        """Create chat invite link (BotX >= 3.58).
+
+        :param bot_id: Bot which should perform the request.
+        :param chat_id: Target chat id.
+        :param link_type: Link type.
+        :param access_code: Link access code (or `None` to make it public).
+        :param link_ttl: Link ttl in seconds (or `None` for infinite).
+
+        :return: Created chat link.
+        """
+
+        method = CreateChatLinkMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        payload = BotXAPICreateChatLinkRequestPayload.from_domain(
+            chat_id=chat_id,
+            link_type=link_type,
+            access_code=access_code,
+            link_ttl=link_ttl,
+        )
+        botx_api_chat_link = await method.execute(payload)
+
+        return botx_api_chat_link.to_domain()
+
+    async def create_thread(self, bot_id: UUID, sync_id: UUID) -> UUID:
+        """
+        Create thread.
+
+        :param bot_id: Bot which should perform the request.
+        :param sync_id: Message for which thread should be created
+
+        :return: Created thread uuid.
+        """
+
+        method = CreateThreadMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        payload = BotXAPICreateThreadRequestPayload.from_domain(sync_id=sync_id)
+        botx_api_thread_id = await method.execute(payload)
+
+        return botx_api_thread_id.to_domain()
 
     async def pin_message(
         self,
@@ -1063,7 +1444,60 @@ class Bot:
 
         await method.execute(payload)
 
+    async def search_user_by_emails(
+        self,
+        *,
+        bot_id: UUID,
+        emails: list[str],
+    ) -> list[UserFromSearch]:
+        """Search user by emails for search.
+
+        :param bot_id: Bot which should perform the request.
+        :param emails: User emails.
+
+        :return: Search result with user information.
+        """
+
+        method = SearchUserByEmailsMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPISearchUserByEmailsRequestPayload.from_domain(emails=emails)
+
+        botx_api_users_from_search = await method.execute(payload)
+
+        return botx_api_users_from_search.to_domain()
+
     # - Users API -
+    async def search_user_by_email_post(
+        self,
+        *,
+        bot_id: UUID,
+        email: str,
+    ) -> UserFromSearch:
+        """Search user by email for search.
+
+        Wraps the single email into a list payload and returns the first result.
+        For multiple emails use `search_user_by_emails`.
+
+        :param bot_id: Bot which should perform the request.
+        :param email: User email.
+
+        :return: User information.
+        """
+
+        method = SearchUserByEmailPostMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPISearchUserByEmailRequestPayload.from_domain(email=email)
+
+        botx_api_user_from_search = await method.execute(payload)
+
+        return botx_api_user_from_search.to_domain()
+
     async def search_user_by_email(
         self,
         *,
@@ -1071,6 +1505,8 @@ class Bot:
         email: str,
     ) -> UserFromSearch:
         """Search user by email for search.
+
+        DEPRECATED. Use `search_user_by_email_post`.
 
         :param bot_id: Bot which should perform the request.
         :param email: User email.
@@ -1176,7 +1612,7 @@ class Bot:
         *,
         bot_id: UUID,
         user_huid: UUID,
-        avatar: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        avatar: Missing[IncomingFileAttachment | OutgoingAttachment] = Undefined,
         name: Missing[str] = Undefined,
         public_name: Missing[str] = Undefined,
         company: Missing[str] = Undefined,
@@ -1250,10 +1686,22 @@ class Bot:
             botx=botx,
         )
 
-        async with SpooledTemporaryFile(max_size=CHUNK_SIZE, mode="w+") as async_buffer:
+        async with AsyncExitStack() as stack:
+            tmpdir = await stack.enter_async_context(TemporaryDirectory())
+            async with NamedTemporaryFile(
+                mode="wb",
+                dir=tmpdir,
+                delete=False,
+            ) as write_buffer:
+                write_buffer_path = write_buffer.name
+                await method.execute(payload, write_buffer)
+
+            read_buffer = await stack.enter_async_context(
+                aiofiles.open(write_buffer_path),
+            )
             yield (
                 BotXAPIUserFromCSVResult(**row).to_domain()
-                async for row in await method.execute(payload, async_buffer)
+                async for row in AsyncDictReader(read_buffer)
             )
 
     # - SmartApps API -
@@ -1262,11 +1710,11 @@ class Bot:
         *,
         bot_id: UUID,
         chat_id: UUID,
-        data: Dict[str, Any],
+        data: dict[str, Any],
         encrypted: bool = True,
         ref: MissingOptional[UUID] = Undefined,
-        opts: Missing[Dict[str, Any]] = Undefined,
-        files: Missing[List[File]] = Undefined,
+        opts: Missing[dict[str, Any]] = Undefined,
+        files: Missing[list[File]] = Undefined,
     ) -> None:
         """Send SmartApp event.
 
@@ -1302,8 +1750,8 @@ class Bot:
         chat_id: UUID,
         smartapp_counter: int,
         body: Missing[str] = Undefined,
-        opts: Missing[Dict[str, Any]] = Undefined,
-        meta: Missing[Dict[str, Any]] = Undefined,
+        opts: Missing[dict[str, Any]] = Undefined,
+        meta: Missing[dict[str, Any]] = Undefined,
     ) -> None:
         """Send SmartApp notification.
 
@@ -1335,7 +1783,7 @@ class Bot:
         *,
         bot_id: UUID,
         version: Missing[int] = Undefined,
-    ) -> Tuple[List[SmartApp], int]:
+    ) -> tuple[list[SmartApp], int]:
         """Get list of SmartApps on the current CTS.
 
         :param bot_id: Bot which should perform the request.
@@ -1354,6 +1802,40 @@ class Bot:
         botx_api_smartapps_list = await method.execute(payload)
 
         return botx_api_smartapps_list.to_domain()
+
+    async def send_smartapp_manifest(
+        self,
+        *,
+        bot_id: UUID,
+        ios: Missing[SmartappManifestIosParams] = Undefined,
+        android: Missing[SmartappManifestAndroidParams] = Undefined,
+        web_layout: Missing[SmartappManifestWebParams] = Undefined,
+        unread_counter: Missing[SmartappManifestUnreadCounterParams] = Undefined,
+    ) -> SmartappManifest:
+        """Send smartapp manifest with given parameters.
+
+        :param bot_id: Bot which should perform the request.
+        :param ios: Smartapp layout for ios clients.
+        :param android: Smartapp layout for android clients.
+        :param web_layout: Smartapp layout for web clients.
+        :param unread_counter: Entities that can be subscribed to in the unread counter.
+
+        :return: Smartapp manifest with the set parameters received from BotX.
+        """
+
+        method = SmartAppManifestMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPISmartAppManifestRequestPayload.from_domain(
+            ios=ios,
+            android=android,
+            web_layout=web_layout,
+            unread_counter=unread_counter,
+        )
+        smartapp_manifest_response = await method.execute(payload)
+        return smartapp_manifest_response.to_domain()
 
     async def upload_static_file(
         self,
@@ -1380,6 +1862,94 @@ class Bot:
         botx_api_static_file = await method.execute(async_buffer, filename)
 
         return botx_api_static_file.to_domain()
+
+    async def send_smartapp_custom_notification(
+        self,
+        *,
+        bot_id: UUID,
+        group_chat_id: UUID,
+        title: str,
+        body: str,
+        meta: Missing[dict[str, Any]] = Undefined,
+        wait_callback: bool = True,
+        callback_timeout: float | None = None,
+    ) -> UUID:
+        """Send SmartApp custom notification.
+
+        :param bot_id: Bot which should perform the request.
+        :param group_chat_id: Target chat id.
+        :param title: Notification title.
+        :param body: Notification body.
+        :param meta: Meta information.
+        :param wait_callback: Block method call until callback received.
+        :param callback_timeout: Callback timeout in seconds (or `None` for
+            endless waiting).
+
+        :return: Notification sync_id.
+        """
+
+        method = SmartAppCustomNotificationMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+            self._callbacks_manager,
+        )
+        payload = BotXAPISmartAppCustomNotificationRequestPayload.from_domain(
+            group_chat_id=group_chat_id,
+            title=title,
+            body=body,
+            meta=meta,
+        )
+
+        botx_api_sync_id = await method.execute(
+            payload,
+            wait_callback,
+            callback_timeout,
+            self._default_callback_timeout,
+        )
+
+        return botx_api_sync_id.to_domain()
+
+    async def send_smartapp_unread_counter(
+        self,
+        *,
+        bot_id: UUID,
+        group_chat_id: UUID,
+        counter: int,
+        wait_callback: bool = True,
+        callback_timeout: float | None = None,
+    ) -> UUID:
+        """Send SmartApp unread counter.
+
+        :param bot_id: Bot which should perform the request.
+        :param group_chat_id: Target chat id.
+        :param counter: Counter value.
+        :param wait_callback: Block method call until callback received.
+        :param callback_timeout: Callback timeout in seconds (or `None` for
+            endless waiting).
+
+        :return: Sent message's sync_id.
+        """
+
+        method = SmartAppUnreadCounterMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+            self._callbacks_manager,
+        )
+        payload = BotXAPISmartAppUnreadCounterRequestPayload.from_domain(
+            group_chat_id=group_chat_id,
+            counter=counter,
+        )
+
+        botx_api_sync_id = await method.execute(
+            payload,
+            wait_callback,
+            callback_timeout,
+            self._default_callback_timeout,
+        )
+
+        return botx_api_sync_id.to_domain()
 
     # - Stickers API -
     async def create_sticker_pack(
@@ -1596,7 +2166,7 @@ class Bot:
         sticker_pack_id: UUID,
         name: str,
         preview: UUID,
-        stickers_order: List[UUID],
+        stickers_order: list[UUID],
     ) -> StickerPack:
         """Edit Sticker pack.
 
@@ -1633,6 +2203,7 @@ class Bot:
         chat_id: UUID,
         file_id: UUID,
         async_buffer: AsyncBufferWritable,
+        is_preview: bool = False,
     ) -> None:
         """Download file form file service.
 
@@ -1640,6 +2211,7 @@ class Bot:
         :param chat_id: Target chat id.
         :param file_id: Async file id.
         :param async_buffer: Buffer to write downloaded file.
+        :param is_preview: If true and file has preview, return it instead of original.
         """
 
         method = DownloadFileMethod(
@@ -1650,6 +2222,7 @@ class Bot:
         payload = BotXAPIDownloadFileRequestPayload.from_domain(
             chat_id=chat_id,
             file_id=file_id,
+            is_preview=is_preview,
         )
 
         await method.execute(payload, async_buffer)
@@ -1697,7 +2270,7 @@ class Bot:
         *,
         bot_id: UUID,
         huid: UUID,
-        ref: Optional[UUID] = None,
+        ref: UUID | None = None,
     ) -> None:
         """Refresh OpenID access token.
 
@@ -1719,11 +2292,177 @@ class Bot:
         )
         await method.execute(payload)
 
+    # - Metrics API -
+    async def collect_metric(
+        self,
+        bot_id: UUID,
+        bot_function: str,
+        huids: list[UUID],
+        chat_id: UUID,
+    ) -> None:
+        """Collect a new use of the bot function.
+
+        :param bot_id: Bot which should perform the request.
+        :param bot_function: Name of the bot function.
+        :param huids: Users involved in using the function.
+        :param chat_id: Chat in which the function was used.
+        """
+
+        method = CollectBotFunctionMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+
+        payload = BotXAPICollectBotFunctionRequestPayload.from_domain(
+            bot_function=bot_function,
+            huids=huids,
+            chat_id=chat_id,
+        )
+        await method.execute(payload)
+
+    def _verify_request(
+        self,
+        headers: Mapping[str, str] | None,
+        *,
+        trusted_issuers: set[str] | None = None,
+    ) -> None:
+        if headers is None:
+            raise RequestHeadersNotProvidedError
+
+        authorization_header = headers.get("authorization")
+        if not authorization_header:
+            raise UnverifiedRequestError("The authorization token was not provided.")
+
+        token = authorization_header.split()[-1]
+        decode_algorithms = ["HS256"]
+
+        try:
+            token_payload = jwt.decode(
+                jwt=token,
+                algorithms=decode_algorithms,
+                options={
+                    "verify_signature": False,
+                },
+            )
+        except jwt.DecodeError as decode_exc:
+            raise UnverifiedRequestError(decode_exc.args[0]) from decode_exc
+        if self._is_v2_payload(token_payload):
+            self._verify_request_v2(token, token_payload, decode_algorithms)
+        else:
+            self._verify_request_v1(
+                token,
+                token_payload,
+                decode_algorithms,
+                trusted_issuers,
+            )
+
+    @staticmethod
+    def _is_v2_payload(token_payload: Mapping[str, Any]) -> bool:
+        if token_payload.get("version") == 2:
+            return True
+
+        audience = token_payload.get("aud")
+        issuer = token_payload.get("iss")
+        if not isinstance(audience, str) or not isinstance(issuer, str):
+            return False
+
+        try:
+            UUID(issuer)
+        except (TypeError, ValueError):
+            return False
+
+        return True
+
+    def _verify_request_v2(
+        self,
+        token: str,
+        token_payload: Mapping[str, Any],
+        decode_algorithms: list[str],
+    ) -> None:
+        issuer = token_payload.get("iss")
+        if issuer is None:
+            raise UnverifiedRequestError('Token is missing the "iss" claim')
+        if not isinstance(issuer, str):
+            raise UnverifiedRequestError("Invalid issuer")
+
+        try:
+            bot_id = UUID(issuer)
+        except (TypeError, ValueError) as exc:
+            raise UnverifiedRequestError("Invalid issuer") from exc
+
+        try:
+            bot_account = self._bot_accounts_storage.get_bot_account(bot_id)
+        except UnknownBotAccountError as unknown_bot_exc:
+            raise UnverifiedRequestError(unknown_bot_exc.args[0]) from unknown_bot_exc
+
+        audience = token_payload.get("aud")
+        if not audience or not isinstance(audience, str):
+            raise UnverifiedRequestError("Invalid audience parameter was provided.")
+        if audience != bot_account.host:
+            raise UnverifiedRequestError("Invalid audience parameter was provided.")
+
+        try:
+            jwt.decode(
+                jwt=token,
+                key=bot_account.secret_key,
+                algorithms=decode_algorithms,
+                issuer=str(bot_account.id),
+                audience=bot_account.host,
+                leeway=1,
+            )
+        except jwt.InvalidTokenError as exc:
+            raise UnverifiedRequestError(exc.args[0]) from exc
+
+    def _verify_request_v1(
+        self,
+        token: str,
+        token_payload: Mapping[str, Any],
+        decode_algorithms: list[str],
+        trusted_issuers: set[str] | None,
+    ) -> None:
+        audience = token_payload.get("aud")
+        if (
+            not audience
+            or not isinstance(audience, Sequence)
+            or isinstance(audience, str)
+            or len(audience) != 1
+        ):
+            raise UnverifiedRequestError("Invalid audience parameter was provided.")
+
+        try:
+            bot_account = self._bot_accounts_storage.get_bot_account(UUID(audience[-1]))
+        except UnknownBotAccountError as unknown_bot_exc:
+            raise UnverifiedRequestError(unknown_bot_exc.args[0]) from unknown_bot_exc
+
+        try:
+            jwt.decode(
+                jwt=token,
+                key=bot_account.secret_key,
+                algorithms=decode_algorithms,
+                issuer=bot_account.host,
+                leeway=1,
+                options={
+                    "verify_aud": False,
+                    "verify_iss": False,
+                },
+            )
+        except jwt.InvalidTokenError as exc:
+            raise UnverifiedRequestError(exc.args[0]) from exc
+
+        issuer = token_payload.get("iss")
+        if issuer is None:
+            raise UnverifiedRequestError('Token is missing the "iss" claim')
+
+        if issuer != bot_account.host:
+            if not trusted_issuers or issuer not in trusted_issuers:
+                raise UnverifiedRequestError("Invalid issuer")
+
     @staticmethod
     def _build_main_collector(
         collectors: Sequence[HandlerCollector],
-        middlewares: List[Middleware],
-        exception_handlers: Optional[ExceptionHandlersDict] = None,
+        middlewares: list[Middleware],
+        exception_handlers: ExceptionHandlersDict | None = None,
     ) -> HandlerCollector:
         main_collector = HandlerCollector(middlewares=middlewares)
         main_collector.insert_exception_middleware(exception_handlers)

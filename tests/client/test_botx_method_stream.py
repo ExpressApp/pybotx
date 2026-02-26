@@ -6,7 +6,7 @@ import pytest
 from aiofiles.tempfile import NamedTemporaryFile
 from respx.router import MockRouter
 
-from pybotx import BotAccountWithSecret, InvalidBotXStatusCodeError
+from pybotx import BotAccountWithSecret, BotXRetryPolicy, InvalidBotXStatusCodeError
 from pybotx.async_buffer import AsyncBufferWritable
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
 from pybotx.client.botx_method import BotXMethod, response_exception_thrower
@@ -135,3 +135,48 @@ async def test__botx_method_stream__succeed(
     # - Assert -
     assert await async_buffer.read() == b"Hello, world!\n"
     assert endpoint.called
+
+
+async def test__botx_method_stream__retries_on_retryable_status_code(
+    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+    async_buffer: NamedTemporaryFile,
+) -> None:
+    # - Arrange -
+    call_counter = 0
+
+    def responder(_: httpx.Request) -> httpx.Response:
+        nonlocal call_counter
+        call_counter += 1
+        if call_counter == 1:
+            return httpx.Response(HTTPStatus.SERVICE_UNAVAILABLE, content=b"retry")
+        return httpx.Response(HTTPStatus.OK, content=b"Hello, world!\n")
+
+    endpoint = respx_mock.get(f"https://{host}/foo/bar", params={"baz": 1}).mock(
+        side_effect=responder,
+    )
+
+    method = FooBarStreamMethod(
+        bot_id,
+        httpx_client,
+        BotAccountsStorage(
+            [bot_account],
+            retry_policy=BotXRetryPolicy(
+                max_attempts=2,
+                initial_delay_seconds=0.0,
+                max_delay_seconds=0.0,
+                jitter_seconds=0.0,
+            ),
+        ),
+    )
+    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+
+    # - Act -
+    await method.execute(payload, async_buffer)
+
+    # - Assert -
+    assert await async_buffer.read() == b"Hello, world!\n"
+    assert endpoint.call_count == 2

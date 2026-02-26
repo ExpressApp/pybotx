@@ -3,19 +3,32 @@ from pybotx.bot.api.exceptions import (
     UnsupportedBotAPIVersionError,
 )
 from pybotx.bot.api.responses.bot_disabled import (
+    BotAPIBotDisabledErrorData,
     BotAPIBotDisabledResponse,
     build_bot_disabled_response,
 )
 from pybotx.bot.api.responses.command_accepted import build_command_accepted_response
+from pybotx.bot.api.responses.unverified_request import (
+    BotAPIUnverifiedRequestErrorData,
+    BotAPIUnverifiedRequestResponse,
+    build_unverified_request_response,
+)
+from pybotx.auth import BotXAuthVersion
 from pybotx.bot.bot import Bot
 from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
 from pybotx.bot.exceptions import (
     AnswerDestinationLookupError,
     BotShuttingDownError,
     BotXMethodCallbackNotFoundError,
+    RequestHeadersNotProvidedError,
     UnknownBotAccountError,
+    UnverifiedRequestError,
 )
-from pybotx.bot.handler import IncomingMessageHandlerFunc, Middleware
+from pybotx.bot.handler import (
+    IncomingMessageHandlerFunc,
+    Middleware,
+    SyncSmartAppEventHandlerFunc,
+)
 from pybotx.bot.handler_collector import HandlerCollector
 from pybotx.bot.healthcheck import (
     HealthStatus,
@@ -34,7 +47,12 @@ from pybotx.client.exceptions.chats import (
     CantUpdatePersonalChatError,
     ChatCreationError,
     ChatCreationProhibitedError,
+    ChatLinkCreationError,
+    ChatLinkCreationProhibitedError,
     InvalidUsersListError,
+    ThreadAlreadyExistsError,
+    ThreadCreationError,
+    ThreadCreationProhibitedError,
 )
 from pybotx.client.exceptions.common import (
     ChatNotFoundError,
@@ -48,12 +66,40 @@ from pybotx.client.exceptions.http import (
     InvalidBotXResponsePayloadError,
     InvalidBotXStatusCodeError,
 )
+from pybotx.client.exceptions.message import MessageNotFoundError
 from pybotx.client.exceptions.notifications import (
     BotIsNotChatMemberError,
     FinalRecipientsListEmptyError,
     StealthModeDisabledError,
 )
 from pybotx.client.exceptions.users import UserNotFoundError
+from pybotx.client.http_config import (
+    BotXRetryStrategy,
+    BotXRetryPolicy,
+    TenacityRetryStrategy,
+    build_default_httpx_limits,
+    build_default_httpx_timeout,
+)
+from pybotx.client.observability import (
+    BotXRequestMetadata,
+    BotXRequestObserver,
+    BotXRequestResult,
+    BotXRetryEvent,
+    OpenTelemetryTracingCollector,
+    PathNormalizer,
+    PrometheusMetricsCollector,
+    ReasonNormalizer,
+    SpanEnricher,
+)
+from pybotx.client.smartapps_api.exceptions import SyncSmartAppEventHandlerNotFoundError
+from pybotx.client.smartapps_api.smartapp_manifest import (
+    SmartappManifest,
+    SmartappManifestAndroidParams,
+    SmartappManifestAuroraParams,
+    SmartappManifestIosParams,
+    SmartappManifestUnreadCounterParams,
+    SmartappManifestWebParams,
+)
 from pybotx.client.stickers_api.exceptions import (
     InvalidEmojiError,
     InvalidImageError,
@@ -69,13 +115,23 @@ from pybotx.models.attachments import (
     OutgoingAttachment,
 )
 from pybotx.models.bot_account import BotAccount, BotAccountWithSecret
+from pybotx.models.bot_catalog import BotsListItem
 from pybotx.models.bot_sender import BotSender
-from pybotx.models.chats import Chat, ChatInfo, ChatInfoMember, ChatListItem
+from pybotx.models.chats import (
+    Chat,
+    ChatInfo,
+    ChatInfoMember,
+    ChatLink,
+    ChatListItem,
+)
 from pybotx.models.enums import (
     AttachmentTypes,
+    ChatLinkTypes,
     ChatTypes,
     ClientPlatforms,
+    ConferenceLinkTypes,
     MentionTypes,
+    SmartappManifestWebLayoutChoices,
     SyncSourceTypes,
     UserKinds,
 )
@@ -107,15 +163,30 @@ from pybotx.models.message.message_status import MessageStatus
 from pybotx.models.message.outgoing_message import OutgoingMessage
 from pybotx.models.message.reply import Reply
 from pybotx.models.message.reply_message import ReplyMessage
-from pybotx.models.method_callbacks import BotAPIMethodFailedCallback
+from pybotx.models.method_callbacks import (
+    BotAPIMethodFailedCallback,
+    BotAPIMethodSuccessfulCallback,
+    BotXMethodCallback,
+)
 from pybotx.models.smartapps import SmartApp
 from pybotx.models.status import BotMenu, StatusRecipient
-from pybotx.models.stickers import Sticker, StickerPack
+from pybotx.models.stickers import Sticker, StickerPack, StickerPackFromList
+from pybotx.models.sync_smartapp_event import (
+    BotAPISyncSmartAppEventErrorResponse,
+    BotAPISyncSmartAppEventResponse,
+    BotAPISyncSmartAppEventResultResponse,
+)
 from pybotx.models.system_events.added_to_chat import AddedToChatEvent
 from pybotx.models.system_events.chat_created import ChatCreatedEvent, ChatCreatedMember
+from pybotx.models.system_events.chat_deleted_by_user import ChatDeletedByUserEvent
+from pybotx.models.system_events.conference_changed import ConferenceChangedEvent
+from pybotx.models.system_events.conference_created import ConferenceCreatedEvent
+from pybotx.models.system_events.conference_deleted import ConferenceDeletedEvent
 from pybotx.models.system_events.cts_login import CTSLoginEvent
 from pybotx.models.system_events.cts_logout import CTSLogoutEvent
 from pybotx.models.system_events.deleted_from_chat import DeletedFromChatEvent
+from pybotx.models.system_events.event_delete import EventDeleted
+from pybotx.models.system_events.event_edit import EventEdit
 from pybotx.models.system_events.internal_bot_notification import (
     InternalBotNotificationEvent,
 )
@@ -126,22 +197,44 @@ from pybotx.models.users import UserFromCSV, UserFromSearch
 __all__ = (
     "AddedToChatEvent",
     "AnswerDestinationLookupError",
-    "AttachmentTypes",
     "AttachmentDocument",
     "AttachmentImage",
-    "AttachmentVoice",
+    "AttachmentTypes",
     "AttachmentVideo",
+    "AttachmentVoice",
     "Bot",
+    "BotAPIBotDisabledErrorData",
     "BotAPIBotDisabledResponse",
     "BotAPIMethodFailedCallback",
+    "BotAPIMethodSuccessfulCallback",
+    "BotAPISyncSmartAppEventErrorResponse",
+    "BotAPISyncSmartAppEventResponse",
+    "BotAPISyncSmartAppEventResultResponse",
+    "BotAPIUnverifiedRequestErrorData",
+    "BotAPIUnverifiedRequestResponse",
     "BotAccount",
     "BotAccountWithSecret",
+    "BotXAuthVersion",
     "BotIsNotChatMemberError",
     "BotMenu",
     "BotSender",
     "BotShuttingDownError",
     "BotXMethodCallbackNotFoundError",
     "BotXMethodFailedCallbackReceivedError",
+    "BotXRequestMetadata",
+    "BotXRequestObserver",
+    "BotXRequestResult",
+    "BotXRetryPolicy",
+    "BotXRetryStrategy",
+    "BotXRetryEvent",
+    "OpenTelemetryTracingCollector",
+    "PathNormalizer",
+    "PrometheusMetricsCollector",
+    "ReasonNormalizer",
+    "SpanEnricher",
+    "TenacityRetryStrategy",
+    "BotXMethodCallback",
+    "BotsListItem",
     "BubbleMarkup",
     "Button",
     "ButtonRow",
@@ -156,15 +249,26 @@ __all__ = (
     "ChatCreatedMember",
     "ChatCreationError",
     "ChatCreationProhibitedError",
+    "ChatDeletedByUserEvent",
     "ChatInfo",
     "ChatInfoMember",
+    "ChatLink",
+    "ChatLinkCreationError",
+    "ChatLinkCreationProhibitedError",
     "ChatListItem",
     "ChatNotFoundError",
+    "ChatLinkTypes",
     "ChatTypes",
     "ClientPlatforms",
+    "ConferenceChangedEvent",
+    "ConferenceCreatedEvent",
+    "ConferenceDeletedEvent",
+    "ConferenceLinkTypes",
     "DeletedFromChatEvent",
     "Document",
     "EditMessage",
+    "EventDeleted",
+    "EventEdit",
     "EventNotFoundError",
     "File",
     "FileDeletedError",
@@ -195,6 +299,7 @@ __all__ = (
     "MentionList",
     "MentionTypes",
     "MentionUser",
+    "MessageNotFoundError",
     "MessageStatus",
     "Middleware",
     "OutgoingAttachment",
@@ -205,18 +310,32 @@ __all__ = (
     "ReadinessCheckResult",
     "Reply",
     "ReplyMessage",
+    "RequestHeadersNotProvidedError",
     "SmartApp",
     "SmartAppEvent",
-    "SmartAppEvent",
+    "SmartappManifest",
+    "SmartappManifestAndroidParams",
+    "SmartappManifestAuroraParams",
+    "SmartappManifestIosParams",
+    "SmartappManifestUnreadCounterParams",
+    "SmartappManifestWebLayoutChoices",
+    "SmartappManifestWebParams",
     "StatusRecipient",
     "StealthModeDisabledError",
     "Sticker",
     "StickerPack",
+    "StickerPackFromList",
     "StickerPackOrStickerNotFoundError",
+    "SyncSmartAppEventHandlerFunc",
+    "SyncSmartAppEventHandlerNotFoundError",
     "SyncSourceTypes",
+    "ThreadAlreadyExistsError",
+    "ThreadCreationError",
+    "ThreadCreationProhibitedError",
     "UnknownBotAccountError",
     "UnknownSystemEventError",
     "UnsupportedBotAPIVersionError",
+    "UnverifiedRequestError",
     "UserDevice",
     "UserFromCSV",
     "UserFromSearch",
@@ -228,6 +347,9 @@ __all__ = (
     "build_bot_disabled_response",
     "build_healthcheck_router",
     "build_command_accepted_response",
+    "build_default_httpx_limits",
+    "build_default_httpx_timeout",
+    "build_unverified_request_response",
     "lifespan_wrapper",
     "setup_healthcheck",
 )

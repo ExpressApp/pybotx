@@ -176,6 +176,198 @@ healthcheck.add_readiness_check(
 - `200` — готов (`status=ok`) или частично деградирован (`status=degraded`)
 - `503` — не готов (`status=fail`, если упал хотя бы один `critical` check)
 
+### HTTP-клиент, retry, metrics и tracing
+
+`pybotx` создаёт внутренний `httpx.AsyncClient` с безопасными значениями
+`timeout` и `limits`. При необходимости их можно переопределить в `Bot(...)`
+через `httpx_timeout` и `httpx_limits`.
+
+`retry_policy` по умолчанию выключен (`None`), то есть повторных попыток нет.
+Для включения ретраев передайте `BotXRetryPolicy`.
+
+```python
+import httpx
+from pybotx import *
+
+bot = Bot(
+    collectors=[collector],
+    bot_accounts=[bot_account],
+    httpx_timeout=httpx.Timeout(connect=2.0, read=20.0, write=10.0, pool=1.0),
+    httpx_limits=httpx.Limits(max_connections=800, max_keepalive_connections=200),
+    retry_policy=BotXRetryPolicy(
+        max_attempts=4,
+        initial_delay_seconds=0.2,
+        max_delay_seconds=5.0,
+        jitter_seconds=0.2,
+        retryable_status_codes=frozenset({408, 429, 500, 502, 503, 504}),
+    ),
+)
+```
+
+Retry-политика применяется ко всем вызовам BotX API и повторяет запросы при:
+- сетевых/timeout ошибках транспорта `httpx`
+- HTTP-статусах из `retryable_status_codes`
+
+Если передан собственный `httpx_client`, параметры `httpx_timeout` и
+`httpx_limits` передавать нельзя.
+
+Для кастомной логики ретраев можно передать собственный `retry_strategy`
+(протокол `BotXRetryStrategy`):
+
+```python
+from tenacity import AsyncRetrying, retry_if_exception_type, stop_after_attempt, wait_fixed
+from pybotx import *
+
+
+class CustomRetryStrategy(BotXRetryStrategy):
+    def build_retrying(
+        self,
+        *,
+        retry_policy: BotXRetryPolicy,
+        retry_exceptions: tuple[type[BaseException], ...],
+        before_sleep,
+    ) -> AsyncRetrying:
+        return AsyncRetrying(
+            stop=stop_after_attempt(2),
+            wait=wait_fixed(0.1),
+            retry=retry_if_exception_type(retry_exceptions),
+            before_sleep=before_sleep,
+            reraise=True,
+        )
+
+
+bot = Bot(
+    collectors=[collector],
+    bot_accounts=[bot_account],
+    retry_policy=BotXRetryPolicy(max_attempts=5),
+    retry_strategy=CustomRetryStrategy(),
+)
+```
+
+Также доступны opt-in хуки наблюдаемости:
+- `metrics_collector`
+- `tracing_collector`
+
+Оба параметра по умолчанию выключены (`None`).
+
+Готовая реализация метрик для Prometheus:
+- `PrometheusMetricsCollector` (latency/error/retry counters с label’ами)
+- Требуется `prometheus-client` (`uv add prometheus-client`)
+
+```python
+from pybotx import *
+
+prometheus_metrics = PrometheusMetricsCollector()
+
+bot = Bot(
+    collectors=[collector],
+    bot_accounts=[bot_account],
+    retry_policy=BotXRetryPolicy(max_attempts=3),
+    metrics_collector=prometheus_metrics,
+)
+```
+
+Можно передать нормализаторы для контроля кардинальности label-ов:
+
+```python
+prometheus_metrics = PrometheusMetricsCollector(
+    path_normalizer=lambda url: "/normalized/path",
+    reason_normalizer=lambda reason: reason.split(":", 1)[0],
+)
+```
+
+Метрики по умолчанию:
+- `pybotx_botx_requests_total{method,path,status,outcome}`
+- `pybotx_botx_request_errors_total{method,path,status,error_type}`
+- `pybotx_botx_request_retries_total{method,path,reason}`
+- `pybotx_botx_request_latency_seconds{method,path,status}`
+
+Готовая реализация трассировки для OpenTelemetry:
+- `OpenTelemetryTracingCollector` (span на запрос + retry events как span events)
+- Требуется `opentelemetry-api` (`uv add opentelemetry-api`)
+- Для экспорта спанов обычно нужен `opentelemetry-sdk`
+
+```python
+from pybotx import *
+
+otel_tracing = OpenTelemetryTracingCollector(tracer_name="mybot.pybotx")
+
+bot = Bot(
+    collectors=[collector],
+    bot_accounts=[bot_account],
+    retry_policy=BotXRetryPolicy(max_attempts=3),
+    tracing_collector=otel_tracing,
+)
+```
+
+Также можно обогащать спан через `span_enricher`:
+
+```python
+def span_enricher(span, metadata: BotXRequestMetadata) -> None:
+    span.set_attribute("bot.name", "mybot")
+    span.set_attribute("botx.request_method", metadata.method)
+
+
+otel_tracing = OpenTelemetryTracingCollector(
+    tracer_name="mybot.pybotx",
+    span_enricher=span_enricher,
+)
+```
+
+```python
+from pybotx import *
+
+
+class MetricsCollector:
+    def on_request_start(self, metadata: BotXRequestMetadata) -> None:
+        # Пример: увеличение счётчика in-flight
+        pass
+
+    def on_request_retry(
+        self,
+        metadata: BotXRequestMetadata,
+        retry_event: BotXRetryEvent,
+    ) -> None:
+        # Пример: счётчик повторов с reason/status
+        pass
+
+    def on_request_finish(
+        self,
+        metadata: BotXRequestMetadata,
+        result: BotXRequestResult,
+    ) -> None:
+        # Пример: latency histogram + error counter
+        pass
+
+
+class TracingCollector:
+    def on_request_start(self, metadata: BotXRequestMetadata) -> None:
+        pass
+
+    def on_request_retry(
+        self,
+        metadata: BotXRequestMetadata,
+        retry_event: BotXRetryEvent,
+    ) -> None:
+        pass
+
+    def on_request_finish(
+        self,
+        metadata: BotXRequestMetadata,
+        result: BotXRequestResult,
+    ) -> None:
+        pass
+
+
+bot = Bot(
+    collectors=[collector],
+    bot_accounts=[bot_account],
+    retry_policy=BotXRetryPolicy(max_attempts=3),
+    metrics_collector=MetricsCollector(),
+    tracing_collector=TracingCollector(),
+)
+```
+
 ## Примеры
 
 
