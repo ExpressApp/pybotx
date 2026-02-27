@@ -15,7 +15,11 @@ from aiofiles.tempfile import NamedTemporaryFile, TemporaryDirectory
 from pybotx.async_buffer import AsyncBufferReadable, AsyncBufferWritable
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
 from pybotx.auth import BotXAuthVersion
-from pybotx.bot.callbacks.callback_manager import CallbackManager
+from pybotx.bot.callbacks.callback_manager import (
+    EXPIRED_SYNC_IDS_LIMIT,
+    EXPIRED_SYNC_IDS_TTL_SECONDS,
+    CallbackManager,
+)
 from pybotx.bot.command_processing import BotCommandProcessingConfig
 from pydantic import TypeAdapter
 from pybotx.bot.callbacks.callback_memory_repo import CallbackMemoryRepo
@@ -295,6 +299,8 @@ class Bot:
         command_processing_config: BotCommandProcessingConfig | None = None,
         exception_handlers: ExceptionHandlersDict | None = None,
         default_callback_timeout: float = BOTX_DEFAULT_TIMEOUT,
+        expired_sync_ids_ttl_seconds: float = EXPIRED_SYNC_IDS_TTL_SECONDS,
+        expired_sync_ids_limit: int = EXPIRED_SYNC_IDS_LIMIT,
         callback_repo: CallbackRepoProto | None = None,
         auth_version: BotXAuthVersion = BotXAuthVersion.V2,
     ) -> None:
@@ -336,7 +342,11 @@ class Bot:
         if not callback_repo:
             callback_repo = CallbackMemoryRepo()
 
-        self._callbacks_manager = CallbackManager(callback_repo)
+        self._callbacks_manager = CallbackManager(
+            callback_repo,
+            expired_sync_ids_ttl_seconds=expired_sync_ids_ttl_seconds,
+            expired_sync_ids_limit=expired_sync_ids_limit,
+        )
 
         self.state: SimpleNamespace = SimpleNamespace()
 

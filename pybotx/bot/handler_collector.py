@@ -1,5 +1,6 @@
 import asyncio
 import re
+from contextvars import ContextVar, Token
 from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
@@ -143,15 +144,21 @@ class HandlerCollector:
     ) -> None:
         message_handler = self._get_command_handler(command)
         if message_handler:
-            self._fill_contextvars(message, bot)
-            await message_handler(message, bot)
+            context_tokens = self._set_contextvars(message, bot)
+            try:
+                await message_handler(message, bot)
+            finally:
+                self._reset_contextvars(context_tokens)
 
     async def handle_bot_command(self, bot_command: BotCommand, bot: "Bot") -> None:
         if isinstance(bot_command, IncomingMessage):
             message_handler = self._get_incoming_message_handler(bot_command)
             if message_handler:
-                self._fill_contextvars(bot_command, bot)
-                await message_handler(bot_command, bot)
+                context_tokens = self._set_contextvars(bot_command, bot)
+                try:
+                    await message_handler(bot_command, bot)
+                finally:
+                    self._reset_contextvars(context_tokens)
 
         elif isinstance(
             bot_command,
@@ -159,8 +166,11 @@ class HandlerCollector:
         ):
             event_handler = self._get_system_event_handler_or_none(bot_command)
             if event_handler:
-                self._fill_contextvars(bot_command, bot)
-                await event_handler(bot_command, bot)
+                context_tokens = self._set_contextvars(bot_command, bot)
+                try:
+                    await event_handler(bot_command, bot)
+                finally:
+                    self._reset_contextvars(context_tokens)
 
         else:
             raise NotImplementedError(f"Unsupported event type: `{bot_command}`")
@@ -182,8 +192,11 @@ class HandlerCollector:
                 "Handler for sync smartapp event not found",
             )
 
-        self._fill_contextvars(smartapp_event, bot)
-        return await event_handler(smartapp_event, bot)
+        context_tokens = self._set_contextvars(smartapp_event, bot)
+        try:
+            return await event_handler(smartapp_event, bot)
+        finally:
+            self._reset_contextvars(context_tokens)
 
     async def get_bot_menu(
         self,
@@ -569,13 +582,28 @@ class HandlerCollector:
 
         return handler_func
 
-    def _fill_contextvars(self, bot_command: BotCommand, bot: "Bot") -> None:
-        bot_var.set(bot)
-        bot_id_var.set(bot_command.bot.id)
+    def _set_contextvars(
+        self,
+        bot_command: BotCommand,
+        bot: "Bot",
+    ) -> list[tuple[ContextVar[Any], Token[Any]]]:
+        context_tokens: list[tuple[ContextVar[Any], Token[Any]]] = [
+            (bot_var, bot_var.set(bot)),
+            (bot_id_var, bot_id_var.set(bot_command.bot.id)),
+        ]
 
         chat = getattr(bot_command, "chat", None)
-        if chat:
-            chat_id_var.set(chat.id)
+        if chat is not None:
+            context_tokens.append((chat_id_var, chat_id_var.set(chat.id)))
+
+        return context_tokens
+
+    def _reset_contextvars(
+        self,
+        context_tokens: list[tuple[ContextVar[Any], Token[Any]]],
+    ) -> None:
+        for context_var, token in reversed(context_tokens):
+            context_var.reset(token)
 
     def _log_system_event_handler_call(
         self,

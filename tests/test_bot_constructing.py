@@ -204,3 +204,51 @@ def test__bot__passes_command_processing_config_to_handler_collector(
         bot._handler_collector._command_processing_config
         == command_processing_config
     )
+
+
+def test__bot__passes_expired_sync_ids_config_to_callback_manager(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    expired_sync_ids_ttl_seconds = 120.0
+    expired_sync_ids_limit = 20_000
+
+    # - Act -
+    bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        expired_sync_ids_ttl_seconds=expired_sync_ids_ttl_seconds,
+        expired_sync_ids_limit=expired_sync_ids_limit,
+    )
+
+    # - Assert -
+    assert (
+        bot._callbacks_manager._expired_sync_ids_ttl_seconds
+        == expired_sync_ids_ttl_seconds
+    )
+    assert bot._callbacks_manager._expired_sync_ids_limit == expired_sync_ids_limit
+
+
+def test__bot__invalid_expired_sync_ids_ttl_raises_value_error(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    with pytest.raises(ValueError, match="Expired sync ids ttl should be greater than 0"):
+        Bot(
+            collectors=[HandlerCollector()],
+            bot_accounts=[bot_account],
+            expired_sync_ids_ttl_seconds=0,
+        )
+
+
+def test__bot__invalid_expired_sync_ids_limit_raises_value_error(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    with pytest.raises(
+        ValueError,
+        match="Expired sync ids limit should be greater than 0",
+    ):
+        Bot(
+            collectors=[HandlerCollector()],
+            bot_accounts=[bot_account],
+            expired_sync_ids_limit=0,
+        )
