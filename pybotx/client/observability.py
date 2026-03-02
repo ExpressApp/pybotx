@@ -11,6 +11,8 @@ from urllib.parse import urlsplit
 class BotXRequestMetadata:
     method: str
     url: str
+    operation_name: str | None = None
+    is_streaming: bool = False
 
 
 @dataclass(frozen=True, slots=True)

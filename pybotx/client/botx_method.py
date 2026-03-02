@@ -82,6 +82,7 @@ def callback_exception_thrower(
 class BotXMethod:
     status_handlers: StatusHandlers = {}
     error_callback_handlers: ErrorCallbackHandlers = {}
+    operation_name: str | None = None
 
     def __init__(
         self,
@@ -135,6 +136,7 @@ class BotXMethod:
             self._httpx_client.request,
             method=method,
             url=url,
+            is_streaming=False,
         )
         response = await request(*args, **kwargs)
         await self._raise_for_status(response)
@@ -154,6 +156,7 @@ class BotXMethod:
             self._streaming_request,
             method=method,
             url=url,
+            is_streaming=True,
         )
         response = await stream_request(*args, **kwargs)
         try:
@@ -243,24 +246,44 @@ class BotXMethod:
         *,
         method: str,
         url: str,
+        is_streaming: bool,
     ) -> RequestCall:
         decorated = request_call
-        for decorator in self._request_decorators(method=method, url=url):
+        for decorator in self._request_decorators(
+            method=method,
+            url=url,
+            is_streaming=is_streaming,
+        ):
             decorated = decorator(decorated)
         return decorated
 
-    def _request_decorators(self, *, method: str, url: str) -> list[RequestDecorator]:
+    def _request_decorators(
+        self,
+        *,
+        method: str,
+        url: str,
+        is_streaming: bool,
+    ) -> list[RequestDecorator]:
         decorators: list[RequestDecorator] = []
+        metadata = self._build_request_metadata(
+            method=method,
+            url=url,
+            is_streaming=is_streaming,
+        )
         retry_policy = self._bot_accounts_storage.get_retry_policy()
-        if retry_policy is not None:
-            decorators.append(self._build_retry_decorator(method=method, url=url))
+        retry_request_policy = self._bot_accounts_storage.get_retry_request_policy()
+        if (
+            retry_policy is not None
+            and retry_request_policy is not None
+            and retry_request_policy.should_retry(metadata)
+        ):
+            decorators.append(self._build_retry_decorator(metadata=metadata))
 
         observers = tuple(self._bot_accounts_storage.iter_request_observers())
         if observers:
             decorators.append(
                 self._build_observability_decorator(
-                    method=method,
-                    url=url,
+                    metadata=metadata,
                     observers=observers,
                 ),
             )
@@ -270,12 +293,9 @@ class BotXMethod:
     def _build_observability_decorator(
         self,
         *,
-        method: str,
-        url: str,
+        metadata: BotXRequestMetadata,
         observers: tuple[BotXRequestObserver, ...],
     ) -> RequestDecorator:
-        metadata = BotXRequestMetadata(method=method, url=url)
-
         def decorator(request_call: RequestCall) -> RequestCall:
             async def wrapped(*args: Any, **kwargs: Any) -> httpx.Response:
                 started_at = time.perf_counter()
@@ -315,7 +335,11 @@ class BotXMethod:
 
         return decorator
 
-    def _build_retry_decorator(self, *, method: str, url: str) -> RequestDecorator:
+    def _build_retry_decorator(
+        self,
+        *,
+        metadata: BotXRequestMetadata,
+    ) -> RequestDecorator:
         retry_policy = self._bot_accounts_storage.get_retry_policy()
         assert retry_policy is not None
         retry_strategy = (
@@ -328,7 +352,6 @@ class BotXMethod:
             RetryableBotXStatusCodeError,
         )
         observers = tuple(self._bot_accounts_storage.iter_request_observers())
-        metadata = BotXRequestMetadata(method=method, url=url)
 
         def decorator(request_call: RequestCall) -> RequestCall:
             async def wrapped(*args: Any, **kwargs: Any) -> httpx.Response:
@@ -336,8 +359,8 @@ class BotXMethod:
                     retry_policy=retry_policy,
                     retry_exceptions=retry_exceptions,
                     before_sleep=self._build_before_sleep_logger(
-                        method=method,
-                        url=url,
+                        method=metadata.method,
+                        url=metadata.url,
                         max_attempts=retry_policy.max_attempts,
                         metadata=metadata,
                         observers=observers,
@@ -357,6 +380,23 @@ class BotXMethod:
             return wrapped
 
         return decorator
+
+    def _build_request_metadata(
+        self,
+        *,
+        method: str,
+        url: str,
+        is_streaming: bool,
+    ) -> BotXRequestMetadata:
+        return BotXRequestMetadata(
+            method=method,
+            url=url,
+            operation_name=self._get_operation_name(),
+            is_streaming=is_streaming,
+        )
+
+    def _get_operation_name(self) -> str:
+        return type(self).operation_name or type(self).__name__
 
     def _build_before_sleep_logger(
         self,

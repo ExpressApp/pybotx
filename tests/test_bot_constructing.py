@@ -1,5 +1,6 @@
 import asyncio
 from typing import Any, cast
+from uuid import UUID
 
 import httpx
 import pytest
@@ -7,6 +8,7 @@ import pytest
 from pybotx import (
     Bot,
     BotAccountWithSecret,
+    BotXOperation,
     BotCommandProcessingConfig,
     BotXRequestMetadata,
     BotXRequestResult,
@@ -14,6 +16,13 @@ from pybotx import (
     BotXRetryStrategy,
     BotXRetryEvent,
     HandlerCollector,
+    InMemoryIngressMetricsCollector,
+    IngressCommandMetadata,
+    IngressCommandResult,
+    KnownSafeBotXRetryRequestPolicy,
+    OperationNameAllowlistBotXRetryRequestPolicy,
+    RetryAllBotXRequestsPolicy,
+    SafeBotXRetryRequestPolicy,
     build_default_httpx_limits,
     build_default_httpx_timeout,
 )
@@ -118,6 +127,55 @@ def test__bot__passes_retry_strategy_to_accounts_storage(
     assert bot._bot_accounts_storage.get_retry_strategy() is retry_strategy
 
 
+def test__bot__uses_safe_retry_request_policy_by_default_when_retry_enabled(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Act -
+    bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        retry_policy=BotXRetryPolicy(max_attempts=2),
+    )
+
+    # - Assert -
+    assert isinstance(
+        bot._bot_accounts_storage.get_retry_request_policy(),
+        SafeBotXRetryRequestPolicy,
+    )
+
+
+def test__bot__passes_retry_request_policy_to_accounts_storage(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    retry_request_policy = RetryAllBotXRequestsPolicy()
+
+    # - Act -
+    bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        retry_policy=BotXRetryPolicy(max_attempts=2),
+        retry_request_policy=retry_request_policy,
+    )
+
+    # - Assert -
+    assert bot._bot_accounts_storage.get_retry_request_policy() is retry_request_policy
+
+
+def test__bot__known_safe_retry_request_policy_is_supported(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    retry_request_policy = KnownSafeBotXRetryRequestPolicy()
+
+    bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        retry_policy=BotXRetryPolicy(max_attempts=2),
+        retry_request_policy=retry_request_policy,
+    )
+
+    assert bot._bot_accounts_storage.get_retry_request_policy() is retry_request_policy
+
+
 def test__bot__retry_disabled_by_default(
     bot_account: BotAccountWithSecret,
 ) -> None:
@@ -129,6 +187,53 @@ def test__bot__retry_disabled_by_default(
 
     # - Assert -
     assert bot._bot_accounts_storage.get_retry_policy() is None
+    assert bot._bot_accounts_storage.get_retry_request_policy() is None
+
+
+def test__bot__retry_all_policy_logs_warning(
+    loguru_caplog: pytest.LogCaptureFixture,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        retry_policy=BotXRetryPolicy(max_attempts=2),
+        retry_request_policy=RetryAllBotXRequestsPolicy(),
+    )
+
+    assert "RetryAllBotXRequestsPolicy retries all BotX requests" in loguru_caplog.text
+
+
+def test__bot__operation_allowlist_with_unsafe_operation_logs_warning(
+    loguru_caplog: pytest.LogCaptureFixture,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        retry_policy=BotXRetryPolicy(max_attempts=2),
+        retry_request_policy=OperationNameAllowlistBotXRetryRequestPolicy(
+            operation_names={BotXOperation.DIRECT_NOTIFICATION},
+        ),
+    )
+
+    assert "OperationNameAllowlistBotXRetryRequestPolicy allows operations" in (
+        loguru_caplog.text
+    )
+
+
+def test__bot__known_safe_retry_policy_does_not_log_warning(
+    loguru_caplog: pytest.LogCaptureFixture,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        retry_policy=BotXRetryPolicy(max_attempts=2),
+        retry_request_policy=KnownSafeBotXRetryRequestPolicy(),
+    )
+
+    assert "known-safe catalog" not in loguru_caplog.text
 
 
 def test__bot__observability_disabled_by_default(
@@ -142,6 +247,60 @@ def test__bot__observability_disabled_by_default(
 
     # - Assert -
     assert list(bot._bot_accounts_storage.iter_request_observers()) == []
+
+
+def test__bot__ingress_observability_enabled_by_default(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Act -
+    bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+    )
+
+    # - Assert -
+    assert isinstance(bot._ingress_metrics_collector, InMemoryIngressMetricsCollector)
+    assert bot._handler_collector._ingress_metrics_collector is bot._ingress_metrics_collector
+
+
+def test__bot__passes_custom_ingress_metrics_collector(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    class _IngressCollector:
+        def on_queue_depth(self, queue_depth: int) -> None:
+            pass
+
+        def on_command_rejected(
+            self,
+            metadata: IngressCommandMetadata,
+            *,
+            reason: str,
+            queue_depth: int,
+        ) -> None:
+            pass
+
+        def on_command_finished(
+            self,
+            metadata: IngressCommandMetadata,
+            result: IngressCommandResult,
+            *,
+            queue_depth: int,
+        ) -> None:
+            pass
+
+    ingress_metrics_collector = _IngressCollector()
+
+    # - Act -
+    bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+        ingress_metrics_collector=ingress_metrics_collector,
+    )
+
+    # - Assert -
+    assert bot._ingress_metrics_collector is ingress_metrics_collector
+    assert bot._handler_collector._ingress_metrics_collector is ingress_metrics_collector
 
 
 def test__bot__passes_metrics_and_tracing_collectors(
@@ -252,3 +411,81 @@ def test__bot__invalid_expired_sync_ids_limit_raises_value_error(
             bot_accounts=[bot_account],
             expired_sync_ids_limit=0,
         )
+
+
+def test__bot__extract_request_id_prefers_headers(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+    )
+
+    assert bot._extract_request_id(
+        {"sync_id": "sync-id"},
+        {"X-Request-Id": "header-request-id"},
+    ) == "header-request-id"
+    assert bot._extract_request_id(
+        {"sync_id": "sync-id"},
+        None,
+    ) == "sync-id"
+    assert bot._extract_request_id(None, None) is None
+
+
+def test__bot__extract_trace_id_from_headers_and_fallback(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+    )
+
+    assert bot._extract_trace_id({"X-Trace-Id": "trace-id"}, "fallback") == "trace-id"
+    assert (
+        bot._extract_trace_id(
+            {"traceparent": "00-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-bbbbbbbbbbbbbbbb-01"},
+            "fallback",
+        )
+        == "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    )
+    assert bot._extract_trace_id({"b3": "aaaaaaaaaaaaaaaa-1-0"}, "fallback") == (
+        "aaaaaaaaaaaaaaaa"
+    )
+    assert bot._extract_trace_id({"traceparent": "invalid", "b3": "invalid"}, "fallback") == (
+        "fallback"
+    )
+
+
+def test__bot__extract_bot_and_chat_id_from_payload(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+    )
+
+    assert bot._extract_bot_id({"bot_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"}) == UUID(
+        "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+    )
+    assert bot._extract_bot_id({"bot_id": 1}) is None
+    assert bot._extract_chat_id(
+        {"from": {"group_chat_id": "d4d3d774-1f90-4b53-9b92-7f3867dbb2f8"}},
+    ) == UUID("d4d3d774-1f90-4b53-9b92-7f3867dbb2f8")
+    assert bot._extract_chat_id(
+        {"group_chat_id": "2fa2f2a8-22de-4ba7-8da1-7faeb2975bb0"},
+    ) == UUID("2fa2f2a8-22de-4ba7-8da1-7faeb2975bb0")
+    assert bot._extract_chat_id({"from": "not-a-mapping"}) is None
+
+
+def test__bot__normalize_correlation_value(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+    )
+
+    assert bot._normalize_correlation_value("  value  ") == "value"
+    assert bot._normalize_correlation_value("") is None
+    assert bot._normalize_correlation_value(None) is None
+    assert bot._normalize_correlation_value("a" * 256) == "a" * 128

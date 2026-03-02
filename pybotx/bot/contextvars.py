@@ -8,3 +8,5 @@ if TYPE_CHECKING:  # To avoid circular import
 bot_var: ContextVar["Bot"] = ContextVar("bot_var")
 bot_id_var: ContextVar[UUID] = ContextVar("bot_id")
 chat_id_var: ContextVar[UUID] = ContextVar("chat_id")
+request_id_var: ContextVar[str] = ContextVar("request_id")
+trace_id_var: ContextVar[str] = ContextVar("trace_id")

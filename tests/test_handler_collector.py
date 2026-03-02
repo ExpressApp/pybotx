@@ -16,11 +16,14 @@ from pybotx import (
     DropOldestBotCommandOverloadStrategy,
     HandlerCollector,
     IncomingMessage,
+    IngressCommandMetadata,
+    IngressCommandResult,
     RejectNewBotCommandOverloadStrategy,
     SmartAppEvent,
     SyncSmartAppEventHandlerNotFoundError,
     lifespan_wrapper,
 )
+from pybotx.bot.contextvars import bot_id_var, chat_id_var, request_id_var, trace_id_var
 
 pytestmark = [
     pytest.mark.mock_authorization,
@@ -721,6 +724,168 @@ async def test__handler_collector__drop_oldest_policy_when_queue_full(
 
 
 @pytest.mark.asyncio
+async def test__handler_collector__reports_ingress_metrics(
+    incoming_message_factory: Callable[..., IncomingMessage],
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    class _IngressCollector:
+        def __init__(self) -> None:
+            self.queue_depth_updates: list[int] = []
+            self.rejections: list[tuple[IngressCommandMetadata, str, int]] = []
+            self.finished: list[tuple[IngressCommandMetadata, IngressCommandResult, int]] = []
+
+        def on_queue_depth(self, queue_depth: int) -> None:
+            self.queue_depth_updates.append(queue_depth)
+
+        def on_command_rejected(
+            self,
+            metadata: IngressCommandMetadata,
+            *,
+            reason: str,
+            queue_depth: int,
+        ) -> None:
+            self.rejections.append((metadata, reason, queue_depth))
+
+        def on_command_finished(
+            self,
+            metadata: IngressCommandMetadata,
+            result: IngressCommandResult,
+            *,
+            queue_depth: int,
+        ) -> None:
+            self.finished.append((metadata, result, queue_depth))
+
+    ingress_collector = _IngressCollector()
+    release_event = asyncio.Event()
+    started_event = asyncio.Event()
+    collector = HandlerCollector()
+
+    @collector.command("/command", description="My command")
+    async def handler(message: IncomingMessage, bot: Bot) -> None:
+        if message.body.endswith("1"):
+            started_event.set()
+            await release_event.wait()
+
+    built_bot = Bot(
+        collectors=[collector],
+        bot_accounts=[bot_account],
+        ingress_metrics_collector=ingress_collector,
+        command_processing_config=BotCommandProcessingConfig(
+            max_concurrency=1,
+            max_queue_size=1,
+            overload_strategy=RejectNewBotCommandOverloadStrategy(),
+        ),
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        task_1 = bot.async_execute_bot_command(incoming_message_factory(body="/command 1"))
+        await asyncio.wait_for(started_event.wait(), timeout=1.0)
+        task_2 = bot.async_execute_bot_command(incoming_message_factory(body="/command 2"))
+        task_3 = bot.async_execute_bot_command(incoming_message_factory(body="/command 3"))
+
+        with pytest.raises(BotCommandRejectedError, match="queue_overflow_reject_new"):
+            await task_3
+
+        release_event.set()
+        await asyncio.gather(task_1, task_2)
+
+    # - Assert -
+    assert ingress_collector.rejections
+    rejected_metadata, rejected_reason, _ = ingress_collector.rejections[0]
+    assert rejected_metadata.command_kind == "incoming_message"
+    assert rejected_metadata.command_name == "/command"
+    assert rejected_reason == "queue_overflow_reject_new"
+    assert len(ingress_collector.finished) == 2
+    assert ingress_collector.finished[0][1].duration_ms >= 0
+    assert ingress_collector.finished[1][1].duration_ms >= 0
+    assert ingress_collector.queue_depth_updates[-1] == 0
+
+
+@pytest.mark.asyncio
+async def test__handler_collector__propagates_request_and_trace_ids_to_worker(
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    payload = api_incoming_message_factory(body="/command hi")
+    collector = HandlerCollector()
+    seen_request_id: str | None = None
+    seen_trace_id: str | None = None
+    seen_bot_id: str | None = None
+    seen_chat_id: str | None = None
+
+    @collector.command("/command", description="My command")
+    async def handler(message: IncomingMessage, bot: Bot) -> None:
+        nonlocal seen_request_id, seen_trace_id, seen_bot_id, seen_chat_id
+        seen_request_id = request_id_var.get()
+        seen_trace_id = trace_id_var.get()
+        seen_bot_id = str(bot_id_var.get())
+        seen_chat_id = str(chat_id_var.get())
+
+    built_bot = Bot(
+        collectors=[collector],
+        bot_accounts=[bot_account],
+        command_processing_config=BotCommandProcessingConfig(
+            max_concurrency=1,
+            max_queue_size=10,
+        ),
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        bot.async_execute_raw_bot_command(
+            payload,
+            verify_request=False,
+            request_headers={
+                "X-Request-Id": "request-id-123",
+                "traceparent": (
+                    "00-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-"
+                    "bbbbbbbbbbbbbbbb-01"
+                ),
+            },
+        )
+
+    # - Assert -
+    assert seen_request_id == "request-id-123"
+    assert seen_trace_id == "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    assert seen_bot_id == payload["bot_id"]
+    assert seen_chat_id == payload["from"]["group_chat_id"]
+
+
+@pytest.mark.asyncio
+async def test__handler_collector__falls_back_to_sync_id_for_request_and_trace(
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    payload = api_incoming_message_factory(body="/command hi")
+    collector = HandlerCollector()
+    seen_request_id: str | None = None
+    seen_trace_id: str | None = None
+
+    @collector.command("/command", description="My command")
+    async def handler(message: IncomingMessage, bot: Bot) -> None:
+        nonlocal seen_request_id, seen_trace_id
+        seen_request_id = request_id_var.get()
+        seen_trace_id = trace_id_var.get()
+
+    built_bot = Bot(
+        collectors=[collector],
+        bot_accounts=[bot_account],
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
+
+    # - Assert -
+    assert seen_request_id == payload["sync_id"]
+    assert seen_trace_id == payload["sync_id"]
+
+
+@pytest.mark.asyncio
 async def test__handler_collector__handle_sync_smartapp_event__handler_not_found(
     bot_account: BotAccountWithSecret,
     smartapp_event: SmartAppEvent,
@@ -736,6 +901,61 @@ async def test__handler_collector__handle_sync_smartapp_event__handler_not_found
                 bot,
                 smartapp_event=smartapp_event,
             )
+
+
+@pytest.mark.asyncio
+async def test__handler_collector__sync_smartapp_event_reports_error_to_ingress_metrics(
+    bot_account: BotAccountWithSecret,
+    smartapp_event: SmartAppEvent,
+) -> None:
+    class _IngressCollector:
+        def __init__(self) -> None:
+            self.finished: list[tuple[IngressCommandMetadata, IngressCommandResult]] = []
+
+        def on_queue_depth(self, queue_depth: int) -> None:
+            pass
+
+        def on_command_rejected(
+            self,
+            metadata: IngressCommandMetadata,
+            *,
+            reason: str,
+            queue_depth: int,
+        ) -> None:
+            pass
+
+        def on_command_finished(
+            self,
+            metadata: IngressCommandMetadata,
+            result: IngressCommandResult,
+            *,
+            queue_depth: int,
+        ) -> None:
+            self.finished.append((metadata, result))
+
+    ingress_collector = _IngressCollector()
+    collector = HandlerCollector()
+
+    @collector.sync_smartapp_event
+    async def sync_handler(event: SmartAppEvent, bot: Bot) -> Any:
+        raise RuntimeError("boom")
+
+    built_bot = Bot(
+        collectors=[collector],
+        bot_accounts=[bot_account],
+        ingress_metrics_collector=ingress_collector,
+    )
+
+    async with lifespan_wrapper(built_bot) as bot:
+        with pytest.raises(RuntimeError, match="boom"):
+            await bot.sync_execute_smartapp_event(smartapp_event)
+
+    assert ingress_collector.finished
+    metadata, result = ingress_collector.finished[0]
+    assert metadata.command_kind == "sync_smartapp_event"
+    assert metadata.command_name == "SmartAppEvent"
+    assert result.duration_ms >= 0
+    assert isinstance(result.error, RuntimeError)
 
 
 @pytest.mark.asyncio

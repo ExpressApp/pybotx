@@ -6,7 +6,12 @@ from uuid import UUID
 
 from pybotx.auth import BotXAuthVersion, build_botx_jwt_v2
 from pybotx.bot.exceptions import UnknownBotAccountError
-from pybotx.client.http_config import BotXRetryPolicy, BotXRetryStrategy
+from pybotx.client.http_config import (
+    BotXRetryPolicy,
+    BotXRetryRequestPolicy,
+    BotXRetryStrategy,
+    SafeBotXRetryRequestPolicy,
+)
 from pybotx.client.observability import BotXRequestObserver
 from pybotx.models.bot_account import BotAccountWithSecret
 
@@ -17,6 +22,7 @@ class BotAccountsStorage:
         bot_accounts: list[BotAccountWithSecret],
         auth_version: BotXAuthVersion = BotXAuthVersion.V2,
         retry_policy: BotXRetryPolicy | None = None,
+        retry_request_policy: BotXRetryRequestPolicy | None = None,
         retry_strategy: BotXRetryStrategy | None = None,
         metrics_collector: BotXRequestObserver | None = None,
         tracing_collector: BotXRequestObserver | None = None,
@@ -25,6 +31,13 @@ class BotAccountsStorage:
         self._auth_tokens: dict[UUID, str] = {}
         self._auth_version = auth_version
         self._retry_policy = retry_policy
+        self._retry_request_policy = (
+            retry_request_policy
+            if retry_policy is not None
+            else None
+        )
+        if retry_policy is not None and self._retry_request_policy is None:
+            self._retry_request_policy = SafeBotXRetryRequestPolicy()
         self._retry_strategy = retry_strategy
         self._metrics_collector = metrics_collector
         self._tracing_collector = tracing_collector
@@ -44,6 +57,9 @@ class BotAccountsStorage:
 
     def get_retry_policy(self) -> BotXRetryPolicy | None:
         return self._retry_policy
+
+    def get_retry_request_policy(self) -> BotXRetryRequestPolicy | None:
+        return self._retry_request_policy
 
     def get_retry_strategy(self) -> BotXRetryStrategy | None:
         return self._retry_strategy

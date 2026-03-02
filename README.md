@@ -183,7 +183,10 @@ healthcheck.add_readiness_check(
 через `httpx_timeout` и `httpx_limits`.
 
 `retry_policy` по умолчанию выключен (`None`), то есть повторных попыток нет.
-Для включения ретраев передайте `BotXRetryPolicy`.
+Для включения ретраев передайте `BotXRetryPolicy`. Начиная с текущей версии
+retry в `pybotx` стал safe-by-default: если политика включена, библиотека
+автоматически повторяет только те BotX-запросы, которые считаются безопасными
+для автоматического повтора.
 
 ```python
 import httpx
@@ -207,6 +210,110 @@ bot = Bot(
 Retry-политика применяется ко всем вызовам BotX API и повторяет запросы при:
 - сетевых/timeout ошибках транспорта `httpx`
 - HTTP-статусах из `retryable_status_codes`
+
+Важно: BotX async-методы обычно создают side effect и возвращают только `sync_id`,
+который появляется уже после успешного ответа. Поэтому ретраи на write-вызовах
+могут повторить операцию, если первый запрос был принят BotX, но клиент не получил
+ответ. По этой причине `retry_policy=None` оставлен значением по умолчанию, а
+в production ретраи лучше включать осознанно и с пониманием семантики конкретного
+метода.
+
+По умолчанию используется `SafeBotXRetryRequestPolicy`:
+- retry разрешен для read-only запросов (`GET`, `HEAD`, `OPTIONS`)
+- отдельно allowlist’ится read-only `POST /api/v3/botx/users/by_email`
+- write-операции (`notifications`, `events`, `smartapps`, `create/update/delete`,
+  `upload`, `metrics`) по умолчанию не ретраятся автоматически
+
+Это поведение можно переопределить через `retry_request_policy`.
+
+```python
+from pybotx import *
+
+bot = Bot(
+    collectors=[collector],
+    bot_accounts=[bot_account],
+    retry_policy=BotXRetryPolicy(max_attempts=3),
+    retry_request_policy=RetryAllBotXRequestsPolicy(),
+)
+```
+
+Для точечного allowlist есть `PathAllowlistBotXRetryRequestPolicy`:
+
+```python
+from pybotx import *
+
+bot = Bot(
+    collectors=[collector],
+    bot_accounts=[bot_account],
+    retry_policy=BotXRetryPolicy(max_attempts=3),
+    retry_request_policy=PathAllowlistBotXRetryRequestPolicy(
+        allowed_requests={
+            ("GET", "/api/v3/botx/chats/info"),
+            ("GET", "/api/v3/botx/events/{uuid}/status"),
+            ("POST", "/api/v3/botx/users/by_email"),
+        },
+    ),
+)
+```
+
+Для allowlist по библиотечным операциям есть
+`OperationNameAllowlistBotXRetryRequestPolicy`. `operation_name` по умолчанию
+равен имени client method class, например `MessageStatusMethod`,
+`ChatInfoMethod`, `DirectNotificationMethod`. Для built-in операций есть typed
+catalog `BotXOperation`.
+
+```python
+from pybotx import *
+
+bot = Bot(
+    collectors=[collector],
+    bot_accounts=[bot_account],
+    retry_policy=BotXRetryPolicy(max_attempts=3),
+    retry_request_policy=OperationNameAllowlistBotXRetryRequestPolicy(
+        operation_names={
+            BotXOperation.MESSAGE_STATUS,
+            BotXOperation.CHAT_INFO,
+        },
+    ),
+)
+```
+
+Есть готовый preset по built-in safe операциям:
+
+```python
+from pybotx import *
+
+bot = Bot(
+    collectors=[collector],
+    bot_accounts=[bot_account],
+    retry_policy=BotXRetryPolicy(max_attempts=3),
+    retry_request_policy=KnownSafeBotXRetryRequestPolicy(),
+)
+```
+
+Для комбинирования safe default с дополнительными исключениями есть
+`AnyOfBotXRetryRequestPolicy`:
+
+```python
+from pybotx import *
+
+bot = Bot(
+    collectors=[collector],
+    bot_accounts=[bot_account],
+    retry_policy=BotXRetryPolicy(max_attempts=3),
+    retry_request_policy=AnyOfBotXRetryRequestPolicy(
+        policies=(
+            SafeBotXRetryRequestPolicy(),
+            OperationNameAllowlistBotXRetryRequestPolicy(
+                operation_names={"DirectNotificationMethod"},
+            ),
+        ),
+    ),
+)
+```
+
+Подробное объяснение решения и рекомендаций для production:
+[`docs/retry_safety.md`](docs/retry_safety.md).
 
 Если передан собственный `httpx_client`, параметры `httpx_timeout` и
 `httpx_limits` передавать нельзя.
@@ -249,6 +356,43 @@ bot = Bot(
 - `tracing_collector`
 
 Оба параметра по умолчанию выключены (`None`).
+
+Входящая observability в `pybotx` теперь включена по умолчанию:
+- Структурированные JSON-логи.
+- Корреляционные поля в каждом логе: `trace_id`, `request_id`, `chat_id`, `bot_id`.
+- Встроенный ingress-коллектор метрик (`InMemoryIngressMetricsCollector`) в `Bot`.
+
+По умолчанию `request_id` берется из заголовков (`X-Request-Id`, `X-Correlation-Id`,
+`Request-Id`) или из `sync_id`, а `trace_id` из (`X-Trace-Id`, `traceparent`, `b3`)
+или из `request_id`. Если Express/BotX не присылает такие заголовки, `pybotx`
+использует то, что реально есть в протоколе: `sync_id` для Bot API команд и
+callback-ов, а для sync smartapp event оставляет поле пустым, пока внешний ingress
+не добавит correlation id.
+
+Для ingress-метрик можно передать кастомный collector через:
+- `ingress_metrics_collector`
+
+Есть готовая реализация для Prometheus (опциональная зависимость):
+- `PrometheusIngressMetricsCollector`
+- Требуется `prometheus-client` (`uv add prometheus-client`)
+
+```python
+from pybotx import *
+
+ingress_metrics = PrometheusIngressMetricsCollector()
+
+bot = Bot(
+    collectors=[collector],
+    bot_accounts=[bot_account],
+    ingress_metrics_collector=ingress_metrics,
+)
+```
+
+Ingress-метрики по умолчанию:
+- `pybotx_ingress_latency_seconds{command_kind,command_name,outcome}`
+- `pybotx_ingress_errors_total{command_kind,command_name,error_type}`
+- `pybotx_ingress_rejected_total{command_kind,command_name,reason}`
+- `pybotx_ingress_queue_depth`
 
 Готовая реализация метрик для Prometheus:
 - `PrometheusMetricsCollector` (latency/error/retry counters с label’ами)

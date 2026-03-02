@@ -1,6 +1,7 @@
 from asyncio import Task
 from collections.abc import AsyncIterable, AsyncIterator, Iterator, Mapping, Sequence
 from contextlib import AsyncExitStack, asynccontextmanager
+from contextvars import ContextVar, Token
 from datetime import datetime
 from types import SimpleNamespace
 from typing import Any, TypeAlias
@@ -21,10 +22,19 @@ from pybotx.bot.callbacks.callback_manager import (
     CallbackManager,
 )
 from pybotx.bot.command_processing import BotCommandProcessingConfig
+from pybotx.bot.ingress_observability import (
+    BotIngressMetricsCollector,
+    InMemoryIngressMetricsCollector,
+)
 from pydantic import TypeAdapter
 from pybotx.bot.callbacks.callback_memory_repo import CallbackMemoryRepo
 from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
-from pybotx.bot.contextvars import bot_id_var, chat_id_var
+from pybotx.bot.contextvars import (
+    bot_id_var,
+    chat_id_var,
+    request_id_var,
+    trace_id_var,
+)
 from pybotx.bot.exceptions import (
     AnswerDestinationLookupError,
     RequestHeadersNotProvidedError,
@@ -119,7 +129,9 @@ from pybotx.client.files_api.upload_file import (
 )
 from pybotx.client.get_token import get_token
 from pybotx.client.http_config import (
+    iter_retry_request_policy_warnings,
     BotXRetryPolicy,
+    BotXRetryRequestPolicy,
     BotXRetryStrategy,
     build_default_httpx_limits,
     build_default_httpx_timeout,
@@ -293,10 +305,12 @@ class Bot:
         httpx_timeout: httpx.Timeout | None = None,
         httpx_limits: httpx.Limits | None = None,
         retry_policy: BotXRetryPolicy | None = None,
+        retry_request_policy: BotXRetryRequestPolicy | None = None,
         retry_strategy: BotXRetryStrategy | None = None,
         metrics_collector: BotXRequestObserver | None = None,
         tracing_collector: BotXRequestObserver | None = None,
         command_processing_config: BotCommandProcessingConfig | None = None,
+        ingress_metrics_collector: BotIngressMetricsCollector | None = None,
         exception_handlers: ExceptionHandlersDict | None = None,
         default_callback_timeout: float = BOTX_DEFAULT_TIMEOUT,
         expired_sync_ids_ttl_seconds: float = EXPIRED_SYNC_IDS_TTL_SECONDS,
@@ -310,10 +324,14 @@ class Bot:
             logger.warning("Bot has no bot accounts")
 
         middlewares = optional_sequence_to_list(middlewares)
+        self._ingress_metrics_collector = (
+            ingress_metrics_collector or InMemoryIngressMetricsCollector()
+        )
         self._handler_collector = self._build_main_collector(
             collectors,
             middlewares,
             command_processing_config,
+            self._ingress_metrics_collector,
             exception_handlers,
         )
 
@@ -322,10 +340,20 @@ class Bot:
             list(bot_accounts),
             auth_version=auth_version,
             retry_policy=retry_policy,
+            retry_request_policy=retry_request_policy,
             retry_strategy=retry_strategy,
             metrics_collector=metrics_collector,
             tracing_collector=tracing_collector,
         )
+        if retry_policy is not None:
+            resolved_retry_request_policy = (
+                self._bot_accounts_storage.get_retry_request_policy()
+            )
+            if resolved_retry_request_policy is not None:
+                for warning_message in iter_retry_request_policy_warnings(
+                    resolved_retry_request_policy,
+                ):
+                    logger.warning(warning_message)
         if httpx_client is not None:
             if httpx_timeout is not None or httpx_limits is not None:
                 raise ValueError(
@@ -358,25 +386,32 @@ class Bot:
         logging_command: bool = True,
         trusted_issuers: set[str] | None = None,
     ) -> None:
-        if logging_command:
-            log_incoming_request(raw_bot_command, message="Got command: ")
-
-        if verify_request:
-            self._verify_request(request_headers, trusted_issuers=trusted_issuers)
-
+        context_tokens = self._set_ingress_contextvars(
+            payload=raw_bot_command,
+            request_headers=request_headers,
+        )
         try:
-            command_type = raw_bot_command.get("command", {}).get("command_type")
-            if command_type == BotAPICommandTypes.USER:
-                bot_api_command = BotAPIIncomingMessage.model_validate(raw_bot_command)
-            else:
-                bot_api_command = TypeAdapter(BotAPISystemEvent).validate_python(
-                    raw_bot_command
-                )
-        except ValidationError as validation_exc:
-            raise ValueError("Bot command validation error") from validation_exc
+            if logging_command:
+                log_incoming_request(raw_bot_command, message="Got command: ")
 
-        bot_command = bot_api_command.to_domain(raw_bot_command)
-        self.async_execute_bot_command(bot_command)
+            if verify_request:
+                self._verify_request(request_headers, trusted_issuers=trusted_issuers)
+
+            try:
+                command_type = raw_bot_command.get("command", {}).get("command_type")
+                if command_type == BotAPICommandTypes.USER:
+                    bot_api_command = BotAPIIncomingMessage.model_validate(raw_bot_command)
+                else:
+                    bot_api_command = TypeAdapter(BotAPISystemEvent).validate_python(
+                        raw_bot_command
+                    )
+            except ValidationError as validation_exc:
+                raise ValueError("Bot command validation error") from validation_exc
+
+            bot_command = bot_api_command.to_domain(raw_bot_command)
+            self.async_execute_bot_command(bot_command)
+        finally:
+            self._reset_contextvars(context_tokens)
 
     def async_execute_bot_command(
         self,
@@ -395,26 +430,33 @@ class Bot:
         logging_command: bool = True,
         trusted_issuers: set[str] | None = None,
     ) -> BotAPISyncSmartAppEventResponse:
-        if logging_command:
-            log_incoming_request(
-                raw_smartapp_event,
-                message="Got sync smartapp event: ",
-            )
-
-        if verify_request:
-            self._verify_request(request_headers, trusted_issuers=trusted_issuers)
-
+        context_tokens = self._set_ingress_contextvars(
+            payload=raw_smartapp_event,
+            request_headers=request_headers,
+        )
         try:
-            bot_api_smartapp_event = BotAPISyncSmartAppEvent.model_validate(
-                raw_smartapp_event
-            )
-        except ValidationError as validation_exc:
-            raise ValueError(
-                "Sync smartapp event validation error",
-            ) from validation_exc
+            if logging_command:
+                log_incoming_request(
+                    raw_smartapp_event,
+                    message="Got sync smartapp event: ",
+                )
 
-        smartapp_event = bot_api_smartapp_event.to_domain(raw_smartapp_event)
-        return await self.sync_execute_smartapp_event(smartapp_event)
+            if verify_request:
+                self._verify_request(request_headers, trusted_issuers=trusted_issuers)
+
+            try:
+                bot_api_smartapp_event = BotAPISyncSmartAppEvent.model_validate(
+                    raw_smartapp_event
+                )
+            except ValidationError as validation_exc:
+                raise ValueError(
+                    "Sync smartapp event validation error",
+                ) from validation_exc
+
+            smartapp_event = bot_api_smartapp_event.to_domain(raw_smartapp_event)
+            return await self.sync_execute_smartapp_event(smartapp_event)
+        finally:
+            self._reset_contextvars(context_tokens)
 
     async def sync_execute_smartapp_event(
         self,
@@ -433,25 +475,32 @@ class Bot:
         request_headers: Mapping[str, str] | None = None,
         trusted_issuers: set[str] | None = None,
     ) -> dict[str, Any]:
-        logger.opt(lazy=True).debug(
-            "Got status: {status}",
-            status=lambda: pformat_jsonable_obj(query_params),
+        context_tokens = self._set_ingress_contextvars(
+            payload=query_params,
+            request_headers=request_headers,
         )
-
-        if verify_request:
-            self._verify_request(request_headers, trusted_issuers=trusted_issuers)
-
         try:
-            bot_api_status_recipient = BotAPIStatusRecipient.model_validate(
-                query_params
+            logger.opt(lazy=True).debug(
+                "Got status: {status}",
+                status=lambda: pformat_jsonable_obj(query_params),
             )
-        except ValidationError as exc:
-            raise ValueError("Status request validation error") from exc
 
-        status_recipient = bot_api_status_recipient.to_domain()
+            if verify_request:
+                self._verify_request(request_headers, trusted_issuers=trusted_issuers)
 
-        bot_menu = await self.get_status(status_recipient)
-        return build_bot_status_response(bot_menu)
+            try:
+                bot_api_status_recipient = BotAPIStatusRecipient.model_validate(
+                    query_params
+                )
+            except ValidationError as exc:
+                raise ValueError("Status request validation error") from exc
+
+            status_recipient = bot_api_status_recipient.to_domain()
+
+            bot_menu = await self.get_status(status_recipient)
+            return build_bot_status_response(bot_menu)
+        finally:
+            self._reset_contextvars(context_tokens)
 
     async def get_status(self, status_recipient: StatusRecipient) -> BotMenu:
         # raise UnknownBotAccountError if no bot account with this bot_id.
@@ -466,16 +515,25 @@ class Bot:
         request_headers: Mapping[str, str] | None = None,
         trusted_issuers: set[str] | None = None,
     ) -> None:
-        logger.debug("Got callback: {callback}", callback=raw_botx_method_result)
-
-        if verify_request:
-            self._verify_request(request_headers, trusted_issuers=trusted_issuers)
-
-        callback: BotXMethodCallback = TypeAdapter(BotXMethodCallback).validate_python(
-            raw_botx_method_result,
+        context_tokens = self._set_ingress_contextvars(
+            payload=raw_botx_method_result,
+            request_headers=request_headers,
         )
+        try:
+            logger.debug("Got callback: {callback}", callback=raw_botx_method_result)
 
-        await self._callbacks_manager.set_botx_method_callback_result(callback)
+            if verify_request:
+                self._verify_request(request_headers, trusted_issuers=trusted_issuers)
+
+            callback: BotXMethodCallback = TypeAdapter(
+                BotXMethodCallback
+            ).validate_python(
+                raw_botx_method_result,
+            )
+
+            await self._callbacks_manager.set_botx_method_callback_result(callback)
+        finally:
+            self._reset_contextvars(context_tokens)
 
     async def wait_botx_method_callback(
         self,
@@ -2334,6 +2392,125 @@ class Bot:
         )
         await method.execute(payload)
 
+    def _set_ingress_contextvars(
+        self,
+        *,
+        payload: Mapping[str, Any] | None,
+        request_headers: Mapping[str, str] | None,
+    ) -> list[tuple[ContextVar[Any], Token[Any]]]:
+        context_tokens: list[tuple[ContextVar[Any], Token[Any]]] = []
+        request_id = self._extract_request_id(payload, request_headers)
+        trace_id = self._extract_trace_id(request_headers, request_id)
+        if request_id is not None:
+            context_tokens.append((request_id_var, request_id_var.set(request_id)))
+        if trace_id is not None:
+            context_tokens.append((trace_id_var, trace_id_var.set(trace_id)))
+
+        bot_id = self._extract_bot_id(payload)
+        if bot_id is not None:
+            context_tokens.append((bot_id_var, bot_id_var.set(bot_id)))
+
+        chat_id = self._extract_chat_id(payload)
+        if chat_id is not None:
+            context_tokens.append((chat_id_var, chat_id_var.set(chat_id)))
+
+        return context_tokens
+
+    def _reset_contextvars(
+        self,
+        context_tokens: list[tuple[ContextVar[Any], Token[Any]]],
+    ) -> None:
+        for context_var, token in reversed(context_tokens):
+            context_var.reset(token)
+
+    def _extract_request_id(
+        self,
+        payload: Mapping[str, Any] | None,
+        request_headers: Mapping[str, str] | None,
+    ) -> str | None:
+        for header_name in ("x-request-id", "x-correlation-id", "request-id"):
+            if request_id := self._get_header_value(request_headers, header_name):
+                return request_id
+
+        if payload is None:
+            return None
+        return self._normalize_correlation_value(payload.get("sync_id"))
+
+    def _extract_trace_id(
+        self,
+        request_headers: Mapping[str, str] | None,
+        fallback_request_id: str | None,
+    ) -> str | None:
+        if trace_id := self._get_header_value(request_headers, "x-trace-id"):
+            return trace_id
+
+        traceparent = self._get_header_value(request_headers, "traceparent")
+        if traceparent:
+            parts = traceparent.split("-")
+            if len(parts) >= 4:
+                trace_id = parts[1].lower()
+                if len(trace_id) == 32 and all(char in "0123456789abcdef" for char in trace_id):
+                    return trace_id
+
+        b3 = self._get_header_value(request_headers, "b3")
+        if b3:
+            trace_id = b3.split("-", maxsplit=1)[0].lower()
+            if all(char in "0123456789abcdef" for char in trace_id):
+                return trace_id
+
+        return fallback_request_id
+
+    def _extract_bot_id(self, payload: Mapping[str, Any] | None) -> UUID | None:
+        if payload is None:
+            return None
+        return self._extract_uuid(payload.get("bot_id"))
+
+    def _extract_chat_id(self, payload: Mapping[str, Any] | None) -> UUID | None:
+        if payload is None:
+            return None
+        from_payload = payload.get("from")
+        if not isinstance(from_payload, Mapping):
+            return self._extract_uuid(payload.get("group_chat_id"))
+
+        chat_id = self._extract_uuid(from_payload.get("group_chat_id"))
+        if chat_id is not None:
+            return chat_id
+
+        return self._extract_uuid(payload.get("group_chat_id"))
+
+    def _get_header_value(
+        self,
+        request_headers: Mapping[str, str] | None,
+        header_name: str,
+    ) -> str | None:
+        if request_headers is None:
+            return None
+        for key, value in request_headers.items():
+            if key.lower() != header_name:
+                continue
+            return self._normalize_correlation_value(value)
+        return None
+
+    def _normalize_correlation_value(self, value: Any) -> str | None:
+        if value is None:
+            return None
+        normalized = str(value).strip()
+        if not normalized:
+            return None
+        return normalized[:128]
+
+    def _extract_uuid(self, value: Any) -> UUID | None:
+        if value is None:
+            return None
+        if isinstance(value, UUID):
+            return value
+        if not isinstance(value, str):
+            return None
+        try:
+            return UUID(value)
+        except ValueError:
+            return None
+
     def _verify_request(
         self,
         headers: Mapping[str, str] | None,
@@ -2476,11 +2653,13 @@ class Bot:
         collectors: Sequence[HandlerCollector],
         middlewares: list[Middleware],
         command_processing_config: BotCommandProcessingConfig | None = None,
+        ingress_metrics_collector: BotIngressMetricsCollector | None = None,
         exception_handlers: ExceptionHandlersDict | None = None,
     ) -> HandlerCollector:
         main_collector = HandlerCollector(
             middlewares=middlewares,
             command_processing_config=command_processing_config,
+            ingress_metrics_collector=ingress_metrics_collector,
         )
         main_collector.insert_exception_middleware(exception_handlers)
         main_collector.include(*collectors)

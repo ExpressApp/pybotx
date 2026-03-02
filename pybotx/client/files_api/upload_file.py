@@ -46,6 +46,7 @@ class BotXAPIUploadFileResponsePayload(VerifiedPayloadBaseModel):
 
 
 class UploadFileMethod(AuthorizedBotXMethod):
+    operation_name = "FilesUploadFileMethod"
     status_handlers = {
         **AuthorizedBotXMethod.status_handlers,
         404: response_exception_thrower(ChatNotFoundError),
