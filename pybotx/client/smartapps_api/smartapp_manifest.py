@@ -38,6 +38,9 @@ class SmartappManifest(VerifiedPayloadBaseModel):
     android: SmartappManifestAndroidParams
     web: SmartappManifestWebParams
     unread_counter_link: SmartappManifestUnreadCounterParams
+    store_on_close: bool = False
+    preload_in_background: bool = False
+    link_regex: str | None = None
 
 
 class SmartappManifestPayload(UnverifiedPayloadBaseModel):
@@ -46,6 +49,9 @@ class SmartappManifestPayload(UnverifiedPayloadBaseModel):
     web: Missing[SmartappManifestWebParams] = Undefined
     aurora: Missing[SmartappManifestAuroraParams] = Undefined
     unread_counter_link: Missing[SmartappManifestUnreadCounterParams] = Undefined
+    store_on_close: Missing[bool] = Undefined
+    preload_in_background: Missing[bool] = Undefined
+    link_regex: Missing[str | None] = Undefined
 
 
 class BotXAPISmartAppManifestRequestPayload(UnverifiedPayloadBaseModel):
@@ -58,6 +64,9 @@ class BotXAPISmartAppManifestRequestPayload(UnverifiedPayloadBaseModel):
         android: Missing[SmartappManifestAndroidParams] = Undefined,
         web_layout: Missing[SmartappManifestWebParams] = Undefined,
         unread_counter: Missing[SmartappManifestUnreadCounterParams] = Undefined,
+        store_on_close: Missing[bool] = Undefined,
+        preload_in_background: Missing[bool] = Undefined,
+        link_regex: Missing[str | None] = Undefined,
     ) -> "BotXAPISmartAppManifestRequestPayload":
         if web_layout is Undefined and unread_counter is Undefined:
             return cls(manifest={})
@@ -68,6 +77,9 @@ class BotXAPISmartAppManifestRequestPayload(UnverifiedPayloadBaseModel):
                 android=android,
                 web=web_layout,
                 unread_counter_link=unread_counter,
+                store_on_close=store_on_close,
+                preload_in_background=preload_in_background,
+                link_regex=link_regex,
             ),
         )
 

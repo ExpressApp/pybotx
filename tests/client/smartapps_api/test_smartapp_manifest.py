@@ -56,6 +56,9 @@ async def test__send_smartapp_manifest__all_params_provided__succeed(
                     "group_chat_id": ["adc03af8-9193-4d3b-b913-7a023cdb4029"],
                     "app_id": ["test_app"],
                 },
+                "store_on_close": True,
+                "preload_in_background": False,
+                "link_regex": "^https:\\/\\/site\\.com.*$",
             },
         },
     ).mock(
@@ -80,6 +83,9 @@ async def test__send_smartapp_manifest__all_params_provided__succeed(
                         "group_chat_id": ["adc03af8-9193-4d3b-b913-7a023cdb4029"],
                         "app_id": ["test_app"],
                     },
+                    "store_on_close": True,
+                    "preload_in_background": False,
+                    "link_regex": "^https:\\/\\/site\\.com.*$",
                 },
                 "status": "ok",
             },
@@ -108,6 +114,9 @@ async def test__send_smartapp_manifest__all_params_provided__succeed(
                 group_chat_id=[UUID("adc03af8-9193-4d3b-b913-7a023cdb4029")],
                 app_id=["test_app"],
             ),
+            store_on_close=True,
+            preload_in_background=False,
+            link_regex="^https:\\/\\/site\\.com.*$",
         )
 
     # - Assert -
@@ -129,6 +138,9 @@ async def test__send_smartapp_manifest__all_params_provided__succeed(
             group_chat_id=[UUID("adc03af8-9193-4d3b-b913-7a023cdb4029")],
             app_id=["test_app"],
         ),
+        store_on_close=True,
+        preload_in_background=False,
+        link_regex="^https:\\/\\/site\\.com.*$",
     )
 
 
@@ -167,6 +179,10 @@ async def test__send_smartapp_manifest__only_default_params_provided__succeed(
                         "group_chat_id": [],
                         "user_huid": [],
                     },
+                    "store_on_close": False,
+                    "preload_in_background": False,
+                    "link_regex": None,
+
                 },
                 "status": "ok",
             },
@@ -198,6 +214,9 @@ async def test__send_smartapp_manifest__only_default_params_provided__succeed(
             group_chat_id=[],
             app_id=[],
         ),
+        store_on_close=False,
+        preload_in_background=False,
+        link_regex=None,
     )
 
 

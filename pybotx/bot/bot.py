@@ -1783,6 +1783,9 @@ class Bot:
         android: Missing[SmartappManifestAndroidParams] = Undefined,
         web_layout: Missing[SmartappManifestWebParams] = Undefined,
         unread_counter: Missing[SmartappManifestUnreadCounterParams] = Undefined,
+        store_on_close: Missing[bool] = Undefined,
+        preload_in_background: Missing[bool] = Undefined,
+        link_regex: Missing[str | None] = Undefined,
     ) -> SmartappManifest:
         """Send smartapp manifest with given parameters.
 
@@ -1791,6 +1794,9 @@ class Bot:
         :param android: Smartapp layout for android clients.
         :param web_layout: Smartapp layout for web clients.
         :param unread_counter: Entities that can be subscribed to in the unread counter.
+        :param store_on_close: Keep smartapp in memory on close.
+        :param preload_in_background: Force load smartapp even not pinned.
+        :param link_regex: URLs matching this Regex will be opened by the current SmartApp.
 
         :return: Smartapp manifest with the set parameters received from BotX.
         """
@@ -1805,6 +1811,9 @@ class Bot:
             android=android,
             web_layout=web_layout,
             unread_counter=unread_counter,
+            store_on_close=store_on_close,
+            preload_in_background=preload_in_background,
+            link_regex=link_regex,
         )
         smartapp_manifest_response = await method.execute(payload)
         return smartapp_manifest_response.to_domain()
