@@ -55,7 +55,7 @@ class ConferenceChangedEvent(BotCommandBase):
     members: list[UUID]
     name: str
     operation: str
-    sip_number: int
+    sip_number: int | None
     start_at: datetime
 
 
@@ -73,7 +73,7 @@ class BotAPIConferenceChangedData(VerifiedPayloadBaseModel):
     members: list[UUID]
     name: str
     operation: str
-    sip_number: int
+    sip_number: int | None
     start_at: datetime
 
 
