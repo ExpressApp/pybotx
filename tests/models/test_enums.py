@@ -31,4 +31,5 @@ def test__convert_chat_type_from_domain__unsupported_chat_type_raises_error() ->
 
 def test__convert_chat_type_to_domain__notes_maps_to_personal_chat() -> None:
     assert convert_chat_type_to_domain(APIChatTypes.NOTES) == ChatTypes.PERSONAL_CHAT
+    assert convert_chat_type_to_domain(APIChatTypes.VOEX_CALL) == ChatTypes.GROUP_CHAT
     assert convert_chat_type_to_domain("notes") == ChatTypes.PERSONAL_CHAT
