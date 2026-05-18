@@ -3,9 +3,12 @@ from unittest.mock import Mock
 
 from pybotx.models.enums import (
     APIChatTypes,
+    BotAPIClientNetworkContours,
+    ClientNetworkContours,
     ChatTypes,
     convert_chat_type_from_domain,
     convert_chat_type_to_domain,
+    convert_client_network_contour_to_domain,
 )
 
 
@@ -32,3 +35,23 @@ def test__convert_chat_type_from_domain__unsupported_chat_type_raises_error() ->
 def test__convert_chat_type_to_domain__notes_maps_to_personal_chat() -> None:
     assert convert_chat_type_to_domain(APIChatTypes.NOTES) == ChatTypes.PERSONAL_CHAT
     assert convert_chat_type_to_domain("notes") == ChatTypes.PERSONAL_CHAT
+
+
+def test__convert_client_network_contour_to_domain__successful_conversion() -> None:
+    assert (
+        convert_client_network_contour_to_domain(BotAPIClientNetworkContours.INTERNAL)
+        == ClientNetworkContours.INTERNAL
+    )
+    assert (
+        convert_client_network_contour_to_domain(BotAPIClientNetworkContours.EXTERNAL)
+        == ClientNetworkContours.EXTERNAL
+    )
+
+
+def test__convert_client_network_contour_to_domain__unsupported_contour_raises_error() -> (
+    None
+):
+    unsupported_client_network_contour = Mock(spec=BotAPIClientNetworkContours)
+
+    with pytest.raises(NotImplementedError, match="Unsupported client network contour"):
+        convert_client_network_contour_to_domain(unsupported_client_network_contour)

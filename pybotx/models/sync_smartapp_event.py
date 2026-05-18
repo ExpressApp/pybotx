@@ -14,7 +14,9 @@ from pybotx.models.bot_account import BotAccount
 from pybotx.models.chats import Chat
 from pybotx.models.enums import (
     BotAPIClientPlatforms,
+    BotAPIClientNetworkContours,
     ChatTypes,
+    convert_client_network_contour_to_domain,
     convert_client_platform_to_domain,
 )
 from pybotx.models.message.incoming_message import UserDevice, UserSender
@@ -25,6 +27,7 @@ class BotAPISyncSmartAppSender(VerifiedPayloadBaseModel):
     user_huid: UUID
     udid: UUID | None
     platform: BotAPIClientPlatforms | None
+    client_network_contour: BotAPIClientNetworkContours | None = None
 
 
 class BotAPISyncSmartAppPayload(VerifiedPayloadBaseModel):
@@ -59,6 +62,14 @@ class BotAPISyncSmartAppEvent(VerifiedPayloadBaseModel):
             locale=None,
         )
 
+        client_network_contour = (
+            convert_client_network_contour_to_domain(
+                self.sender_info.client_network_contour,
+            )
+            if self.sender_info.client_network_contour
+            else None
+        )
+
         sender = UserSender(
             huid=self.sender_info.user_huid,
             udid=self.sender_info.udid,
@@ -68,6 +79,7 @@ class BotAPISyncSmartAppEvent(VerifiedPayloadBaseModel):
             username=None,
             is_chat_admin=None,
             is_chat_creator=None,
+            client_network_contour=client_network_contour,
         )
 
         return SmartAppEvent(
@@ -143,6 +155,5 @@ class BotAPISyncSmartAppEventErrorResponse(UnverifiedPayloadBaseModel):
 
 
 BotAPISyncSmartAppEventResponse = (
-    BotAPISyncSmartAppEventResultResponse
-    | BotAPISyncSmartAppEventErrorResponse
+    BotAPISyncSmartAppEventResultResponse | BotAPISyncSmartAppEventErrorResponse
 )

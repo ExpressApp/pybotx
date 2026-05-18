@@ -26,6 +26,7 @@ from pybotx.models.chats import Chat
 from pybotx.models.enums import (
     BotAPIEntityTypes,
     BotAPIMentionTypes,
+    ClientNetworkContours,
     ClientPlatforms,
     convert_chat_type_to_domain,
     convert_client_platform_to_domain,
@@ -68,6 +69,7 @@ class UserSender:
     is_chat_admin: bool | None
     is_chat_creator: bool | None
     device: UserDevice
+    client_network_contour: ClientNetworkContours | None = None
 
     @property
     def upn(self) -> str | None:

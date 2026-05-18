@@ -39,6 +39,11 @@ class ClientPlatforms(AutoName):
     AURORA = auto()
 
 
+class ClientNetworkContours(AutoName):
+    INTERNAL = auto()
+    EXTERNAL = auto()
+
+
 class MentionTypes(AutoName):
     CONTACT = auto()
     CHAT = auto()
@@ -136,6 +141,11 @@ class BotAPIClientPlatforms(Enum):
     AURORA = "aurora"
 
 
+class BotAPIClientNetworkContours(StrEnum):
+    INTERNAL = "internal"
+    EXTERNAL = "external"
+
+
 class BotAPIEntityTypes(StrEnum):
     MENTION = "mention"
     FORWARD = "forward"
@@ -204,6 +214,23 @@ def convert_client_platform_to_domain(
     converted_type = client_platforms_mapping.get(client_platform)
     if converted_type is None:
         raise NotImplementedError(f"Unsupported client platform: {client_platform}")
+
+    return converted_type
+
+
+def convert_client_network_contour_to_domain(
+    client_network_contour: BotAPIClientNetworkContours,
+) -> ClientNetworkContours:
+    client_network_contours_mapping = {
+        BotAPIClientNetworkContours.INTERNAL: ClientNetworkContours.INTERNAL,
+        BotAPIClientNetworkContours.EXTERNAL: ClientNetworkContours.EXTERNAL,
+    }
+
+    converted_type = client_network_contours_mapping.get(client_network_contour)
+    if converted_type is None:
+        raise NotImplementedError(
+            f"Unsupported client network contour: {client_network_contour}",
+        )
 
     return converted_type
 
