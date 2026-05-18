@@ -149,6 +149,80 @@ async def test__chat_info__succeed(
     assert endpoint.called
 
 
+async def test__chat_info__succeed_voex_call(
+        respx_mock: MockRouter,
+        host: str,
+        bot_id: UUID,
+        datetime_formatter: Callable[[str], dt],
+        bot_factory: Any,
+) -> None:
+    # - Arrange -
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        REQUEST,
+        ok_payload(
+            {
+                "chat_type": "voex_call",
+                "creator": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+                "description": None,
+                "group_chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
+                "inserted_at": "2019-08-29T11:22:48.358586Z",
+                "members": [
+                    {
+                        "admin": True,
+                        "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+                        "user_kind": "user",
+                    },
+                    {
+                        "admin": False,
+                        "user_huid": "705df263-6bfd-536a-9d51-13524afaab5c",
+                        "user_kind": "botx",
+                    },
+                ],
+                "name": "Voex Chat Example",
+                "shared_history": False,
+            },
+        ),
+        HTTPStatus.OK,
+    )
+
+    # - Act -
+    async with bot_factory() as bot:
+        chat_info = await bot.chat_info(
+            bot_id=bot_id,
+            chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+        )
+
+    # - Assert -
+    assert_deep_equal(
+        chat_info,
+        ChatInfo(
+            chat_type=ChatTypes.GROUP_CHAT,
+            creator_id=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
+            description=None,
+            chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
+            created_at=datetime_formatter("2019-08-29T11:22:48.358586Z"),
+            members=[
+                ChatInfoMember(
+                    is_admin=True,
+                    huid=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
+                    kind=UserKinds.RTS_USER,
+                ),
+                ChatInfoMember(
+                    is_admin=False,
+                    huid=UUID("705df263-6bfd-536a-9d51-13524afaab5c"),
+                    kind=UserKinds.BOT,
+                ),
+            ],
+            name="Voex Chat Example",
+            shared_history=False,
+        ),
+    )
+
+    assert endpoint.called
+
+
 async def test__chat_info__notes_chat_type_mapped_to_personal_chat(
     respx_mock: MockRouter,
     host: str,
