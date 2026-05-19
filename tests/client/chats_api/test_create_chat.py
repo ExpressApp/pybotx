@@ -220,7 +220,12 @@ def test__create_chat_payload__convert_chat_type_validator() -> None:
     result = BotXAPICreateChatRequestPayload._convert_chat_type(values)  # type: ignore[operator]
     assert result["chat_type"] == APIChatTypes.GROUP_CHAT
 
-    # Test with APIChatTypes value (should remain unchanged)
+    # Test with APIChatTypes.VOEX_CALL
+    values = {"chat_type": APIChatTypes.VOEX_CALL}  # type: ignore[dict-item]
+    with pytest.raises(ValueError, match="Bot cannot create a chat of type 'voex_call'"):
+        BotXAPICreateChatRequestPayload._convert_chat_type(values)  # type: ignore[operator]
+
+    # Test with another APIChatTypes value (should remain unchanged)
     values = {"chat_type": APIChatTypes.CHAT}  # type: ignore[dict-item]
     result = BotXAPICreateChatRequestPayload._convert_chat_type(values)  # type: ignore[operator]
     assert result["chat_type"] == APIChatTypes.CHAT

@@ -108,6 +108,7 @@ class APIChatTypes(Enum):
     GROUP_CHAT = "group_chat"
     CHANNEL = "channel"
     THREAD = "thread"
+    VOEX_CALL = "voex_call"
 
 
 class BotAPICommandTypes(StrEnum):
@@ -365,6 +366,7 @@ def convert_chat_type_to_domain(
         APIChatTypes.GROUP_CHAT: ChatTypes.GROUP_CHAT,
         APIChatTypes.CHANNEL: ChatTypes.CHANNEL,
         APIChatTypes.THREAD: ChatTypes.THREAD,
+        APIChatTypes.VOEX_CALL: ChatTypes.GROUP_CHAT,
     }
 
     converted_type: IncomingChatTypes | None
