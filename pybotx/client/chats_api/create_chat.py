@@ -39,6 +39,8 @@ class BotXAPICreateChatRequestPayload(UnverifiedPayloadBaseModel):
     @model_validator(mode="before")
     def _convert_chat_type(cls, values: dict[str, Any]) -> dict[str, Any]:
         chat_type = values.get("chat_type")
+        if isinstance(chat_type, APIChatTypes) and chat_type == APIChatTypes.VOEX_CALL:
+            raise ValueError("Bot cannot create a chat of type 'voex_call'")
         if isinstance(chat_type, ChatTypes):
             values["chat_type"] = convert_chat_type_from_domain(chat_type)
         return values

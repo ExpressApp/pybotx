@@ -39,6 +39,11 @@ class ClientPlatforms(AutoName):
     AURORA = auto()
 
 
+class ClientNetworkContours(AutoName):
+    INTERNAL = auto()
+    EXTERNAL = auto()
+
+
 class MentionTypes(AutoName):
     CONTACT = auto()
     CHAT = auto()
@@ -103,6 +108,7 @@ class APIChatTypes(Enum):
     GROUP_CHAT = "group_chat"
     CHANNEL = "channel"
     THREAD = "thread"
+    VOEX_CALL = "voex_call"
 
 
 class BotAPICommandTypes(StrEnum):
@@ -134,6 +140,11 @@ class BotAPIClientPlatforms(Enum):
     IOS = "ios"
     DESKTOP = "desktop"
     AURORA = "aurora"
+
+
+class BotAPIClientNetworkContours(StrEnum):
+    INTERNAL = "internal"
+    EXTERNAL = "external"
 
 
 class BotAPIEntityTypes(StrEnum):
@@ -204,6 +215,23 @@ def convert_client_platform_to_domain(
     converted_type = client_platforms_mapping.get(client_platform)
     if converted_type is None:
         raise NotImplementedError(f"Unsupported client platform: {client_platform}")
+
+    return converted_type
+
+
+def convert_client_network_contour_to_domain(
+    client_network_contour: BotAPIClientNetworkContours,
+) -> ClientNetworkContours:
+    client_network_contours_mapping = {
+        BotAPIClientNetworkContours.INTERNAL: ClientNetworkContours.INTERNAL,
+        BotAPIClientNetworkContours.EXTERNAL: ClientNetworkContours.EXTERNAL,
+    }
+
+    converted_type = client_network_contours_mapping.get(client_network_contour)
+    if converted_type is None:
+        raise NotImplementedError(
+            f"Unsupported client network contour: {client_network_contour}",
+        )
 
     return converted_type
 
@@ -338,6 +366,7 @@ def convert_chat_type_to_domain(
         APIChatTypes.GROUP_CHAT: ChatTypes.GROUP_CHAT,
         APIChatTypes.CHANNEL: ChatTypes.CHANNEL,
         APIChatTypes.THREAD: ChatTypes.THREAD,
+        APIChatTypes.VOEX_CALL: ChatTypes.GROUP_CHAT,
     }
 
     converted_type: IncomingChatTypes | None
