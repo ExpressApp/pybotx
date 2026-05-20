@@ -224,6 +224,14 @@ from pybotx.client.users_api.users_as_csv import (
     BotXAPIUsersAsCSVRequestPayload,
     UsersAsCSVMethod,
 )
+from pybotx.client.voex_api.get_call import (
+    BotXAPIGetCallRequestPayload,
+    GetCallMethod,
+)
+from pybotx.client.voex_api.get_conference import (
+    BotXAPIGetConferenceRequestPayload,
+    GetConferenceMethod,
+)
 from pybotx.constants import BOTX_DEFAULT_TIMEOUT, STICKER_PACKS_PER_PAGE
 from pybotx.converters import optional_sequence_to_list
 from pybotx.image_validators import (
@@ -236,12 +244,14 @@ from pybotx.models.async_files import File
 from pybotx.models.attachments import IncomingFileAttachment, OutgoingAttachment
 from pybotx.models.bot_account import BotAccountWithSecret
 from pybotx.models.bot_catalog import BotsListItem
+from pybotx.models.call import Call
 from pybotx.models.chats import ChatInfo, ChatLink, ChatListItem
 from pybotx.models.commands import (
     BotAPISystemEvent,
     BotAPIIncomingMessage,
     BotCommand,
 )
+from pybotx.models.conference import Conference
 from pybotx.models.enums import BotAPICommandTypes, ChatLinkTypes, ChatTypes
 from pybotx.models.message.edit_message import EditMessage
 from pybotx.models.message.markup import BubbleMarkup, KeyboardMarkup
@@ -1394,6 +1404,56 @@ class Bot:
         )
 
         await method.execute(payload)
+
+    async def get_call(
+        self,
+        *,
+        bot_id: UUID,
+        call_id: UUID,
+    ) -> Call:
+        """Get call.
+
+        :param bot_id: Bot which should perform the request.
+        :param call_id: Call id.
+
+        :return: Call.
+        """
+        method = GetCallMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPIGetCallRequestPayload.from_domain(
+            call_id=call_id,
+        )
+        botx_call = await method.execute(payload)
+
+        return botx_call.to_domain()
+
+    async def get_conference(
+        self,
+        *,
+        bot_id: UUID,
+        call_id: UUID,
+    ) -> Conference:
+        """Get Conference.
+
+        :param bot_id: Bot which should perform the request.
+        :param call_id: Call id.
+
+        :return: Conference.
+        """
+        method = GetConferenceMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPIGetConferenceRequestPayload.from_domain(
+            call_id=call_id,
+        )
+        botx_conference = await method.execute(payload)
+
+        return botx_conference.to_domain()
 
     async def unpin_message(
         self,
