@@ -21,10 +21,12 @@ from pybotx.models.attachments import (
     AttachmentVideo,
     AttachmentVoice,
     BotAPIAttachment,
+    BotXAPIAttachment,
     Contact,
     IncomingAttachment,
     Link,
     Location,
+    OutgoingAttachment,
     convert_api_attachment_to_domain,
 )
 
@@ -79,6 +81,21 @@ async def test__attachment__open(
 
     # - Assert -
     assert read_content == b"Hello, world!\n"
+
+
+async def test__botx_api_attachment__uppercase_file_extension_mimetype() -> None:
+    # - Arrange -
+    attachment = OutgoingAttachment(
+        content=b"Hello, world!",
+        filename="image.PNG",
+    )
+
+    # - Act -
+    api_attachment = BotXAPIAttachment.from_file_attachment(attachment)
+
+    # - Assert -
+    assert api_attachment.file_name == "image.PNG"
+    assert api_attachment.data == "data:image/png;base64,SGVsbG8sIHdvcmxkIQ=="
 
 
 API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (

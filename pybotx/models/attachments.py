@@ -501,6 +501,12 @@ def encode_rfc2397(content: bytes, mimetype: str) -> str:
     return f"data:{mimetype};base64,{b64_content}"
 
 
+def get_mimetype_by_filename(filename: str) -> str:
+    extension = filename.rsplit(".", 1)[-1].lower()
+
+    return EXTENSIONS_TO_MIMETYPES.get(extension, DEFAULT_MIMETYPE)
+
+
 class BotXAPIAttachment(UnverifiedPayloadBaseModel):
     file_name: str
     data: str
@@ -512,10 +518,7 @@ class BotXAPIAttachment(UnverifiedPayloadBaseModel):
     ) -> "BotXAPIAttachment":
         assert attachment.content is not None
 
-        mimetype = EXTENSIONS_TO_MIMETYPES.get(
-            attachment.filename.split(".")[-1],
-            DEFAULT_MIMETYPE,
-        )
+        mimetype = get_mimetype_by_filename(attachment.filename)
 
         return cls(
             file_name=attachment.filename,
