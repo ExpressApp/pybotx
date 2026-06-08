@@ -178,7 +178,7 @@ class BotXAPIButtonOptions(UnverifiedPayloadBaseModel):
 
 
 class BotXAPIButton(UnverifiedPayloadBaseModel):
-    command: str
+    command: Missing[str]
     label: str
     data: dict[str, Any]
     opts: BotXAPIButtonOptions
