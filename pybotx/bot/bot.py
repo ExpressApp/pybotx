@@ -1421,11 +1421,15 @@ class Bot:
         *,
         bot_id: UUID,
         emails: list[str],
+        trusts_search: bool = False,
+        partial_response: bool = False,
     ) -> list[UserFromSearch]:
         """Search user by emails for search.
 
         :param bot_id: Bot which should perform the request.
         :param emails: User emails.
+        :param trusts_search: Search users on trusted servers.
+        :param partial_response: Return local results if trusted server lookup fails.
 
         :return: Search result with user information.
         """
@@ -1435,7 +1439,11 @@ class Bot:
             self._httpx_client,
             self._bot_accounts_storage,
         )
-        payload = BotXAPISearchUserByEmailsRequestPayload.from_domain(emails=emails)
+        payload = BotXAPISearchUserByEmailsRequestPayload.from_domain(
+            emails=emails,
+            trusts_search=trusts_search,
+            partial_response=partial_response,
+        )
 
         botx_api_users_from_search = await method.execute(payload)
 
@@ -1447,6 +1455,8 @@ class Bot:
         *,
         bot_id: UUID,
         email: str,
+        trusts_search: bool = False,
+        partial_response: bool = False,
     ) -> UserFromSearch:
         """Search user by email for search.
 
@@ -1455,6 +1465,8 @@ class Bot:
 
         :param bot_id: Bot which should perform the request.
         :param email: User email.
+        :param trusts_search: Search users on trusted servers.
+        :param partial_response: Return local results if trusted server lookup fails.
 
         :return: User information.
         """
@@ -1464,7 +1476,11 @@ class Bot:
             self._httpx_client,
             self._bot_accounts_storage,
         )
-        payload = BotXAPISearchUserByEmailRequestPayload.from_domain(email=email)
+        payload = BotXAPISearchUserByEmailRequestPayload.from_domain(
+            email=email,
+            trusts_search=trusts_search,
+            partial_response=partial_response,
+        )
 
         botx_api_user_from_search = await method.execute(payload)
 

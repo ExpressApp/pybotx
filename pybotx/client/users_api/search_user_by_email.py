@@ -9,15 +9,27 @@ from pybotx.client.users_api.user_from_search import (
     BotXAPISearchUserResponsePayload,
 )
 from pybotx.logger import logger
+from pybotx.missing import Missing, Undefined
 from pybotx.models.api_base import UnverifiedPayloadBaseModel
 
 
 class BotXAPISearchUserByEmailRequestPayload(UnverifiedPayloadBaseModel):
     email: str
+    trusts_search: Missing[bool] = Undefined
+    partial_response: Missing[bool] = Undefined
 
     @classmethod
-    def from_domain(cls, email: str) -> "BotXAPISearchUserByEmailRequestPayload":
-        return cls(email=email)
+    def from_domain(
+        cls,
+        email: str,
+        trusts_search: bool = False,
+        partial_response: bool = False,
+    ) -> "BotXAPISearchUserByEmailRequestPayload":
+        return cls(
+            email=email,
+            trusts_search=trusts_search or Undefined,
+            partial_response=partial_response or Undefined,
+        )
 
 
 class SearchUserByEmailMethod(AuthorizedBotXMethod):
@@ -67,7 +79,14 @@ class SearchUserByEmailPostMethod(AuthorizedBotXMethod):
         path = "/api/v3/botx/users/by_email"
 
         email = payload.email
-        request_json = {"emails": [email]}
+        request_json = {
+            "emails": [email],
+            "trusts_search": payload.trusts_search,
+            "partial_response": payload.partial_response,
+        }
+        request_json = {
+            key: value for key, value in request_json.items() if value is not Undefined
+        }
 
         response = await self._botx_method_call(
             "POST",

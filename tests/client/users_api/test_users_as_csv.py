@@ -138,3 +138,56 @@ async def test__users_as_csv__succeed(
         ),
         ],
     )
+
+
+async def test__users_as_csv_with_documented_columns_only__succeed(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_factory: Any,
+) -> None:
+    request = BotXRequest(
+        method="GET",
+        path="/api/v3/botx/users/users_as_csv",
+        params={"cts_user": True, "unregistered": True, "botx": False},
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        response_json=None,
+        status=HTTPStatus.OK,
+        response_content=(
+            b"HUID,AD Login,Domain,AD E-mail,Name,Sync source,Active,Kind,Company,Department,Position,Manager,Manager HUID\n"
+            b"dbc8934f-d0d7-4a9e-89df-d45c137a851c,test_user_17,cts.example.com,,test_user_17,ad,true,cts_user,Company,Department,Position,Manager John,13a6909c-bce1-4dbf-8359-efb7ef8e5b34\n"
+        ),
+    )
+
+    users_from_csv = []
+
+    async with bot_factory() as bot:
+        async with bot.users_as_csv(bot_id=bot_id) as users:
+            async for user in users:
+                users_from_csv.append(user)
+
+    assert endpoint.called
+    assert_deep_equal(
+        users_from_csv,
+        [
+            UserFromCSV(
+                huid=UUID("dbc8934f-d0d7-4a9e-89df-d45c137a851c"),
+                ad_login="test_user_17",
+                ad_domain="cts.example.com",
+                username="test_user_17",
+                sync_source=SyncSourceTypes.AD,
+                active=True,
+                user_kind=UserKinds.CTS_USER,
+                email=None,
+                company="Company",
+                department="Department",
+                position="Position",
+                manager="Manager John",
+                manager_huid=UUID("13a6909c-bce1-4dbf-8359-efb7ef8e5b34"),
+            ),
+        ],
+    )
