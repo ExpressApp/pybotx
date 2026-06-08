@@ -5,7 +5,7 @@ from uuid import UUID
 from pybotx.models.api_base import VerifiedPayloadBaseModel
 from pybotx.models.enums import APIUserKinds, convert_user_kind_to_domain
 from pybotx.models.users import UserFromSearch
-from pydantic import Field
+from pydantic import Field, field_validator
 
 
 class BotXAPISearchUserResult(VerifiedPayloadBaseModel):
@@ -31,6 +31,14 @@ class BotXAPISearchUserResult(VerifiedPayloadBaseModel):
     rts_id: UUID | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
+
+    @field_validator("ip_phone", "other_ip_phone", "other_phone", mode="before")
+    @classmethod
+    def convert_phone_to_string(cls, value: str | int | None) -> str | None:
+        if value is None:
+            return None
+
+        return str(value)
 
 
 class BotXAPISearchUserResponsePayload(VerifiedPayloadBaseModel):

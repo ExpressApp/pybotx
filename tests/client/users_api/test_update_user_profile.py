@@ -5,7 +5,10 @@ from uuid import UUID
 import pytest
 from respx.router import MockRouter
 
-from pybotx.client.exceptions.users import InvalidProfileDataError
+from pybotx.client.exceptions.users import (
+    InvalidProfileDataError,
+    UserProfileUpdateUnavailableError,
+)
 from pybotx.models.attachments import AttachmentImage
 from pybotx.models.enums import AttachmentTypes
 from tests.testkit import BotXRequest, error_payload, mock_botx, ok_payload
@@ -167,4 +170,47 @@ async def test__update_user_profile__invalid_profile_data_error(
             )
 
     # - Assert -
+    assert endpoint.called
+
+
+@pytest.mark.parametrize(
+    "reason",
+    [
+        "error_from_ad_phonebook_service",
+        "unexpected_error",
+    ],
+)
+async def test__update_user_profile__service_unavailable_error(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_factory: Any,
+    reason: str,
+) -> None:
+    # - Arrange -
+    request = BotXRequest(
+        method="PUT",
+        path="/api/v3/botx/users/update_profile",
+        json={
+            "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
+        },
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        error_payload(reason),
+        HTTPStatus.SERVICE_UNAVAILABLE,
+    )
+
+    # - Act -
+    async with bot_factory() as bot:
+        with pytest.raises(UserProfileUpdateUnavailableError) as exc:
+            await bot.update_user_profile(
+                bot_id=bot_id,
+                user_huid=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
+            )
+
+    # - Assert -
+    assert reason in str(exc.value)
     assert endpoint.called

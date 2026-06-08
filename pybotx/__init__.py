@@ -64,7 +64,10 @@ from pybotx.client.exceptions.notifications import (
     FinalRecipientsListEmptyError,
     StealthModeDisabledError,
 )
-from pybotx.client.exceptions.users import UserNotFoundError
+from pybotx.client.exceptions.users import (
+    UserNotFoundError,
+    UserProfileUpdateUnavailableError,
+)
 from pybotx.client.smartapps_api.exceptions import SyncSmartAppEventHandlerNotFoundError
 from pybotx.client.smartapps_api.smartapp_manifest import (
     SmartappManifest,
@@ -301,6 +304,7 @@ __all__ = (
     "UserFromSearch",
     "UserKinds",
     "UserNotFoundError",
+    "UserProfileUpdateUnavailableError",
     "UserSender",
     "Video",
     "Voice",

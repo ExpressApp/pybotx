@@ -3,18 +3,27 @@ from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.client.users_api.user_from_search import (
     BotXAPISearchUserByEmailsResponsePayload,
 )
+from pybotx.missing import Missing, Undefined
 from pybotx.models.api_base import UnverifiedPayloadBaseModel
 
 
 class BotXAPISearchUserByEmailsRequestPayload(UnverifiedPayloadBaseModel):
     emails: list[str]
+    trusts_search: Missing[bool] = Undefined
+    partial_response: Missing[bool] = Undefined
 
     @classmethod
     def from_domain(
         cls,
         emails: list[str],
+        trusts_search: bool = False,
+        partial_response: bool = False,
     ) -> "BotXAPISearchUserByEmailsRequestPayload":
-        return cls(emails=emails)
+        return cls(
+            emails=emails,
+            trusts_search=trusts_search or Undefined,
+            partial_response=partial_response or Undefined,
+        )
 
 
 class SearchUserByEmailsMethod(AuthorizedBotXMethod):
