@@ -11,3 +11,7 @@ class InvalidProfileDataError(BaseClientError):
 
 class NoUserKindSelectedError(BaseClientError):
     """No user kind selected."""
+
+
+class UserProfileUpdateUnavailableError(BaseClientError):
+    """User profile update service is unavailable."""
