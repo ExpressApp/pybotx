@@ -7,3 +7,6 @@ htmlcov
 site
 .snippets*/
 .idea/
+.hypothesis/
+.vscode/
+.python-version

@@ -2,16 +2,19 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
+from pydantic import Field, field_validator
+
 from pybotx.models.api_base import VerifiedPayloadBaseModel
 from pybotx.models.enums import APIUserKinds, convert_user_kind_to_domain
 from pybotx.models.users import UserFromSearch
-from pydantic import Field, field_validator
 
 
 class BotXAPISearchUserResult(VerifiedPayloadBaseModel):
     user_huid: UUID
     ad_login: str | None = None
     ad_domain: str | None = None
+    avatar: str | None = None
+    avatar_preview: str | None = None
     name: str
     company: str | None = None
     company_position: str | None = None
@@ -50,6 +53,8 @@ class BotXAPISearchUserResponsePayload(VerifiedPayloadBaseModel):
             huid=self.result.user_huid,
             ad_login=self.result.ad_login,
             ad_domain=self.result.ad_domain,
+            avatar=self.result.avatar,
+            avatar_preview=self.result.avatar_preview,
             username=self.result.name,
             company=self.result.company,
             company_position=self.result.company_position,
@@ -82,6 +87,8 @@ class BotXAPISearchUserByEmailsResponsePayload(VerifiedPayloadBaseModel):
                 huid=user.user_huid,
                 ad_login=user.ad_login,
                 ad_domain=user.ad_domain,
+                avatar=user.avatar,
+                avatar_preview=user.avatar_preview,
                 username=user.name,
                 company=user.company,
                 company_position=user.company_position,
