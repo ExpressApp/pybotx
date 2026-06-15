@@ -14,12 +14,12 @@ def user_from_search_with_data_json() -> dict[str, Any]:
         "ad_login": "ad_user_login",
         "ad_domain": "cts.com",
         "avatar": (
-            "https://cts1dev.ccsteam.ru/uploads/profile_avatar/fa13e946-121b-52ce-aa92-677b51d19d83/"
+            "https://test-cts.ru/uploads/profile_avatar/fa13e946-121b-52ce-aa92-677b51d19d83/"
             "3ebb64d5e2f54e1ab9a3f2ff8096f55a.jpg"
             "?v=1780399650402&sid=a619fcfa-a19b-5256-a592-9b0e75ca0896"
         ),
         "avatar_preview": (
-            "https://cts1dev.ccsteam.ru/uploads/profile_avatar/fa13e946-121b-52ce-aa92-677b51d19d83/"
+            "https://test-cts.ru/uploads/profile_avatar/fa13e946-121b-52ce-aa92-677b51d19d83/"
             "0a1294c14df84a1ea13c62483ec6cd0f.jpg?"
             "v=1780399650402&sid=a619fcfa-a19b-5256-a592-9b0e75ca0896"
         ),
@@ -51,12 +51,12 @@ def user_from_search_with_data() -> UserFromSearch:
         ad_login="ad_user_login",
         ad_domain="cts.com",
         avatar=(
-            "https://cts1dev.ccsteam.ru/uploads/profile_avatar/fa13e946-121b-52ce-aa92-677b51d19d83/"
+            "https://test-cts.ru/uploads/profile_avatar/fa13e946-121b-52ce-aa92-677b51d19d83/"
             "3ebb64d5e2f54e1ab9a3f2ff8096f55a.jpg"
             "?v=1780399650402&sid=a619fcfa-a19b-5256-a592-9b0e75ca0896"
         ),
         avatar_preview=(
-            "https://cts1dev.ccsteam.ru/uploads/profile_avatar/fa13e946-121b-52ce-aa92-677b51d19d83/"
+            "https://test-cts.ru/uploads/profile_avatar/fa13e946-121b-52ce-aa92-677b51d19d83/"
             "0a1294c14df84a1ea13c62483ec6cd0f.jpg?"
             "v=1780399650402&sid=a619fcfa-a19b-5256-a592-9b0e75ca0896"
         ),
