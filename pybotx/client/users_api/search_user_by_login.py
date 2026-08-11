@@ -2,20 +2,30 @@ from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.client.botx_method import response_exception_thrower
 from pybotx.client.exceptions.users import UserNotFoundError
 from pybotx.client.users_api.user_from_search import BotXAPISearchUserResponsePayload
+from pybotx.missing import Missing, Undefined
 from pybotx.models.api_base import UnverifiedPayloadBaseModel
 
 
 class BotXAPISearchUserByLoginRequestPayload(UnverifiedPayloadBaseModel):
     ad_login: str
     ad_domain: str
+    trusts_search: Missing[bool] = Undefined
+    partial_response: Missing[bool] = Undefined
 
     @classmethod
     def from_domain(
         cls,
         ad_login: str,
         ad_domain: str,
+        trusts_search: bool = False,
+        partial_response: bool = False,
     ) -> "BotXAPISearchUserByLoginRequestPayload":
-        return cls(ad_login=ad_login, ad_domain=ad_domain)
+        return cls(
+            ad_login=ad_login,
+            ad_domain=ad_domain,
+            trusts_search=trusts_search or Undefined,
+            partial_response=partial_response or Undefined,
+        )
 
 
 class SearchUserByLoginMethod(AuthorizedBotXMethod):

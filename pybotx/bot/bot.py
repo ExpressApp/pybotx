@@ -1578,11 +1578,15 @@ class Bot:
         *,
         bot_id: UUID,
         huid: UUID,
+        trusts_search: bool = False,
+        partial_response: bool = False,
     ) -> UserFromSearch:
         """Search user by huid for search.
 
         :param bot_id: Bot which should perform the request.
         :param huid: User huid.
+        :param trusts_search: Search users on trusted servers.
+        :param partial_response: Return local results if trusted server lookup fails.
 
         :return: User information.
         """
@@ -1592,7 +1596,11 @@ class Bot:
             self._httpx_client,
             self._bot_accounts_storage,
         )
-        payload = BotXAPISearchUserByHUIDRequestPayload.from_domain(huid=huid)
+        payload = BotXAPISearchUserByHUIDRequestPayload.from_domain(
+            huid=huid,
+            trusts_search=trusts_search,
+            partial_response=partial_response,
+        )
 
         botx_api_user_from_search = await method.execute(payload)
 
@@ -1604,12 +1612,16 @@ class Bot:
         bot_id: UUID,
         ad_login: str,
         ad_domain: str,
+        trusts_search: bool = False,
+        partial_response: bool = False,
     ) -> UserFromSearch:
         """Search user by AD login and AD domain for search.
 
         :param bot_id: Bot which should perform the request.
         :param ad_login: User AD login.
         :param ad_domain: User AD domain.
+        :param trusts_search: Search users on trusted servers.
+        :param partial_response: Return local results if trusted server lookup fails.
 
         :return: User information.
         """
@@ -1622,6 +1634,8 @@ class Bot:
         payload = BotXAPISearchUserByLoginRequestPayload.from_domain(
             ad_login=ad_login,
             ad_domain=ad_domain,
+            trusts_search=trusts_search,
+            partial_response=partial_response,
         )
 
         botx_api_user_from_search = await method.execute(payload)
@@ -1633,11 +1647,15 @@ class Bot:
         *,
         bot_id: UUID,
         other_id: str,
+        trusts_search: bool = False,
+        partial_response: bool = False,
     ) -> UserFromSearch:
         """Search user by other identificator for search.
 
         :param bot_id: Bot which should perform the request.
         :param other_id: User other identificator.
+        :param trusts_search: Search users on trusted servers.
+        :param partial_response: Return local results if trusted server lookup fails.
 
         :return: User information.
         """
@@ -1649,6 +1667,8 @@ class Bot:
         )
         payload = BotXAPISearchUserByOtherIdRequestPayload.from_domain(
             other_id=other_id,
+            trusts_search=trusts_search,
+            partial_response=partial_response,
         )
 
         botx_api_user_from_search = await method.execute(payload)
