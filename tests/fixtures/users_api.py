@@ -13,6 +13,16 @@ def user_from_search_with_data_json() -> dict[str, Any]:
         "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
         "ad_login": "ad_user_login",
         "ad_domain": "cts.com",
+        "avatar": (
+            "https://test-cts.ru/uploads/profile_avatar/fa13e946-121b-52ce-aa92-677b51d19d83/"
+            "3ebb64d5e2f54e1ab9a3f2ff8096f55a.jpg"
+            "?v=1780399650402&sid=a619fcfa-a19b-5256-a592-9b0e75ca0896"
+        ),
+        "avatar_preview": (
+            "https://test-cts.ru/uploads/profile_avatar/fa13e946-121b-52ce-aa92-677b51d19d83/"
+            "0a1294c14df84a1ea13c62483ec6cd0f.jpg?"
+            "v=1780399650402&sid=a619fcfa-a19b-5256-a592-9b0e75ca0896"
+        ),
         "name": "Bob",
         "company": "Bobs Co",
         "company_position": "Director",
@@ -40,6 +50,16 @@ def user_from_search_with_data() -> UserFromSearch:
         huid=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
         ad_login="ad_user_login",
         ad_domain="cts.com",
+        avatar=(
+            "https://test-cts.ru/uploads/profile_avatar/fa13e946-121b-52ce-aa92-677b51d19d83/"
+            "3ebb64d5e2f54e1ab9a3f2ff8096f55a.jpg"
+            "?v=1780399650402&sid=a619fcfa-a19b-5256-a592-9b0e75ca0896"
+        ),
+        avatar_preview=(
+            "https://test-cts.ru/uploads/profile_avatar/fa13e946-121b-52ce-aa92-677b51d19d83/"
+            "0a1294c14df84a1ea13c62483ec6cd0f.jpg?"
+            "v=1780399650402&sid=a619fcfa-a19b-5256-a592-9b0e75ca0896"
+        ),
         username="Bob",
         company="Bobs Co",
         company_position="Director",
@@ -95,6 +115,8 @@ def user_from_search_without_data() -> UserFromSearch:
         huid=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
         ad_login="ad_user_login",
         ad_domain="cts.com",
+        avatar=None,
+        avatar_preview=None,
         username="Bob",
         company="Bobs Co",
         company_position="Director",

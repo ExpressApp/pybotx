@@ -13,6 +13,8 @@ class UserFromSearch:
         huid: User huid.
         ad_login: User AD login.
         ad_domain: User AD domain.
+        avatar: User avatar (link).
+        avatar_preview: User avatar preview (link).
         username: User name.
         company: User company.
         company_position: User company position.
@@ -44,6 +46,8 @@ class UserFromSearch:
     emails: list[str]
     other_id: str | None
     user_kind: UserKinds
+    avatar: str | None = None
+    avatar_preview: str | None = None
     active: bool | None = None
     description: str | None = None
     ip_phone: str | None = None
