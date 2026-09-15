@@ -20,7 +20,7 @@ class BotXAPIGetCallRequestPayload(UnverifiedPayloadBaseModel):
 
 
 class BotXAPIGetCallResult(VerifiedPayloadBaseModel):
-    id: UUID
+    call_id: UUID
     members: list[UUID]
 
 
@@ -30,7 +30,7 @@ class BotXAPIGetCallResponsePayload(VerifiedPayloadBaseModel):
 
     def to_domain(self) -> Call:
         return Call(
-            id=self.result.id,
+            id=self.result.call_id,
             members=self.result.members,
         )
 

@@ -20,7 +20,7 @@ class BotXAPIGetConferenceRequestPayload(UnverifiedPayloadBaseModel):
 
 
 class BotXAPIGetConferenceResult(VerifiedPayloadBaseModel):
-    id: UUID
+    call_id: UUID
     name: str
     link: str
     members: list[UUID]
@@ -32,7 +32,7 @@ class BotXAPIGetConferenceResponsePayload(VerifiedPayloadBaseModel):
 
     def to_domain(self) -> Conference:
         return Conference(
-            id=self.result.id,
+            id=self.result.call_id,
             name=self.result.name,
             link=self.result.link,
             members=self.result.members,

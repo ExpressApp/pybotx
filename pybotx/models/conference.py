@@ -6,5 +6,5 @@ from uuid import UUID
 class Conference:
     id: UUID
     name: str
-    link: str
+    link: str | None
     members: list[UUID]
