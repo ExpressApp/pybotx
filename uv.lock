@@ -725,7 +725,7 @@ wheels = [
 
 [[package]]
 name = "pybotx"
-version = "0.76.0"
+version = "0.77.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiocsv" },

@@ -22,7 +22,7 @@ class BotXAPIGetConferenceRequestPayload(UnverifiedPayloadBaseModel):
 class BotXAPIGetConferenceResult(VerifiedPayloadBaseModel):
     call_id: UUID
     name: str
-    link: str
+    link: str | None
     members: list[UUID]
 
 

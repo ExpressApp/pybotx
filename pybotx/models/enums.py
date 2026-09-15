@@ -60,6 +60,7 @@ class ChatTypes(AutoName):
         GROUP_CHAT: Group chat.
         CHANNEL: Public channel.
         THREAD: Thread in a chat.
+        VOEX_CALL: Incoming VoEx call. It cannot be used to create a chat.
     """
 
     PERSONAL_CHAT = auto()
