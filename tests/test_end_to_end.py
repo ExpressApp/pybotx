@@ -5,25 +5,18 @@ from uuid import UUID
 
 import httpx
 import pytest
-from fastapi import APIRouter, Depends, FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from loguru import logger
 from respx.router import MockRouter
 
 from pybotx import (
     Bot,
     BotAccountWithSecret,
+    FastAPIBotAppConfig,
     HandlerCollector,
     IncomingMessage,
     SmartAppEvent,
-    UnknownBotAccountError,
-    UnverifiedRequestError,
-    build_bot_disabled_response,
-    build_command_accepted_response,
-)
-from pybotx.bot.api.responses.unverified_request import (
-    build_unverified_request_response,
+    create_fastapi_bot_app,
 )
 from pybotx.models.sync_smartapp_event import (
     BotAPISyncSmartAppEventErrorResponse,
@@ -57,126 +50,16 @@ def bot_factory(
     return Bot(collectors=[bot_collector or collector], bot_accounts=bot_accounts)
 
 
-# - FastAPI integration -
-def get_bot(request: Request) -> Bot:
-    assert isinstance(request.app.state.bot, Bot)
-
-    return request.app.state.bot
-
-
-bot_dependency = Depends(get_bot)
-
-router = APIRouter()
-
-
-@router.post("/command")
-async def command_handler(
-    request: Request,
-    bot: Bot = bot_dependency,
-) -> JSONResponse:
-    try:
-        bot.async_execute_raw_bot_command(await request.json(), verify_request=False)
-    except ValueError:
-        error_label = "Bot command validation error"
-        logger.exception(error_label)
-
-        return JSONResponse(
-            build_bot_disabled_response(error_label),
-            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
-        )
-    except UnknownBotAccountError as exc:
-        error_label = f"No credentials for bot {exc.bot_id}"
-        logger.warning(error_label)
-
-        return JSONResponse(
-            build_bot_disabled_response(error_label),
-            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
-        )
-
-    return JSONResponse(
-        build_command_accepted_response(),
-        status_code=HTTPStatus.ACCEPTED,
+def fastapi_factory(bot: Bot, *, verify_request: bool = False) -> FastAPI:
+    return create_fastapi_bot_app(
+        bot=bot,
+        config=FastAPIBotAppConfig(
+            verify_request=verify_request,
+            verify_callback_request=False,
+            smartapp_request_path="/smartapps/request",
+            healthcheck_prefix=None,
+        ),
     )
-
-
-@router.post("/smartapps/request")
-async def sync_smartapp_event_handler(
-    request: Request,
-    bot: Bot = bot_dependency,
-) -> JSONResponse:
-    try:
-        response = await bot.sync_execute_raw_smartapp_event(
-            await request.json(),
-            verify_request=False,
-        )
-    except ValueError:
-        error_label = "Bot command validation error"
-        logger.exception(error_label)
-
-        return JSONResponse(
-            build_bot_disabled_response(error_label),
-            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
-        )
-    except UnknownBotAccountError as exc:
-        error_label = f"No credentials for bot {exc.bot_id}"
-        logger.warning(error_label)
-
-        return JSONResponse(
-            build_bot_disabled_response(error_label),
-            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
-        )
-
-    return JSONResponse(response.jsonable_dict(), status_code=HTTPStatus.OK)
-
-
-@router.get("/status")
-async def status_handler(request: Request, bot: Bot = bot_dependency) -> JSONResponse:
-    status = await bot.raw_get_status(dict(request.query_params), verify_request=False)
-    return JSONResponse(status)
-
-
-@router.get("/status__unverified_request")
-async def status_handler__unverified_request(
-    request: Request,
-    bot: Bot = bot_dependency,
-) -> JSONResponse:
-    try:
-        status = await bot.raw_get_status(
-            dict(request.query_params),
-            request_headers=request.headers,
-        )
-    except UnverifiedRequestError as exc:
-        return JSONResponse(
-            content=build_unverified_request_response(
-                status_message=exc.args[0],
-            ),
-            status_code=HTTPStatus.UNAUTHORIZED,
-        )
-    return JSONResponse(status)
-
-
-@router.post("/notification/callback")
-async def callback_handler(
-    request: Request,
-    bot: Bot = bot_dependency,
-) -> JSONResponse:
-    await bot.set_raw_botx_method_result(await request.json(), verify_request=False)
-    return JSONResponse(
-        build_command_accepted_response(),
-        status_code=HTTPStatus.ACCEPTED,
-    )
-
-
-def fastapi_factory(bot: Bot) -> FastAPI:
-    application = FastAPI()
-    application.state.bot = bot
-
-    application.add_event_handler("startup", bot.startup)
-    application.add_event_handler("shutdown", bot.shutdown)
-
-    application.include_router(router)
-
-    return application
 
 
 # https://www.uvicorn.org/#application-factories
@@ -402,9 +285,9 @@ def test__web_app__unverified_request_response(
     bot: Bot,
 ) -> None:
     # - Act -
-    with TestClient(fastapi_factory(bot)) as test_client:
+    with TestClient(fastapi_factory(bot, verify_request=True)) as test_client:
         response = test_client.get(
-            "/status__unverified_request",
+            "/status",
             params={},
         )
 

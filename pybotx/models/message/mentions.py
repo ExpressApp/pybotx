@@ -242,6 +242,7 @@ class BotXAPIChannelMention(UnverifiedPayloadBaseModel):
 class BotXAPIAllMention(UnverifiedPayloadBaseModel):
     mention_type: Literal[BotAPIMentionTypes.ALL]
     mention_id: UUID
+    mention_data: None = None
 
     def to_botx_embed_mention_format(self) -> str:
         return f"@{{mention:{self.mention_id}}}"

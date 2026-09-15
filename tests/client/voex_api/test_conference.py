@@ -21,11 +21,13 @@ pytestmark = [
 ]
 
 
+@pytest.mark.parametrize("link", ["https://example.com/join", None])
 async def test__get_conference__succeed(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
     bot_account: BotAccountWithSecret,
+    link: str | None,
 ) -> None:
     # - Arrange -
     call_id = "a465f0f3-1354-491c-8f11-f400164295cb"
@@ -33,8 +35,6 @@ async def test__get_conference__succeed(
     member2 = "6fa5f1e9-1453-0ad7-2d6d-b791467e382a"
 
     name = "Test Conference"
-    link = "https://example.com/join"
-
     endpoint = respx_mock.get(
         f"https://{host}/api/v3/botx/voex/conferences/{call_id}",
         headers={"Authorization": "Bearer token"},
@@ -44,7 +44,7 @@ async def test__get_conference__succeed(
             json={
                 "status": "ok",
                 "result": {
-                    "id": call_id,
+                    "call_id": call_id,
                     "name": name,
                     "link": link,
                     "members": [

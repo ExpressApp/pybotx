@@ -1,4 +1,6 @@
 import asyncio
+from collections import OrderedDict
+from time import monotonic
 from typing import Literal, NamedTuple, overload
 from uuid import UUID
 
@@ -10,6 +12,8 @@ from pybotx.models.method_callbacks import BotXMethodCallback
 
 ORPHAN_CALLBACK_TTL_SECONDS = 5.0
 ORPHAN_PENDING_CALLBACKS_LIMIT = 1000
+EXPIRED_SYNC_IDS_TTL_SECONDS = 15 * 60.0
+EXPIRED_SYNC_IDS_LIMIT = 100_000
 
 
 class CallbackAlarm(NamedTuple):
@@ -47,13 +51,29 @@ async def _orphan_callback_alarm(
 
 
 class CallbackManager:
-    def __init__(self, callback_repo: CallbackRepoProto) -> None:
+    def __init__(
+        self,
+        callback_repo: CallbackRepoProto,
+        *,
+        expired_sync_ids_ttl_seconds: float = EXPIRED_SYNC_IDS_TTL_SECONDS,
+        expired_sync_ids_limit: int = EXPIRED_SYNC_IDS_LIMIT,
+    ) -> None:
+        if expired_sync_ids_ttl_seconds <= 0:
+            raise ValueError(
+                "Expired sync ids ttl should be greater than 0",
+            )
+        if expired_sync_ids_limit < 1:
+            raise ValueError(
+                "Expired sync ids limit should be greater than 0",
+            )
         self._callback_repo = callback_repo
         self._callback_alarms: dict[UUID, CallbackAlarm] = {}
         self._orphan_callback_alarms: dict[UUID, CallbackAlarm] = {}
         self._expected_sync_ids: set[UUID] = set()
         self._pending_callbacks: dict[UUID, BotXMethodCallback] = {}
-        self._expired_sync_ids: set[UUID] = set()
+        self._expired_sync_ids: OrderedDict[UUID, float] = OrderedDict()
+        self._expired_sync_ids_ttl_seconds = expired_sync_ids_ttl_seconds
+        self._expired_sync_ids_limit = expired_sync_ids_limit
 
     def register_expected_callback(self, sync_id: UUID) -> None:
         self._expected_sync_ids.add(sync_id)
@@ -72,7 +92,7 @@ class CallbackManager:
         callback: BotXMethodCallback,
     ) -> None:
         sync_id = callback.sync_id
-        if sync_id in self._expired_sync_ids:
+        if self._is_expired_sync_id(sync_id):
             raise BotXMethodCallbackNotFoundError(sync_id) from None
         try:
             await self._callback_repo.set_botx_method_callback_result(callback)
@@ -181,7 +201,7 @@ class CallbackManager:
         self._mark_callback_expired(sync_id)
 
     def _mark_callback_expired(self, sync_id: UUID) -> None:
-        self._expired_sync_ids.add(sync_id)
+        self._remember_expired_sync_id(sync_id)
         self._pending_callbacks.pop(sync_id, None)
         self._expected_sync_ids.discard(sync_id)
         self.cancel_orphan_callback_alarm(sync_id)
@@ -189,3 +209,31 @@ class CallbackManager:
     def drop_orphan_callback(self, sync_id: UUID) -> None:
         self._pending_callbacks.pop(sync_id, None)
         self.cancel_orphan_callback_alarm(sync_id)
+
+    def _remember_expired_sync_id(self, sync_id: UUID) -> None:
+        expires_at = monotonic() + self._expired_sync_ids_ttl_seconds
+        self._expired_sync_ids[sync_id] = expires_at
+        self._expired_sync_ids.move_to_end(sync_id)
+        self._cleanup_expired_sync_ids()
+
+    def _is_expired_sync_id(self, sync_id: UUID) -> bool:
+        self._cleanup_expired_sync_ids()
+        expires_at = self._expired_sync_ids.get(sync_id)
+        if expires_at is None:
+            return False
+        if expires_at <= monotonic():
+            self._expired_sync_ids.pop(sync_id, None)
+            return False
+        return True
+
+    def _cleanup_expired_sync_ids(self) -> None:
+        now = monotonic()
+        while self._expired_sync_ids:
+            _, oldest_expire_at = next(iter(self._expired_sync_ids.items()))
+            if (
+                oldest_expire_at <= now
+                or len(self._expired_sync_ids) > self._expired_sync_ids_limit
+            ):
+                self._expired_sync_ids.popitem(last=False)
+                continue
+            break

@@ -41,7 +41,7 @@ async def test__get_call__succeed(
             json={
                 "status": "ok",
                 "result": {
-                    "id": call_id,
+                    "call_id": call_id,
                     "members": [
                         member1,
                         member2,

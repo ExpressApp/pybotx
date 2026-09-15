@@ -1,4 +1,5 @@
 from http import HTTPStatus
+import importlib
 from typing import Any, cast
 from collections.abc import Callable
 from uuid import UUID
@@ -16,12 +17,21 @@ from pybotx import (
     lifespan_wrapper,
 )
 from pybotx.models.attachments import AttachmentDocument, OutgoingAttachment
+logger_module = importlib.import_module("pybotx.logger")
 
 pytestmark = [
     pytest.mark.asyncio,
     pytest.mark.mock_authorization,
     pytest.mark.usefixtures("respx_mock"),
 ]
+
+
+async def test__setup_logger__can_skip_default_sink_configuration(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("PYBOTX_CONFIGURE_LOGGER", "false")
+
+    assert logger_module.setup_logger() is not None
 
 
 async def test__attachment__trimmed_in_incoming_message(

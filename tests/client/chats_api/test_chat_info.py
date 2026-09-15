@@ -198,7 +198,7 @@ async def test__chat_info__succeed_voex_call(
     assert_deep_equal(
         chat_info,
         ChatInfo(
-            chat_type=ChatTypes.GROUP_CHAT,
+            chat_type=ChatTypes.VOEX_CALL,
             creator_id=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
             description=None,
             chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),

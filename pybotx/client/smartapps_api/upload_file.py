@@ -22,6 +22,7 @@ class BotXAPIUploadFileResponsePayload(VerifiedPayloadBaseModel):
 
 
 class UploadFileMethod(AuthorizedBotXMethod):
+    operation_name = "SmartAppsUploadFileMethod"
     status_handlers = {
         **AuthorizedBotXMethod.status_handlers,
         400: response_exception_thrower(FileTypeNotAllowed),

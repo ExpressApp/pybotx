@@ -32,7 +32,11 @@ API_CHAT_VALUES = [chat_type.value for chat_type in APIChatTypes]
 API_SYNC_SOURCE_VALUES = [sync_type.value for sync_type in APISyncSourceTypes]
 
 
-@given(st.sampled_from(list(ChatTypes)))
+@given(
+    st.sampled_from(
+        [chat_type for chat_type in ChatTypes if chat_type is not ChatTypes.VOEX_CALL]
+    )
+)
 def test__convert_chat_type_roundtrip__property(chat_type: ChatTypes) -> None:
     api_type = convert_chat_type_from_domain(chat_type)
     assert convert_chat_type_to_domain(api_type) == chat_type

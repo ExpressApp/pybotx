@@ -15,9 +15,17 @@ from pybotx.bot.api.responses.unverified_request import (
 )
 from pybotx.auth import BotXAuthVersion
 from pybotx.bot.bot import Bot
+from pybotx.bot.command_processing import (
+    BotCommandOverloadAction,
+    BotCommandOverloadStrategy,
+    BotCommandProcessingConfig,
+    DropOldestBotCommandOverloadStrategy,
+    RejectNewBotCommandOverloadStrategy,
+)
 from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
 from pybotx.bot.exceptions import (
     AnswerDestinationLookupError,
+    BotCommandRejectedError,
     BotShuttingDownError,
     BotXMethodCallbackNotFoundError,
     RequestHeadersNotProvidedError,
@@ -30,6 +38,23 @@ from pybotx.bot.handler import (
     SyncSmartAppEventHandlerFunc,
 )
 from pybotx.bot.handler_collector import HandlerCollector
+from pybotx.bot.healthcheck import (
+    HealthStatus,
+    HealthcheckService,
+    ReadinessCheck,
+    ReadinessCheckResult,
+    build_healthcheck_router,
+    setup_healthcheck,
+)
+from pybotx.bot.ingress_observability import (
+    BotIngressMetricsCollector,
+    InMemoryIngressMetricsCollector,
+    IngressCommandMetadata,
+    IngressCommandResult,
+    IngressMetricsSnapshot,
+    NoopIngressMetricsCollector,
+    PrometheusIngressMetricsCollector,
+)
 from pybotx.bot.testing import lifespan_wrapper
 from pybotx.client.exceptions.callbacks import (
     BotXMethodFailedCallbackReceivedError,
@@ -64,9 +89,45 @@ from pybotx.client.exceptions.notifications import (
     FinalRecipientsListEmptyError,
     StealthModeDisabledError,
 )
-from pybotx.client.exceptions.users import (
-    UserNotFoundError,
-    UserProfileUpdateUnavailableError,
+from pybotx.client.exceptions.users import UserNotFoundError
+from pybotx.client.http_config import (
+    AnyOfBotXRetryRequestPolicy,
+    BotXOperation,
+    BotXRetryPolicy,
+    BotXRetryRequestPolicy,
+    BotXRetryStrategy,
+    KnownSafeBotXRetryRequestPolicy,
+    OperationNameAllowlistBotXRetryRequestPolicy,
+    PathAllowlistBotXRetryRequestPolicy,
+    RetryAllBotXRequestsPolicy,
+    SafeBotXRetryRequestPolicy,
+    TenacityRetryStrategy,
+    build_default_httpx_limits,
+    build_default_httpx_timeout,
+)
+from pybotx.client.observability import (
+    BotXRequestMetadata,
+    BotXRequestObserver,
+    BotXRequestResult,
+    BotXRetryEvent,
+    OpenTelemetryTracingCollector,
+    PathNormalizer,
+    PrometheusMetricsCollector,
+    ReasonNormalizer,
+    SpanEnricher,
+)
+from pybotx.presets import (
+    BotObservabilityPreset,
+    BotProductionPreset,
+    BotRetryPreset,
+    build_production_bot_preset,
+    build_production_observability_preset,
+    build_production_retry_preset,
+)
+from pybotx.integrations.fastapi import (
+    FastAPIBotAppConfig,
+    create_fastapi_bot_app,
+    setup_fastapi_bot,
 )
 from pybotx.client.smartapps_api.exceptions import SyncSmartAppEventHandlerNotFoundError
 from pybotx.client.smartapps_api.smartapp_manifest import (
@@ -195,10 +256,38 @@ __all__ = (
     "BotXAuthVersion",
     "BotIsNotChatMemberError",
     "BotMenu",
+    "BotCommandOverloadAction",
+    "BotCommandOverloadStrategy",
+    "BotCommandProcessingConfig",
+    "BotCommandRejectedError",
+    "BotIngressMetricsCollector",
     "BotSender",
     "BotShuttingDownError",
     "BotXMethodCallbackNotFoundError",
     "BotXMethodFailedCallbackReceivedError",
+    "BotXRequestMetadata",
+    "BotXRequestObserver",
+    "BotXRequestResult",
+    "BotXOperation",
+    "BotXRetryPolicy",
+    "BotXRetryRequestPolicy",
+    "BotXRetryStrategy",
+    "BotXRetryEvent",
+    "AnyOfBotXRetryRequestPolicy",
+    "BotObservabilityPreset",
+    "KnownSafeBotXRetryRequestPolicy",
+    "OpenTelemetryTracingCollector",
+    "OperationNameAllowlistBotXRetryRequestPolicy",
+    "PathNormalizer",
+    "PathAllowlistBotXRetryRequestPolicy",
+    "BotProductionPreset",
+    "PrometheusMetricsCollector",
+    "ReasonNormalizer",
+    "RetryAllBotXRequestsPolicy",
+    "BotRetryPreset",
+    "SafeBotXRetryRequestPolicy",
+    "SpanEnricher",
+    "TenacityRetryStrategy",
     "BotXMethodCallback",
     "BotsListItem",
     "BubbleMarkup",
@@ -240,12 +329,19 @@ __all__ = (
     "File",
     "FileDeletedError",
     "FileMetadataNotFound",
+    "FastAPIBotAppConfig",
     "FinalRecipientsListEmptyError",
     "Forward",
     "HandlerCollector",
+    "HealthStatus",
+    "HealthcheckService",
     "Image",
+    "InMemoryIngressMetricsCollector",
     "IncomingMessage",
     "IncomingMessageHandlerFunc",
+    "IngressCommandMetadata",
+    "IngressCommandResult",
+    "IngressMetricsSnapshot",
     "InternalBotNotificationEvent",
     "InvalidBotAccountError",
     "InvalidBotXResponsePayloadError",
@@ -267,10 +363,15 @@ __all__ = (
     "MessageNotFoundError",
     "MessageStatus",
     "Middleware",
+    "NoopIngressMetricsCollector",
     "OutgoingAttachment",
     "OutgoingMessage",
     "PermissionDeniedError",
+    "PrometheusIngressMetricsCollector",
     "RateLimitReachedError",
+    "ReadinessCheck",
+    "ReadinessCheckResult",
+    "RejectNewBotCommandOverloadStrategy",
     "Reply",
     "ReplyMessage",
     "RequestHeadersNotProvidedError",
@@ -295,6 +396,7 @@ __all__ = (
     "ThreadAlreadyExistsError",
     "ThreadCreationError",
     "ThreadCreationProhibitedError",
+    "DropOldestBotCommandOverloadStrategy",
     "UnknownBotAccountError",
     "UnknownSystemEventError",
     "UnsupportedBotAPIVersionError",
@@ -309,9 +411,18 @@ __all__ = (
     "Video",
     "Voice",
     "build_bot_disabled_response",
+    "build_healthcheck_router",
     "build_command_accepted_response",
+    "build_default_httpx_limits",
+    "build_default_httpx_timeout",
+    "build_production_bot_preset",
+    "build_production_observability_preset",
+    "build_production_retry_preset",
     "build_unverified_request_response",
     "lifespan_wrapper",
+    "setup_healthcheck",
+    "setup_fastapi_bot",
+    "create_fastapi_bot_app",
 )
 
 logger.disable("pybotx")
