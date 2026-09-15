@@ -20,6 +20,7 @@ from pybotx.widgets.runner import (
     on_completed,
     on_data_key,
     widget_command,
+    _resolve_awaitable,
 )
 
 
@@ -508,13 +509,21 @@ async def test__widget_runner__edge_paths(
         return None
 
     await direct_handler(message, bot)
-    assert await on_data_key("missing", lambda _: "unused")(widget) is None
-    assert await on_completed(lambda _: False, lambda _: "unused")(widget) is None
-    assert await on_action(lambda _: "missing", {})(widget) is None
-    assert await on_action(lambda _: "run", {"run": lambda _: "done"})(widget) == (
+    assert await _resolve_awaitable(
+        on_data_key("missing", lambda _: "unused")(widget),
+    ) is None
+    assert await _resolve_awaitable(
+        on_completed(lambda _: False, lambda _: "unused")(widget),
+    ) is None
+    assert await _resolve_awaitable(on_action(lambda _: "missing", {})(widget)) is None
+    assert await _resolve_awaitable(
+        on_action(lambda _: "run", {"run": lambda _: "done"})(widget),
+    ) == (
         RunnerHookResult(result="done", should_display=False)
     )
-    assert await on_action(
-        lambda _: "run",
-        {"run": RunnerHookResult(result="ready")},
-    )(widget) == RunnerHookResult(result="ready")
+    assert await _resolve_awaitable(
+        on_action(
+            lambda _: "run",
+            {"run": RunnerHookResult(result="ready")},
+        )(widget),
+    ) == RunnerHookResult(result="ready")

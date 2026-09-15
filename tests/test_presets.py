@@ -1,6 +1,6 @@
 import importlib
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 
 import pytest
 
@@ -9,6 +9,7 @@ from pybotx import (
     BotXOperation,
     BotXRequestMetadata,
     BotXRetryRequestPolicy,
+    BotXRetryStrategy,
     build_production_bot_preset,
     build_production_observability_preset,
     build_production_retry_preset,
@@ -114,7 +115,7 @@ def test__retry_and_production_presets__include_optional_components() -> None:
     retry_strategy = object()
     retry_preset = build_production_retry_preset(
         retryable_status_codes={599},
-        retry_strategy=retry_strategy,  # type: ignore[arg-type]
+        retry_strategy=cast(BotXRetryStrategy, retry_strategy),
     )
 
     assert retry_preset.retry_policy.retryable_status_codes == frozenset({599})
@@ -128,7 +129,7 @@ def test__retry_and_production_presets__include_optional_components() -> None:
         {"should_retry": lambda self, metadata: False},
     )()
     custom = build_production_retry_preset(
-        retry_request_policy=custom_policy,  # type: ignore[arg-type]
+        retry_request_policy=custom_policy,
     )
     assert custom.retry_request_policy is custom_policy
 

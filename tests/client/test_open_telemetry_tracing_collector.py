@@ -63,9 +63,9 @@ class _FakeTracer:
 
 
 class _FakeTraceAPI:
-    Status = _FakeStatus
-    StatusCode = _FakeStatusCode
-    SpanKind = _FakeSpanKind
+    Status: object = _FakeStatus
+    StatusCode: object = _FakeStatusCode
+    SpanKind: object | None = _FakeSpanKind
 
     def __init__(self, tracer: _FakeTracer) -> None:
         self._tracer = tracer

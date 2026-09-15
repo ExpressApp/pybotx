@@ -1,12 +1,18 @@
 from http import HTTPStatus
 from types import SimpleNamespace
-from typing import Any, Literal
+from typing import Any, Literal, cast
 from uuid import UUID
 
 import httpx
 import pytest
 from respx.router import MockRouter
-from tenacity import AsyncRetrying, retry_if_exception_type, stop_after_attempt, wait_fixed
+from tenacity import (
+    AsyncRetrying,
+    RetryCallState,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_fixed,
+)
 
 from pybotx import (
     BotXOperation,
@@ -196,9 +202,13 @@ async def test__botx_method__observability_error_paths_are_isolated(
 
     retry_event = BotXRetryEvent(1, 2, 0, "timeout")
     method._notify_request_retry((observer,), metadata, retry_event)
-    assert method._format_retry_reason(SimpleNamespace(outcome=None)) == "unknown"
+    assert method._format_retry_reason(
+        cast(RetryCallState, SimpleNamespace(outcome=None)),
+    ) == "unknown"
     outcome = SimpleNamespace(failed=True, exception=lambda: None)
-    assert method._format_retry_reason(SimpleNamespace(outcome=outcome)) == "unknown"
+    assert method._format_retry_reason(
+        cast(RetryCallState, SimpleNamespace(outcome=outcome)),
+    ) == "unknown"
 
 
 async def test__botx_method__invalid_botx_status_code_error_raised(

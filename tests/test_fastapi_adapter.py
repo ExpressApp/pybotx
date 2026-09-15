@@ -211,7 +211,11 @@ class _RouteBot:
 
 
 def _endpoint(app: FastAPI, path: str) -> Any:
-    return next(route.endpoint for route in app.routes if getattr(route, "path", None) == path)
+    return next(
+        getattr(route, "endpoint")
+        for route in app.routes
+        if getattr(route, "path", None) == path
+    )
 
 
 @pytest.mark.parametrize(

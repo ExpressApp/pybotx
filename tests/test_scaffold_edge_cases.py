@@ -268,12 +268,12 @@ def test__widget_flow_variants_and_mock_upgrade(tmp_path: Path) -> None:
     for kind in ("approval", "search-select", "select"):
         spec = widget_flow._build_widget_flow_spec(
             flow_name="release",
-            kind=kind,  # type: ignore[arg-type]
+            kind=kind,
             command_name=None,
             description=None,
         )
         assert spec.kind == kind
-        assert len(widget_flow._select_widget_flow_templates(kind)) == 4  # type: ignore[arg-type]
+        assert len(widget_flow._select_widget_flow_templates(kind)) == 4
 
     conftest = tmp_path / "conftest.py"
     conftest.write_text(widget_flow._ANSWER_MESSAGE_MOCK, encoding="utf-8")

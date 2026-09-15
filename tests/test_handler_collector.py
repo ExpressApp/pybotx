@@ -1,7 +1,7 @@
 import asyncio
 from copy import deepcopy
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, cast
 from collections.abc import Callable
 from unittest.mock import Mock
 
@@ -24,6 +24,7 @@ from pybotx import (
     SyncSmartAppEventHandlerNotFoundError,
     lifespan_wrapper,
 )
+from pybotx.models.commands import BotCommand
 from pybotx.bot.contextvars import bot_id_var, chat_id_var, request_id_var, trace_id_var
 from pybotx.bot.handler_collector import _QueuedBotCommand
 
@@ -87,7 +88,7 @@ async def test__handler_collector__internal_queue_edge_paths(
         await cancelled
     collector._log_unhandled_task_exception(cancelled)
 
-    assert collector._extract_request_id_from_command(SimpleNamespace()) is None
+    assert collector._extract_request_id_from_command(cast(BotCommand, SimpleNamespace())) is None
     assert collector._set_ingress_contextvars(queued) == []
 
 

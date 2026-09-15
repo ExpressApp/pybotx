@@ -11,6 +11,7 @@ from pybotx import (
 )
 import pytest
 from pybotx.client.http_config import iter_retry_request_policy_warnings
+from typing import Any
 
 
 def test__safe_botx_retry_request_policy__retries_get_requests() -> None:
@@ -139,7 +140,7 @@ def test__any_of_botx_retry_request_policy__retries_when_any_nested_policy_match
         {"jitter_seconds": -1},
     ],
 )
-def test__botx_retry_policy__rejects_invalid_values(kwargs: dict[str, int]) -> None:
+def test__botx_retry_policy__rejects_invalid_values(kwargs: dict[str, Any]) -> None:
     with pytest.raises(ValueError):
         BotXRetryPolicy(**kwargs)
 
