@@ -151,7 +151,7 @@ async def test__raw_get_status__invalid_query() -> None:
     # - Act -
     with pytest.raises(ValueError) as exc:
         async with lifespan_wrapper(built_bot) as bot:
-            await bot.raw_get_status(query)
+            await bot.raw_get_status(query, verify_request=False)
 
     # - Assert -
     assert "validation error" in str(exc.value)
@@ -170,7 +170,7 @@ async def test__raw_get_status__unknown_bot_account_error_raised() -> None:
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
         with pytest.raises(UnknownBotAccountError) as exc:
-            await bot.raw_get_status(query)
+            await bot.raw_get_status(query, verify_request=False)
 
     # - Assert -
     assert "123e4567-e89b-12d3-a456-426655440000" in str(exc.value)
@@ -191,7 +191,7 @@ async def test__raw_get_status__minimally_filled_succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        status = await bot.raw_get_status(query)
+        status = await bot.raw_get_status(query, verify_request=False)
 
     # - Assert -
     assert status
@@ -215,7 +215,7 @@ async def test__raw_get_status__minimum_filled_succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        status = await bot.raw_get_status(query)
+        status = await bot.raw_get_status(query, verify_request=False)
 
     # - Assert -
     assert status
@@ -239,7 +239,7 @@ async def test__raw_get_status__maximum_filled_succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        status = await bot.raw_get_status(query)
+        status = await bot.raw_get_status(query, verify_request=False)
 
     # - Assert -
     assert status
@@ -266,7 +266,7 @@ async def test__raw_get_status__hidden_command_not_in_status(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        status = await bot.raw_get_status(query)
+        status = await bot.raw_get_status(query, verify_request=False)
 
     # - Assert -
     assert status == {
@@ -300,7 +300,7 @@ async def test__raw_get_status__visible_command_in_status(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        status = await bot.raw_get_status(query)
+        status = await bot.raw_get_status(query, verify_request=False)
 
     # - Assert -
     assert status == {
@@ -337,7 +337,7 @@ async def test__get_status__unsupported_chat_type_accepted(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        status = await bot.raw_get_status(query)
+        status = await bot.raw_get_status(query, verify_request=False)
 
     # - Assert -
     assert status

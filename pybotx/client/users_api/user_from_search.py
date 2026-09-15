@@ -1,7 +1,8 @@
-from typing import List, Literal, Optional
+from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
-from pydantic import Field
+from pydantic import Field, field_validator
 
 from pybotx.models.api_base import VerifiedPayloadBaseModel
 from pybotx.models.enums import APIUserKinds, convert_user_kind_to_domain
@@ -10,15 +11,37 @@ from pybotx.models.users import UserFromSearch
 
 class BotXAPISearchUserResult(VerifiedPayloadBaseModel):
     user_huid: UUID
-    ad_login: Optional[str] = None
-    ad_domain: Optional[str] = None
+    ad_login: str | None = None
+    ad_domain: str | None = None
+    avatar: str | None = None
+    avatar_preview: str | None = None
     name: str
-    company: Optional[str] = None
-    company_position: Optional[str] = None
-    department: Optional[str] = None
-    emails: List[str] = Field(default_factory=list)
-    other_id: Optional[str] = None
+    company: str | None = None
+    company_position: str | None = None
+    department: str | None = None
+    emails: list[str] = Field(default_factory=list)
+    other_id: str | None = None
     user_kind: APIUserKinds
+    active: bool | None = None
+    description: str | None = None
+    ip_phone: str | None = None
+    manager: str | None = None
+    office: str | None = None
+    other_ip_phone: str | None = None
+    other_phone: str | None = None
+    public_name: str | None = None
+    cts_id: UUID | None = None
+    rts_id: UUID | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+    @field_validator("ip_phone", "other_ip_phone", "other_phone", mode="before")
+    @classmethod
+    def convert_phone_to_string(cls, value: str | int | None) -> str | None:
+        if value is None:
+            return None
+
+        return str(value)
 
 
 class BotXAPISearchUserResponsePayload(VerifiedPayloadBaseModel):
@@ -30,6 +53,8 @@ class BotXAPISearchUserResponsePayload(VerifiedPayloadBaseModel):
             huid=self.result.user_huid,
             ad_login=self.result.ad_login,
             ad_domain=self.result.ad_domain,
+            avatar=self.result.avatar,
+            avatar_preview=self.result.avatar_preview,
             username=self.result.name,
             company=self.result.company,
             company_position=self.result.company_position,
@@ -37,4 +62,52 @@ class BotXAPISearchUserResponsePayload(VerifiedPayloadBaseModel):
             emails=self.result.emails,
             other_id=self.result.other_id,
             user_kind=convert_user_kind_to_domain(self.result.user_kind),
+            active=None if self.result.active is None else bool(self.result.active),
+            description=self.result.description,
+            ip_phone=self.result.ip_phone,
+            manager=self.result.manager,
+            office=self.result.office,
+            other_ip_phone=self.result.other_ip_phone,
+            other_phone=self.result.other_phone,
+            public_name=self.result.public_name,
+            cts_id=self.result.cts_id,
+            rts_id=self.result.rts_id,
+            created_at=self.result.created_at,
+            updated_at=self.result.updated_at,
         )
+
+
+class BotXAPISearchUserByEmailsResponsePayload(VerifiedPayloadBaseModel):
+    status: Literal["ok"]
+    result: list[BotXAPISearchUserResult]
+
+    def to_domain(self) -> list[UserFromSearch]:
+        return [
+            UserFromSearch(
+                huid=user.user_huid,
+                ad_login=user.ad_login,
+                ad_domain=user.ad_domain,
+                avatar=user.avatar,
+                avatar_preview=user.avatar_preview,
+                username=user.name,
+                company=user.company,
+                company_position=user.company_position,
+                department=user.department,
+                emails=user.emails,
+                other_id=user.other_id,
+                user_kind=convert_user_kind_to_domain(user.user_kind),
+                active=None if user.active is None else bool(user.active),
+                created_at=user.created_at,
+                cts_id=user.cts_id,
+                description=user.description,
+                ip_phone=user.ip_phone,
+                manager=user.manager,
+                office=user.office,
+                other_ip_phone=user.other_ip_phone,
+                other_phone=user.other_phone,
+                public_name=user.public_name,
+                rts_id=user.rts_id,
+                updated_at=user.updated_at,
+            )
+            for user in self.result
+        ]

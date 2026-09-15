@@ -1,0 +1,89 @@
+import uuid
+from typing import Any
+
+from factory.base import DictFactory
+from factory.declarations import SubFactory
+
+
+class DeviceMetaFactory(DictFactory):
+    permissions: str | None = None
+    pushes: str | None = None
+    timezone: str | None = None
+
+
+class FromFactory(DictFactory):
+    user_huid: str | None = None
+    group_chat_id: str = "8dada2c8-67a6-4434-9dec-570d244e78ee"
+    ad_login: str | None = None
+    ad_domain: str | None = None
+    username: str | None = None
+    chat_type: str = "group_chat"
+    manufacturer: str | None = None
+    device: str | None = None
+    device_software: str | None = None
+    device_meta: Any = SubFactory(DeviceMetaFactory)  # type: ignore[no-untyped-call]
+    platform: str | None = None
+    platform_package_id: str | None = None
+    is_admin: bool | None = None
+    is_creator: bool | None = None
+    app_version: str | None = None
+    locale: str = "en"
+    host: str = "cts.ccteam.ru"
+
+
+class CommandDataFactory(DictFactory):
+    added_members: list[str] = [uuid.uuid4().hex, uuid.uuid4().hex]
+
+
+class CommandFactory(DictFactory):
+    body: str = "system:user_joined_to_chat"
+    command_type: str = "system"
+    data: Any = SubFactory(CommandDataFactory)  # type: ignore[no-untyped-call]
+    metadata: dict[str, Any] = {}
+
+
+class BotAPIJoinToChatFactory(DictFactory):
+    sync_id: str = uuid.uuid4().hex
+    command: Any = SubFactory(CommandFactory)  # type: ignore[no-untyped-call]
+    async_files: list[str] = []
+    attachments: list[str] = []
+    entities: list[str] = []
+    from_: Any = SubFactory(FromFactory)  # type: ignore[no-untyped-call]
+    bot_id: str = uuid.uuid4().hex
+    proto_version: int = 4
+    source_sync_id: str | None = None
+
+    class Meta:
+        rename = {"from_": "from"}
+
+
+class ConferenceChangedDataFactory(DictFactory):
+    access_code = None
+    actor = None
+    added_users = ["5c053f2a-0bdf-4ab1-9bc9-256fee9db7ba"]
+    admins = ["b394c9a0-7636-4316-beb1-d5a92038501c"]
+    call_id = "eb6bf5d6-100c-42d8-9efd-549d5a70e38c"
+    deleted_users = ["440d82da-2046-43df-8dae-598336906090"]
+    end_at = "2025-04-15T12:00:39.634000Z"
+    link = "https://xlnk.ms/join/room/NGUyODE1MzAtYTcyNy01MzQ4LTkxNjktNzkzO1N2UtNWI4OS04NmM0LTFmY2FkMzkwNDE2OTpjMzgwNjVhNy1jOTc5LTU0MzgtYmNlYS05NTNhNjNhZDEwNzQ="
+    link_id = "b5dbd3ae-ab4a-42b9-b17d-6714b9e82bdb"
+    link_type = "public"
+    members = [
+        "24348246-6791-4ac0-9d86-b948cd6a0e46",
+        "b394c9a0-7636-4316-beb1-d5a92038501c",
+        "5c053f2a-0bdf-4ab1-9bc9-256fee9db7ba",
+    ]
+    name = "conference name"
+    operation = "change_conference_info"
+    sip_number = 12345678
+    start_at = "2025-04-15T11:00:39.634000Z"
+
+
+class DeleteEventFactory(DictFactory):
+    deleted_at = "2025-09-23T09:04:49.787078Z"
+    group_chat_id = "30dc1980-643a-00ad-37fc-7cc10d74e935"
+    meta = {
+        "deleted_by": "fbc84c63-e432-4ff1-99bd-c3275f053866",
+        "deleted_by_admin": True,
+    }
+    sync_ids = ["36c4f12a-7082-599a-9842-cd146730e179"]

@@ -1,4 +1,4 @@
-from typing import List, Literal, NoReturn
+from typing import Literal, NoReturn
 from uuid import UUID
 
 import httpx
@@ -16,13 +16,13 @@ from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBa
 
 class BotXAPIAddAdminRequestPayload(UnverifiedPayloadBaseModel):
     group_chat_id: UUID
-    user_huids: List[UUID]
+    user_huids: list[UUID]
 
     @classmethod
     def from_domain(
         cls,
         chat_id: UUID,
-        huids: List[UUID],
+        huids: list[UUID],
     ) -> "BotXAPIAddAdminRequestPayload":
         return cls(group_chat_id=chat_id, user_huids=huids)
 

@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 import pytest
@@ -69,7 +68,7 @@ async def test__internal_bot_notification__succeed(
     }
 
     collector = HandlerCollector()
-    internal_bot_notification: Optional[InternalBotNotificationEvent] = None
+    internal_bot_notification: InternalBotNotificationEvent | None = None
 
     @collector.internal_bot_notification
     async def internal_bot_notification_handler(
@@ -85,7 +84,7 @@ async def test__internal_bot_notification__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert internal_bot_notification == InternalBotNotificationEvent(

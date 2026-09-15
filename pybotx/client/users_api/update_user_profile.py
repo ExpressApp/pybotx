@@ -1,9 +1,13 @@
-from typing import Literal, Union
+from typing import Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
 from pybotx.client.botx_method import response_exception_thrower
-from pybotx.client.exceptions.users import InvalidProfileDataError, UserNotFoundError
+from pybotx.client.exceptions.users import (
+    InvalidProfileDataError,
+    UserNotFoundError,
+    UserProfileUpdateUnavailableError,
+)
 from pybotx.missing import Missing, Undefined
 from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from pybotx.models.attachments import (
@@ -29,7 +33,7 @@ class BotXAPIUpdateUserProfileRequestPayload(UnverifiedPayloadBaseModel):
     def from_domain(
         cls,
         user_huid: UUID,
-        avatar: Missing[Union[IncomingFileAttachment, OutgoingAttachment]] = Undefined,
+        avatar: Missing[IncomingFileAttachment | OutgoingAttachment] = Undefined,
         name: Missing[str] = Undefined,
         public_name: Missing[str] = Undefined,
         company: Missing[str] = Undefined,
@@ -67,6 +71,7 @@ class UpdateUsersProfileMethod(AuthorizedBotXMethod):
         **AuthorizedBotXMethod.status_handlers,
         400: response_exception_thrower(InvalidProfileDataError),
         404: response_exception_thrower(UserNotFoundError),
+        503: response_exception_thrower(UserProfileUpdateUnavailableError),
     }
 
     async def execute(

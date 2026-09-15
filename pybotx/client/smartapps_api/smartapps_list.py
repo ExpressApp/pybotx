@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional, Tuple
+from typing import Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -23,20 +23,20 @@ class BotXAPISmartAppEntity(VerifiedPayloadBaseModel):
     enabled: bool
     id: UUID
     name: str
-    avatar: Optional[str] = None
-    avatar_preview: Optional[str] = None
+    avatar: str | None = None
+    avatar_preview: str | None = None
 
 
 class BotXAPISmartAppsListResult(VerifiedPayloadBaseModel):
     phonebook_version: int
-    smartapps: List[BotXAPISmartAppEntity]
+    smartapps: list[BotXAPISmartAppEntity]
 
 
 class BotXAPISmartAppsListResponsePayload(VerifiedPayloadBaseModel):
     result: BotXAPISmartAppsListResult
     status: Literal["ok"]
 
-    def to_domain(self) -> Tuple[List[SmartApp], int]:
+    def to_domain(self) -> tuple[list[SmartApp], int]:
         smartapps_list = [
             SmartApp(
                 app_id=smartapp.app_id,

@@ -1,5 +1,5 @@
 import asyncio
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
@@ -8,15 +8,16 @@ from pybotx.client.exceptions.callbacks import CallbackNotReceivedError
 from pybotx.models.method_callbacks import BotXMethodCallback
 
 if TYPE_CHECKING:
-    from asyncio import Future  # noqa: WPS458
+    from asyncio import Future
 
 
 class CallbackMemoryRepo(CallbackRepoProto):
     def __init__(self) -> None:
-        self._callback_futures: Dict[UUID, "Future[BotXMethodCallback]"] = {}
+        self._callback_futures: dict[UUID, Future[BotXMethodCallback]] = {}
 
     async def create_botx_method_callback(self, sync_id: UUID) -> None:
-        self._callback_futures[sync_id] = asyncio.Future()
+        loop = asyncio.get_running_loop()
+        self._callback_futures[sync_id] = loop.create_future()
 
     async def set_botx_method_callback_result(
         self,
@@ -37,7 +38,7 @@ class CallbackMemoryRepo(CallbackRepoProto):
         try:
             return await asyncio.wait_for(future, timeout=timeout)
         except asyncio.TimeoutError as exc:
-            del self._callback_futures[sync_id]  # noqa: WPS420
+            del self._callback_futures[sync_id]
             raise CallbackNotReceivedError(sync_id) from exc
 
     async def pop_botx_method_callback(
@@ -54,6 +55,9 @@ class CallbackMemoryRepo(CallbackRepoProto):
                         f"Callback with sync_id `{sync_id!s}` can't be received",
                     ),
                 )
+                # Mark exception as retrieved to avoid "Future exception was never retrieved"
+                future.exception()
+        self._callback_futures.clear()
 
     def _get_botx_method_callback(self, sync_id: UUID) -> "Future[BotXMethodCallback]":
         try:

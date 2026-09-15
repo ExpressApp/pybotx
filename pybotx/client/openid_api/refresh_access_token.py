@@ -1,4 +1,4 @@
-from typing import Literal, Optional
+from typing import Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -7,13 +7,13 @@ from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBa
 
 class BotXAPIRefreshAccessTokenRequestPayload(UnverifiedPayloadBaseModel):
     user_huid: UUID
-    ref: Optional[UUID]
+    ref: UUID | None
 
     @classmethod
     def from_domain(
         cls,
         huid: UUID,
-        ref: Optional[UUID],
+        ref: UUID | None,
     ) -> "BotXAPIRefreshAccessTokenRequestPayload":
         return cls(
             user_huid=huid,

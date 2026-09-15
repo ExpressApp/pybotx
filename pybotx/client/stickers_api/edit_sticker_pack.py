@@ -1,4 +1,3 @@
-from typing import List, Optional
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -12,7 +11,7 @@ class BotXAPIEditStickerPackRequestPayload(UnverifiedPayloadBaseModel):
     sticker_pack_id: UUID
     name: str
     preview: UUID
-    stickers_order: Optional[List[UUID]]
+    stickers_order: list[UUID] | None
 
     @classmethod
     def from_domain(
@@ -20,7 +19,7 @@ class BotXAPIEditStickerPackRequestPayload(UnverifiedPayloadBaseModel):
         sticker_pack_id: UUID,
         name: str,
         preview: UUID,
-        stickers_order: Optional[List[UUID]],
+        stickers_order: list[UUID] | None,
     ) -> "BotXAPIEditStickerPackRequestPayload":
         return cls(
             sticker_pack_id=sticker_pack_id,

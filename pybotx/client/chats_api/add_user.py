@@ -1,4 +1,4 @@
-from typing import List, Literal
+from typing import Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -9,13 +9,13 @@ from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBa
 
 class BotXAPIAddUserRequestPayload(UnverifiedPayloadBaseModel):
     group_chat_id: UUID
-    user_huids: List[UUID]
+    user_huids: list[UUID]
 
     @classmethod
     def from_domain(
         cls,
         chat_id: UUID,
-        huids: List[UUID],
+        huids: list[UUID],
     ) -> "BotXAPIAddUserRequestPayload":
         return cls(group_chat_id=chat_id, user_huids=huids)
 

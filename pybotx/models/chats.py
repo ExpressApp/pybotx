@@ -1,19 +1,17 @@
 from dataclasses import dataclass
 from datetime import datetime
-from datetime import datetime as dt
-from typing import List, Optional
 from uuid import UUID
 
-from pybotx.models.enums import ChatTypes, IncomingChatTypes, UserKinds
+from pybotx.models.enums import ChatLinkTypes, ChatTypes, IncomingChatTypes, UserKinds
 
 
-@dataclass
+@dataclass(slots=True)
 class Chat:
     id: UUID
     type: IncomingChatTypes
 
 
-@dataclass
+@dataclass(slots=True)
 class ChatListItem:
     """Chat from list.
 
@@ -31,14 +29,14 @@ class ChatListItem:
     chat_id: UUID
     chat_type: ChatTypes
     name: str
-    description: Optional[str]
-    members: List[UUID]
+    description: str | None
+    members: list[UUID]
     created_at: datetime
     updated_at: datetime
     shared_history: bool
 
 
-@dataclass
+@dataclass(slots=True)
 class ChatInfoMember:
     """Chat member.
 
@@ -53,7 +51,7 @@ class ChatInfoMember:
     kind: UserKinds
 
 
-@dataclass
+@dataclass(slots=True)
 class ChatInfo:
     """Chat information.
 
@@ -69,10 +67,20 @@ class ChatInfo:
     """
 
     chat_type: ChatTypes
-    creator_id: UUID
-    description: Optional[str]
+    creator_id: UUID | None
+    description: str | None
     chat_id: UUID
-    created_at: dt
-    members: List[ChatInfoMember]
+    created_at: datetime
+    members: list[ChatInfoMember]
     name: str
     shared_history: bool
+
+
+@dataclass(slots=True)
+class ChatLink:
+    """Chat invite link."""
+
+    url: str
+    link_type: ChatLinkTypes
+    access_code: str | None
+    link_ttl: int | None

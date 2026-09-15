@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 import pytest
@@ -63,7 +62,7 @@ async def test__cts_logout__succeed(
     }
 
     collector = HandlerCollector()
-    cts_logout: Optional[CTSLogoutEvent] = None
+    cts_logout: CTSLogoutEvent | None = None
 
     @collector.cts_logout
     async def cts_logout_handler(event: CTSLogoutEvent, bot: Bot) -> None:
@@ -76,7 +75,7 @@ async def test__cts_logout__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert cts_logout == CTSLogoutEvent(

@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from collections.abc import Callable
 
 import pytest
 
@@ -59,7 +59,7 @@ async def test__message_state__save_changes_between_middleware_and_handler(
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    incoming_message: Optional[IncomingMessage] = None
+    incoming_message: IncomingMessage | None = None
     user_command = incoming_message_factory(body="/command")
 
     async def middleware(

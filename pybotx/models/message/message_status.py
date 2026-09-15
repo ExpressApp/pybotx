@@ -1,12 +1,11 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List
 from uuid import UUID
 
 
-@dataclass
+@dataclass(slots=True)
 class MessageStatus:
     group_chat_id: UUID
-    sent_to: List[UUID]
-    read_by: Dict[UUID, datetime]
-    received_by: Dict[UUID, datetime]
+    sent_to: list[UUID]
+    read_by: dict[UUID, datetime]
+    received_by: dict[UUID, datetime]

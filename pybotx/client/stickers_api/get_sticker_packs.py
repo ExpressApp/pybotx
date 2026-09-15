@@ -1,7 +1,8 @@
-from typing import List, Literal, Optional
+from typing import Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
+from pybotx.missing import Undefined
 from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 from pybotx.models.stickers import StickerPackFromList, StickerPackPage
 
@@ -9,20 +10,20 @@ from pybotx.models.stickers import StickerPackFromList, StickerPackPage
 class BotXAPIGetStickerPacksRequestPayload(UnverifiedPayloadBaseModel):
     user_huid: UUID
     limit: int
-    after: Optional[str]
+    after: str | None
 
     @classmethod
     def from_domain(
         cls,
         huid: UUID,
         limit: int,
-        after: Optional[str],
+        after: str | None,
     ) -> "BotXAPIGetStickerPacksRequestPayload":
-        return cls(user_huid=huid, limit=limit, after=after)
+        return cls(user_huid=huid, limit=limit, after=after if after else Undefined)
 
 
 class BotXAPIGetPaginationResult(VerifiedPayloadBaseModel):
-    after: Optional[str]
+    after: str | None
 
 
 class BotXAPIGetStickerPackResult(VerifiedPayloadBaseModel):
@@ -30,11 +31,11 @@ class BotXAPIGetStickerPackResult(VerifiedPayloadBaseModel):
     name: str
     public: bool
     stickers_count: int
-    stickers_order: Optional[List[UUID]]
+    stickers_order: list[UUID] | None
 
 
 class BotXAPIGetStickerPacksResult(VerifiedPayloadBaseModel):
-    packs: List[BotXAPIGetStickerPackResult]
+    packs: list[BotXAPIGetStickerPackResult]
     pagination: BotXAPIGetPaginationResult
 
 

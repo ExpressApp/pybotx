@@ -1,4 +1,4 @@
-from typing import Any, Dict, Literal
+from typing import Any, Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -11,8 +11,8 @@ class BotXAPISmartAppNotificationRequestPayload(UnverifiedPayloadBaseModel):
     group_chat_id: UUID
     smartapp_counter: int
     body: Missing[str]
-    opts: Missing[Dict[str, Any]]
-    meta: Missing[Dict[str, Any]]
+    opts: Missing[dict[str, Any]]
+    meta: Missing[dict[str, Any]]
     smartapp_api_version: int
 
     @classmethod
@@ -21,8 +21,8 @@ class BotXAPISmartAppNotificationRequestPayload(UnverifiedPayloadBaseModel):
         chat_id: UUID,
         smartapp_counter: int,
         body: Missing[str],
-        opts: Missing[Dict[str, Any]],
-        meta: Missing[Dict[str, Any]],
+        opts: Missing[dict[str, Any]],
+        meta: Missing[dict[str, Any]],
     ) -> "BotXAPISmartAppNotificationRequestPayload":
         return cls(
             group_chat_id=chat_id,

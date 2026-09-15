@@ -248,6 +248,11 @@ from pybotx.client.users_api.users_as_csv import (
     BotXAPIUsersAsCSVRequestPayload,
     UsersAsCSVMethod,
 )
+from pybotx.client.voex_api.get_call import BotXAPIGetCallRequestPayload, GetCallMethod
+from pybotx.client.voex_api.get_conference import (
+    BotXAPIGetConferenceRequestPayload,
+    GetConferenceMethod,
+)
 from pybotx.constants import BOTX_DEFAULT_TIMEOUT, STICKER_PACKS_PER_PAGE
 from pybotx.converters import optional_sequence_to_list
 from pybotx.image_validators import (
@@ -260,12 +265,14 @@ from pybotx.models.async_files import File
 from pybotx.models.attachments import IncomingFileAttachment, OutgoingAttachment
 from pybotx.models.bot_account import BotAccountWithSecret
 from pybotx.models.bot_catalog import BotsListItem
+from pybotx.models.call import Call
 from pybotx.models.chats import ChatInfo, ChatLink, ChatListItem
 from pybotx.models.commands import (
     BotAPISystemEvent,
     BotAPIIncomingMessage,
     BotCommand,
 )
+from pybotx.models.conference import Conference
 from pybotx.models.enums import BotAPICommandTypes, ChatLinkTypes, ChatTypes
 from pybotx.models.message.edit_message import EditMessage
 from pybotx.models.message.markup import BubbleMarkup, KeyboardMarkup
@@ -385,7 +392,7 @@ class Bot:
         request_headers: Mapping[str, str] | None = None,
         logging_command: bool = True,
         trusted_issuers: set[str] | None = None,
-    ) -> None:
+    ) -> "Task[None]":
         context_tokens = self._set_ingress_contextvars(
             payload=raw_bot_command,
             request_headers=request_headers,
@@ -409,9 +416,29 @@ class Bot:
                 raise ValueError("Bot command validation error") from validation_exc
 
             bot_command = bot_api_command.to_domain(raw_bot_command)
-            self.async_execute_bot_command(bot_command)
+            return self.async_execute_bot_command(bot_command)
         finally:
             self._reset_contextvars(context_tokens)
+
+    async def dispatch_raw_command(
+        self,
+        raw_bot_command: dict[str, Any],
+        verify_request: bool = True,
+        request_headers: Mapping[str, str] | None = None,
+        logging_command: bool = True,
+        trusted_issuers: set[str] | None = None,
+        *,
+        wait: bool = True,
+    ) -> None:
+        task = self.async_execute_raw_bot_command(
+            raw_bot_command,
+            verify_request=verify_request,
+            request_headers=request_headers,
+            logging_command=logging_command,
+            trusted_issuers=trusted_issuers,
+        )
+        if wait:
+            await task
 
     def async_execute_bot_command(
         self,
@@ -534,6 +561,20 @@ class Bot:
             await self._callbacks_manager.set_botx_method_callback_result(callback)
         finally:
             self._reset_contextvars(context_tokens)
+
+    async def deliver_raw_callback(
+        self,
+        raw_botx_method_result: dict[str, Any],
+        verify_request: bool = True,
+        request_headers: Mapping[str, str] | None = None,
+        trusted_issuers: set[str] | None = None,
+    ) -> None:
+        await self.set_raw_botx_method_result(
+            raw_botx_method_result,
+            verify_request=verify_request,
+            request_headers=request_headers,
+            trusted_issuers=trusted_issuers,
+        )
 
     async def wait_botx_method_callback(
         self,
@@ -1494,6 +1535,56 @@ class Bot:
 
         await method.execute(payload)
 
+    async def get_call(
+        self,
+        *,
+        bot_id: UUID,
+        call_id: UUID,
+    ) -> Call:
+        """Get call.
+
+        :param bot_id: Bot which should perform the request.
+        :param call_id: Call id.
+
+        :return: Call.
+        """
+        method = GetCallMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPIGetCallRequestPayload.from_domain(
+            call_id=call_id,
+        )
+        botx_call = await method.execute(payload)
+
+        return botx_call.to_domain()
+
+    async def get_conference(
+        self,
+        *,
+        bot_id: UUID,
+        call_id: UUID,
+    ) -> Conference:
+        """Get Conference.
+
+        :param bot_id: Bot which should perform the request.
+        :param call_id: Call id.
+
+        :return: Conference.
+        """
+        method = GetConferenceMethod(
+            bot_id,
+            self._httpx_client,
+            self._bot_accounts_storage,
+        )
+        payload = BotXAPIGetConferenceRequestPayload.from_domain(
+            call_id=call_id,
+        )
+        botx_conference = await method.execute(payload)
+
+        return botx_conference.to_domain()
+
     async def unpin_message(
         self,
         *,
@@ -1520,6 +1611,8 @@ class Bot:
         *,
         bot_id: UUID,
         emails: list[str],
+        trusts_search: bool = False,
+        partial_response: bool = False,
     ) -> list[UserFromSearch]:
         """Search user by emails for search.
 
@@ -1534,7 +1627,11 @@ class Bot:
             self._httpx_client,
             self._bot_accounts_storage,
         )
-        payload = BotXAPISearchUserByEmailsRequestPayload.from_domain(emails=emails)
+        payload = BotXAPISearchUserByEmailsRequestPayload.from_domain(
+            emails=emails,
+            trusts_search=trusts_search,
+            partial_response=partial_response,
+        )
 
         botx_api_users_from_search = await method.execute(payload)
 
@@ -1882,6 +1979,9 @@ class Bot:
         android: Missing[SmartappManifestAndroidParams] = Undefined,
         web_layout: Missing[SmartappManifestWebParams] = Undefined,
         unread_counter: Missing[SmartappManifestUnreadCounterParams] = Undefined,
+        store_on_close: Missing[bool] = Undefined,
+        preload_in_background: Missing[bool] = Undefined,
+        link_regex: Missing[str | None] = Undefined,
     ) -> SmartappManifest:
         """Send smartapp manifest with given parameters.
 
@@ -1904,6 +2004,9 @@ class Bot:
             android=android,
             web_layout=web_layout,
             unread_counter=unread_counter,
+            store_on_close=store_on_close,
+            preload_in_background=preload_in_background,
+            link_regex=link_regex,
         )
         smartapp_manifest_response = await method.execute(payload)
         return smartapp_manifest_response.to_domain()

@@ -16,7 +16,7 @@ class InvalidBotXResponseError(BaseClientError):
 
     def __reduce__(self) -> Any:
         # This method required to pass exception from pybotx logger to bot logger.
-        return type(self), (self.response,)  # pragma: no cover
+        return type(self), (self.response,)
 
 
 class InvalidBotXStatusCodeError(InvalidBotXResponseError):

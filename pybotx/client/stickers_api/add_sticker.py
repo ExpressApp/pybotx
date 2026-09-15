@@ -55,7 +55,7 @@ class BotXAPIAddStickerResponsePayload(VerifiedPayloadBaseModel):
         )
 
 
-def bad_request_error_handler(response: httpx.Response) -> NoReturn:  # noqa: WPS238
+def bad_request_error_handler(response: httpx.Response) -> NoReturn:
     reason = response.json().get("reason")
 
     if reason == "pack_not_found":

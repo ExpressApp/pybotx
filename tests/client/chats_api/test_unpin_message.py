@@ -1,18 +1,13 @@
 from http import HTTPStatus
+from typing import Any
+from collections.abc import Sequence
 from uuid import UUID
 
-import httpx
 import pytest
 from respx.router import MockRouter
 
-from pybotx import (
-    Bot,
-    BotAccountWithSecret,
-    ChatNotFoundError,
-    HandlerCollector,
-    PermissionDeniedError,
-    lifespan_wrapper,
-)
+from pybotx import ChatNotFoundError, PermissionDeniedError
+from tests.testkit import BotXRequest, error_payload, mock_botx, ok_payload
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -20,91 +15,71 @@ pytestmark = [
     pytest.mark.usefixtures("respx_mock"),
 ]
 
+ENDPOINT = "/api/v3/botx/chats/unpin_message"
 
-async def test__unpin_message__permission_denied_error_raised(
-    respx_mock: MockRouter,
-    host: str,
-    bot_id: UUID,
-    bot_account: BotAccountWithSecret,
-) -> None:
-    # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v3/botx/chats/unpin_message",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
-        json={
-            "chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
-        },
-    ).mock(
-        return_value=httpx.Response(
+REQUEST = BotXRequest(
+    method="POST",
+    path=ENDPOINT,
+    json={
+        "chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
+    },
+)
+
+
+@pytest.mark.parametrize(
+    ("response_status", "response_json", "expected_exc", "expected_fragments"),
+    [
+        (
             HTTPStatus.FORBIDDEN,
-            json={
-                "error_data": {
+            error_payload(
+                "no_permission_for_operation",
+                error_data={
                     "bot_id": "f9e1c958-bf81-564e-bff2-a2943869af15",
                     "error_description": "Bot doesn't have permission for this operation in current chat",
                     "group_chat_id": "5680c26a-07a5-5b40-a6ff-f5e7e68fed25",
                 },
-                "errors": [],
-                "reason": "no_permission_for_operation",
-                "status": "error",
-            },
+            ),
+            PermissionDeniedError,
+            ("no_permission_for_operation",),
         ),
-    )
-
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
-    # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(PermissionDeniedError) as exc:
-            await bot.unpin_message(
-                bot_id=bot_id,
-                chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
-            )
-
-    # - Assert -
-    assert "no_permission_for_operation" in str(exc.value)
-    assert endpoint.called
-
-
-async def test__unpin_message__chat_not_found_error_raised(
-    respx_mock: MockRouter,
-    host: str,
-    bot_id: UUID,
-    bot_account: BotAccountWithSecret,
-) -> None:
-    # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v3/botx/chats/unpin_message",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
-        json={
-            "chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
-        },
-    ).mock(
-        return_value=httpx.Response(
+        (
             HTTPStatus.NOT_FOUND,
-            json={
-                "status": "error",
-                "reason": "chat_not_found",
-                "errors": [],
-                "error_data": {
+            error_payload(
+                "chat_not_found",
+                error_data={
                     "error_description": "Chat with specified id not found",
                     "group_chat_id": "dcfa5a7c-7cc4-4c89-b6c0-80325604f9f4",
                 },
-            },
+            ),
+            ChatNotFoundError,
+            ("chat_not_found",),
         ),
-    )
-
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+    ],
+)
+async def test__unpin_message__error_response(
+    response_status: int,
+    response_json: dict[str, Any],
+    expected_exc: type[Exception],
+    expected_fragments: Sequence[str],
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_factory: Any,
+) -> None:
+    # - Arrange -
+    endpoint = mock_botx(respx_mock, host, REQUEST, response_json, response_status)
 
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
-        with pytest.raises(ChatNotFoundError) as exc:
+    async with bot_factory() as bot:
+        with pytest.raises(expected_exc) as exc:
             await bot.unpin_message(
                 bot_id=bot_id,
                 chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             )
 
     # - Assert -
-    assert "chat_not_found" in str(exc.value)
+    for fragment in expected_fragments:
+        assert fragment in str(exc.value)
     assert endpoint.called
 
 
@@ -112,26 +87,19 @@ async def test__unpin_message__succeed(
     respx_mock: MockRouter,
     host: str,
     bot_id: UUID,
-    bot_account: BotAccountWithSecret,
+    bot_factory: Any,
 ) -> None:
     # - Arrange -
-    endpoint = respx_mock.post(
-        f"https://{host}/api/v3/botx/chats/unpin_message",
-        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
-        json={
-            "chat_id": "054af49e-5e18-4dca-ad73-4f96b6de63fa",
-        },
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.OK,
-            json={"status": "ok", "result": "message_unpinned"},
-        ),
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        REQUEST,
+        ok_payload("message_unpinned"),
+        HTTPStatus.OK,
     )
 
-    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
-
     # - Act -
-    async with lifespan_wrapper(built_bot) as bot:
+    async with bot_factory() as bot:
         await bot.unpin_message(
             bot_id=bot_id,
             chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),

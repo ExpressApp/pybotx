@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Awaitable, Callable, Dict, Optional, Type
+from typing import TYPE_CHECKING
+from collections.abc import Awaitable, Callable
 
 from pybotx.bot.handler import IncomingMessageHandlerFunc
 from pybotx.logger import logger
@@ -11,7 +12,7 @@ ExceptionHandler = Callable[
     [IncomingMessage, "Bot", Exception],
     Awaitable[None],
 ]
-ExceptionHandlersDict = Dict[Type[Exception], ExceptionHandler]
+ExceptionHandlersDict = dict[type[Exception], ExceptionHandler]
 
 
 class ExceptionMiddleware:
@@ -33,7 +34,7 @@ class ExceptionMiddleware:
             if exception_handler is None:
                 raise message_handler_exc
 
-            try:  # noqa: WPS505
+            try:
                 await exception_handler(message, bot, message_handler_exc)
             except Exception as error_handler_exc:
                 exc_name = type(message_handler_exc).__name__
@@ -42,7 +43,7 @@ class ExceptionMiddleware:
                     error_handler_exc,
                 )
 
-    def _get_exception_handler(self, exc: Exception) -> Optional[ExceptionHandler]:
+    def _get_exception_handler(self, exc: Exception) -> ExceptionHandler | None:
         for exc_cls in type(exc).mro():
             handler = self._exception_handlers.get(exc_cls)
             if handler:

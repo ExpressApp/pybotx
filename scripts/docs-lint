@@ -14,9 +14,7 @@ while IFS= read -d '' -r snippet || [[ -n "${snippet}" ]]; do
   snippet_number=$((snippet_number+1))
 done < <(grep -Pzo '(?s)(?<=```python\n).*?(?=```)' README.md);
 
-isort --profile black --check-only "${snippets_dir_path}"
-black --check --diff "${snippets_dir_path}"
 mypy "${snippets_dir_path}"
-flake8 "${snippets_dir_path}"
+ruff check "${snippets_dir_path}" --ignore F403,F405
 
 rm -rf "${snippets_dir_path}"

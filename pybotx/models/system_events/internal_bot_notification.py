@@ -1,7 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, Literal
-
-from pydantic import Field
+from typing import Any, Literal
 
 from pybotx.models.api_base import VerifiedPayloadBaseModel
 from pybotx.models.base_command import (
@@ -15,9 +13,10 @@ from pybotx.models.bot_account import BotAccount
 from pybotx.models.bot_sender import BotSender
 from pybotx.models.chats import Chat
 from pybotx.models.enums import BotAPISystemEventTypes, convert_chat_type_to_domain
+from pydantic import Field
 
 
-@dataclass
+@dataclass(slots=True)
 class InternalBotNotificationEvent(BotCommandBase):
     """Event `system:internal_bot_notification`.
 
@@ -26,15 +25,15 @@ class InternalBotNotificationEvent(BotCommandBase):
         opts: request options.
     """
 
-    data: Dict[str, Any]
-    opts: Dict[str, Any]
+    data: dict[str, Any]
+    opts: dict[str, Any]
     chat: Chat
     sender: BotSender
 
 
 class BotAPIInternalBotNotificationData(VerifiedPayloadBaseModel):
-    data: Dict[str, Any]
-    opts: Dict[str, Any]
+    data: dict[str, Any]
+    opts: dict[str, Any]
 
 
 class BotAPIInternalBotNotificationPayload(BotAPIBaseSystemEventPayload):
@@ -50,7 +49,7 @@ class BotAPIInternalBotNotification(BotAPIBaseCommand):
     payload: BotAPIInternalBotNotificationPayload = Field(..., alias="command")
     sender: BotAPIBotContext = Field(..., alias="from")
 
-    def to_domain(self, raw_command: Dict[str, Any]) -> InternalBotNotificationEvent:
+    def to_domain(self, raw_command: dict[str, Any]) -> InternalBotNotificationEvent:
         return InternalBotNotificationEvent(
             bot=BotAccount(
                 id=self.bot_id,

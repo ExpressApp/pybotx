@@ -1,8 +1,6 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List, Literal
+from typing import Any, Literal
 from uuid import UUID
-
-from pydantic import Field
 
 from pybotx.models.api_base import VerifiedPayloadBaseModel
 from pybotx.models.base_command import (
@@ -14,9 +12,10 @@ from pybotx.models.base_command import (
 from pybotx.models.bot_account import BotAccount
 from pybotx.models.chats import Chat
 from pybotx.models.enums import BotAPISystemEventTypes, convert_chat_type_to_domain
+from pydantic import Field
 
 
-@dataclass
+@dataclass(slots=True)
 class AddedToChatEvent(BotCommandBase):
     """Event `system:added_to_chat`.
 
@@ -24,12 +23,12 @@ class AddedToChatEvent(BotCommandBase):
         huids: List of added to chat user huids.
     """
 
-    huids: List[UUID]
+    huids: list[UUID]
     chat: Chat
 
 
 class BotAPIAddedToChatData(VerifiedPayloadBaseModel):
-    added_members: List[UUID]
+    added_members: list[UUID]
 
 
 class BotAPIAddedToChatPayload(BotAPIBaseSystemEventPayload):
@@ -41,7 +40,7 @@ class BotAPIAddedToChat(BotAPIBaseCommand):
     payload: BotAPIAddedToChatPayload = Field(..., alias="command")
     sender: BotAPIChatContext = Field(..., alias="from")
 
-    def to_domain(self, raw_command: Dict[str, Any]) -> AddedToChatEvent:
+    def to_domain(self, raw_command: dict[str, Any]) -> AddedToChatEvent:
         return AddedToChatEvent(
             bot=BotAccount(
                 id=self.bot_id,

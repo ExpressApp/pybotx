@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 import pytest
@@ -83,7 +82,7 @@ async def test__chat_created__succeed(
     }
 
     collector = HandlerCollector()
-    chat_created: Optional[ChatCreatedEvent] = None
+    chat_created: ChatCreatedEvent | None = None
 
     @collector.chat_created
     async def chat_created_handler(event: ChatCreatedEvent, bot: Bot) -> None:
@@ -96,7 +95,7 @@ async def test__chat_created__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert chat_created == ChatCreatedEvent(

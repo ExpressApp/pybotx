@@ -114,7 +114,7 @@ async def test__download_file__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        await bot.upload_file(
+        uploaded_file = await bot.upload_file(
             bot_id=bot_id,
             chat_id=UUID("054af49e-5e18-4dca-ad73-4f96b6de63fa"),
             async_buffer=async_buffer,
@@ -122,4 +122,10 @@ async def test__download_file__succeed(
         )
 
     # - Assert -
+    assert uploaded_file.file_preview == "https://link.to/preview"
+    assert uploaded_file.file_preview_height == 300
+    assert uploaded_file.file_preview_width == 300
+    assert uploaded_file.file_encryption_algo == "stream"
+    assert uploaded_file.chunk_size == 2097152
+    assert uploaded_file.caption == "текст"
     assert endpoint.called

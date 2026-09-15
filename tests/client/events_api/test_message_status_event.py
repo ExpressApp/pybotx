@@ -1,6 +1,6 @@
 from datetime import datetime
 from http import HTTPStatus
-from typing import Callable
+from collections.abc import Callable
 from uuid import UUID
 
 import httpx

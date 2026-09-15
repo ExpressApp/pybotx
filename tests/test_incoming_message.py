@@ -1,5 +1,7 @@
 from datetime import datetime
-from typing import Callable, Optional
+from types import SimpleNamespace
+from typing import Any, cast
+from collections.abc import Callable
 from uuid import UUID
 
 import pytest
@@ -23,6 +25,13 @@ from pybotx import (
     lifespan_wrapper,
 )
 from pybotx.models.attachments import AttachmentImage
+from pybotx.models.enums import BotAPIMentionTypes
+from pybotx.models.message.incoming_message import (
+    BotAPIEntity,
+    _convert_bot_api_mention_to_domain,
+    convert_bot_api_entity_to_domain,
+)
+from pybotx.models.message.mentions import BotAPIMentionData
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -35,7 +44,7 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    payload = {
+    payload: dict[str, Any] = {
         "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
         "command": {
             "body": "/hello",
@@ -72,7 +81,7 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
     }
 
     collector = HandlerCollector()
-    incoming_message: Optional[IncomingMessage] = None
+    incoming_message: IncomingMessage | None = None
 
     @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
@@ -85,7 +94,7 @@ async def test__async_execute_raw_bot_command__minimally_filled_incoming_message
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert incoming_message == IncomingMessage(
@@ -132,7 +141,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    payload = {
+    payload: dict[str, Any] = {
         "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
         "command": {
             "body": "/hello",
@@ -230,7 +239,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
     }
 
     collector = HandlerCollector()
-    incoming_message: Optional[IncomingMessage] = None
+    incoming_message: IncomingMessage | None = None
 
     @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
@@ -243,7 +252,7 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert incoming_message == IncomingMessage(
@@ -299,6 +308,9 @@ async def test__async_execute_raw_bot_command__maximum_filled_incoming_message(
         ),
         forward=Forward(
             chat_id=UUID("918da23a-1c9a-506e-8a6f-1328f1499ee8"),
+            chat_name="Simple Chat",
+            forward_type=ChatTypes.PERSONAL_CHAT,
+            inserted_at=datetime_formatter("2020-04-21T22:09:32.178Z"),
             author_id=UUID("c06a96fa-7881-0bb6-0e0b-0af72fe3683f"),
             sync_id=UUID("a7ffba12-8d0a-534e-8896-a0aa2d93a434"),
         ),
@@ -322,7 +334,7 @@ async def test__async_execute_raw_bot_command__all_mention_types(
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    payload = {
+    payload: dict[str, Any] = {
         "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
         "command": {
             "body": "/hello",
@@ -418,7 +430,7 @@ async def test__async_execute_raw_bot_command__all_mention_types(
     }
 
     collector = HandlerCollector()
-    incoming_message: Optional[IncomingMessage] = None
+    incoming_message: IncomingMessage | None = None
 
     @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
@@ -431,7 +443,7 @@ async def test__async_execute_raw_bot_command__all_mention_types(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert incoming_message
@@ -463,7 +475,7 @@ async def test__async_execute_raw_bot_command__unknown_entity_type(
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     # - Arrange -
-    payload = {
+    payload: dict[str, Any] = {
         "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
         "command": {
             "body": "/hello",
@@ -515,7 +527,7 @@ async def test__async_execute_raw_bot_command__unknown_entity_type(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert "Received unknown entity type" in loguru_caplog.text
@@ -525,7 +537,7 @@ async def test__async_execute_raw_bot_command__unsupported_chat_type_accepted(
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
-    payload = {
+    payload: dict[str, Any] = {
         "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
         "command": {
             "body": "/hello",
@@ -562,7 +574,7 @@ async def test__async_execute_raw_bot_command__unsupported_chat_type_accepted(
     }
 
     collector = HandlerCollector()
-    incoming_message: Optional[IncomingMessage] = None
+    incoming_message: IncomingMessage | None = None
 
     @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
@@ -575,7 +587,7 @@ async def test__async_execute_raw_bot_command__unsupported_chat_type_accepted(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert incoming_message
@@ -583,3 +595,24 @@ async def test__async_execute_raw_bot_command__unsupported_chat_type_accepted(
         id=UUID("30dc1980-643a-00ad-37fc-7cc10d74e935"),
         type="UNSUPPORTED",
     )
+
+
+async def test__convert_bot_api_mention_to_domain__unsupported_type() -> None:
+    api_mention = BotAPIMentionData.model_construct(
+        mention_type=cast(BotAPIMentionTypes, "unsupported"),
+        mention_id=UUID("00000000-0000-0000-0000-000000000000"),
+        mention_data=None,
+    )
+
+    with pytest.raises(NotImplementedError):
+        _convert_bot_api_mention_to_domain(api_mention)
+
+
+async def test__convert_bot_api_entity_to_domain__unsupported_type() -> None:
+    api_entity = cast(
+        BotAPIEntity,
+        SimpleNamespace(type="unsupported"),
+    )
+
+    with pytest.raises(NotImplementedError):
+        convert_bot_api_entity_to_domain(api_entity)

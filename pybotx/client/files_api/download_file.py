@@ -22,11 +22,12 @@ class BotXAPIDownloadFileRequestPayload(UnverifiedPayloadBaseModel):
         cls,
         chat_id: UUID,
         file_id: UUID,
+        is_preview: bool = False,
     ) -> "BotXAPIDownloadFileRequestPayload":
         return cls(
             group_chat_id=chat_id,
             file_id=file_id,
-            is_preview=False,
+            is_preview=is_preview,
         )
 
 
@@ -61,7 +62,7 @@ class DownloadFileMethod(AuthorizedBotXMethod):
             params=payload.jsonable_dict(),
         ) as response:
             # https://github.com/nedbat/coveragepy/issues/1223
-            async for chunk in response.aiter_bytes():  # pragma: no cover
+            async for chunk in response.aiter_bytes():  # pragma: no branch
                 await async_buffer.write(chunk)
 
         await async_buffer.seek(0)

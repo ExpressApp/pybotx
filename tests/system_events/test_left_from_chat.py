@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 import pytest
@@ -66,7 +65,7 @@ async def test__left_from_chat__succeed(
     }
 
     collector = HandlerCollector()
-    left_from_chat: Optional[LeftFromChatEvent] = None
+    left_from_chat: LeftFromChatEvent | None = None
 
     @collector.left_from_chat
     async def left_from_chat_handler(event: LeftFromChatEvent, bot: Bot) -> None:
@@ -79,7 +78,7 @@ async def test__left_from_chat__succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert left_from_chat == LeftFromChatEvent(

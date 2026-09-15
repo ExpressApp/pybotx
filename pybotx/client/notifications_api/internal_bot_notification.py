@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 from uuid import UUID
 
 from pybotx.client.authorized_botx_method import AuthorizedBotXMethod
@@ -17,17 +17,17 @@ from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBa
 
 class BotXAPIInternalBotNotificationRequestPayload(UnverifiedPayloadBaseModel):
     group_chat_id: UUID
-    data: Dict[str, Any]
-    opts: Missing[Dict[str, Any]]
-    recipients: MissingOptional[List[UUID]]
+    data: dict[str, Any]
+    opts: Missing[dict[str, Any]]
+    recipients: MissingOptional[list[UUID]]
 
     @classmethod
     def from_domain(
         cls,
         chat_id: UUID,
-        data: Dict[str, Any],
-        opts: Missing[Dict[str, Any]],
-        recipients: MissingOptional[List[UUID]],
+        data: dict[str, Any],
+        opts: Missing[dict[str, Any]],
+        recipients: MissingOptional[list[UUID]],
     ) -> "BotXAPIInternalBotNotificationRequestPayload":
         return cls(
             group_chat_id=chat_id,
@@ -70,7 +70,7 @@ class InternalBotNotificationMethod(AuthorizedBotXMethod):
         self,
         payload: BotXAPIInternalBotNotificationRequestPayload,
         wait_callback: bool,
-        callback_timeout: Optional[float],
+        callback_timeout: float | None,
         default_callback_timeout: float,
     ) -> BotXAPIInternalBotNotificationResponsePayload:
         path = "/api/v4/botx/notifications/internal"

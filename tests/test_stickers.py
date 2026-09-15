@@ -1,5 +1,6 @@
 from http import HTTPStatus
-from typing import Any, Callable, Dict
+from typing import Any
+from collections.abc import Callable
 from uuid import UUID
 
 import httpx
@@ -36,7 +37,7 @@ async def test__sticker__download(
     host: str,
     bot_account: BotAccountWithSecret,
     async_buffer: NamedTemporaryFile,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
 ) -> None:
     # - Arrange -
     image_link = (
@@ -71,7 +72,7 @@ async def test__sticker__download(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert await async_buffer.read() == PNG_IMAGE

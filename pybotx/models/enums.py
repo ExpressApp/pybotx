@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import Literal, Optional, Union, overload
+from typing import Literal, overload
 
 
 class AutoName(Enum):
@@ -36,6 +36,12 @@ class ClientPlatforms(AutoName):
     ANDROID = auto()
     IOS = auto()
     DESKTOP = auto()
+    AURORA = auto()
+
+
+class ClientNetworkContours(AutoName):
+    INTERNAL = auto()
+    EXTERNAL = auto()
 
 
 class MentionTypes(AutoName):
@@ -53,11 +59,13 @@ class ChatTypes(AutoName):
         PERSONAL_CHAT: Personal chat with user.
         GROUP_CHAT: Group chat.
         CHANNEL: Public channel.
+        THREAD: Thread in a chat.
     """
 
     PERSONAL_CHAT = auto()
     GROUP_CHAT = auto()
     CHANNEL = auto()
+    THREAD = auto()
 
 
 class SyncSourceTypes(AutoName):
@@ -68,22 +76,39 @@ class SyncSourceTypes(AutoName):
     BOTX = auto()
 
 
+class ConferenceLinkTypes(AutoName):
+    PUBLIC = auto()
+    TRUSTS = auto()
+    CORPORATE = auto()
+    SERVER = auto()
+
+
 UNSUPPORTED = Literal["UNSUPPORTED"]
-IncomingChatTypes = Union[ChatTypes, UNSUPPORTED]
-IncomingSyncSourceTypes = Union[SyncSourceTypes, UNSUPPORTED]
+IncomingChatTypes = ChatTypes | UNSUPPORTED
+IncomingSyncSourceTypes = SyncSourceTypes | UNSUPPORTED
 
 
-class StrEnum(str, Enum):  # noqa: WPS600 (pydantic needs this inheritance)
+class StrEnum(str, Enum):  # (pydantic needs this inheritance)
     """Enum base for API models."""
 
     # https://github.com/pydantic/pydantic/issues/3850
     # TODO: Use plain enums after migrating to Pydantic 2.0
 
 
+class ChatLinkTypes(StrEnum):
+    PUBLIC = "public"
+    TRUSTS = "trusts"
+    CORPORATE = "corporate"
+    SERVER = "server"
+
+
 class APIChatTypes(Enum):
     CHAT = "chat"
+    NOTES = "notes"
     GROUP_CHAT = "group_chat"
     CHANNEL = "channel"
+    THREAD = "thread"
+    VOEX_CALL = "voex_call"
 
 
 class BotAPICommandTypes(StrEnum):
@@ -94,12 +119,19 @@ class BotAPICommandTypes(StrEnum):
 class BotAPISystemEventTypes(StrEnum):
     ADDED_TO_CHAT = "system:added_to_chat"
     CHAT_CREATED = "system:chat_created"
+    CHAT_DELETED_BY_USER = "system:chat_deleted_by_user"
     CTS_LOGIN = "system:cts_login"
     CTS_LOGOUT = "system:cts_logout"
     DELETED_FROM_CHAT = "system:deleted_from_chat"
     INTERNAL_BOT_NOTIFICATION = "system:internal_bot_notification"
     LEFT_FROM_CHAT = "system:left_from_chat"
     SMARTAPP_EVENT = "system:smartapp_event"
+    EVENT_DELETED = "system:event_deleted"
+    EVENT_EDIT = "system:event_edit"
+    JOIN_TO_CHAT = "system:user_joined_to_chat"
+    CONFERENCE_CHANGED = "system:conference_changed"
+    CONFERENCE_CREATED = "system:conference_created"
+    CONFERENCE_DELETED = "system:conference_deleted"
 
 
 class BotAPIClientPlatforms(Enum):
@@ -107,6 +139,12 @@ class BotAPIClientPlatforms(Enum):
     ANDROID = "android"
     IOS = "ios"
     DESKTOP = "desktop"
+    AURORA = "aurora"
+
+
+class BotAPIClientNetworkContours(StrEnum):
+    INTERNAL = "internal"
+    EXTERNAL = "external"
 
 
 class BotAPIEntityTypes(StrEnum):
@@ -121,6 +159,13 @@ class BotAPIMentionTypes(StrEnum):
     CHANNEL = "channel"
     USER = "user"
     ALL = "all"
+
+
+class BotAPIConferenceLinkTypes(StrEnum):
+    PUBLIC = "public"
+    TRUSTS = "trusts"
+    CORPORATE = "corporate"
+    SERVER = "server"
 
 
 class APIUserKinds(Enum):
@@ -150,6 +195,12 @@ class APISyncSourceTypes(Enum):
     BOTX = "botx"
 
 
+class SmartappManifestWebLayoutChoices(StrEnum):
+    minimal = "minimal"
+    half = "half"
+    full = "full"
+
+
 def convert_client_platform_to_domain(
     client_platform: BotAPIClientPlatforms,
 ) -> ClientPlatforms:
@@ -158,11 +209,29 @@ def convert_client_platform_to_domain(
         BotAPIClientPlatforms.ANDROID: ClientPlatforms.ANDROID,
         BotAPIClientPlatforms.IOS: ClientPlatforms.IOS,
         BotAPIClientPlatforms.DESKTOP: ClientPlatforms.DESKTOP,
+        BotAPIClientPlatforms.AURORA: ClientPlatforms.AURORA,
     }
 
     converted_type = client_platforms_mapping.get(client_platform)
     if converted_type is None:
         raise NotImplementedError(f"Unsupported client platform: {client_platform}")
+
+    return converted_type
+
+
+def convert_client_network_contour_to_domain(
+    client_network_contour: BotAPIClientNetworkContours,
+) -> ClientNetworkContours:
+    client_network_contours_mapping = {
+        BotAPIClientNetworkContours.INTERNAL: ClientNetworkContours.INTERNAL,
+        BotAPIClientNetworkContours.EXTERNAL: ClientNetworkContours.EXTERNAL,
+    }
+
+    converted_type = client_network_contours_mapping.get(client_network_contour)
+    if converted_type is None:
+        raise NotImplementedError(
+            f"Unsupported client network contour: {client_network_contour}",
+        )
 
     return converted_type
 
@@ -222,6 +291,25 @@ def convert_attachment_type_to_domain(
     return converted_type
 
 
+def convert_conference_link_type_to_domain(
+    conference_link_type: BotAPIConferenceLinkTypes,
+) -> ConferenceLinkTypes:
+    conference_link_type_mapping = {
+        BotAPIConferenceLinkTypes.PUBLIC: ConferenceLinkTypes.PUBLIC,
+        BotAPIConferenceLinkTypes.TRUSTS: ConferenceLinkTypes.TRUSTS,
+        BotAPIConferenceLinkTypes.CORPORATE: ConferenceLinkTypes.CORPORATE,
+        BotAPIConferenceLinkTypes.SERVER: ConferenceLinkTypes.SERVER,
+    }
+
+    converted_type = conference_link_type_mapping.get(conference_link_type)
+    if converted_type is None:
+        raise NotImplementedError(
+            f"Unsupported conference link type: {conference_link_type}",
+        )
+
+    return converted_type
+
+
 def convert_attachment_type_from_domain(
     attachment_type: AttachmentTypes,
 ) -> APIAttachmentTypes:
@@ -247,6 +335,7 @@ def convert_chat_type_from_domain(chat_type: ChatTypes) -> APIChatTypes:
         ChatTypes.PERSONAL_CHAT: APIChatTypes.CHAT,
         ChatTypes.GROUP_CHAT: APIChatTypes.GROUP_CHAT,
         ChatTypes.CHANNEL: APIChatTypes.CHANNEL,
+        ChatTypes.THREAD: APIChatTypes.THREAD,
     }
 
     converted_type = chat_types_mapping.get(chat_type)
@@ -257,25 +346,30 @@ def convert_chat_type_from_domain(chat_type: ChatTypes) -> APIChatTypes:
 
 
 @overload
-def convert_chat_type_to_domain(chat_type: APIChatTypes) -> ChatTypes:
-    ...  # noqa: WPS428
+def convert_chat_type_to_domain(  # pragma: no cover
+    chat_type: APIChatTypes,
+) -> ChatTypes: ...
 
 
 @overload
-def convert_chat_type_to_domain(chat_type: str) -> UNSUPPORTED:
-    ...  # noqa: WPS428
+def convert_chat_type_to_domain(  # pragma: no cover
+    chat_type: str,
+) -> IncomingChatTypes: ...
 
 
 def convert_chat_type_to_domain(
-    chat_type: Union[APIChatTypes, str],
+    chat_type: APIChatTypes | str,
 ) -> IncomingChatTypes:
     chat_types_mapping = {
         APIChatTypes.CHAT: ChatTypes.PERSONAL_CHAT,
+        APIChatTypes.NOTES: ChatTypes.PERSONAL_CHAT,
         APIChatTypes.GROUP_CHAT: ChatTypes.GROUP_CHAT,
         APIChatTypes.CHANNEL: ChatTypes.CHANNEL,
+        APIChatTypes.THREAD: ChatTypes.THREAD,
+        APIChatTypes.VOEX_CALL: ChatTypes.GROUP_CHAT,
     }
 
-    converted_type: Optional[IncomingChatTypes]
+    converted_type: IncomingChatTypes | None
     try:
         converted_type = chat_types_mapping.get(APIChatTypes(chat_type))
     except ValueError:
@@ -288,19 +382,19 @@ def convert_chat_type_to_domain(
 
 
 @overload
-def convert_sync_source_type_to_domain(
+def convert_sync_source_type_to_domain(  # pragma: no cover
     sync_type: APISyncSourceTypes,
-) -> SyncSourceTypes:
-    ...  # noqa: WPS428
+) -> SyncSourceTypes: ...
 
 
 @overload
-def convert_sync_source_type_to_domain(sync_type: str) -> UNSUPPORTED:
-    ...  # noqa: WPS428
+def convert_sync_source_type_to_domain(  # pragma: no cover
+    sync_type: str,
+) -> UNSUPPORTED: ...
 
 
 def convert_sync_source_type_to_domain(
-    sync_type: Union[APISyncSourceTypes, str],
+    sync_type: APISyncSourceTypes | str,
 ) -> IncomingSyncSourceTypes:
     sync_source_types_mapping = {
         APISyncSourceTypes.AD: SyncSourceTypes.AD,
@@ -310,7 +404,7 @@ def convert_sync_source_type_to_domain(
         APISyncSourceTypes.BOTX: SyncSourceTypes.BOTX,
     }
 
-    converted_type: Optional[IncomingSyncSourceTypes]
+    converted_type: IncomingSyncSourceTypes | None
     try:
         converted_type = sync_source_types_mapping.get(APISyncSourceTypes(sync_type))
     except ValueError:

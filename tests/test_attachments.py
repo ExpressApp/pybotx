@@ -1,5 +1,7 @@
 import asyncio
-from typing import Any, Callable, Dict, Optional
+from types import SimpleNamespace
+from typing import Any, cast
+from collections.abc import Callable
 from uuid import UUID
 
 import pytest
@@ -18,10 +20,14 @@ from pybotx.models.attachments import (
     AttachmentImage,
     AttachmentVideo,
     AttachmentVoice,
+    BotAPIAttachment,
+    BotXAPIAttachment,
     Contact,
     IncomingAttachment,
     Link,
     Location,
+    OutgoingAttachment,
+    convert_api_attachment_to_domain,
 )
 
 pytestmark = [
@@ -35,7 +41,7 @@ async def test__attachment__open(
     host: str,
     bot_account: BotAccountWithSecret,
     bot_id: UUID,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
 ) -> None:
     # - Arrange -
     payload = api_incoming_message_factory(
@@ -51,7 +57,7 @@ async def test__attachment__open(
         host=host,
     )
     collector = HandlerCollector()
-    incoming_message: Optional[IncomingMessage] = None
+    incoming_message: IncomingMessage | None = None
 
     @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
@@ -65,7 +71,7 @@ async def test__attachment__open(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
         await asyncio.sleep(0)  # Return control to event loop
 
@@ -75,6 +81,21 @@ async def test__attachment__open(
 
     # - Assert -
     assert read_content == b"Hello, world!\n"
+
+
+async def test__botx_api_attachment__uppercase_file_extension_mimetype() -> None:
+    # - Arrange -
+    attachment = OutgoingAttachment(
+        content=b"Hello, world!",
+        filename="image.PNG",
+    )
+
+    # - Act -
+    api_attachment = BotXAPIAttachment.from_file_attachment(attachment)
+
+    # - Assert -
+    assert api_attachment.file_name == "image.PNG"
+    assert api_attachment.data == "data:image/png;base64,SGVsbG8sIHdvcmxkIQ=="
 
 
 API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
@@ -153,17 +174,17 @@ API_AND_DOMAIN_NON_FILE_ATTACHMENTS = (
     API_AND_DOMAIN_NON_FILE_ATTACHMENTS,
 )
 async def test__async_execute_raw_bot_command__non_file_attachments_types(
-    api_attachment: Dict[str, Any],
+    api_attachment: dict[str, Any],
     domain_attachment: IncomingAttachment,
     attr_name: str,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     payload = api_incoming_message_factory(body="😀", attachment=api_attachment)
 
     collector = HandlerCollector()
-    incoming_message: Optional[IncomingMessage] = None
+    incoming_message: IncomingMessage | None = None
 
     @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
@@ -176,7 +197,7 @@ async def test__async_execute_raw_bot_command__non_file_attachments_types(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert getattr(incoming_message, attr_name) == domain_attachment
@@ -236,7 +257,7 @@ API_AND_DOMAIN_FILE_ATTACHMENTS = (
     (
         {
             "data": {
-                "content": "data:audio/mpeg3;base64,SGVsbG8sIHdvcmxkIQo=",
+                "content": "data:audio/mp3;base64,SGVsbG8sIHdvcmxkIQo=",
                 "duration": 10,
             },
             "type": "voice",
@@ -244,6 +265,23 @@ API_AND_DOMAIN_FILE_ATTACHMENTS = (
         AttachmentVoice(
             type=AttachmentTypes.VOICE,
             filename="record.mp3",
+            size=len(b"Hello, world!\n"),
+            is_async_file=False,
+            content=b"Hello, world!\n",
+            duration=10,
+        ),
+    ),
+    (
+        {
+            "data": {
+                "content": "data:audio/m4a;base64,SGVsbG8sIHdvcmxkIQo=",
+                "duration": 10,
+            },
+            "type": "voice",
+        },
+        AttachmentVoice(
+            type=AttachmentTypes.VOICE,
+            filename="record.m4a",
             size=len(b"Hello, world!\n"),
             is_async_file=False,
             content=b"Hello, world!\n",
@@ -258,16 +296,16 @@ API_AND_DOMAIN_FILE_ATTACHMENTS = (
     API_AND_DOMAIN_FILE_ATTACHMENTS,
 )
 async def test__async_execute_raw_bot_command__file_attachments_types(
-    api_attachment: Dict[str, Any],
+    api_attachment: dict[str, Any],
     domain_attachment: IncomingAttachment,
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_account: BotAccountWithSecret,
 ) -> None:
     # - Arrange -
     payload = api_incoming_message_factory(attachment=api_attachment)
 
     collector = HandlerCollector()
-    incoming_message: Optional[IncomingMessage] = None
+    incoming_message: IncomingMessage | None = None
 
     @collector.default_message_handler
     async def default_handler(message: IncomingMessage, bot: Bot) -> None:
@@ -280,15 +318,25 @@ async def test__async_execute_raw_bot_command__file_attachments_types(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert incoming_message
     assert incoming_message.file == domain_attachment
 
 
+async def test__convert_api_attachment_to_domain__unsupported_type() -> None:
+    api_attachment = cast(
+        BotAPIAttachment,
+        SimpleNamespace(type="unsupported"),
+    )
+
+    with pytest.raises(NotImplementedError):
+        convert_api_attachment_to_domain(api_attachment, "body")
+
+
 async def test__async_execute_raw_bot_command__unknown_attachment_type(
-    api_incoming_message_factory: Callable[..., Dict[str, Any]],
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_account: BotAccountWithSecret,
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
@@ -302,7 +350,49 @@ async def test__async_execute_raw_bot_command__unknown_attachment_type(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot.async_execute_raw_bot_command(payload)
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
 
     # - Assert -
     assert "Received unknown attachment type" in loguru_caplog.text
+
+
+async def test__async_execute_raw_bot_command__empty_attachment(
+    api_incoming_message_factory: Callable[..., dict[str, Any]],
+    bot_account: BotAccountWithSecret,
+    loguru_caplog: pytest.LogCaptureFixture,
+) -> None:
+    # - Arrange -
+    empty_attachment = {
+        "data": {
+            "content": "",
+            "file_name": "empty_file.txt",
+        },
+        "type": "document",
+    }
+    payload = api_incoming_message_factory(attachment=empty_attachment)
+
+    collector = HandlerCollector()
+    incoming_message: IncomingMessage | None = None
+
+    @collector.default_message_handler
+    async def default_handler(message: IncomingMessage, bot: Bot) -> None:
+        nonlocal incoming_message
+        incoming_message = message
+        # Drop `raw_command` from asserting
+        incoming_message.raw_command = None
+
+    built_bot = Bot(collectors=[collector], bot_accounts=[bot_account])
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        bot.async_execute_raw_bot_command(payload, verify_request=False)
+
+    # - Assert -
+    assert incoming_message
+    assert incoming_message.file == AttachmentDocument(
+        type=AttachmentTypes.DOCUMENT,
+        filename="empty_file.txt",
+        size=0,
+        is_async_file=False,
+        content=b"",
+    )
