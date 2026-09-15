@@ -1,6 +1,6 @@
 [project]
 name = "pybotx"
-version = "0.76.0"
+version = "0.77.0"
 description = "A python library for interacting with eXpress BotX API"
 authors = [
     { name = "Sidnev Nikolay", email = "nsidnev@ccsteam.ru" },

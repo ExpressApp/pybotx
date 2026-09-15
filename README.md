@@ -1188,9 +1188,10 @@ async def search_user_handler(message: IncomingMessage, bot: Bot) -> None:
         user_info = await bot.search_user_by_huid(
             bot_id=message.bot.id,
             huid=message.sender.huid,
+            trusts_search=True,
         )
-    except UserNotFoundError:  # Если пользователь и бот находятся на разных CTS
-        await bot.answer_message("User not found. Maybe you are on a different cts.")
+    except UserNotFoundError:
+        await bot.answer_message("User not found.")
         return
 
     await bot.answer_message(f"Your info:\n{dataclasses.asdict(user_info)}\n")
