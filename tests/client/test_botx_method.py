@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from types import SimpleNamespace
 from typing import Any, Literal
 from uuid import UUID
 
@@ -116,6 +117,25 @@ class ObserverSpy:
         self.finish_events.append((metadata, result))
 
 
+class BrokenObserver:
+    def on_request_start(self, metadata: BotXRequestMetadata) -> None:
+        raise RuntimeError("start")
+
+    def on_request_retry(
+        self,
+        metadata: BotXRequestMetadata,
+        retry_event: BotXRetryEvent,
+    ) -> None:
+        raise RuntimeError("retry")
+
+    def on_request_finish(
+        self,
+        metadata: BotXRequestMetadata,
+        result: BotXRequestResult,
+    ) -> None:
+        raise RuntimeError("finish")
+
+
 class TwoAttemptsRetryStrategy(BotXRetryStrategy):
     def build_retrying(
         self,
@@ -137,6 +157,48 @@ pytestmark = [
     pytest.mark.asyncio,
     pytest.mark.usefixtures("respx_mock"),
 ]
+
+
+async def test__botx_method__observability_error_paths_are_isolated(
+    httpx_client: httpx.AsyncClient,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    observer = BrokenObserver()
+    method = FooBarMethod(
+        bot_id,
+        httpx_client,
+        BotAccountsStorage([bot_account]),
+    )
+    metadata = BotXRequestMetadata(method="POST", url="https://cts.example/foo")
+    decorator = method._build_observability_decorator(
+        metadata=metadata,
+        observers=(observer,),
+    )
+
+    async def runtime_failure() -> httpx.Response:
+        raise RuntimeError("boom")
+
+    with pytest.raises(RuntimeError, match="boom"):
+        await decorator(runtime_failure)()
+
+    response = httpx.Response(
+        HTTPStatus.SERVICE_UNAVAILABLE,
+        request=httpx.Request("POST", metadata.url),
+        json={"status": "error", "reason": "busy"},
+    )
+
+    async def botx_failure() -> httpx.Response:
+        raise InvalidBotXStatusCodeError(response)
+
+    with pytest.raises(InvalidBotXStatusCodeError):
+        await decorator(botx_failure)()
+
+    retry_event = BotXRetryEvent(1, 2, 0, "timeout")
+    method._notify_request_retry((observer,), metadata, retry_event)
+    assert method._format_retry_reason(SimpleNamespace(outcome=None)) == "unknown"
+    outcome = SimpleNamespace(failed=True, exception=lambda: None)
+    assert method._format_retry_reason(SimpleNamespace(outcome=outcome)) == "unknown"
 
 
 async def test__botx_method__invalid_botx_status_code_error_raised(

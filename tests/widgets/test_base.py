@@ -11,6 +11,8 @@ from pybotx.widgets.base import (
     WIDGET_RESULT_MODE_EDIT,
     WIDGET_RESULT_MODE_MESSAGE,
     Widget,
+    _normalize_result_mode,
+    _parse_result_mode_from_argument,
     outgoing_markup,
 )
 from pybotx.widgets.markup import MessageMarkup
@@ -206,3 +208,8 @@ def test__widget__result_mode_explicit_param_wins(
     )
 
     assert widget.result_mode == WIDGET_RESULT_MODE_MESSAGE
+
+
+def test__result_mode_parsing__supports_aliases_and_plain_tokens() -> None:
+    assert _normalize_result_mode(" INLINE ") == WIDGET_RESULT_MODE_EDIT
+    assert _parse_result_mode_from_argument("reply remaining") == WIDGET_RESULT_MODE_MESSAGE

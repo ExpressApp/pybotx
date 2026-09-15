@@ -101,9 +101,12 @@ def test__prometheus_widget_runner_metrics_collector__collects_metrics() -> None
             duration_seconds=0.125,
             skipped_by_before=True,
             before_results_sent=1,
+            after_results_sent=2,
             error=ValueError("boom"),
         ),
     )
+    collector.on_started(_build_started_event())
+    collector.on_finished(_build_finished_event())
 
     assert registry.get_sample_value(
         "pybotx_widget_in_flight",
@@ -121,6 +124,14 @@ def test__prometheus_widget_runner_metrics_collector__collects_metrics() -> None
             "outcome": "error",
         },
     ) == 1.0
+    assert registry.get_sample_value(
+        "pybotx_widget_result_messages_total",
+        {
+            "widget_name": "_FakeWidget",
+            "command": "/confirm-demo",
+            "phase": "after",
+        },
+    ) == 2.0
     assert registry.get_sample_value(
         "pybotx_widget_errors_total",
         {

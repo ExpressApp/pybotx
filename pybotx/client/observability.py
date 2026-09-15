@@ -31,15 +31,18 @@ class BotXRequestResult:
 
 
 class BotXRequestObserver(Protocol):
-    def on_request_start(self, metadata: BotXRequestMetadata) -> None: ...
+    def on_request_start(  # pragma: no cover
+        self,
+        metadata: BotXRequestMetadata,
+    ) -> None: ...
 
-    def on_request_retry(
+    def on_request_retry(  # pragma: no cover
         self,
         metadata: BotXRequestMetadata,
         retry_event: BotXRetryEvent,
     ) -> None: ...
 
-    def on_request_finish(
+    def on_request_finish(  # pragma: no cover
         self,
         metadata: BotXRequestMetadata,
         result: BotXRequestResult,

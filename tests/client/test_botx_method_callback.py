@@ -967,3 +967,18 @@ async def test__botx_method_callback__bot_wait_timeouted_callback(
     assert "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3" in str(exc.value)
     assert "timed out" in str(exc.value)
     assert endpoint.called
+
+
+async def test__callback_manager__stale_expired_id_is_removed_on_lookup(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import pybotx.bot.callbacks.callback_manager as callback_manager_module
+
+    callbacks_manager = callback_manager_module.CallbackManager(CallbackMemoryRepo())
+    sync_id = UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    callbacks_manager._expired_sync_ids[sync_id] = 10.0
+    calls = iter((0.0, 20.0))
+    monkeypatch.setattr(callback_manager_module, "monotonic", lambda: next(calls))
+
+    assert callbacks_manager._is_expired_sync_id(sync_id) is False
+    assert sync_id not in callbacks_manager._expired_sync_ids

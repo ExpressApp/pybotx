@@ -1,5 +1,6 @@
 import asyncio
 from copy import deepcopy
+from types import SimpleNamespace
 from typing import Any
 from collections.abc import Callable
 from unittest.mock import Mock
@@ -24,11 +25,101 @@ from pybotx import (
     lifespan_wrapper,
 )
 from pybotx.bot.contextvars import bot_id_var, chat_id_var, request_id_var, trace_id_var
+from pybotx.bot.handler_collector import _QueuedBotCommand
 
 pytestmark = [
     pytest.mark.mock_authorization,
     pytest.mark.usefixtures("respx_mock"),
 ]
+
+
+@pytest.mark.asyncio
+async def test__handler_collector__internal_queue_edge_paths(
+    incoming_message_factory: Callable[..., IncomingMessage],
+) -> None:
+    message = incoming_message_factory(body="plain text")
+    loop = asyncio.get_running_loop()
+    collector = HandlerCollector(
+        command_processing_config=BotCommandProcessingConfig(
+            max_concurrency=1,
+            max_queue_size=1,
+            overload_strategy=DropOldestBotCommandOverloadStrategy(),
+        ),
+    )
+    completion = loop.create_future()
+    queued = _QueuedBotCommand(
+        bot=Mock(),
+        bot_command=message,
+        completion=completion,
+        request_id=None,
+        trace_id=None,
+        ingress_metadata=IngressCommandMetadata("incoming_message", "__default__"),
+    )
+
+    collector._is_shutting_down = True
+    collector._enqueue_or_reject(queued)
+    with pytest.raises(BotCommandRejectedError, match="bot_shutting_down"):
+        await completion
+    collector._reject_queued_command(queued, reason="already_done")
+
+    await collector._command_queue.put(collector._STOP_QUEUE_ITEM)
+    assert collector._drop_oldest_queued_command() is None
+
+    collector._is_shutting_down = False
+    collector._workers.add(Mock())  # Prevent worker startup while exercising overflow.
+    await collector._command_queue.put(collector._STOP_QUEUE_ITEM)
+    rejected_completion = loop.create_future()
+    rejected = _QueuedBotCommand(
+        bot=Mock(),
+        bot_command=message,
+        completion=rejected_completion,
+        request_id=None,
+        trace_id=None,
+        ingress_metadata=queued.ingress_metadata,
+    )
+    collector._enqueue_or_reject(rejected)
+    with pytest.raises(BotCommandRejectedError, match="queue_overflow_reject_new"):
+        await rejected_completion
+
+    cancelled = asyncio.create_task(asyncio.sleep(0))
+    cancelled.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await cancelled
+    collector._log_unhandled_task_exception(cancelled)
+
+    assert collector._extract_request_id_from_command(SimpleNamespace()) is None
+    assert collector._set_ingress_contextvars(queued) == []
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("should_fail", [False, True])
+async def test__command_worker__does_not_resolve_completed_future(
+    incoming_message_factory: Callable[..., IncomingMessage],
+    should_fail: bool,
+) -> None:
+    collector = HandlerCollector()
+
+    @collector.default_message_handler
+    async def handler(_message: IncomingMessage, _bot: Bot) -> None:
+        if should_fail:
+            raise RuntimeError("handler failed")
+
+    completion = asyncio.get_running_loop().create_future()
+    completion.set_result(None)
+    queued = _QueuedBotCommand(
+        bot=Mock(),
+        bot_command=incoming_message_factory(body="plain text"),
+        completion=completion,
+        request_id=None,
+        trace_id=None,
+        ingress_metadata=IngressCommandMetadata("incoming_message", "__default__"),
+    )
+    await collector._command_queue.put(queued)
+    await collector._command_queue.put(collector._STOP_QUEUE_ITEM)
+
+    await collector._command_worker()
+
+    assert completion.result() is None
 
 
 def test__handler_collector__command_with_space_error_raised() -> None:

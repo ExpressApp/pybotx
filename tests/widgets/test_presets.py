@@ -79,6 +79,7 @@ def test__build_production_widget_runner_preset__builds_runner_config() -> None:
 
     assert isinstance(preset, WidgetRunnerPreset)
     assert preset.as_runner_kwargs() == {"config": preset.config}
+    assert preset.as_config() is preset.config
     assert preset.as_widget_command_kwargs() == {"config": preset.config}
     assert len(preset.config.before_hooks) == 1
     assert len(preset.config.after_hooks) == 1

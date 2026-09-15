@@ -466,3 +466,55 @@ async def test__widget_runner__widget_command_supports_config(
 
     assert bot.send.await_count == 1
     assert bot.send.await_args.kwargs["message"].body == "configured"
+
+
+@pytest.mark.asyncio
+async def test__widget_runner__edge_paths(
+    incoming_message_factory: Callable[[], IncomingMessage],
+) -> None:
+    message = incoming_message_factory()
+    bot = _build_bot_mock()
+    widget = _DummyWidget(message=message, bot=bot, command="/dummy")
+    started = WidgetRunnerStartedEvent(message=message, bot=bot, widget=widget)
+    finished = WidgetRunnerFinishedEvent(
+        message=message,
+        bot=bot,
+        initial_widget=widget,
+        widget=widget,
+        duration_seconds=0,
+        displayed=False,
+        skipped_by_before=False,
+        before_results_sent=0,
+        after_results_sent=0,
+        error=RuntimeError("failed"),
+    )
+    observer = WidgetRunnerObserver()
+
+    assert started.result_mode == widget.result_mode
+    assert observer.on_started(started) is None
+    assert observer.on_finished(finished) is None
+    await LoggingWidgetRunnerObserver(log_start=True).on_started(started)
+    await LoggingWidgetRunnerObserver().on_finished(finished)
+
+    runner = WidgetRunner(
+        message,
+        bot,
+        config=WidgetRunnerConfig(after_hooks=(lambda _widget: None,)),
+    )
+    await runner.run(widget=widget)
+
+    @widget_command
+    def direct_handler(_message: IncomingMessage, _bot: Bot) -> None:
+        return None
+
+    await direct_handler(message, bot)
+    assert await on_data_key("missing", lambda _: "unused")(widget) is None
+    assert await on_completed(lambda _: False, lambda _: "unused")(widget) is None
+    assert await on_action(lambda _: "missing", {})(widget) is None
+    assert await on_action(lambda _: "run", {"run": lambda _: "done"})(widget) == (
+        RunnerHookResult(result="done", should_display=False)
+    )
+    assert await on_action(
+        lambda _: "run",
+        {"run": RunnerHookResult(result="ready")},
+    )(widget) == RunnerHookResult(result="ready")

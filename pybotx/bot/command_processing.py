@@ -14,7 +14,7 @@ class BotCommandOverloadAction(str, Enum):
 
 
 class BotCommandOverloadStrategy(Protocol):
-    def on_queue_overflow(
+    def on_queue_overflow(  # pragma: no cover
         self,
         *,
         queue_size: int,

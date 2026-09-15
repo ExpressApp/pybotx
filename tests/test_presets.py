@@ -5,6 +5,7 @@ from typing import Any
 import pytest
 
 from pybotx import (
+    BotProductionPreset,
     BotXOperation,
     BotXRequestMetadata,
     BotXRetryRequestPolicy,
@@ -107,6 +108,29 @@ def test__build_production_retry_preset__supports_extra_safe_operations() -> Non
             operation_name="CustomReadOnlyMethod",
         ),
     )
+
+
+def test__retry_and_production_presets__include_optional_components() -> None:
+    retry_strategy = object()
+    retry_preset = build_production_retry_preset(
+        retryable_status_codes={599},
+        retry_strategy=retry_strategy,  # type: ignore[arg-type]
+    )
+
+    assert retry_preset.retry_policy.retryable_status_codes == frozenset({599})
+    assert retry_preset.as_bot_kwargs()["retry_strategy"] is retry_strategy
+    assert BotProductionPreset(retry=retry_preset).as_bot_kwargs()
+    assert BotProductionPreset().as_bot_kwargs() == {}
+
+    custom_policy = type(
+        "CustomPolicy",
+        (),
+        {"should_retry": lambda self, metadata: False},
+    )()
+    custom = build_production_retry_preset(
+        retry_request_policy=custom_policy,  # type: ignore[arg-type]
+    )
+    assert custom.retry_request_policy is custom_policy
 
 
 def test__build_production_retry_preset__rejects_mixed_custom_request_policy_and_extras() -> None:

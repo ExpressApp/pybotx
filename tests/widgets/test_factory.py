@@ -63,6 +63,18 @@ def test__widget_context__exports_base_widget_kwargs(
         "result_mode": WIDGET_RESULT_MODE_MESSAGE,
     }
 
+    minimal_context = WidgetContext(message=message, bot=bot, command="/minimal")
+    assert minimal_context.as_widget_kwargs() == {
+        "message": message,
+        "bot": bot,
+        "command": "/minimal",
+    }
+
+    override_markup = MessageMarkup()
+    factory = WidgetFactory(context=minimal_context)
+    created = factory.confirm(label="Confirm", additional_markup=override_markup)
+    assert created.additional_markup is override_markup
+
 
 @pytest.mark.asyncio
 async def test__widget_factory__builds_confirm_widget_with_defaults(

@@ -2,12 +2,15 @@ from pybotx import (
     AnyOfBotXRetryRequestPolicy,
     BotXOperation,
     BotXRequestMetadata,
+    BotXRetryPolicy,
     KnownSafeBotXRetryRequestPolicy,
     OperationNameAllowlistBotXRetryRequestPolicy,
     PathAllowlistBotXRetryRequestPolicy,
     RetryAllBotXRequestsPolicy,
     SafeBotXRetryRequestPolicy,
 )
+import pytest
+from pybotx.client.http_config import iter_retry_request_policy_warnings
 
 
 def test__safe_botx_retry_request_policy__retries_get_requests() -> None:
@@ -123,4 +126,56 @@ def test__any_of_botx_retry_request_policy__retries_when_any_nested_policy_match
             url="https://cts.example.com/api/v4/botx/notifications/direct",
             operation_name=BotXOperation.DIRECT_NOTIFICATION,
         ),
+    )
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"max_attempts": 0},
+        {"initial_delay_seconds": -1},
+        {"max_delay_seconds": -1},
+        {"initial_delay_seconds": 2, "max_delay_seconds": 1},
+        {"jitter_seconds": -1},
+    ],
+)
+def test__botx_retry_policy__rejects_invalid_values(kwargs: dict[str, int]) -> None:
+    with pytest.raises(ValueError):
+        BotXRetryPolicy(**kwargs)
+
+
+def test__retry_policies__cover_optional_configuration_and_warning_paths() -> None:
+    metadata_without_operation = BotXRequestMetadata(method="POST", url="https://cts.test")
+    operation_policy = OperationNameAllowlistBotXRetryRequestPolicy(operation_names=set())
+    assert operation_policy.should_retry(metadata_without_operation) is False
+
+    known_safe = KnownSafeBotXRetryRequestPolicy(extra_operations={"CustomWrite"})
+    assert "CustomWrite" in known_safe.get_operation_names()
+    assert iter_retry_request_policy_warnings(known_safe)
+    assert iter_retry_request_policy_warnings(
+        OperationNameAllowlistBotXRetryRequestPolicy(operation_names={"CustomWrite"}),
+    )
+    assert iter_retry_request_policy_warnings(
+        OperationNameAllowlistBotXRetryRequestPolicy(
+            operation_names={BotXOperation.CHAT_INFO},
+        ),
+    ) == ()
+
+    path_policy = PathAllowlistBotXRetryRequestPolicy(
+        allowed_requests={("post", "/write")},
+        path_normalizer=lambda _url: "/write",
+    )
+    assert path_policy.get_allowed_requests() == frozenset({("POST", "/write")})
+    assert iter_retry_request_policy_warnings(path_policy)
+
+    safe = SafeBotXRetryRequestPolicy(
+        safe_methods={"TRACE"},
+        extra_safe_requests={("post", "/write")},
+        extra_safe_operation_names={"CustomWrite"},
+        path_normalizer=lambda _url: "/write",
+    )
+    assert safe.should_retry(metadata_without_operation)
+    assert iter_retry_request_policy_warnings(safe)
+    assert iter_retry_request_policy_warnings(
+        AnyOfBotXRetryRequestPolicy(policies=(RetryAllBotXRequestsPolicy(),)),
     )

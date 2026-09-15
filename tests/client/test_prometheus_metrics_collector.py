@@ -1,3 +1,4 @@
+import importlib
 from uuid import UUID
 
 import pytest
@@ -11,6 +12,22 @@ from pybotx import (
 
 prometheus_client = pytest.importorskip("prometheus_client")
 CollectorRegistry = prometheus_client.CollectorRegistry
+
+
+def test__prometheus_metrics_collector__requires_prometheus_client(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_import_module = importlib.import_module
+
+    def import_module(name: str) -> object:
+        if name == "prometheus_client":
+            raise ModuleNotFoundError(name)
+        return original_import_module(name)
+
+    monkeypatch.setattr(importlib, "import_module", import_module)
+
+    with pytest.raises(RuntimeError, match="prometheus-client"):
+        PrometheusMetricsCollector()
 
 
 def test__prometheus_metrics_collector__collects_success_request_metrics() -> None:
@@ -121,8 +138,6 @@ def test__prometheus_metrics_collector__collects_retry_metrics_with_normalized_l
             "reason": "ConnectTimeout",
         },
     ) == 1.0
-
-
 def test__prometheus_metrics_collector__supports_custom_normalizers() -> None:
     # - Arrange -
     registry = CollectorRegistry()
@@ -175,4 +190,29 @@ def test__prometheus_metrics_collector__supports_custom_normalizers() -> None:
             "status": "204",
             "outcome": "ok",
         },
+    ) == 1.0
+
+
+def test__prometheus_metrics_collector__keeps_status_retry_reason() -> None:
+    registry = CollectorRegistry()
+    collector = PrometheusMetricsCollector(
+        registry=registry,
+        metric_prefix="test_status_reason",
+        latency_buckets=(0.01, 0.1),
+    )
+    metadata = BotXRequestMetadata(method="GET", url="https://cts.example.com")
+
+    collector.on_request_retry(
+        metadata,
+        BotXRetryEvent(
+            attempt=1,
+            max_attempts=2,
+            sleep_seconds=0,
+            reason="status_code=503",
+        ),
+    )
+
+    assert registry.get_sample_value(
+        "test_status_reason_request_retries_total",
+        {"method": "GET", "path": "/", "reason": "status_code=503"},
     ) == 1.0

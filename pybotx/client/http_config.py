@@ -174,7 +174,7 @@ class BotXRetryPolicy:
 
 
 class BotXRetryStrategy(Protocol):
-    def build_retrying(
+    def build_retrying(  # pragma: no cover
         self,
         *,
         retry_policy: BotXRetryPolicy,
@@ -186,7 +186,10 @@ class BotXRetryStrategy(Protocol):
 class BotXRetryRequestPolicy(Protocol):
     """Decides whether a specific BotX request may be retried automatically."""
 
-    def should_retry(self, metadata: BotXRequestMetadata) -> bool: ...
+    def should_retry(  # pragma: no cover
+        self,
+        metadata: BotXRequestMetadata,
+    ) -> bool: ...
 
 
 @dataclass(frozen=True, slots=True)

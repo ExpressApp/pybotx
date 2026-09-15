@@ -18,9 +18,9 @@ class IngressCommandResult:
 
 
 class BotIngressMetricsCollector(Protocol):
-    def on_queue_depth(self, queue_depth: int) -> None: ...
+    def on_queue_depth(self, queue_depth: int) -> None: ...  # pragma: no cover
 
-    def on_command_rejected(
+    def on_command_rejected(  # pragma: no cover
         self,
         metadata: IngressCommandMetadata,
         *,
@@ -28,7 +28,7 @@ class BotIngressMetricsCollector(Protocol):
         queue_depth: int,
     ) -> None: ...
 
-    def on_command_finished(
+    def on_command_finished(  # pragma: no cover
         self,
         metadata: IngressCommandMetadata,
         result: IngressCommandResult,

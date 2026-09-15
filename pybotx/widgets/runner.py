@@ -328,7 +328,7 @@ class WidgetRunner:
 @overload
 def widget_command(
     handler: Callable[[IncomingMessage, Bot], W | None | Awaitable[W | None]],
-) -> Callable[[IncomingMessage, Bot], Awaitable[None]]:
+) -> Callable[[IncomingMessage, Bot], Awaitable[None]]:  # pragma: no cover
     ...
 
 
@@ -339,7 +339,7 @@ def widget_command(
 ) -> Callable[
     [Callable[[IncomingMessage, Bot], Widget | None | Awaitable[Widget | None]]],
     Callable[[IncomingMessage, Bot], Awaitable[None]],
-]:
+]:  # pragma: no cover
     ...
 
 
@@ -353,7 +353,7 @@ def widget_command(
 ) -> Callable[
     [Callable[[IncomingMessage, Bot], W | None | Awaitable[W | None]]],
     Callable[[IncomingMessage, Bot], Awaitable[None]],
-]:
+]:  # pragma: no cover
     ...
 
 

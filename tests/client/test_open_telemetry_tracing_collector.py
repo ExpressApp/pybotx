@@ -74,6 +74,16 @@ class _FakeTraceAPI:
         return self._tracer
 
 
+class _FakeTraceAPIWithoutSpanKind(_FakeTraceAPI):
+    SpanKind = None
+
+
+class _MinimalTraceAPI(_FakeTraceAPI):
+    Status = None
+    StatusCode = None
+    SpanKind = None
+
+
 def test__open_telemetry_tracing_collector__creates_span_and_retry_event(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -230,3 +240,111 @@ def test__open_telemetry_tracing_collector__requires_opentelemetry_api(
     # - Act / Assert -
     with pytest.raises(RuntimeError, match="opentelemetry-api"):
         OpenTelemetryTracingCollector()
+
+
+def test__open_telemetry_tracing_collector__supports_provider_and_missing_span_kind(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    tracer = _FakeTracer()
+    trace_api = _FakeTraceAPIWithoutSpanKind(tracer)
+    original_import_module = importlib.import_module
+
+    def import_module(name: str) -> object:
+        if name == "opentelemetry.trace":
+            return trace_api
+        return original_import_module(name)
+
+    monkeypatch.setattr(importlib, "import_module", import_module)
+    collector = OpenTelemetryTracingCollector(tracer_provider=object())
+    metadata = BotXRequestMetadata(method="GET", url="https://cts.example.com")
+
+    collector.on_request_start(metadata)
+    collector.on_request_finish(metadata, BotXRequestResult(200, 1))
+
+    assert tracer.spans[0].kind is None
+
+
+def test__open_telemetry_tracing_collector__ends_span_when_enricher_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    tracer = _FakeTracer()
+    trace_api = _FakeTraceAPI(tracer)
+    original_import_module = importlib.import_module
+
+    def import_module(name: str) -> object:
+        if name == "opentelemetry.trace":
+            return trace_api
+        return original_import_module(name)
+
+    monkeypatch.setattr(importlib, "import_module", import_module)
+
+    def failing_enricher(_span: _FakeSpan, _metadata: BotXRequestMetadata) -> None:
+        raise RuntimeError("enrichment failed")
+
+    collector = OpenTelemetryTracingCollector(span_enricher=failing_enricher)
+    metadata = BotXRequestMetadata(method="GET", url="https://cts.example.com")
+
+    with pytest.raises(RuntimeError, match="enrichment failed"):
+        collector.on_request_start(metadata)
+
+    span = tracer.spans[0]
+    assert span.ended is True
+    assert len(span.exceptions) == 1
+    assert span.status is not None
+    assert span.status.status_code == _FakeStatusCode.ERROR
+
+
+def test__open_telemetry_tracing_collector__ignores_hooks_without_active_span(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    tracer = _FakeTracer()
+    trace_api = _FakeTraceAPI(tracer)
+    original_import_module = importlib.import_module
+
+    def import_module(name: str) -> object:
+        if name == "opentelemetry.trace":
+            return trace_api
+        return original_import_module(name)
+
+    monkeypatch.setattr(importlib, "import_module", import_module)
+    collector = OpenTelemetryTracingCollector()
+    metadata = BotXRequestMetadata(method="GET", url="https://cts.example.com")
+
+    collector.on_request_retry(metadata, BotXRetryEvent(1, 2, 0, "timeout"))
+    collector.on_request_finish(metadata, BotXRequestResult(None, 1))
+
+    assert tracer.spans == []
+
+
+def test__open_telemetry_tracing_collector__supports_minimal_trace_api(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    tracer = _FakeTracer()
+    trace_api = _MinimalTraceAPI(tracer)
+    original_import_module = importlib.import_module
+
+    def import_module(name: str) -> object:
+        if name == "opentelemetry.trace":
+            return trace_api
+        return original_import_module(name)
+
+    monkeypatch.setattr(importlib, "import_module", import_module)
+    metadata = BotXRequestMetadata(method="GET", url="/")
+
+    def failing_enricher(_span: _FakeSpan, _metadata: BotXRequestMetadata) -> None:
+        raise RuntimeError("failed")
+
+    failing = OpenTelemetryTracingCollector(span_enricher=failing_enricher)
+    with pytest.raises(RuntimeError, match="failed"):
+        failing.on_request_start(metadata)
+
+    collector = OpenTelemetryTracingCollector()
+    collector.on_request_start(metadata)
+    collector.on_request_finish(metadata, BotXRequestResult(200, 1))
+    collector.on_request_start(metadata)
+    collector.on_request_finish(
+        metadata,
+        BotXRequestResult(None, 1, error=RuntimeError("request failed")),
+    )
+
+    assert len(tracer.spans) == 3

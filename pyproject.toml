@@ -49,6 +49,7 @@ dev = [
     "starlette>=0.40,<0.51",  # TODO: Drop dependency after updating end-to-end test
     "uvicorn>=0.40.0,<0.41",
     "ruff>=0.15.0,<0.16",
+    "prometheus-client>=0.26.0",
 ]
 
 [build-system]
