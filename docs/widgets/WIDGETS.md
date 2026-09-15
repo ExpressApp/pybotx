@@ -47,6 +47,50 @@ async def confirm_demo_handler(message: IncomingMessage, bot: Bot) -> ConfirmWid
 3. хук `before` обрабатывает нажатие кнопки и отправляет результат
 4. если callback-данных нет, отображается сам виджет
 
+### 1.1 `WidgetContext` и `WidgetFactory`
+
+Если в хендлере нужно создать несколько виджетов с одними и теми же
+`message/bot/command`, удобнее использовать фабрику:
+
+```python
+from pybotx import Bot, IncomingMessage
+from pybotx.widgets import WidgetContext, WidgetFactory, widget_command
+
+
+@widget_command()
+async def confirm_demo_handler(message: IncomingMessage, bot: Bot):
+    widgets = WidgetFactory(
+        context=WidgetContext(
+            message=message,
+            bot=bot,
+            command="/confirm-demo",
+        ),
+    )
+    return widgets.confirm(label="Confirm deployment?")
+```
+
+`WidgetFactory` сейчас покрывает:
+
+- `confirm(...)`
+- `approval(...)`
+- `select(...)`
+- `search_select(...)`
+- `multi_select(...)`
+- `form_wizard(...)`
+- `table(...)`
+- `calendar(...)`
+- `range(...)`
+- `carousel(...)`
+- `pagination(...)`
+- `messages_pager(...)`
+- `date_range(...)`
+- `async_job(...)`
+- `file_batch(...)`
+- `checklist(...)`
+- `checktable(...)`
+
+Для повторяемых текстов и UI-defaults можно передать `WidgetDefaults`.
+
 ## 2. Архитектура и жизненный цикл
 
 ### 2.1 Базовый класс `Widget`
@@ -109,18 +153,35 @@ async def confirm_demo_handler(message: IncomingMessage, bot: Bot) -> ConfirmWid
 
 ### 3.2 `WidgetRunner`
 
-`WidgetRunner.run(widget, before=None, after=None)`:
+`WidgetRunner(message, bot, config=None)` и `WidgetRunner.run(widget, before=None, after=None)`:
 
-- запускает `before(widget)`, если он задан
+- поддерживает общий `WidgetRunnerConfig`:
+  - `before_hooks`
+  - `after_hooks`
+  - `observers`
+- запускает config-level `before_hooks`, а затем per-call `before`
 - применяет результат `RunnerHookResult`
 - вызывает `widget.display()`
-- запускает `after(widget)`, если он задан
-- если `after` вернул текст, отправляет его как результат
+- запускает per-call `after`, а затем config-level `after_hooks`
+- каждый `after`-хук, вернувший текст, отправляет его как результат
+- уведомляет observers о старте и завершении выполнения
 
 Сигнатуры хуков:
 
 - `before(widget) -> RunnerHookResult | None | awaitable`
 - `after(widget) -> str | None | awaitable`
+
+Для observability есть встроенные типы:
+
+- `WidgetRunnerStartedEvent`
+- `WidgetRunnerFinishedEvent`
+- `WidgetRunnerObserver`
+- `LoggingWidgetRunnerObserver`
+
+Важно:
+
+- observer-ошибки не валят обработку виджета, а только логируются
+- ошибки самих хуков и `widget.display()` не глотаются и продолжают подниматься вверх
 
 ### 3.3 `@widget_command`
 
@@ -134,6 +195,9 @@ async def handler(message: IncomingMessage, bot: Bot) -> Widget: ...
 
 @widget_command(before=..., after=...)
 async def handler(message: IncomingMessage, bot: Bot) -> Widget: ...
+
+@widget_command(config=WidgetRunnerConfig(...))
+async def handler(message: IncomingMessage, bot: Bot) -> Widget: ...
 ```
 
 Поведение:
@@ -141,12 +205,106 @@ async def handler(message: IncomingMessage, bot: Bot) -> Widget: ...
 - хендлер должен вернуть виджет (или `None`)
 - декоратор умеет резолвить awaitable-результат
 - если получен `None`, выполнение завершается без действий
-- иначе создается `WidgetRunner(message, bot)` и выполняются хуки + display
+- иначе создается `WidgetRunner(message, bot, config=config)` и выполняются хуки + display
 
 Зачем использовать:
 
 - убирает boilerplate с ручным созданием runner в каждой команде
 - сохраняет хендлер тонким: только сборка виджета
+
+Пример production-friendly конфигурации:
+
+```python
+from pybotx import Bot, IncomingMessage
+from pybotx.widgets import (
+    ConfirmWidget,
+    LoggingWidgetRunnerObserver,
+    WidgetRunnerConfig,
+    on_action,
+    widget_command,
+)
+from pybotx.widgets.confirm import CANCEL_ACTION, CONFIRM_ACTION
+
+widget_config = WidgetRunnerConfig.from_hooks(
+    before=on_action(
+        lambda widget: ConfirmWidget.get_action(widget.message),
+        {
+            CONFIRM_ACTION: "Confirmed",
+            CANCEL_ACTION: "Cancelled",
+        },
+    ),
+    observers=(LoggingWidgetRunnerObserver(),),
+)
+
+
+@widget_command(config=widget_config)
+async def confirm_demo_handler(message: IncomingMessage, bot: Bot) -> ConfirmWidget:
+    return ConfirmWidget(
+        label="Confirm deployment?",
+        message=message,
+        bot=bot,
+        command="/confirm-demo",
+    )
+```
+
+Если не хочется собирать `WidgetRunnerConfig` вручную, можно использовать preset builders:
+
+```python
+from pybotx import Bot, IncomingMessage
+from pybotx.widgets import (
+    ConfirmWidget,
+    build_production_widget_runner_preset,
+    on_action,
+    widget_command,
+)
+from pybotx.widgets.confirm import CANCEL_ACTION, CONFIRM_ACTION
+
+widget_preset = build_production_widget_runner_preset(
+    before=on_action(
+        lambda widget: ConfirmWidget.get_action(widget.message),
+        {
+            CONFIRM_ACTION: "Confirmed",
+            CANCEL_ACTION: "Cancelled",
+        },
+    ),
+)
+
+
+@widget_command(**widget_preset.as_widget_command_kwargs())
+async def confirm_demo_handler(message: IncomingMessage, bot: Bot) -> ConfirmWidget:
+    return ConfirmWidget(
+        label="Confirm deployment?",
+        message=message,
+        bot=bot,
+        command="/confirm-demo",
+    )
+```
+
+Что дают builders:
+
+- `build_widget_runner_observability_preset(...)`:
+  - включает `LoggingWidgetRunnerObserver` по умолчанию
+  - умеет включать `PrometheusWidgetRunnerMetricsCollector`
+  - позволяет добавить свои observers
+- `build_production_widget_runner_preset(...)`:
+  - собирает `WidgetRunnerConfig`
+  - добавляет observability preset
+  - возвращает объект с `as_config()`, `as_runner_kwargs()`, `as_widget_command_kwargs()`
+
+Для метрик доступны готовые collectors:
+
+- `NoopWidgetRunnerMetricsCollector`
+- `InMemoryWidgetRunnerMetricsCollector`
+- `PrometheusWidgetRunnerMetricsCollector`
+
+`PrometheusWidgetRunnerMetricsCollector` публикует:
+
+- `runs_total`
+- `errors_total`
+- `skipped_total`
+- `result_messages_total`
+- `latency_seconds`
+- `in_flight`
 
 ## 4. Фабрики хуков
 

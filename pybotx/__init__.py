@@ -116,6 +116,19 @@ from pybotx.client.observability import (
     ReasonNormalizer,
     SpanEnricher,
 )
+from pybotx.presets import (
+    BotObservabilityPreset,
+    BotProductionPreset,
+    BotRetryPreset,
+    build_production_bot_preset,
+    build_production_observability_preset,
+    build_production_retry_preset,
+)
+from pybotx.integrations.fastapi import (
+    FastAPIBotAppConfig,
+    create_fastapi_bot_app,
+    setup_fastapi_bot,
+)
 from pybotx.client.smartapps_api.exceptions import SyncSmartAppEventHandlerNotFoundError
 from pybotx.client.smartapps_api.smartapp_manifest import (
     SmartappManifest,
@@ -260,14 +273,17 @@ __all__ = (
     "BotXRetryStrategy",
     "BotXRetryEvent",
     "AnyOfBotXRetryRequestPolicy",
+    "BotObservabilityPreset",
     "KnownSafeBotXRetryRequestPolicy",
     "OpenTelemetryTracingCollector",
     "OperationNameAllowlistBotXRetryRequestPolicy",
     "PathNormalizer",
     "PathAllowlistBotXRetryRequestPolicy",
+    "BotProductionPreset",
     "PrometheusMetricsCollector",
     "ReasonNormalizer",
     "RetryAllBotXRequestsPolicy",
+    "BotRetryPreset",
     "SafeBotXRetryRequestPolicy",
     "SpanEnricher",
     "TenacityRetryStrategy",
@@ -311,6 +327,7 @@ __all__ = (
     "File",
     "FileDeletedError",
     "FileMetadataNotFound",
+    "FastAPIBotAppConfig",
     "FinalRecipientsListEmptyError",
     "Forward",
     "HandlerCollector",
@@ -395,9 +412,14 @@ __all__ = (
     "build_command_accepted_response",
     "build_default_httpx_limits",
     "build_default_httpx_timeout",
+    "build_production_bot_preset",
+    "build_production_observability_preset",
+    "build_production_retry_preset",
     "build_unverified_request_response",
     "lifespan_wrapper",
     "setup_healthcheck",
+    "setup_fastapi_bot",
+    "create_fastapi_bot_app",
 )
 
 logger.disable("pybotx")

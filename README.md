@@ -2,7 +2,7 @@
 
 *Библиотека для создания чат-ботов и SmartApps для мессенджера eXpress*
 
-[![PyPI version](https://badge.fury.io/py/botx.svg)](https://badge.fury.io/py/pybotx)
+[![PyPI version](https://badge.fury.io/py/pybotx.svg)](https://badge.fury.io/py/pybotx)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pybotx)
 [![Coverage](https://codecov.io/gh/ExpressApp/pybotx/branch/master/graph/badge.svg)](https://codecov.io/gh/ExpressApp/pybotx/branch/master)
 [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
@@ -25,6 +25,103 @@
 uv add pybotx
 ```
 
+Для генерации нового production-ready бота из активного окружения:
+
+```bash
+pybotx create bot my-bot
+```
+
+Или через `uv`, если окружение не активировано:
+
+```bash
+uv run pybotx create bot my-bot
+```
+
+Для FSM-шаблона:
+
+```bash
+uv run pybotx create bot my-fsm-bot --template production-fastapi-fsm
+```
+
+Или в пустой текущей директории:
+
+```bash
+pybotx create bot
+```
+
+Сгенерированный проект включает:
+
+- FastAPI endpoints для Bot API
+- `build_production_bot_preset()` по умолчанию
+- `/metrics` с Prometheus registry
+- `setup_healthcheck(...)`
+- `dependency-injector`
+- 4 слоя: `domain / application / infrastructure / presentation`
+- пример domain port + repository stub с DI wiring
+- `ARCHITECTURE.md` с правилами зависимостей и примерами размещения кода
+- тесты, `ruff`, `mypy`, Docker-файлы
+
+Поддерживаемые встроенные шаблоны:
+
+- `production-fastapi`
+- `production-fastapi-fsm`
+
+После генерации проекта можно добавить новую команду:
+
+```bash
+uv run pybotx create command ping-users --project-dir my-bot
+```
+
+Чтобы добавить application service/use case без ручной раскладки по слоям:
+
+```bash
+uv run pybotx create service sync-users --project-dir my-bot
+```
+
+Чтобы добавить только domain port без concrete adapter:
+
+```bash
+uv run pybotx create port billing-gateway --project-dir my-bot
+```
+
+Чтобы добавить domain port + infrastructure repository stub с DI wiring:
+
+```bash
+uv run pybotx create repository user-profile --project-dir my-bot
+```
+
+Если port уже существует, repository можно привязать к нему:
+
+```bash
+uv run pybotx create repository stripe-billing-gateway --project-dir my-bot --port billing-gateway
+```
+
+Для FSM-шаблона можно сгенерировать новый flow c starter command и тестом:
+
+```bash
+uv run pybotx create fsm-flow approval --project-dir my-fsm-bot
+```
+
+Для scaffold-проекта можно сгенерировать widget command на базе `WidgetFactory` и `widget_command`:
+
+```bash
+uv run pybotx create widget deployment-approval --project-dir my-bot --kind confirm
+```
+
+Если нужен готовый flow `command + widget + follow-up services` без ручного wiring:
+
+```bash
+uv run pybotx create widget-flow deployment-approval --project-dir my-bot --kind confirm
+```
+
+Сгенерированный scaffold использует следующий контракт:
+
+- `src/<package>/container.py` - composition root и DI
+- `src/<package>/presentation/` - FastAPI, `pybotx` handlers, widgets, FSM
+- `src/<package>/application/services/` - application services/use cases
+- `src/<package>/domain/` - доменные модели и контракты, включая `domain/ports/`
+- `src/<package>/infrastructure/` - config, repository/adapters, внешние интеграции
+
 **Предупреждение:** Данный проект находится в активной разработке (`0.y.z`) и
 его API может быть изменён при повышении минорной версии.
 
@@ -45,10 +142,9 @@ uv add pybotx
 можно найти на [официальном сайте](https://express.ms/).
 
 Перед тем, как продолжать знакомство с библиотекой `pybotx`,
-советуем прочитать данные статьи: [Что такое чат-боты и SmartApp
-](https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001089)
-и [Взаимодействие с Bot API и BotX API
-](https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185).
+советуем прочитать данные статьи: Что такое [чат-боты](https://docs.express.ms/chatbots/developer-guide/#%D1%87%D0%B0%D1%82-%D0%B1%D0%BE%D1%82-%D0%B8-smartapp)
+и [SmartApp](https://docs.express.ms/smartapps/developer-guide/)
+и [Взаимодействие с Bot API и BotX API](https://docs.express.ms/chatbots/developer-guide/api/).
 В этих статьях находятся исчерпывающие примеры работы с платформой, которые
 легко повторить, используя `pybotx`.
 
@@ -69,11 +165,9 @@ uv add pybotx
 ## Минимальный пример бота (интеграция с FastAPI)
 
 ```python
-from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 
 # В этом и последующих примерах импорт из `pybotx` будет производиться
 # через звёздочку для краткости. Однако, это не является хорошей практикой.
@@ -98,45 +192,44 @@ bot = Bot(
             # Не забудьте заменить эти учётные данные на настоящие,
             # когда создадите бота в панели администратора.
             id=UUID("123e4567-e89b-12d3-a456-426655440000"),
-            host="cts.example.com",
+            cts_url="https://cts.example.com",
             secret_key="e29b417773f2feab9dac143ee3da20c5",
         ),
     ],
 )
 
+app: FastAPI = create_fastapi_bot_app(
+    bot=bot,
+    title="Example bot",
+    config=FastAPIBotAppConfig(
+        metrics_path="/metrics",
+        smartapp_request_path="/smartapps/request",
+    ),
+)
+```
+
+`create_fastapi_bot_app(...)` регистрирует:
+
+- `POST /command`
+- `GET /status`
+- `POST /notification/callback`
+- опционально `POST /smartapps/request`
+- опционально `GET /metrics`
+- healthcheck routes через `setup_healthcheck(...)`
+
+Если у вас уже есть свой `FastAPI()` объект, можно не создавать новый app, а
+подключить `pybotx` в существующий:
+
+```python
+from fastapi import FastAPI
+from pybotx import *
+
 app = FastAPI()
-app.add_event_handler("startup", bot.startup)
-app.add_event_handler("shutdown", bot.shutdown)
-
-
-# На этот эндпоинт приходят команды BotX
-# (сообщения и системные события).
-@app.post("/command")
-async def command_handler(request: Request) -> JSONResponse:
-    bot.async_execute_raw_bot_command(await request.json())
-    return JSONResponse(
-        build_command_accepted_response(),
-        status_code=HTTPStatus.ACCEPTED,
-    )
-
-
-# К этому эндпоинту BotX обращается, чтобы узнать
-# доступность бота и его список команд.
-@app.get("/status")
-async def status_handler(request: Request) -> JSONResponse:
-    status = await bot.raw_get_status(dict(request.query_params))
-    return JSONResponse(status)
-
-
-# На этот эндпоинт приходят коллбэки с результатами
-# выполнения асинхронных методов в BotX.
-@app.post("/notification/callback")
-async def callback_handler(request: Request) -> JSONResponse:
-    await bot.set_raw_botx_method_result(await request.json())
-    return JSONResponse(
-        build_command_accepted_response(),
-        status_code=HTTPStatus.ACCEPTED,
-    )
+setup_fastapi_bot(
+    app,
+    bot=bot,
+    config=FastAPIBotAppConfig(metrics_path="/metrics"),
+)
 ```
 
 ### Healthcheck (опционально, подключается явно)
@@ -314,6 +407,48 @@ bot = Bot(
 
 Подробное объяснение решения и рекомендаций для production:
 [`docs/retry_safety.md`](docs/retry_safety.md).
+
+Для сокращения boilerplate при сборке production-конфига есть готовые preset
+builders:
+
+```python
+from pybotx import Bot, build_production_bot_preset
+
+production_preset = build_production_bot_preset()
+
+bot = Bot(
+    collectors=[collector],
+    bot_accounts=[bot_account],
+    **production_preset.as_bot_kwargs(),
+)
+```
+
+Если нужно отдельно настраивать retry и observability:
+
+```python
+from pybotx import (
+    Bot,
+    build_production_bot_preset,
+    build_production_observability_preset,
+    build_production_retry_preset,
+)
+
+production_preset = build_production_bot_preset(
+    retry_preset=build_production_retry_preset(max_attempts=5),
+    observability_preset=build_production_observability_preset(
+        enable_open_telemetry_tracing=False,
+    ),
+)
+
+bot = Bot(
+    collectors=[collector],
+    bot_accounts=[bot_account],
+    **production_preset.as_bot_kwargs(),
+)
+```
+
+Подробности по preset layer:
+[`docs/production_presets.md`](docs/production_presets.md).
 
 Если передан собственный `httpx_client`, параметры `httpx_timeout` и
 `httpx_limits` передавать нельзя.
@@ -563,8 +698,7 @@ Trade-off: в пике увеличивается latency из-за очеред
 ### Получение сообщений
 
 *([подробное описание функции](
-https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185/Bot+API+BotX+API#%D0%9F%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B9/%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%BD%D1%8B%D1%85-%D1%81%D0%BE%D0%B1%D1%8B%D1%82%D0%B8%D0%B9))*
-
+https://docs.express.ms/chatbots/developer-guide/api/bot-api/command/))*
 ```python
 from uuid import UUID
 
@@ -611,8 +745,7 @@ async def default_handler(_: IncomingMessage, bot: Bot) -> None:
 ### Получение системных событий
 
 *([подробное описание функции](
-https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185/Bot+API+BotX+API#%D0%9F%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B9/%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%BD%D1%8B%D1%85-%D1%81%D0%BE%D0%B1%D1%8B%D1%82%D0%B8%D0%B9))*
-
+https://docs.express.ms/chatbots/developer-guide/api/bot-api/command/#%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%BD%D1%8B%D0%B5-%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B))*
 ```python
 from pybotx import *
 
@@ -629,6 +762,27 @@ async def chat_created_handler(event: ChatCreatedEvent, bot: Bot) -> None:
 @collector.smartapp_event
 async def smartapp_event_handler(event: SmartAppEvent, bot: Bot) -> None:
     print(f"Got `smartapp_event` event: {event}")
+```
+
+
+### Получение синхронных SmartApp событий
+
+```python
+from pybotx import *
+
+collector = HandlerCollector()
+
+
+# Обработчик синхронных Smartapp событий, приходящих на эндпоинт `/smartapps/request`
+@collector.sync_smartapp_event
+async def handle_sync_smartapp_event(
+    event: SmartAppEvent, bot: Bot,
+) -> BotAPISyncSmartAppEventResultResponse:
+    print(f"Got sync smartapp event: {event}")
+    return BotAPISyncSmartAppEventResultResponse.from_domain(
+        data={},
+        files=[],
+    )
 ```
 
 
@@ -728,8 +882,7 @@ main_collector.include(admin_collector)
 ### Отправка сообщения
 
 *([подробное описание функции](
-https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185/Bot+API+BotX+API#%D0%9E%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F))*
-
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F))*
 ```python
 from uuid import UUID
 
@@ -784,8 +937,7 @@ async def prebuild_answer_handler(message: IncomingMessage, bot: Bot) -> None:
 #### Отправка сообщения с кнопками
 
 *([подробное описание функции](
-https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185/Bot+API+BotX+API#%D0%9E%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F-%D1%81-%D0%BA%D0%BD%D0%BE%D0%BF%D0%BA%D0%B0%D0%BC%D0%B8))*
-
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F-%D1%81-%D0%BA%D0%BD%D0%BE%D0%BF%D0%BA%D0%B0%D0%BC%D0%B8))*
 ```python
 from pybotx import *
 
@@ -802,12 +954,23 @@ async def bubbles_handler(message: IncomingMessage, bot: Bot) -> None:
         command="/choose",
         label="Red",
         data={"pill": "red"},
+        background_color="#FF0000",
     )
     bubbles.add_button(
         command="/choose",
         label="Blue",
         data={"pill": "blue"},
+        background_color="#0000FF",
         new_row=False,
+    )
+
+    # В кнопку можно добавит ссылку на ресурс,
+    # для этого нужно добавить url в аргумент `link`, а `command` оставить пустым,
+    # `alert` добавляется в окно подтверждения при переходе по ссылке.
+    bubbles.add_button(
+        label="Bubble with link",
+        alert="alert text",
+        link="https://example.com",
     )
 
     await bot.answer_message(
@@ -820,8 +983,7 @@ async def bubbles_handler(message: IncomingMessage, bot: Bot) -> None:
 #### Упоминание пользователя
 
 *([подробное описание функции](
-https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185/Bot+API+BotX+API#%D0%A3%D0%BF%D0%BE%D0%BC%D0%B8%D0%BD%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F))*
-
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D1%83%D0%BF%D0%BE%D0%BC%D0%B8%D0%BD%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F))*
 ```python
 from pybotx import *
 
@@ -848,8 +1010,7 @@ async def echo_contact_handler(message: IncomingMessage, bot: Bot) -> None:
 #### Отправка файла в сообщении
 
 *([подробное описание функции](
-https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185/Bot+API+BotX+API#%D0%9E%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%84%D0%B0%D0%B9%D0%BB%D0%B0-%D0%B2-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B8))*
-
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D0%BE%D1%82%D0%BF%D1%80%D0%B0%D0%B2%D0%BA%D0%B0-%D1%84%D0%B0%D0%B9%D0%BB%D0%B0-%D0%B2-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B8))*
 ```python
 from aiofiles.tempfile import NamedTemporaryFile
 
@@ -880,12 +1041,10 @@ async def echo_file_handler(message: IncomingMessage, bot: Bot) -> None:
     await bot.answer_message("", file=attached_file)
 ```
 
-
 ### Редактирование сообщения
 
 *([подробное описание функции](
-https://hackmd.ccsteam.ru/s/E9MPeOxjP#%D0%A0%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%B1%D1%8B%D1%82%D0%B8%D1%8F))*
-
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D1%80%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B9))*
 ```python
 from pybotx import *
 
@@ -918,6 +1077,34 @@ async def increment_handler(message: IncomingMessage, bot: Bot) -> None:
         )
     else:
         await bot.answer_message(answer_text, bubbles=bubbles)
+```
+
+### Удаление сообщения
+
+*([подробное описание функции](
+https://hackmd.ccsteam.ru/s/E9MPeOxjP#%D0%A3%D0%B4%D0%B0%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F))*
+```python
+from pybotx import *
+
+collector = HandlerCollector()
+
+
+@collector.command("/deleted-message", description="Self-deleted message")
+async def deleted_message_handler(message: IncomingMessage, bot: Bot) -> None:
+    if message.source_sync_id:  # ID сообщения, в котором была нажата кнопка.
+        await bot.delete_message(
+            bot_id=message.bot.id,
+            sync_id=message.source_sync_id,
+        )
+        return
+
+    bubbles = BubbleMarkup()
+    bubbles.add_button(
+        command="/deleted-message",
+        label="Delete",
+    )
+
+    await bot.answer_message("Self-deleted message", bubbles=bubbles)
 ```
 
 
@@ -955,8 +1142,7 @@ bot = Bot(
 ### Создание чата
 
 *([подробное описание функции](
-https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185/Bot+API+BotX+API#%D0%A1%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-%D1%87%D0%B0%D1%82%D0%B0))*
-
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-%D1%87%D0%B0%D1%82%D0%B0))*
 ```python
 from pybotx import *
 
@@ -984,9 +1170,36 @@ async def create_group_chat_handler(message: IncomingMessage, bot: Bot) -> None:
     await bot.answer_message(f"Chat created: {chat_mention}")
 ```
 
-### Получение списка пользователей
-*([подробное описание функции](https://ccsteam.atlassian.net/wiki/spaces/SMARTAPP/pages/311001185/Bot+API+BotX+API#%D0%9F%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BF%D0%B8%D1%81%D0%BA%D0%B0-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D0%B5%D0%B9-%D0%BD%D0%B0-CTS))*
+### Поиск пользователей
 
+*([подробное описание функции](
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D0%BF%D0%BE%D0%B8%D1%81%D0%BA-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F))*
+```python
+import dataclasses
+
+from pybotx import *
+
+collector = HandlerCollector()
+
+
+@collector.command("/my-info", description="Get info of current user")
+async def search_user_handler(message: IncomingMessage, bot: Bot) -> None:
+    try:
+        user_info = await bot.search_user_by_huid(
+            bot_id=message.bot.id,
+            huid=message.sender.huid,
+        )
+    except UserNotFoundError:  # Если пользователь и бот находятся на разных CTS
+        await bot.answer_message("User not found. Maybe you are on a different cts.")
+        return
+
+    await bot.answer_message(f"Your info:\n{dataclasses.asdict(user_info)}\n")
+```
+
+### Получение списка пользователей
+
+*([подробное описание функции](
+https://docs.express.ms/chatbots/developer-guide/development-and-debugging/examples/#%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D1%81%D0%BF%D0%B8%D1%81%D0%BA%D0%B0-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D0%B5%D0%B9-%D0%BD%D0%B0-cts))*
 ```python
 from pybotx import *
 
