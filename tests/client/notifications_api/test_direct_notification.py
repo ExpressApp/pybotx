@@ -711,6 +711,7 @@ async def test__send_message__all_mentions_types_succeed(
                     {
                         "mention_type": "all",
                         "mention_id": "f3e176d5-ff46-4b18-b260-25008338c06e",
+                        "mention_data": None,
                     },
                 ],
             },
