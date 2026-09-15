@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -7,7 +8,7 @@ import pytest
 from pybotx.widgets.checklist import CHECKED_ITEMS_KEY, CheckListWidget, SELECTED_ITEM_KEY
 
 
-def _build_bot_mock() -> SimpleNamespace:
+def _build_bot_mock() -> Any:
     return SimpleNamespace(
         send=AsyncMock(return_value=uuid4()),
         edit_message=AsyncMock(),
@@ -16,7 +17,7 @@ def _build_bot_mock() -> SimpleNamespace:
 
 @pytest.mark.asyncio
 async def test__checklist_widget__display(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.metadata = {CHECKED_ITEMS_KEY: ["b"]}
@@ -40,7 +41,7 @@ async def test__checklist_widget__display(
 
 @pytest.mark.asyncio
 async def test__checklist_widget__toggle_selected_item(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {SELECTED_ITEM_KEY: "x"}
@@ -62,7 +63,7 @@ async def test__checklist_widget__toggle_selected_item(
 
 @pytest.mark.asyncio
 async def test__checklist_widget__toggle_add_item(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {SELECTED_ITEM_KEY: "z"}
@@ -83,7 +84,7 @@ async def test__checklist_widget__toggle_add_item(
 
 
 def test__checklist_widget__helpers(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {SELECTED_ITEM_KEY: "test"}

@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -8,7 +9,7 @@ from pybotx.widgets.base import PYBOTX_WIDGET_FLAG
 from pybotx.widgets.range import CURRENT_INDEX_KEY, ELEMENTS_KEY, RangeWidget
 
 
-def _build_bot_mock() -> SimpleNamespace:
+def _build_bot_mock() -> Any:
     return SimpleNamespace(
         send=AsyncMock(return_value=uuid4()),
         edit_message=AsyncMock(),
@@ -17,7 +18,7 @@ def _build_bot_mock() -> SimpleNamespace:
 
 @pytest.mark.asyncio
 async def test__range_widget__display_first_element(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -40,7 +41,7 @@ async def test__range_widget__display_first_element(
 
 @pytest.mark.asyncio
 async def test__range_widget__display_middle_element(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {CURRENT_INDEX_KEY: 1}
@@ -63,7 +64,7 @@ async def test__range_widget__display_middle_element(
 
 @pytest.mark.asyncio
 async def test__range_widget__display_last_element(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {CURRENT_INDEX_KEY: 999}
@@ -85,7 +86,7 @@ async def test__range_widget__display_last_element(
 
 @pytest.mark.asyncio
 async def test__range_widget__empty_list(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -105,7 +106,7 @@ async def test__range_widget__empty_list(
 
 @pytest.mark.asyncio
 async def test__range_widget__invalid_elements_in_metadata(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.metadata = {ELEMENTS_KEY: "bad"}
@@ -124,7 +125,7 @@ async def test__range_widget__invalid_elements_in_metadata(
 
 @pytest.mark.asyncio
 async def test__range_widget__negative_index_is_clamped(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {CURRENT_INDEX_KEY: -10}
@@ -143,7 +144,7 @@ async def test__range_widget__negative_index_is_clamped(
 
 
 def test__range_widget__helpers(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {CURRENT_INDEX_KEY: "1"}

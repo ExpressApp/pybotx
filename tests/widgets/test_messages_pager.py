@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -8,7 +9,7 @@ from pybotx.widgets.messages_pager import MessagesPagerWidget
 from pybotx.widgets.pagination import MESSAGE_IDS_KEY
 
 
-def _build_bot_mock() -> SimpleNamespace:
+def _build_bot_mock() -> Any:
     return SimpleNamespace(
         send=AsyncMock(
             side_effect=[
@@ -23,7 +24,7 @@ def _build_bot_mock() -> SimpleNamespace:
 
 @pytest.mark.asyncio
 async def test__messages_pager_widget__display(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr("pybotx.widgets.pagination.asyncio.sleep", AsyncMock())
@@ -47,7 +48,7 @@ async def test__messages_pager_widget__display(
 
 @pytest.mark.asyncio
 async def test__messages_pager_widget__display_custom_template(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr("pybotx.widgets.pagination.asyncio.sleep", AsyncMock())

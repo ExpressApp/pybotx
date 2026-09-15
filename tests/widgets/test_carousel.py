@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -17,7 +18,7 @@ from pybotx.widgets.carousel import (
 )
 
 
-def _build_bot_mock() -> SimpleNamespace:
+def _build_bot_mock() -> Any:
     return SimpleNamespace(
         send=AsyncMock(return_value=uuid4()),
         edit_message=AsyncMock(),
@@ -26,7 +27,7 @@ def _build_bot_mock() -> SimpleNamespace:
 
 @pytest.mark.asyncio
 async def test__carousel_widget__display_inline(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -51,7 +52,7 @@ async def test__carousel_widget__display_inline(
 
 @pytest.mark.asyncio
 async def test__carousel_widget__display_newline(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {SELECTED_VALUE_KEY: RIGHT_PRESSED, START_FROM_KEY: 0}
@@ -76,7 +77,7 @@ async def test__carousel_widget__display_newline(
 
 @pytest.mark.asyncio
 async def test__carousel_widget__get_value_selected(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.source_sync_id = uuid4()
@@ -98,7 +99,7 @@ async def test__carousel_widget__get_value_selected(
 
 @pytest.mark.asyncio
 async def test__carousel_widget__get_value_selected_without_feedback(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.source_sync_id = uuid4()
@@ -125,7 +126,7 @@ async def test__carousel_widget__get_value_selected_without_feedback(
 
 @pytest.mark.asyncio
 async def test__carousel_widget__get_value_empty(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {SELECTED_VALUE_KEY: LEFT_PRESSED}
@@ -137,7 +138,7 @@ async def test__carousel_widget__get_value_empty(
 
 
 def test__carousel_widget__helpers(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -157,7 +158,7 @@ def test__carousel_widget__helpers(
 
 
 def test__carousel_widget__visibility_and_labels(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -211,7 +212,7 @@ def test__carousel_widget__visibility_and_labels(
 
 @pytest.mark.asyncio
 async def test__carousel_widget__inline_all_buttons_visible(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {SELECTED_VALUE_KEY: LEFT_PRESSED, START_FROM_KEY: 1}
@@ -236,7 +237,7 @@ async def test__carousel_widget__inline_all_buttons_visible(
 
 @pytest.mark.asyncio
 async def test__carousel_widget__newline_with_row_and_right_arrow(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -259,7 +260,7 @@ async def test__carousel_widget__newline_with_row_and_right_arrow(
 
 
 def test__carousel_widget__invalid_selected_value_label(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     class _BadCarousel(CarouselWidget):
         SELECTED_VALUE_LABEL = "{label}"
@@ -278,7 +279,7 @@ def test__carousel_widget__invalid_selected_value_label(
 
 
 def test__carousel_widget__validation_errors(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()

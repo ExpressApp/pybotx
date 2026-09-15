@@ -14,6 +14,10 @@ from pybotx.client.http_config import iter_retry_request_policy_warnings
 from typing import Any
 
 
+def test__botx_operation__has_str_enum_semantics() -> None:
+    assert str(BotXOperation.CHAT_INFO) == "ChatInfoMethod"
+
+
 def test__safe_botx_retry_request_policy__retries_get_requests() -> None:
     policy = SafeBotXRetryRequestPolicy()
 

@@ -1,11 +1,16 @@
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import AsyncMock
 from uuid import UUID, uuid4
 
 import pytest
 
-from pybotx.widgets.base import PYBOTX_WIDGET_FLAG, build_outgoing_message_from_incoming
+from pybotx.widgets.base import (
+    PYBOTX_WIDGET_FLAG,
+    build_outgoing_message_from_incoming,
+    ensure_widget_metadata,
+)
 from pybotx.widgets.pagination import (
     MESSAGE_IDS_KEY,
     START_FROM_KEY,
@@ -16,7 +21,7 @@ from pybotx.widgets.pagination import (
 )
 
 
-def _build_bot_mock() -> SimpleNamespace:
+def _build_bot_mock() -> Any:
     message_ids = [
         UUID("00000000-0000-0000-0000-000000000001"),
         UUID("00000000-0000-0000-0000-000000000002"),
@@ -30,7 +35,7 @@ def _build_bot_mock() -> SimpleNamespace:
 
 @pytest.mark.asyncio
 async def test__pagination_widget__display_send(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr("pybotx.widgets.pagination.asyncio.sleep", AsyncMock())
@@ -54,7 +59,7 @@ async def test__pagination_widget__display_send(
 
 @pytest.mark.asyncio
 async def test__pagination_widget__display_update(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr("pybotx.widgets.pagination.asyncio.sleep", AsyncMock())
@@ -86,7 +91,7 @@ async def test__pagination_widget__display_update(
 
 @pytest.mark.asyncio
 async def test__pagination_widget__update_without_source_sync_id(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr("pybotx.widgets.pagination.asyncio.sleep", AsyncMock())
@@ -113,7 +118,7 @@ async def test__pagination_widget__update_without_source_sync_id(
 
 @pytest.mark.asyncio
 async def test__pagination_widget__update_with_short_page(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr("pybotx.widgets.pagination.asyncio.sleep", AsyncMock())
@@ -144,7 +149,7 @@ async def test__pagination_widget__update_with_short_page(
 
 @pytest.mark.asyncio
 async def test__pagination_widget__update_break_on_missing_message_ids(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr("pybotx.widgets.pagination.asyncio.sleep", AsyncMock())
@@ -169,7 +174,7 @@ async def test__pagination_widget__update_break_on_missing_message_ids(
 
 @pytest.mark.asyncio
 async def test__pagination_widget__empty_content(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -188,7 +193,7 @@ async def test__pagination_widget__empty_content(
 
 
 def test__pagination_widget__validation_errors(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -214,14 +219,14 @@ def test__pagination_widget__validation_errors(
 
 
 def test__pagination_widget__normalize_outgoing_message(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
     content_message = build_outgoing_message_from_incoming(
         message=message,
         body="original",
-        metadata={"timestamp": datetime.now(UTC).isoformat()},
+        metadata={"timestamp": datetime.now(timezone.utc).isoformat()},
     )
 
     widget = PaginationWidget(
@@ -247,7 +252,7 @@ def test__pagination_widget__helpers() -> None:
 
 
 def test__pagination_widget__add_navigation_buttons(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {START_FROM_KEY: 2}
@@ -262,12 +267,12 @@ def test__pagination_widget__add_navigation_buttons(
     )
     widget.add_markup()
 
-    labels = [button.label for row in widget.widget_message.bubbles for button in row]
+    labels = [button.label for row in widget.widget_bubbles for button in row]
     assert labels == ["⬅️ Назад к [1-2]"]
 
 
 def test__pagination_widget__negative_start_from(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {START_FROM_KEY: -10}
@@ -285,7 +290,7 @@ def test__pagination_widget__negative_start_from(
 
 
 def test__pagination_widget__prepare_last_message_keeps_metadata(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -306,6 +311,7 @@ def test__pagination_widget__prepare_last_message_keeps_metadata(
 
     widget._prepare_last_message(content_message)
 
-    assert content_message.metadata["foo"] == "bar"
-    assert content_message.metadata[PYBOTX_WIDGET_FLAG] == 1
-    assert MESSAGE_IDS_KEY in content_message.metadata
+    metadata = ensure_widget_metadata(content_message)
+    assert metadata["foo"] == "bar"
+    assert metadata[PYBOTX_WIDGET_FLAG] == 1
+    assert MESSAGE_IDS_KEY in metadata

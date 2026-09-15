@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -8,7 +9,7 @@ from pybotx.widgets.checktable import CheckboxContent, ChecktableWidget
 from pybotx.widgets.undefined import undefined
 
 
-def _build_bot_mock() -> SimpleNamespace:
+def _build_bot_mock() -> Any:
     return SimpleNamespace(
         send=AsyncMock(return_value=uuid4()),
         edit_message=AsyncMock(),
@@ -27,12 +28,12 @@ def test__checkbox_content__validation_error() -> None:
 
 @pytest.mark.asyncio
 async def test__checktable_widget__display(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
 
-    checkboxes = [
+    checkboxes: list[CheckboxContent[Any]] = [
         CheckboxContent[str](
             label="Undefined",
             command="/fill",

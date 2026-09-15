@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -19,7 +20,7 @@ from pybotx.widgets.file_batch import (
 )
 
 
-def _build_bot_mock() -> SimpleNamespace:
+def _build_bot_mock() -> Any:
     return SimpleNamespace(send=AsyncMock(return_value=uuid4()), edit_message=AsyncMock())
 
 
@@ -42,7 +43,7 @@ def test__file_batch_widget__helpers() -> None:
 
 @pytest.mark.asyncio
 async def test__file_batch_widget__display(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {FILE_BATCH_PAGE_KEY: 0}
@@ -71,7 +72,7 @@ async def test__file_batch_widget__display(
 
 @pytest.mark.asyncio
 async def test__file_batch_widget__metadata_source(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.metadata = {
@@ -110,7 +111,7 @@ async def test__file_batch_widget__metadata_source(
 
 
 def test__file_batch_widget__getters(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {FILE_BATCH_ACTION_KEY: FILE_BATCH_ACTION_NEXT}

@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -18,7 +19,7 @@ from pybotx.widgets.form_wizard import (
 )
 
 
-def _build_bot_mock() -> SimpleNamespace:
+def _build_bot_mock() -> Any:
     return SimpleNamespace(send=AsyncMock(return_value=uuid4()), edit_message=AsyncMock())
 
 
@@ -31,7 +32,7 @@ def _steps() -> list[FormWizardStep]:
 
 @pytest.mark.asyncio
 async def test__form_wizard_widget__active_step(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory(body="/form John")
     bot = _build_bot_mock()
@@ -54,7 +55,7 @@ async def test__form_wizard_widget__active_step(
 
 @pytest.mark.asyncio
 async def test__form_wizard_widget__next_and_back(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.metadata = {
@@ -115,7 +116,7 @@ async def test__form_wizard_widget__next_and_back(
 
 @pytest.mark.asyncio
 async def test__form_wizard_widget__cancel_and_reset(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {FORM_ACTION_KEY: FORM_ACTION_CANCEL}
@@ -151,7 +152,7 @@ async def test__form_wizard_widget__cancel_and_reset(
 
 
 def test__form_wizard_widget__get_values(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.metadata = {FORM_VALUES_KEY: {"a": 1}}
@@ -164,7 +165,7 @@ def test__form_wizard_widget__get_values(
 
 @pytest.mark.asyncio
 async def test__form_wizard_widget__input_ignored_for_completed_step(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.metadata = {

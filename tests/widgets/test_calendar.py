@@ -1,5 +1,6 @@
 from datetime import date
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -14,7 +15,7 @@ from pybotx.widgets.calendar import (
 )
 
 
-def _build_bot_mock() -> SimpleNamespace:
+def _build_bot_mock() -> Any:
     return SimpleNamespace(
         send=AsyncMock(return_value=uuid4()),
         edit_message=AsyncMock(),
@@ -23,7 +24,7 @@ def _build_bot_mock() -> SimpleNamespace:
 
 @pytest.mark.asyncio
 async def test__calendar_widget__display(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -47,7 +48,7 @@ async def test__calendar_widget__display(
 
 
 def test__calendar_widget__invalid_dates(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -63,7 +64,7 @@ def test__calendar_widget__invalid_dates(
 
 
 def test__calendar_widget__get_current_date_from_navigation(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory(body="/calendar ⬅️")
     message.data = {MONTH_TO_DISPLAY_KEY: "2026-05-01"}
@@ -81,7 +82,7 @@ def test__calendar_widget__get_current_date_from_navigation(
 
 
 def test__calendar_widget__prev_next_helpers(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -100,7 +101,7 @@ def test__calendar_widget__prev_next_helpers(
 
 @pytest.mark.asyncio
 async def test__calendar_widget__get_value_update(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {SELECTED_DATE_KEY: "2026-01-15"}
@@ -121,7 +122,7 @@ async def test__calendar_widget__get_value_update(
 
 @pytest.mark.asyncio
 async def test__calendar_widget__get_value_without_feedback(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {SELECTED_DATE_KEY: "2026-01-15"}
@@ -147,7 +148,7 @@ async def test__calendar_widget__get_value_without_feedback(
 
 @pytest.mark.asyncio
 async def test__calendar_widget__get_value_error(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -165,7 +166,7 @@ def test__calendar_widget__parse_date() -> None:
 
 
 def test__calendar_widget__navigation_with_invalid_month_value(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory(body="/calendar ⬅️")
     message.data = {MONTH_TO_DISPLAY_KEY: "bad-date"}
@@ -181,7 +182,7 @@ def test__calendar_widget__navigation_with_invalid_month_value(
 
 
 def test__calendar_widget__month_boundaries(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -195,7 +196,7 @@ def test__calendar_widget__month_boundaries(
 
 
 def test__calendar_widget__year_and_month_arrow_visibility(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -211,7 +212,7 @@ def test__calendar_widget__year_and_month_arrow_visibility(
     widget.add_year_bubbles()
     widget.add_month_bubbles()
 
-    labels = [button.label for row in widget.widget_message.bubbles for button in row]
+    labels = [button.label for row in widget.widget_bubbles for button in row]
     assert labels.count(" ") >= 2
     assert "➡️" in labels
 
@@ -227,13 +228,13 @@ def test__calendar_widget__year_and_month_arrow_visibility(
     upper_limit_widget.add_month_bubbles()
 
     month_labels = [
-        button.label for row in upper_limit_widget.widget_message.bubbles for button in row
+        button.label for row in upper_limit_widget.widget_bubbles for button in row
     ]
     assert month_labels[-1] == " "
 
 
 def test__calendar_widget__day_bubbles_with_visible_days(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -248,5 +249,5 @@ def test__calendar_widget__day_bubbles_with_visible_days(
     widget.current_date = date(2026, 2, 1)
     widget.add_day_bubbles()
 
-    labels = [button.label for row in widget.widget_message.bubbles for button in row]
+    labels = [button.label for row in widget.widget_bubbles for button in row]
     assert "1" in labels

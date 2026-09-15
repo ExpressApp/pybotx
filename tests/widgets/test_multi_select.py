@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -11,13 +12,13 @@ from pybotx.widgets.multi_select import (
 )
 
 
-def _build_bot_mock() -> SimpleNamespace:
+def _build_bot_mock() -> Any:
     return SimpleNamespace(send=AsyncMock(return_value=uuid4()), edit_message=AsyncMock())
 
 
 @pytest.mark.asyncio
 async def test__multi_select_widget__toggle(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.metadata = {MULTI_SELECTED_VALUES_KEY: ["a"]}
@@ -41,7 +42,7 @@ async def test__multi_select_widget__toggle(
 
 @pytest.mark.asyncio
 async def test__multi_select_widget__remove_and_limit(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.metadata = {MULTI_SELECTED_VALUES_KEY: ["a"]}
@@ -76,7 +77,7 @@ async def test__multi_select_widget__remove_and_limit(
 
 
 def test__multi_select_widget__get_selected_values(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.metadata = {MULTI_SELECTED_VALUES_KEY: [1, "2"]}
@@ -88,7 +89,7 @@ def test__multi_select_widget__get_selected_values(
 
 @pytest.mark.asyncio
 async def test__multi_select_widget__without_clicked_value(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.metadata = {MULTI_SELECTED_VALUES_KEY: ["a"]}

@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -7,13 +8,13 @@ import pytest
 from pybotx.widgets.select import SELECT_VALUE_KEY, SelectOption, SelectWidget
 
 
-def _build_bot_mock() -> SimpleNamespace:
+def _build_bot_mock() -> Any:
     return SimpleNamespace(send=AsyncMock(return_value=uuid4()), edit_message=AsyncMock())
 
 
 @pytest.mark.asyncio
 async def test__select_widget__display(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {SELECT_VALUE_KEY: "b"}
@@ -37,7 +38,7 @@ async def test__select_widget__display(
 
 
 def test__select_widget__get_value(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {SELECT_VALUE_KEY: "value"}

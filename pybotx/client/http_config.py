@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from enum import StrEnum
+from enum import Enum
 import re
 from typing import Protocol
 from collections.abc import Callable, Collection
@@ -44,7 +44,12 @@ _UUID_PATH_SEGMENT_RE = re.compile(
 )
 
 
-class BotXOperation(StrEnum):
+class _StrEnum(str, Enum):
+    def __str__(self) -> str:
+        return str(self.value)
+
+
+class BotXOperation(_StrEnum):
     ADD_ADMIN = "AddAdminMethod"
     ADD_STICKER = "AddStickerMethod"
     ADD_USER = "AddUserMethod"

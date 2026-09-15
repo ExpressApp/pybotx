@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -15,7 +16,7 @@ from pybotx.widgets.table import (
 )
 
 
-def _build_bot_mock() -> SimpleNamespace:
+def _build_bot_mock() -> Any:
     return SimpleNamespace(send=AsyncMock(return_value=uuid4()), edit_message=AsyncMock())
 
 
@@ -33,7 +34,7 @@ def test__table_widget__helpers() -> None:
 
 @pytest.mark.asyncio
 async def test__table_widget__display(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {
@@ -68,7 +69,7 @@ async def test__table_widget__display(
 
 @pytest.mark.asyncio
 async def test__table_widget__pagination_and_no_data(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {TABLE_PAGE_KEY: 5}
@@ -102,7 +103,7 @@ async def test__table_widget__pagination_and_no_data(
 
 @pytest.mark.asyncio
 async def test__table_widget__without_sort_column(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()

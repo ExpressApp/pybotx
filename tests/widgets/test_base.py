@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -21,10 +22,10 @@ from pybotx.widgets.markup import MessageMarkup
 class _DummyWidget(Widget):
     def add_markup(self) -> None:
         self.widget_message.body = "dummy"
-        self.widget_message.bubbles.add_button(command=self.command, label="dummy")
+        self.widget_bubbles.add_button(command=self.command, label="dummy")
 
 
-def _build_bot_mock() -> SimpleNamespace:
+def _build_bot_mock() -> Any:
     return SimpleNamespace(
         send=AsyncMock(return_value=uuid4()),
         edit_message=AsyncMock(),
@@ -34,7 +35,7 @@ def _build_bot_mock() -> SimpleNamespace:
 
 @pytest.mark.asyncio
 async def test__widget__display_send_message(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -52,7 +53,7 @@ async def test__widget__display_send_message(
 
 @pytest.mark.asyncio
 async def test__widget__display_edit_message(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     source_sync_id = uuid4()
     message = incoming_message_factory()
@@ -69,7 +70,7 @@ async def test__widget__display_edit_message(
 
 
 def test__widget__add_additional_markup_merge(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -87,9 +88,9 @@ def test__widget__add_additional_markup_merge(
     widget.add_markup()
     widget.add_additional_markup()
 
-    rows = [[button.label for button in row] for row in widget.widget_message.bubbles]
+    rows = [[button.label for button in row] for row in widget.widget_bubbles]
     keyboard_rows = [
-        [button.label for button in row] for row in widget.widget_message.keyboard
+        [button.label for button in row] for row in widget.widget_keyboard
     ]
 
     assert rows == [["dummy"], ["Extra"]]
@@ -97,7 +98,7 @@ def test__widget__add_additional_markup_merge(
 
 
 def test__widget__build_widget_metadata_from_undefined(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.metadata = {"foo": "bar"}
@@ -110,7 +111,7 @@ def test__widget__build_widget_metadata_from_undefined(
 
 
 def test__widget__outgoing_markup_for_undefined(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -126,7 +127,7 @@ def test__widget__outgoing_markup_for_undefined(
 
 
 def test__widget__widget_metadata_for_undefined(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -138,7 +139,7 @@ def test__widget__widget_metadata_for_undefined(
 
 @pytest.mark.asyncio
 async def test__widget__send_result_edit_mode(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.metadata = {PYBOTX_WIDGET_FLAG: 1}
@@ -154,7 +155,7 @@ async def test__widget__send_result_edit_mode(
 
 @pytest.mark.asyncio
 async def test__widget__send_result_message_mode(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory(body="/dummy mode=message")
     message.metadata = {PYBOTX_WIDGET_FLAG: 1}
@@ -170,7 +171,7 @@ async def test__widget__send_result_message_mode(
 
 
 def test__widget__result_mode_resolved_from_metadata(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.metadata = {PYBOTX_WIDGET_RESULT_MODE_KEY: WIDGET_RESULT_MODE_MESSAGE}
@@ -183,7 +184,7 @@ def test__widget__result_mode_resolved_from_metadata(
 
 
 def test__widget__result_mode_default(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -194,7 +195,7 @@ def test__widget__result_mode_default(
 
 
 def test__widget__result_mode_explicit_param_wins(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory(body="/dummy mode=edit")
     message.metadata = {PYBOTX_WIDGET_RESULT_MODE_KEY: WIDGET_RESULT_MODE_EDIT}

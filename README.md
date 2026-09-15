@@ -225,6 +225,7 @@ from fastapi import FastAPI
 from pybotx import *
 
 app = FastAPI()
+bot = Bot(collectors=[], bot_accounts=[])
 setup_fastapi_bot(
     app,
     bot=bot,
@@ -238,6 +239,7 @@ setup_fastapi_bot(
 Подключение выполняется явно:
 
 ```python
+from fastapi import FastAPI
 from pybotx import *
 
 app = FastAPI()
@@ -286,8 +288,8 @@ import httpx
 from pybotx import *
 
 bot = Bot(
-    collectors=[collector],
-    bot_accounts=[bot_account],
+    collectors=[],
+    bot_accounts=[],
     httpx_timeout=httpx.Timeout(connect=2.0, read=20.0, write=10.0, pool=1.0),
     httpx_limits=httpx.Limits(max_connections=800, max_keepalive_connections=200),
     retry_policy=BotXRetryPolicy(
@@ -323,8 +325,8 @@ Retry-политика применяется ко всем вызовам BotX 
 from pybotx import *
 
 bot = Bot(
-    collectors=[collector],
-    bot_accounts=[bot_account],
+    collectors=[],
+    bot_accounts=[],
     retry_policy=BotXRetryPolicy(max_attempts=3),
     retry_request_policy=RetryAllBotXRequestsPolicy(),
 )
@@ -336,8 +338,8 @@ bot = Bot(
 from pybotx import *
 
 bot = Bot(
-    collectors=[collector],
-    bot_accounts=[bot_account],
+    collectors=[],
+    bot_accounts=[],
     retry_policy=BotXRetryPolicy(max_attempts=3),
     retry_request_policy=PathAllowlistBotXRetryRequestPolicy(
         allowed_requests={
@@ -359,8 +361,8 @@ catalog `BotXOperation`.
 from pybotx import *
 
 bot = Bot(
-    collectors=[collector],
-    bot_accounts=[bot_account],
+    collectors=[],
+    bot_accounts=[],
     retry_policy=BotXRetryPolicy(max_attempts=3),
     retry_request_policy=OperationNameAllowlistBotXRetryRequestPolicy(
         operation_names={
@@ -377,8 +379,8 @@ bot = Bot(
 from pybotx import *
 
 bot = Bot(
-    collectors=[collector],
-    bot_accounts=[bot_account],
+    collectors=[],
+    bot_accounts=[],
     retry_policy=BotXRetryPolicy(max_attempts=3),
     retry_request_policy=KnownSafeBotXRetryRequestPolicy(),
 )
@@ -391,8 +393,8 @@ bot = Bot(
 from pybotx import *
 
 bot = Bot(
-    collectors=[collector],
-    bot_accounts=[bot_account],
+    collectors=[],
+    bot_accounts=[],
     retry_policy=BotXRetryPolicy(max_attempts=3),
     retry_request_policy=AnyOfBotXRetryRequestPolicy(
         policies=(
@@ -417,8 +419,8 @@ from pybotx import Bot, build_production_bot_preset
 production_preset = build_production_bot_preset()
 
 bot = Bot(
-    collectors=[collector],
-    bot_accounts=[bot_account],
+    collectors=[],
+    bot_accounts=[],
     **production_preset.as_bot_kwargs(),
 )
 ```
@@ -441,8 +443,8 @@ production_preset = build_production_bot_preset(
 )
 
 bot = Bot(
-    collectors=[collector],
-    bot_accounts=[bot_account],
+    collectors=[],
+    bot_accounts=[],
     **production_preset.as_bot_kwargs(),
 )
 ```
@@ -457,7 +459,15 @@ bot = Bot(
 (протокол `BotXRetryStrategy`):
 
 ```python
-from tenacity import AsyncRetrying, retry_if_exception_type, stop_after_attempt, wait_fixed
+from collections.abc import Callable
+
+from tenacity import (
+    AsyncRetrying,
+    RetryCallState,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_fixed,
+)
 from pybotx import *
 
 
@@ -467,7 +477,7 @@ class CustomRetryStrategy(BotXRetryStrategy):
         *,
         retry_policy: BotXRetryPolicy,
         retry_exceptions: tuple[type[BaseException], ...],
-        before_sleep,
+        before_sleep: Callable[[RetryCallState], None],
     ) -> AsyncRetrying:
         return AsyncRetrying(
             stop=stop_after_attempt(2),
@@ -479,8 +489,8 @@ class CustomRetryStrategy(BotXRetryStrategy):
 
 
 bot = Bot(
-    collectors=[collector],
-    bot_accounts=[bot_account],
+    collectors=[],
+    bot_accounts=[],
     retry_policy=BotXRetryPolicy(max_attempts=5),
     retry_strategy=CustomRetryStrategy(),
 )
@@ -517,8 +527,8 @@ from pybotx import *
 ingress_metrics = PrometheusIngressMetricsCollector()
 
 bot = Bot(
-    collectors=[collector],
-    bot_accounts=[bot_account],
+    collectors=[],
+    bot_accounts=[],
     ingress_metrics_collector=ingress_metrics,
 )
 ```
@@ -539,8 +549,8 @@ from pybotx import *
 prometheus_metrics = PrometheusMetricsCollector()
 
 bot = Bot(
-    collectors=[collector],
-    bot_accounts=[bot_account],
+    collectors=[],
+    bot_accounts=[],
     retry_policy=BotXRetryPolicy(max_attempts=3),
     metrics_collector=prometheus_metrics,
 )
@@ -549,6 +559,8 @@ bot = Bot(
 Можно передать нормализаторы для контроля кардинальности label-ов:
 
 ```python
+from pybotx import PrometheusMetricsCollector
+
 prometheus_metrics = PrometheusMetricsCollector(
     path_normalizer=lambda url: "/normalized/path",
     reason_normalizer=lambda reason: reason.split(":", 1)[0],
@@ -572,8 +584,8 @@ from pybotx import *
 otel_tracing = OpenTelemetryTracingCollector(tracer_name="mybot.pybotx")
 
 bot = Bot(
-    collectors=[collector],
-    bot_accounts=[bot_account],
+    collectors=[],
+    bot_accounts=[],
     retry_policy=BotXRetryPolicy(max_attempts=3),
     tracing_collector=otel_tracing,
 )
@@ -582,7 +594,12 @@ bot = Bot(
 Также можно обогащать спан через `span_enricher`:
 
 ```python
-def span_enricher(span, metadata: BotXRequestMetadata) -> None:
+from typing import Any
+
+from pybotx import BotXRequestMetadata, OpenTelemetryTracingCollector
+
+
+def span_enricher(span: Any, metadata: BotXRequestMetadata) -> None:
     span.set_attribute("bot.name", "mybot")
     span.set_attribute("botx.request_method", metadata.method)
 
@@ -639,8 +656,8 @@ class TracingCollector:
 
 
 bot = Bot(
-    collectors=[collector],
-    bot_accounts=[bot_account],
+    collectors=[],
+    bot_accounts=[],
     retry_policy=BotXRetryPolicy(max_attempts=3),
     metrics_collector=MetricsCollector(),
     tracing_collector=TracingCollector(),
@@ -662,8 +679,8 @@ bot = Bot(
 from pybotx import *
 
 bot = Bot(
-    collectors=[collector],
-    bot_accounts=[bot_account],
+    collectors=[],
+    bot_accounts=[],
     command_processing_config=BotCommandProcessingConfig(
         max_concurrency=64,
         max_queue_size=2000,
@@ -679,8 +696,16 @@ bot = Bot(
 Можно реализовать свою стратегию через `BotCommandOverloadStrategy`:
 
 ```python
+from pybotx import BotCommandOverloadAction, BotCommandOverloadStrategy
+
+
 class PreferDropOldestOnBigBurst(BotCommandOverloadStrategy):
-    def on_queue_overflow(self, *, queue_size: int, queue_max_size: int) -> BotCommandOverloadAction:
+    def on_queue_overflow(
+        self,
+        *,
+        queue_size: int,
+        queue_max_size: int,
+    ) -> BotCommandOverloadAction:
         if queue_size > queue_max_size // 2:
             return BotCommandOverloadAction.DROP_OLDEST
         return BotCommandOverloadAction.REJECT_NEW

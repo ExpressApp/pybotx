@@ -54,8 +54,8 @@ class BotRetryPreset:
     retry_request_policy: BotXRetryRequestPolicy
     retry_strategy: BotXRetryStrategy | None = None
 
-    def as_bot_kwargs(self) -> dict[str, object]:
-        kwargs: dict[str, object] = {
+    def as_bot_kwargs(self) -> dict[str, Any]:
+        kwargs: dict[str, Any] = {
             "retry_policy": self.retry_policy,
             "retry_request_policy": self.retry_request_policy,
         }
@@ -70,8 +70,8 @@ class BotObservabilityPreset:
     tracing_collector: BotXRequestObserver | None = None
     ingress_metrics_collector: BotIngressMetricsCollector | None = None
 
-    def as_bot_kwargs(self) -> dict[str, object]:
-        kwargs: dict[str, object] = {}
+    def as_bot_kwargs(self) -> dict[str, Any]:
+        kwargs: dict[str, Any] = {}
         if self.metrics_collector is not None:
             kwargs["metrics_collector"] = self.metrics_collector
         if self.tracing_collector is not None:
@@ -86,8 +86,8 @@ class BotProductionPreset:
     retry: BotRetryPreset | None = None
     observability: BotObservabilityPreset | None = None
 
-    def as_bot_kwargs(self) -> dict[str, object]:
-        kwargs: dict[str, object] = {}
+    def as_bot_kwargs(self) -> dict[str, Any]:
+        kwargs: dict[str, Any] = {}
         if self.retry is not None:
             kwargs.update(self.retry.as_bot_kwargs())
         if self.observability is not None:

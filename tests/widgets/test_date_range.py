@@ -1,5 +1,6 @@
 from datetime import date
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -18,7 +19,7 @@ from pybotx.widgets.date_range import (
 )
 
 
-def _build_bot_mock() -> SimpleNamespace:
+def _build_bot_mock() -> Any:
     return SimpleNamespace(send=AsyncMock(return_value=uuid4()), edit_message=AsyncMock())
 
 
@@ -33,7 +34,7 @@ def test__date_range_widget__helpers() -> None:
 
 @pytest.mark.asyncio
 async def test__date_range_widget__start_cursor(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     bot = _build_bot_mock()
@@ -48,7 +49,7 @@ async def test__date_range_widget__start_cursor(
 
 @pytest.mark.asyncio
 async def test__date_range_widget__select_start_then_end(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.data = {DATE_RANGE_SELECTED_DATE_KEY: "2026-02-10"}
@@ -89,7 +90,7 @@ async def test__date_range_widget__select_start_then_end(
 
 @pytest.mark.asyncio
 async def test__date_range_widget__reset_action(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.metadata = {
@@ -108,7 +109,7 @@ async def test__date_range_widget__reset_action(
 
 
 def test__date_range_widget__get_value(
-    incoming_message_factory: object,
+    incoming_message_factory: Any,
 ) -> None:
     message = incoming_message_factory()
     message.metadata = {
