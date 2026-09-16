@@ -19,14 +19,121 @@
 
 ## Установка
 
-Используя `poetry`:
+Используя `uv`:
 
 ```bash
-poetry add pybotx
+uv add pybotx
 ```
+
+Для генерации нового production-ready бота из активного окружения:
+
+```bash
+pybotx create bot my-bot
+```
+
+Или через `uv`, если окружение не активировано:
+
+```bash
+uv run pybotx create bot my-bot
+```
+
+Для FSM-шаблона:
+
+```bash
+uv run pybotx create bot my-fsm-bot --template production-fastapi-fsm
+```
+
+Или в пустой текущей директории:
+
+```bash
+pybotx create bot
+```
+
+Сгенерированный проект включает:
+
+- FastAPI endpoints для Bot API
+- `build_production_bot_preset()` по умолчанию
+- `/metrics` с Prometheus registry
+- `setup_healthcheck(...)`
+- `dependency-injector`
+- 4 слоя: `domain / application / infrastructure / presentation`
+- пример domain port + repository stub с DI wiring
+- `ARCHITECTURE.md` с правилами зависимостей и примерами размещения кода
+- тесты, `ruff`, `mypy`, Docker-файлы
+
+Поддерживаемые встроенные шаблоны:
+
+- `production-fastapi`
+- `production-fastapi-fsm`
+
+После генерации проекта можно добавить новую команду:
+
+```bash
+uv run pybotx create command ping-users --project-dir my-bot
+```
+
+Чтобы добавить application service/use case без ручной раскладки по слоям:
+
+```bash
+uv run pybotx create service sync-users --project-dir my-bot
+```
+
+Чтобы добавить только domain port без concrete adapter:
+
+```bash
+uv run pybotx create port billing-gateway --project-dir my-bot
+```
+
+Чтобы добавить domain port + infrastructure repository stub с DI wiring:
+
+```bash
+uv run pybotx create repository user-profile --project-dir my-bot
+```
+
+Если port уже существует, repository можно привязать к нему:
+
+```bash
+uv run pybotx create repository stripe-billing-gateway --project-dir my-bot --port billing-gateway
+```
+
+Для FSM-шаблона можно сгенерировать новый flow c starter command и тестом:
+
+```bash
+uv run pybotx create fsm-flow approval --project-dir my-fsm-bot
+```
+
+Для scaffold-проекта можно сгенерировать widget command на базе `WidgetFactory` и `widget_command`:
+
+```bash
+uv run pybotx create widget deployment-approval --project-dir my-bot --kind confirm
+```
+
+Если нужен готовый flow `command + widget + follow-up services` без ручного wiring:
+
+```bash
+uv run pybotx create widget-flow deployment-approval --project-dir my-bot --kind confirm
+```
+
+Сгенерированный scaffold использует следующий контракт:
+
+- `src/<package>/container.py` - composition root и DI
+- `src/<package>/presentation/` - FastAPI, `pybotx` handlers, widgets, FSM
+- `src/<package>/application/services/` - application services/use cases
+- `src/<package>/domain/` - доменные модели и контракты, включая `domain/ports/`
+- `src/<package>/infrastructure/` - config, repository/adapters, внешние интеграции
 
 **Предупреждение:** Данный проект находится в активной разработке (`0.y.z`) и
 его API может быть изменён при повышении минорной версии.
+
+## Документация по виджетам
+
+Подробное и исчерпывающее руководство по всем виджетам и API раннера:
+
+- `/Users/aleksandrosovskii/PycharmProjects/pybotx_stable/WIDGETS.md`
+
+Демо-бот с примерами всех виджетов:
+
+- `/Users/aleksandrosovskii/PycharmProjects/pybotx_stable/example/README.md`
 
 
 ## Информация о мессенджере eXpress и платформе BotX
@@ -58,11 +165,9 @@ poetry add pybotx
 ## Минимальный пример бота (интеграция с FastAPI)
 
 ```python
-from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 
 # В этом и последующих примерах импорт из `pybotx` будет производиться
 # через звёздочку для краткости. Однако, это не является хорошей практикой.
@@ -93,59 +198,524 @@ bot = Bot(
     ],
 )
 
-app = FastAPI()
-app.add_event_handler("startup", bot.startup)
-app.add_event_handler("shutdown", bot.shutdown)
-
-
-# На этот эндпоинт приходят команды BotX
-# (сообщения и системные события).
-@app.post("/command")
-async def command_handler(request: Request) -> JSONResponse:
-    bot.async_execute_raw_bot_command(
-        await request.json(),
-        request_headers=request.headers,
-    )
-    return JSONResponse(
-        build_command_accepted_response(),
-        status_code=HTTPStatus.ACCEPTED,
-    )
-
-
-# На этот эндпоинт приходят события BotX для SmartApps, обрабатываемые синхронно.
-@app.post("/smartapps/request")
-async def sync_smartapp_event_handler(request: Request) -> JSONResponse:
-    response = await bot.sync_execute_raw_smartapp_event(
-        await request.json(),
-        request_headers=request.headers,
-    )
-    return JSONResponse(response.jsonable_dict(), status_code=HTTPStatus.OK)
-
-
-# К этому эндпоинту BotX обращается, чтобы узнать
-# доступность бота и его список команд.
-@app.get("/status")
-async def status_handler(request: Request) -> JSONResponse:
-    status = await bot.raw_get_status(
-        dict(request.query_params),
-        request_headers=request.headers,
-    )
-    return JSONResponse(status)
-
-
-# На этот эндпоинт приходят коллбэки с результатами
-# выполнения асинхронных методов в BotX.
-@app.post("/notification/callback")
-async def callback_handler(request: Request) -> JSONResponse:
-    await bot.set_raw_botx_method_result(
-        await request.json(),
-        verify_request=False,
-    )
-    return JSONResponse(
-        build_command_accepted_response(),
-        status_code=HTTPStatus.ACCEPTED,
-    )
+app: FastAPI = create_fastapi_bot_app(
+    bot=bot,
+    title="Example bot",
+    config=FastAPIBotAppConfig(
+        metrics_path="/metrics",
+        smartapp_request_path="/smartapps/request",
+    ),
+)
 ```
+
+`create_fastapi_bot_app(...)` регистрирует:
+
+- `POST /command`
+- `GET /status`
+- `POST /notification/callback`
+- опционально `POST /smartapps/request`
+- опционально `GET /metrics`
+- healthcheck routes через `setup_healthcheck(...)`
+
+Если у вас уже есть свой `FastAPI()` объект, можно не создавать новый app, а
+подключить `pybotx` в существующий:
+
+```python
+from fastapi import FastAPI
+from pybotx import *
+
+app = FastAPI()
+bot = Bot(collectors=[], bot_accounts=[])
+setup_fastapi_bot(
+    app,
+    bot=bot,
+    config=FastAPIBotAppConfig(metrics_path="/metrics"),
+)
+```
+
+### Healthcheck (опционально, подключается явно)
+
+По умолчанию `pybotx` не регистрирует healthcheck-эндпоинты.
+Подключение выполняется явно:
+
+```python
+from fastapi import FastAPI
+from pybotx import *
+
+app = FastAPI()
+
+healthcheck = setup_healthcheck(app)  # Роуты: /health/ и /health/ready
+
+
+async def db_readiness_check() -> ReadinessCheckResult:
+    # Пример: реальная проверка БД/кеша/внешнего API.
+    # Рекомендуется выставлять таймауты внутри проверки.
+    return ReadinessCheckResult(status="ok")
+
+
+healthcheck.add_readiness_check(
+    ReadinessCheck(
+        name="db",
+        check=db_readiness_check,
+        critical=True,
+        timeout_seconds=0.5,
+    ),
+)
+```
+
+`/health/`:
+- `200` — процесс жив (`status=ok`)
+- `500` — фатальное состояние (`status=fail`)
+
+`/health/ready`:
+- `200` — готов (`status=ok`) или частично деградирован (`status=degraded`)
+- `503` — не готов (`status=fail`, если упал хотя бы один `critical` check)
+
+### HTTP-клиент, retry, metrics и tracing
+
+`pybotx` создаёт внутренний `httpx.AsyncClient` с безопасными значениями
+`timeout` и `limits`. При необходимости их можно переопределить в `Bot(...)`
+через `httpx_timeout` и `httpx_limits`.
+
+`retry_policy` по умолчанию выключен (`None`), то есть повторных попыток нет.
+Для включения ретраев передайте `BotXRetryPolicy`. Начиная с текущей версии
+retry в `pybotx` стал safe-by-default: если политика включена, библиотека
+автоматически повторяет только те BotX-запросы, которые считаются безопасными
+для автоматического повтора.
+
+```python
+import httpx
+from pybotx import *
+
+bot = Bot(
+    collectors=[],
+    bot_accounts=[],
+    httpx_timeout=httpx.Timeout(connect=2.0, read=20.0, write=10.0, pool=1.0),
+    httpx_limits=httpx.Limits(max_connections=800, max_keepalive_connections=200),
+    retry_policy=BotXRetryPolicy(
+        max_attempts=4,
+        initial_delay_seconds=0.2,
+        max_delay_seconds=5.0,
+        jitter_seconds=0.2,
+        retryable_status_codes=frozenset({408, 429, 500, 502, 503, 504}),
+    ),
+)
+```
+
+Retry-политика применяется ко всем вызовам BotX API и повторяет запросы при:
+- сетевых/timeout ошибках транспорта `httpx`
+- HTTP-статусах из `retryable_status_codes`
+
+Важно: BotX async-методы обычно создают side effect и возвращают только `sync_id`,
+который появляется уже после успешного ответа. Поэтому ретраи на write-вызовах
+могут повторить операцию, если первый запрос был принят BotX, но клиент не получил
+ответ. По этой причине `retry_policy=None` оставлен значением по умолчанию, а
+в production ретраи лучше включать осознанно и с пониманием семантики конкретного
+метода.
+
+По умолчанию используется `SafeBotXRetryRequestPolicy`:
+- retry разрешен для read-only запросов (`GET`, `HEAD`, `OPTIONS`)
+- отдельно allowlist’ится read-only `POST /api/v3/botx/users/by_email`
+- write-операции (`notifications`, `events`, `smartapps`, `create/update/delete`,
+  `upload`, `metrics`) по умолчанию не ретраятся автоматически
+
+Это поведение можно переопределить через `retry_request_policy`.
+
+```python
+from pybotx import *
+
+bot = Bot(
+    collectors=[],
+    bot_accounts=[],
+    retry_policy=BotXRetryPolicy(max_attempts=3),
+    retry_request_policy=RetryAllBotXRequestsPolicy(),
+)
+```
+
+Для точечного allowlist есть `PathAllowlistBotXRetryRequestPolicy`:
+
+```python
+from pybotx import *
+
+bot = Bot(
+    collectors=[],
+    bot_accounts=[],
+    retry_policy=BotXRetryPolicy(max_attempts=3),
+    retry_request_policy=PathAllowlistBotXRetryRequestPolicy(
+        allowed_requests={
+            ("GET", "/api/v3/botx/chats/info"),
+            ("GET", "/api/v3/botx/events/{uuid}/status"),
+            ("POST", "/api/v3/botx/users/by_email"),
+        },
+    ),
+)
+```
+
+Для allowlist по библиотечным операциям есть
+`OperationNameAllowlistBotXRetryRequestPolicy`. `operation_name` по умолчанию
+равен имени client method class, например `MessageStatusMethod`,
+`ChatInfoMethod`, `DirectNotificationMethod`. Для built-in операций есть typed
+catalog `BotXOperation`.
+
+```python
+from pybotx import *
+
+bot = Bot(
+    collectors=[],
+    bot_accounts=[],
+    retry_policy=BotXRetryPolicy(max_attempts=3),
+    retry_request_policy=OperationNameAllowlistBotXRetryRequestPolicy(
+        operation_names={
+            BotXOperation.MESSAGE_STATUS,
+            BotXOperation.CHAT_INFO,
+        },
+    ),
+)
+```
+
+Есть готовый preset по built-in safe операциям:
+
+```python
+from pybotx import *
+
+bot = Bot(
+    collectors=[],
+    bot_accounts=[],
+    retry_policy=BotXRetryPolicy(max_attempts=3),
+    retry_request_policy=KnownSafeBotXRetryRequestPolicy(),
+)
+```
+
+Для комбинирования safe default с дополнительными исключениями есть
+`AnyOfBotXRetryRequestPolicy`:
+
+```python
+from pybotx import *
+
+bot = Bot(
+    collectors=[],
+    bot_accounts=[],
+    retry_policy=BotXRetryPolicy(max_attempts=3),
+    retry_request_policy=AnyOfBotXRetryRequestPolicy(
+        policies=(
+            SafeBotXRetryRequestPolicy(),
+            OperationNameAllowlistBotXRetryRequestPolicy(
+                operation_names={"DirectNotificationMethod"},
+            ),
+        ),
+    ),
+)
+```
+
+Подробное объяснение решения и рекомендаций для production:
+[`docs/retry_safety.md`](docs/retry_safety.md).
+
+Для сокращения boilerplate при сборке production-конфига есть готовые preset
+builders:
+
+```python
+from pybotx import Bot, build_production_bot_preset
+
+production_preset = build_production_bot_preset()
+
+bot = Bot(
+    collectors=[],
+    bot_accounts=[],
+    **production_preset.as_bot_kwargs(),
+)
+```
+
+Если нужно отдельно настраивать retry и observability:
+
+```python
+from pybotx import (
+    Bot,
+    build_production_bot_preset,
+    build_production_observability_preset,
+    build_production_retry_preset,
+)
+
+production_preset = build_production_bot_preset(
+    retry_preset=build_production_retry_preset(max_attempts=5),
+    observability_preset=build_production_observability_preset(
+        enable_open_telemetry_tracing=False,
+    ),
+)
+
+bot = Bot(
+    collectors=[],
+    bot_accounts=[],
+    **production_preset.as_bot_kwargs(),
+)
+```
+
+Подробности по preset layer:
+[`docs/production_presets.md`](docs/production_presets.md).
+
+Если передан собственный `httpx_client`, параметры `httpx_timeout` и
+`httpx_limits` передавать нельзя.
+
+Для кастомной логики ретраев можно передать собственный `retry_strategy`
+(протокол `BotXRetryStrategy`):
+
+```python
+from collections.abc import Callable
+
+from tenacity import (
+    AsyncRetrying,
+    RetryCallState,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_fixed,
+)
+from pybotx import *
+
+
+class CustomRetryStrategy(BotXRetryStrategy):
+    def build_retrying(
+        self,
+        *,
+        retry_policy: BotXRetryPolicy,
+        retry_exceptions: tuple[type[BaseException], ...],
+        before_sleep: Callable[[RetryCallState], None],
+    ) -> AsyncRetrying:
+        return AsyncRetrying(
+            stop=stop_after_attempt(2),
+            wait=wait_fixed(0.1),
+            retry=retry_if_exception_type(retry_exceptions),
+            before_sleep=before_sleep,
+            reraise=True,
+        )
+
+
+bot = Bot(
+    collectors=[],
+    bot_accounts=[],
+    retry_policy=BotXRetryPolicy(max_attempts=5),
+    retry_strategy=CustomRetryStrategy(),
+)
+```
+
+Также доступны opt-in хуки наблюдаемости:
+- `metrics_collector`
+- `tracing_collector`
+
+Оба параметра по умолчанию выключены (`None`).
+
+Входящая observability в `pybotx` теперь включена по умолчанию:
+- Структурированные JSON-логи.
+- Корреляционные поля в каждом логе: `trace_id`, `request_id`, `chat_id`, `bot_id`.
+- Встроенный ingress-коллектор метрик (`InMemoryIngressMetricsCollector`) в `Bot`.
+
+По умолчанию `request_id` берется из заголовков (`X-Request-Id`, `X-Correlation-Id`,
+`Request-Id`) или из `sync_id`, а `trace_id` из (`X-Trace-Id`, `traceparent`, `b3`)
+или из `request_id`. Если Express/BotX не присылает такие заголовки, `pybotx`
+использует то, что реально есть в протоколе: `sync_id` для Bot API команд и
+callback-ов, а для sync smartapp event оставляет поле пустым, пока внешний ingress
+не добавит correlation id.
+
+Для ingress-метрик можно передать кастомный collector через:
+- `ingress_metrics_collector`
+
+Есть готовая реализация для Prometheus (опциональная зависимость):
+- `PrometheusIngressMetricsCollector`
+- Требуется `prometheus-client` (`uv add prometheus-client`)
+
+```python
+from pybotx import *
+
+ingress_metrics = PrometheusIngressMetricsCollector()
+
+bot = Bot(
+    collectors=[],
+    bot_accounts=[],
+    ingress_metrics_collector=ingress_metrics,
+)
+```
+
+Ingress-метрики по умолчанию:
+- `pybotx_ingress_latency_seconds{command_kind,command_name,outcome}`
+- `pybotx_ingress_errors_total{command_kind,command_name,error_type}`
+- `pybotx_ingress_rejected_total{command_kind,command_name,reason}`
+- `pybotx_ingress_queue_depth`
+
+Готовая реализация метрик для Prometheus:
+- `PrometheusMetricsCollector` (latency/error/retry counters с label’ами)
+- Требуется `prometheus-client` (`uv add prometheus-client`)
+
+```python
+from pybotx import *
+
+prometheus_metrics = PrometheusMetricsCollector()
+
+bot = Bot(
+    collectors=[],
+    bot_accounts=[],
+    retry_policy=BotXRetryPolicy(max_attempts=3),
+    metrics_collector=prometheus_metrics,
+)
+```
+
+Можно передать нормализаторы для контроля кардинальности label-ов:
+
+```python
+from pybotx import PrometheusMetricsCollector
+
+prometheus_metrics = PrometheusMetricsCollector(
+    path_normalizer=lambda url: "/normalized/path",
+    reason_normalizer=lambda reason: reason.split(":", 1)[0],
+)
+```
+
+Метрики по умолчанию:
+- `pybotx_botx_requests_total{method,path,status,outcome}`
+- `pybotx_botx_request_errors_total{method,path,status,error_type}`
+- `pybotx_botx_request_retries_total{method,path,reason}`
+- `pybotx_botx_request_latency_seconds{method,path,status}`
+
+Готовая реализация трассировки для OpenTelemetry:
+- `OpenTelemetryTracingCollector` (span на запрос + retry events как span events)
+- Требуется `opentelemetry-api` (`uv add opentelemetry-api`)
+- Для экспорта спанов обычно нужен `opentelemetry-sdk`
+
+```python
+from pybotx import *
+
+otel_tracing = OpenTelemetryTracingCollector(tracer_name="mybot.pybotx")
+
+bot = Bot(
+    collectors=[],
+    bot_accounts=[],
+    retry_policy=BotXRetryPolicy(max_attempts=3),
+    tracing_collector=otel_tracing,
+)
+```
+
+Также можно обогащать спан через `span_enricher`:
+
+```python
+from typing import Any
+
+from pybotx import BotXRequestMetadata, OpenTelemetryTracingCollector
+
+
+def span_enricher(span: Any, metadata: BotXRequestMetadata) -> None:
+    span.set_attribute("bot.name", "mybot")
+    span.set_attribute("botx.request_method", metadata.method)
+
+
+otel_tracing = OpenTelemetryTracingCollector(
+    tracer_name="mybot.pybotx",
+    span_enricher=span_enricher,
+)
+```
+
+```python
+from pybotx import *
+
+
+class MetricsCollector:
+    def on_request_start(self, metadata: BotXRequestMetadata) -> None:
+        # Пример: увеличение счётчика in-flight
+        pass
+
+    def on_request_retry(
+        self,
+        metadata: BotXRequestMetadata,
+        retry_event: BotXRetryEvent,
+    ) -> None:
+        # Пример: счётчик повторов с reason/status
+        pass
+
+    def on_request_finish(
+        self,
+        metadata: BotXRequestMetadata,
+        result: BotXRequestResult,
+    ) -> None:
+        # Пример: latency histogram + error counter
+        pass
+
+
+class TracingCollector:
+    def on_request_start(self, metadata: BotXRequestMetadata) -> None:
+        pass
+
+    def on_request_retry(
+        self,
+        metadata: BotXRequestMetadata,
+        retry_event: BotXRetryEvent,
+    ) -> None:
+        pass
+
+    def on_request_finish(
+        self,
+        metadata: BotXRequestMetadata,
+        result: BotXRequestResult,
+    ) -> None:
+        pass
+
+
+bot = Bot(
+    collectors=[],
+    bot_accounts=[],
+    retry_policy=BotXRetryPolicy(max_attempts=3),
+    metrics_collector=MetricsCollector(),
+    tracing_collector=TracingCollector(),
+)
+```
+
+### Ограничение параллелизма входящих команд (Queue + Semaphore + rejection policy)
+
+`pybotx` обрабатывает входящие команды через bounded pipeline:
+- очередь (`Queue`) ограничивает backlog;
+- воркеры и `Semaphore` ограничивают параллелизм;
+- стратегия перегруза решает, что делать при переполнении очереди.
+
+Параметры задаются через `command_processing_config` в `Bot(...)`.
+По умолчанию: `max_concurrency=100`, `max_queue_size=1000`,
+`RejectNewBotCommandOverloadStrategy`.
+
+```python
+from pybotx import *
+
+bot = Bot(
+    collectors=[],
+    bot_accounts=[],
+    command_processing_config=BotCommandProcessingConfig(
+        max_concurrency=64,
+        max_queue_size=2000,
+        overload_strategy=RejectNewBotCommandOverloadStrategy(),
+    ),
+)
+```
+
+Встроенные стратегии перегруза:
+- `RejectNewBotCommandOverloadStrategy` — отклоняет новый входящий command.
+- `DropOldestBotCommandOverloadStrategy` — выбрасывает самый старый queued command и принимает новый.
+
+Можно реализовать свою стратегию через `BotCommandOverloadStrategy`:
+
+```python
+from pybotx import BotCommandOverloadAction, BotCommandOverloadStrategy
+
+
+class PreferDropOldestOnBigBurst(BotCommandOverloadStrategy):
+    def on_queue_overflow(
+        self,
+        *,
+        queue_size: int,
+        queue_max_size: int,
+    ) -> BotCommandOverloadAction:
+        if queue_size > queue_max_size // 2:
+            return BotCommandOverloadAction.DROP_OLDEST
+        return BotCommandOverloadAction.REJECT_NEW
+```
+
+Если вы `await`-ите `bot.async_execute_bot_command(...)`, при отклонении получите
+`BotCommandRejectedError`.
+
+Trade-off: в пике увеличивается latency из-за очереди, зато предсказуемо ограничиваются
+память/конкурентность и снижается риск каскадных отказов.
 
 ## Примеры
 
@@ -643,9 +1213,10 @@ async def search_user_handler(message: IncomingMessage, bot: Bot) -> None:
         user_info = await bot.search_user_by_huid(
             bot_id=message.bot.id,
             huid=message.sender.huid,
+            trusts_search=True,
         )
-    except UserNotFoundError:  # Если пользователь и бот находятся на разных CTS
-        await bot.answer_message("User not found. Maybe you are on a different cts.")
+    except UserNotFoundError:
+        await bot.answer_message("User not found.")
         return
 
     await bot.answer_message(f"Your info:\n{dataclasses.asdict(user_info)}\n")

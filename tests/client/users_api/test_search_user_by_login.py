@@ -117,3 +117,45 @@ async def test__search_user_by_ad_without_data__succeed(
     # - Assert -
     assert_deep_equal(user, user_from_search_without_data)
     assert endpoint.called
+
+
+async def test__search_user_by_ad_with_trusts_search__succeed(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    user_from_search_with_data: UserFromSearch,
+    user_from_search_with_data_json: dict[str, Any],
+    bot_factory: Any,
+) -> None:
+    # - Arrange -
+    request = BotXRequest(
+        method="GET",
+        path="/api/v3/botx/users/by_login",
+        params={
+            "ad_login": "ad_user_login",
+            "ad_domain": "cts.com",
+            "trusts_search": True,
+            "partial_response": True,
+        },
+    )
+    endpoint = mock_botx(
+        respx_mock,
+        host,
+        request,
+        ok_payload(user_from_search_with_data_json),
+        HTTPStatus.OK,
+    )
+
+    # - Act -
+    async with bot_factory() as bot:
+        user = await bot.search_user_by_ad(
+            bot_id=bot_id,
+            ad_login="ad_user_login",
+            ad_domain="cts.com",
+            trusts_search=True,
+            partial_response=True,
+        )
+
+    # - Assert -
+    assert_deep_equal(user, user_from_search_with_data)
+    assert endpoint.called

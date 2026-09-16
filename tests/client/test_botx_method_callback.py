@@ -240,6 +240,48 @@ async def test__botx_method_callback__orphan_alarm_already_exists(
     assert "received without a registered handler; buffering" in loguru_caplog.text
 
 
+async def test__callback_manager__expired_sync_ids_bounded() -> None:
+    # - Arrange -
+    import pybotx.bot.callbacks.callback_manager as callback_manager_module
+
+    callbacks_manager = callback_manager_module.CallbackManager(
+        CallbackMemoryRepo(),
+        expired_sync_ids_limit=2,
+    )
+    sync_id_1 = UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    sync_id_2 = UUID("d4d3d774-1f90-4b53-9b92-7f3867dbb2f8")
+    sync_id_3 = UUID("9bb06b2d-cf7c-4a4d-b8b8-8da1b6d66d39")
+
+    # - Act -
+    callbacks_manager.mark_callback_expired(sync_id_1)
+    callbacks_manager.mark_callback_expired(sync_id_2)
+    callbacks_manager.mark_callback_expired(sync_id_3)
+
+    # - Assert -
+    assert list(callbacks_manager._expired_sync_ids.keys()) == [sync_id_2, sync_id_3]
+
+
+async def test__callback_manager__expired_sync_ids_ttl_cleanup() -> None:
+    # - Arrange -
+    import pybotx.bot.callbacks.callback_manager as callback_manager_module
+
+    callbacks_manager = callback_manager_module.CallbackManager(
+        CallbackMemoryRepo(),
+        expired_sync_ids_ttl_seconds=0.01,
+    )
+    expired_sync_id = UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    fresh_sync_id = UUID("d4d3d774-1f90-4b53-9b92-7f3867dbb2f8")
+
+    # - Act -
+    callbacks_manager.mark_callback_expired(expired_sync_id)
+    await asyncio.sleep(0.05)
+    callbacks_manager.mark_callback_expired(fresh_sync_id)
+
+    # - Assert -
+    assert expired_sync_id not in callbacks_manager._expired_sync_ids
+    assert fresh_sync_id in callbacks_manager._expired_sync_ids
+
+
 async def test__botx_method_callback__error_callback_error_handler_called(
     respx_mock: MockRouter,
     host: str,
@@ -925,3 +967,18 @@ async def test__botx_method_callback__bot_wait_timeouted_callback(
     assert "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3" in str(exc.value)
     assert "timed out" in str(exc.value)
     assert endpoint.called
+
+
+async def test__callback_manager__stale_expired_id_is_removed_on_lookup(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import pybotx.bot.callbacks.callback_manager as callback_manager_module
+
+    callbacks_manager = callback_manager_module.CallbackManager(CallbackMemoryRepo())
+    sync_id = UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    callbacks_manager._expired_sync_ids[sync_id] = 10.0
+    calls = iter((0.0, 20.0))
+    monkeypatch.setattr(callback_manager_module, "monotonic", lambda: next(calls))
+
+    assert callbacks_manager._is_expired_sync_id(sync_id) is False
+    assert sync_id not in callbacks_manager._expired_sync_ids

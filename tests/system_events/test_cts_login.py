@@ -1,4 +1,5 @@
 from uuid import UUID
+from typing import Any
 
 import pytest
 
@@ -6,10 +7,13 @@ from pybotx import (
     Bot,
     BotAccount,
     BotAccountWithSecret,
+    BotCommandProcessingConfig,
     CTSLoginEvent,
     HandlerCollector,
+    IncomingMessage,
     lifespan_wrapper,
 )
+from pybotx.bot.contextvars import chat_id_var
 
 pytestmark = [
     pytest.mark.asyncio,
@@ -86,3 +90,117 @@ async def test__cts_login__succeed(
         raw_command=None,
         huid=UUID("b9197d3a-d855-5d34-ba8a-eff3a975ab20"),
     )
+
+
+async def test__cts_login__chat_context_not_leaked_from_previous_command(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    incoming_payload: dict[str, Any] = {
+        "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
+        "command": {
+            "body": "/hello",
+            "command_type": "user",
+            "data": {},
+            "metadata": {},
+        },
+        "attachments": [],
+        "async_files": [],
+        "entities": [],
+        "source_sync_id": None,
+        "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
+        "from": {
+            "ad_domain": None,
+            "ad_login": None,
+            "app_version": None,
+            "chat_type": "chat",
+            "device": None,
+            "device_meta": None,
+            "device_software": None,
+            "group_chat_id": "30dc1980-643a-00ad-37fc-7cc10d74e935",
+            "host": "cts.example.com",
+            "is_admin": True,
+            "is_creator": True,
+            "locale": "en",
+            "manufacturer": None,
+            "platform": None,
+            "platform_package_id": None,
+            "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
+            "user_udid": None,
+            "username": None,
+        },
+        "proto_version": 4,
+    }
+    cts_login_payload: dict[str, Any] = {
+        "bot_id": "24348246-6791-4ac0-9d86-b948cd6a0e46",
+        "command": {
+            "body": "system:cts_login",
+            "data": {
+                "user_huid": "b9197d3a-d855-5d34-ba8a-eff3a975ab20",
+                "cts_id": "8dada2c8-67a6-4434-9dec-570d244e78ee",
+            },
+            "command_type": "system",
+            "metadata": {},
+        },
+        "source_sync_id": None,
+        "sync_id": "2c1a31d6-f47f-5f54-aee2-d0c526bb1d54",
+        "from": {
+            "ad_domain": None,
+            "ad_login": None,
+            "app_version": None,
+            "chat_type": None,
+            "device": None,
+            "device_meta": {
+                "permissions": None,
+                "pushes": None,
+                "timezone": None,
+            },
+            "device_software": None,
+            "group_chat_id": None,
+            "host": "cts.example.com",
+            "is_admin": None,
+            "is_creator": None,
+            "locale": "en",
+            "manufacturer": None,
+            "platform": None,
+            "platform_package_id": None,
+            "user_huid": None,
+            "username": None,
+        },
+        "proto_version": 4,
+    }
+
+    collector = HandlerCollector()
+    chat_id_seen_in_message_handler: UUID | None = None
+    chat_id_lookup_failed_in_system_event = False
+
+    @collector.default_message_handler
+    async def default_handler(_message: IncomingMessage, _bot: Bot) -> None:
+        nonlocal chat_id_seen_in_message_handler
+        chat_id_seen_in_message_handler = chat_id_var.get()
+
+    @collector.cts_login
+    async def cts_login_handler(_event: CTSLoginEvent, _bot: Bot) -> None:
+        nonlocal chat_id_lookup_failed_in_system_event
+        try:
+            chat_id_var.get()
+        except LookupError:
+            chat_id_lookup_failed_in_system_event = True
+
+    built_bot = Bot(
+        collectors=[collector],
+        bot_accounts=[bot_account],
+        command_processing_config=BotCommandProcessingConfig(
+            max_concurrency=1,
+            max_queue_size=10,
+        ),
+    )
+
+    # - Act -
+    async with lifespan_wrapper(built_bot) as bot:
+        bot.async_execute_raw_bot_command(incoming_payload, verify_request=False)
+        bot.async_execute_raw_bot_command(cts_login_payload, verify_request=False)
+
+    # - Assert -
+    assert chat_id_seen_in_message_handler == UUID("30dc1980-643a-00ad-37fc-7cc10d74e935")
+    assert chat_id_lookup_failed_in_system_event

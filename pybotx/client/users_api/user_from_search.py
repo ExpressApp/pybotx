@@ -13,6 +13,8 @@ class BotXAPISearchUserResult(VerifiedPayloadBaseModel):
     user_huid: UUID
     ad_login: str | None = None
     ad_domain: str | None = None
+    ad_groups: list[str] = Field(default_factory=list)
+    openid_roles: list[str] = Field(default_factory=list)
     avatar: str | None = None
     avatar_preview: str | None = None
     name: str
@@ -53,6 +55,8 @@ class BotXAPISearchUserResponsePayload(VerifiedPayloadBaseModel):
             huid=self.result.user_huid,
             ad_login=self.result.ad_login,
             ad_domain=self.result.ad_domain,
+            ad_groups=self.result.ad_groups,
+            openid_roles=self.result.openid_roles,
             avatar=self.result.avatar,
             avatar_preview=self.result.avatar_preview,
             username=self.result.name,
@@ -87,6 +91,8 @@ class BotXAPISearchUserByEmailsResponsePayload(VerifiedPayloadBaseModel):
                 huid=user.user_huid,
                 ad_login=user.ad_login,
                 ad_domain=user.ad_domain,
+                ad_groups=user.ad_groups,
+                openid_roles=user.openid_roles,
                 avatar=user.avatar,
                 avatar_preview=user.avatar_preview,
                 username=user.name,

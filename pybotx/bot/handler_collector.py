@@ -1,5 +1,7 @@
 import asyncio
 import re
+from contextvars import Context, ContextVar, Token
+from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -8,7 +10,18 @@ from typing import (
 from collections.abc import Callable, Sequence
 from weakref import WeakSet
 
-from pybotx.bot.contextvars import bot_id_var, bot_var, chat_id_var
+from pybotx.bot.command_processing import (
+    BotCommandOverloadAction,
+    BotCommandProcessingConfig,
+)
+from pybotx.bot.contextvars import (
+    bot_id_var,
+    bot_var,
+    chat_id_var,
+    request_id_var,
+    trace_id_var,
+)
+from pybotx.bot.exceptions import BotCommandRejectedError
 from pybotx.bot.handler import (
     CommandHandler,
     DefaultMessageHandler,
@@ -20,6 +33,12 @@ from pybotx.bot.handler import (
     SystemEventHandlerFunc,
     VisibleCommandHandler,
     VisibleFunc,
+)
+from pybotx.bot.ingress_observability import (
+    BotIngressMetricsCollector,
+    IngressCommandMetadata,
+    IngressCommandResult,
+    NoopIngressMetricsCollector,
 )
 from pybotx.bot.middlewares.exception_middleware import (
     ExceptionHandlersDict,
@@ -59,10 +78,29 @@ MessageHandlerDecorator = Callable[
 ]
 
 
+@dataclass(slots=True)
+class _QueuedBotCommand:
+    bot: "Bot"
+    bot_command: BotCommand
+    completion: asyncio.Future[None]
+    request_id: str | None
+    trace_id: str | None
+    ingress_metadata: IngressCommandMetadata
+
+    async def execute(self, collector: "HandlerCollector") -> None:
+        await collector.handle_bot_command(self.bot_command, self.bot)
+
+
 class HandlerCollector:
     VALID_COMMAND_NAME_RE = re.compile(r"^\/[^\s\/]+$", flags=re.UNICODE)
+    _STOP_QUEUE_ITEM: "_QueuedBotCommand | None" = None
 
-    def __init__(self, middlewares: Sequence[Middleware] | None = None) -> None:
+    def __init__(
+        self,
+        middlewares: Sequence[Middleware] | None = None,
+        command_processing_config: BotCommandProcessingConfig | None = None,
+        ingress_metrics_collector: BotIngressMetricsCollector | None = None,
+    ) -> None:
         self._user_commands_handlers: dict[str, CommandHandler] = {}
         self._default_message_handler: DefaultMessageHandler | None = None
         self._system_events_handlers: dict[
@@ -74,7 +112,25 @@ class HandlerCollector:
             SyncSmartAppEventHandlerFunc,
         ] = {}
         self._middlewares = optional_sequence_to_list(middlewares)
+        self._command_processing_config = (
+            command_processing_config or BotCommandProcessingConfig()
+        )
+        self._overload_strategy = (
+            self._command_processing_config.get_overload_strategy()
+        )
+        self._command_queue: asyncio.Queue[_QueuedBotCommand | None] = asyncio.Queue(
+            maxsize=self._command_processing_config.max_queue_size,
+        )
+        self._processing_semaphore = asyncio.Semaphore(
+            self._command_processing_config.max_concurrency,
+        )
+        self._workers: set[asyncio.Task[None]] = set()
+        self._is_shutting_down = False
         self._tasks: WeakSet[asyncio.Task[None]] = WeakSet()
+        self._ingress_metrics_collector = (
+            ingress_metrics_collector or NoopIngressMetricsCollector()
+        )
+        self._ingress_metrics_collector.on_queue_depth(self._command_queue.qsize())
 
     def include(self, *others: "HandlerCollector") -> None:
         """Include other `HandlerCollector`."""
@@ -86,9 +142,24 @@ class HandlerCollector:
         bot: "Bot",
         bot_command: BotCommand,
     ) -> "asyncio.Task[None]":
-        task = asyncio.create_task(
-            self.handle_bot_command(bot_command, bot),
+        ingress_metadata = self._build_ingress_command_metadata(bot_command)
+        request_id = self._get_optional_context_value(request_id_var)
+        if request_id is None:
+            request_id = self._extract_request_id_from_command(bot_command)
+        trace_id = self._get_optional_context_value(trace_id_var) or request_id
+        completion = asyncio.get_running_loop().create_future()
+        queued_command = _QueuedBotCommand(
+            bot=bot,
+            bot_command=bot_command,
+            completion=completion,
+            request_id=request_id,
+            trace_id=trace_id,
+            ingress_metadata=ingress_metadata,
         )
+        self._enqueue_or_reject(queued_command)
+
+        task = asyncio.create_task(self._wait_for_completion(completion))
+        task.add_done_callback(self._log_unhandled_task_exception)
         self._tasks.add(task)
 
         return task
@@ -101,15 +172,21 @@ class HandlerCollector:
     ) -> None:
         message_handler = self._get_command_handler(command)
         if message_handler:
-            self._fill_contextvars(message, bot)
-            await message_handler(message, bot)
+            context_tokens = self._set_contextvars(message, bot)
+            try:
+                await message_handler(message, bot)
+            finally:
+                self._reset_contextvars(context_tokens)
 
     async def handle_bot_command(self, bot_command: BotCommand, bot: "Bot") -> None:
         if isinstance(bot_command, IncomingMessage):
             message_handler = self._get_incoming_message_handler(bot_command)
             if message_handler:
-                self._fill_contextvars(bot_command, bot)
-                await message_handler(bot_command, bot)
+                context_tokens = self._set_contextvars(bot_command, bot)
+                try:
+                    await message_handler(bot_command, bot)
+                finally:
+                    self._reset_contextvars(context_tokens)
 
         elif isinstance(
             bot_command,
@@ -117,8 +194,11 @@ class HandlerCollector:
         ):
             event_handler = self._get_system_event_handler_or_none(bot_command)
             if event_handler:
-                self._fill_contextvars(bot_command, bot)
-                await event_handler(bot_command, bot)
+                context_tokens = self._set_contextvars(bot_command, bot)
+                try:
+                    await event_handler(bot_command, bot)
+                finally:
+                    self._reset_contextvars(context_tokens)
 
         else:
             raise NotImplementedError(f"Unsupported event type: `{bot_command}`")
@@ -140,8 +220,28 @@ class HandlerCollector:
                 "Handler for sync smartapp event not found",
             )
 
-        self._fill_contextvars(smartapp_event, bot)
-        return await event_handler(smartapp_event, bot)
+        context_tokens = self._set_contextvars(smartapp_event, bot)
+        started_at = asyncio.get_running_loop().time()
+        handler_error: Exception | None = None
+        try:
+            return await event_handler(smartapp_event, bot)
+        except Exception as exc:
+            handler_error = exc
+            raise
+        finally:
+            duration_ms = int((asyncio.get_running_loop().time() - started_at) * 1000)
+            self._ingress_metrics_collector.on_command_finished(
+                IngressCommandMetadata(
+                    command_kind="sync_smartapp_event",
+                    command_name=smartapp_event.__class__.__name__,
+                ),
+                IngressCommandResult(
+                    duration_ms=max(duration_ms, 0),
+                    error=handler_error,
+                ),
+                queue_depth=self._command_queue.qsize(),
+            )
+            self._reset_contextvars(context_tokens)
 
     async def get_bot_menu(
         self,
@@ -363,11 +463,16 @@ class HandlerCollector:
         self._middlewares.insert(0, exception_middleware.dispatch)
 
     async def wait_active_tasks(self) -> None:
+        self._is_shutting_down = True
+        await self._command_queue.join()
+
         if self._tasks:
             await asyncio.wait(
                 self._tasks,
                 return_when=asyncio.ALL_COMPLETED,
             )
+
+        await self._stop_workers()
 
     def _include_collector(self, other: "HandlerCollector") -> None:
         # - Message handlers -
@@ -522,13 +627,28 @@ class HandlerCollector:
 
         return handler_func
 
-    def _fill_contextvars(self, bot_command: BotCommand, bot: "Bot") -> None:
-        bot_var.set(bot)
-        bot_id_var.set(bot_command.bot.id)
+    def _set_contextvars(
+        self,
+        bot_command: BotCommand,
+        bot: "Bot",
+    ) -> list[tuple[ContextVar[Any], Token[Any]]]:
+        context_tokens: list[tuple[ContextVar[Any], Token[Any]]] = [
+            (bot_var, bot_var.set(bot)),
+            (bot_id_var, bot_id_var.set(bot_command.bot.id)),
+        ]
 
         chat = getattr(bot_command, "chat", None)
-        if chat:
-            chat_id_var.set(chat.id)
+        if chat is not None:
+            context_tokens.append((chat_id_var, chat_id_var.set(chat.id)))
+
+        return context_tokens
+
+    def _reset_contextvars(
+        self,
+        context_tokens: list[tuple[ContextVar[Any], Token[Any]]],
+    ) -> None:
+        for context_var, token in reversed(context_tokens):
+            context_var.reset(token)
 
     def _log_system_event_handler_call(
         self,
@@ -548,3 +668,196 @@ class HandlerCollector:
             )
         else:
             logger.info("No command found, using default handler")
+
+    async def _wait_for_completion(
+        self,
+        completion: asyncio.Future[None],
+    ) -> None:
+        await completion
+
+    def _enqueue_or_reject(self, queued_command: _QueuedBotCommand) -> None:
+        if self._is_shutting_down:
+            self._reject_queued_command(
+                queued_command,
+                reason="bot_shutting_down",
+            )
+            return
+
+        self._ensure_workers_started()
+
+        try:
+            self._command_queue.put_nowait(queued_command)
+            self._ingress_metrics_collector.on_queue_depth(self._command_queue.qsize())
+            return
+        except asyncio.QueueFull:
+            pass
+
+        action = self._overload_strategy.on_queue_overflow(
+            queue_size=self._command_queue.qsize(),
+            queue_max_size=self._command_queue.maxsize,
+        )
+        if action is BotCommandOverloadAction.DROP_OLDEST:
+            dropped_command = self._drop_oldest_queued_command()
+            if dropped_command is not None:
+                self._reject_queued_command(
+                    dropped_command,
+                    reason="queue_overflow_drop_oldest",
+                )
+                self._command_queue.task_done()
+                self._command_queue.put_nowait(queued_command)
+                self._ingress_metrics_collector.on_queue_depth(self._command_queue.qsize())
+                logger.warning(
+                    "Bot command queue overflow: dropped oldest queued command and "
+                    "accepted newest command",
+                )
+                return
+
+        self._reject_queued_command(
+            queued_command,
+            reason="queue_overflow_reject_new",
+        )
+        logger.warning(
+            "Bot command queue overflow: rejected incoming command",
+        )
+
+    def _drop_oldest_queued_command(self) -> _QueuedBotCommand | None:
+        while True:
+            try:
+                queued_item = self._command_queue.get_nowait()
+            except asyncio.QueueEmpty:
+                return None
+
+            if queued_item is self._STOP_QUEUE_ITEM:
+                self._command_queue.task_done()
+                continue
+
+            return queued_item
+
+    def _reject_queued_command(
+        self,
+        queued_command: _QueuedBotCommand,
+        *,
+        reason: str,
+    ) -> None:
+        if queued_command.completion.done():
+            return
+        queued_command.completion.set_exception(BotCommandRejectedError(reason))
+        self._ingress_metrics_collector.on_command_rejected(
+            queued_command.ingress_metadata,
+            reason=reason,
+            queue_depth=self._command_queue.qsize(),
+        )
+
+    def _ensure_workers_started(self) -> None:
+        if self._workers:
+            return
+
+        for index in range(self._command_processing_config.max_concurrency):
+            worker_task = Context().run(asyncio.create_task, self._command_worker())
+            worker_task.set_name(f"pybotx-command-worker-{index + 1}")
+            self._workers.add(worker_task)
+
+    async def _stop_workers(self) -> None:
+        if not self._workers:
+            return
+
+        workers_count = len(self._workers)
+        for _ in range(workers_count):
+            await self._command_queue.put(self._STOP_QUEUE_ITEM)
+
+        workers = tuple(self._workers)
+        await asyncio.wait(workers, return_when=asyncio.ALL_COMPLETED)
+        self._workers.clear()
+
+    async def _command_worker(self) -> None:
+        while True:
+            queued_command = await self._command_queue.get()
+            self._ingress_metrics_collector.on_queue_depth(self._command_queue.qsize())
+            if queued_command is None:
+                self._command_queue.task_done()
+                self._ingress_metrics_collector.on_queue_depth(self._command_queue.qsize())
+                return
+
+            ingress_context_tokens = self._set_ingress_contextvars(queued_command)
+            loop = asyncio.get_running_loop()
+            started_at = loop.time()
+            handler_error: Exception | None = None
+            try:
+                async with self._processing_semaphore:
+                    await queued_command.execute(self)
+            except Exception as exc:
+                handler_error = exc
+                if not queued_command.completion.done():
+                    queued_command.completion.set_exception(exc)
+            else:
+                if not queued_command.completion.done():
+                    queued_command.completion.set_result(None)
+            finally:
+                duration_ms = int((loop.time() - started_at) * 1000)
+                self._ingress_metrics_collector.on_command_finished(
+                    queued_command.ingress_metadata,
+                    IngressCommandResult(
+                        duration_ms=max(duration_ms, 0),
+                        error=handler_error,
+                    ),
+                    queue_depth=self._command_queue.qsize(),
+                )
+                self._reset_contextvars(ingress_context_tokens)
+                self._command_queue.task_done()
+                self._ingress_metrics_collector.on_queue_depth(self._command_queue.qsize())
+
+    def _log_unhandled_task_exception(self, task: asyncio.Task[None]) -> None:
+        if task.cancelled():
+            return
+
+        error = task.exception()
+        if error is None:
+            return
+        if isinstance(error, BotCommandRejectedError):
+            logger.warning("Bot command has been rejected: {reason}", reason=error.reason)
+            return
+
+        logger.opt(exception=error).error("Bot command task failed")
+
+    def _build_ingress_command_metadata(
+        self,
+        bot_command: BotCommand,
+    ) -> IngressCommandMetadata:
+        if isinstance(bot_command, IncomingMessage):
+            command_name = self._get_command_name(bot_command.body) or "__default__"
+            return IngressCommandMetadata(
+                command_kind="incoming_message",
+                command_name=command_name,
+            )
+
+        return IngressCommandMetadata(
+            command_kind="system_event",
+            command_name=bot_command.__class__.__name__,
+        )
+
+    def _extract_request_id_from_command(self, bot_command: BotCommand) -> str | None:
+        sync_id = getattr(bot_command, "sync_id", None)
+        if sync_id is None:
+            return None
+        return str(sync_id)
+
+    def _set_ingress_contextvars(
+        self,
+        queued_command: _QueuedBotCommand,
+    ) -> list[tuple[ContextVar[Any], Token[Any]]]:
+        context_tokens: list[tuple[ContextVar[Any], Token[Any]]] = []
+        if queued_command.request_id is not None:
+            context_tokens.append(
+                (request_id_var, request_id_var.set(queued_command.request_id)),
+            )
+        if queued_command.trace_id is not None:
+            context_tokens.append(
+                (trace_id_var, trace_id_var.set(queued_command.trace_id)),
+            )
+        return context_tokens
+
+    def _get_optional_context_value(self, context_var: ContextVar[str]) -> str | None:
+        try:
+            return context_var.get()
+        except LookupError:
+            return None

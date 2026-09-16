@@ -225,6 +225,11 @@ def test__create_chat_payload__convert_chat_type_validator() -> None:
     with pytest.raises(ValueError, match="Bot cannot create a chat of type 'voex_call'"):
         BotXAPICreateChatRequestPayload._convert_chat_type(values)  # type: ignore[operator]
 
+    # VOEX_CALL is also rejected through the public domain enum.
+    values = {"chat_type": ChatTypes.VOEX_CALL}
+    with pytest.raises(ValueError, match="Bot cannot create a chat of type 'voex_call'"):
+        BotXAPICreateChatRequestPayload._convert_chat_type(values)  # type: ignore[operator]
+
     # Test with another APIChatTypes value (should remain unchanged)
     values = {"chat_type": APIChatTypes.CHAT}  # type: ignore[dict-item]
     result = BotXAPICreateChatRequestPayload._convert_chat_type(values)  # type: ignore[operator]

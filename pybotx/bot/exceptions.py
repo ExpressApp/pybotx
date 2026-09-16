@@ -40,3 +40,9 @@ class RequestHeadersNotProvidedError(Exception):
 
 class UnverifiedRequestError(Exception):
     """The authorization header is missing or the token is invalid."""
+
+
+class BotCommandRejectedError(Exception):
+    def __init__(self, reason: str) -> None:
+        self.reason = reason
+        super().__init__(f"Bot command rejected: {reason}")

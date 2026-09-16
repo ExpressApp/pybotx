@@ -8,6 +8,7 @@ from pybotx.client.users_api.user_from_search import (
     BotXAPISearchUserByEmailsResponsePayload,
     BotXAPISearchUserResponsePayload,
 )
+from pybotx.client.users_api.trusted_search import validate_trusted_search_options
 from pybotx.logger import logger
 from pybotx.missing import Missing, Undefined
 from pybotx.models.api_base import UnverifiedPayloadBaseModel
@@ -25,6 +26,10 @@ class BotXAPISearchUserByEmailRequestPayload(UnverifiedPayloadBaseModel):
         trusts_search: bool = False,
         partial_response: bool = False,
     ) -> "BotXAPISearchUserByEmailRequestPayload":
+        validate_trusted_search_options(
+            trusts_search=trusts_search,
+            partial_response=partial_response,
+        )
         return cls(
             email=email,
             trusts_search=trusts_search or Undefined,

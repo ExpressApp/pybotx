@@ -1,20 +1,27 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
-snippets_dir_path=".snippets"
+snippets_dir_path="$(mktemp -d)"
+trap 'rm -rf "${snippets_dir_path}"' EXIT
 
-rm -rf "${snippets_dir_path}"
-mkdir "${snippets_dir_path}"
+python - "${snippets_dir_path}" <<'PY'
+from pathlib import Path
+import re
+import sys
 
-snippet_number=1
-while IFS= read -d '' -r snippet || [[ -n "${snippet}" ]]; do
-  printf "%s" "${snippet}" \
-    > "${snippets_dir_path}/snippet${snippet_number}.py"
-  snippet_number=$((snippet_number+1))
-done < <(grep -Pzo '(?s)(?<=```python\n).*?(?=```)' README.md);
+readme = Path("README.md").read_text(encoding="utf-8")
+snippets = re.findall(r"```python\n(.*?)```", readme, flags=re.DOTALL)
+if not snippets:
+    raise SystemExit("README.md does not contain Python snippets")
+
+snippets_dir = Path(sys.argv[1])
+for snippet_number, snippet in enumerate(snippets, start=1):
+    (snippets_dir / f"snippet{snippet_number}.py").write_text(
+        snippet,
+        encoding="utf-8",
+    )
+PY
 
 mypy "${snippets_dir_path}"
 ruff check "${snippets_dir_path}" --ignore F403,F405
-
-rm -rf "${snippets_dir_path}"

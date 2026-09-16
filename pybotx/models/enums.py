@@ -60,12 +60,14 @@ class ChatTypes(AutoName):
         GROUP_CHAT: Group chat.
         CHANNEL: Public channel.
         THREAD: Thread in a chat.
+        VOEX_CALL: Incoming VoEx call. It cannot be used to create a chat.
     """
 
     PERSONAL_CHAT = auto()
     GROUP_CHAT = auto()
     CHANNEL = auto()
     THREAD = auto()
+    VOEX_CALL = auto()
 
 
 class SyncSourceTypes(AutoName):
@@ -366,7 +368,7 @@ def convert_chat_type_to_domain(
         APIChatTypes.GROUP_CHAT: ChatTypes.GROUP_CHAT,
         APIChatTypes.CHANNEL: ChatTypes.CHANNEL,
         APIChatTypes.THREAD: ChatTypes.THREAD,
-        APIChatTypes.VOEX_CALL: ChatTypes.GROUP_CHAT,
+        APIChatTypes.VOEX_CALL: ChatTypes.VOEX_CALL,
     }
 
     converted_type: IncomingChatTypes | None

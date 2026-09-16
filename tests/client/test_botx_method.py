@@ -1,19 +1,37 @@
 from http import HTTPStatus
-from typing import Literal
+from types import SimpleNamespace
+from typing import Any, Literal, cast
 from uuid import UUID
 
 import httpx
 import pytest
 from respx.router import MockRouter
+from tenacity import (
+    AsyncRetrying,
+    RetryCallState,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_fixed,
+)
 
 from pybotx import (
+    BotXOperation,
+    BotXRetryStrategy,
+    BotXRetryPolicy,
     BotAccountWithSecret,
     InvalidBotXResponsePayloadError,
     InvalidBotXStatusCodeError,
+    OperationNameAllowlistBotXRetryRequestPolicy,
+    RetryAllBotXRequestsPolicy,
 )
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
 from pybotx.client.botx_method import BotXMethod, response_exception_thrower
 from pybotx.client.exceptions.base import BaseClientError
+from pybotx.client.observability import (
+    BotXRequestMetadata,
+    BotXRequestResult,
+    BotXRetryEvent,
+)
 from pybotx.models.api_base import UnverifiedPayloadBaseModel, VerifiedPayloadBaseModel
 
 
@@ -64,10 +82,133 @@ class FooBarMethod(BotXMethod):
         )
 
 
+class SearchByEmailMethod(BotXMethod):
+    async def execute(
+        self,
+        payload: BotXAPIFooBarRequestPayload,
+    ) -> BotXAPIFooBarResponsePayload:
+        response = await self._botx_method_call(
+            "POST",
+            self._build_url("/api/v3/botx/users/by_email"),
+            json={"emails": [f"user{payload.baz}@example.com"]},
+        )
+
+        return self._verify_and_extract_api_model(
+            BotXAPIFooBarResponsePayload,
+            response,
+        )
+
+
+class ObserverSpy:
+    def __init__(self) -> None:
+        self.start_events: list[BotXRequestMetadata] = []
+        self.retry_events: list[tuple[BotXRequestMetadata, BotXRetryEvent]] = []
+        self.finish_events: list[tuple[BotXRequestMetadata, BotXRequestResult]] = []
+
+    def on_request_start(self, metadata: BotXRequestMetadata) -> None:
+        self.start_events.append(metadata)
+
+    def on_request_retry(
+        self,
+        metadata: BotXRequestMetadata,
+        retry_event: BotXRetryEvent,
+    ) -> None:
+        self.retry_events.append((metadata, retry_event))
+
+    def on_request_finish(
+        self,
+        metadata: BotXRequestMetadata,
+        result: BotXRequestResult,
+    ) -> None:
+        self.finish_events.append((metadata, result))
+
+
+class BrokenObserver:
+    def on_request_start(self, metadata: BotXRequestMetadata) -> None:
+        raise RuntimeError("start")
+
+    def on_request_retry(
+        self,
+        metadata: BotXRequestMetadata,
+        retry_event: BotXRetryEvent,
+    ) -> None:
+        raise RuntimeError("retry")
+
+    def on_request_finish(
+        self,
+        metadata: BotXRequestMetadata,
+        result: BotXRequestResult,
+    ) -> None:
+        raise RuntimeError("finish")
+
+
+class TwoAttemptsRetryStrategy(BotXRetryStrategy):
+    def build_retrying(
+        self,
+        *,
+        retry_policy: BotXRetryPolicy,
+        retry_exceptions: tuple[type[BaseException], ...],
+        before_sleep: Any,
+    ) -> AsyncRetrying:
+        return AsyncRetrying(
+            stop=stop_after_attempt(2),
+            wait=wait_fixed(0.0),
+            retry=retry_if_exception_type(retry_exceptions),
+            before_sleep=before_sleep,
+            reraise=True,
+        )
+
+
 pytestmark = [
     pytest.mark.asyncio,
     pytest.mark.usefixtures("respx_mock"),
 ]
+
+
+async def test__botx_method__observability_error_paths_are_isolated(
+    httpx_client: httpx.AsyncClient,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    observer = BrokenObserver()
+    method = FooBarMethod(
+        bot_id,
+        httpx_client,
+        BotAccountsStorage([bot_account]),
+    )
+    metadata = BotXRequestMetadata(method="POST", url="https://cts.example/foo")
+    decorator = method._build_observability_decorator(
+        metadata=metadata,
+        observers=(observer,),
+    )
+
+    async def runtime_failure() -> httpx.Response:
+        raise RuntimeError("boom")
+
+    with pytest.raises(RuntimeError, match="boom"):
+        await decorator(runtime_failure)()
+
+    response = httpx.Response(
+        HTTPStatus.SERVICE_UNAVAILABLE,
+        request=httpx.Request("POST", metadata.url),
+        json={"status": "error", "reason": "busy"},
+    )
+
+    async def botx_failure() -> httpx.Response:
+        raise InvalidBotXStatusCodeError(response)
+
+    with pytest.raises(InvalidBotXStatusCodeError):
+        await decorator(botx_failure)()
+
+    retry_event = BotXRetryEvent(1, 2, 0, "timeout")
+    method._notify_request_retry((observer,), metadata, retry_event)
+    assert method._format_retry_reason(
+        cast(RetryCallState, SimpleNamespace(outcome=None)),
+    ) == "unknown"
+    outcome = SimpleNamespace(failed=True, exception=lambda: None)
+    assert method._format_retry_reason(
+        cast(RetryCallState, SimpleNamespace(outcome=outcome)),
+    ) == "unknown"
 
 
 async def test__botx_method__invalid_botx_status_code_error_raised(
@@ -286,3 +427,412 @@ async def test__build_botx_url_with_different_bot_cts_urls(
 
     # - Assert -
     assert endpoint.called
+
+
+async def test__botx_method__retries_on_retryable_transport_errors(
+    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    retry_policy = BotXRetryPolicy(
+        max_attempts=2,
+        initial_delay_seconds=0.0,
+        max_delay_seconds=0.0,
+        jitter_seconds=0.0,
+    )
+
+    call_counter = 0
+
+    def responder(_: httpx.Request) -> httpx.Response:
+        nonlocal call_counter
+        call_counter += 1
+        if call_counter == 1:
+            raise httpx.ConnectTimeout("Connection timeout")
+
+        return httpx.Response(
+            HTTPStatus.OK,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        )
+
+    endpoint = respx_mock.post(f"https://{host}/foo/bar").mock(side_effect=responder)
+
+    method = FooBarMethod(
+        bot_id,
+        httpx_client,
+        BotAccountsStorage(
+            [bot_account],
+            retry_policy=retry_policy,
+            retry_request_policy=RetryAllBotXRequestsPolicy(),
+        ),
+    )
+    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+
+    # - Act -
+    result = await method.execute(payload)
+
+    # - Assert -
+    assert result.to_domain() == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert endpoint.call_count == 2
+
+
+async def test__botx_method__retries_on_retryable_status_code_and_succeeds(
+    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    retry_policy = BotXRetryPolicy(
+        max_attempts=2,
+        initial_delay_seconds=0.0,
+        max_delay_seconds=0.0,
+        jitter_seconds=0.0,
+    )
+
+    call_counter = 0
+
+    def responder(_: httpx.Request) -> httpx.Response:
+        nonlocal call_counter
+        call_counter += 1
+        if call_counter == 1:
+            return httpx.Response(HTTPStatus.SERVICE_UNAVAILABLE)
+
+        return httpx.Response(
+            HTTPStatus.OK,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        )
+
+    endpoint = respx_mock.post(f"https://{host}/foo/bar").mock(side_effect=responder)
+
+    method = FooBarMethod(
+        bot_id,
+        httpx_client,
+        BotAccountsStorage(
+            [bot_account],
+            retry_policy=retry_policy,
+            retry_request_policy=RetryAllBotXRequestsPolicy(),
+        ),
+    )
+    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+
+    # - Act -
+    result = await method.execute(payload)
+
+    # - Assert -
+    assert result.to_domain() == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert endpoint.call_count == 2
+
+
+async def test__botx_method__retryable_status_exhausted_returns_original_status_error(
+    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    retry_policy = BotXRetryPolicy(
+        max_attempts=2,
+        initial_delay_seconds=0.0,
+        max_delay_seconds=0.0,
+        jitter_seconds=0.0,
+    )
+
+    endpoint = respx_mock.post(f"https://{host}/foo/bar").mock(
+        return_value=httpx.Response(HTTPStatus.SERVICE_UNAVAILABLE),
+    )
+
+    method = FooBarMethod(
+        bot_id,
+        httpx_client,
+        BotAccountsStorage(
+            [bot_account],
+            retry_policy=retry_policy,
+            retry_request_policy=RetryAllBotXRequestsPolicy(),
+        ),
+    )
+    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+
+    # - Act -
+    with pytest.raises(InvalidBotXStatusCodeError) as exc:
+        await method.execute(payload)
+
+    # - Assert -
+    assert "failed with code 503" in str(exc.value)
+    assert endpoint.call_count == 2
+
+
+async def test__botx_method__without_retry_policy_does_not_retry(
+    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    endpoint = respx_mock.post(f"https://{host}/foo/bar").mock(
+        return_value=httpx.Response(HTTPStatus.SERVICE_UNAVAILABLE),
+    )
+
+    method = FooBarMethod(
+        bot_id,
+        httpx_client,
+        BotAccountsStorage([bot_account]),
+    )
+    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+
+    # - Act -
+    with pytest.raises(InvalidBotXStatusCodeError):
+        await method.execute(payload)
+
+    # - Assert -
+    assert endpoint.call_count == 1
+
+
+async def test__botx_method__safe_retry_policy_does_not_retry_unsafe_post_by_default(
+    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    retry_policy = BotXRetryPolicy(
+        max_attempts=2,
+        initial_delay_seconds=0.0,
+        max_delay_seconds=0.0,
+        jitter_seconds=0.0,
+    )
+
+    endpoint = respx_mock.post(f"https://{host}/foo/bar").mock(
+        return_value=httpx.Response(HTTPStatus.SERVICE_UNAVAILABLE),
+    )
+
+    method = FooBarMethod(
+        bot_id,
+        httpx_client,
+        BotAccountsStorage([bot_account], retry_policy=retry_policy),
+    )
+    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+
+    with pytest.raises(InvalidBotXStatusCodeError):
+        await method.execute(payload)
+
+    assert endpoint.call_count == 1
+
+
+async def test__botx_method__safe_retry_policy_retries_allowlisted_read_only_post(
+    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    retry_policy = BotXRetryPolicy(
+        max_attempts=2,
+        initial_delay_seconds=0.0,
+        max_delay_seconds=0.0,
+        jitter_seconds=0.0,
+    )
+
+    call_counter = 0
+
+    def responder(_: httpx.Request) -> httpx.Response:
+        nonlocal call_counter
+        call_counter += 1
+        if call_counter == 1:
+            return httpx.Response(HTTPStatus.SERVICE_UNAVAILABLE)
+
+        return httpx.Response(
+            HTTPStatus.OK,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        )
+
+    endpoint = respx_mock.post(f"https://{host}/api/v3/botx/users/by_email").mock(
+        side_effect=responder,
+    )
+
+    method = SearchByEmailMethod(
+        bot_id,
+        httpx_client,
+        BotAccountsStorage([bot_account], retry_policy=retry_policy),
+    )
+    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+
+    result = await method.execute(payload)
+
+    assert result.to_domain() == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert endpoint.call_count == 2
+
+
+async def test__botx_method__operation_name_allowlist_retries_unsafe_post(
+    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    retry_policy = BotXRetryPolicy(
+        max_attempts=2,
+        initial_delay_seconds=0.0,
+        max_delay_seconds=0.0,
+        jitter_seconds=0.0,
+    )
+
+    call_counter = 0
+
+    def responder(_: httpx.Request) -> httpx.Response:
+        nonlocal call_counter
+        call_counter += 1
+        if call_counter == 1:
+            return httpx.Response(HTTPStatus.SERVICE_UNAVAILABLE)
+
+        return httpx.Response(
+            HTTPStatus.OK,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        )
+
+    endpoint = respx_mock.post(f"https://{host}/foo/bar").mock(side_effect=responder)
+
+    method = FooBarMethod(
+        bot_id,
+        httpx_client,
+        BotAccountsStorage(
+            [bot_account],
+            retry_policy=retry_policy,
+            retry_request_policy=OperationNameAllowlistBotXRetryRequestPolicy(
+                operation_names={BotXOperation.DIRECT_NOTIFICATION, "FooBarMethod"},
+            ),
+        ),
+    )
+    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+
+    result = await method.execute(payload)
+
+    assert result.to_domain() == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert endpoint.call_count == 2
+
+
+async def test__botx_method__metrics_and_tracing_are_opt_in_and_report_retry_events(
+    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    call_counter = 0
+    metrics_collector = ObserverSpy()
+    tracing_collector = ObserverSpy()
+
+    def responder(_: httpx.Request) -> httpx.Response:
+        nonlocal call_counter
+        call_counter += 1
+        if call_counter == 1:
+            return httpx.Response(HTTPStatus.SERVICE_UNAVAILABLE)
+        return httpx.Response(
+            HTTPStatus.OK,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        )
+
+    endpoint = respx_mock.post(f"https://{host}/foo/bar").mock(side_effect=responder)
+
+    method = FooBarMethod(
+        bot_id,
+        httpx_client,
+        BotAccountsStorage(
+            [bot_account],
+            retry_policy=BotXRetryPolicy(
+                max_attempts=2,
+                initial_delay_seconds=0.0,
+                max_delay_seconds=0.0,
+                jitter_seconds=0.0,
+            ),
+            retry_request_policy=RetryAllBotXRequestsPolicy(),
+            metrics_collector=metrics_collector,
+            tracing_collector=tracing_collector,
+        ),
+    )
+    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+
+    # - Act -
+    result = await method.execute(payload)
+
+    # - Assert -
+    assert result.to_domain() == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert endpoint.call_count == 2
+
+    assert len(metrics_collector.start_events) == 1
+    assert len(metrics_collector.retry_events) == 1
+    assert len(metrics_collector.finish_events) == 1
+    assert metrics_collector.start_events[0].operation_name == "FooBarMethod"
+    assert metrics_collector.start_events[0].is_streaming is False
+    assert metrics_collector.finish_events[0][1].status_code == HTTPStatus.OK
+    assert metrics_collector.finish_events[0][1].error is None
+
+    assert len(tracing_collector.start_events) == 1
+    assert len(tracing_collector.retry_events) == 1
+    assert len(tracing_collector.finish_events) == 1
+
+
+async def test__botx_method__custom_retry_strategy_overrides_default_tenacity_setup(
+    httpx_client: httpx.AsyncClient,
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+) -> None:
+    # - Arrange -
+    call_counter = 0
+
+    def responder(_: httpx.Request) -> httpx.Response:
+        nonlocal call_counter
+        call_counter += 1
+        if call_counter == 1:
+            return httpx.Response(HTTPStatus.SERVICE_UNAVAILABLE)
+        return httpx.Response(
+            HTTPStatus.OK,
+            json={
+                "status": "ok",
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+            },
+        )
+
+    endpoint = respx_mock.post(f"https://{host}/foo/bar").mock(side_effect=responder)
+    method = FooBarMethod(
+        bot_id,
+        httpx_client,
+        BotAccountsStorage(
+            [bot_account],
+            # Policy says one attempt, but strategy forces two attempts.
+            retry_policy=BotXRetryPolicy(max_attempts=1),
+            retry_request_policy=RetryAllBotXRequestsPolicy(),
+            retry_strategy=TwoAttemptsRetryStrategy(),
+        ),
+    )
+    payload = BotXAPIFooBarRequestPayload.from_domain(baz=1)
+
+    # - Act -
+    result = await method.execute(payload)
+
+    # - Assert -
+    assert result.to_domain() == UUID("21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3")
+    assert endpoint.call_count == 2

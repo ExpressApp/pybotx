@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from uuid import UUID
 
@@ -34,6 +34,12 @@ class UserFromSearch:
         rts_id: User RTS id.
         created_at: User creation timestamp.
         updated_at: User update timestamp.
+        ad_groups: User AD group names. BotX returns them only when the bot has
+            allow_read_ad_groups enabled. An empty list does not distinguish
+            no group membership from unavailable data.
+        openid_roles: User OpenID role names. BotX returns them only when the bot
+            has allow_read_openid_roles enabled. An empty list does not
+            distinguish no roles from unavailable data.
     """
 
     huid: UUID
@@ -60,6 +66,8 @@ class UserFromSearch:
     rts_id: UUID | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    ad_groups: list[str] = field(default_factory=list)
+    openid_roles: list[str] = field(default_factory=list)
 
 
 @dataclass(slots=True)

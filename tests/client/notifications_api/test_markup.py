@@ -93,7 +93,7 @@ async def test__markup__defaults_filled(
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await bot.deliver_raw_callback(
             {
                 "status": "ok",
                 "sync_id": SYNC_ID,
@@ -212,7 +212,7 @@ async def test__markup__correctly_built(
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await bot.deliver_raw_callback(
             {
                 "status": "ok",
                 "sync_id": SYNC_ID,
@@ -350,7 +350,7 @@ async def test__markup__color_and_align(
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await bot.deliver_raw_callback(
             {
                 "status": "ok",
                 "sync_id": SYNC_ID,
@@ -447,7 +447,7 @@ async def test__markup__link(
 
         await asyncio.sleep(0)  # Return control to event loop
 
-        await bot.set_raw_botx_method_result(
+        await bot.deliver_raw_callback(
             {
                 "status": "ok",
                 "sync_id": SYNC_ID,
