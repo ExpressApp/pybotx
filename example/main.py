@@ -1,7 +1,6 @@
 import os
 from http import HTTPStatus
 from typing import Final
-from uuid import UUID
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse

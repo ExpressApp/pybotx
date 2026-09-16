@@ -15,25 +15,29 @@ class BotXAPIUserFromCSVResult(VerifiedPayloadBaseModel):
     huid: UUID = Field(alias="HUID")
     ad_login: str = Field(alias="AD Login")
     ad_domain: str = Field(alias="Domain")
-    email: str | None = Field(alias="AD E-mail")
+    email: str | None = Field(default=None, alias="AD E-mail")
     name: str = Field(alias="Name")
     sync_source: APISyncSourceTypes | str = Field(alias="Sync source")
     active: bool = Field(alias="Active")
     user_kind: APIUserKinds = Field(alias="Kind")
-    company: str | None = Field(alias="Company")
-    department: str | None = Field(alias="Department")
-    position: str | None = Field(alias="Position")
+    user_dn: str | None = Field(default=None, alias="User DN")
+    company: str | None = Field(default=None, alias="Company")
+    department: str | None = Field(default=None, alias="Department")
+    position: str | None = Field(default=None, alias="Position")
     avatar: str | None = Field(default=None, alias="Avatar")
     avatar_preview: str | None = Field(default=None, alias="Avatar preview")
     office: str | None = Field(default=None, alias="Office")
-    manager: str | None = Field(alias="Manager")
-    manager_huid: UUID | None = Field(alias="Manager HUID")
+    manager: str | None = Field(default=None, alias="Manager")
+    manager_huid: UUID | None = Field(default=None, alias="Manager HUID")
+    manager_dn: str | None = Field(default=None, alias="Manager DN")
     description: str | None = Field(default=None, alias="Description")
     phone: str | None = Field(default=None, alias="Phone")
     other_phone: str | None = Field(default=None, alias="Other phone")
     ip_phone: str | None = Field(default=None, alias="IP phone")
     other_ip_phone: str | None = Field(default=None, alias="Other IP phone")
     personnel_number: str | None = Field(default=None, alias="Personnel number")
+    ad_groups: str | None = Field(default=None, alias="AD Groups")
+    openid_roles: str | None = Field(default=None, alias="OpenID Roles")
 
     @field_validator(
         "email",
@@ -51,6 +55,10 @@ class BotXAPIUserFromCSVResult(VerifiedPayloadBaseModel):
         "ip_phone",
         "other_ip_phone",
         "personnel_number",
+        "user_dn",
+        "manager_dn",
+        "ad_groups",
+        "openid_roles",
         mode="before",
     )
     @classmethod
@@ -70,6 +78,7 @@ class BotXAPIUserFromCSVResult(VerifiedPayloadBaseModel):
             sync_source=convert_sync_source_type_to_domain(self.sync_source),
             active=self.active,
             user_kind=convert_user_kind_to_domain(self.user_kind),
+            user_dn=self.user_dn,
             company=self.company,
             department=self.department,
             position=self.position,
@@ -78,10 +87,13 @@ class BotXAPIUserFromCSVResult(VerifiedPayloadBaseModel):
             office=self.office,
             manager=self.manager,
             manager_huid=self.manager_huid,
+            manager_dn=self.manager_dn,
             description=self.description,
             phone=self.phone,
             other_phone=self.other_phone,
             ip_phone=self.ip_phone,
             other_ip_phone=self.other_ip_phone,
             personnel_number=self.personnel_number,
+            ad_groups=self.ad_groups,
+            openid_roles=self.openid_roles,
         )

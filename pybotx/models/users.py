@@ -82,6 +82,7 @@ class UserFromCSV:
         sync_source: Synchronization source.
         active: Is the user active or not.
         email: User email.
+        user_dn: User LDAP Distinguished Name.
         company: User company.
         department: User department.
         position: User position.
@@ -90,12 +91,15 @@ class UserFromCSV:
         office: Office info.
         manager: User's manager full name.
         manager_huid: User's manager huid.
+        manager_dn: User's manager LDAP Distinguished Name.
         description: Description.
         phone: Phone number.
         other_phone: Extra phone number.
         ip_phone: Ip phone info.
         other_ip_phone: Extra ip phone.
         personnel_number: User's tabel number.
+        ad_groups: AD group names separated by semicolons.
+        openid_roles: OpenID role names separated by semicolons.
     """
 
     huid: UUID
@@ -106,6 +110,7 @@ class UserFromCSV:
     active: bool
     user_kind: UserKinds
     email: str | None = None
+    user_dn: str | None = None
     company: str | None = None
     department: str | None = None
     position: str | None = None
@@ -114,9 +119,12 @@ class UserFromCSV:
     office: str | None = None
     manager: str | None = None
     manager_huid: UUID | None = None
+    manager_dn: str | None = None
     description: str | None = None
     phone: str | None = None
     other_phone: str | None = None
     ip_phone: str | None = None
     other_ip_phone: str | None = None
     personnel_number: str | None = None
+    ad_groups: str | None = None
+    openid_roles: str | None = None
