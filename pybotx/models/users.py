@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from uuid import UUID
 
@@ -13,6 +13,10 @@ class UserFromSearch:
         huid: User huid.
         ad_login: User AD login.
         ad_domain: User AD domain.
+        ad_groups: User AD group names. An empty list means that the user has no
+            groups or the bot has no access to them.
+        openid_roles: User OpenID role names. An empty list means that the user
+            has no roles or the bot has no access to them.
         avatar: User avatar (link).
         avatar_preview: User avatar preview (link).
         username: User name.
@@ -46,6 +50,8 @@ class UserFromSearch:
     emails: list[str]
     other_id: str | None
     user_kind: UserKinds
+    ad_groups: list[str] = field(default_factory=list)
+    openid_roles: list[str] = field(default_factory=list)
     avatar: str | None = None
     avatar_preview: str | None = None
     active: bool | None = None

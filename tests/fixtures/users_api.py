@@ -13,6 +13,8 @@ def user_from_search_with_data_json() -> dict[str, Any]:
         "user_huid": "6fafda2c-6505-57a5-a088-25ea5d1d0364",
         "ad_login": "ad_user_login",
         "ad_domain": "cts.com",
+        "ad_groups": ["employees", "developers", "vpn-users"],
+        "openid_roles": ["openid_user", "openid_profile"],
         "avatar": (
             "https://test-cts.ru/uploads/profile_avatar/fa13e946-121b-52ce-aa92-677b51d19d83/"
             "3ebb64d5e2f54e1ab9a3f2ff8096f55a.jpg"
@@ -50,6 +52,8 @@ def user_from_search_with_data() -> UserFromSearch:
         huid=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
         ad_login="ad_user_login",
         ad_domain="cts.com",
+        ad_groups=["employees", "developers", "vpn-users"],
+        openid_roles=["openid_user", "openid_profile"],
         avatar=(
             "https://test-cts.ru/uploads/profile_avatar/fa13e946-121b-52ce-aa92-677b51d19d83/"
             "3ebb64d5e2f54e1ab9a3f2ff8096f55a.jpg"
@@ -115,6 +119,8 @@ def user_from_search_without_data() -> UserFromSearch:
         huid=UUID("6fafda2c-6505-57a5-a088-25ea5d1d0364"),
         ad_login="ad_user_login",
         ad_domain="cts.com",
+        ad_groups=[],
+        openid_roles=[],
         avatar=None,
         avatar_preview=None,
         username="Bob",
