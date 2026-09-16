@@ -13,10 +13,6 @@ class UserFromSearch:
         huid: User huid.
         ad_login: User AD login.
         ad_domain: User AD domain.
-        ad_groups: User AD group names. An empty list means that the user has no
-            groups or the bot has no access to them.
-        openid_roles: User OpenID role names. An empty list means that the user
-            has no roles or the bot has no access to them.
         avatar: User avatar (link).
         avatar_preview: User avatar preview (link).
         username: User name.
@@ -38,6 +34,12 @@ class UserFromSearch:
         rts_id: User RTS id.
         created_at: User creation timestamp.
         updated_at: User update timestamp.
+        ad_groups: User AD group names. BotX returns them only when the bot has
+            allow_read_ad_groups enabled. An empty list does not distinguish
+            no group membership from unavailable data.
+        openid_roles: User OpenID role names. BotX returns them only when the bot
+            has allow_read_openid_roles enabled. An empty list does not
+            distinguish no roles from unavailable data.
     """
 
     huid: UUID
@@ -50,8 +52,6 @@ class UserFromSearch:
     emails: list[str]
     other_id: str | None
     user_kind: UserKinds
-    ad_groups: list[str] = field(default_factory=list)
-    openid_roles: list[str] = field(default_factory=list)
     avatar: str | None = None
     avatar_preview: str | None = None
     active: bool | None = None
@@ -66,6 +66,8 @@ class UserFromSearch:
     rts_id: UUID | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    ad_groups: list[str] = field(default_factory=list)
+    openid_roles: list[str] = field(default_factory=list)
 
 
 @dataclass(slots=True)
