@@ -8,8 +8,15 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - name: Assert tag is from master or release-candidate
-        run: git branch -a --contains $(git describe --tags) | grep -E "master|release-candidate"
+        run: |
+          if ! git merge-base --is-ancestor HEAD origin/master &&
+             ! git merge-base --is-ancestor HEAD origin/release-candidate; then
+            echo "Tag must point to a commit on master or release-candidate" >&2
+            exit 1
+          fi
 
       - name: Setup Python
         uses: actions/setup-python@v7
