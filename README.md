@@ -122,20 +122,6 @@ uv run pybotx create widget-flow deployment-approval --project-dir my-bot --kind
 - `src/<package>/domain/` - доменные модели и контракты, включая `domain/ports/`
 - `src/<package>/infrastructure/` - config, repository/adapters, внешние интеграции
 
-**Предупреждение:** Данный проект находится в активной разработке (`0.y.z`) и
-его API может быть изменён при повышении минорной версии.
-
-## Документация по виджетам
-
-Подробное и исчерпывающее руководство по всем виджетам и API раннера:
-
-- `/Users/aleksandrosovskii/PycharmProjects/pybotx_stable/WIDGETS.md`
-
-Демо-бот с примерами всех виджетов:
-
-- `/Users/aleksandrosovskii/PycharmProjects/pybotx_stable/example/README.md`
-
-
 ## Информация о мессенджере eXpress и платформе BotX
 
 Документацию по мессенджеру (включая руководство пользователя и администратора)
