@@ -9,6 +9,15 @@ class UnknownBotAccountError(Exception):
         super().__init__(self.message)
 
 
+class AmbiguousBotAccountError(Exception):
+    def __init__(self, bot_id: UUID) -> None:
+        self.bot_id = bot_id
+        super().__init__(
+            f"More than one bot account matches bot_id: `{bot_id!s}`. "
+            "Use an explicit BotAccountKey."
+        )
+
+
 class BotXMethodCallbackNotFoundError(Exception):
     def __init__(self, sync_id: UUID) -> None:
         self.sync_id = sync_id
