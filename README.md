@@ -212,13 +212,25 @@ read-side контрактом: он не должен выполнять сет
 snapshot, обновляемый приложением после регистрации или через invalidation.
 
 ```python
-from pybotx import Bot, BotAccountKey
+from uuid import UUID
 
-bot = Bot(collectors=[collector], account_provider=registration_account_provider)
+from pybotx import Bot, BotAccountKey, BotAccountProvider, HandlerCollector
+
+collector = HandlerCollector()
+
+
+def create_bot(registration_account_provider: BotAccountProvider) -> Bot:
+    return Bot(
+        collectors=[collector],
+        account_provider=registration_account_provider,
+    )
 
 # В background-задаче CTS выбирается явно.
-with bot.account_scope(BotAccountKey(server_id="cts-001", bot_id=bot_id)):
-    await bot.send_message(bot_id=bot_id, chat_id=chat_id, body="Готово")
+async def send_registration_confirmation(
+    bot: Bot, *, bot_id: UUID, chat_id: UUID
+) -> None:
+    with bot.account_scope(BotAccountKey(server_id="cts-001", bot_id=bot_id)):
+        await bot.send_message(bot_id=bot_id, chat_id=chat_id, body="Готово")
 ```
 
 Входящие команды связываются с `BotAccountKey` provider-ом до вызова handler;
