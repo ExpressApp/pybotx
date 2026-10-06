@@ -1,6 +1,6 @@
 from asyncio import Task
 from collections.abc import AsyncIterable, AsyncIterator, Iterator, Mapping, Sequence
-from contextlib import AsyncExitStack, asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager, contextmanager
 from contextvars import ContextVar, Token
 from datetime import datetime
 from types import SimpleNamespace
@@ -14,6 +14,7 @@ from aiocsv.readers import AsyncDictReader
 from aiofiles.tempfile import NamedTemporaryFile, TemporaryDirectory
 
 from pybotx.async_buffer import AsyncBufferReadable, AsyncBufferWritable
+from pybotx.bot.bot_account_provider import BotAccountProvider
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
 from pybotx.auth import BotXAuthVersion
 from pybotx.bot.callbacks.callback_manager import (
@@ -30,6 +31,7 @@ from pydantic import TypeAdapter
 from pybotx.bot.callbacks.callback_memory_repo import CallbackMemoryRepo
 from pybotx.bot.callbacks.callback_repo_proto import CallbackRepoProto
 from pybotx.bot.contextvars import (
+    bot_account_key_var,
     bot_id_var,
     chat_id_var,
     request_id_var,
@@ -263,7 +265,7 @@ from pybotx.logger import log_incoming_request, logger, pformat_jsonable_obj
 from pybotx.missing import Missing, MissingOptional, Undefined
 from pybotx.models.async_files import File
 from pybotx.models.attachments import IncomingFileAttachment, OutgoingAttachment
-from pybotx.models.bot_account import BotAccountWithSecret
+from pybotx.models.bot_account import BotAccountKey, BotAccountWithSecret
 from pybotx.models.bot_catalog import BotsListItem
 from pybotx.models.call import Call
 from pybotx.models.chats import ChatInfo, ChatLink, ChatListItem
@@ -306,7 +308,8 @@ class Bot:
         self,
         *,
         collectors: Sequence[HandlerCollector],
-        bot_accounts: Sequence[BotAccountWithSecret],
+        bot_accounts: Sequence[BotAccountWithSecret] | None = None,
+        account_provider: BotAccountProvider | None = None,
         middlewares: Sequence[Middleware] | None = None,
         httpx_client: httpx.AsyncClient | None = None,
         httpx_timeout: httpx.Timeout | None = None,
@@ -327,7 +330,11 @@ class Bot:
     ) -> None:
         if not collectors:
             logger.warning("Bot has no connected collectors")
-        if not bot_accounts:
+        if bot_accounts is not None and account_provider is not None:
+            raise ValueError("Pass either `bot_accounts` or `account_provider`, not both")
+        if bot_accounts is None and account_provider is None:
+            logger.warning("Bot has no bot accounts")
+        elif bot_accounts is not None and not bot_accounts:
             logger.warning("Bot has no bot accounts")
 
         middlewares = optional_sequence_to_list(middlewares)
@@ -344,7 +351,8 @@ class Bot:
 
         self._default_callback_timeout = default_callback_timeout
         self._bot_accounts_storage = BotAccountsStorage(
-            list(bot_accounts),
+            bot_accounts,
+            account_provider=account_provider,
             auth_version=auth_version,
             retry_policy=retry_policy,
             retry_request_policy=retry_request_policy,
@@ -444,10 +452,16 @@ class Bot:
         self,
         bot_command: BotCommand,
     ) -> "Task[None]":
-        # raise UnknownBotAccountError if no bot account with this bot_id.
-        self._bot_accounts_storage.ensure_bot_id_exists(bot_command.bot.id)
+        account_key = self._bot_accounts_storage.resolve_incoming_account_key(
+            bot_id=bot_command.bot.id,
+            host=bot_command.bot.host,
+        )
 
-        return self._handler_collector.async_handle_bot_command(self, bot_command)
+        return self._handler_collector.async_handle_bot_command(
+            self,
+            bot_command,
+            account_key=account_key,
+        )
 
     async def sync_execute_raw_smartapp_event(
         self,
@@ -489,11 +503,18 @@ class Bot:
         self,
         smartapp_event: SmartAppEvent,
     ) -> BotAPISyncSmartAppEventResponse:
-        self._bot_accounts_storage.ensure_bot_id_exists(smartapp_event.bot.id)
-        return await self._handler_collector.handle_sync_smartapp_event(
-            self,
-            smartapp_event,
+        account_key = self._bot_accounts_storage.resolve_incoming_account_key(
+            bot_id=smartapp_event.bot.id,
+            host=smartapp_event.bot.host,
         )
+        account_key_token = bot_account_key_var.set(account_key)
+        try:
+            return await self._handler_collector.handle_sync_smartapp_event(
+                self,
+                smartapp_event,
+            )
+        finally:
+            bot_account_key_var.reset(account_key_token)
 
     async def raw_get_status(
         self,
@@ -591,20 +612,38 @@ class Bot:
     def bot_accounts(self) -> Iterator[BotAccountWithSecret]:
         yield from self._bot_accounts_storage.iter_bot_accounts()
 
+    @contextmanager
+    def account_scope(self, account_key: BotAccountKey) -> Iterator[None]:
+        """Bind an explicit CTS identity for an outbound background operation."""
+        self._bot_accounts_storage.ensure_account_key_exists(account_key)
+        account_key_token = bot_account_key_var.set(account_key)
+        try:
+            yield
+        finally:
+            bot_account_key_var.reset(account_key_token)
+
+    def invalidate_account(self, account_key: BotAccountKey) -> None:
+        """Discard cached legacy JWTs after registration lifecycle changes."""
+        self._bot_accounts_storage.invalidate(account_key)
+
     async def fetch_tokens(self) -> None:
         if self._bot_accounts_storage.get_auth_version() != BotXAuthVersion.V1:
             return
         for bot_account in self.bot_accounts:
             try:
-                token = await self.get_token(bot_id=bot_account.id)
+                if bot_account.account_key is None:
+                    token = await self.get_token(bot_id=bot_account.id)
+                    self._bot_accounts_storage.set_token(bot_account.id, token)
+                else:
+                    with self.account_scope(bot_account.account_key):
+                        token = await self.get_token(bot_id=bot_account.id)
+                        self._bot_accounts_storage.set_token(bot_account.id, token)
             except (InvalidBotAccountError, httpx.HTTPError):
                 logger.opt(exception=True).warning(
                     "Can't get token for bot account: "
                     f"host - {bot_account.host}, bot_id - {bot_account.id}",
                 )
                 continue
-
-            self._bot_accounts_storage.set_token(bot_account.id, token)
 
     async def startup(self, *, fetch_tokens: bool = True) -> None:
         if fetch_tokens:

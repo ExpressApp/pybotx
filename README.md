@@ -203,6 +203,32 @@ app: FastAPI = create_fastapi_bot_app(
 - опционально `GET /metrics`
 - healthcheck routes через `setup_healthcheck(...)`
 
+### Динамические account-ы и несколько CTS
+
+Если credentials появляются во время работы процесса, передайте
+`account_provider` вместо `bot_accounts`. Provider является синхронным
+read-side контрактом: он не должен выполнять сетевой или database I/O в
+обработчике команды. Для динамического хранилища используйте локальный
+snapshot, обновляемый приложением после регистрации или через invalidation.
+
+```python
+from pybotx import Bot, BotAccountKey
+
+bot = Bot(collectors=[collector], account_provider=registration_account_provider)
+
+# В background-задаче CTS выбирается явно.
+with bot.account_scope(BotAccountKey(server_id="cts-001", bot_id=bot_id)):
+    await bot.send_message(bot_id=bot_id, chat_id=chat_id, body="Готово")
+```
+
+Входящие команды связываются с `BotAccountKey` provider-ом до вызова handler;
+JWT v1 cache изолирован ключом account-а и его `revision`. Если вызов производится
+вне handler и один `bot_id` зарегистрирован на нескольких CTS, provider обязан
+поднять `AmbiguousBotAccountError`, а не выбрать произвольный credential.
+
+Полный контракт и требования к adapter-у описаны в
+[`docs/dynamic_accounts.md`](docs/dynamic_accounts.md).
+
 Если у вас уже есть свой `FastAPI()` объект, можно не создавать новый app, а
 подключить `pybotx` в существующий:
 

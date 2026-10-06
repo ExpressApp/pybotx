@@ -12,10 +12,20 @@ class BotAccount:
     host: str | None
 
 
+@dataclass(frozen=True, slots=True)
+class BotAccountKey:
+    """Stable account identity for one BotX bot in one CTS."""
+
+    server_id: str
+    bot_id: UUID
+
+
 class BotAccountWithSecret(BaseModel):
     id: UUID
     cts_url: AnyHttpUrl
     secret_key: str
+    account_key: BotAccountKey | None = None
+    revision: int = 1
 
     model_config = ConfigDict(frozen=True)
 
