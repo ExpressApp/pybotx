@@ -547,3 +547,49 @@ async def test__set_raw_botx_method_result__verify_request__not_called(
     # - Assert -
     bot._verify_request.assert_not_called()
     bot._callbacks_manager.set_botx_method_callback_result.assert_awaited()
+
+
+async def test__verify_request__v1_audience_contains_invalid_uuid(
+    bot_account: BotAccountWithSecret,
+    authorization_token_payload_v1: dict[str, Any],
+) -> None:
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+    )
+    authorization_token_payload_v1["aud"] = ["not-a-uuid"]
+
+    token = jwt.encode(
+        payload=authorization_token_payload_v1,
+        key=bot_account.secret_key,
+    )
+
+    async with lifespan_wrapper(built_bot) as bot:
+        with pytest.raises(
+            UnverifiedRequestError,
+            match="Invalid audience parameter was provided.",
+        ):
+            bot._verify_request({"authorization": f"Bearer {token}"})
+
+
+async def test__verify_request__v1_issuer_is_not_string(
+    bot_account: BotAccountWithSecret,
+    authorization_token_payload_v1: dict[str, Any],
+) -> None:
+    built_bot = Bot(
+        collectors=[HandlerCollector()],
+        bot_accounts=[bot_account],
+    )
+    authorization_token_payload_v1["iss"] = 12345
+
+    async with lifespan_wrapper(built_bot) as bot:
+        with pytest.raises(
+            UnverifiedRequestError,
+            match="Invalid issuer",
+        ):
+            bot._verify_request_v1(
+                "token",
+                authorization_token_payload_v1,
+                ["HS256"],
+                None,
+            )

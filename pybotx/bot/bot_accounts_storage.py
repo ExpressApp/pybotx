@@ -60,12 +60,23 @@ class BotAccountsStorage:
             return self._account_provider.get_account(account_key)
         return self._account_provider.get_account_by_bot_id(bot_id)
 
+    def get_bot_account_by_key(
+        self,
+        account_key: BotAccountKey,
+    ) -> BotAccountWithSecret:
+        return self._account_provider.get_account(account_key)
+
     def resolve_incoming_account_key(
         self,
         *,
         bot_id: UUID,
         host: str | None,
     ) -> BotAccountKey:
+        if host is None:
+            current_account_key = self._get_current_account_key(bot_id)
+            if current_account_key is not None:
+                return current_account_key
+
         return self._account_provider.resolve_incoming_account_key(
             bot_id=bot_id,
             host=host,

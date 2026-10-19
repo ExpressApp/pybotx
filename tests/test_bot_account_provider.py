@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import Iterator
+from typing import Any
 from uuid import UUID, uuid4
 
+import jwt
 import pytest
 
 from pybotx import (
@@ -14,10 +16,15 @@ from pybotx import (
     HandlerCollector,
     StaticBotAccountProvider,
     lifespan_wrapper,
+    StatusRecipient,
 )
 from pybotx.bot.bot_accounts_storage import BotAccountsStorage
 from pybotx.bot.contextvars import bot_account_key_var
-from pybotx.bot.exceptions import AmbiguousBotAccountError, UnknownBotAccountError
+from pybotx.bot.exceptions import (
+    AmbiguousBotAccountError,
+    UnknownBotAccountError,
+    UnverifiedRequestError
+)
 from pybotx.models.bot_account import BotAccount
 from pybotx.models.chats import Chat
 from pybotx.models.enums import ChatTypes
@@ -65,6 +72,40 @@ class SnapshotAccountProvider:
         yield from self._accounts.values()
 
 
+class TrustedIssuerFallbackProvider:
+    def __init__(
+        self,
+        account: BotAccountWithSecret,
+        *,
+        fail_fallback: bool = False,
+    ) -> None:
+        self._account = account
+        self._fail_fallback = fail_fallback
+
+    def get_account(self, key: BotAccountKey) -> BotAccountWithSecret:
+        return self._account
+
+    def get_account_by_bot_id(self, bot_id: UUID) -> BotAccountWithSecret:
+        if self._fail_fallback:
+            raise UnknownBotAccountError(bot_id)
+
+        if bot_id != self._account.id:
+            raise UnknownBotAccountError(bot_id)
+
+        return self._account
+
+    def resolve_incoming_account_key(
+        self,
+        *,
+        bot_id: UUID,
+        host: str | None,
+    ) -> BotAccountKey:
+        raise UnknownBotAccountError(bot_id)
+
+    def iter_bot_accounts(self) -> Iterator[BotAccountWithSecret]:
+        yield self._account
+
+
 @pytest.fixture
 def dynamic_accounts(bot_id: UUID) -> tuple[BotAccountWithSecret, BotAccountWithSecret]:
     first_key = BotAccountKey(server_id="cts-a", bot_id=bot_id)
@@ -85,6 +126,70 @@ def dynamic_accounts(bot_id: UUID) -> tuple[BotAccountWithSecret, BotAccountWith
             revision=2,
         ),
     )
+
+
+def _build_authorization_header(
+    account: BotAccountWithSecret,
+    version: str,
+    *,
+    issuer: str | None = None,
+) -> dict[str, str]:
+    if version == "v1":
+        payload: dict[str, Any] = {
+            "aud": [str(account.id)],
+            "iss": issuer or account.host,
+        }
+    else:
+        payload = {
+            "aud": account.host,
+            "iss": str(account.id),
+            "version": 2,
+        }
+
+    token = jwt.encode(
+        payload=payload,
+        key=account.secret_key,
+        algorithm="HS256",
+    )
+
+    return {"authorization": f"Bearer {token}"}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("version", ("v1", "v2"))
+async def test__verify_request__selects_account_for_duplicate_bot_id(
+    version: str,
+    dynamic_accounts: tuple[BotAccountWithSecret, BotAccountWithSecret],
+    authorization_token_payload: dict[str, Any],
+    authorization_token_payload_v1: dict[str, Any],
+) -> None:
+    bot = Bot(
+        collectors=[HandlerCollector()],
+        account_provider=SnapshotAccountProvider(list(dynamic_accounts)),
+    )
+
+    try:
+        for account in dynamic_accounts:
+            if version == "v1":
+                payload = {
+                    **authorization_token_payload_v1,
+                    "iss": account.host,
+                    "aud": [str(account.id)],
+                }
+            else:
+                payload = {
+                    **authorization_token_payload,
+                    "iss": str(account.id),
+                    "aud": account.host,
+                }
+
+            token = jwt.encode(payload, account.secret_key, algorithm="HS256")
+            assert (
+                bot._verify_request({"authorization": f"Bearer {token}"})
+                == account.account_key
+            )
+    finally:
+        await bot.shutdown()
 
 
 def test__accounts_storage__requires_explicit_context_for_ambiguous_bot_id(
@@ -244,6 +349,127 @@ async def test__bot__resolves_each_inbound_command_to_its_cts_context(
     ]
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("version", ("v1", "v2"))
+@pytest.mark.parametrize("account_index", (0, 1))
+async def test__bot__raw_command_verification_resolves_duplicate_bot_id(
+    version: str,
+    account_index: int,
+    dynamic_accounts: tuple[BotAccountWithSecret, BotAccountWithSecret],
+    api_incoming_message_factory: Any,
+) -> None:
+    account = dynamic_accounts[account_index]
+    observed_urls: list[str] = []
+    collector = HandlerCollector()
+
+    @collector.command("/where", description="Resolve current CTS")
+    async def where(message: IncomingMessage, bot: Bot) -> None:
+        observed_urls.append(
+            bot._bot_accounts_storage.get_cts_url(message.bot.id),
+        )
+
+    bot = Bot(
+        collectors=[collector],
+        account_provider=SnapshotAccountProvider(list(dynamic_accounts)),
+    )
+
+    payload = api_incoming_message_factory(
+        bot_id=account.id,
+        host=account.host,
+        body="/where",
+    )
+    headers = _build_authorization_header(account, version)
+
+    async with lifespan_wrapper(bot):
+        await bot.dispatch_raw_command(
+            payload,
+            request_headers=headers,
+        )
+
+    assert observed_urls == [str(account.cts_url)]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("version", ("v1", "v2"))
+@pytest.mark.parametrize("account_index", (0, 1))
+async def test__bot__raw_status_uses_verified_account_context(
+    version: str,
+    account_index: int,
+    dynamic_accounts: tuple[BotAccountWithSecret, BotAccountWithSecret],
+) -> None:
+    account = dynamic_accounts[account_index]
+    observed_urls: list[str] = []
+    collector = HandlerCollector()
+
+    async def visible(
+        status_recipient: StatusRecipient,
+        bot: Bot,
+    ) -> bool:
+        observed_urls.append(
+            bot._bot_accounts_storage.get_cts_url(status_recipient.bot_id),
+        )
+        return True
+
+    @collector.command(
+        "/where",
+        visible=visible,
+        description="Resolve current CTS",
+    )
+    async def where(message: IncomingMessage, bot: Bot) -> None:
+        pass
+
+    bot = Bot(
+        collectors=[collector],
+        account_provider=SnapshotAccountProvider(list(dynamic_accounts)),
+    )
+
+    query = {
+        "bot_id": str(account.id),
+        "chat_type": "chat",
+        "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
+    }
+    headers = _build_authorization_header(account, version)
+
+    async with lifespan_wrapper(bot):
+        response = await bot.raw_get_status(
+            query,
+            request_headers=headers,
+        )
+
+    assert response["status"] == "ok"
+    assert observed_urls == [str(account.cts_url)]
+
+    with pytest.raises(LookupError):
+        bot_account_key_var.get()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("version", ("v1", "v2"))
+@pytest.mark.parametrize("account_index", (0, 1))
+async def test__bot__sync_smartapp_uses_verified_account_context(
+    version: str,
+    account_index: int,
+    dynamic_accounts: tuple[BotAccountWithSecret, BotAccountWithSecret],
+    api_sync_smartapp_event_factory: Any,
+    collector_with_sync_smartapp_event_handler: HandlerCollector,
+) -> None:
+    account = dynamic_accounts[account_index]
+
+    bot = Bot(
+        collectors=[collector_with_sync_smartapp_event_handler],
+        account_provider=SnapshotAccountProvider(list(dynamic_accounts)),
+    )
+
+    payload = api_sync_smartapp_event_factory(bot_id=account.id)
+    headers = _build_authorization_header(account, version)
+
+    async with lifespan_wrapper(bot):
+        await bot.sync_execute_raw_smartapp_event(
+            payload,
+            request_headers=headers,
+        )
+
+
 def test__bot__account_scope_supports_background_operation_context(
     bot_id: UUID,
     dynamic_accounts: tuple[BotAccountWithSecret, BotAccountWithSecret],
@@ -300,3 +526,63 @@ async def test__bot__fetch_tokens_binds_each_dynamic_account_scope(
             assert bot._bot_accounts_storage.get_token_or_none(bot_id) == "token-2"
     finally:
         await bot.shutdown()
+
+
+@pytest.mark.asyncio
+async def test__verify_request__trusted_issuer_fallback_uses_unique_account(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    issuer = "trusted.example.com"
+    provider = TrustedIssuerFallbackProvider(bot_account)
+
+    bot = Bot(
+        collectors=[HandlerCollector()],
+        account_provider=provider,
+    )
+    headers = _build_authorization_header(
+        bot_account,
+        "v1",
+        issuer=issuer,
+    )
+
+    async with lifespan_wrapper(bot):
+        account_key = bot._verify_request(
+            headers,
+            trusted_issuers={issuer},
+        )
+
+    assert account_key == BotAccountKey(
+        server_id=bot_account.host,
+        bot_id=bot_account.id,
+    )
+
+
+@pytest.mark.asyncio
+async def test__verify_request__trusted_issuer_fallback_rejects_unknown_account(
+    bot_account: BotAccountWithSecret,
+) -> None:
+    issuer = "trusted.example.com"
+    provider = TrustedIssuerFallbackProvider(
+        bot_account,
+        fail_fallback=True,
+    )
+
+    bot = Bot(
+        collectors=[HandlerCollector()],
+        account_provider=provider,
+    )
+    headers = _build_authorization_header(
+        bot_account,
+        "v1",
+        issuer=issuer,
+    )
+
+    async with lifespan_wrapper(bot):
+        with pytest.raises(
+            UnverifiedRequestError,
+            match=f"No bot account with bot_id: `{bot_account.id}`",
+        ):
+            bot._verify_request(
+                headers,
+                trusted_issuers={issuer},
+            )

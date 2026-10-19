@@ -38,6 +38,7 @@ from pybotx.bot.contextvars import (
     trace_id_var,
 )
 from pybotx.bot.exceptions import (
+    AmbiguousBotAccountError,
     AnswerDestinationLookupError,
     RequestHeadersNotProvidedError,
     UnknownBotAccountError,
@@ -409,22 +410,31 @@ class Bot:
             if logging_command:
                 log_incoming_request(raw_bot_command, message="Got command: ")
 
+            account_key = None
             if verify_request:
-                self._verify_request(request_headers, trusted_issuers=trusted_issuers)
+                account_key = self._verify_request(
+                    request_headers,
+                    trusted_issuers=trusted_issuers,
+                )
 
-            try:
-                command_type = raw_bot_command.get("command", {}).get("command_type")
-                if command_type == BotAPICommandTypes.USER:
-                    bot_api_command = BotAPIIncomingMessage.model_validate(raw_bot_command)
-                else:
-                    bot_api_command = TypeAdapter(BotAPISystemEvent).validate_python(
-                        raw_bot_command
+            with self._verified_account_scope(account_key):
+                try:
+                    command_type = raw_bot_command.get("command", {}).get(
+                        "command_type"
                     )
-            except ValidationError as validation_exc:
-                raise ValueError("Bot command validation error") from validation_exc
+                    if command_type == BotAPICommandTypes.USER:
+                        bot_api_command = BotAPIIncomingMessage.model_validate(
+                            raw_bot_command
+                        )
+                    else:
+                        bot_api_command = TypeAdapter(
+                            BotAPISystemEvent
+                        ).validate_python(raw_bot_command)
+                except ValidationError as validation_exc:
+                    raise ValueError("Bot command validation error") from validation_exc
 
-            bot_command = bot_api_command.to_domain(raw_bot_command)
-            return self.async_execute_bot_command(bot_command)
+                bot_command = bot_api_command.to_domain(raw_bot_command)
+                return self.async_execute_bot_command(bot_command)
         finally:
             self._reset_contextvars(context_tokens)
 
@@ -482,20 +492,25 @@ class Bot:
                     message="Got sync smartapp event: ",
                 )
 
+            account_key = None
             if verify_request:
-                self._verify_request(request_headers, trusted_issuers=trusted_issuers)
-
-            try:
-                bot_api_smartapp_event = BotAPISyncSmartAppEvent.model_validate(
-                    raw_smartapp_event
+                account_key = self._verify_request(
+                    request_headers,
+                    trusted_issuers=trusted_issuers,
                 )
-            except ValidationError as validation_exc:
-                raise ValueError(
-                    "Sync smartapp event validation error",
-                ) from validation_exc
 
-            smartapp_event = bot_api_smartapp_event.to_domain(raw_smartapp_event)
-            return await self.sync_execute_smartapp_event(smartapp_event)
+            with self._verified_account_scope(account_key):
+                try:
+                    bot_api_smartapp_event = BotAPISyncSmartAppEvent.model_validate(
+                        raw_smartapp_event
+                    )
+                except ValidationError as validation_exc:
+                    raise ValueError(
+                        "Sync smartapp event validation error",
+                    ) from validation_exc
+
+                smartapp_event = bot_api_smartapp_event.to_domain(raw_smartapp_event)
+                return await self.sync_execute_smartapp_event(smartapp_event)
         finally:
             self._reset_contextvars(context_tokens)
 
@@ -533,20 +548,25 @@ class Bot:
                 status=lambda: pformat_jsonable_obj(query_params),
             )
 
+            account_key = None
             if verify_request:
-                self._verify_request(request_headers, trusted_issuers=trusted_issuers)
-
-            try:
-                bot_api_status_recipient = BotAPIStatusRecipient.model_validate(
-                    query_params
+                account_key = self._verify_request(
+                    request_headers,
+                    trusted_issuers=trusted_issuers,
                 )
-            except ValidationError as exc:
-                raise ValueError("Status request validation error") from exc
 
-            status_recipient = bot_api_status_recipient.to_domain()
+            with self._verified_account_scope(account_key):
+                try:
+                    bot_api_status_recipient = BotAPIStatusRecipient.model_validate(
+                        query_params
+                    )
+                except ValidationError as exc:
+                    raise ValueError("Status request validation error") from exc
 
-            bot_menu = await self.get_status(status_recipient)
-            return build_bot_status_response(bot_menu)
+                status_recipient = bot_api_status_recipient.to_domain()
+
+                bot_menu = await self.get_status(status_recipient)
+                return build_bot_status_response(bot_menu)
         finally:
             self._reset_contextvars(context_tokens)
 
@@ -570,16 +590,20 @@ class Bot:
         try:
             logger.debug("Got callback: {callback}", callback=raw_botx_method_result)
 
+            account_key = None
             if verify_request:
-                self._verify_request(request_headers, trusted_issuers=trusted_issuers)
+                account_key = self._verify_request(
+                    request_headers,
+                    trusted_issuers=trusted_issuers,
+                )
+            with self._verified_account_scope(account_key):
+                callback: BotXMethodCallback = TypeAdapter(
+                    BotXMethodCallback
+                ).validate_python(
+                    raw_botx_method_result,
+                )
 
-            callback: BotXMethodCallback = TypeAdapter(
-                BotXMethodCallback
-            ).validate_python(
-                raw_botx_method_result,
-            )
-
-            await self._callbacks_manager.set_botx_method_callback_result(callback)
+                await self._callbacks_manager.set_botx_method_callback_result(callback)
         finally:
             self._reset_contextvars(context_tokens)
 
@@ -616,6 +640,20 @@ class Bot:
     def account_scope(self, account_key: BotAccountKey) -> Iterator[None]:
         """Bind an explicit CTS identity for an outbound background operation."""
         self._bot_accounts_storage.ensure_account_key_exists(account_key)
+        account_key_token = bot_account_key_var.set(account_key)
+        try:
+            yield
+        finally:
+            bot_account_key_var.reset(account_key_token)
+
+    @contextmanager
+    def _verified_account_scope(
+        self, account_key: BotAccountKey | None
+    ) -> Iterator[None]:
+        if account_key is None:
+            yield
+            return
+
         account_key_token = bot_account_key_var.set(account_key)
         try:
             yield
@@ -2611,7 +2649,9 @@ class Bot:
             parts = traceparent.split("-")
             if len(parts) >= 4:
                 trace_id = parts[1].lower()
-                if len(trace_id) == 32 and all(char in "0123456789abcdef" for char in trace_id):
+                if len(trace_id) == 32 and all(
+                    char in "0123456789abcdef" for char in trace_id
+                ):
                     return trace_id
 
         b3 = self._get_header_value(request_headers, "b3")
@@ -2678,7 +2718,7 @@ class Bot:
         headers: Mapping[str, str] | None,
         *,
         trusted_issuers: set[str] | None = None,
-    ) -> None:
+    ) -> BotAccountKey:
         if headers is None:
             raise RequestHeadersNotProvidedError
 
@@ -2700,14 +2740,13 @@ class Bot:
         except jwt.DecodeError as decode_exc:
             raise UnverifiedRequestError(decode_exc.args[0]) from decode_exc
         if self._is_v2_payload(token_payload):
-            self._verify_request_v2(token, token_payload, decode_algorithms)
-        else:
-            self._verify_request_v1(
-                token,
-                token_payload,
-                decode_algorithms,
-                trusted_issuers,
-            )
+            return self._verify_request_v2(token, token_payload, decode_algorithms)
+        return self._verify_request_v1(
+            token,
+            token_payload,
+            decode_algorithms,
+            trusted_issuers,
+        )
 
     @staticmethod
     def _is_v2_payload(token_payload: Mapping[str, Any]) -> bool:
@@ -2731,7 +2770,7 @@ class Bot:
         token: str,
         token_payload: Mapping[str, Any],
         decode_algorithms: list[str],
-    ) -> None:
+    ) -> BotAccountKey:
         issuer = token_payload.get("iss")
         if issuer is None:
             raise UnverifiedRequestError('Token is missing the "iss" claim')
@@ -2743,16 +2782,23 @@ class Bot:
         except (TypeError, ValueError) as exc:
             raise UnverifiedRequestError("Invalid issuer") from exc
 
-        try:
-            bot_account = self._bot_accounts_storage.get_bot_account(bot_id)
-        except UnknownBotAccountError as unknown_bot_exc:
-            raise UnverifiedRequestError(unknown_bot_exc.args[0]) from unknown_bot_exc
-
         audience = token_payload.get("aud")
         if not audience or not isinstance(audience, str):
             raise UnverifiedRequestError("Invalid audience parameter was provided.")
+
+        try:
+            account_key = self._bot_accounts_storage.resolve_incoming_account_key(
+                bot_id=bot_id,
+                host=audience,
+            )
+            bot_account = self._bot_accounts_storage.get_bot_account_by_key(account_key)
+        except (AmbiguousBotAccountError, UnknownBotAccountError) as exp:
+            raise UnverifiedRequestError(str(exp)) from exp
+
         if audience != bot_account.host:
-            raise UnverifiedRequestError("Invalid audience parameter was provided.")
+            raise UnverifiedRequestError(
+                "Invalid audience parameter was provided.",
+            )
 
         try:
             jwt.decode(
@@ -2766,13 +2812,15 @@ class Bot:
         except jwt.InvalidTokenError as exc:
             raise UnverifiedRequestError(exc.args[0]) from exc
 
+        return account_key
+
     def _verify_request_v1(
         self,
         token: str,
         token_payload: Mapping[str, Any],
         decode_algorithms: list[str],
         trusted_issuers: set[str] | None,
-    ) -> None:
+    ) -> BotAccountKey:
         audience = token_payload.get("aud")
         if (
             not audience
@@ -2783,9 +2831,40 @@ class Bot:
             raise UnverifiedRequestError("Invalid audience parameter was provided.")
 
         try:
-            bot_account = self._bot_accounts_storage.get_bot_account(UUID(audience[-1]))
-        except UnknownBotAccountError as unknown_bot_exc:
-            raise UnverifiedRequestError(unknown_bot_exc.args[0]) from unknown_bot_exc
+            bot_id = UUID(audience[-1])
+        except (TypeError, ValueError) as exc:
+            raise UnverifiedRequestError(
+                "Invalid audience parameter was provided.",
+            ) from exc
+
+        issuer = token_payload.get("iss")
+        if issuer is None:
+            raise UnverifiedRequestError('Token is missing the "iss" claim')
+
+        if not isinstance(issuer, str):
+            raise UnverifiedRequestError("Invalid issuer")
+
+        try:
+            account_key = self._bot_accounts_storage.resolve_incoming_account_key(
+                bot_id=bot_id,
+                host=issuer,
+            )
+            bot_account = self._bot_accounts_storage.get_bot_account_by_key(
+                account_key,
+            )
+        except (UnknownBotAccountError, AmbiguousBotAccountError) as exc:
+            if not trusted_issuers or issuer not in trusted_issuers:
+                raise UnverifiedRequestError(str(exc)) from exc
+
+            try:
+                bot_account = self._bot_accounts_storage.get_bot_account(bot_id)
+            except (UnknownBotAccountError, AmbiguousBotAccountError) as fallback_exc:
+                raise UnverifiedRequestError(str(fallback_exc)) from fallback_exc
+
+            account_key = bot_account.account_key or BotAccountKey(
+                server_id=bot_account.host,
+                bot_id=bot_id,
+            )
 
         try:
             jwt.decode(
@@ -2802,13 +2881,11 @@ class Bot:
         except jwt.InvalidTokenError as exc:
             raise UnverifiedRequestError(exc.args[0]) from exc
 
-        issuer = token_payload.get("iss")
-        if issuer is None:
-            raise UnverifiedRequestError('Token is missing the "iss" claim')
-
         if issuer != bot_account.host:
             if not trusted_issuers or issuer not in trusted_issuers:
                 raise UnverifiedRequestError("Invalid issuer")
+
+        return account_key
 
     @staticmethod
     def _build_main_collector(
