@@ -9,6 +9,7 @@ import pytest
 
 from pybotx import (
     Bot,
+    BotAccountKey,
     BotAccountWithSecret,
     BotMenu,
     HandlerCollector,
@@ -302,10 +303,15 @@ async def test__verify_request__trusted_issuers_have_token_issuer(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot._verify_request(
+        account_key = bot._verify_request(
             {"authorization": f"Bearer {token}"},
             trusted_issuers={token_issuer},
         )
+
+    assert account_key == BotAccountKey(
+        server_id=bot_account.host,
+        bot_id=bot_account.id,
+    )
 
 
 async def test__verify_request__trusted_issuers_have_not_token_issuer(
@@ -391,6 +397,7 @@ async def test__verify_request__without_headers(
 async def test__async_execute_raw_bot_command__verify_request__called(
     api_incoming_message_factory: Callable[..., dict[str, Any]],
     bot_account: BotAccountWithSecret,
+    authorization_header_v1: dict[str, str],
 ) -> None:
     # - Arrange -
     collector = HandlerCollector()
@@ -399,11 +406,11 @@ async def test__async_execute_raw_bot_command__verify_request__called(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        bot._verify_request = Mock()  # type: ignore
+        bot._verify_request = Mock(wraps=bot._verify_request)  # type: ignore
         bot.async_execute_raw_bot_command(
             payload,
             verify_request=True,
-            request_headers={},
+            request_headers=authorization_header_v1,
         )
 
     # - Assert -

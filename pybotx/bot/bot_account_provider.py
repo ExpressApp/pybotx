@@ -58,7 +58,7 @@ class StaticBotAccountProvider:
         host: str | None,
     ) -> BotAccountKey:
         account = self.get_account_by_bot_id(bot_id)
-        return BotAccountKey(server_id=host or account.host, bot_id=bot_id)
+        return BotAccountKey(server_id=account.host, bot_id=bot_id)
 
     def iter_bot_accounts(self) -> Iterator[BotAccountWithSecret]:
         yield from self._bot_accounts
