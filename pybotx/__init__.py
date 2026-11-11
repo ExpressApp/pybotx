@@ -15,6 +15,10 @@ from pybotx.bot.api.responses.unverified_request import (
 )
 from pybotx.auth import BotXAuthVersion
 from pybotx.bot.bot import Bot
+from pybotx.bot.bot_account_provider import (
+    BotAccountProvider,
+    StaticBotAccountProvider,
+)
 from pybotx.bot.command_processing import (
     BotCommandOverloadAction,
     BotCommandOverloadStrategy,
@@ -152,7 +156,11 @@ from pybotx.models.attachments import (
     AttachmentVoice,
     OutgoingAttachment,
 )
-from pybotx.models.bot_account import BotAccount, BotAccountWithSecret
+from pybotx.models.bot_account import (
+    BotAccount,
+    BotAccountKey,
+    BotAccountWithSecret,
+)
 from pybotx.models.bot_catalog import BotsListItem
 from pybotx.models.bot_sender import BotSender
 from pybotx.models.chats import (
@@ -242,6 +250,8 @@ __all__ = (
     "AttachmentVideo",
     "AttachmentVoice",
     "Bot",
+    "BotAccountKey",
+    "BotAccountProvider",
     "BotAPIBotDisabledErrorData",
     "BotAPIBotDisabledResponse",
     "BotAPIMethodFailedCallback",
@@ -385,6 +395,7 @@ __all__ = (
     "SmartappManifestWebLayoutChoices",
     "SmartappManifestWebParams",
     "StatusRecipient",
+    "StaticBotAccountProvider",
     "StealthModeDisabledError",
     "Sticker",
     "StickerPack",
