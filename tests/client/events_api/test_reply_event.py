@@ -24,6 +24,8 @@ pytestmark = [
     pytest.mark.usefixtures("respx_mock"),
 ]
 
+REPLY_SYNC_ID = UUID("cd41d98a-f8a6-5ee8-b348-dff8c77229b2")
+
 
 async def test__reply_message__minimal_filled_reply_succeed(
     respx_mock: MockRouter,
@@ -33,7 +35,7 @@ async def test__reply_message__minimal_filled_reply_succeed(
 ) -> None:
     # - Arrange -
     endpoint = respx_mock.post(
-        f"https://{host}/api/v3/botx/events/reply_event",
+        f"https://{host}/api/v4/botx/events/reply_event",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
             "source_sync_id": "8ba66c5b-40bf-5c77-911d-519cb4e382e9",
@@ -48,7 +50,7 @@ async def test__reply_message__minimal_filled_reply_succeed(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": "bot_reply_pushed",
+                "result": {"sync_id": str(REPLY_SYNC_ID)},
             },
         ),
     )
@@ -57,7 +59,7 @@ async def test__reply_message__minimal_filled_reply_succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        await bot.reply_message(
+        reply_sync_id = await bot.reply_message(
             bot_id=bot_id,
             sync_id=UUID("8ba66c5b-40bf-5c77-911d-519cb4e382e9"),
             body="Replied",
@@ -65,6 +67,68 @@ async def test__reply_message__minimal_filled_reply_succeed(
 
     # - Assert -
     assert endpoint.called
+    assert reply_sync_id == REPLY_SYNC_ID
+
+
+@pytest.mark.parametrize("use_message_object", [False, True])
+async def test__reply__v3_returns_none(
+    respx_mock: MockRouter,
+    host: str,
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+    use_message_object: bool,
+) -> None:
+    source_sync_id = UUID("8ba66c5b-40bf-5c77-911d-519cb4e382e9")
+    endpoint = respx_mock.post(
+        f"https://{host}/api/v3/botx/events/reply_event",
+        headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
+        json={
+            "source_sync_id": str(source_sync_id),
+            "reply": {"status": "ok", "body": "Replied"},
+            "opts": {"raw_mentions": True},
+        },
+    ).mock(
+        return_value=httpx.Response(
+            HTTPStatus.ACCEPTED,
+            json={"status": "ok", "result": "bot_reply_pushed"},
+        ),
+    )
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    async with lifespan_wrapper(built_bot) as bot:
+        if use_message_object:
+            message = ReplyMessage(
+                bot_id=bot_id, sync_id=source_sync_id, body="Replied"
+            )
+            reply_sync_id = await bot.reply(message=message, api_version=3)
+        else:
+            reply_sync_id = await bot.reply_message(
+                bot_id=bot_id,
+                sync_id=source_sync_id,
+                body="Replied",
+                api_version=3,
+            )
+
+    assert endpoint.call_count == 1
+    assert reply_sync_id is None
+
+
+@pytest.mark.parametrize("api_version", [5, 3.0])
+async def test__reply_message__unsupported_api_version(
+    bot_id: UUID,
+    bot_account: BotAccountWithSecret,
+    api_version: int | float,
+) -> None:
+    built_bot = Bot(collectors=[HandlerCollector()], bot_accounts=[bot_account])
+
+    async with lifespan_wrapper(built_bot) as bot:
+        with pytest.raises(ValueError, match="Unsupported reply event API version"):
+            await bot.reply_message(
+                bot_id=bot_id,
+                sync_id=UUID("8ba66c5b-40bf-5c77-911d-519cb4e382e9"),
+                body="Replied",
+                api_version=api_version,  # type: ignore[arg-type]
+            )
 
 
 async def test__reply_message__maximum_filled_reply_succeed(
@@ -81,7 +145,7 @@ async def test__reply_message__maximum_filled_reply_succeed(
     )
 
     endpoint = respx_mock.post(
-        f"https://{host}/api/v3/botx/events/reply_event",
+        f"https://{host}/api/v4/botx/events/reply_event",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
             "source_sync_id": "8ba66c5b-40bf-5c77-911d-519cb4e382e9",
@@ -138,7 +202,7 @@ async def test__reply_message__maximum_filled_reply_succeed(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": "bot_reply_pushed",
+                "result": {"sync_id": str(REPLY_SYNC_ID)},
             },
         ),
     )
@@ -159,7 +223,7 @@ async def test__reply_message__maximum_filled_reply_succeed(
 
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        await bot.reply_message(
+        reply_sync_id = await bot.reply_message(
             bot_id=bot_id,
             sync_id=UUID("8ba66c5b-40bf-5c77-911d-519cb4e382e9"),
             body=f"{MentionBuilder.user(UUID('8f3abcc8-ba00-4c89-88e0-b786beb8ec24'))}!",
@@ -176,6 +240,7 @@ async def test__reply_message__maximum_filled_reply_succeed(
 
     # - Assert -
     assert endpoint.called
+    assert reply_sync_id == REPLY_SYNC_ID
 
 
 async def test__reply__succeed(
@@ -191,7 +256,7 @@ async def test__reply__succeed(
         lambda: UUID("f3e176d5-ff46-4b18-b260-25008338c06e"),
     )
     endpoint = respx_mock.post(
-        f"https://{host}/api/v3/botx/events/reply_event",
+        f"https://{host}/api/v4/botx/events/reply_event",
         headers={"Authorization": "Bearer token", "Content-Type": "application/json"},
         json={
             "source_sync_id": "8ba66c5b-40bf-5c77-911d-519cb4e382e9",
@@ -248,7 +313,7 @@ async def test__reply__succeed(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": "bot_reply_pushed",
+                "result": {"sync_id": str(REPLY_SYNC_ID)},
             },
         ),
     )
@@ -283,7 +348,8 @@ async def test__reply__succeed(
     )
     # - Act -
     async with lifespan_wrapper(built_bot) as bot:
-        await bot.reply(message=message)
+        reply_sync_id = await bot.reply(message=message)
 
     # - Assert -
     assert endpoint.called
+    assert reply_sync_id == REPLY_SYNC_ID

@@ -15,6 +15,7 @@ from pybotx.bot.command_processing import (
     BotCommandProcessingConfig,
 )
 from pybotx.bot.contextvars import (
+    bot_account_key_var,
     bot_id_var,
     bot_var,
     chat_id_var,
@@ -48,6 +49,7 @@ from pybotx.client.smartapps_api.exceptions import SyncSmartAppEventHandlerNotFo
 from pybotx.converters import optional_sequence_to_list
 from pybotx.logger import logger
 from pybotx.models.commands import BotCommand, SystemEvent
+from pybotx.models.bot_account import BotAccountKey
 from pybotx.models.message.incoming_message import IncomingMessage
 from pybotx.models.status import BotMenu, StatusRecipient
 from pybotx.models.sync_smartapp_event import BotAPISyncSmartAppEventResponse
@@ -86,9 +88,17 @@ class _QueuedBotCommand:
     request_id: str | None
     trace_id: str | None
     ingress_metadata: IngressCommandMetadata
+    account_key: BotAccountKey | None = None
 
     async def execute(self, collector: "HandlerCollector") -> None:
-        await collector.handle_bot_command(self.bot_command, self.bot)
+        account_key_token = None
+        if self.account_key is not None:
+            account_key_token = bot_account_key_var.set(self.account_key)
+        try:
+            await collector.handle_bot_command(self.bot_command, self.bot)
+        finally:
+            if account_key_token is not None:
+                bot_account_key_var.reset(account_key_token)
 
 
 class HandlerCollector:
@@ -141,6 +151,8 @@ class HandlerCollector:
         self,
         bot: "Bot",
         bot_command: BotCommand,
+        *,
+        account_key: BotAccountKey | None = None,
     ) -> "asyncio.Task[None]":
         ingress_metadata = self._build_ingress_command_metadata(bot_command)
         request_id = self._get_optional_context_value(request_id_var)
@@ -155,6 +167,7 @@ class HandlerCollector:
             request_id=request_id,
             trace_id=trace_id,
             ingress_metadata=ingress_metadata,
+            account_key=account_key,
         )
         self._enqueue_or_reject(queued_command)
 

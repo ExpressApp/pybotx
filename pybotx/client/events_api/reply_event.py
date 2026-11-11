@@ -100,13 +100,30 @@ class BotXAPIReplyEventRequestPayload(UnverifiedPayloadBaseModel):
         )
 
 
-class BotXAPIReplyEventResponsePayload(VerifiedPayloadBaseModel):
+class BotXAPIReplyEventV3ResponsePayload(VerifiedPayloadBaseModel):
     status: Literal["ok"]
 
 
+class BotXAPIReplyEventResult(VerifiedPayloadBaseModel):
+    sync_id: UUID
+
+
+class BotXAPIReplyEventResponsePayload(VerifiedPayloadBaseModel):
+    status: Literal["ok"]
+    result: BotXAPIReplyEventResult
+
+
 class ReplyEventMethod(AuthorizedBotXMethod):
-    async def execute(self, payload: BotXAPIReplyEventRequestPayload) -> None:
-        path = "/api/v3/botx/events/reply_event"
+    async def execute(
+        self,
+        payload: BotXAPIReplyEventRequestPayload,
+        *,
+        api_version: Literal[3, 4] = 4,
+    ) -> UUID | None:
+        if not isinstance(api_version, int) or api_version not in (3, 4):
+            raise ValueError(f"Unsupported reply event API version: {api_version}")
+
+        path = f"/api/v{api_version}/botx/events/reply_event"
 
         response = await self._botx_method_call(
             "POST",
@@ -114,7 +131,15 @@ class ReplyEventMethod(AuthorizedBotXMethod):
             json=payload.jsonable_dict(),
         )
 
-        self._verify_and_extract_api_model(
+        if api_version == 3:
+            self._verify_and_extract_api_model(
+                BotXAPIReplyEventV3ResponsePayload,
+                response,
+            )
+            return None
+
+        api_model = self._verify_and_extract_api_model(
             BotXAPIReplyEventResponsePayload,
             response,
         )
+        return api_model.result.sync_id
