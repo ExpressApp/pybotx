@@ -1,12 +1,13 @@
 [project]
 name = "pybotx"
-version = "0.77.1"
+version = "0.77.2"
 description = "A python library for interacting with eXpress BotX API"
 authors = [
-    { name = "Sidnev Nikolay", email = "nsidnev@ccsteam.ru" },
-    { name = "Maxim Gorbachev", email = "mgorbachev@ccsteam.ru" },
-    { name = "Alexander Samoylenko", email = "alexandr.samojlenko@ccsteam.ru" },
-    { name = "Arseniy Zhiltsov", email = "arseniy.zhiltsov@ccsteam.ru" },
+    { name = "Sidnev Nikolay" },
+    { name = "Maxim Gorbachev" },
+    { name = "Alexander Samoylenko" },
+    { name = "Arseniy Zhiltsov" },
+    { name = "Aleksandr Osovskii" },
 ]
 readme = "README.md"
 requires-python = ">=3.10,<4.0"
